@@ -1,0 +1,8 @@
+*.iml
+.idea
+.DS_Store
+node_modules
+settings.production.json
+.vscode
+package-lock.json
+app/.meteor/local

@@ -1,0 +1,48 @@
+.landing-background{
+  background: url('images/UHber-landing.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+}
+.signUpBackground{
+  background: url('images/signUpBackground.png') no-repeat center center fixed;
+  background-size: cover;
+}
+.listBackground{
+  background: url('images/signUpBackground.png') no-repeat center center fixed;
+  background-size: cover;
+}
+.sign-in-background {
+  background: url('images/hawaii-beach.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.forgot-background {
+  background: url('images/hawaii.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.forgot-background .ui.centered.container.grid .column {
+  margin: 6.5rem 0;
+}
+
+.forgot-text {
+  display: table;
+  position: absolute;
+  width: 90%;
+  height: 100%;
+  text-align: center;
+}
+
+.forgot-text span {
+  display: table-cell;
+}
+
+.login-form {
+  margin: 5rem 0;
+}
+
+.submit-button {
+  text-align: center;
+}
+
+
