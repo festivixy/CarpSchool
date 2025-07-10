@@ -18,13 +18,11 @@ Meteor.methods({
   async 'rides.update'(rideId, updateData) {
     check(rideId, String);
     check(updateData, {
-      rideName: String,
-      rideDate: String,
-      rideTime: String,
-      rideLocation: String,
-      rideDestination: String,
-      rideSeats: String,
-      ridePrice: String
+      driver: String,
+      rider: String,
+      origin: String,
+      destination: String,
+      date: String
     });
     
     // Check if user is admin
@@ -33,7 +31,16 @@ Meteor.methods({
       throw new Meteor.Error('access-denied', 'You must be an admin to edit rides');
     }
     
-    Rides.update(rideId, { $set: updateData });
+    // Only update fields that exist in the schema
+    const allowedFields = {
+      driver: updateData.driver,
+      rider: updateData.rider,
+      origin: updateData.origin,
+      destination: updateData.destination,
+      date: new Date(updateData.date)
+    };
+    
+    Rides.update(rideId, { $set: allowedFields });
   },
 
   async 'users.remove'(userId) {

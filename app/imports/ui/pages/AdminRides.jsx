@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Container, Table, Header, Loader, Button, Icon, Modal, Form, Message } from 'semantic-ui-react';
+import { Container, Table, Header, Loader, Button, Icon, Modal, Form, Message, Dropdown } from 'semantic-ui-react';
 import { Rides } from '/imports/api/ride/Rides';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
@@ -14,13 +14,11 @@ class AdminRides extends React.Component {
       editModalOpen: false,
       editingRide: null,
       editForm: {
-        rideName: '',
-        rideDate: '',
-        rideTime: '',
-        rideLocation: '',
-        rideDestination: '',
-        rideSeats: '',
-        ridePrice: ''
+        driver: '',
+        rider: '',
+        origin: '',
+        destination: '',
+        date: ''
       }
     };
   }
@@ -50,13 +48,11 @@ class AdminRides extends React.Component {
       editModalOpen: true,
       editingRide: ride,
       editForm: {
-        rideName: ride.rideName || '',
-        rideDate: ride.rideDate || '',
-        rideTime: ride.rideTime || '',
-        rideLocation: ride.rideLocation || '',
-        rideDestination: ride.rideDestination || '',
-        rideSeats: ride.rideSeats || '',
-        ridePrice: ride.ridePrice || ''
+        driver: ride.driver || '',
+        rider: ride.rider || '',
+        origin: ride.origin || '',
+        destination: ride.destination || '',
+        date: ride.date ? new Date(ride.date).toISOString().split('T')[0] : ''
       }
     });
   };
@@ -87,108 +83,182 @@ class AdminRides extends React.Component {
   /** Render the page once subscriptions have been received. */
   renderPage() {
     const { editModalOpen, editForm } = this.state;
+    const { rides, users } = this.props;
     
     return (
       <Container>
-        <Header as="h2" textAlign="center">Admin - Manage All Rides</Header>
-        <Table celled striped>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Ride Name</Table.HeaderCell>
-              <Table.HeaderCell>Date</Table.HeaderCell>
-              <Table.HeaderCell>Time</Table.HeaderCell>
-              <Table.HeaderCell>From</Table.HeaderCell>
-              <Table.HeaderCell>To</Table.HeaderCell>
-              <Table.HeaderCell>Seats</Table.HeaderCell>
-              <Table.HeaderCell>Price</Table.HeaderCell>
-              <Table.HeaderCell>Driver</Table.HeaderCell>
-              <Table.HeaderCell>Actions</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {this.props.rides.map((ride) => (
-              <Table.Row key={ride._id}>
-                <Table.Cell>{ride.rideName}</Table.Cell>
-                <Table.Cell>{ride.rideDate}</Table.Cell>
-                <Table.Cell>{ride.rideTime}</Table.Cell>
-                <Table.Cell>{ride.rideLocation}</Table.Cell>
-                <Table.Cell>{ride.rideDestination}</Table.Cell>
-                <Table.Cell>{ride.rideSeats}</Table.Cell>
-                <Table.Cell>${ride.ridePrice}</Table.Cell>
-                <Table.Cell>{ride.owner}</Table.Cell>
-                <Table.Cell>
-                  <Button
-                    icon
-                    size="small"
-                    color="blue"
-                    onClick={() => this.handleEdit(ride)}
-                  >
-                    <Icon name="edit" />
-                  </Button>
-                  <Button
-                    icon
-                    size="small"
-                    color="red"
-                    onClick={() => this.handleDelete(ride._id)}
-                  >
-                    <Icon name="trash" />
-                  </Button>
-                </Table.Cell>
+        <Header as="h2" textAlign="center">
+          <Icon name="car" />
+          Manage Rides
+        </Header>
+        
+        {rides.length === 0 ? (
+          <Message info>
+            <Message.Header>No rides found</Message.Header>
+            <p>There are currently no rides in the system.</p>
+          </Message>
+        ) : (
+          <Table celled>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Driver</Table.HeaderCell>
+                <Table.HeaderCell>Rider</Table.HeaderCell>
+                <Table.HeaderCell>Origin</Table.HeaderCell>
+                <Table.HeaderCell>Destination</Table.HeaderCell>
+                <Table.HeaderCell>Date</Table.HeaderCell>
+                <Table.HeaderCell>Actions</Table.HeaderCell>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+            </Table.Header>
+            <Table.Body>
+              {rides.map((ride) => (
+                <Table.Row key={ride._id}>
+                  <Table.Cell>{ride.driver}</Table.Cell>
+                  <Table.Cell>{ride.rider}</Table.Cell>
+                  <Table.Cell>{ride.origin}</Table.Cell>
+                  <Table.Cell>{ride.destination}</Table.Cell>
+                  <Table.Cell>{ride.date ? new Date(ride.date).toLocaleDateString() : ''}</Table.Cell>
+                  <Table.Cell>
+                    <Button
+                      icon
+                      size="small"
+                      color="blue"
+                      onClick={() => this.handleEdit(ride)}
+                    >
+                      <Icon name="edit" />
+                    </Button>
+                    <Button
+                      icon
+                      size="small"
+                      color="red"
+                      onClick={() => this.handleDelete(ride._id)}
+                    >
+                      <Icon name="trash" />
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        )}
 
         {/* Edit Modal */}
         <Modal open={editModalOpen} onClose={() => this.setState({ editModalOpen: false })}>
           <Modal.Header>Edit Ride</Modal.Header>
           <Modal.Content>
             <Form>
-              <Form.Input
-                label="Ride Name"
-                name="rideName"
-                value={editForm.rideName}
+              <Form.Field>
+                <label>Driver</label>
+                <Dropdown
+                  placeholder="Select Driver"
+                  fluid
+                  search
+                  selection
+                  value={editForm.driver}
+                  onChange={(e, { value }) => this.handleFormChange(e, { name: 'driver', value })}
+                  options={[
+                    { key: 'tbd', value: 'tbd', text: 'TBD' },
+                    ...users.map(user => ({
+                      key: user._id,
+                      value: user.username,
+                      text: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''} (${user.username})`
+                    }))
+                  ]}
+                />
+              </Form.Field>
+              <Form.Field>
+                <label>Rider</label>
+                <Dropdown
+                  placeholder="Select Rider"
+                  fluid
+                  search
+                  selection
+                  value={editForm.rider}
+                  onChange={(e, { value }) => this.handleFormChange(e, { name: 'rider', value })}
+                  options={[
+                    { key: 'tbd', value: 'tbd', text: 'TBD' },
+                    ...users.map(user => ({
+                      key: user._id,
+                      value: user.username,
+                      text: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''} (${user.username})`
+                    }))
+                  ]}
+                />
+              </Form.Field>
+              <Form.Select
+                label="Origin"
+                name="origin"
+                value={editForm.origin}
                 onChange={this.handleFormChange}
+                options={[
+                  { key: 'aiea', value: 'Aiea', text: 'Aiea' },
+                  { key: 'ewa', value: 'Ewa Beach', text: 'Ewa Beach' },
+                  { key: 'haleiwa', value: 'Hale`iwa', text: 'Hale`iwa' },
+                  { key: 'hauula', value: 'Hau`ula', text: 'Hau`ula' },
+                  { key: 'hawaiikai', value: 'Hawaii Kai', text: 'Hawaii Kai' },
+                  { key: 'honolulu', value: 'Honolulu', text: 'Honolulu' },
+                  { key: 'kaaawa', value: 'Ka`a`awa', text: 'Ka`a`awa' },
+                  { key: 'kahala', value: 'Kahala', text: 'Kahala' },
+                  { key: 'kahuku', value: 'Kahuku', text: 'Kahuku' },
+                  { key: 'kailua', value: 'Kailua', text: 'Kailua' },
+                  { key: 'kaneohe', value: 'Kane`ohe', text: 'Kane`ohe' },
+                  { key: 'kapolei', value: 'Kapolei', text: 'Kapolei' },
+                  { key: 'laie', value: 'La`ie', text: 'La`ie' },
+                  { key: 'lanikai', value: 'Lanikai', text: 'Lanikai' },
+                  { key: 'maili', value: 'Ma`ili', text: 'Ma`ili' },
+                  { key: 'makaha', value: 'Makaha', text: 'Makaha' },
+                  { key: 'manoa', value: 'Manoa', text: 'Manoa' },
+                  { key: 'mililani', value: 'Mililani', text: 'Mililani' },
+                  { key: 'nanakuli', value: 'Nanakuli', text: 'Nanakuli' },
+                  { key: 'pearlcity', value: 'Pearl City', text: 'Pearl City' },
+                  { key: 'uh', value: 'University of Hawaii Manoa', text: 'University of Hawaii Manoa' },
+                  { key: 'wahiawa', value: 'Wahiawa', text: 'Wahiawa' },
+                  { key: 'waialua', value: 'Waialua', text: 'Waialua' },
+                  { key: 'waianae', value: 'Wai`anae', text: 'Wai`anae' },
+                  { key: 'waikiki', value: 'Waikiki', text: 'Waikiki' },
+                  { key: 'waimanalo', value: 'Waimanalo', text: 'Waimanalo' },
+                  { key: 'waipahu', value: 'Waipahu', text: 'Waipahu' }
+                ]}
+              />
+              <Form.Select
+                label="Destination"
+                name="destination"
+                value={editForm.destination}
+                onChange={this.handleFormChange}
+                options={[
+                  { key: 'aiea', value: 'Aiea', text: 'Aiea' },
+                  { key: 'ewa', value: 'Ewa Beach', text: 'Ewa Beach' },
+                  { key: 'haleiwa', value: 'Hale`iwa', text: 'Hale`iwa' },
+                  { key: 'hauula', value: 'Hau`ula', text: 'Hau`ula' },
+                  { key: 'hawaiikai', value: 'Hawaii Kai', text: 'Hawaii Kai' },
+                  { key: 'honolulu', value: 'Honolulu', text: 'Honolulu' },
+                  { key: 'kaaawa', value: 'Ka`a`awa', text: 'Ka`a`awa' },
+                  { key: 'kahala', value: 'Kahala', text: 'Kahala' },
+                  { key: 'kahuku', value: 'Kahuku', text: 'Kahuku' },
+                  { key: 'kailua', value: 'Kailua', text: 'Kailua' },
+                  { key: 'kaneohe', value: 'Kane`ohe', text: 'Kane`ohe' },
+                  { key: 'kapolei', value: 'Kapolei', text: 'Kapolei' },
+                  { key: 'laie', value: 'La`ie', text: 'La`ie' },
+                  { key: 'lanikai', value: 'Lanikai', text: 'Lanikai' },
+                  { key: 'maili', value: 'Ma`ili', text: 'Ma`ili' },
+                  { key: 'makaha', value: 'Makaha', text: 'Makaha' },
+                  { key: 'manoa', value: 'Manoa', text: 'Manoa' },
+                  { key: 'mililani', value: 'Mililani', text: 'Mililani' },
+                  { key: 'nanakuli', value: 'Nanakuli', text: 'Nanakuli' },
+                  { key: 'pearlcity', value: 'Pearl City', text: 'Pearl City' },
+                  { key: 'uh', value: 'University of Hawaii Manoa', text: 'University of Hawaii Manoa' },
+                  { key: 'wahiawa', value: 'Wahiawa', text: 'Wahiawa' },
+                  { key: 'waialua', value: 'Waialua', text: 'Waialua' },
+                  { key: 'waianae', value: 'Wai`anae', text: 'Wai`anae' },
+                  { key: 'waikiki', value: 'Waikiki', text: 'Waikiki' },
+                  { key: 'waimanalo', value: 'Waimanalo', text: 'Waimanalo' },
+                  { key: 'waipahu', value: 'Waipahu', text: 'Waipahu' }
+                ]}
               />
               <Form.Input
                 label="Date"
-                name="rideDate"
+                name="date"
                 type="date"
-                value={editForm.rideDate}
-                onChange={this.handleFormChange}
-              />
-              <Form.Input
-                label="Time"
-                name="rideTime"
-                type="time"
-                value={editForm.rideTime}
-                onChange={this.handleFormChange}
-              />
-              <Form.Input
-                label="From Location"
-                name="rideLocation"
-                value={editForm.rideLocation}
-                onChange={this.handleFormChange}
-              />
-              <Form.Input
-                label="To Destination"
-                name="rideDestination"
-                value={editForm.rideDestination}
-                onChange={this.handleFormChange}
-              />
-              <Form.Input
-                label="Available Seats"
-                name="rideSeats"
-                type="number"
-                value={editForm.rideSeats}
-                onChange={this.handleFormChange}
-              />
-              <Form.Input
-                label="Price"
-                name="ridePrice"
-                type="number"
-                step="0.01"
-                value={editForm.ridePrice}
+                value={editForm.date}
                 onChange={this.handleFormChange}
               />
             </Form>
@@ -210,15 +280,19 @@ class AdminRides extends React.Component {
 /** Require an array of Ride documents in the props. */
 AdminRides.propTypes = {
   rides: PropTypes.array.isRequired,
+  users: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
 };
 
 /** withTracker connects Meteor data to React components. */
 export default withTracker(() => {
-  // Get access to all Rides documents (admin view)
-  const subscription = Meteor.subscribe('Rides'); // Using existing subscription
+  // Get access to all Rides documents and Users for dropdowns
+  const ridesSubscription = Meteor.subscribe('Rides');
+  const usersSubscription = Meteor.subscribe('AllUsers');
+  
   return {
     rides: Rides.find({}).fetch(),
-    ready: subscription.ready(),
+    users: Meteor.users.find({}).fetch(),
+    ready: ridesSubscription.ready() && usersSubscription.ready(),
   };
 })(AdminRides);
