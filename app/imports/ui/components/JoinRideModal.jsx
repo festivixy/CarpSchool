@@ -137,7 +137,7 @@ class JoinRideModal extends React.Component {
               {codeInputs.map((value, index) => (
                 <React.Fragment key={index}>
                   <Input
-                    ref={ref => this.inputRefs[index] = ref?.inputRef?.current}
+                    ref={ref => this.inputRefs[index] = ref}
                     value={value}
                     onChange={(e) => this.handleInputChange(index, e)}
                     onKeyDown={(e) => this.handleKeyDown(index, e)}
