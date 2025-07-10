@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Segment, Header } from 'semantic-ui-react';
-import { AutoForm, HiddenField, SelectField, SubmitField, ErrorsField, DateField, TextField } from 'uniforms-semantic';
+import { AutoForm, SelectField, SubmitField, ErrorsField } from 'uniforms-semantic';
 import swal from 'sweetalert';
 import { Meteor } from 'meteor/meteor';
 import Joi from 'joi';
@@ -87,7 +87,7 @@ class AddRide extends React.Component {
                   { key: 'Mililani', text: 'Mililani', value: 'Mililani' },
                   { key: 'Nanakuli', text: 'Nanakuli', value: 'Nanakuli' },
                   { key: 'Pearl City', text: 'Pearl City', value: 'Pearl City' },
-                  { key: 'University of Hawaii Manoa', text: 'University of Hawaii Manoa', value: 'University of Hawaii Manoa' },
+                  { key: 'UH Manoa', text: 'University of Hawaii Manoa', value: 'University of Hawaii Manoa' },
                   { key: 'Wahiawa', text: 'Wahiawa', value: 'Wahiawa' },
                   { key: 'Waialua', text: 'Waialua', value: 'Waialua' },
                   { key: 'Wai`anae', text: 'Wai`anae', value: 'Wai`anae' },
@@ -116,7 +116,7 @@ class AddRide extends React.Component {
                   { key: 'Mililani', text: 'Mililani', value: 'Mililani' },
                   { key: 'Nanakuli', text: 'Nanakuli', value: 'Nanakuli' },
                   { key: 'Pearl City', text: 'Pearl City', value: 'Pearl City' },
-                  { key: 'University of Hawaii Manoa', text: 'University of Hawaii Manoa', value: 'University of Hawaii Manoa' },
+                  { key: 'UH Manoa', text: 'University of Hawaii Manoa', value: 'University of Hawaii Manoa' },
                   { key: 'Wahiawa', text: 'Wahiawa', value: 'Wahiawa' },
                   { key: 'Waialua', text: 'Waialua', value: 'Waialua' },
                   { key: 'Wai`anae', text: 'Wai`anae', value: 'Wai`anae' },

@@ -216,7 +216,10 @@ class Signup extends React.Component {
         >
           <Modal.Header>Invalid CAPTCHA</Modal.Header>
           <Modal.Content>
-            <p>The security verification code you entered is incorrect. Please try again with the new code that has been generated.</p>
+            <p>
+              The security verification code you entered is incorrect. Please try again
+              with the new code that has been generated.
+            </p>
           </Modal.Content>
           <Modal.Actions>
             <Button

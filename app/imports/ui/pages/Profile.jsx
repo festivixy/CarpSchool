@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Container, Image, Menu, Item, Header, Segment } from 'semantic-ui-react';
+import { Grid, Container, Menu, Header, Segment } from 'semantic-ui-react';
 import { AutoForm, TextField, NumField, SelectField, SubmitField, ErrorsField } from 'uniforms-semantic';
 import Avatar from 'react-avatar';
 import swal from 'sweetalert';

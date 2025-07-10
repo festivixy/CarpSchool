@@ -17,7 +17,9 @@ Meteor.startup(async () => {
   if (await Stuffs.find().countAsync() === 0) {
     if (Meteor.settings.defaultData) {
       console.log('Creating default data.');
+      // eslint-disable-next-line no-restricted-syntax
       for (const data of Meteor.settings.defaultData) {
+        // eslint-disable-next-line no-await-in-loop
         await addData(data);
       }
     }
@@ -32,7 +34,9 @@ Meteor.startup(async () => {
   if (await Profiles.find().countAsync() === 0) {
     if (Meteor.settings.defaultProfiles) {
       console.log('Creating default data.');
+      // eslint-disable-next-line no-restricted-syntax
       for (const data of Meteor.settings.defaultProfiles) {
+        // eslint-disable-next-line no-await-in-loop
         await addProfile(data);
       }
     }
@@ -49,7 +53,9 @@ Meteor.startup(async () => {
   if (await Rides.find().countAsync() === 0) {
     if (Meteor.settings.defaultRides) {
       console.log('Creating default rides.');
+      // eslint-disable-next-line no-restricted-syntax
       for (const data of Meteor.settings.defaultRides) {
+        // eslint-disable-next-line no-await-in-loop
         await addRide(data);
       }
     }

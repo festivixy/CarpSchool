@@ -144,11 +144,13 @@ Meteor.methods({
 
     let shareCode;
     let attempts = 0;
+    let existingRide;
     do {
       shareCode = generateCode();
       attempts++;
       // Check if code already exists
-      const existingRide = await Rides.findOneAsync({ shareCode });
+      // eslint-disable-next-line no-await-in-loop
+      existingRide = await Rides.findOneAsync({ shareCode });
       if (!existingRide) break;
     } while (attempts < 10);
 

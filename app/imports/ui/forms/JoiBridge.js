@@ -29,6 +29,7 @@ export class JoiBridge extends Bridge {
     const path = name.split('.');
     let current = this.schema;
 
+    // eslint-disable-next-line no-restricted-syntax
     for (const key of path) {
       if (current._ids && current._ids._byKey && current._ids._byKey.has(key)) {
         current = current._ids._byKey.get(key).schema;

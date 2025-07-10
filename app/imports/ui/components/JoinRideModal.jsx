@@ -168,13 +168,13 @@ class JoinRideModal extends React.Component {
               {codeInputs.map((value, index) => (
                 <React.Fragment key={index}>
                   <input
-                    ref={ref => this.inputRefs[index] = ref}
+                    ref={(ref) => { this.inputRefs[index] = ref; }}
                     value={value}
                     onChange={(e) => this.handleInputChange(index, e)}
                     onKeyDown={(e) => this.handleKeyDown(index, e)}
                     onPaste={index === 0 ? this.handlePaste : undefined}
-                    onFocus={(e) => e.target.style.borderColor = '#2185d0'}
-                    onBlur={(e) => e.target.style.borderColor = '#ddd'}
+                    onFocus={(e) => { e.target.style.borderColor = '#2185d0'; }}
+                    onBlur={(e) => { e.target.style.borderColor = '#ddd'; }}
                     style={inputStyle}
                     maxLength={1}
                     type="text"

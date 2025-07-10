@@ -15,7 +15,7 @@ const bridge = new JoiBridge(ProfileSchema);
 class EditProfile extends React.Component {
 
   /** On successful submit, insert the data. */
-  submit(data, formRef) {
+  submit(data) {
     const {
       Name,
       Location,
@@ -86,7 +86,12 @@ class EditProfile extends React.Component {
         <Grid container centered>
           <Grid.Column>
             <Header as="h2" textAlign="center">Edit Your Profile</Header>
-            <AutoForm ref={ref => { fRef = ref; }} schema={bridge} onSubmit={data => this.submit(data, fRef)} model={this.props.profileData}>
+            <AutoForm
+              ref={ref => { fRef = ref; }}
+              schema={bridge}
+              onSubmit={data => this.submit(data, fRef)}
+              model={this.props.profileData}
+            >
               <TextField name='Name' placeholder='Write your First and Last Name'/>
               <TextField name='Location' placeholder='Home city'/>
               <TextField name='Image' placeholder='Profile image url'/>

@@ -57,10 +57,13 @@ class Ride extends React.Component {
   generateInviteLink = () => {
     const { shareCode } = this.state;
     if (shareCode) {
+      // eslint-disable-next-line no-undef
       const inviteLink = `${window.location.origin}/#/imRiding?code=${shareCode.replace('-', '')}`;
 
       // Copy to clipboard
+      // eslint-disable-next-line no-undef
       if (navigator.clipboard) {
+        // eslint-disable-next-line no-undef
         navigator.clipboard.writeText(inviteLink).then(() => {
           swal('Link Copied!', 'The invite link has been copied to your clipboard.', 'success');
         }).catch(() => {
@@ -75,22 +78,26 @@ class Ride extends React.Component {
   };
 
   fallbackCopyToClipboard = (text) => {
+    // eslint-disable-next-line no-undef
     const textArea = document.createElement('textarea');
     textArea.value = text;
     textArea.style.position = 'fixed';
     textArea.style.left = '-999999px';
     textArea.style.top = '-999999px';
+    // eslint-disable-next-line no-undef
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
 
     try {
+      // eslint-disable-next-line no-undef
       document.execCommand('copy');
       swal('Link Copied!', 'The invite link has been copied to your clipboard.', 'success');
     } catch (err) {
       swal('Copy Failed', `Please manually copy the link: ${text}`, 'error');
     }
 
+    // eslint-disable-next-line no-undef
     document.body.removeChild(textArea);
   };
 
@@ -144,7 +151,7 @@ class Ride extends React.Component {
           <Modal.Content>
             <div style={{ textAlign: 'center' }}>
               {isExistingCode ? (
-                <p>Here's your ride's existing share code:</p>
+                <p>Here&apos;s your ride&apos;s existing share code:</p>
               ) : (
                 <p>Share this code with someone who wants to join your ride:</p>
               )}

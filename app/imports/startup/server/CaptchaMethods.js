@@ -30,6 +30,7 @@ Meteor.methods({
 
     // Clean up old sessions (older than 10 minutes)
     const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
+    // eslint-disable-next-line no-restricted-syntax
     for (const [id, session] of captchaSessions.entries()) {
       if (session.timestamp < tenMinutesAgo) {
         captchaSessions.delete(id);

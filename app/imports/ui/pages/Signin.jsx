@@ -84,7 +84,6 @@ export default class Signin extends React.Component {
 
   /** Render the signin form. */
   render() {
-    const { from } = this.props.location.state || { from: { pathname: '/' } };
     // if correct authentication, redirect to page instead of login screen
     if (this.state.redirectToReferer) {
       return <Redirect to={'/listMyRides'}/>;
@@ -189,7 +188,10 @@ export default class Signin extends React.Component {
             >
               <Modal.Header>Invalid CAPTCHA</Modal.Header>
               <Modal.Content>
-                <p>The security verification code you entered is incorrect. Please try again with the new code that has been generated.</p>
+                <p>
+                  The security verification code you entered is incorrect. Please try again
+                  with the new code that has been generated.
+                </p>
               </Modal.Content>
               <Modal.Actions>
                 <Button
