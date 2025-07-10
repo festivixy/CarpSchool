@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link, Redirect } from 'react-router-dom';
-import { Container, Form, Grid, Header, Message, Segment, Button, Divider } from 'semantic-ui-react';
+import { Container, Form, Grid, Header, Message, Segment, Button, Divider, Modal } from 'semantic-ui-react';
 import { Accounts } from 'meteor/accounts-base';
 import { Meteor } from 'meteor/meteor';
 
@@ -22,7 +22,8 @@ class Signup extends React.Component {
       captchaSessionId: '',
       error: '', 
       redirectToReferer: false,
-      isLoadingCaptcha: false
+      isLoadingCaptcha: false,
+      showCaptchaErrorModal: false
     };
   }
 
@@ -60,7 +61,7 @@ class Signup extends React.Component {
     // First verify CAPTCHA
     Meteor.call('captcha.verify', captchaSessionId, captchaInput, (captchaError, isValidCaptcha) => {
       if (captchaError || !isValidCaptcha) {
-        this.setState({ error: 'Invalid CAPTCHA. Please try again.' });
+        this.setState({ showCaptchaErrorModal: true });
         this.generateNewCaptcha(); // Generate new CAPTCHA
         return;
       }
@@ -83,6 +84,11 @@ class Signup extends React.Component {
         }
       });
     });
+  }
+
+  /** Close the CAPTCHA error modal */
+  closeCaptchaErrorModal = () => {
+    this.setState({ showCaptchaErrorModal: false });
   }
 
   /** Display the signup form. Redirect to add page after successful registration and login. */
@@ -199,6 +205,25 @@ class Signup extends React.Component {
             )}
           </Grid.Column>
         </Grid>
+        
+        {/* CAPTCHA Error Modal */}
+        <Modal
+          open={this.state.showCaptchaErrorModal}
+          onClose={this.closeCaptchaErrorModal}
+          size="small"
+        >
+          <Modal.Header>Invalid CAPTCHA</Modal.Header>
+          <Modal.Content>
+            <p>The security verification code you entered is incorrect. Please try again with the new code that has been generated.</p>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button 
+              positive 
+              onClick={this.closeCaptchaErrorModal}
+              content="OK"
+            />
+          </Modal.Actions>
+        </Modal>
       </Container>
         </div>
     );
