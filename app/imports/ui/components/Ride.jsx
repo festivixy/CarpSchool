@@ -1,7 +1,9 @@
 import React from 'react';
-import { Card } from 'semantic-ui-react';
+import { Card, Button, Modal, Header, Icon, Segment } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import { Meteor } from 'meteor/meteor';
+import swal from 'sweetalert';
 
 
 /* PROFILE NOT IMPLEMENTED YET
@@ -18,21 +20,108 @@ import { withRouter } from 'react-router-dom';
           */
 /** Renders a single ride card. See pages/ListRides.jsx. */
 class Ride extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      shareModalOpen: false,
+      shareCode: null,
+      isGenerating: false
+    };
+  }
+
+  handleShareRide = () => {
+    this.setState({ isGenerating: true });
+    Meteor.call('rides.generateShareCode', this.props.ride._id, (error, result) => {
+      this.setState({ isGenerating: false });
+      if (error) {
+        swal('Error', error.message, 'error');
+      } else {
+        this.setState({ 
+          shareCode: result,
+          shareModalOpen: true 
+        });
+      }
+    });
+  };
+
+  closeShareModal = () => {
+    this.setState({ shareModalOpen: false, shareCode: null });
+  };
+
+  isCurrentUserDriver = () => {
+    return Meteor.user() && this.props.ride.driver === Meteor.user().username;
+  };
+
+  canShareRide = () => {
+    return this.isCurrentUserDriver() && this.props.ride.rider === 'tbd';
+  };
+
   render() {
+    const { shareModalOpen, shareCode, isGenerating } = this.state;
+    const { ride } = this.props;
+    
     return (
+      <>
         <Card centered>
           <Card.Content>
-            <Card.Header>{this.props.ride.origin} to {this.props.ride.destination}</Card.Header>
+            <Card.Header>{ride.origin} to {ride.destination}</Card.Header>
             <Card.Meta>
-              {new Date(this.props.ride.date).toLocaleDateString('en-US')} at {new Date(this.props.ride.date).toLocaleTimeString('en-US')}
+              {new Date(ride.date).toLocaleDateString('en-US')}
             </Card.Meta>
             <Card.Description>
-              <strong>Driver:</strong> {this.props.ride.driver}
+              <strong>Driver:</strong> {ride.driver}
               <br />
-              <strong>Rider:</strong> {this.props.ride.rider}
+              <strong>Rider:</strong> {ride.rider}
             </Card.Description>
           </Card.Content>
+          {this.canShareRide() && (
+            <Card.Content extra>
+              <Button 
+                fluid
+                color="blue"
+                icon="share alternate"
+                content="Share Ride"
+                loading={isGenerating}
+                disabled={isGenerating}
+                onClick={this.handleShareRide}
+              />
+            </Card.Content>
+          )}
         </Card>
+
+        {/* Share Code Modal */}
+        <Modal 
+          open={shareModalOpen} 
+          onClose={this.closeShareModal}
+          size="small"
+        >
+          <Header icon="share alternate" content="Share Your Ride" />
+          <Modal.Content>
+            <div style={{ textAlign: 'center' }}>
+              <p>Share this code with someone who wants to join your ride:</p>
+              {shareCode && (
+                <Segment>
+                  <Header as="h2" style={{ 
+                    fontFamily: 'monospace', 
+                    letterSpacing: '2px',
+                    color: '#2185d0'
+                  }}>
+                    {shareCode}
+                  </Header>
+                </Segment>
+              )}
+              <p style={{ fontSize: '0.9em', color: '#666' }}>
+                This code is unique to your ride and will be removed once someone joins.
+              </p>
+            </div>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button color="blue" onClick={this.closeShareModal}>
+              <Icon name="check" /> Done
+            </Button>
+          </Modal.Actions>
+        </Modal>
+      </>
     );
   }
 }

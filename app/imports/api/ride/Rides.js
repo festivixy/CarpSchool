@@ -27,6 +27,7 @@ const RidesSchema = Joi.object({
     'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu'
   ).required(),
   date: Joi.date().required(),
+  shareCode: Joi.string().optional(),
 });
 
 /** Make the collection available to other code. */

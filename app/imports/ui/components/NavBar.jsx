@@ -4,60 +4,85 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { withRouter, NavLink } from 'react-router-dom';
 import { Menu, Dropdown, Image, Icon } from 'semantic-ui-react';
+import JoinRideModal from './JoinRideModal';
 
 /** The NavBar appears at the top of every page. Rendered by the App Layout component. */
 class NavBar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      joinRideModalOpen: false
+    };
+  }
+
+  handleJoinRideClick = () => {
+    this.setState({ joinRideModalOpen: true });
+  };
+
+  handleJoinRideClose = () => {
+    this.setState({ joinRideModalOpen: false });
+  };
+
   render() {
     const menuStyle = { marginBottom: '10px', backgroundColor: '#024731' };
     return (
-      <Menu style={menuStyle} attached="top" borderless inverted>
-        <Menu.Item position="left" as={NavLink} activeClassName="" exact to="/">
-          <Image size="small" src="/images/Carpool.png" /></Menu.Item>
-        {this.props.currentUser ? (
-            [
-              <Dropdown item text="My Rides" position="left" key='myRides'>
+      <>
+        <Menu style={menuStyle} attached="top" borderless inverted>
+          <Menu.Item position="left" as={NavLink} activeClassName="" exact to="/">
+            <Image size="small" src="/images/Carpool.png" /></Menu.Item>
+          {this.props.currentUser ? (
+              [
+                <Dropdown item text="My Rides" position="left" key='myRides'>
 
+                  <Dropdown.Menu>
+                    <Dropdown.Item text="All Rides" as={NavLink} exact to="/listMyRides" key='myRides'/>
+                    <Dropdown.Item text="Im driving" as={NavLink} exact to="/imDriving"/>
+                    <Dropdown.Item text="Im riding" as={NavLink} exact to="/imRiding"/>
+                  </Dropdown.Menu>
+                </Dropdown>,
+
+                  <Menu.Item position="left" as={NavLink} activeClassName="active" exact to="/add/" key='add'>
+                <Icon name='plus square outline' size='large'/>Create Ride</Menu.Item>,
+                <Menu.Item position="left" as={NavLink} activeClassName="active" exact to="/list" key='list'>
+                  <Icon name='car' size='large'/>Available Rides</Menu.Item>,
+                <Menu.Item position="left" onClick={this.handleJoinRideClick} key='joinRide' style={{ cursor: 'pointer' }}>
+                  <Icon name='code' size='large'/>Join Ride</Menu.Item>,
+
+              ]
+          ) : ''}
+          {this.props.isAdmin ? (
+              <Dropdown item text="Admin" key='admin'>
                 <Dropdown.Menu>
-                  <Dropdown.Item text="All Rides" as={NavLink} exact to="/listMyRides" key='myRides'/>
-                  <Dropdown.Item text="Im driving" as={NavLink} exact to="/imDriving"/>
-                  <Dropdown.Item text="Im riding" as={NavLink} exact to="/imRiding"/>
+                  <Dropdown.Item as={NavLink} exact to="/adminRides" text="Manage Rides"/>
+                  <Dropdown.Item as={NavLink} exact to="/adminUsers" text="Manage Users"/>
                 </Dropdown.Menu>
-              </Dropdown>,
+              </Dropdown>
+          ) : ''}
 
-                <Menu.Item position="left" as={NavLink} activeClassName="active" exact to="/add/" key='add'>
-              <Icon name='plus square outline' size='large'/>Create Ride</Menu.Item>,
-              <Menu.Item position="left" as={NavLink} activeClassName="active" exact to="/list" key='list'>
-                <Icon name='car' size='large'/>Available Rides</Menu.Item>,
-
-            ]
-        ) : ''}
-        {this.props.isAdmin ? (
-            <Dropdown item text="Admin" key='admin'>
-              <Dropdown.Menu>
-                <Dropdown.Item as={NavLink} exact to="/adminRides" text="Manage Rides"/>
-                <Dropdown.Item as={NavLink} exact to="/adminUsers" text="Manage Users"/>
-              </Dropdown.Menu>
-            </Dropdown>
-        ) : ''}
-
-        <Menu.Item position="right">
-          {this.props.currentUser === '' ? (
-            <Dropdown text="Login" pointing="top right" icon={'caret down'}>
-              <Dropdown.Menu>
-                <Dropdown.Item icon="sign-in" text="Sign In" as={NavLink} exact to="/signin"/>
-                <Dropdown.Item icon="add user" text="Sign Up" as={NavLink} exact to="/signup"/>
-              </Dropdown.Menu>
-            </Dropdown>
-          ) : (
-            <Dropdown text={this.props.currentUser} pointing="top right" icon={'user'}>
-              <Dropdown.Menu>
-                <Dropdown.Item icon="address card" text="Profile" as={NavLink} exact to={`/addprofile/${this.props.currentId}`} />
-                <Dropdown.Item icon="sign out" text="Sign Out" as={NavLink} exact to="/signout"/>
-              </Dropdown.Menu>
-            </Dropdown>
-          )}
-        </Menu.Item>
-      </Menu>
+          <Menu.Item position="right">
+            {this.props.currentUser === '' ? (
+              <Dropdown text="Login" pointing="top right" icon={'caret down'}>
+                <Dropdown.Menu>
+                  <Dropdown.Item icon="sign-in" text="Sign In" as={NavLink} exact to="/signin"/>
+                  <Dropdown.Item icon="add user" text="Sign Up" as={NavLink} exact to="/signup"/>
+                </Dropdown.Menu>
+              </Dropdown>
+            ) : (
+              <Dropdown text={this.props.currentUser} pointing="top right" icon={'user'}>
+                <Dropdown.Menu>
+                  <Dropdown.Item icon="address card" text="Profile" as={NavLink} exact to={`/addprofile/${this.props.currentId}`} />
+                  <Dropdown.Item icon="sign out" text="Sign Out" as={NavLink} exact to="/signout"/>
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
+          </Menu.Item>
+        </Menu>
+        
+        <JoinRideModal 
+          open={this.state.joinRideModalOpen}
+          onClose={this.handleJoinRideClose}
+        />
+      </>
     );
   }
 }
