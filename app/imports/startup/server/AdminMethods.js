@@ -40,7 +40,7 @@ Meteor.methods({
       date: new Date(updateData.date)
     };
     
-    Rides.update(rideId, { $set: allowedFields });
+    await Rides.updateAsync(rideId, { $set: allowedFields });
   },
 
   async 'users.remove'(userId) {
