@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
-import { Roles } from 'meteor/alanning:roles';
 
 /* eslint-disable no-console */
 
@@ -17,9 +16,11 @@ function createUser(email, firstName, lastName, password, role) {
   });
   if (role === 'admin') {
     console.log(`  Assigning admin role to user ${email} with ID ${userID}`);
-    Roles.createRole(role, { unlessExists: true });
-    Roles.addUsersToRoles(userID, 'admin');
-    console.log(`  Admin role assigned. User roles:`, Roles.getRolesForUser(userID));
+    // Add admin role directly to user document
+    Meteor.users.update(userID, {
+      $addToSet: { roles: 'admin' }
+    });
+    console.log(`  Admin role assignment completed for user ${email}`);
   }
 }
 

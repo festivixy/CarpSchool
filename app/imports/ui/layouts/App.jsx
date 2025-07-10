@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import 'semantic-ui-css/semantic.css';
-import { Roles } from 'meteor/alanning:roles';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
@@ -10,6 +9,8 @@ import Landing from '../pages/Landing';
 import ListRides from '../pages/ListRides';
 import ListStuffAdmin from '../pages/ListStuffAdmin';
 import ProfileAdminStuff from '../pages/ProfileAdminStuff';
+import AdminRides from '../pages/AdminRides';
+import AdminUsers from '../pages/AdminUsers';
 import AddStuff from '../pages/AddStuff';
 import AddProfile from '../pages/AddProfile';
 import EditProfile from '../pages/EditProfile';
@@ -46,6 +47,8 @@ class App extends React.Component {
               <ProtectedRoute path="/editProfile/:_id" component={EditProfile}/>
               <AdminProtectedRoute path="/admin" component={ListStuffAdmin}/>
               <AdminProtectedRoute path="/adminProfiles" component={ProfileAdminStuff}/>
+              <AdminProtectedRoute path="/adminRides" component={AdminRides}/>
+              <AdminProtectedRoute path="/adminUsers" component={AdminUsers}/>
               <ProtectedRoute path="/signout" component={Signout}/>
               <Route component={NotFound}/>
             </Switch>
@@ -84,7 +87,8 @@ const AdminProtectedRoute = ({ component: Component, ...rest }) => (
         {...rest}
         render={(props) => {
           const isLogged = Meteor.userId() !== null;
-          const isAdmin = Roles.userIsInRole(Meteor.userId(), 'admin');
+          const user = Meteor.user();
+          const isAdmin = user && user.roles && user.roles.includes('admin');
           return (isLogged && isAdmin) ?
               (<Component {...props} />) :
               (<Redirect to={{ pathname: '/signin', state: { from: props.location } }}/>

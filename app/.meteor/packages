@@ -28,7 +28,6 @@ accounts-password@3.2.0          # https://guide.meteor.com/accounts.html
 # Utilities
 underscore@1.0.10                # http://underscorejs.org/
 ejson@1.1.5                      # https://docs.meteor.com/api/ejson.html
-alanning:roles                   # https://github.com/alanning/meteor-roles
 
 # Prototyping only
 insecure@1.0.8                   # Enable client-side manipulation of Mongo collections.

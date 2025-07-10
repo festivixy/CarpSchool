@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { Roles } from 'meteor/alanning:roles';
 import { Stuffs } from '../../api/stuff/Stuff';
 import { Profiles } from '../../api/profile/Profile';
 import { Notes } from '../../api/note/Notes';
@@ -16,9 +15,13 @@ Meteor.publish('Stuff', async function publish() {
 });
 
 /** This subscription publishes all documents regardless of user, but only if the logged in user is the Admin. */
-Meteor.publish('StuffAdmin', function publish() {
-  if (this.userId && Roles.userIsInRole(this.userId, 'admin')) {
-    return Stuffs.find();
+Meteor.publish('StuffAdmin', async function publish() {
+  if (this.userId) {
+    // Check role assignments directly from the database
+    const user = await Meteor.users.findOneAsync(this.userId);
+    if (user && user.roles && user.roles.includes('admin')) {
+      return Stuffs.find();
+    }
   }
   return this.ready();
 });
@@ -35,9 +38,13 @@ Meteor.publish('Profiles', async function publish() {
 });
 
 /** This subscription publishes all documents regardless of user, but only if the logged in user is the Admin. */
-Meteor.publish('ProfilesAdmin', function publish() {
-  if (this.userId && Roles.userIsInRole(this.userId, 'admin')) {
-    return Profiles.find();
+Meteor.publish('ProfilesAdmin', async function publish() {
+  if (this.userId) {
+    // Check role assignments directly from the database
+    const user = await Meteor.users.findOneAsync(this.userId);
+    if (user && user.roles && user.roles.includes('admin')) {
+      return Profiles.find();
+    }
   }
   return this.ready();
 });
@@ -66,7 +73,26 @@ Meteor.publish('Rides', function publish() {
 /** Publish user roles for the current user */
 Meteor.publish(null, function () {
   if (this.userId) {
-    return Meteor.roleAssignment.find({ 'user._id': this.userId });
+    return Meteor.users.find(this.userId, { fields: { roles: 1 } });
+  }
+  return this.ready();
+});
+
+/** Publish all users for admin management */
+Meteor.publish('AllUsers', async function () {
+  if (this.userId) {
+    const user = await Meteor.users.findOneAsync(this.userId);
+    if (user && user.roles && user.roles.includes('admin')) {
+      return Meteor.users.find({}, {
+        fields: {
+          username: 1,
+          emails: 1,
+          profile: 1,
+          roles: 1,
+          createdAt: 1
+        }
+      });
+    }
   }
   return this.ready();
 });
