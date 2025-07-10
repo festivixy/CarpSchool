@@ -24,7 +24,7 @@ class Ride extends React.Component {
           <Card.Content>
             <Card.Header>{this.props.ride.origin} to {this.props.ride.destination}</Card.Header>
             <Card.Meta>
-              {this.props.ride.date.toLocaleDateString('en-US')} at {this.props.ride.date.toLocaleTimeString('en-US')}
+              {new Date(this.props.ride.date).toLocaleDateString('en-US')} at {new Date(this.props.ride.date).toLocaleTimeString('en-US')}
             </Card.Meta>
             <Card.Description>
               <strong>Driver:</strong> {this.props.ride.driver}
