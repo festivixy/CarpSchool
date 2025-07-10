@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link, Redirect } from 'react-router-dom';
-import { Container, Form, Grid, Header, Message, Segment } from 'semantic-ui-react';
+import { Container, Form, Grid, Header, Message, Segment, Button, Divider } from 'semantic-ui-react';
 import { Accounts } from 'meteor/accounts-base';
+import { Meteor } from 'meteor/meteor';
 
 /**
  * Signup component is similar to signin component, but we create a new user instead.
@@ -11,7 +12,22 @@ class Signup extends React.Component {
   /** Initialize state fields. */
   constructor(props) {
     super(props);
-    this.state = { email: '', firstName: '', lastName: '', password: '', error: '', redirectToReferer: false };
+    this.state = { 
+      email: '', 
+      firstName: '', 
+      lastName: '', 
+      password: '', 
+      captchaInput: '',
+      captchaSvg: '',
+      captchaSessionId: '',
+      error: '', 
+      redirectToReferer: false,
+      isLoadingCaptcha: false
+    };
+  }
+
+  componentDidMount() {
+    this.generateNewCaptcha();
   }
 
   /** Update the form controls each time the user interacts with them. */
@@ -19,23 +35,53 @@ class Signup extends React.Component {
     this.setState({ [name]: value });
   }
 
+  /** Generate a new CAPTCHA */
+  generateNewCaptcha = () => {
+    this.setState({ isLoadingCaptcha: true });
+    Meteor.call('captcha.generate', (error, result) => {
+      if (error) {
+        this.setState({ error: 'Failed to load CAPTCHA. Please try again.', isLoadingCaptcha: false });
+      } else {
+        this.setState({
+          captchaSvg: result.svg,
+          captchaSessionId: result.sessionId,
+          captchaInput: '',
+          isLoadingCaptcha: false,
+          error: ''
+        });
+      }
+    });
+  }
+
   /** Handle Signup submission. Create user account and a profile entry, then redirect to the home page. */
   submit = () => {
-    const { email, password, firstName, lastName } = this.state;
-    Accounts.createUser({ 
-      email, 
-      username: email, 
-      password,
-      profile: {
-        firstName: firstName,
-        lastName: lastName
+    const { email, password, firstName, lastName, captchaInput, captchaSessionId } = this.state;
+    
+    // First verify CAPTCHA
+    Meteor.call('captcha.verify', captchaSessionId, captchaInput, (captchaError, isValidCaptcha) => {
+      if (captchaError || !isValidCaptcha) {
+        this.setState({ error: 'Invalid CAPTCHA. Please try again.' });
+        this.generateNewCaptcha(); // Generate new CAPTCHA
+        return;
       }
-    }, (err) => {
-      if (err) {
-        this.setState({ error: err.reason });
-      } else {
-        this.setState({ error: '', redirectToReferer: true });
-      }
+      
+      // CAPTCHA is valid, proceed with account creation
+      Accounts.createUser({ 
+        email, 
+        username: email, 
+        password,
+        profile: {
+          firstName: firstName,
+          lastName: lastName
+        }
+      }, (err) => {
+        if (err) {
+          this.setState({ error: err.reason });
+          this.generateNewCaptcha(); // Generate new CAPTCHA on error
+        } else {
+          this.setState({ error: '', redirectToReferer: true });
+        }
+      });
     });
   }
 
@@ -93,6 +139,47 @@ class Signup extends React.Component {
                   placeholder="Password"
                   type="password"
                   onChange={this.handleChange}
+                />
+
+                <Divider />
+                
+                {/* CAPTCHA Section */}
+                <div style={{ textAlign: 'center', marginBottom: '1em' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5em', fontWeight: 'bold' }}>
+                    Security Verification
+                  </label>
+                  <div style={{ 
+                    border: '1px solid #ccc', 
+                    borderRadius: '4px', 
+                    padding: '10px', 
+                    marginBottom: '0.5em',
+                    backgroundColor: '#f9f9f9',
+                    display: 'inline-block'
+                  }}>
+                    {this.state.isLoadingCaptcha ? (
+                      <div>Loading CAPTCHA...</div>
+                    ) : (
+                      <div dangerouslySetInnerHTML={{ __html: this.state.captchaSvg }} />
+                    )}
+                  </div>
+                  <br />
+                  <Button 
+                    type="button" 
+                    size="small" 
+                    onClick={this.generateNewCaptcha}
+                    loading={this.state.isLoadingCaptcha}
+                  >
+                    Refresh CAPTCHA
+                  </Button>
+                </div>
+
+                <Form.Input
+                  label="Enter the characters shown above"
+                  name="captchaInput"
+                  placeholder="Enter CAPTCHA"
+                  value={this.state.captchaInput}
+                  onChange={this.handleChange}
+                  style={{ textAlign: 'center' }}
                 />
 
                 <Form.Button content="Submit"/>
