@@ -14,31 +14,16 @@ async function fixAdminRole() {
     console.log('Found admin user:', adminUser._id);
     
     try {
-      // Try to add role directly to user object as a fallback
-      console.log('Attempting to add admin role directly to user...');
+      // Add role directly to user object (our current role system)
+      console.log('Adding admin role directly to user...');
       await Meteor.users.updateAsync(adminUser._id, {
         $addToSet: { roles: 'admin' }
       });
       
-      // Also try the Roles package method
-      console.log('Attempting to use Roles.addUsersToRoles...');
-      try {
-        Roles.addUsersToRoles(adminUser._id, 'admin');
-        console.log('Roles.addUsersToRoles completed successfully');
-      } catch (roleError) {
-        console.log('Roles.addUsersToRoles failed:', roleError.message);
-      }
-      
       // Check the updated user
       const updatedUser = await Meteor.users.findOneAsync(adminUser._id);
-      console.log('Updated user:', updatedUser);
-      
-      // Check if role collections exist
-      console.log('Checking role collections...');
-      const roleAssignments = await Meteor.roleAssignment.find({}).fetchAsync();
-      const roles = await Meteor.roles.find({}).fetchAsync();
-      console.log('Role assignments:', roleAssignments);
-      console.log('Roles:', roles);
+      console.log('Updated user roles:', updatedUser.roles);
+      console.log('Admin role fix completed successfully!');
       
       return true;
     } catch (error) {
@@ -53,5 +38,16 @@ async function fixAdminRole() {
 
 // Export for meteor shell
 global.fixAdminRole = fixAdminRole;
+
+// Auto-run on startup
+Meteor.startup(async () => {
+  console.log('Auto-running admin role fix on startup...');
+  try {
+    await fixAdminRole();
+    console.log('Admin role fix completed on startup.');
+  } catch (error) {
+    console.error('Error running admin role fix on startup:', error);
+  }
+});
 
 console.log('Admin fix script loaded. Run fixAdminRole() in meteor shell if needed.');
