@@ -28,7 +28,7 @@ class NavBar extends React.Component {
     return (
       <>
         <Menu style={menuStyle} attached="top" borderless inverted>
-          <Menu.Item position="left" as={NavLink} activeClassName="" exact to="/">
+          <Menu.Item position="left" as={NavLink} activeClassName="" exact to={this.props.currentUser ? "/listMyRides" : "/"}>
             <Image size="small" src="/images/Carpool.png" /></Menu.Item>
           {this.props.currentUser ? (
               [

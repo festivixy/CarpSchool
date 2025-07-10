@@ -22,6 +22,24 @@ import UserDrive from '../pages/UserDrive';
 import UserRide from '../pages/UserRide';
 import ForgotPassword from '../pages/ForgotPassword';
 
+/**
+ * HomeRoute component that redirects logged-in users to /listMyRides
+ * and shows Landing page for non-logged-in users
+ */
+const HomeRoute = () => {
+  const isLogged = Meteor.userId() !== null;
+  return isLogged ? <Redirect to="/listMyRides" /> : <Landing />;
+};
+
+/**
+ * SigninRoute component that redirects logged-in users to /listMyRides
+ * and shows Signin page for non-logged-in users
+ */
+const SigninRoute = (props) => {
+  const isLogged = Meteor.userId() !== null;
+  return isLogged ? <Redirect to="/listMyRides" /> : <Signin {...props} />;
+};
+
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -31,8 +49,8 @@ class App extends React.Component {
           <div>
             <NavBar/>
             <Switch>
-              <Route exact path="/" component={Landing}/>
-              <Route path="/signin" component={Signin}/>
+              <Route exact path="/" component={HomeRoute}/>
+              <Route path="/signin" component={SigninRoute}/>
               <Route path="/signup" component={Signup}/>
               <Route path="/forgot" component={ForgotPassword}/>
               <ProtectedRoute path="/listMyRides" component={ActiveRides}/>
