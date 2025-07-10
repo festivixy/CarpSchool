@@ -44,28 +44,40 @@ const SigninRoute = (props) => {
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
   render() {
+    const appStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '100vh',
+    };
+
+    const mainContentStyle = {
+      flex: '1',
+    };
+
     return (
         <Router>
-          <div>
+          <div style={appStyle}>
             <NavBar/>
-            <Switch>
-              <Route exact path="/" component={HomeRoute}/>
-              <Route path="/signin" component={SigninRoute}/>
-              <Route path="/signup" component={Signup}/>
-              <Route path="/forgot" component={ForgotPassword}/>
-              <ProtectedRoute path="/listMyRides" component={ActiveRides}/>
-              <ProtectedRoute path="/imDriving" component={UserDrive}/>
-              <ProtectedRoute path="/imRiding" component={UserRide}/>
-              <AdminProtectedRoute path="/list" component={ListRides}/>
-              <ProtectedRoute path="/add" component={AddRides}/>
-              <ProtectedRoute path="/addProfile/:_id" component={AddProfile}/>
-              <ProtectedRoute path="/myRides" component={AddStuff}/>
-              <ProtectedRoute path="/editProfile/:_id" component={EditProfile}/>
-              <AdminProtectedRoute path="/adminRides" component={AdminRides}/>
-              <AdminProtectedRoute path="/adminUsers" component={AdminUsers}/>
-              <ProtectedRoute path="/signout" component={Signout}/>
-              <Route component={NotFound}/>
-            </Switch>
+            <main style={mainContentStyle}>
+              <Switch>
+                <Route exact path="/" component={HomeRoute}/>
+                <Route path="/signin" component={SigninRoute}/>
+                <Route path="/signup" component={Signup}/>
+                <Route path="/forgot" component={ForgotPassword}/>
+                <ProtectedRoute path="/listMyRides" component={ActiveRides}/>
+                <ProtectedRoute path="/imDriving" component={UserDrive}/>
+                <ProtectedRoute path="/imRiding" component={UserRide}/>
+                <AdminProtectedRoute path="/list" component={ListRides}/>
+                <ProtectedRoute path="/add" component={AddRides}/>
+                <ProtectedRoute path="/addProfile/:_id" component={AddProfile}/>
+                <ProtectedRoute path="/myRides" component={AddStuff}/>
+                <ProtectedRoute path="/editProfile/:_id" component={EditProfile}/>
+                <AdminProtectedRoute path="/adminRides" component={AdminRides}/>
+                <AdminProtectedRoute path="/adminUsers" component={AdminUsers}/>
+                <ProtectedRoute path="/signout" component={Signout}/>
+                <Route component={NotFound}/>
+              </Switch>
+            </main>
             <Footer/>
           </div>
         </Router>
