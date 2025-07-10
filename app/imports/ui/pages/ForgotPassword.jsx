@@ -1,18 +1,17 @@
 import React from 'react';
 import { Grid, Segment, Header } from 'semantic-ui-react';
-import AutoForm from 'uniforms-semantic/AutoForm';
-import TextField from 'uniforms-semantic/TextField';
-import SubmitField from 'uniforms-semantic/SubmitField';
-import ErrorsField from 'uniforms-semantic/ErrorsField';
+import { AutoForm, TextField, SubmitField, ErrorsField } from 'uniforms-semantic';
 import swal from 'sweetalert';
-import 'uniforms-bridge-simple-schema-2'; // required for Uniforms
-import SimpleSchema from 'simpl-schema';
+import { JoiBridge } from '../forms/JoiBridge';
+import Joi from 'joi';
 import { Accounts } from 'meteor/accounts-base';
 
 /** Create a schema to specify the structure of the data to appear in the form. */
-const formSchema = new SimpleSchema({
-  email: String,
+const formSchema = Joi.object({
+  email: Joi.string().email({ tlds: false }).required().label('Email'),
 });
+
+const bridge = new JoiBridge(formSchema);
 
 /** Renders the Page for adding a document. */
 class ForgotPassword extends React.Component {
@@ -40,7 +39,7 @@ class ForgotPassword extends React.Component {
             <Grid.Column>
               <AutoForm ref={ref => {
                 fRef = ref;
-              }} schema={formSchema} onSubmit={data => this.submit(data, fRef)}>
+              }} schema={bridge} onSubmit={data => this.submit(data, fRef)}>
                 <Segment>
                   <Header as="h2" textAlign="center">Forgot Your Password?</Header>
                   <TextField name='email'/>

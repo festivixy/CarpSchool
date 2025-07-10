@@ -2,17 +2,13 @@ import React from 'react';
 import { Grid, Loader, Header, Segment } from 'semantic-ui-react';
 import { Stuffs, StuffSchema } from '/imports/api/stuff/Stuff';
 import swal from 'sweetalert';
-import AutoForm from 'uniforms-semantic/AutoForm';
-import TextField from 'uniforms-semantic/TextField';
-import NumField from 'uniforms-semantic/NumField';
-import SelectField from 'uniforms-semantic/SelectField';
-import SubmitField from 'uniforms-semantic/SubmitField';
-import HiddenField from 'uniforms-semantic/HiddenField';
-import ErrorsField from 'uniforms-semantic/ErrorsField';
+import { AutoForm, TextField, NumField, SelectField, SubmitField, HiddenField, ErrorsField } from 'uniforms-semantic';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import 'uniforms-bridge-simple-schema-2'; // required for Uniforms
+import { JoiBridge } from '../forms/JoiBridge';
+
+const bridge = new JoiBridge(StuffSchema);
 
 /** Renders the Page for editing a single document. */
 class EditStuff extends React.Component {
@@ -36,11 +32,16 @@ class EditStuff extends React.Component {
         <Grid container centered>
           <Grid.Column>
             <Header as="h2" textAlign="center">Edit Stuff</Header>
-            <AutoForm schema={StuffSchema} onSubmit={data => this.submit(data)} model={this.props.doc}>
+            <AutoForm schema={bridge} onSubmit={data => this.submit(data)} model={this.props.doc}>
               <Segment>
                 <TextField name='name'/>
                 <NumField name='quantity' decimal={false}/>
-                <SelectField name='condition'/>
+                <SelectField name='condition' options={[
+                  { key: 'excellent', text: 'Excellent', value: 'excellent' },
+                  { key: 'good', text: 'Good', value: 'good' },
+                  { key: 'fair', text: 'Fair', value: 'fair' },
+                  { key: 'poor', text: 'Poor', value: 'poor' }
+                ]}/>
                 <SubmitField value='Submit'/>
                 <ErrorsField/>
                 <HiddenField name='owner' />

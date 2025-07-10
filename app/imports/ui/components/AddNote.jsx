@@ -1,14 +1,12 @@
 import React from 'react';
 import { Segment } from 'semantic-ui-react';
-import AutoForm from 'uniforms-semantic/AutoForm';
-import TextField from 'uniforms-semantic/TextField';
-import HiddenField from 'uniforms-semantic/HiddenField';
-import SubmitField from 'uniforms-semantic/SubmitField';
-import ErrorsField from 'uniforms-semantic/ErrorsField';
+import { AutoForm, TextField, HiddenField, SubmitField, ErrorsField } from 'uniforms-semantic';
 import swal from 'sweetalert';
-import 'uniforms-bridge-simple-schema-2'; // required for Uniforms
+import { JoiBridge } from '../forms/JoiBridge';
 import PropTypes from 'prop-types';
 import { Notes, NotesSchema } from '../../api/note/Notes';
+
+const bridge = new JoiBridge(NotesSchema);
 
 /** Renders the Page for adding a document. */
 class AddNote extends React.Component {
@@ -41,7 +39,7 @@ class AddNote extends React.Component {
   render() {
     let fRef = null;
     return (
-        <AutoForm ref={ref => { fRef = ref; }} schema={NotesSchema} onSubmit={data => this.submit(data, fRef)} >
+        <AutoForm ref={ref => { fRef = ref; }} schema={bridge} onSubmit={data => this.submit(data, fRef)} >
           <Segment>
             <TextField label="Add a timestamped note" name='note'/>
             <SubmitField value='Submit'/>
