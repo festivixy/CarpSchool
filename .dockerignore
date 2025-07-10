@@ -1,0 +1,11 @@
+node_modules
+.meteor/local
+.git
+.gitignore
+README.md
+doc/
+config/
+.deploy/
+docker-compose.yml
+Dockerfile
+.dockerignore

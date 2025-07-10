@@ -6,3 +6,4 @@ settings.production.json
 .vscode
 package-lock.json
 app/.meteor/local
+app/.deploy
