@@ -9,10 +9,10 @@ class Footer extends React.Component {
         <footer style={divStyle}>
           <div className="ui center aligned container inverted">
             <hr />
-              UHber<br />
+              Carpool<br />
               University of Hawaii<br />
               Honolulu, HI 96822 <br />
-            Learn more at the <a href="https://uhber.github.io/">UHber page</a>.
+            Learn more at the <a href="https://carpool.github.io/">Carpool page</a>.
           </div>
         </footer>
     );

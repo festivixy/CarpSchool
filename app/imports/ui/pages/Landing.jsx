@@ -20,20 +20,20 @@ class Landing extends React.Component {
             <Grid container stackable>
               <Grid.Column width={6}>
                 <Grid.Row>
-                  <Header as='h1' textAlign='center' inverted>What is UHber (/ʌ-bər/)?</Header>
+                  <Header as='h1' textAlign='center' inverted>What is Carpool?</Header>
                   <Container textAlign='justified'>
-                    <p>The UHber website provides a space for students traveling to/from the UH Manoa campus to easily
+                    <p>The Carpool website provides a space for students traveling to/from the UH Manoa campus to easily
                       coordinate carpools. </p>
 
                     <p>The use of UH-email/UH ID numbers ensures that each user is a verified UH Manoa
-                      student; this system also prohibits banned users from continuing to use the UHber website.</p>
+                      student; this system also prohibits banned users from continuing to use the Carpool website.</p>
                   </Container>
                 </Grid.Row>
                 <Divider hidden />
                 <Grid.Row>
-                  <Header as='h1' textAlign='center' inverted>How to Use UHber</Header>
+                  <Header as='h1' textAlign='center' inverted>How to Use Carpool</Header>
                   <Container textAlign='justified'>
-                    <p>After signing up for UHber with your UH email, users can sign in to look through a list of future
+                    <p>After signing up for Carpool with your UH email, users can sign in to look through a list of future
                       rides or create a new ride. After creating a new ride or signing up for a ride, users can view their
                       scheduled rides on their calendar.</p>
 
