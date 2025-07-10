@@ -16,8 +16,10 @@ function createUser(email, firstName, lastName, password, role) {
     password: password,
   });
   if (role === 'admin') {
+    console.log(`  Assigning admin role to user ${email} with ID ${userID}`);
     Roles.createRole(role, { unlessExists: true });
     Roles.addUsersToRoles(userID, 'admin');
+    console.log(`  Admin role assigned. User roles:`, Roles.getRolesForUser(userID));
   }
 }
 

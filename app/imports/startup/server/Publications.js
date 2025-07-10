@@ -62,3 +62,11 @@ Meteor.publish('Rides', function publish() {
   }
   return this.ready();
 });
+
+/** Publish user roles for the current user */
+Meteor.publish(null, function () {
+  if (this.userId) {
+    return Meteor.roleAssignment.find({ 'user._id': this.userId });
+  }
+  return this.ready();
+});

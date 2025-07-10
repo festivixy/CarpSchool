@@ -32,7 +32,7 @@ class NavBar extends React.Component {
 
             ]
         ) : ''}
-        {Roles.userIsInRole(Meteor.userId(), 'admin') ? (
+        {this.props.isAdmin ? (
             <Dropdown item text="Admin" key='admin'>
               <Dropdown.Menu>
                 <Dropdown.Item as={NavLink} exact to="/admin" text="Admin Stuff"/>
@@ -40,6 +40,16 @@ class NavBar extends React.Component {
               </Dropdown.Menu>
             </Dropdown>
         ) : ''}
+        {/* Temporary test - show if user is logged in */}
+        {this.props.currentUser !== '' ? (
+            <Menu.Item as={NavLink} activeClassName="active" exact to="/admin" key='test-admin'>
+              TEST ADMIN ({this.props.isAdmin ? 'TRUE' : 'FALSE'})
+            </Menu.Item>
+        ) : ''}
+        {/* Debug info */}
+        {console.log('NavBar Debug - User ID:', Meteor.userId())}
+        {console.log('NavBar Debug - Is Admin Prop:', this.props.isAdmin)}
+        {console.log('NavBar Debug - User Roles:', Roles.getRolesForUser(Meteor.userId()))}
 
 
 
@@ -69,13 +79,19 @@ class NavBar extends React.Component {
 NavBar.propTypes = {
   currentUser: PropTypes.string,
   currentId: PropTypes.string,
+  isAdmin: PropTypes.bool,
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
-const NavBarContainer = withTracker(() => ({
-  currentUser: Meteor.user() ? Meteor.user().username : '',
-  currentId: Meteor.user() ? Meteor.user()._id : '',
-}))(NavBar);
+const NavBarContainer = withTracker(() => {
+  // The null publication should automatically publish roles
+  
+  return {
+    currentUser: Meteor.user() ? Meteor.user().username : '',
+    currentId: Meteor.user() ? Meteor.user()._id : '',
+    isAdmin: Meteor.user() ? Roles.userIsInRole(Meteor.user()._id, 'admin') : false,
+  };
+})(NavBar);
 
 /** Enable ReactRouter for this component. https://reacttraining.com/react-router/web/api/withRouter */
 export default withRouter(NavBarContainer);
