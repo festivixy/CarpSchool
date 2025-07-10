@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Container, Table, Header, Loader, Button, Icon, Modal, Form } from 'semantic-ui-react';
+import { Container, Table, Header, Loader, Button, Icon, Modal, Form, Message } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import swal from 'sweetalert';
@@ -106,18 +106,24 @@ class AdminUsers extends React.Component {
     return (
       <Container>
         <Header as="h2" textAlign="center">Admin - Manage All Users</Header>
-        <Table celled striped>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Username</Table.HeaderCell>
-              <Table.HeaderCell>Name</Table.HeaderCell>
-              <Table.HeaderCell>Email</Table.HeaderCell>
-              <Table.HeaderCell>Admin</Table.HeaderCell>
-              <Table.HeaderCell>Created</Table.HeaderCell>
-              <Table.HeaderCell>Actions</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
+        {this.props.users.length === 0 ? (
+          <Message info>
+            <Message.Header>No users found</Message.Header>
+            <p>No user data is available. This could indicate a data loading issue.</p>
+          </Message>
+        ) : (
+          <Table celled striped>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Username</Table.HeaderCell>
+                <Table.HeaderCell>Name</Table.HeaderCell>
+                <Table.HeaderCell>Email</Table.HeaderCell>
+                <Table.HeaderCell>Admin</Table.HeaderCell>
+                <Table.HeaderCell>Created</Table.HeaderCell>
+                <Table.HeaderCell>Actions</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
             {this.props.users.map((user) => {
               const isAdmin = user.roles && user.roles.includes('admin');
               return (
@@ -165,6 +171,7 @@ class AdminUsers extends React.Component {
             })}
           </Table.Body>
         </Table>
+        )}
 
         {/* Edit Modal */}
         <Modal open={editModalOpen} onClose={() => this.setState({ editModalOpen: false })}>

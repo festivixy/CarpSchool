@@ -7,8 +7,6 @@ import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import Landing from '../pages/Landing';
 import ListRides from '../pages/ListRides';
-import ListStuffAdmin from '../pages/ListStuffAdmin';
-import ProfileAdminStuff from '../pages/ProfileAdminStuff';
 import AdminRides from '../pages/AdminRides';
 import AdminUsers from '../pages/AdminUsers';
 import AddStuff from '../pages/AddStuff';
@@ -45,8 +43,6 @@ class App extends React.Component {
               <ProtectedRoute path="/addProfile/:_id" component={AddProfile}/>
               <ProtectedRoute path="/myRides" component={AddStuff}/>
               <ProtectedRoute path="/editProfile/:_id" component={EditProfile}/>
-              <AdminProtectedRoute path="/admin" component={ListStuffAdmin}/>
-              <AdminProtectedRoute path="/adminProfiles" component={ProfileAdminStuff}/>
               <AdminProtectedRoute path="/adminRides" component={AdminRides}/>
               <AdminProtectedRoute path="/adminUsers" component={AdminUsers}/>
               <ProtectedRoute path="/signout" component={Signout}/>

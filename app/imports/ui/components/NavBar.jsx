@@ -34,8 +34,6 @@ class NavBar extends React.Component {
         {this.props.isAdmin ? (
             <Dropdown item text="Admin" key='admin'>
               <Dropdown.Menu>
-                <Dropdown.Item as={NavLink} exact to="/admin" text="Admin Stuff"/>
-                <Dropdown.Item as={NavLink} exact to="/adminProfiles" text="Admin Profiles"/>
                 <Dropdown.Item as={NavLink} exact to="/adminRides" text="Manage Rides"/>
                 <Dropdown.Item as={NavLink} exact to="/adminUsers" text="Manage Users"/>
               </Dropdown.Menu>
