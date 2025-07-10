@@ -126,6 +126,11 @@ Meteor.methods({
       throw new Meteor.Error('access-denied', 'You can only generate share codes for rides you are driving');
     }
     
+    // If ride already has a share code, return it instead of generating a new one
+    if (ride.shareCode) {
+      return ride.shareCode;
+    }
+    
     // Generate 8-character code: XXXX-XXXX format with uppercase letters and numbers
     const generateCode = () => {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

@@ -25,12 +25,17 @@ class Ride extends React.Component {
     this.state = {
       shareModalOpen: false,
       shareCode: null,
-      isGenerating: false
+      isGenerating: false,
+      isExistingCode: false
     };
   }
 
   handleShareRide = () => {
     this.setState({ isGenerating: true });
+    
+    // Check if ride already has a share code
+    const existingCode = this.props.ride.shareCode;
+    
     Meteor.call('rides.generateShareCode', this.props.ride._id, (error, result) => {
       this.setState({ isGenerating: false });
       if (error) {
@@ -38,14 +43,15 @@ class Ride extends React.Component {
       } else {
         this.setState({ 
           shareCode: result,
-          shareModalOpen: true 
+          shareModalOpen: true,
+          isExistingCode: !!existingCode && existingCode === result
         });
       }
     });
   };
 
   closeShareModal = () => {
-    this.setState({ shareModalOpen: false, shareCode: null });
+    this.setState({ shareModalOpen: false, shareCode: null, isExistingCode: false });
   };
 
   isCurrentUserDriver = () => {
@@ -58,7 +64,7 @@ class Ride extends React.Component {
   };
 
   render() {
-    const { shareModalOpen, shareCode, isGenerating } = this.state;
+    const { shareModalOpen, shareCode, isGenerating, isExistingCode } = this.state;
     const { ride } = this.props;
     
     return (
@@ -81,7 +87,7 @@ class Ride extends React.Component {
                 fluid
                 color="blue"
                 icon="share alternate"
-                content="Share Ride"
+                content={ride.shareCode ? "View Share Code" : "Share Ride"}
                 loading={isGenerating}
                 disabled={isGenerating}
                 onClick={this.handleShareRide}
@@ -99,7 +105,11 @@ class Ride extends React.Component {
           <Header icon="share alternate" content="Share Your Ride" />
           <Modal.Content>
             <div style={{ textAlign: 'center' }}>
-              <p>Share this code with someone who wants to join your ride:</p>
+              {isExistingCode ? (
+                <p>Here's your ride's existing share code:</p>
+              ) : (
+                <p>Share this code with someone who wants to join your ride:</p>
+              )}
               {shareCode && (
                 <Segment>
                   <Header as="h2" style={{ 
@@ -112,7 +122,10 @@ class Ride extends React.Component {
                 </Segment>
               )}
               <p style={{ fontSize: '0.9em', color: '#666' }}>
-                This code is unique to your ride and will be removed once someone joins.
+                {isExistingCode 
+                  ? 'This code was generated earlier and is still active.' 
+                  : 'This code is unique to your ride and will be removed once someone joins.'
+                }
               </p>
             </div>
           </Modal.Content>
