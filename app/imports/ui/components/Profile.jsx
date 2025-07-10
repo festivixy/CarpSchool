@@ -36,7 +36,7 @@ class Profile extends React.Component {
             </Feed>
           </Card.Content>
           <Card.Content extra>
-            <AddNote owner={this.props.profile.owner} profile={this.props.profile._id}/>
+            <AddNote owner={this.props.profile.Owner} profile={this.props.profile._id}/>
           </Card.Content>
         </Card>
     );

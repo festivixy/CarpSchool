@@ -1,26 +1,31 @@
 import React from 'react';
 import { Grid, Container, Image, Menu, Item, Header, Segment } from 'semantic-ui-react';
-import AutoForm from 'uniforms-semantic/AutoForm';
-import TextField from 'uniforms-semantic/TextField';
-import NumField from 'uniforms-semantic/NumField';
-import SelectField from 'uniforms-semantic/SelectField';
-import SubmitField from 'uniforms-semantic/SubmitField';
-import ErrorsField from 'uniforms-semantic/ErrorsField';
-import SimpleSchema from 'simpl-schema';
+import { AutoForm, TextField, NumField, SelectField, SubmitField, ErrorsField } from 'uniforms-semantic';
+import { JoiBridge } from '../forms/JoiBridge';
+import { Stuffs, StuffSchema } from '../../api/stuff/Stuff';
+import Avatar from 'react-avatar';
+import swal from 'sweetalert';
+import { Meteor } from 'meteor/meteor';
 
-/** Create a schema to specify the structure of the data to appear in the form. */
-const formSchema = new SimpleSchema({
-  name: String,
-  quantity: Number,
-  condition: {
-    type: String,
-    allowedValues: ['excellent', 'good', 'fair', 'poor'],
-    defaultValue: 'good',
-  },
-});
+const bridge = new JoiBridge(StuffSchema);
 
 /** A simple static component to render some text for the landing page. */
 class Profile extends React.Component {
+
+  /** On submit, insert the data. */
+  submit(data, formRef) {
+    const { name, quantity, condition } = data;
+    const owner = Meteor.user().username;
+    Stuffs.insert({ name, quantity, condition, owner },
+        (error) => {
+          if (error) {
+            swal('Error', error.message, 'error');
+          } else {
+            swal('Success', 'Item added successfully', 'success');
+            formRef.reset();
+          }
+        });
+  }
   render() {
     let fRef = null;
     return (
@@ -30,11 +35,16 @@ class Profile extends React.Component {
               <Grid.Column>
                 <Grid.Row centered columns={4}>
                   <Header as="h2" textAlign="center">Edit Profile</Header>
-                  <AutoForm ref={ref => { fRef = ref; }} schema={formSchema} onSubmit={data => this.submit(data, fRef)}>
+                  <AutoForm ref={ref => { fRef = ref; }} schema={bridge} onSubmit={data => this.submit(data, fRef)}>
                     <Segment border={0}>
                       <TextField name='name'/>
                       <NumField name='quantity' decimal={false}/>
-                      <SelectField name='condition'/>
+                      <SelectField name='condition' options={[
+                        { key: 'excellent', text: 'Excellent', value: 'excellent' },
+                        { key: 'good', text: 'Good', value: 'good' },
+                        { key: 'fair', text: 'Fair', value: 'fair' },
+                        { key: 'poor', text: 'Poor', value: 'poor' }
+                      ]}/>
                       <SubmitField value='Submit'/>
                       <ErrorsField/>
                     </Segment>
