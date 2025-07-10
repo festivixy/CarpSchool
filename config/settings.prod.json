@@ -1,0 +1,7 @@
+{
+  "defaultAccounts": [
+    { "email": "admin@foo.com", "firstName": "admin", "lastName": "admin","password": "changeme", "role": "admin" }
+  ],
+  "defaultRides" : []
+}
+
