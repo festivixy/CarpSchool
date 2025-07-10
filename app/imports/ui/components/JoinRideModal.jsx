@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, Input, Header, Icon, Message } from 'semantic-ui-react';
+import { Modal, Button, Header, Icon, Message } from 'semantic-ui-react';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import swal from 'sweetalert';
@@ -110,7 +110,12 @@ class JoinRideModal extends React.Component {
       fontFamily: 'monospace',
       textAlign: 'center',
       fontWeight: 'bold',
-      margin: '0 2px'
+      margin: '0 2px',
+      border: '2px solid #ddd',
+      borderRadius: '6px',
+      outline: 'none',
+      backgroundColor: '#fff',
+      transition: 'border-color 0.2s ease'
     };
 
     const dashStyle = {
@@ -136,14 +141,17 @@ class JoinRideModal extends React.Component {
             }}>
               {codeInputs.map((value, index) => (
                 <React.Fragment key={index}>
-                  <Input
+                  <input
                     ref={ref => this.inputRefs[index] = ref}
                     value={value}
                     onChange={(e) => this.handleInputChange(index, e)}
                     onKeyDown={(e) => this.handleKeyDown(index, e)}
                     onPaste={index === 0 ? this.handlePaste : undefined}
+                    onFocus={(e) => e.target.style.borderColor = '#2185d0'}
+                    onBlur={(e) => e.target.style.borderColor = '#ddd'}
                     style={inputStyle}
                     maxLength={1}
+                    type="text"
                   />
                   {index === 3 && <span style={dashStyle}>-</span>}
                 </React.Fragment>
