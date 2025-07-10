@@ -54,7 +54,7 @@ class Ride extends React.Component {
 
   canShareRide = () => {
     const rider = this.props.ride.rider;
-    return this.isCurrentUserDriver() && (rider === 'tbd' || rider === 'TBD');
+    return this.isCurrentUserDriver() && (rider === 'TBD');
   };
 
   render() {

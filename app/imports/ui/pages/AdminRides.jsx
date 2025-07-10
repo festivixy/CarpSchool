@@ -156,7 +156,7 @@ class AdminRides extends React.Component {
                   value={editForm.driver}
                   onChange={(e, { value }) => this.handleFormChange(e, { name: 'driver', value })}
                   options={[
-                    { key: 'tbd', value: 'tbd', text: 'TBD' },
+                    { key: 'TBD', value: 'TBD', text: 'TBD' },
                     ...users.map(user => ({
                       key: user._id,
                       value: user.username,
@@ -175,7 +175,7 @@ class AdminRides extends React.Component {
                   value={editForm.rider}
                   onChange={(e, { value }) => this.handleFormChange(e, { name: 'rider', value })}
                   options={[
-                    { key: 'tbd', value: 'tbd', text: 'TBD' },
+                    { key: 'TBD', value: 'TBD', text: 'TBD' },
                     ...users.map(user => ({
                       key: user._id,
                       value: user.username,
