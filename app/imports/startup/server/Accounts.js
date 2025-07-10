@@ -16,9 +16,8 @@ function createUser(email, firstName, lastName, password, role) {
     password: password,
   });
   if (role === 'admin') {
-    // Temporarily disable roles for Meteor 3.3 compatibility
-    console.log(`Note: User ${email} should be admin, but roles disabled for now`);
-    // TODO: Re-enable roles when alanning:roles is fully compatible with Meteor 3.3
+    Roles.createRole(role, { unlessExists: true });
+    Roles.addUsersToRoles(userID, 'admin');
   }
 }
 

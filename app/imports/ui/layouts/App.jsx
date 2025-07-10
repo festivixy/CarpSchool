@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import Landing from '../pages/Landing';
 import ListRides from '../pages/ListRides';
 import ListStuffAdmin from '../pages/ListStuffAdmin';
+import ProfileAdminStuff from '../pages/ProfileAdminStuff';
 import AddStuff from '../pages/AddStuff';
 import AddProfile from '../pages/AddProfile';
 import EditProfile from '../pages/EditProfile';
@@ -44,6 +45,7 @@ class App extends React.Component {
               <ProtectedRoute path="/myRides" component={AddStuff}/>
               <ProtectedRoute path="/editProfile/:_id" component={EditProfile}/>
               <AdminProtectedRoute path="/admin" component={ListStuffAdmin}/>
+              <AdminProtectedRoute path="/adminProfiles" component={ProfileAdminStuff}/>
               <ProtectedRoute path="/signout" component={Signout}/>
               <Route component={NotFound}/>
             </Switch>
