@@ -12,7 +12,7 @@ Meteor.methods({
       throw new Meteor.Error('access-denied', 'You must be an admin to delete rides');
     }
     
-    Rides.remove(rideId);
+    await Rides.removeAsync(rideId);
   },
 
   async 'rides.update'(rideId, updateData) {
@@ -57,7 +57,7 @@ Meteor.methods({
       throw new Meteor.Error('invalid-operation', 'You cannot delete your own account');
     }
     
-    Meteor.users.remove(userId);
+    await Meteor.users.removeAsync(userId);
   },
 
   async 'users.update'(userId, updateData) {
@@ -76,7 +76,7 @@ Meteor.methods({
     }
     
     // Update user data
-    Meteor.users.update(userId, {
+    await Meteor.users.updateAsync(userId, {
       $set: {
         username: updateData.username,
         'profile.firstName': updateData.firstName,
@@ -102,9 +102,9 @@ Meteor.methods({
     }
     
     if (action === 'add') {
-      Meteor.users.update(userId, { $addToSet: { roles: 'admin' } });
+      await Meteor.users.updateAsync(userId, { $addToSet: { roles: 'admin' } });
     } else if (action === 'remove') {
-      Meteor.users.update(userId, { $pull: { roles: 'admin' } });
+      await Meteor.users.updateAsync(userId, { $pull: { roles: 'admin' } });
     }
   }
 });
