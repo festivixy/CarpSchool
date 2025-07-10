@@ -43,8 +43,6 @@ class NavBar extends React.Component {
 
                   <Menu.Item position="left" as={NavLink} activeClassName="active" exact to="/add/" key='add'>
                 <Icon name='plus square outline' size='large'/>Create Ride</Menu.Item>,
-                <Menu.Item position="left" as={NavLink} activeClassName="active" exact to="/list" key='list'>
-                  <Icon name='car' size='large'/>Available Rides</Menu.Item>,
                 <Menu.Item position="left" onClick={this.handleJoinRideClick} key='joinRide' style={{ cursor: 'pointer' }}>
                   <Icon name='code' size='large'/>Join Ride</Menu.Item>,
 
@@ -53,6 +51,7 @@ class NavBar extends React.Component {
           {this.props.isAdmin ? (
               <Dropdown item text="Admin" key='admin'>
                 <Dropdown.Menu>
+                  <Dropdown.Item as={NavLink} exact to="/list" text="All Available Rides"/>
                   <Dropdown.Item as={NavLink} exact to="/adminRides" text="Manage Rides"/>
                   <Dropdown.Item as={NavLink} exact to="/adminUsers" text="Manage Users"/>
                 </Dropdown.Menu>

@@ -38,7 +38,7 @@ class App extends React.Component {
               <ProtectedRoute path="/listMyRides" component={ActiveRides}/>
               <ProtectedRoute path="/imDriving" component={UserDrive}/>
               <ProtectedRoute path="/imRiding" component={UserRide}/>
-              <ProtectedRoute path="/list" component={ListRides}/>
+              <AdminProtectedRoute path="/list" component={ListRides}/>
               <ProtectedRoute path="/add" component={AddRides}/>
               <ProtectedRoute path="/addProfile/:_id" component={AddProfile}/>
               <ProtectedRoute path="/myRides" component={AddStuff}/>
