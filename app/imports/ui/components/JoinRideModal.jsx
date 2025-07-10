@@ -16,15 +16,21 @@ class JoinRideModal extends React.Component {
 
   handleInputChange = (e) => {
     let value = e.target.value.toUpperCase();
+    
+    // Remove any non-alphanumeric characters except dash
+    value = value.replace(/[^A-Z0-9-]/g, '');
+    
+    // Remove existing dashes to reformat properly
+    const cleanValue = value.replace(/-/g, '');
+    
     // Auto-format with dash: XXXX-XXXX
-    if (value.length === 4 && this.state.shareCode.length === 3) {
-      value += '-';
+    if (cleanValue.length > 4) {
+      value = cleanValue.slice(0, 4) + '-' + cleanValue.slice(4, 8);
+    } else {
+      value = cleanValue;
     }
-    // Remove dash if user is backspacing
-    if (value.length === 4 && this.state.shareCode.length === 5) {
-      value = value.slice(0, -1);
-    }
-    // Limit to 9 characters (including dash)
+    
+    // Limit to 9 characters total (XXXX-XXXX)
     if (value.length <= 9) {
       this.setState({ shareCode: value, error: null });
     }

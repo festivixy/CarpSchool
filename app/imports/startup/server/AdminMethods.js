@@ -170,8 +170,16 @@ Meteor.methods({
       throw new Meteor.Error('not-authorized', 'You must be logged in to join a ride');
     }
     
+    // Normalize the share code format (remove spaces, convert to uppercase, ensure proper dash placement)
+    let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, '');
+    
+    // If code doesn't have a dash and is 8 characters, add the dash
+    if (normalizedCode.length === 8 && !normalizedCode.includes('-')) {
+      normalizedCode = normalizedCode.slice(0, 4) + '-' + normalizedCode.slice(4);
+    }
+    
     // Find ride with this share code
-    const ride = await Rides.findOneAsync({ shareCode });
+    const ride = await Rides.findOneAsync({ shareCode: normalizedCode });
     if (!ride) {
       throw new Meteor.Error('invalid-code', 'Invalid share code');
     }
