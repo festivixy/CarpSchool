@@ -2,8 +2,8 @@ import React from 'react';
 import { Segment } from 'semantic-ui-react';
 import { AutoForm, TextField, HiddenField, SubmitField, ErrorsField } from 'uniforms-semantic';
 import swal from 'sweetalert';
-import { JoiBridge } from '../forms/JoiBridge';
 import PropTypes from 'prop-types';
+import { JoiBridge } from '../forms/JoiBridge';
 import { Notes, NotesSchema } from '../../api/note/Notes';
 
 const bridge = new JoiBridge(NotesSchema);

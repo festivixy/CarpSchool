@@ -2,9 +2,9 @@ import React from 'react';
 import { Grid, Segment, Header } from 'semantic-ui-react';
 import { AutoForm, TextField, SubmitField, ErrorsField } from 'uniforms-semantic';
 import swal from 'sweetalert';
-import { JoiBridge } from '../forms/JoiBridge';
 import Joi from 'joi';
 import { Accounts } from 'meteor/accounts-base';
+import { JoiBridge } from '../forms/JoiBridge';
 
 /** Create a schema to specify the structure of the data to appear in the form. */
 const formSchema = Joi.object({

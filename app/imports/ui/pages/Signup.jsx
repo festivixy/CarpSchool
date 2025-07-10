@@ -12,18 +12,18 @@ class Signup extends React.Component {
   /** Initialize state fields. */
   constructor(props) {
     super(props);
-    this.state = { 
-      email: '', 
-      firstName: '', 
-      lastName: '', 
-      password: '', 
+    this.state = {
+      email: '',
+      firstName: '',
+      lastName: '',
+      password: '',
       captchaInput: '',
       captchaSvg: '',
       captchaSessionId: '',
-      error: '', 
+      error: '',
       redirectToReferer: false,
       isLoadingCaptcha: false,
-      showCaptchaErrorModal: false
+      showCaptchaErrorModal: false,
     };
   }
 
@@ -48,7 +48,7 @@ class Signup extends React.Component {
           captchaSessionId: result.sessionId,
           captchaInput: '',
           isLoadingCaptcha: false,
-          error: ''
+          error: '',
         });
       }
     });
@@ -57,7 +57,7 @@ class Signup extends React.Component {
   /** Handle Signup submission. Create user account and a profile entry, then redirect to the home page. */
   submit = () => {
     const { email, password, firstName, lastName, captchaInput, captchaSessionId } = this.state;
-    
+
     // First verify CAPTCHA
     Meteor.call('captcha.verify', captchaSessionId, captchaInput, (captchaError, isValidCaptcha) => {
       if (captchaError || !isValidCaptcha) {
@@ -65,16 +65,16 @@ class Signup extends React.Component {
         this.generateNewCaptcha(); // Generate new CAPTCHA
         return;
       }
-      
+
       // CAPTCHA is valid, proceed with account creation
-      Accounts.createUser({ 
-        email, 
-        username: email, 
+      Accounts.createUser({
+        email,
+        username: email,
         password,
         profile: {
           firstName: firstName,
-          lastName: lastName
-        }
+          lastName: lastName,
+        },
       }, (err) => {
         if (err) {
           this.setState({ error: err.reason });
@@ -148,19 +148,19 @@ class Signup extends React.Component {
                 />
 
                 <Divider />
-                
+
                 {/* CAPTCHA Section */}
                 <div style={{ textAlign: 'center', marginBottom: '1em' }}>
                   <label style={{ display: 'block', marginBottom: '0.5em', fontWeight: 'bold' }}>
                     Security Verification
                   </label>
-                  <div style={{ 
-                    border: '1px solid #ccc', 
-                    borderRadius: '4px', 
-                    padding: '10px', 
+                  <div style={{
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    padding: '10px',
                     marginBottom: '0.5em',
                     backgroundColor: '#f9f9f9',
-                    display: 'inline-block'
+                    display: 'inline-block',
                   }}>
                     {this.state.isLoadingCaptcha ? (
                       <div>Loading CAPTCHA...</div>
@@ -169,9 +169,9 @@ class Signup extends React.Component {
                     )}
                   </div>
                   <br />
-                  <Button 
-                    type="button" 
-                    size="small" 
+                  <Button
+                    type="button"
+                    size="small"
                     onClick={this.generateNewCaptcha}
                     loading={this.state.isLoadingCaptcha}
                   >
@@ -207,7 +207,7 @@ class Signup extends React.Component {
             )}
           </Grid.Column>
         </Grid>
-        
+
         {/* CAPTCHA Error Modal */}
         <Modal
           open={this.state.showCaptchaErrorModal}
@@ -219,8 +219,8 @@ class Signup extends React.Component {
             <p>The security verification code you entered is incorrect. Please try again with the new code that has been generated.</p>
           </Modal.Content>
           <Modal.Actions>
-            <Button 
-              positive 
+            <Button
+              positive
               onClick={this.closeCaptchaErrorModal}
               content="OK"
             />

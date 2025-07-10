@@ -10,7 +10,7 @@ class JoinRideModal extends React.Component {
     this.state = {
       codeInputs: ['', '', '', '', '', '', '', ''], // 8 separate inputs
       isJoining: false,
-      error: null
+      error: null,
     };
     this.inputRefs = [];
   }
@@ -32,23 +32,23 @@ class JoinRideModal extends React.Component {
       // Remove dash and take first 8 characters
       const cleanCode = prefillCode.replace(/-/g, '').slice(0, 8);
       const newInputs = ['', '', '', '', '', '', '', ''];
-      
+
       for (let i = 0; i < cleanCode.length && i < 8; i++) {
         newInputs[i] = cleanCode[i].toUpperCase();
       }
-      
+
       this.setState({ codeInputs: newInputs, error: null });
     }
   };
 
   handleInputChange = (index, e) => {
     const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    
+
     if (value.length <= 1) {
       const newInputs = [...this.state.codeInputs];
       newInputs[index] = value;
       this.setState({ codeInputs: newInputs, error: null });
-      
+
       // Auto-advance to next input if character was entered
       if (value.length === 1 && index < 7) {
         setTimeout(() => {
@@ -74,14 +74,14 @@ class JoinRideModal extends React.Component {
   handlePaste = (e) => {
     e.preventDefault();
     const pastedText = e.clipboardData.getData('text').toUpperCase().replace(/[^A-Z0-9]/g, '');
-    
+
     if (pastedText.length <= 8) {
       const newInputs = ['', '', '', '', '', '', '', ''];
       for (let i = 0; i < pastedText.length; i++) {
         newInputs[i] = pastedText[i];
       }
       this.setState({ codeInputs: newInputs, error: null });
-      
+
       // Focus the next empty input or the last one
       const nextIndex = Math.min(pastedText.length, 7);
       setTimeout(() => {
@@ -94,20 +94,20 @@ class JoinRideModal extends React.Component {
 
   handleJoinRide = () => {
     const shareCode = this.state.codeInputs.join('');
-    
+
     if (shareCode.length !== 8) {
       this.setState({ error: 'Please enter all 8 characters of the code' });
       return;
     }
-    
+
     // Format as XXXX-XXXX for server
-    const formattedCode = shareCode.slice(0, 4) + '-' + shareCode.slice(4);
-    
+    const formattedCode = `${shareCode.slice(0, 4)}-${shareCode.slice(4)}`;
+
     this.setState({ isJoining: true, error: null });
-    
+
     Meteor.call('rides.joinWithCode', formattedCode, (error, result) => {
       this.setState({ isJoining: false });
-      
+
       if (error) {
         this.setState({ error: error.message });
       } else {
@@ -128,7 +128,7 @@ class JoinRideModal extends React.Component {
   render() {
     const { open } = this.props;
     const { codeInputs, isJoining, error } = this.state;
-    
+
     const inputStyle = {
       width: '40px',
       height: '50px',
@@ -141,29 +141,29 @@ class JoinRideModal extends React.Component {
       borderRadius: '6px',
       outline: 'none',
       backgroundColor: '#fff',
-      transition: 'border-color 0.2s ease'
+      transition: 'border-color 0.2s ease',
     };
 
     const dashStyle = {
       fontSize: '1.5em',
       fontWeight: 'bold',
       margin: '0 8px',
-      color: '#333'
+      color: '#333',
     };
 
     const isComplete = codeInputs.every(input => input.length === 1);
-    
+
     return (
       <Modal open={open} onClose={this.handleClose} size="small">
         <Header icon="car" content="Join a Ride" />
         <Modal.Content>
           <div style={{ textAlign: 'center' }}>
             <p>Enter the 8-character code shared by the driver:</p>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
-              margin: '20px 0'
+              margin: '20px 0',
             }}>
               {codeInputs.map((value, index) => (
                 <React.Fragment key={index}>
@@ -195,7 +195,7 @@ class JoinRideModal extends React.Component {
           <Button onClick={this.handleClose}>
             Cancel
           </Button>
-          <Button 
+          <Button
             color="green"
             onClick={this.handleJoinRide}
             loading={isJoining}

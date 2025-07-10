@@ -18,7 +18,7 @@ function createUser(email, firstName, lastName, password, role) {
     console.log(`  Assigning admin role to user ${email} with ID ${userID}`);
     // Add admin role directly to user document
     Meteor.users.update(userID, {
-      $addToSet: { roles: 'admin' }
+      $addToSet: { roles: 'admin' },
     });
     console.log(`  Admin role assignment completed for user ${email}`);
   }

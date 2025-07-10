@@ -89,8 +89,8 @@ Meteor.publish('AllUsers', async function () {
           emails: 1,
           profile: 1,
           roles: 1,
-          createdAt: 1
-        }
+          createdAt: 1,
+        },
       });
     }
   }

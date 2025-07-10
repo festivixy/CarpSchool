@@ -14,7 +14,7 @@ class UserRide extends React.Component {
     super(props);
     this.state = {
       joinRideModalOpen: false,
-      prefillCode: ''
+      prefillCode: '',
     };
   }
 
@@ -22,13 +22,13 @@ class UserRide extends React.Component {
     // Check for code parameter in URL
     const urlParams = new URLSearchParams(this.props.location.search);
     const code = urlParams.get('code');
-    
+
     if (code) {
       // Format the code with dash if it's 8 characters
-      const formattedCode = code.length === 8 ? code.slice(0, 4) + '-' + code.slice(4) : code;
-      this.setState({ 
+      const formattedCode = code.length === 8 ? `${code.slice(0, 4)}-${code.slice(4)}` : code;
+      this.setState({
         joinRideModalOpen: true,
-        prefillCode: formattedCode
+        prefillCode: formattedCode,
       });
     }
   }
@@ -58,8 +58,8 @@ class UserRide extends React.Component {
                 (availRides.map((ride, index) => <Ride key = {index} ride={ride} />))}
           </Card.Group>
         </Container>
-        
-        <JoinRideModal 
+
+        <JoinRideModal
           open={this.state.joinRideModalOpen}
           onClose={this.handleJoinRideClose}
           prefillCode={this.state.prefillCode}

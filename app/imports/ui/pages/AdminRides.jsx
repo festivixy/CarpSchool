@@ -18,8 +18,8 @@ class AdminRides extends React.Component {
         rider: '',
         origin: '',
         destination: '',
-        date: ''
-      }
+        date: '',
+      },
     };
   }
 
@@ -52,14 +52,14 @@ class AdminRides extends React.Component {
         rider: ride.rider || '',
         origin: ride.origin || '',
         destination: ride.destination || '',
-        date: ride.date ? new Date(ride.date).toISOString().split('T')[0] : ''
-      }
+        date: ride.date ? new Date(ride.date).toISOString().split('T')[0] : '',
+      },
     });
   };
 
   handleFormChange = (e, { name, value }) => {
     this.setState({
-      editForm: { ...this.state.editForm, [name]: value }
+      editForm: { ...this.state.editForm, [name]: value },
     });
   };
 
@@ -84,14 +84,14 @@ class AdminRides extends React.Component {
   renderPage() {
     const { editModalOpen, editForm } = this.state;
     const { rides, users } = this.props;
-    
+
     return (
       <Container>
         <Header as="h2" textAlign="center">
           <Icon name="car" />
           Manage Rides
         </Header>
-        
+
         {rides.length === 0 ? (
           <Message info>
             <Message.Header>No rides found</Message.Header>
@@ -160,8 +160,8 @@ class AdminRides extends React.Component {
                     ...users.map(user => ({
                       key: user._id,
                       value: user.username,
-                      text: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''} (${user.username})`
-                    }))
+                      text: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''} (${user.username})`,
+                    })),
                   ]}
                 />
               </Form.Field>
@@ -179,8 +179,8 @@ class AdminRides extends React.Component {
                     ...users.map(user => ({
                       key: user._id,
                       value: user.username,
-                      text: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''} (${user.username})`
-                    }))
+                      text: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''} (${user.username})`,
+                    })),
                   ]}
                 />
               </Form.Field>
@@ -216,7 +216,7 @@ class AdminRides extends React.Component {
                   { key: 'waianae', value: 'Wai`anae', text: 'Wai`anae' },
                   { key: 'waikiki', value: 'Waikiki', text: 'Waikiki' },
                   { key: 'waimanalo', value: 'Waimanalo', text: 'Waimanalo' },
-                  { key: 'waipahu', value: 'Waipahu', text: 'Waipahu' }
+                  { key: 'waipahu', value: 'Waipahu', text: 'Waipahu' },
                 ]}
               />
               <Form.Select
@@ -251,7 +251,7 @@ class AdminRides extends React.Component {
                   { key: 'waianae', value: 'Wai`anae', text: 'Wai`anae' },
                   { key: 'waikiki', value: 'Waikiki', text: 'Waikiki' },
                   { key: 'waimanalo', value: 'Waimanalo', text: 'Waimanalo' },
-                  { key: 'waipahu', value: 'Waipahu', text: 'Waipahu' }
+                  { key: 'waipahu', value: 'Waipahu', text: 'Waipahu' },
                 ]}
               />
               <Form.Input
@@ -289,7 +289,7 @@ export default withTracker(() => {
   // Get access to all Rides documents and Users for dropdowns
   const ridesSubscription = Meteor.subscribe('Rides');
   const usersSubscription = Meteor.subscribe('AllUsers');
-  
+
   return {
     rides: Rides.find({}).fetch(),
     users: Meteor.users.find({}).fetch(),

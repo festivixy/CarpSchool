@@ -93,7 +93,7 @@ class AddRide extends React.Component {
                   { key: 'Wai`anae', text: 'Wai`anae', value: 'Wai`anae' },
                   { key: 'Waikiki', text: 'Waikiki', value: 'Waikiki' },
                   { key: 'Waimanalo', text: 'Waimanalo', value: 'Waimanalo' },
-                  { key: 'Waipahu', text: 'Waipahu', value: 'Waipahu' }
+                  { key: 'Waipahu', text: 'Waipahu', value: 'Waipahu' },
                 ]}/>
                 <SelectField name='destination' placeholder='Select destination' options={[
                   { key: 'Aiea', text: 'Aiea', value: 'Aiea' },
@@ -122,7 +122,7 @@ class AddRide extends React.Component {
                   { key: 'Wai`anae', text: 'Wai`anae', value: 'Wai`anae' },
                   { key: 'Waikiki', text: 'Waikiki', value: 'Waikiki' },
                   { key: 'Waimanalo', text: 'Waimanalo', value: 'Waimanalo' },
-                  { key: 'Waipahu', text: 'Waipahu', value: 'Waipahu' }
+                  { key: 'Waipahu', text: 'Waipahu', value: 'Waipahu' },
                 ]}/>
                 <SubmitField value='Submit'/>
                 <ErrorsField/>

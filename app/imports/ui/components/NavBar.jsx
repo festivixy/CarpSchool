@@ -11,7 +11,7 @@ class NavBar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      joinRideModalOpen: false
+      joinRideModalOpen: false,
     };
   }
 
@@ -28,7 +28,7 @@ class NavBar extends React.Component {
     return (
       <>
         <Menu style={menuStyle} attached="top" borderless inverted>
-          <Menu.Item position="left" as={NavLink} activeClassName="" exact to={this.props.currentUser ? "/listMyRides" : "/"}>
+          <Menu.Item position="left" as={NavLink} activeClassName="" exact to={this.props.currentUser ? '/listMyRides' : '/'}>
             <Image size="small" src="/images/Carpool.png" /></Menu.Item>
           {this.props.currentUser ? (
               [
@@ -76,8 +76,8 @@ class NavBar extends React.Component {
             )}
           </Menu.Item>
         </Menu>
-        
-        <JoinRideModal 
+
+        <JoinRideModal
           open={this.state.joinRideModalOpen}
           onClose={this.handleJoinRideClose}
           prefillCode=""
@@ -95,15 +95,14 @@ NavBar.propTypes = {
 };
 
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
-const NavBarContainer = withTracker(() => {
+const NavBarContainer = withTracker(() =>
   // The null publication should automatically publish roles
-  
-  return {
+
+   ({
     currentUser: Meteor.user() ? Meteor.user().username : '',
     currentId: Meteor.user() ? Meteor.user()._id : '',
     isAdmin: Meteor.user() ? (Meteor.user().roles && Meteor.user().roles.includes('admin')) : false,
-  };
-})(NavBar);
+  }))(NavBar);
 
 /** Enable ReactRouter for this component. https://reacttraining.com/react-router/web/api/withRouter */
 export default withRouter(NavBarContainer);

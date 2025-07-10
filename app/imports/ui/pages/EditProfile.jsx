@@ -23,16 +23,16 @@ class EditProfile extends React.Component {
       Ride,
       Phone,
       Other,
-      UserType
+      UserType,
     } = data;
     const Owner = Meteor.user()._id;
     // For Insert or create new Profile
-    let profileCheck = Profiles.findOne(
+    const profileCheck = Profiles.findOne(
         {
-          Owner: Meteor.user()._id
-        }
+          Owner: Meteor.user()._id,
+        },
     );
-    
+
     if (!profileCheck) {
       // Insert new profile
       Profiles.insert(
@@ -44,14 +44,15 @@ class EditProfile extends React.Component {
             Phone,
             Other,
             UserType,
-            Owner
+            Owner,
           }, (error) => {
             if (error) {
               swal('Error', error.message, 'error');
             } else {
               swal('Success', 'Profile added successfully', 'success');
             }
-          });
+          },
+);
     } else {
       // Update existing profile
       Profiles.update(
@@ -64,11 +65,12 @@ class EditProfile extends React.Component {
               Ride,
               Phone,
               Other,
-              UserType
-            }
+              UserType,
+            },
           }, (error) => (error ?
               swal('Error', error.message, 'error') :
-              swal('Success', 'Profile updated successfully', 'success')));
+              swal('Success', 'Profile updated successfully', 'success')),
+);
     }
   }
 
@@ -99,7 +101,7 @@ class EditProfile extends React.Component {
               <SelectField name='UserType' options={[
                 { key: 'Driver', text: 'Driver', value: 'Driver' },
                 { key: 'Rider', text: 'Rider', value: 'Rider' },
-                { key: 'Both', text: 'Both', value: 'Both' }
+                { key: 'Both', text: 'Both', value: 'Both' },
               ]}/>
               <HiddenField name='Owner' value={Meteor.user()._id}/>
               <SubmitField value='Submit'/>
@@ -128,11 +130,11 @@ export default withTracker(({ match }) => {
   // Get access to Profile documents.
   const subscription = Meteor.subscribe('Profiles');
 
-  return{
+  return {
     profileData: Profiles.findOne(
         {
-          Owner: usersID
-        }
+          Owner: usersID,
+        },
     ),
     ready: subscription.ready(),
   };

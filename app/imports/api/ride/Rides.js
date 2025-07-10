@@ -15,7 +15,7 @@ const RidesSchema = Joi.object({
     'La`ie', 'Lanikai', 'Ma`ili', 'Makaha',
     'Manoa', 'Mililani', 'Nanakuli', 'Pearl City',
     'University of Hawaii Manoa', 'Wahiawa', 'Waialua',
-    'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu'
+    'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu',
   ).required(),
   destination: Joi.string().valid(
     'Aiea', 'Ewa Beach', 'Hale`iwa', 'Hau`ula',
@@ -24,7 +24,7 @@ const RidesSchema = Joi.object({
     'La`ie', 'Lanikai', 'Ma`ili', 'Makaha',
     'Manoa', 'Mililani', 'Nanakuli', 'Pearl City',
     'University of Hawaii Manoa', 'Wahiawa', 'Waialua',
-    'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu'
+    'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu',
   ).required(),
   date: Joi.date().required(),
   shareCode: Joi.string().optional(),

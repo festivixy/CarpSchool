@@ -16,8 +16,8 @@ class AdminUsers extends React.Component {
         username: '',
         firstName: '',
         lastName: '',
-        email: ''
-      }
+        email: '',
+      },
     };
   }
 
@@ -49,14 +49,14 @@ class AdminUsers extends React.Component {
         username: user.username || '',
         firstName: user.profile?.firstName || '',
         lastName: user.profile?.lastName || '',
-        email: user.emails?.[0]?.address || ''
-      }
+        email: user.emails?.[0]?.address || '',
+      },
     });
   };
 
   handleFormChange = (e, { name, value }) => {
     this.setState({
-      editForm: { ...this.state.editForm, [name]: value }
+      editForm: { ...this.state.editForm, [name]: value },
     });
   };
 
@@ -75,9 +75,9 @@ class AdminUsers extends React.Component {
   toggleAdminRole = (userId, isCurrentlyAdmin) => {
     const action = isCurrentlyAdmin ? 'remove' : 'add';
     const actionText = isCurrentlyAdmin ? 'remove admin role from' : 'grant admin role to';
-    
+
     swal({
-      title: `Are you sure?`,
+      title: 'Are you sure?',
       text: `This will ${actionText} this user.`,
       icon: 'warning',
       buttons: true,
@@ -102,7 +102,7 @@ class AdminUsers extends React.Component {
   /** Render the page once subscriptions have been received. */
   renderPage() {
     const { editModalOpen, editForm } = this.state;
-    
+
     return (
       <Container>
         <Header as="h2" textAlign="center">Admin - Manage All Users</Header>

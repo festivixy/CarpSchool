@@ -1,11 +1,11 @@
 import React from 'react';
 import { Grid, Container, Image, Menu, Item, Header, Segment } from 'semantic-ui-react';
 import { AutoForm, TextField, NumField, SelectField, SubmitField, ErrorsField } from 'uniforms-semantic';
-import { JoiBridge } from '../forms/JoiBridge';
-import { Stuffs, StuffSchema } from '../../api/stuff/Stuff';
 import Avatar from 'react-avatar';
 import swal from 'sweetalert';
 import { Meteor } from 'meteor/meteor';
+import { Stuffs, StuffSchema } from '../../api/stuff/Stuff';
+import { JoiBridge } from '../forms/JoiBridge';
 
 const bridge = new JoiBridge(StuffSchema);
 
@@ -26,6 +26,7 @@ class Profile extends React.Component {
           }
         });
   }
+
   render() {
     let fRef = null;
     return (
@@ -43,7 +44,7 @@ class Profile extends React.Component {
                         { key: 'excellent', text: 'Excellent', value: 'excellent' },
                         { key: 'good', text: 'Good', value: 'good' },
                         { key: 'fair', text: 'Fair', value: 'fair' },
-                        { key: 'poor', text: 'Poor', value: 'poor' }
+                        { key: 'poor', text: 'Poor', value: 'poor' },
                       ]}/>
                       <SubmitField value='Submit'/>
                       <ErrorsField/>

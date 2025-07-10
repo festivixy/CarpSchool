@@ -41,7 +41,7 @@ class AddStuff extends React.Component {
                   { key: 'excellent', text: 'Excellent', value: 'excellent' },
                   { key: 'good', text: 'Good', value: 'good' },
                   { key: 'fair', text: 'Fair', value: 'fair' },
-                  { key: 'poor', text: 'Poor', value: 'poor' }
+                  { key: 'poor', text: 'Poor', value: 'poor' },
                 ]}/>
                 <SubmitField value='Submit'/>
                 <ErrorsField/>
