@@ -6,9 +6,10 @@ import { Notes } from '../../api/note/Notes';
 import { Rides } from '../../api/ride/Rides';
 
 /** This subscription publishes only the documents associated with the logged in user */
-Meteor.publish('Stuff', function publish() {
+Meteor.publish('Stuff', async function publish() {
   if (this.userId) {
-    const username = Meteor.users.findOne(this.userId).username;
+    const user = await Meteor.users.findOneAsync(this.userId);
+    const username = user.username;
     return Stuffs.find({ owner: username });
   }
   return this.ready();
@@ -24,9 +25,10 @@ Meteor.publish('StuffAdmin', function publish() {
 
 
 /** START OF PROFILE STUFF */
-Meteor.publish('Profiles', function publish() {
+Meteor.publish('Profiles', async function publish() {
   if (this.userId) {
-    const username = Meteor.users.findOne(this.userId)._id;
+    const user = await Meteor.users.findOneAsync(this.userId);
+    const username = user._id;
     return Profiles.find({ Owner: username });
   }
   return this.ready();
@@ -44,9 +46,10 @@ Meteor.publish('ProfilesAdmin', function publish() {
 
 
 /** This subscription publishes only the documents associated with the logged in user */
-Meteor.publish('Notes', function publish() {
+Meteor.publish('Notes', async function publish() {
   if (this.userId) {
-    const username = Meteor.users.findOne(this.userId).username;
+    const user = await Meteor.users.findOneAsync(this.userId);
+    const username = user.username;
     return Notes.find({ owner: username });
   }
   return this.ready();

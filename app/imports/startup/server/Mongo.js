@@ -6,45 +6,54 @@ import { Rides } from '../../api/ride/Rides';
 /* eslint-disable no-console */
 
 /** Initialize the database with a default data document. */
-function addData(data) {
+async function addData(data) {
   console.log(`  Adding: ${data.name} (${data.owner})`);
-  Stuffs.insert(data);
+  await Stuffs.insertAsync(data);
 }
 
-/** Initialize the collection if empty. */
-if (Stuffs.find().count() === 0) {
-  if (Meteor.settings.defaultData) {
-    console.log('Creating default data.');
-    Meteor.settings.defaultData.map(data => addData(data));
+/** Initialize the database with default data when empty. */
+Meteor.startup(async () => {
+  /** Initialize the collection if empty. */
+  if (await Stuffs.find().countAsync() === 0) {
+    if (Meteor.settings.defaultData) {
+      console.log('Creating default data.');
+      for (const data of Meteor.settings.defaultData) {
+        await addData(data);
+      }
+    }
   }
-}
 
-/** START Profile Stuff */
-function addProfile(data) {
-  console.log(`  Adding: ${data.lastName} (${data.owner})`);
-  Profiles.insert(data);
-}
-
-if (Profiles.find().count() === 0) {
-  if (Meteor.settings.defaultProfiles) {
-    console.log('Creating default data.');
-    Meteor.settings.defaultProfiles.map(data => addProfile(data));
+  /** START Profile Stuff */
+  async function addProfile(data) {
+    console.log(`  Adding: ${data.lastName} (${data.owner})`);
+    await Profiles.insertAsync(data);
   }
-}
 
-/** END Profile Stuff */
-
-/** START Ride Stuff */
-function addRide(data) {
-  console.log(`  Adding: Ride from ${data.driver} `);
-  Rides.insert(data);
-}
-
-if (Rides.find().count() === 0) {
-  if (Meteor.settings.defaultRides) {
-    console.log('Creating default rides.');
-    Meteor.settings.defaultRides.map(data => addRide(data));
+  if (await Profiles.find().countAsync() === 0) {
+    if (Meteor.settings.defaultProfiles) {
+      console.log('Creating default data.');
+      for (const data of Meteor.settings.defaultProfiles) {
+        await addProfile(data);
+      }
+    }
   }
-}
 
-/** END Ride Stuff */
+  /** END Profile Stuff */
+
+  /** START Ride Stuff */
+  async function addRide(data) {
+    console.log(`  Adding: Ride from ${data.driver} `);
+    await Rides.insertAsync(data);
+  }
+
+  if (await Rides.find().countAsync() === 0) {
+    if (Meteor.settings.defaultRides) {
+      console.log('Creating default rides.');
+      for (const data of Meteor.settings.defaultRides) {
+        await addRide(data);
+      }
+    }
+  }
+
+  /** END Ride Stuff */
+});
