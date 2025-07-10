@@ -10,8 +10,7 @@ class Footer extends React.Component {
           <div className="ui center aligned container inverted">
             <hr />
               Carpool<br />
-              University of Hawaii<br />
-              Honolulu, HI 96822 <br />
+              SD45<br />
             Learn more at the <a href="https://carpool.github.io/">Carpool page</a>.
           </div>
         </footer>
