@@ -172,7 +172,7 @@ Meteor.methods({
     }
     
     // Check if ride already has a rider (not tbd)
-    if (ride.rider !== 'tbd') {
+    if (ride.rider !== 'tbd' && ride.rider !== 'TBD') {
       throw new Meteor.Error('ride-full', 'This ride already has a rider');
     }
     
