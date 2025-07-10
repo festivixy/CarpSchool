@@ -1,20 +1,17 @@
 import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
-import { Tracker } from 'meteor/tracker';
+import Joi from 'joi';
 
-/** Define a Mongo Notes to hold the data. */
+/** Define a Mongo collection to hold the data. */
 const Notes = new Mongo.Collection('Notes');
 
-/** Define a schema to specify the structure of each document in the Notes. */
-const NotesSchema = new SimpleSchema({
-  note: String,
-  owner: String,
-  profileId: String,
-  createdAt: Date,
-}, { tracker: Tracker });
+/** Define a Joi schema to specify the structure of each document in the collection. */
+const NotesSchema = Joi.object({
+  _id: Joi.string().optional(),
+  note: Joi.string().required(),
+  owner: Joi.string().required(),
+  profileId: Joi.string().required(),
+  createdAt: Joi.date().required(),
+});
 
-/** Attach this schema to the Notes. */
-Notes.attachSchema(NotesSchema);
-
-/** Make the Notes and schema available to other code. */
+/** Make the collection and schema available to other code. */
 export { Notes, NotesSchema };

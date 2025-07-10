@@ -1,38 +1,21 @@
 import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
-import { Tracker } from 'meteor/tracker';
+import Joi from 'joi';
 
 /** Define a Mongo collection to hold the data. */
 const Profiles = new Mongo.Collection('Profiles');
 
-/** Define a schema to specify the structure of each document in the collection. */
-const ProfileSchema = new SimpleSchema({
-  Name: String,
-  Location: String,
-  Image: String,
-  Ride: {
-    type:String,
-    defaultValue:'',
-    optional: true,
-    required: false,
-  },
-  Phone: String,
-  Other: {
-    type:String,
-    defaultValue:'',
-    optional: true,
-    required: false,
-  },
-  Owner: String,
-  UserType: {
-    type: String,
-    allowedValues: ['Driver', 'Rider', 'Both'],
-    defaultValue: 'Driver',
-  },
-}, { tracker: Tracker });
-
-/** Attach this schema to the collection. */
-Profiles.attachSchema(ProfileSchema);
+/** Define a Joi schema to specify the structure of each document in the collection. */
+const ProfileSchema = Joi.object({
+  _id: Joi.string().optional(),
+  Name: Joi.string().required(),
+  Location: Joi.string().required(),
+  Image: Joi.string().optional().allow(''),
+  Ride: Joi.string().optional().allow(''),
+  Phone: Joi.string().optional().allow(''),
+  Other: Joi.string().optional().allow(''),
+  UserType: Joi.string().valid('Driver', 'Rider', 'Both').default('Both'),
+  Owner: Joi.string().required(),
+});
 
 /** Make the collection and schema available to other code. */
 export { Profiles, ProfileSchema };

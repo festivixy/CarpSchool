@@ -1,44 +1,33 @@
 import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
-import { Tracker } from 'meteor/tracker';
+import Joi from 'joi';
 
-/** Define a Mongo Notes to hold the data. */
+/** Define a Mongo collection to hold the data. */
 const Rides = new Mongo.Collection('Rides');
 
-/** Define a schema to specify the structure of each document in the Notes. */
-const RidesSchema = new SimpleSchema({
-  driver: String,
-  rider: String,
-  origin: {
-    type: String,
-    allowedValues: [
-      'Aiea', 'Ewa Beach', 'Hale`iwa', 'Hau`ula',
-      'Hawaii Kai', 'Honolulu', 'Ka`a`awa', 'Kahala',
-      'Kahuku', 'Kailua', 'Kane`ohe', 'Kapolei',
-      'La`ie', 'Lanikai', 'Ma`ili', 'Makaha',
-      'Manoa', 'Mililani', 'Nanakuli', 'Pearl City',
-      'University of Hawaii Manoa', 'Wahiawa', 'Waialua',
-      'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu',
-    ],
-  },
-  destination: {
-    type: String,
-    allowedValues: [
-      'Aiea', 'Ewa Beach', 'Hale`iwa', 'Hau`ula',
-      'Hawaii Kai', 'Honolulu', 'Ka`a`awa', 'Kahala',
-      'Kahuku', 'Kailua', 'Kane`ohe', 'Kapolei',
-      'La`ie', 'Lanikai', 'Ma`ili', 'Makaha',
-      'Manoa', 'Mililani', 'Nanakuli', 'Pearl City',
-      'University of Hawaii Manoa', 'Wahiawa', 'Waialua',
-      'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu',
-    ],
-  },
-  date: Date,
-}, { tracker: Tracker });
+const RidesSchema = Joi.object({
+  _id: Joi.string().optional(),
+  driver: Joi.string().required(),
+  rider: Joi.string().required(),
+  origin: Joi.string().valid(
+    'Aiea', 'Ewa Beach', 'Hale`iwa', 'Hau`ula',
+    'Hawaii Kai', 'Honolulu', 'Ka`a`awa', 'Kahala',
+    'Kahuku', 'Kailua', 'Kane`ohe', 'Kapolei',
+    'La`ie', 'Lanikai', 'Ma`ili', 'Makaha',
+    'Manoa', 'Mililani', 'Nanakuli', 'Pearl City',
+    'University of Hawaii Manoa', 'Wahiawa', 'Waialua',
+    'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu'
+  ).required(),
+  destination: Joi.string().valid(
+    'Aiea', 'Ewa Beach', 'Hale`iwa', 'Hau`ula',
+    'Hawaii Kai', 'Honolulu', 'Ka`a`awa', 'Kahala',
+    'Kahuku', 'Kailua', 'Kane`ohe', 'Kapolei',
+    'La`ie', 'Lanikai', 'Ma`ili', 'Makaha',
+    'Manoa', 'Mililani', 'Nanakuli', 'Pearl City',
+    'University of Hawaii Manoa', 'Wahiawa', 'Waialua',
+    'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu'
+  ).required(),
+  date: Joi.date().required(),
+});
 
-
-/** Attach this schema to the Notes. */
-Rides.attachSchema(RidesSchema);
-
-/** Make the Notes and schema available to other code. */
+/** Make the collection available to other code. */
 export { Rides, RidesSchema };
