@@ -60,7 +60,7 @@ class AddRide extends React.Component {
     }
 
     return (
-        <div className='signUpBackground'>
+        <div>
         <Grid container centered >
           <Grid.Column>
             <Header as="h2" textAlign="center">Create Your Ride</Header>

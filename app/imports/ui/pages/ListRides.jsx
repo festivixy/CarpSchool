@@ -43,7 +43,7 @@ class ListRides extends React.Component {
         && (a.driver !== Meteor.user().username) && (a.rider === 'TBD'));
 
     return (
-        <div className='listBackground'>
+        <div>
         <Container>
           <Header as="h2" textAlign="center"> Available Rides</Header>
           <div>

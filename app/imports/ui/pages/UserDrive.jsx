@@ -20,7 +20,7 @@ class UserDrive extends React.Component {
     availRides = availRides.filter(a => (a.driver === Meteor.user().username));
 
     return (
-        <div className='listBackground'>
+        <div>
         <Container>
           <Header as="h2" textAlign="center">Active Rides as Driver</Header>
           <Card.Group itemsPerRow={4}>

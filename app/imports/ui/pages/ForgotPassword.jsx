@@ -34,7 +34,7 @@ class ForgotPassword extends React.Component {
   render() {
     let fRef = null;
     return (
-        <div className='forgot-background'>
+        <div>
           <Grid container centered>
             <Grid.Column>
               <AutoForm ref={ref => {
