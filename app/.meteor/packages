@@ -23,8 +23,6 @@ react-meteor-data@0.2.6-beta.16  # Support withTracker to connect Meteor data to
 accounts-password@3.2.0          # https://guide.meteor.com/accounts.html
 
 # Collection support
-aldeed:collection2          # Integrate node simpl-schema with Meteor collections.
-aldeed:schema-index              # Support index: true and unique: true in schema definitions.
 # simpl-schema
 
 # Utilities
@@ -36,3 +34,5 @@ alanning:roles                   # https://github.com/alanning/meteor-roles
 insecure@1.0.8                   # Enable client-side manipulation of Mongo collections.
 email@3.1.2
 accounts-ui@1.4.3
+jquery
+session
