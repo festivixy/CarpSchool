@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link, Redirect } from 'react-router-dom';
-import { Container, Form, Grid, Header, Message, Segment, Button, Divider, Modal } from 'semantic-ui-react';
+import { Container, Form, Grid, Header, Message, Segment, Button, Divider, Modal, Input } from 'semantic-ui-react';
 import { Accounts } from 'meteor/accounts-base';
 import { Meteor } from 'meteor/meteor';
 
@@ -179,14 +179,16 @@ class Signup extends React.Component {
                   </Button>
                 </div>
 
-                <Form.Input
-                  label="Enter the characters shown above"
-                  name="captchaInput"
-                  placeholder="Enter CAPTCHA"
-                  value={this.state.captchaInput}
-                  onChange={this.handleChange}
-                  style={{ textAlign: 'center' }}
-                />
+                <Form.Field>
+                  <Input
+                      label={{ basic: true, content: 'Enter the characters shown above' }}
+                      name="captchaInput"
+                      placeholder="Enter CAPTCHA"
+                      value={this.state.captchaInput}
+                      onChange={this.handleChange}
+                      style={{ textAlign: 'center' }}
+                  />
+                </Form.Field>
 
                 <Form.Button content="Submit"/>
               </Segment>
