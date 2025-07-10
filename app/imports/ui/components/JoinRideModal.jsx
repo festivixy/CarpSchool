@@ -15,6 +15,32 @@ class JoinRideModal extends React.Component {
     this.inputRefs = [];
   }
 
+  componentDidMount() {
+    this.prefillCodeIfProvided();
+  }
+
+  componentDidUpdate(prevProps) {
+    // If prefillCode prop changed, update the inputs
+    if (prevProps.prefillCode !== this.props.prefillCode) {
+      this.prefillCodeIfProvided();
+    }
+  }
+
+  prefillCodeIfProvided = () => {
+    const { prefillCode } = this.props;
+    if (prefillCode && prefillCode.length >= 8) {
+      // Remove dash and take first 8 characters
+      const cleanCode = prefillCode.replace(/-/g, '').slice(0, 8);
+      const newInputs = ['', '', '', '', '', '', '', ''];
+      
+      for (let i = 0; i < cleanCode.length && i < 8; i++) {
+        newInputs[i] = cleanCode[i].toUpperCase();
+      }
+      
+      this.setState({ codeInputs: newInputs, error: null });
+    }
+  };
+
   handleInputChange = (index, e) => {
     const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     
@@ -186,6 +212,7 @@ class JoinRideModal extends React.Component {
 JoinRideModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  prefillCode: PropTypes.string,
 };
 
 export default JoinRideModal;

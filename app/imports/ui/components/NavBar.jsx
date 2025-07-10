@@ -80,6 +80,7 @@ class NavBar extends React.Component {
         <JoinRideModal 
           open={this.state.joinRideModalOpen}
           onClose={this.handleJoinRideClose}
+          prefillCode=""
         />
       </>
     );

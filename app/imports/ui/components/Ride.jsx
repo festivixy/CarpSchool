@@ -54,6 +54,46 @@ class Ride extends React.Component {
     this.setState({ shareModalOpen: false, shareCode: null, isExistingCode: false });
   };
 
+  generateInviteLink = () => {
+    const { shareCode } = this.state;
+    if (shareCode) {
+      const inviteLink = `${window.location.origin}/#/imRiding?code=${shareCode.replace('-', '')}`;
+      
+      // Copy to clipboard
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(inviteLink).then(() => {
+          swal('Link Copied!', 'The invite link has been copied to your clipboard.', 'success');
+        }).catch(() => {
+          // Fallback if clipboard API fails
+          this.fallbackCopyToClipboard(inviteLink);
+        });
+      } else {
+        // Fallback for older browsers
+        this.fallbackCopyToClipboard(inviteLink);
+      }
+    }
+  };
+
+  fallbackCopyToClipboard = (text) => {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      document.execCommand('copy');
+      swal('Link Copied!', 'The invite link has been copied to your clipboard.', 'success');
+    } catch (err) {
+      swal('Copy Failed', 'Please manually copy the link: ' + text, 'error');
+    }
+    
+    document.body.removeChild(textArea);
+  };
+
   isCurrentUserDriver = () => {
     return Meteor.user() && this.props.ride.driver === Meteor.user().username;
   };
@@ -130,6 +170,9 @@ class Ride extends React.Component {
             </div>
           </Modal.Content>
           <Modal.Actions>
+            <Button color="green" onClick={this.generateInviteLink}>
+              <Icon name="linkify" /> Copy Invite Link
+            </Button>
             <Button color="blue" onClick={this.closeShareModal}>
               <Icon name="check" /> Done
             </Button>
