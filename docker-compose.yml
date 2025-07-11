@@ -21,5 +21,20 @@ services:
       - mongo_data:/data/db
     restart: unless-stopped
 
+  mongo-express:
+    image: mongo-express
+    container_name: carpool-mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=password
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
 volumes:
   mongo_data:
