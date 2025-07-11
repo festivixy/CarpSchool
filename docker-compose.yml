@@ -9,7 +9,7 @@ services:
       - MONGO_URL=mongodb://mongo:27017/carpool
       - PORT=3000
     volumes:
-      - ./build/bundle.tar.gz:/bundle/bundle.tar.gz
+      - ./build/app.tar.gz:/bundle/bundle.tar.gz
     depends_on:
       - mongo
     restart: unless-stopped

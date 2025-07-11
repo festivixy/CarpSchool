@@ -20,20 +20,14 @@ rm -rf build
 # Step 2: Build the Meteor app
 echo -e "${YELLOW}📦 Building Meteor app bundle...${NC}"
 cd app
-meteor build --directory ../build --architecture os.linux.x86_64 --server-only
+meteor build ../build --architecture os.linux.x86_64 --server-only
 cd ..
 
-# Step 3: Create the compressed bundle
-echo -e "${YELLOW}🗜️  Creating compressed bundle...${NC}"
-cd build/bundle
-tar -czf ../bundle.tar.gz .
-cd ../..
-
-# Step 4: Start services with Docker Compose
+# Step 3: Start services with Docker Compose
 echo -e "${YELLOW}🚀 Starting services with Docker Compose...${NC}"
 docker compose up -d
 
-# Step 5: Show status
+# Step 4: Show status
 echo -e "${GREEN}✅ Services started successfully!${NC}"
 echo -e "${GREEN}🌐 App available at: http://localhost:3000${NC}"
 echo ""
