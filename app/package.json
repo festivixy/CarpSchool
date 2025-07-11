@@ -38,6 +38,8 @@
   "scripts": {
     "start": "meteor --no-release-check --settings ../config/settings.development.json",
     "lint": "eslint --quiet --ext .jsx --ext .js ./imports",
-    "fixlint": "eslint --quiet --ext .jsx --ext .js ./imports --fix"
+    "fixlint": "eslint --quiet --ext .jsx --ext .js ./imports --fix",
+    "build": "meteor build ../build --architecture os.linux.x86_64 --server-only",
+    "prod": "cd .. && ./build-and-run.sh"
   }
 }
