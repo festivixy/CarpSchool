@@ -24,8 +24,6 @@ services:
   mongo-express:
     image: mongo-express
     container_name: carpool-mongo-express
-    profiles:
-      - tools
     ports:
       - "127.0.0.1:8081:8081"
     environment:

@@ -31,6 +31,10 @@ cd ..
 echo -e "${YELLOW}🚀 Starting services with Docker Compose...${NC}"
 docker compose up -d
 
+# Step 3.5: Stop mongo-express immediately after starting
+echo -e "${YELLOW}🛑 Stopping mongo-express...${NC}"
+docker compose stop mongo-express
+
 # Step 4: Show status
 echo -e "${GREEN}✅ Services started successfully!${NC}"
 echo -e "${GREEN}🌐 App available at: http://localhost:3000${NC}"
