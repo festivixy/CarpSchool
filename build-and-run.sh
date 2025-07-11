@@ -20,6 +20,10 @@ rm -rf build
 # Step 2: Build the Meteor app
 echo -e "${YELLOW}📦 Building Meteor app bundle...${NC}"
 cd app
+echo -e "${YELLOW}🔄 Updating browserslist database...${NC}"
+meteor npm install caniuse-lite --save --legacy-peer-deps
+npx update-browserslist-db@latest
+echo -e "${YELLOW}🚀 Building Meteor bundle...${NC}"
 meteor build ../build --architecture os.linux.x86_64 --server-only
 cd ..
 
