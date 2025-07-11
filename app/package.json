@@ -42,6 +42,7 @@
     "lint": "eslint --quiet --ext .jsx --ext .js ./imports",
     "fixlint": "eslint --quiet --ext .jsx --ext .js ./imports --fix",
     "build": "meteor build ../build --architecture os.linux.x86_64 --server-only",
-    "prod": "cd .. && ./build-and-run.sh"
+    "prod": "cd .. && ./build-and-run.sh",
+    "clean": "cd .. && ./clean.sh"
   }
 }
