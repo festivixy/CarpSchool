@@ -7,3 +7,4 @@ settings.production.json
 package-lock.json
 app/.meteor/local
 app/.deploy
+build/
