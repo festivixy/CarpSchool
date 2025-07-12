@@ -106,6 +106,12 @@ class NavBar extends React.Component {
                   to="/adminUsers"
                   text="Manage Users"
                 />
+                <Dropdown.Item
+                  as={NavLink}
+                  exact
+                  to="/testImageUpload"
+                  text="Test Image Upload"
+                />
               </Dropdown.Menu>
             </Dropdown>
           ) : (

@@ -21,6 +21,7 @@ import ActiveRides from '../pages/ActiveRides';
 import UserDrive from '../pages/UserDrive';
 import UserRide from '../pages/UserRide';
 import ForgotPassword from '../pages/ForgotPassword';
+import TestImageUpload from '../pages/TestImageUpload';
 
 /**
  * HomeRoute component that redirects logged-in users to /listMyRides
@@ -72,6 +73,7 @@ class App extends React.Component {
                 <ProtectedRoute path="/addProfile/:_id" component={AddProfile}/>
                 <ProtectedRoute path="/myRides" component={AddStuff}/>
                 <ProtectedRoute path="/editProfile/:_id" component={EditProfile}/>
+                <ProtectedRoute path="/testImageUpload" component={TestImageUpload}/>
                 <AdminProtectedRoute path="/adminRides" component={AdminRides}/>
                 <AdminProtectedRoute path="/adminUsers" component={AdminUsers}/>
                 <ProtectedRoute path="/signout" component={Signout}/>

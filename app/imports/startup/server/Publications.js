@@ -3,6 +3,7 @@ import { Stuffs } from '../../api/stuff/Stuff';
 import { Profiles } from '../../api/profile/Profile';
 import { Notes } from '../../api/note/Notes';
 import { Rides } from '../../api/ride/Rides';
+import { Images } from '../../api/images/Images';
 
 /** This subscription publishes only the documents associated with the logged in user */
 Meteor.publish('Stuff', async function publish() {
@@ -90,6 +91,28 @@ Meteor.publish('AllUsers', async function () {
           profile: 1,
           roles: 1,
           createdAt: 1,
+        },
+      });
+    }
+  }
+  return this.ready();
+});
+
+/** This subscription publishes image metadata (without image data) for admin users */
+Meteor.publish('ImagesMetadata', async function () {
+  if (this.userId) {
+    const user = await Meteor.users.findOneAsync(this.userId);
+    if (user && user.roles && user.roles.includes('admin')) {
+      return Images.find({}, {
+        fields: {
+          uuid: 1,
+          sha256Hash: 1,
+          fileName: 1,
+          mimeType: 1,
+          fileSize: 1,
+          uploadedAt: 1,
+          uploadedBy: 1,
+          // Exclude imageData for performance
         },
       });
     }
