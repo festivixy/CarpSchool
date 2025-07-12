@@ -64,45 +64,12 @@ This will start the Meteor development server with:
 
 ## Code Quality & Linting
 
-This project maintains high code quality standards using ESLint with Airbnb configuration.
+This project maintains high code quality standards using ESLint.
 
-### Check for lint errors:
-```bash
-cd app
-npm run lint
-```
-
-### Auto-fix lint errors:
+### Checking and fixing lint errors:
 ```bash
 cd app
 npm run fixlint
-```
-
-## Project Structure
-
-```
-app/
-├── client/                 # Client-side entry points and assets
-│   ├── main.html          # Main HTML template
-│   ├── main.js            # Client startup
-│   ├── style.css          # Global styles
-│   └── public/            # Static assets
-├── imports/
-│   ├── api/               # Data layer (Collections, Methods)
-│   │   ├── note/          # Notes collection
-│   │   ├── profile/       # User profiles
-│   │   ├── ride/          # Rides collection
-│   │   └── stuff/         # General items
-│   ├── startup/           # Application initialization
-│   │   ├── client/        # Client-side startup
-│   │   └── server/        # Server-side startup
-│   └── ui/                # User interface components
-│       ├── components/    # Reusable UI components
-│       ├── forms/         # Form utilities and bridges
-│       ├── layouts/       # Page layouts
-│       └── pages/         # Application pages
-├── server/                # Server-side entry points
-└── package.json           # Dependencies and scripts
 ```
 
 ## Contributing
