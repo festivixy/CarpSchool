@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Images, ImagesSchema } from '../images/Images.js';
+import { EJSON } from 'meteor/ejson';
 import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import svgCaptcha from 'svg-captcha';
@@ -77,7 +78,8 @@ Meteor.methods({
 
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-    const fileSize = Buffer.byteLength(imageData.base64Data, 'base64');
+    const binaryData = Buffer.from(imageData.base64Data, 'base64');
+    const fileSize = binaryData.length;
     if (fileSize > maxSize) {
       throw new Meteor.Error('file-too-large', 'File size must be less than 5MB');
     }
@@ -86,7 +88,7 @@ Meteor.methods({
     const uuid = uuidv4();
     const sha256Hash = crypto
       .createHash('sha256')
-      .update(imageData.base64Data, 'base64')
+      .update(binaryData)
       .digest('hex');
 
     // Check if image already exists (duplicate check)
@@ -99,7 +101,7 @@ Meteor.methods({
     const imageDoc = {
       uuid,
       sha256Hash,
-      imageData: imageData.base64Data,
+      imageData: binaryData, // Store Buffer directly
       fileName: imageData.fileName,
       mimeType: imageData.mimeType,
       fileSize,
@@ -107,8 +109,12 @@ Meteor.methods({
       uploadedBy: this.userId || null,
     };
 
-    // Validate the document
-    const { error } = ImagesSchema.validate(imageDoc);
+    // Validate the document (skip imageData validation for binary)
+    const docForValidation = { ...imageDoc };
+    delete docForValidation.imageData; // Remove binary data for Joi validation
+    
+    const validationSchema = ImagesSchema.fork('imageData', (schema) => schema.optional());
+    const { error } = validationSchema.validate(docForValidation);
     if (error) {
       throw new Meteor.Error('validation-error', error.details[0].message);
     }
@@ -135,13 +141,72 @@ Meteor.methods({
       throw new Meteor.Error('image-not-found', 'Image not found');
     }
     
+    // Convert binary data back to base64 for client
+    const base64Data = Buffer.from(image.imageData).toString('base64');
+    
     return {
       uuid: image.uuid,
       fileName: image.fileName,
       mimeType: image.mimeType,
       fileSize: image.fileSize,
       uploadedAt: image.uploadedAt,
-      imageData: image.imageData,
+      imageData: base64Data,
     };
+  },
+
+  /**
+   * Get image metadata by UUID (without binary data for performance)
+   * @param {String} uuid - The image UUID
+   */
+  async 'images.getMetadataByUuid'(uuid) {
+    check(uuid, String);
+    
+    const image = await Images.findOneAsync({ uuid }, {
+      fields: {
+        uuid: 1,
+        fileName: 1,
+        mimeType: 1,
+        fileSize: 1,
+        uploadedAt: 1,
+        sha256Hash: 1,
+        // Exclude imageData for performance
+      }
+    });
+    
+    if (!image) {
+      throw new Meteor.Error('image-not-found', 'Image not found');
+    }
+    
+    return image;
+  },
+
+  /**
+   * Get multiple images metadata by UUIDs (for listing/admin views)
+   * @param {Array} uuids - Array of image UUIDs
+   */
+  async 'images.getMultipleMetadata'(uuids) {
+    check(uuids, [String]);
+    
+    if (uuids.length > 50) {
+      throw new Meteor.Error('too-many-requests', 'Maximum 50 UUIDs allowed per request');
+    }
+    
+    const images = await Images.find(
+      { uuid: { $in: uuids } },
+      {
+        fields: {
+          uuid: 1,
+          fileName: 1,
+          mimeType: 1,
+          fileSize: 1,
+          uploadedAt: 1,
+          sha256Hash: 1,
+          uploadedBy: 1,
+          // Exclude imageData for performance
+        }
+      }
+    ).fetchAsync();
+    
+    return images;
   },
 });

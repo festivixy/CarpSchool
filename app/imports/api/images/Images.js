@@ -8,7 +8,7 @@ const ImagesSchema = Joi.object({
   _id: Joi.string().optional(),
   uuid: Joi.string().required(),
   sha256Hash: Joi.string().required(),
-  imageData: Joi.string().required(), // base64 encoded image
+  imageData: Joi.any().required(), // Accept any type for binary data
   fileName: Joi.string().required(),
   mimeType: Joi.string().required(),
   fileSize: Joi.number().required(),
