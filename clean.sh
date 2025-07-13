@@ -25,6 +25,9 @@ docker compose down
 echo -e "${YELLOW}🗂️  Cleaning build artifacts...${NC}"
 rm -rf build
 
+echo -e "${YELLOW}🗑️  Removing local Meteor build artifacts...${NC}"
+rm -rf app/.meteor/local
+
 # Step 4: Clean Docker images (optional - uncomment if needed)
 # echo -e "${YELLOW}🐳 Removing unused Docker images...${NC}"
 # docker image prune -f
