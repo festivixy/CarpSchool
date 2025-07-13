@@ -1,4 +1,4 @@
-const places = [
+const places_ = [
     'Aiea', 'Ewa Beach', 'Hale`iwa', 'Hau`ula',
     'Hawaii Kai', 'Honolulu', 'Ka`a`awa', 'Kahala',
     'Kahuku', 'Kailua', 'Kane`ohe', 'Kapolei',
@@ -7,6 +7,8 @@ const places = [
     'University of Hawaii Manoa', 'Wahiawa', 'Waialua',
     'Wai`anae', 'Waikiki', 'Waimanalo', 'Waipahu'];
 
+const places = ["place1", "place2", "place3"]; // Example places array, replace with actual data
+
 const placesOptions = [];
 
 for (let index = 0; index < places.length; index++) {
@@ -14,4 +16,7 @@ for (let index = 0; index < places.length; index++) {
     placesOptions.push({ key: element, text: element, value: element });
 }
 
+// Export for both CommonJS and ES6 compatibility
+const exports_ = { places, placesOptions };
 export { places, placesOptions };
+export default exports_;
