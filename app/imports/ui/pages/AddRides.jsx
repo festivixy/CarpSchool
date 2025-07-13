@@ -3,9 +3,11 @@ import { Grid, Segment, Header } from 'semantic-ui-react';
 import { AutoForm, SelectField, SubmitField, ErrorsField } from 'uniforms-semantic';
 import swal from 'sweetalert';
 import { Meteor } from 'meteor/meteor';
+import { withRouter } from 'react-router-dom';
 import Joi from 'joi';
 import { JoiBridge } from '../forms/JoiBridge';
 import { Rides } from '../../api/ride/Rides';
+import { placesOptions } from '../../api/places/Places.mjs';
 
 // Create a minimal test schema using Joi
 const AddRideSchema = Joi.object({
@@ -41,6 +43,8 @@ class AddRide extends React.Component {
           } else {
             swal('Success', 'Ride added successfully', 'success');
             formRef.reset();
+            // Redirect to imRiding page after successful ride creation
+            this.props.history.push('/imRiding');
           }
         });
   }
@@ -66,64 +70,8 @@ class AddRide extends React.Component {
             <Header as="h2" textAlign="center">Create Your Ride</Header>
             <AutoForm ref={ref => { fRef = ref; }} schema={localBridge} onSubmit={data => this.submit(data, fRef)} >
               <Segment >
-                <SelectField name='origin' placeholder='Select origin' options={[
-                  { key: 'Aiea', text: 'Aiea', value: 'Aiea' },
-                  { key: 'Ewa Beach', text: 'Ewa Beach', value: 'Ewa Beach' },
-                  { key: 'Hale`iwa', text: 'Hale`iwa', value: 'Hale`iwa' },
-                  { key: 'Hau`ula', text: 'Hau`ula', value: 'Hau`ula' },
-                  { key: 'Hawaii Kai', text: 'Hawaii Kai', value: 'Hawaii Kai' },
-                  { key: 'Honolulu', text: 'Honolulu', value: 'Honolulu' },
-                  { key: 'Ka`a`awa', text: 'Ka`a`awa', value: 'Ka`a`awa' },
-                  { key: 'Kahala', text: 'Kahala', value: 'Kahala' },
-                  { key: 'Kahuku', text: 'Kahuku', value: 'Kahuku' },
-                  { key: 'Kailua', text: 'Kailua', value: 'Kailua' },
-                  { key: 'Kane`ohe', text: 'Kane`ohe', value: 'Kane`ohe' },
-                  { key: 'Kapolei', text: 'Kapolei', value: 'Kapolei' },
-                  { key: 'La`ie', text: 'La`ie', value: 'La`ie' },
-                  { key: 'Lanikai', text: 'Lanikai', value: 'Lanikai' },
-                  { key: 'Ma`ili', text: 'Ma`ili', value: 'Ma`ili' },
-                  { key: 'Makaha', text: 'Makaha', value: 'Makaha' },
-                  { key: 'Manoa', text: 'Manoa', value: 'Manoa' },
-                  { key: 'Mililani', text: 'Mililani', value: 'Mililani' },
-                  { key: 'Nanakuli', text: 'Nanakuli', value: 'Nanakuli' },
-                  { key: 'Pearl City', text: 'Pearl City', value: 'Pearl City' },
-                  { key: 'UH Manoa', text: 'University of Hawaii Manoa', value: 'University of Hawaii Manoa' },
-                  { key: 'Wahiawa', text: 'Wahiawa', value: 'Wahiawa' },
-                  { key: 'Waialua', text: 'Waialua', value: 'Waialua' },
-                  { key: 'Wai`anae', text: 'Wai`anae', value: 'Wai`anae' },
-                  { key: 'Waikiki', text: 'Waikiki', value: 'Waikiki' },
-                  { key: 'Waimanalo', text: 'Waimanalo', value: 'Waimanalo' },
-                  { key: 'Waipahu', text: 'Waipahu', value: 'Waipahu' },
-                ]}/>
-                <SelectField name='destination' placeholder='Select destination' options={[
-                  { key: 'Aiea', text: 'Aiea', value: 'Aiea' },
-                  { key: 'Ewa Beach', text: 'Ewa Beach', value: 'Ewa Beach' },
-                  { key: 'Hale`iwa', text: 'Hale`iwa', value: 'Hale`iwa' },
-                  { key: 'Hau`ula', text: 'Hau`ula', value: 'Hau`ula' },
-                  { key: 'Hawaii Kai', text: 'Hawaii Kai', value: 'Hawaii Kai' },
-                  { key: 'Honolulu', text: 'Honolulu', value: 'Honolulu' },
-                  { key: 'Ka`a`awa', text: 'Ka`a`awa', value: 'Ka`a`awa' },
-                  { key: 'Kahala', text: 'Kahala', value: 'Kahala' },
-                  { key: 'Kahuku', text: 'Kahuku', value: 'Kahuku' },
-                  { key: 'Kailua', text: 'Kailua', value: 'Kailua' },
-                  { key: 'Kane`ohe', text: 'Kane`ohe', value: 'Kane`ohe' },
-                  { key: 'Kapolei', text: 'Kapolei', value: 'Kapolei' },
-                  { key: 'La`ie', text: 'La`ie', value: 'La`ie' },
-                  { key: 'Lanikai', text: 'Lanikai', value: 'Lanikai' },
-                  { key: 'Ma`ili', text: 'Ma`ili', value: 'Ma`ili' },
-                  { key: 'Makaha', text: 'Makaha', value: 'Makaha' },
-                  { key: 'Manoa', text: 'Manoa', value: 'Manoa' },
-                  { key: 'Mililani', text: 'Mililani', value: 'Mililani' },
-                  { key: 'Nanakuli', text: 'Nanakuli', value: 'Nanakuli' },
-                  { key: 'Pearl City', text: 'Pearl City', value: 'Pearl City' },
-                  { key: 'UH Manoa', text: 'University of Hawaii Manoa', value: 'University of Hawaii Manoa' },
-                  { key: 'Wahiawa', text: 'Wahiawa', value: 'Wahiawa' },
-                  { key: 'Waialua', text: 'Waialua', value: 'Waialua' },
-                  { key: 'Wai`anae', text: 'Wai`anae', value: 'Wai`anae' },
-                  { key: 'Waikiki', text: 'Waikiki', value: 'Waikiki' },
-                  { key: 'Waimanalo', text: 'Waimanalo', value: 'Waimanalo' },
-                  { key: 'Waipahu', text: 'Waipahu', value: 'Waipahu' },
-                ]}/>
+                <SelectField name='origin' placeholder='Select origin' options={placesOptions}/>
+                <SelectField name='destination' placeholder='Select destination' options={placesOptions}/>
                 <SubmitField value='Submit'/>
                 <ErrorsField/>
               </Segment>
@@ -135,4 +83,4 @@ class AddRide extends React.Component {
   }
 }
 
-export default AddRide;
+export default withRouter(AddRide);

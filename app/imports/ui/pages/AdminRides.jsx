@@ -5,6 +5,7 @@ import { Rides } from '/imports/api/ride/Rides';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import swal from 'sweetalert';
+import { placesOptions } from '../../api/places/Places.mjs';
 
 /** Admin page for managing all rides */
 class AdminRides extends React.Component {
@@ -189,70 +190,14 @@ class AdminRides extends React.Component {
                 name="origin"
                 value={editForm.origin}
                 onChange={this.handleFormChange}
-                options={[
-                  { key: 'aiea', value: 'Aiea', text: 'Aiea' },
-                  { key: 'ewa', value: 'Ewa Beach', text: 'Ewa Beach' },
-                  { key: 'haleiwa', value: 'Hale`iwa', text: 'Hale`iwa' },
-                  { key: 'hauula', value: 'Hau`ula', text: 'Hau`ula' },
-                  { key: 'hawaiikai', value: 'Hawaii Kai', text: 'Hawaii Kai' },
-                  { key: 'honolulu', value: 'Honolulu', text: 'Honolulu' },
-                  { key: 'kaaawa', value: 'Ka`a`awa', text: 'Ka`a`awa' },
-                  { key: 'kahala', value: 'Kahala', text: 'Kahala' },
-                  { key: 'kahuku', value: 'Kahuku', text: 'Kahuku' },
-                  { key: 'kailua', value: 'Kailua', text: 'Kailua' },
-                  { key: 'kaneohe', value: 'Kane`ohe', text: 'Kane`ohe' },
-                  { key: 'kapolei', value: 'Kapolei', text: 'Kapolei' },
-                  { key: 'laie', value: 'La`ie', text: 'La`ie' },
-                  { key: 'lanikai', value: 'Lanikai', text: 'Lanikai' },
-                  { key: 'maili', value: 'Ma`ili', text: 'Ma`ili' },
-                  { key: 'makaha', value: 'Makaha', text: 'Makaha' },
-                  { key: 'manoa', value: 'Manoa', text: 'Manoa' },
-                  { key: 'mililani', value: 'Mililani', text: 'Mililani' },
-                  { key: 'nanakuli', value: 'Nanakuli', text: 'Nanakuli' },
-                  { key: 'pearlcity', value: 'Pearl City', text: 'Pearl City' },
-                  { key: 'uh', value: 'University of Hawaii Manoa', text: 'University of Hawaii Manoa' },
-                  { key: 'wahiawa', value: 'Wahiawa', text: 'Wahiawa' },
-                  { key: 'waialua', value: 'Waialua', text: 'Waialua' },
-                  { key: 'waianae', value: 'Wai`anae', text: 'Wai`anae' },
-                  { key: 'waikiki', value: 'Waikiki', text: 'Waikiki' },
-                  { key: 'waimanalo', value: 'Waimanalo', text: 'Waimanalo' },
-                  { key: 'waipahu', value: 'Waipahu', text: 'Waipahu' },
-                ]}
+                options={placesOptions}
               />
               <Form.Select
                 label="Destination"
                 name="destination"
                 value={editForm.destination}
                 onChange={this.handleFormChange}
-                options={[
-                  { key: 'aiea', value: 'Aiea', text: 'Aiea' },
-                  { key: 'ewa', value: 'Ewa Beach', text: 'Ewa Beach' },
-                  { key: 'haleiwa', value: 'Hale`iwa', text: 'Hale`iwa' },
-                  { key: 'hauula', value: 'Hau`ula', text: 'Hau`ula' },
-                  { key: 'hawaiikai', value: 'Hawaii Kai', text: 'Hawaii Kai' },
-                  { key: 'honolulu', value: 'Honolulu', text: 'Honolulu' },
-                  { key: 'kaaawa', value: 'Ka`a`awa', text: 'Ka`a`awa' },
-                  { key: 'kahala', value: 'Kahala', text: 'Kahala' },
-                  { key: 'kahuku', value: 'Kahuku', text: 'Kahuku' },
-                  { key: 'kailua', value: 'Kailua', text: 'Kailua' },
-                  { key: 'kaneohe', value: 'Kane`ohe', text: 'Kane`ohe' },
-                  { key: 'kapolei', value: 'Kapolei', text: 'Kapolei' },
-                  { key: 'laie', value: 'La`ie', text: 'La`ie' },
-                  { key: 'lanikai', value: 'Lanikai', text: 'Lanikai' },
-                  { key: 'maili', value: 'Ma`ili', text: 'Ma`ili' },
-                  { key: 'makaha', value: 'Makaha', text: 'Makaha' },
-                  { key: 'manoa', value: 'Manoa', text: 'Manoa' },
-                  { key: 'mililani', value: 'Mililani', text: 'Mililani' },
-                  { key: 'nanakuli', value: 'Nanakuli', text: 'Nanakuli' },
-                  { key: 'pearlcity', value: 'Pearl City', text: 'Pearl City' },
-                  { key: 'uh', value: 'University of Hawaii Manoa', text: 'University of Hawaii Manoa' },
-                  { key: 'wahiawa', value: 'Wahiawa', text: 'Wahiawa' },
-                  { key: 'waialua', value: 'Waialua', text: 'Waialua' },
-                  { key: 'waianae', value: 'Wai`anae', text: 'Wai`anae' },
-                  { key: 'waikiki', value: 'Waikiki', text: 'Waikiki' },
-                  { key: 'waimanalo', value: 'Waimanalo', text: 'Waimanalo' },
-                  { key: 'waipahu', value: 'Waipahu', text: 'Waipahu' },
-                ]}
+                options={placesOptions}
               />
               <Form.Input
                 label="Date"

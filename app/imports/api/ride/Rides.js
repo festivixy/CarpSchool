@@ -1,6 +1,6 @@
 import { Mongo } from 'meteor/mongo';
 import Joi from 'joi';
-import { places } from '../places/Places.js';
+import { places } from '../places/Places.mjs';
 
 /** Define a Mongo collection to hold the data. */
 const Rides = new Mongo.Collection('Rides');
