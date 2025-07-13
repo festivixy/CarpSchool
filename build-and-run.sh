@@ -32,6 +32,7 @@ echo -e "${YELLOW}🚀 Starting services with Docker Compose...${NC}"
 docker compose up -d
 
 # Step 3.5: Stop mongo-express immediately after starting
+# because we dont want our db to be exposed
 echo -e "${YELLOW}🛑 Stopping mongo-express...${NC}"
 docker compose stop mongo-express
 
