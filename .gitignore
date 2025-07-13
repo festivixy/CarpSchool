@@ -8,3 +8,4 @@ package-lock.json
 app/.meteor/local
 app/.deploy
 build/
+config/settings.prod.json
