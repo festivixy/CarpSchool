@@ -35,21 +35,19 @@ const compressImage = async (inputBuffer, targetSizeKB = 750) => {
     
     // Now compress the PNG efficiently
     let compressionLevel = 6; // Start with medium compression
-    let compressed = await sharp(uncompressedPng)
-      .png({ compressionLevel, effort: 10 })
-      .toBuffer();
+    let compressed = await sharp(uncompressedPng).toBuffer();
     
     // If still too large, increase compression level
     while (compressed.length > targetSizeBytes && compressionLevel < 9) {
       compressionLevel++;
       compressed = await sharp(uncompressedPng)
-        .png({ compressionLevel, effort: 10 })
+        .png({ compressionLevel: compressionLevel, effort: 6 })
         .toBuffer();
     }
     
     // If still too large even with maximum PNG compression, reduce dimensions
     if (compressed.length > targetSizeBytes) {
-      let scaleFactor = 0.9;
+      let scaleFactor = 0.79;
       const originalWidth = metadata.width > 2048 ? 2048 : metadata.width;
       const originalHeight = metadata.height > 2048 ? 2048 : metadata.height;
       
@@ -58,15 +56,15 @@ const compressImage = async (inputBuffer, targetSizeKB = 750) => {
         const newHeight = Math.round(originalHeight * scaleFactor);
         
         const resizedPng = await sharp(inputBuffer)
-          .resize(newWidth, newHeight, { fit: 'inside' })
+          .resize(newWidth, newHeight, { fit: 'inside', kernel: sharp.kernel.nearest })
           .png({ compressionLevel: 0 })
           .toBuffer();
         
         compressed = await sharp(resizedPng)
-          .png({ compressionLevel: 9, effort: 10 })
+          .png({ compressionLevel: 9, effort: 6 })
           .toBuffer();
         
-        scaleFactor -= 0.1;
+        scaleFactor -= 0.15;
       }
     }
     

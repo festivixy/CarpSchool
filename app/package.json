@@ -19,7 +19,7 @@
     "react-router-dom": "^4.3.1",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^0.87.3",
-    "sharp": "0.32.6",
+    "sharp": "^0.32.6",
     "simpl-schema": "^1.13.1",
     "svg-captcha": "^1.4.0",
     "sweetalert": "^2.1.2",
