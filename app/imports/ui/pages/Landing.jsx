@@ -22,10 +22,10 @@ class Landing extends React.Component {
                 <Grid.Row>
                   <Header as='h1' textAlign='center' inverted>What is Carpool?</Header>
                   <Container textAlign='justified'>
-                    <p>The Carpool website provides a space for students traveling to/from the UH Manoa campus to easily
+                    <p>The Carpool website provides a space for students traveling to/from the school campus to easily
                       coordinate carpools. </p>
 
-                    <p>The use of UH-email/UH ID numbers ensures that each user is a verified UH Manoa
+                    <p>The use of school email/school ID numbers ensures that each user is a verified school
                       student; this system also prohibits banned users from continuing to use the Carpool website.</p>
                   </Container>
                 </Grid.Row>
@@ -36,7 +36,7 @@ class Landing extends React.Component {
                   </Header>
                   <Container textAlign='justified'>
                     <p>
-                      After signing up for Carpool with your UH email, users can sign in to look
+                      After signing up for Carpool with your school email, users can sign in to look
                       through a list of future rides or create a new ride. After creating a new ride
                       or signing up for a ride, users can view their scheduled rides on their calendar.
                     </p>
