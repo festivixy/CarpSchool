@@ -127,13 +127,13 @@ class MobileNavBar extends React.Component {
                     </button>
                     {this.state.myRidesMenuOpen && (
                       <div className="mobile-navbar-dropdown-menu">
-                        <NavLink
+                        {/* <NavLink
                           to="/listMyRides"
                           className="mobile-navbar-dropdown-item"
                           onClick={this.closeAllMenus}
                         >
                           All Rides
-                        </NavLink>
+                        </NavLink> */}
                         <NavLink
                           to="/imDriving"
                           className="mobile-navbar-dropdown-item"
