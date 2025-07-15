@@ -30,6 +30,7 @@ import MobileImDriving from '../mobile/pages/ImDriving';
 import MobileImRiding from '../mobile/pages/ImRiding';
 import MobileNavBar from '../mobile/components/NavBar';
 import MobileFooter from '../mobile/components/Footer';
+import MobileListMyRides from '../mobile/pages/ListMyRides';
 
 /**
  * HomeRoute component that redirects logged-in users to /listMyRides
@@ -69,20 +70,21 @@ class App extends React.Component {
             <MobileNavBar/>
             <main style={mainContentStyle}>
               <Switch>
-                <Route exact path="/" component={HomeRoute}/>
+                <Route exact path="/" component={MobileLanding}/>
+                <Route path="/signin" component={MobileSignIn}/>
+                <Route path="/signup" component={MobileSignup}/>
+                <Route path="/forgot" component={MobileForgotPassword}/>
+                {/* <Route exact path="/" component={HomeRoute}/>
                 <Route path="/signin" component={SigninRoute}/>
                 <Route path="/signup" component={Signup}/>
-                <Route path="/forgot" component={ForgotPassword}/>
-                <Route path="/mobile/signin" component={MobileSignIn}/>
-                <Route path="/mobile/signup" component={MobileSignup}/>
-                <Route path="/mobile/forgot" component={MobileForgotPassword}/>
-                <Route path="/mobile/landing" component={MobileLanding}/>
-                <ProtectedRoute path="/mobile/imDriving" component={MobileImDriving}/>
-                <ProtectedRoute path="/mobile/imRiding" component={MobileImRiding}/>
-                <ProtectedRoute path="/listMyRides" component={ActiveRides}/>
+                <Route path="/forgot" component={ForgotPassword}/> */}
+                <ProtectedRoute path="/listMyRides" component={MobileListMyRides}/>
+                <ProtectedRoute path="/imDriving" component={MobileImDriving}/>
+                <ProtectedRoute path="/imRiding" component={MobileImRiding}/>
+                {/* <ProtectedRoute path="/listMyRides" component={ActiveRides}/>
                 <ProtectedRoute path="/imDriving" component={UserDrive}/>
-                <ProtectedRoute path="/imRiding" component={UserRide}/>
-                <AdminProtectedRoute path="/list" component={ListRides}/>
+                <ProtectedRoute path="/imRiding" component={UserRide}/> */}
+                {/* <AdminProtectedRoute path="/list" component={ListRides}/> */}
                 <ProtectedRoute path="/add" component={AddRides}/>
                 <ProtectedRoute path="/addProfile/:_id" component={AddProfile}/>
                 <ProtectedRoute path="/myRides" component={AddStuff}/>
