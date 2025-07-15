@@ -190,15 +190,20 @@ class MobileRide extends React.Component {
                 </span>
               </div>
             </div>
-            <div className="mobile-ride-status">
-              {ride.rider === "TBD" ? (
-                <span className="mobile-ride-status-looking">
-                  Looking for rider
-                </span>
-              ) : (
-                <span className="mobile-ride-status-matched">Rider found</span>
-              )}
-            </div>
+            {/* Only show status if current user is not the rider */}
+            {!(Meteor.user() && ride.rider === Meteor.user().username) && (
+              <div className="mobile-ride-status">
+                {ride.rider === "TBD" ? (
+                  <span className="mobile-ride-status-looking">
+                    Looking for rider
+                  </span>
+                ) : (
+                  <span className="mobile-ride-status-matched">
+                    Rider found
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="mobile-ride-details">
