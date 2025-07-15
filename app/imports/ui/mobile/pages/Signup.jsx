@@ -227,17 +227,16 @@ export default class MobileSignup extends React.Component {
                         }}
                       />
                     )}
+                    <button
+                      type="button"
+                      onClick={this.generateNewCaptcha}
+                      disabled={this.state.isLoadingCaptcha}
+                      className="mobile-signup-captcha-refresh-icon"
+                      title="Refresh CAPTCHA"
+                    >
+                      <img src="/svg/refresh.svg" alt="Refresh" />
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={this.generateNewCaptcha}
-                    disabled={this.state.isLoadingCaptcha}
-                    className="mobile-signup-captcha-refresh"
-                  >
-                    {this.state.isLoadingCaptcha
-                      ? "Loading..."
-                      : "Refresh CAPTCHA"}
-                  </button>
                 </div>
 
                 <div className="mobile-signup-field">
@@ -423,11 +422,11 @@ export default class MobileSignup extends React.Component {
               padding: 10px;
               margin-bottom: 8px;
               background-color: rgba(249, 249, 249, 1);
-              display: inline-block;
-              min-height: 50px;
               display: flex;
               align-items: center;
               justify-content: center;
+              min-height: 50px;
+              position: relative;
             }
 
             .mobile-signup-captcha-loading {
@@ -439,25 +438,48 @@ export default class MobileSignup extends React.Component {
               line-height: 1;
             }
 
-            .mobile-signup-captcha-refresh {
-              background-color: rgba(238, 238, 238, 1);
-              border: none;
-              border-radius: 6px;
-              padding: 6px 12px;
-              font-size: 12px;
-              color: rgba(0, 0, 0, 1);
+            .mobile-signup-captcha-refresh-icon {
+              position: absolute;
+              bottom: 4px;
+              right: 4px;
+              background-color: rgba(255, 255, 255, 0.9);
+              border: 1px solid rgba(200, 200, 200, 1);
+              border-radius: 50%;
+              width: 24px;
+              height: 24px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
               cursor: pointer;
-              font-family: inherit;
+              transition: all 0.2s ease;
+              backdrop-filter: blur(2px);
+              padding: 0;
             }
 
-            .mobile-signup-captcha-refresh:hover {
-              background-color: rgba(220, 220, 220, 1);
+            .mobile-signup-captcha-refresh-icon img {
+              width: 14px;
+              height: 14px;
+              opacity: 0.7;
             }
 
-            .mobile-signup-captcha-refresh:disabled {
-              background-color: rgba(245, 245, 245, 1);
-              color: rgba(150, 150, 150, 1);
+            .mobile-signup-captcha-refresh-icon:hover:not(:disabled) {
+              background-color: rgba(255, 255, 255, 1);
+              border-color: rgba(0, 0, 0, 0.3);
+              transform: scale(1.1);
+            }
+
+            .mobile-signup-captcha-refresh-icon:hover:not(:disabled) img {
+              opacity: 1;
+            }
+
+            .mobile-signup-captcha-refresh-icon:disabled {
+              background-color: rgba(245, 245, 245, 0.8);
               cursor: not-allowed;
+              transform: none;
+            }
+
+            .mobile-signup-captcha-refresh-icon:disabled img {
+              opacity: 0.3;
             }
 
             .mobile-signup-button {
