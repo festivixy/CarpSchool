@@ -24,6 +24,7 @@ import ForgotPassword from '../pages/ForgotPassword';
 import TestImageUpload from '../pages/TestImageUpload';
 import MobileSignIn from '../mobile/SignIn';
 import MobileSignup from '../mobile/Signup';
+import MobileForgotPassword from '../mobile/ForgotPassword';
 
 /**
  * HomeRoute component that redirects logged-in users to /listMyRides
@@ -69,6 +70,7 @@ class App extends React.Component {
                 <Route path="/forgot" component={ForgotPassword}/>
                 <Route path="/mobile/signin" component={MobileSignIn}/>
                 <Route path="/mobile/signup" component={MobileSignup}/>
+                <Route path="/mobile/forgot" component={MobileForgotPassword}/>
                 <ProtectedRoute path="/listMyRides" component={ActiveRides}/>
                 <ProtectedRoute path="/imDriving" component={UserDrive}/>
                 <ProtectedRoute path="/imRiding" component={UserRide}/>
