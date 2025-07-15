@@ -92,11 +92,11 @@ class MobileImRiding extends React.Component {
 
   handleContactDriver = async (driver) => {
     try {
-      // Create or find existing chat with the driver
+      // Create or find existing chat with the driver (chats.create returns existing chat if one exists)
       const chatId = await Meteor.callAsync("chats.create", [driver]);
 
-      // Navigate to chat page
-      this.props.history.push("/chat");
+      // Navigate to chat page with the specific chat ID
+      this.props.history.push("/chat", { selectedChatId: chatId });
     } catch (error) {
       console.error("Error creating/opening chat:", error);
       alert("Unable to open chat. Please try again.");

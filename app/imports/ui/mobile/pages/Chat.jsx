@@ -1,6 +1,7 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
+import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Chats } from "../../../api/chat/Chat";
 import "../../../api/chat/ChatMethods";
@@ -14,11 +15,12 @@ class MobileChat extends React.Component {
     this.state = {
       selectedChatId: null,
       messageInput: "",
-      showNewChatModal: false,
-      showAddPersonModal: false,
-      newChatParticipants: [],
-      newParticipantInput: "",
-      addPersonInput: "",
+      showJoinChatModal: false,
+      showShareCodeModal: false,
+      showCreateChatModal: false,
+      joinCodeInput: "",
+      selectedChatShareCode: "",
+      newChatShareCode: "",
       error: "",
       success: "",
     };
@@ -26,14 +28,30 @@ class MobileChat extends React.Component {
   }
 
   componentDidMount() {
-    // Auto-select first chat if available
-    if (this.props.chats && this.props.chats.length > 0) {
+    // Check if a specific chat was passed via navigation state
+    const locationState = this.props.location?.state;
+    if (locationState?.selectedChatId) {
+      this.setState({ selectedChatId: locationState.selectedChatId });
+    } else if (this.props.chats && this.props.chats.length > 0) {
+      // Auto-select first chat if available and no specific chat requested
       this.setState({ selectedChatId: this.props.chats[0]._id });
     }
   }
 
   componentDidUpdate(prevProps) {
-    // Auto-select first chat when chats load
+    // Check for navigation state changes
+    const locationState = this.props.location?.state;
+    const prevLocationState = prevProps.location?.state;
+
+    if (
+      locationState?.selectedChatId &&
+      locationState.selectedChatId !== prevLocationState?.selectedChatId
+    ) {
+      this.setState({ selectedChatId: locationState.selectedChatId });
+      return;
+    }
+
+    // Auto-select first chat when chats load (only if no specific chat selected)
     if (
       this.props.chats &&
       this.props.chats.length > 0 &&
@@ -77,22 +95,12 @@ class MobileChat extends React.Component {
   };
 
   handleCreateChat = async () => {
-    const { newChatParticipants } = this.state;
-
-    if (newChatParticipants.length === 0) {
-      this.setState({ error: "Please add at least one participant" });
-      return;
-    }
-
     try {
-      const chatId = await Meteor.callAsync(
-        "chats.create",
-        newChatParticipants,
-      );
+      const result = await Meteor.callAsync("chats.createWithCode");
       this.setState({
-        showNewChatModal: false,
-        newChatParticipants: [],
-        selectedChatId: chatId,
+        showCreateChatModal: true,
+        newChatShareCode: result.shareCode,
+        selectedChatId: result.chatId,
         success: "Chat created successfully!",
       });
       setTimeout(() => this.setState({ success: "" }), 3000);
@@ -101,42 +109,24 @@ class MobileChat extends React.Component {
     }
   };
 
-  handleAddParticipant = (e) => {
-    e.preventDefault();
-    const { newParticipantInput, newChatParticipants } = this.state;
+  handleJoinChat = async () => {
+    const { joinCodeInput } = this.state;
 
-    if (!newParticipantInput.trim()) return;
-
-    if (newChatParticipants.includes(newParticipantInput.trim())) {
-      this.setState({ error: "Participant already added" });
-      return;
-    }
-
-    this.setState({
-      newChatParticipants: [...newChatParticipants, newParticipantInput.trim()],
-      newParticipantInput: "",
-      error: "",
-    });
-  };
-
-  handleAddPersonToChat = async () => {
-    const { addPersonInput, selectedChatId } = this.state;
-
-    if (!addPersonInput.trim() || !selectedChatId) {
-      this.setState({ error: "Please enter a username" });
+    if (!joinCodeInput.trim()) {
+      this.setState({ error: "Please enter a chat code" });
       return;
     }
 
     try {
-      await Meteor.callAsync(
-        "chats.addParticipant",
-        selectedChatId,
-        addPersonInput.trim(),
+      const chatId = await Meteor.callAsync(
+        "chats.joinChat",
+        joinCodeInput.trim(),
       );
       this.setState({
-        showAddPersonModal: false,
-        addPersonInput: "",
-        success: "Person added successfully!",
+        showJoinChatModal: false,
+        joinCodeInput: "",
+        selectedChatId: chatId,
+        success: "Joined chat successfully!",
       });
       setTimeout(() => this.setState({ success: "" }), 3000);
     } catch (error) {
@@ -144,11 +134,59 @@ class MobileChat extends React.Component {
     }
   };
 
-  removeParticipant = (participant) => {
-    const { newChatParticipants } = this.state;
-    this.setState({
-      newChatParticipants: newChatParticipants.filter((p) => p !== participant),
-    });
+  handleShowShareCode = async (chatId) => {
+    try {
+      const shareCode = await Meteor.callAsync(
+        "chats.generateShareCode",
+        chatId,
+      );
+      this.setState({
+        showShareCodeModal: true,
+        selectedChatShareCode: shareCode,
+      });
+    } catch (error) {
+      this.setState({ error: error.reason || error.message });
+    }
+  };
+
+  copyShareCode = () => {
+    const { selectedChatShareCode } = this.state;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(selectedChatShareCode).then(() => {
+        this.setState({ success: "Share code copied to clipboard!" });
+        setTimeout(() => this.setState({ success: "" }), 3000);
+      });
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = selectedChatShareCode;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      this.setState({ success: "Share code copied to clipboard!" });
+      setTimeout(() => this.setState({ success: "" }), 3000);
+    }
+  };
+
+  copyNewChatCode = () => {
+    const { newChatShareCode } = this.state;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(newChatShareCode).then(() => {
+        this.setState({ success: "Chat code copied to clipboard!" });
+        setTimeout(() => this.setState({ success: "" }), 3000);
+      });
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = newChatShareCode;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      this.setState({ success: "Chat code copied to clipboard!" });
+      setTimeout(() => this.setState({ success: "" }), 3000);
+    }
   };
 
   scrollToBottom = () => {
@@ -202,12 +240,16 @@ class MobileChat extends React.Component {
     );
 
     if (otherParticipants.length === 0) {
-      return "You";
-    } else if (otherParticipants.length === 1) {
-      return otherParticipants[0];
+      return chat.shareCode ? "Waiting for someone to join..." : "Empty Chat";
     } else {
-      return `${otherParticipants[0]} & ${otherParticipants.length - 1} other${otherParticipants.length > 2 ? "s" : ""}`;
+      return otherParticipants[0];
     }
+  };
+
+  getChatStatus = (chat) => {
+    return chat.Participants.length === 1
+      ? "Waiting for participant"
+      : "Active";
   };
 
   render() {
@@ -225,11 +267,12 @@ class MobileChat extends React.Component {
     const {
       selectedChatId,
       messageInput,
-      showNewChatModal,
-      showAddPersonModal,
-      newChatParticipants,
-      newParticipantInput,
-      addPersonInput,
+      showJoinChatModal,
+      showShareCodeModal,
+      showCreateChatModal,
+      joinCodeInput,
+      selectedChatShareCode,
+      newChatShareCode,
       error,
       success,
     } = this.state;
@@ -243,12 +286,20 @@ class MobileChat extends React.Component {
           {/* Header */}
           <div className="mobile-chat-header">
             <h1 className="mobile-chat-title">Messages</h1>
-            <button
-              className="mobile-chat-new-button"
-              onClick={() => this.setState({ showNewChatModal: true })}
-            >
-              + New Chat
-            </button>
+            <div className="mobile-chat-header-buttons">
+              <button
+                className="mobile-chat-create-button"
+                onClick={this.handleCreateChat}
+              >
+                Create Chat
+              </button>
+              <button
+                className="mobile-chat-join-button"
+                onClick={() => this.setState({ showJoinChatModal: true })}
+              >
+                Join Chat
+              </button>
+            </div>
           </div>
 
           {/* Error/Success Messages */}
@@ -291,12 +342,22 @@ class MobileChat extends React.Component {
                 ) : (
                   <div className="mobile-chat-list-empty">
                     <p>No chats yet</p>
-                    <button
-                      className="mobile-chat-create-first-button"
-                      onClick={() => this.setState({ showNewChatModal: true })}
-                    >
-                      Create your first chat
-                    </button>
+                    <div className="mobile-chat-empty-buttons">
+                      <button
+                        className="mobile-chat-create-first-button"
+                        onClick={this.handleCreateChat}
+                      >
+                        Create Chat
+                      </button>
+                      <button
+                        className="mobile-chat-join-first-button"
+                        onClick={() =>
+                          this.setState({ showJoinChatModal: true })
+                        }
+                      >
+                        Join Chat
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -316,14 +377,16 @@ class MobileChat extends React.Component {
                         {selectedChat.Participants.join(", ")}
                       </p>
                     </div>
-                    <button
-                      className="mobile-chat-add-person-button"
-                      onClick={() =>
-                        this.setState({ showAddPersonModal: true })
-                      }
-                    >
-                      + Add Person
-                    </button>
+                    {selectedChat.Participants.length === 1 && (
+                      <button
+                        className="mobile-chat-share-button"
+                        onClick={() =>
+                          this.handleShowShareCode(selectedChat._id)
+                        }
+                      >
+                        Share Code
+                      </button>
+                    )}
                   </div>
 
                   {/* Messages */}
@@ -411,12 +474,12 @@ class MobileChat extends React.Component {
           </div>
         </div>
 
-        {/* New Chat Modal */}
-        {showNewChatModal && (
+        {/* Join Chat Modal */}
+        {showJoinChatModal && (
           <div
             className="mobile-chat-modal-overlay"
             onClick={() =>
-              this.setState({ showNewChatModal: false, error: "" })
+              this.setState({ showJoinChatModal: false, error: "" })
             }
           >
             <div
@@ -424,93 +487,11 @@ class MobileChat extends React.Component {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mobile-chat-modal-header">
-                <h2>New Chat</h2>
+                <h2>Join Chat</h2>
                 <button
                   className="mobile-chat-modal-close"
                   onClick={() =>
-                    this.setState({ showNewChatModal: false, error: "" })
-                  }
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="mobile-chat-modal-content">
-                <form onSubmit={this.handleAddParticipant}>
-                  <div className="mobile-chat-form-group">
-                    <label>Add Participants</label>
-                    <div className="mobile-chat-add-participant">
-                      <input
-                        type="text"
-                        placeholder="Enter username"
-                        value={newParticipantInput}
-                        onChange={(e) =>
-                          this.setState({ newParticipantInput: e.target.value })
-                        }
-                      />
-                      <button type="submit">Add</button>
-                    </div>
-                  </div>
-                </form>
-
-                {newChatParticipants.length > 0 && (
-                  <div className="mobile-chat-participants-list">
-                    <h4>Participants:</h4>
-                    {newChatParticipants.map((participant) => (
-                      <div
-                        key={participant}
-                        className="mobile-chat-participant-item"
-                      >
-                        <span>{participant}</span>
-                        <button
-                          onClick={() => this.removeParticipant(participant)}
-                          className="mobile-chat-remove-participant"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="mobile-chat-modal-actions">
-                <button
-                  className="mobile-chat-button-secondary"
-                  onClick={() =>
-                    this.setState({ showNewChatModal: false, error: "" })
-                  }
-                >
-                  Cancel
-                </button>
-                <button
-                  className="mobile-chat-button-primary"
-                  onClick={this.handleCreateChat}
-                  disabled={newChatParticipants.length === 0}
-                >
-                  Create Chat
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Add Person Modal */}
-        {showAddPersonModal && (
-          <div
-            className="mobile-chat-modal-overlay"
-            onClick={() =>
-              this.setState({ showAddPersonModal: false, error: "" })
-            }
-          >
-            <div
-              className="mobile-chat-modal"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mobile-chat-modal-header">
-                <h2>Add Person to Chat</h2>
-                <button
-                  className="mobile-chat-modal-close"
-                  onClick={() =>
-                    this.setState({ showAddPersonModal: false, error: "" })
+                    this.setState({ showJoinChatModal: false, error: "" })
                   }
                 >
                   ✕
@@ -518,32 +499,135 @@ class MobileChat extends React.Component {
               </div>
               <div className="mobile-chat-modal-content">
                 <div className="mobile-chat-form-group">
-                  <label>Username</label>
+                  <label>Chat Code</label>
                   <input
                     type="text"
-                    placeholder="Enter username to add"
-                    value={addPersonInput}
+                    placeholder="Enter chat code (e.g. ABCD-1234)"
+                    value={joinCodeInput}
                     onChange={(e) =>
-                      this.setState({ addPersonInput: e.target.value })
+                      this.setState({
+                        joinCodeInput: e.target.value.toUpperCase(),
+                      })
                     }
                   />
+                  <p className="mobile-chat-form-hint">
+                    Ask someone to share their chat code with you
+                  </p>
                 </div>
               </div>
               <div className="mobile-chat-modal-actions">
                 <button
                   className="mobile-chat-button-secondary"
                   onClick={() =>
-                    this.setState({ showAddPersonModal: false, error: "" })
+                    this.setState({ showJoinChatModal: false, error: "" })
                   }
                 >
                   Cancel
                 </button>
                 <button
                   className="mobile-chat-button-primary"
-                  onClick={this.handleAddPersonToChat}
-                  disabled={!addPersonInput.trim()}
+                  onClick={this.handleJoinChat}
+                  disabled={!joinCodeInput.trim()}
                 >
-                  Add Person
+                  Join Chat
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Share Code Modal */}
+        {showShareCodeModal && (
+          <div
+            className="mobile-chat-modal-overlay"
+            onClick={() => this.setState({ showShareCodeModal: false })}
+          >
+            <div
+              className="mobile-chat-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mobile-chat-modal-header">
+                <h2>Share Chat Code</h2>
+                <button
+                  className="mobile-chat-modal-close"
+                  onClick={() => this.setState({ showShareCodeModal: false })}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="mobile-chat-modal-content">
+                <div className="mobile-chat-share-code-display">
+                  <label>Share this code with someone to join your chat:</label>
+                  <div className="mobile-chat-code-container">
+                    <div className="mobile-chat-code">
+                      {selectedChatShareCode}
+                    </div>
+                  </div>
+                  <p className="mobile-chat-form-hint">
+                    This code will be removed once someone joins the chat
+                  </p>
+                </div>
+              </div>
+              <div className="mobile-chat-modal-actions">
+                <button
+                  className="mobile-chat-button-primary"
+                  onClick={this.copyShareCode}
+                >
+                  📋 Copy Code
+                </button>
+                <button
+                  className="mobile-chat-button-secondary"
+                  onClick={() => this.setState({ showShareCodeModal: false })}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create Chat Success Modal */}
+        {showCreateChatModal && (
+          <div
+            className="mobile-chat-modal-overlay"
+            onClick={() => this.setState({ showCreateChatModal: false })}
+          >
+            <div
+              className="mobile-chat-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mobile-chat-modal-header">
+                <h2>Chat Created!</h2>
+                <button
+                  className="mobile-chat-modal-close"
+                  onClick={() => this.setState({ showCreateChatModal: false })}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="mobile-chat-modal-content">
+                <div className="mobile-chat-share-code-display">
+                  <label>Your chat code is ready! Share it with someone:</label>
+                  <div className="mobile-chat-code-container">
+                    <div className="mobile-chat-code">{newChatShareCode}</div>
+                  </div>
+                  <p className="mobile-chat-form-hint">
+                    Send this code to someone so they can join your chat
+                  </p>
+                </div>
+              </div>
+              <div className="mobile-chat-modal-actions">
+                <button
+                  className="mobile-chat-button-primary"
+                  onClick={this.copyNewChatCode}
+                >
+                  📋 Copy Code
+                </button>
+                <button
+                  className="mobile-chat-button-secondary"
+                  onClick={() => this.setState({ showCreateChatModal: false })}
+                >
+                  Done
                 </button>
               </div>
             </div>
@@ -580,7 +664,13 @@ class MobileChat extends React.Component {
             margin: 0;
           }
 
-          .mobile-chat-new-button {
+          .mobile-chat-header-buttons {
+            display: flex;
+            gap: 8px;
+          }
+
+          .mobile-chat-create-button,
+          .mobile-chat-join-button {
             background-color: rgba(0, 0, 0, 1);
             color: rgba(255, 255, 255, 1);
             border: none;
@@ -592,7 +682,8 @@ class MobileChat extends React.Component {
             transition: all 0.2s ease;
           }
 
-          .mobile-chat-new-button:hover {
+          .mobile-chat-create-button:hover,
+          .mobile-chat-join-button:hover {
             background-color: rgba(40, 40, 40, 1);
             transform: translateY(-1px);
           }
@@ -700,7 +791,15 @@ class MobileChat extends React.Component {
             margin-bottom: 16px;
           }
 
-          .mobile-chat-create-first-button {
+          .mobile-chat-empty-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+          }
+
+          .mobile-chat-create-first-button,
+          .mobile-chat-join-first-button {
             background-color: rgba(0, 0, 0, 1);
             color: rgba(255, 255, 255, 1);
             border: none;
@@ -709,6 +808,7 @@ class MobileChat extends React.Component {
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            width: 140px;
           }
 
           .mobile-chat-main {
@@ -740,7 +840,7 @@ class MobileChat extends React.Component {
             color: rgba(100, 100, 100, 1);
           }
 
-          .mobile-chat-add-person-button {
+          .mobile-chat-share-button {
             background-color: rgba(0, 0, 0, 1);
             color: rgba(255, 255, 255, 1);
             border: none;
@@ -749,6 +849,34 @@ class MobileChat extends React.Component {
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
+          }
+
+          .mobile-chat-form-hint {
+            font-size: 12px;
+            color: rgba(100, 100, 100, 1);
+            margin-top: 8px;
+            line-height: 1.4;
+          }
+
+          .mobile-chat-share-code-display {
+            text-align: center;
+          }
+
+          .mobile-chat-code-container {
+            background-color: rgba(248, 249, 250, 1);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+          }
+
+          .mobile-chat-code {
+            font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: rgba(0, 0, 0, 1);
+            letter-spacing: 2px;
+            text-align: center;
           }
 
           .mobile-chat-messages {
@@ -1118,14 +1246,17 @@ class MobileChat extends React.Component {
 MobileChat.propTypes = {
   chats: PropTypes.array,
   ready: PropTypes.bool.isRequired,
+  location: PropTypes.object,
 };
 
-export default withTracker(() => {
-  const subscription = Meteor.subscribe("chats");
-  const ready = subscription.ready();
+export default withRouter(
+  withTracker(() => {
+    const subscription = Meteor.subscribe("chats");
+    const ready = subscription.ready();
 
-  return {
-    chats: ready ? Chats.find({}).fetch() : [],
-    ready: ready,
-  };
-})(MobileChat);
+    return {
+      chats: ready ? Chats.find({}).fetch() : [],
+      ready: ready,
+    };
+  })(MobileChat),
+);
