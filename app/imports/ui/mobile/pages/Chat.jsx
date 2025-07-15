@@ -18,12 +18,13 @@ class MobileChat extends React.Component {
       showJoinChatModal: false,
       showShareCodeModal: false,
       showCreateChatModal: false,
-      joinCodeInput: "",
+      codeInputs: ["", "", "", "", "", "", "", ""], // 8 separate inputs for join code
       selectedChatShareCode: "",
       newChatShareCode: "",
       error: "",
       success: "",
     };
+    this.codeInputRefs = [];
     this.isSubmitting = false;
   }
 
@@ -80,7 +81,7 @@ class MobileChat extends React.Component {
       await Meteor.callAsync(
         "chats.sendMessage",
         selectedChatId,
-        messageToSend,
+        messageToSend
       );
       // Scroll to bottom after message is sent
       setTimeout(() => this.scrollToBottom(), 100);
@@ -109,22 +110,68 @@ class MobileChat extends React.Component {
     }
   };
 
-  handleJoinChat = async () => {
-    const { joinCodeInput } = this.state;
+  handleCodeInputChange = (index, e) => {
+    const value = e.target.value.toUpperCase();
 
-    if (!joinCodeInput.trim()) {
-      this.setState({ error: "Please enter a chat code" });
+    if (value.length <= 1) {
+      const newInputs = [...this.state.codeInputs];
+      newInputs[index] = value;
+      this.setState({ codeInputs: newInputs, error: "" });
+
+      // Auto-advance to next input
+      if (value.length === 1 && index < 7) {
+        const nextInput = this.codeInputRefs[index + 1];
+        if (nextInput) {
+          nextInput.focus();
+        }
+      }
+    }
+  };
+
+  handleCodeKeyDown = (index, e) => {
+    // Handle backspace to go to previous input
+    if (
+      e.key === "Backspace" &&
+      this.state.codeInputs[index] === "" &&
+      index > 0
+    ) {
+      const prevInput = this.codeInputRefs[index - 1];
+      if (prevInput) {
+        prevInput.focus();
+      }
+    }
+  };
+
+  handleCodePaste = (e) => {
+    e.preventDefault();
+    const paste = e.clipboardData.getData("text").toUpperCase();
+    const cleanPaste = paste.replace(/[^A-Z0-9]/g, "");
+
+    if (cleanPaste.length <= 8) {
+      const newInputs = [...this.state.codeInputs];
+      for (let i = 0; i < 8; i++) {
+        newInputs[i] = cleanPaste[i] || "";
+      }
+      this.setState({ codeInputs: newInputs, error: "" });
+    }
+  };
+
+  handleJoinChat = async () => {
+    const shareCode = this.state.codeInputs.join("");
+
+    if (shareCode.length !== 8) {
+      this.setState({ error: "Please enter a complete 8-character code" });
       return;
     }
 
+    // Format code with dash for API call
+    const formattedCode = `${shareCode.slice(0, 4)}-${shareCode.slice(4)}`;
+
     try {
-      const chatId = await Meteor.callAsync(
-        "chats.joinChat",
-        joinCodeInput.trim(),
-      );
+      const chatId = await Meteor.callAsync("chats.joinChat", formattedCode);
       this.setState({
         showJoinChatModal: false,
-        joinCodeInput: "",
+        codeInputs: ["", "", "", "", "", "", "", ""],
         selectedChatId: chatId,
         success: "Joined chat successfully!",
       });
@@ -138,7 +185,7 @@ class MobileChat extends React.Component {
     try {
       const shareCode = await Meteor.callAsync(
         "chats.generateShareCode",
-        chatId,
+        chatId
       );
       this.setState({
         showShareCodeModal: true,
@@ -229,14 +276,14 @@ class MobileChat extends React.Component {
 
   getSelectedChat = () => {
     return this.props.chats?.find(
-      (chat) => chat._id === this.state.selectedChatId,
+      (chat) => chat._id === this.state.selectedChatId
     );
   };
 
   getChatDisplayName = (chat) => {
     const currentUser = this.getCurrentUser();
     const otherParticipants = chat.Participants.filter(
-      (p) => p !== currentUser,
+      (p) => p !== currentUser
     );
 
     if (otherParticipants.length === 0) {
@@ -270,7 +317,6 @@ class MobileChat extends React.Component {
       showJoinChatModal,
       showShareCodeModal,
       showCreateChatModal,
-      joinCodeInput,
       selectedChatShareCode,
       newChatShareCode,
       error,
@@ -398,12 +444,14 @@ class MobileChat extends React.Component {
                         index === 0 ||
                         this.formatDate(message.Timestamp) !==
                           this.formatDate(
-                            selectedChat.Messages[index - 1].Timestamp,
+                            selectedChat.Messages[index - 1].Timestamp
                           );
 
                       return (
                         <React.Fragment
-                          key={`${message.Timestamp?.getTime() || Date.now()}-${index}`}
+                          key={`${
+                            message.Timestamp?.getTime() || Date.now()
+                          }-${index}`}
                         >
                           {showDateSeparator && (
                             <div className="mobile-chat-date-separator">
@@ -415,8 +463,8 @@ class MobileChat extends React.Component {
                               isCurrentUser
                                 ? "own"
                                 : isSystem
-                                  ? "system"
-                                  : "other"
+                                ? "system"
+                                : "other"
                             }`}
                           >
                             {!isCurrentUser && !isSystem && (
@@ -479,7 +527,11 @@ class MobileChat extends React.Component {
           <div
             className="mobile-chat-modal-overlay"
             onClick={() =>
-              this.setState({ showJoinChatModal: false, error: "" })
+              this.setState({
+                showJoinChatModal: false,
+                error: "",
+                codeInputs: ["", "", "", "", "", "", "", ""],
+              })
             }
           >
             <div
@@ -491,7 +543,11 @@ class MobileChat extends React.Component {
                 <button
                   className="mobile-chat-modal-close"
                   onClick={() =>
-                    this.setState({ showJoinChatModal: false, error: "" })
+                    this.setState({
+                      showJoinChatModal: false,
+                      error: "",
+                      codeInputs: ["", "", "", "", "", "", "", ""],
+                    })
                   }
                 >
                   ✕
@@ -499,17 +555,34 @@ class MobileChat extends React.Component {
               </div>
               <div className="mobile-chat-modal-content">
                 <div className="mobile-chat-form-group">
-                  <label>Chat Code</label>
-                  <input
-                    type="text"
-                    placeholder="Enter chat code (e.g. ABCD-1234)"
-                    value={joinCodeInput}
-                    onChange={(e) =>
-                      this.setState({
-                        joinCodeInput: e.target.value.toUpperCase(),
-                      })
-                    }
-                  />
+                  <label>Enter Chat Code</label>
+                  <div className="mobile-chat-code-inputs">
+                    {this.state.codeInputs.map((value, index) => (
+                      <React.Fragment key={index}>
+                        <input
+                          ref={(ref) => {
+                            this.codeInputRefs[index] = ref;
+                          }}
+                          value={value}
+                          onChange={(e) => this.handleCodeInputChange(index, e)}
+                          onKeyDown={(e) => this.handleCodeKeyDown(index, e)}
+                          onPaste={
+                            index === 0 ? this.handleCodePaste : undefined
+                          }
+                          className="mobile-chat-code-input"
+                          maxLength={1}
+                          type="text"
+                          inputMode="alphanumeric"
+                          autoCapitalize="characters"
+                          autoComplete="off"
+                          spellCheck="false"
+                        />
+                        {index === 3 && (
+                          <span className="mobile-chat-dash">-</span>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
                   <p className="mobile-chat-form-hint">
                     Ask someone to share their chat code with you
                   </p>
@@ -519,7 +592,11 @@ class MobileChat extends React.Component {
                 <button
                   className="mobile-chat-button-secondary"
                   onClick={() =>
-                    this.setState({ showJoinChatModal: false, error: "" })
+                    this.setState({
+                      showJoinChatModal: false,
+                      error: "",
+                      codeInputs: ["", "", "", "", "", "", "", ""],
+                    })
                   }
                 >
                   Cancel
@@ -527,7 +604,7 @@ class MobileChat extends React.Component {
                 <button
                   className="mobile-chat-button-primary"
                   onClick={this.handleJoinChat}
-                  disabled={!joinCodeInput.trim()}
+                  disabled={this.state.codeInputs.some((input) => input === "")}
                 >
                   Join Chat
                 </button>
@@ -638,12 +715,7 @@ class MobileChat extends React.Component {
           .mobile-chat-container {
             background-color: rgba(248, 249, 250, 1);
             min-height: 100vh;
-            font-family:
-              Inter,
-              -apple-system,
-              Roboto,
-              Helvetica,
-              sans-serif;
+            font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
             display: flex;
             flex-direction: column;
           }
@@ -877,6 +949,47 @@ class MobileChat extends React.Component {
             color: rgba(0, 0, 0, 1);
             letter-spacing: 2px;
             text-align: center;
+          }
+
+          .mobile-chat-code-inputs {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+          }
+
+          .mobile-chat-code-input {
+            width: 32px !important;
+            height: 48px !important;
+            border: 2px solid rgba(224, 224, 224, 1);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            font-family: "SF Mono", "Monaco", "Consolas", monospace;
+            background-color: rgba(255, 255, 255, 1);
+            transition: all 0.2s ease;
+            outline: none;
+            color: rgba(0, 0, 0, 1);
+          }
+
+          .mobile-chat-code-input:focus {
+            border-color: rgba(0, 0, 0, 1);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+          }
+
+          .mobile-chat-code-input:not(:placeholder-shown) {
+            border-color: rgba(0, 150, 0, 1);
+            background-color: rgba(240, 255, 240, 1);
+          }
+
+          .mobile-chat-dash {
+            font-size: 20px;
+            font-weight: 600;
+            color: rgba(150, 150, 150, 1);
+            margin: 0 4px;
+            font-family: "SF Mono", "Monaco", "Consolas", monospace;
           }
 
           .mobile-chat-messages {
@@ -1237,6 +1350,7 @@ class MobileChat extends React.Component {
               border-radius: 12px;
             }
           }
+
         `}</style>
       </>
     );
@@ -1258,5 +1372,5 @@ export default withRouter(
       chats: ready ? Chats.find({}).fetch() : [],
       ready: ready,
     };
-  })(MobileChat),
+  })(MobileChat)
 );
