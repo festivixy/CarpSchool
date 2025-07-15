@@ -9,7 +9,6 @@ import AddStuff from '../pages/AddStuff';
 import AddProfile from '../pages/AddProfile';
 import EditProfile from '../pages/EditProfile';
 import NotFound from '../pages/NotFound';
-import Signout from '../pages/Signout';
 import AddRides from '../pages/AddRides';
 import TestImageUpload from '../pages/TestImageUpload';
 import MobileSignIn from '../mobile/pages/SignIn';
@@ -21,6 +20,7 @@ import MobileImRiding from '../mobile/pages/ImRiding';
 import MobileNavBar from '../mobile/components/NavBar';
 import MobileFooter from '../mobile/components/Footer';
 import MobileChat from '../mobile/pages/Chat';
+import MobileSignout from '../mobile/pages/Signout';
 
 /**
  * HomeRoute component that redirects logged-in users to /listMyRides
@@ -82,7 +82,7 @@ class App extends React.Component {
                 <ProtectedRoute path="/testImageUpload" component={TestImageUpload}/>
                 <AdminProtectedRoute path="/adminRides" component={AdminRides}/>
                 <AdminProtectedRoute path="/adminUsers" component={AdminUsers}/>
-                <ProtectedRoute path="/signout" component={Signout}/>
+                <ProtectedRoute path="/signout" component={MobileSignout}/>
                 <ProtectedRoute path="/chat" component={MobileChat}/>
                 <Route component={NotFound}/>
               </Switch>
