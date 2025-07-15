@@ -81,7 +81,7 @@ class MobileChat extends React.Component {
       await Meteor.callAsync(
         "chats.sendMessage",
         selectedChatId,
-        messageToSend
+        messageToSend,
       );
       // Scroll to bottom after message is sent
       setTimeout(() => this.scrollToBottom(), 100);
@@ -185,7 +185,7 @@ class MobileChat extends React.Component {
     try {
       const shareCode = await Meteor.callAsync(
         "chats.generateShareCode",
-        chatId
+        chatId,
       );
       this.setState({
         showShareCodeModal: true,
@@ -276,14 +276,14 @@ class MobileChat extends React.Component {
 
   getSelectedChat = () => {
     return this.props.chats?.find(
-      (chat) => chat._id === this.state.selectedChatId
+      (chat) => chat._id === this.state.selectedChatId,
     );
   };
 
   getChatDisplayName = (chat) => {
     const currentUser = this.getCurrentUser();
     const otherParticipants = chat.Participants.filter(
-      (p) => p !== currentUser
+      (p) => p !== currentUser,
     );
 
     if (otherParticipants.length === 0) {
@@ -444,7 +444,7 @@ class MobileChat extends React.Component {
                         index === 0 ||
                         this.formatDate(message.Timestamp) !==
                           this.formatDate(
-                            selectedChat.Messages[index - 1].Timestamp
+                            selectedChat.Messages[index - 1].Timestamp,
                           );
 
                       return (
@@ -463,8 +463,8 @@ class MobileChat extends React.Component {
                               isCurrentUser
                                 ? "own"
                                 : isSystem
-                                ? "system"
-                                : "other"
+                                  ? "system"
+                                  : "other"
                             }`}
                           >
                             {!isCurrentUser && !isSystem && (
@@ -715,7 +715,12 @@ class MobileChat extends React.Component {
           .mobile-chat-container {
             background-color: rgba(248, 249, 250, 1);
             min-height: 100vh;
-            font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+            font-family:
+              Inter,
+              -apple-system,
+              Roboto,
+              Helvetica,
+              sans-serif;
             display: flex;
             flex-direction: column;
           }
@@ -1187,6 +1192,7 @@ class MobileChat extends React.Component {
             justify-content: center;
             z-index: 1000;
             padding: 20px;
+            backdrop-filter: blur(4px);
           }
 
           .mobile-chat-modal {
@@ -1197,6 +1203,24 @@ class MobileChat extends React.Component {
             width: 100%;
             max-height: 80vh;
             overflow-y: auto;
+            font-family:
+              Inter,
+              -apple-system,
+              Roboto,
+              Helvetica,
+              sans-serif;
+            animation: modalSlideIn 0.3s ease-out;
+          }
+
+          @keyframes modalSlideIn {
+            from {
+              opacity: 0;
+              transform: scale(0.9) translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1) translateY(0);
+            }
           }
 
           .mobile-chat-modal-header {
@@ -1350,7 +1374,6 @@ class MobileChat extends React.Component {
               border-radius: 12px;
             }
           }
-
         `}</style>
       </>
     );
@@ -1372,5 +1395,5 @@ export default withRouter(
       chats: ready ? Chats.find({}).fetch() : [],
       ready: ready,
     };
-  })(MobileChat)
+  })(MobileChat),
 );
