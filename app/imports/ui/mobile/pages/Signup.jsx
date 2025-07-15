@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { Link, Redirect } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
-import { Button } from "semantic-ui-react";
 
 /**
  * Mobile Signup component with modern design and full functionality including CAPTCHA
