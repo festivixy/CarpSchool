@@ -408,7 +408,7 @@ class MobileNavBar extends React.Component {
 
         <style jsx>{`
           .mobile-navbar {
-            background-color: #024731;
+            background-color: rgba(0, 0, 0, 1);
             color: white;
             position: sticky;
             top: 0;
@@ -439,6 +439,7 @@ class MobileNavBar extends React.Component {
           .mobile-navbar-logo-img {
             height: 40px;
             width: auto;
+            border-radius: 8px;
           }
 
           .mobile-navbar-desktop-nav {
@@ -551,7 +552,7 @@ class MobileNavBar extends React.Component {
           }
 
           .mobile-navbar-mobile-menu {
-            background-color: #035d40;
+            background-color: rgba(0, 0, 0, 1);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
           }
 
