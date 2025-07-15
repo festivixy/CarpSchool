@@ -539,7 +539,6 @@ class MobileChat extends React.Component {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mobile-chat-modal-header">
-                <h2>Join Chat</h2>
                 <button
                   className="mobile-chat-modal-close"
                   onClick={() =>
@@ -549,13 +548,18 @@ class MobileChat extends React.Component {
                       codeInputs: ["", "", "", "", "", "", "", ""],
                     })
                   }
+                  aria-label="Close"
                 >
                   ✕
                 </button>
+                <h2 className="mobile-chat-modal-title">Join Chat</h2>
+                <div className="mobile-chat-modal-subtitle">
+                  Enter the 8-character code shared with you
+                </div>
               </div>
               <div className="mobile-chat-modal-content">
                 <div className="mobile-chat-form-group">
-                  <label>Enter Chat Code</label>
+                  {/* <label>Enter Chat Code</label> */}
                   <div className="mobile-chat-code-inputs">
                     {this.state.codeInputs.map((value, index) => (
                       <React.Fragment key={index}>
@@ -583,9 +587,9 @@ class MobileChat extends React.Component {
                       </React.Fragment>
                     ))}
                   </div>
-                  <p className="mobile-chat-form-hint">
+                  {/* <p className="mobile-chat-form-hint">
                     Ask someone to share their chat code with you
-                  </p>
+                  </p> */}
                 </div>
               </div>
               <div className="mobile-chat-modal-actions">
@@ -942,32 +946,32 @@ class MobileChat extends React.Component {
           .mobile-chat-code-container {
             background-color: rgba(248, 249, 250, 1);
             border: 2px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 24px;
-            margin: 16px 0;
+            border-radius: 12px !important;
+            padding: 24px !important;
+            margin: 16px 0 !important;
           }
 
           .mobile-chat-code {
             font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-            font-size: 28px;
-            font-weight: 700;
-            color: rgba(0, 0, 0, 1);
-            letter-spacing: 2px;
-            text-align: center;
+            font-size: 28px !important;
+            font-weight: 700 !important;
+            color: rgba(0, 0, 0, 1) !important;
+            letter-spacing: 2px !important;
+            text-align: center !important;
           }
 
           .mobile-chat-code-inputs {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-bottom: 16px !important;
           }
 
           .mobile-chat-code-input {
             width: 32px !important;
             height: 48px !important;
-            border: 2px solid rgba(224, 224, 224, 1);
+            border: 2px solid rgba(224, 224, 224, 1) !important;
             border-radius: 8px;
             text-align: center;
             font-size: 18px;
@@ -977,6 +981,7 @@ class MobileChat extends React.Component {
             transition: all 0.2s ease;
             outline: none;
             color: rgba(0, 0, 0, 1);
+            overflow: hidden;
           }
 
           .mobile-chat-code-input:focus {
@@ -985,7 +990,7 @@ class MobileChat extends React.Component {
           }
 
           .mobile-chat-code-input:not(:placeholder-shown) {
-            border-color: rgba(0, 150, 0, 1);
+            border-color: rgba(0, 150, 0, 1) !important;
             background-color: rgba(240, 255, 240, 1);
           }
 
@@ -1224,25 +1229,48 @@ class MobileChat extends React.Component {
           }
 
           .mobile-chat-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
+            padding: 24px 24px 16px 24px;
             border-bottom: 1px solid rgba(240, 240, 240, 1);
-          }
-
-          .mobile-chat-modal-header h2 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 600;
+            position: relative;
+            text-align: center;
           }
 
           .mobile-chat-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             background: none;
             border: none;
-            font-size: 20px;
+            font-size: 18px;
+            color: rgba(100, 100, 100, 1);
             cursor: pointer;
-            color: rgba(150, 150, 150, 1);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+          }
+
+          .mobile-chat-modal-close:hover {
+            background-color: rgba(240, 240, 240, 1);
+            color: rgba(0, 0, 0, 1);
+          }
+
+          .mobile-chat-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 1);
+            margin: 0 0 8px 0;
+            letter-spacing: -0.3px;
+          }
+
+          .mobile-chat-modal-subtitle {
+            font-size: 14px;
+            color: rgba(100, 100, 100, 1);
+            margin: 0;
+            line-height: 1.4;
           }
 
           .mobile-chat-modal-content {
@@ -1263,7 +1291,7 @@ class MobileChat extends React.Component {
 
           .mobile-chat-form-group input {
             width: 100%;
-            padding: 10px 12px;
+            // padding: 10px 12px;
             border: 1px solid rgba(224, 224, 224, 1);
             border-radius: 8px;
             font-size: 14px;
