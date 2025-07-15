@@ -23,7 +23,7 @@ export default function MobileFooter() {
           </a>
         </div>
         <div className="mobile-footer-copyright">
-          © 2024 Carpool. All rights reserved.
+          © 2025 Carpool. All rights reserved.
         </div>
       </div>
 
