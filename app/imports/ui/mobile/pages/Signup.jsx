@@ -132,7 +132,7 @@ export default class MobileSignup extends React.Component {
   /** Render the signup form. */
   render() {
     const { from } = this.props.location?.state || {
-      from: { pathname: "/listMyRides" },
+      from: { pathname: "/imDriving" },
     };
     // if correct authentication, redirect to from: page instead of signup screen
     if (this.state.redirectToReferer) {
