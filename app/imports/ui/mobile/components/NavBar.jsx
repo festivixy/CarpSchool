@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter, NavLink } from "react-router-dom";
-import JoinRideModal from "../../components/JoinRideModal";
+import MobileJoinRideModal from "./JoinRideModal";
 
 /** The Mobile NavBar appears at the top of every page with modern mobile design. */
 class MobileNavBar extends React.Component {
@@ -386,7 +386,7 @@ class MobileNavBar extends React.Component {
           )}
         </nav>
 
-        <JoinRideModal
+        <MobileJoinRideModal
           open={this.state.joinRideModalOpen}
           onClose={this.handleJoinRideClose}
           prefillCode=""

@@ -1,5 +1,6 @@
 /* Global styles for sticky footer */
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -9,8 +10,8 @@ html, body {
   height: 100%;
 }
 
-.landing-background{
-  background: url('images/Carpool-landing.jpg') no-repeat center center fixed;
+.landing-background {
+  background: url("images/Carpool-landing.jpg") no-repeat center center fixed;
   background-size: cover;
   color: white;
 }
@@ -23,16 +24,22 @@ html, body {
   text-align: center;
 }
 
-/* Make headers and titles visible against dark blue background (#0d3349) */
-.ui.header, h1, h2, h3, h4, h5, h6 {
-  color: #ffffff !important;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+/* Make headers and titles visible with black color and white text-shadow */
+.ui.header,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #000000 !important;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 /* Ensure text in containers is also visible */
 .ui.container .ui.header,
 .ui.grid .ui.header {
-  color: #ffffff !important;
+  color: #000000 !important;
 }
 
 /* Keep headers dark on light backgrounds (cards, modals, segments) */
@@ -40,14 +47,12 @@ html, body {
 .ui.card .ui.header,
 .ui.modal .ui.header,
 .ui.form .ui.header {
-  color: rgba(0,0,0,.87) !important;
+  color: rgba(0, 0, 0, 0.87) !important;
   text-shadow: none;
 }
 
 /* Make sure regular text in dark areas is also visible */
 .ui.container h2,
 .ui.grid h2 {
-  color: #ffffff !important;
+  color: #000000 !important;
 }
-
-
