@@ -4,6 +4,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter, NavLink } from "react-router-dom";
 import MobileJoinRideModal from "./JoinRideModal";
+import MobileAddRidesModal from "./AddRides";
 
 /** The Mobile NavBar appears at the top of every page with modern mobile design. */
 class MobileNavBar extends React.Component {
@@ -11,6 +12,7 @@ class MobileNavBar extends React.Component {
     super(props);
     this.state = {
       joinRideModalOpen: false,
+      addRidesModalOpen: false,
       mobileMenuOpen: false,
       userMenuOpen: false,
       myRidesMenuOpen: false,
@@ -24,6 +26,14 @@ class MobileNavBar extends React.Component {
 
   handleJoinRideClose = () => {
     this.setState({ joinRideModalOpen: false });
+  };
+
+  handleAddRidesClick = () => {
+    this.setState({ addRidesModalOpen: true, mobileMenuOpen: false });
+  };
+
+  handleAddRidesClose = () => {
+    this.setState({ addRidesModalOpen: false });
   };
 
   toggleMobileMenu = () => {
@@ -143,13 +153,12 @@ class MobileNavBar extends React.Component {
                   </div>
 
                   {/* Create Ride */}
-                  <NavLink
-                    to="/add/"
-                    className="mobile-navbar-nav-item"
-                    onClick={this.closeAllMenus}
+                  <button
+                    className="mobile-navbar-nav-item mobile-navbar-button"
+                    onClick={this.handleAddRidesClick}
                   >
                     ➕ Create Ride
-                  </NavLink>
+                  </button>
 
                   {/* Join Ride */}
                   <button
@@ -300,13 +309,12 @@ class MobileNavBar extends React.Component {
                   </div>
 
                   <div className="mobile-navbar-mobile-section">
-                    <NavLink
-                      to="/add/"
-                      className="mobile-navbar-mobile-item"
-                      onClick={this.closeAllMenus}
+                    <button
+                      className="mobile-navbar-mobile-item mobile-navbar-mobile-button"
+                      onClick={this.handleAddRidesClick}
                     >
                       ➕ Create Ride
-                    </NavLink>
+                    </button>
                     <button
                       className="mobile-navbar-mobile-item mobile-navbar-mobile-button"
                       onClick={this.handleJoinRideClick}
@@ -390,6 +398,11 @@ class MobileNavBar extends React.Component {
           open={this.state.joinRideModalOpen}
           onClose={this.handleJoinRideClose}
           prefillCode=""
+        />
+
+        <MobileAddRidesModal
+          open={this.state.addRidesModalOpen}
+          onClose={this.handleAddRidesClose}
         />
 
         <style jsx>{`
