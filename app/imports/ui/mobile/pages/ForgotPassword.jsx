@@ -22,7 +22,6 @@ export default class MobileForgotPassword extends React.Component {
       success: false,
       isSubmitting: false,
       isLoadingCaptcha: false,
-      showCaptchaErrorModal: false,
     };
   }
 
@@ -57,9 +56,24 @@ export default class MobileForgotPassword extends React.Component {
     });
   };
 
-  /** Close the CAPTCHA error modal */
-  closeCaptchaErrorModal = () => {
-    this.setState({ showCaptchaErrorModal: false });
+  /** Generate a new CAPTCHA without clearing existing error messages */
+  generateNewCaptchaKeepError = () => {
+    this.setState({ isLoadingCaptcha: true });
+    Meteor.call("captcha.generate", (error, result) => {
+      if (error) {
+        this.setState({
+          error: "Failed to load CAPTCHA. Please try again.",
+          isLoadingCaptcha: false,
+        });
+      } else {
+        this.setState({
+          captchaSvg: result.svg,
+          captchaSessionId: result.sessionId,
+          captchaInput: "",
+          isLoadingCaptcha: false,
+        });
+      }
+    });
   };
 
   /** Handle form submission */
@@ -82,10 +96,10 @@ export default class MobileForgotPassword extends React.Component {
       (captchaError, isValidCaptcha) => {
         if (captchaError || !isValidCaptcha) {
           this.setState({
-            showCaptchaErrorModal: true,
+            error: "Invalid security code. Please try again.",
             isSubmitting: false,
           });
-          this.generateNewCaptcha(); // Generate new CAPTCHA
+          this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep any existing errors
           return;
         }
 
@@ -95,7 +109,7 @@ export default class MobileForgotPassword extends React.Component {
 
           if (error) {
             this.setState({ error: error.message });
-            this.generateNewCaptcha(); // Generate new CAPTCHA on error
+            this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message
           } else {
             this.setState({
               success: true,
@@ -248,29 +262,6 @@ export default class MobileForgotPassword extends React.Component {
               </Link>
             </div>
           </div>
-
-          {/* CAPTCHA Error Modal */}
-          {this.state.showCaptchaErrorModal && (
-            <div className="mobile-forgot-modal-overlay">
-              <div className="mobile-forgot-modal">
-                <div className="mobile-forgot-modal-header">
-                  Invalid CAPTCHA
-                </div>
-                <div className="mobile-forgot-modal-content">
-                  The security verification code you entered is incorrect.
-                  Please try again with the new code that has been generated.
-                </div>
-                <div className="mobile-forgot-modal-actions">
-                  <button
-                    onClick={this.closeCaptchaErrorModal}
-                    className="mobile-forgot-modal-button"
-                  >
-                    OK
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           <style jsx>{`
             .mobile-forgot-container {

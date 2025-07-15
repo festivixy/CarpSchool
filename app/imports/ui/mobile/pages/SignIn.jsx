@@ -22,7 +22,6 @@ export default class MobileSignIn extends React.Component {
       error: "",
       redirectToReferer: false,
       isLoadingCaptcha: false,
-      showCaptchaErrorModal: false,
     };
   }
 
@@ -77,11 +76,6 @@ export default class MobileSignIn extends React.Component {
     });
   };
 
-  /** Close the CAPTCHA error modal */
-  closeCaptchaErrorModal = () => {
-    this.setState({ showCaptchaErrorModal: false });
-  };
-
   /** Handle form submission */
   handleSubmit = (e) => {
     e.preventDefault();
@@ -99,7 +93,7 @@ export default class MobileSignIn extends React.Component {
       captchaInput,
       (captchaError, isValidCaptcha) => {
         if (captchaError || !isValidCaptcha) {
-          this.setState({ showCaptchaErrorModal: true });
+          this.setState({ error: "Invalid security code. Please try again." });
           this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep any existing errors
           return;
         }
@@ -245,29 +239,6 @@ export default class MobileSignIn extends React.Component {
               </Link>
             </div>
           </div>
-
-          {/* CAPTCHA Error Modal */}
-          {this.state.showCaptchaErrorModal && (
-            <div className="mobile-signin-modal-overlay">
-              <div className="mobile-signin-modal">
-                <div className="mobile-signin-modal-header">
-                  Invalid CAPTCHA
-                </div>
-                <div className="mobile-signin-modal-content">
-                  The security verification code you entered is incorrect.
-                  Please try again with the new code that has been generated.
-                </div>
-                <div className="mobile-signin-modal-actions">
-                  <button
-                    onClick={this.closeCaptchaErrorModal}
-                    className="mobile-signin-modal-button"
-                  >
-                    OK
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           <style jsx>{`
             .mobile-signin-container {
@@ -528,74 +499,6 @@ export default class MobileSignIn extends React.Component {
 
             .mobile-signin-legal-link:hover {
               text-decoration: underline;
-            }
-
-            .mobile-signin-modal-overlay {
-              position: fixed;
-              top: 0;
-              left: 0;
-              right: 0;
-              bottom: 0;
-              background-color: rgba(0, 0, 0, 0.5);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              z-index: 1000;
-              padding: 20px;
-            }
-
-            .mobile-signin-modal {
-              background-color: rgba(255, 255, 255, 1);
-              border-radius: 12px;
-              max-width: 400px;
-              width: 100%;
-              box-shadow:
-                0 20px 25px -5px rgba(0, 0, 0, 0.1),
-                0 10px 10px -5px rgba(0, 0, 0, 0.04);
-              font-family:
-                Inter,
-                -apple-system,
-                Roboto,
-                Helvetica,
-                sans-serif;
-            }
-
-            .mobile-signin-modal-header {
-              padding: 24px 24px 16px 24px;
-              font-size: 18px;
-              font-weight: 600;
-              color: rgba(0, 0, 0, 1);
-              border-bottom: 1px solid rgba(240, 240, 240, 1);
-            }
-
-            .mobile-signin-modal-content {
-              padding: 16px 24px 24px 24px;
-              font-size: 14px;
-              line-height: 1.5;
-              color: rgba(100, 100, 100, 1);
-            }
-
-            .mobile-signin-modal-actions {
-              padding: 0 24px 24px 24px;
-              display: flex;
-              justify-content: flex-end;
-            }
-
-            .mobile-signin-modal-button {
-              background-color: rgba(0, 0, 0, 1);
-              color: rgba(255, 255, 255, 1);
-              border: none;
-              border-radius: 8px;
-              padding: 8px 16px;
-              font-size: 14px;
-              font-weight: 500;
-              cursor: pointer;
-              font-family: inherit;
-              min-width: 60px;
-            }
-
-            .mobile-signin-modal-button:hover {
-              background-color: rgba(40, 40, 40, 1);
             }
 
             @media (max-width: 480px) {
