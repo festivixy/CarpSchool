@@ -3,24 +3,14 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import 'semantic-ui-css/semantic.css';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
-// import NavBar from '../components/NavBar';
-// import Footer from '../components/Footer';
-import Landing from '../pages/Landing';
-import ListRides from '../pages/ListRides';
 import AdminRides from '../pages/AdminRides';
 import AdminUsers from '../pages/AdminUsers';
 import AddStuff from '../pages/AddStuff';
 import AddProfile from '../pages/AddProfile';
 import EditProfile from '../pages/EditProfile';
 import NotFound from '../pages/NotFound';
-import Signin from '../pages/Signin';
-import Signup from '../pages/Signup';
 import Signout from '../pages/Signout';
 import AddRides from '../pages/AddRides';
-import ActiveRides from '../pages/ActiveRides';
-import UserDrive from '../pages/UserDrive';
-import UserRide from '../pages/UserRide';
-import ForgotPassword from '../pages/ForgotPassword';
 import TestImageUpload from '../pages/TestImageUpload';
 import MobileSignIn from '../mobile/pages/SignIn';
 import MobileSignup from '../mobile/pages/Signup';
@@ -30,7 +20,7 @@ import MobileImDriving from '../mobile/pages/ImDriving';
 import MobileImRiding from '../mobile/pages/ImRiding';
 import MobileNavBar from '../mobile/components/NavBar';
 import MobileFooter from '../mobile/components/Footer';
-import MobileListMyRides from '../mobile/pages/ListMyRides';
+import MobileChat from '../mobile/pages/Chat';
 
 /**
  * HomeRoute component that redirects logged-in users to /listMyRides
@@ -38,7 +28,7 @@ import MobileListMyRides from '../mobile/pages/ListMyRides';
  */
 const HomeRoute = () => {
   const isLogged = Meteor.userId() !== null;
-  return isLogged ? <Redirect to="/listMyRides" /> : <Landing />;
+  return isLogged ? <Redirect to="/listMyRides" /> : <MobileLanding />;
 };
 
 /**
@@ -47,7 +37,7 @@ const HomeRoute = () => {
  */
 const SigninRoute = (props) => {
   const isLogged = Meteor.userId() !== null;
-  return isLogged ? <Redirect to="/listMyRides" /> : <Signin {...props} />;
+  return isLogged ? <Redirect to="/listMyRides" /> : <MobileSignIn {...props} />;
 };
 
 
@@ -93,6 +83,7 @@ class App extends React.Component {
                 <AdminProtectedRoute path="/adminRides" component={AdminRides}/>
                 <AdminProtectedRoute path="/adminUsers" component={AdminUsers}/>
                 <ProtectedRoute path="/signout" component={Signout}/>
+                <ProtectedRoute path="/_test/chat" component={MobileChat}/>
                 <Route component={NotFound}/>
               </Switch>
             </main>
