@@ -3,8 +3,6 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
-import MobileNavBar from "../components/NavBar";
-import MobileFooter from "../components/Footer";
 import MobileRide from "../components/Ride";
 
 /**
@@ -78,16 +76,12 @@ class MobileImDriving extends React.Component {
   render() {
     if (!this.props.ready) {
       return (
-        <>
-          <MobileNavBar />
-          <div className="mobile-imdriving-container">
-            <div className="mobile-imdriving-loading">
-              <div className="mobile-imdriving-loading-spinner"></div>
-              <p>Loading your rides...</p>
-            </div>
+        <div className="mobile-imdriving-container">
+          <div className="mobile-imdriving-loading">
+            <div className="mobile-imdriving-loading-spinner"></div>
+            <p>Loading your rides...</p>
           </div>
-          <MobileFooter />
-        </>
+        </div>
       );
     }
 
@@ -95,7 +89,6 @@ class MobileImDriving extends React.Component {
 
     return (
       <>
-        <MobileNavBar />
         <div className="mobile-imdriving-container">
           <div className="mobile-imdriving-header">
             <h1 className="mobile-imdriving-title">My Rides as Driver</h1>
@@ -183,7 +176,6 @@ class MobileImDriving extends React.Component {
             )}
           </div>
         </div>
-        <MobileFooter />
 
         <style jsx>{`
           .mobile-imdriving-container {

@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import { Link, Redirect } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { Button } from "semantic-ui-react";
-import MobileFooter from "../components/Footer";
-import MobileNavBar from "../components/NavBar";
 
 /**
  * Mobile SignIn component with modern design and full functionality including CAPTCHA
@@ -120,7 +118,6 @@ export default class MobileSignIn extends React.Component {
 
     return (
       <>
-        <MobileNavBar />
         <div className="mobile-signin-container">
           <div className="mobile-signin-header">
             <div className="mobile-signin-app-name">Carpool App</div>
@@ -530,7 +527,6 @@ export default class MobileSignIn extends React.Component {
             }
           `}</style>
         </div>
-        <MobileFooter />
       </>
     );
   }

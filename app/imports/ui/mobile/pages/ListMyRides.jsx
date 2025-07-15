@@ -3,8 +3,6 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
-import MobileNavBar from "../components/NavBar";
-import MobileFooter from "../components/Footer";
 
 /**
  * Modern Mobile ListMyRides component showing all available rides
@@ -84,16 +82,12 @@ class MobileListMyRides extends React.Component {
   render() {
     if (!this.props.ready) {
       return (
-        <>
-          <MobileNavBar />
-          <div className="mobile-listrides-container">
-            <div className="mobile-listrides-loading">
-              <div className="mobile-listrides-loading-spinner"></div>
-              <p>Loading available rides...</p>
-            </div>
+        <div className="mobile-listrides-container">
+          <div className="mobile-listrides-loading">
+            <div className="mobile-listrides-loading-spinner"></div>
+            <p>Loading available rides...</p>
           </div>
-          <MobileFooter />
-        </>
+        </div>
       );
     }
 
@@ -101,7 +95,6 @@ class MobileListMyRides extends React.Component {
 
     return (
       <>
-        <MobileNavBar />
         <div className="mobile-listrides-container">
           <div className="mobile-listrides-header">
             <h1 className="mobile-listrides-title">Available Rides</h1>
@@ -241,7 +234,6 @@ class MobileListMyRides extends React.Component {
             )}
           </div>
         </div>
-        <MobileFooter />
 
         <style jsx>{`
           .mobile-listrides-container {

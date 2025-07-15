@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { Accounts } from "meteor/accounts-base";
 import { Meteor } from "meteor/meteor";
-import MobileFooter from "../components/Footer";
-import MobileNavBar from "../components/NavBar";
 
 /**
  * Mobile ForgotPassword component with modern design and full functionality
@@ -127,7 +125,6 @@ export default class MobileForgotPassword extends React.Component {
   render() {
     return (
       <>
-        <MobileNavBar />
         <div className="mobile-forgot-container">
           <div className="mobile-forgot-header">
             <div className="mobile-forgot-app-name">Carpool App</div>
@@ -608,7 +605,6 @@ export default class MobileForgotPassword extends React.Component {
             }
           `}</style>
         </div>
-        <MobileFooter />
       </>
     );
   }

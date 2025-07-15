@@ -4,8 +4,6 @@ import { Link, Redirect } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { Button } from "semantic-ui-react";
-import MobileFooter from "../components/Footer";
-import MobileNavBar from "../components/NavBar";
 
 /**
  * Mobile Signup component with modern design and full functionality including CAPTCHA
@@ -144,7 +142,6 @@ export default class MobileSignup extends React.Component {
 
     return (
       <>
-        <MobileNavBar />
         <div className="mobile-signup-container">
           <div className="mobile-signup-header">
             <div className="mobile-signup-app-name">Carpool App</div>
@@ -588,7 +585,6 @@ export default class MobileSignup extends React.Component {
             }
           `}</style>
         </div>
-        <MobileFooter />
       </>
     );
   }

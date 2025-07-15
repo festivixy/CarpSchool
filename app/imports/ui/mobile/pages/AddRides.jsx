@@ -5,8 +5,6 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { Rides } from "../../../api/ride/Rides";
-import MobileNavBar from "../components/NavBar";
-import MobileFooter from "../components/Footer";
 
 // Hawaii places for the ride system
 const hawaiiPlaces = [
@@ -252,7 +250,6 @@ class MobileAddRides extends React.Component {
     if (success) {
       return (
         <>
-          <MobileNavBar />
           <div className="mobile-addrides-container">
             <div className="mobile-addrides-success">
               <div className="mobile-addrides-success-icon">✓</div>
@@ -276,14 +273,12 @@ class MobileAddRides extends React.Component {
               </div>
             </div>
           </div>
-          <MobileFooter />
         </>
       );
     }
 
     return (
       <>
-        <MobileNavBar />
         <div className="mobile-addrides-container">
           <div className="mobile-addrides-header">
             <h1 className="mobile-addrides-title">Create Your Ride</h1>
@@ -490,7 +485,6 @@ class MobileAddRides extends React.Component {
             </button>
           </form>
         </div>
-        <MobileFooter />
 
         <style jsx>{`
           .mobile-addrides-container {

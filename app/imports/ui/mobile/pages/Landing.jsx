@@ -1,7 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import MobileFooter from "../components/Footer";
-import MobileNavBar from "../components/NavBar";
 
 /**
  * Modern Mobile Landing page with comprehensive features and modern design
@@ -10,7 +8,6 @@ export default class MobileLanding extends React.Component {
   render() {
     return (
       <>
-        <MobileNavBar />
         <div className="mobile-landing-container">
           {/* Hero Section */}
           <div className="mobile-landing-hero">
@@ -90,9 +87,6 @@ export default class MobileLanding extends React.Component {
               </div>
             </div>
           </div>
-
-          {/* Footer */}
-          <MobileFooter />
 
           <style jsx>{`
             .mobile-landing-container {

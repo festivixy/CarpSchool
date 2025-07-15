@@ -4,8 +4,6 @@ import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
-import MobileNavBar from "../components/NavBar";
-import MobileFooter from "../components/Footer";
 import JoinRideModal from "../components/JoinRideModal";
 import MobileRide from "../components/Ride";
 
@@ -103,16 +101,12 @@ class MobileImRiding extends React.Component {
   render() {
     if (!this.props.ready) {
       return (
-        <>
-          <MobileNavBar />
-          <div className="mobile-imriding-container">
-            <div className="mobile-imriding-loading">
-              <div className="mobile-imriding-loading-spinner"></div>
-              <p>Loading your rides...</p>
-            </div>
+        <div className="mobile-imriding-container">
+          <div className="mobile-imriding-loading">
+            <div className="mobile-imriding-loading-spinner"></div>
+            <p>Loading your rides...</p>
           </div>
-          <MobileFooter />
-        </>
+        </div>
       );
     }
 
@@ -121,7 +115,6 @@ class MobileImRiding extends React.Component {
 
     return (
       <>
-        <MobileNavBar />
         <div className="mobile-imriding-container">
           <div className="mobile-imriding-header">
             <h1 className="mobile-imriding-title">My Rides as Rider</h1>
@@ -214,7 +207,6 @@ class MobileImRiding extends React.Component {
             )}
           </div>
         </div>
-        <MobileFooter />
 
         <JoinRideModal
           open={joinRideModalOpen}
