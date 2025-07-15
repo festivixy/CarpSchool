@@ -137,6 +137,7 @@ export default class MobileLanding extends React.Component {
               font-weight: 700;
               margin: 0 0 8px 0;
               letter-spacing: -0.5px;
+              color: rgba(255, 255, 255, 1) !important;
             }
 
             .mobile-landing-cta-section {
@@ -254,6 +255,8 @@ export default class MobileLanding extends React.Component {
               font-weight: 700;
               margin: 0 0 8px 0;
               letter-spacing: -0.3px;
+              color: rgba(255, 255, 255, 1) !important;
+              padding-bottom: 16px;
             }
 
             .mobile-landing-cta-subtitle {
