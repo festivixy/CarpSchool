@@ -173,13 +173,6 @@ class MobileNavBar extends React.Component {
                   {this.state.adminMenuOpen && (
                     <div className="mobile-navbar-dropdown-menu">
                       <NavLink
-                        to="/list"
-                        className="mobile-navbar-dropdown-item"
-                        onClick={this.closeAllMenus}
-                      >
-                        All Available Rides
-                      </NavLink>
-                      <NavLink
                         to="/adminRides"
                         className="mobile-navbar-dropdown-item"
                         onClick={this.closeAllMenus}
@@ -327,13 +320,6 @@ class MobileNavBar extends React.Component {
                       <div className="mobile-navbar-mobile-section-title">
                         Admin
                       </div>
-                      <NavLink
-                        to="/list"
-                        className="mobile-navbar-mobile-item"
-                        onClick={this.closeAllMenus}
-                      >
-                        All Available Rides
-                      </NavLink>
                       <NavLink
                         to="/adminRides"
                         className="mobile-navbar-mobile-item"
