@@ -94,7 +94,7 @@ class MobileNavBar extends React.Component {
   };
 
   render() {
-    const homeLink = this.props.currentUser ? "/listMyRides" : "/";
+    const homeLink = this.props.currentUser ? "/imDriving" : "/";
 
     return (
       <>
