@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import JoinRideModal from "../components/JoinRideModal";
 import MobileRide from "../components/Ride";
+import "../../../api/chat/ChatMethods";
 
 /**
  * Modern Mobile ImRiding component showing rides where user is the rider
@@ -89,9 +90,17 @@ class MobileImRiding extends React.Component {
     }
   };
 
-  handleContactDriver = (driver) => {
-    // This could open a contact modal or redirect to messaging
-    console.log("Contact driver:", driver);
+  handleContactDriver = async (driver) => {
+    try {
+      // Create or find existing chat with the driver
+      const chatId = await Meteor.callAsync("chats.create", [driver]);
+
+      // Navigate to chat page
+      this.props.history.push("/chat");
+    } catch (error) {
+      console.error("Error creating/opening chat:", error);
+      alert("Unable to open chat. Please try again.");
+    }
   };
 
   handleJoinNewRide = () => {

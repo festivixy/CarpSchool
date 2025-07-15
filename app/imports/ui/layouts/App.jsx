@@ -83,7 +83,7 @@ class App extends React.Component {
                 <AdminProtectedRoute path="/adminRides" component={AdminRides}/>
                 <AdminProtectedRoute path="/adminUsers" component={AdminUsers}/>
                 <ProtectedRoute path="/signout" component={Signout}/>
-                <ProtectedRoute path="/_test/chat" component={MobileChat}/>
+                <ProtectedRoute path="/chat" component={MobileChat}/>
                 <Route component={NotFound}/>
               </Switch>
             </main>

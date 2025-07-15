@@ -1,9 +1,11 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
+import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import MobileRide from "../components/Ride";
+import "../../../api/chat/ChatMethods";
 
 /**
  * Modern Mobile ImDriving component showing rides where user is the driver
@@ -68,9 +70,17 @@ class MobileImDriving extends React.Component {
     }
   };
 
-  handleContactRider = (rider) => {
-    // This could open a contact modal or redirect to messaging
-    console.log("Contact rider:", rider);
+  handleContactRider = async (rider) => {
+    try {
+      // Create or find existing chat with the rider
+      const chatId = await Meteor.callAsync("chats.create", [rider]);
+
+      // Navigate to chat page
+      this.props.history.push("/chat");
+    } catch (error) {
+      console.error("Error creating/opening chat:", error);
+      alert("Unable to open chat. Please try again.");
+    }
   };
 
   render() {
@@ -403,12 +413,15 @@ class MobileImDriving extends React.Component {
 MobileImDriving.propTypes = {
   rides: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
-export default withTracker(() => {
-  const subscription = Meteor.subscribe("Rides");
-  return {
-    rides: Rides.find({}).fetch(),
-    ready: subscription.ready(),
-  };
-})(MobileImDriving);
+export default withRouter(
+  withTracker(() => {
+    const subscription = Meteor.subscribe("Rides");
+    return {
+      rides: Rides.find({}).fetch(),
+      ready: subscription.ready(),
+    };
+  })(MobileImDriving),
+);
