@@ -129,11 +129,6 @@ export default class MobileSignup extends React.Component {
     return (
       <div className="mobile-signup-container">
         <div className="mobile-signup-header">
-          <img
-            src="/images/Carpool.png"
-            alt="App Logo"
-            className="mobile-signup-logo"
-          />
           <div className="mobile-signup-app-name">Carpool App</div>
         </div>
 
@@ -263,8 +258,13 @@ export default class MobileSignup extends React.Component {
 
           <div className="mobile-signup-legal">
             By creating an account, you agree to our{" "}
-            <span className="mobile-signup-legal-link">Terms of Service</span>{" "}
-            and <span className="mobile-signup-legal-link">Privacy Policy</span>
+            <Link to="/tos" className="mobile-signup-legal-link">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="mobile-signup-legal-link">
+              Privacy Policy
+            </Link>
           </div>
         </div>
 
@@ -319,15 +319,6 @@ export default class MobileSignup extends React.Component {
             text-align: center;
             letter-spacing: -0.24px;
             align-items: center;
-          }
-
-          .mobile-signup-logo {
-            aspect-ratio: 2.57;
-            object-fit: contain;
-            object-position: center;
-            width: 54px;
-            border-radius: 32px;
-            align-self: flex-start;
           }
 
           .mobile-signup-app-name {

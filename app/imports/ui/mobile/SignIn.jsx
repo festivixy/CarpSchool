@@ -105,11 +105,6 @@ export default class MobileSignIn extends React.Component {
     return (
       <div className="mobile-signin-container">
         <div className="mobile-signin-header">
-          <img
-            src="/images/Carpool.png"
-            alt="App Logo"
-            className="mobile-signin-logo"
-          />
           <div className="mobile-signin-app-name">Carpool App</div>
         </div>
 
@@ -217,8 +212,13 @@ export default class MobileSignIn extends React.Component {
 
           <div className="mobile-signin-legal">
             By signing in, you agree to our{" "}
-            <span className="mobile-signin-legal-link">Terms of Service</span>{" "}
-            and <span className="mobile-signin-legal-link">Privacy Policy</span>
+            <Link to="/tos" className="mobile-signin-legal-link">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="mobile-signin-legal-link">
+              Privacy Policy
+            </Link>
           </div>
         </div>
 
@@ -273,15 +273,6 @@ export default class MobileSignIn extends React.Component {
             text-align: center;
             letter-spacing: -0.24px;
             align-items: center;
-          }
-
-          .mobile-signin-logo {
-            aspect-ratio: 2.57;
-            object-fit: contain;
-            object-position: center;
-            width: 54px;
-            border-radius: 32px;
-            align-self: flex-start;
           }
 
           .mobile-signin-app-name {
