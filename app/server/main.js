@@ -3,6 +3,7 @@ import "/imports/startup/server/Publications";
 import "/imports/startup/server/Mongo";
 import "/imports/startup/server/AdminMethods";
 import "/imports/startup/server/CaptchaMethods";
+import "/imports/api/accounts/AccountsMeathods"
 import "/imports/api/images/ImageMethods";
 import "/imports/api/chat/ChatMethods";
 import "./admin-fix";

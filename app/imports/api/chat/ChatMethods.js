@@ -1,6 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { Chats } from "./Chat";
 import Joi from "joi";
+import { isLoggedInAndEmailVerified } from "../accounts/Accounts";
 
 // Generate a random 8-character code
 function generateChatCode() {
@@ -18,7 +19,7 @@ Meteor.methods({
    */
   async "chats.createWithCode"() {
     // Check if user is logged in
-    if (!this.userId) {
+    if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error(
         "not-authorized",
         "You must be logged in to create a chat.",
@@ -71,7 +72,7 @@ Meteor.methods({
     }
 
     // Check if user is logged in
-    if (!this.userId) {
+    if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error(
         "not-authorized",
         "You must be logged in to create a chat.",
@@ -134,7 +135,7 @@ Meteor.methods({
    */
   async "chats.generateShareCode"(chatId) {
     // Check if user is logged in
-    if (!this.userId) {
+    if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error("not-authorized", "You must be logged in.");
     }
 
@@ -195,7 +196,7 @@ Meteor.methods({
     }
 
     // Check if user is logged in
-    if (!this.userId) {
+    if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error(
         "not-authorized",
         "You must be logged in to join a chat.",
@@ -266,7 +267,7 @@ Meteor.methods({
     }
 
     // Check if user is logged in
-    if (!this.userId) {
+    if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error(
         "not-authorized",
         "You must be logged in to send messages.",

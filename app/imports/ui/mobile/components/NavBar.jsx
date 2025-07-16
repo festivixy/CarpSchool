@@ -19,7 +19,7 @@ class MobileNavBar extends React.Component {
       adminMenuOpen: false,
     };
   }
-
+  
   handleJoinRideClick = () => {
     this.setState({ joinRideModalOpen: true, mobileMenuOpen: false });
   };
@@ -115,7 +115,7 @@ class MobileNavBar extends React.Component {
 
             {/* Desktop Navigation */}
             <div className="mobile-navbar-desktop-nav">
-              {this.props.currentUser ? (
+              {(this.props.isLoggedInAndEmailVerified) ? (
                 <>
                   {/* My Rides Dropdown */}
                   <div className="mobile-navbar-dropdown">
@@ -279,7 +279,7 @@ class MobileNavBar extends React.Component {
           {/* Mobile Menu */}
           {this.state.mobileMenuOpen && (
             <div className="mobile-navbar-mobile-menu">
-              {this.props.currentUser ? (
+              {(this.props.isLoggedInAndEmailVerified) ? (
                 <>
                   <div className="mobile-navbar-mobile-section">
                     <div className="mobile-navbar-mobile-section-title">
@@ -638,6 +638,7 @@ MobileNavBar.propTypes = {
   currentUser: PropTypes.string,
   currentId: PropTypes.string,
   isAdmin: PropTypes.bool,
+  isLoggedInAndEmailVerified: PropTypes.bool
 };
 
 /** withTracker connects Meteor data to React components. */
@@ -646,6 +647,11 @@ const MobileNavBarContainer = withTracker(() => ({
   currentId: Meteor.user() ? Meteor.user()._id : "",
   isAdmin: Meteor.user()
     ? Meteor.user().roles && Meteor.user().roles.includes("admin")
+    : false,
+  isLoggedInAndEmailVerified: Meteor.user()
+    ? Meteor.user().emails &&
+      Meteor.user().emails[0] &&
+      Meteor.user().emails[0].verified
     : false,
 }))(MobileNavBar);
 
