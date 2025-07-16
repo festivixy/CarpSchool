@@ -285,13 +285,13 @@ class MobileNavBar extends React.Component {
                     <div className="mobile-navbar-mobile-section-title">
                       My Rides
                     </div>
-                    <NavLink
+                    {/* <NavLink
                       to="/listMyRides"
                       className="mobile-navbar-mobile-item"
                       onClick={this.closeAllMenus}
                     >
                       All Rides
-                    </NavLink>
+                    </NavLink> */}
                     <NavLink
                       to="/imDriving"
                       className="mobile-navbar-mobile-item"
