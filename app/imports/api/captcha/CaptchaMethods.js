@@ -20,7 +20,7 @@ Meteor.methods({
 
     // Store the CAPTCHA text with session ID (expires after 10 minutes) in MongoDB
     const sessionId = await Captcha.insertAsync({
-      text: captcha.text.toLowerCase(),
+      text: captcha.text,
       timestamp: Date.now(),
       solved: false,
       used: false,
@@ -53,7 +53,7 @@ Meteor.methods({
     }
 
     // Verify the CAPTCHA
-    const isValid = session.text === userInput.toLowerCase().trim();
+    const isValid = session.text === userInput.trim();
 
     if (isValid) {
       await Captcha.updateAsync(session, {
@@ -63,6 +63,9 @@ Meteor.methods({
         used: session.used,
       });
     }
+
+    // Clean up old sessions (older than 10 minutes)
+    await Captcha.removeAsync({ timestamp: { $lt: tenMinutesAgo } });
 
     return isValid;
   },
