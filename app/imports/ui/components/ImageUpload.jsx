@@ -1,32 +1,42 @@
-import React, { useState, useRef } from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Button, Form, Message, Segment, Header, Image, Input, Grid, Loader } from 'semantic-ui-react';
-import PropTypes from 'prop-types';
+import React, { useState, useRef } from "react";
+import { Meteor } from "meteor/meteor";
+import {
+  Button,
+  Form,
+  Message,
+  Segment,
+  Header,
+  Image,
+  Input,
+  Grid,
+  Loader,
+} from "semantic-ui-react";
+import PropTypes from "prop-types";
 
 const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [captchaData, setCaptchaData] = useState(null);
-  const [captchaText, setCaptchaText] = useState('');
+  const [captchaText, setCaptchaText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isLoadingCaptcha, setIsLoadingCaptcha] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const fileInputRef = useRef(null);
 
   // Generate captcha
   const generateCaptcha = () => {
     setIsLoadingCaptcha(true);
-    setError('');
+    setError("");
 
-    Meteor.call('images.generateCaptcha', (err, result) => {
+    Meteor.call("captcha.generate", (err, result) => {
       setIsLoadingCaptcha(false);
       if (err) {
-        setError('Failed to generate captcha. Please try again.');
-        console.error('Captcha generation error:', err);
+        setError("Failed to generate captcha. Please try again.");
+        console.error("Captcha generation error:", err);
       } else {
         setCaptchaData(result);
-        setCaptchaText('');
+        setCaptchaText("");
       }
     });
   };
@@ -37,21 +47,27 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
     if (!file) return;
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
     if (!allowedTypes.includes(file.type)) {
-      setError('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      setError("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
       return;
     }
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB');
+      setError("File size must be less than 5MB");
       return;
     }
 
     setSelectedFile(file);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     // Create preview
     const reader = new FileReader();
@@ -67,12 +83,13 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   };
 
   // Convert file to base64
-  const fileToBase64 = (file) => new Promise((resolve, reject) => {
+  const fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
         // Remove the data URL prefix (data:image/jpeg;base64,)
-        const base64 = reader.result.split(',')[1];
+        const base64 = reader.result.split(",")[1];
         resolve(base64);
       };
       reader.onerror = (error) => reject(error);
@@ -81,61 +98,75 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   // Handle upload
   const handleUpload = async () => {
     if (!selectedFile || !captchaData || !captchaText.trim()) {
-      setError('Please select a file, solve the captcha, and try again.');
+      setError("Please select a file, solve the captcha, and try again.");
       return;
     }
 
     setIsUploading(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
-    try {
-      // Convert file to base64
-      const base64Data = await fileToBase64(selectedFile);
-
-      const imageData = {
-        fileName: selectedFile.name,
-        mimeType: selectedFile.type,
-        base64Data,
-      };
-
-      // Call the upload method
-      Meteor.call(
-        'images.upload',
-        imageData,
-        captchaData.sessionId,
-        captchaText,
-        (err, result) => {
+    // First verify CAPTCHA
+    Meteor.call(
+      "captcha.verify",
+      captchaData.sessionId,
+      captchaText,
+      async (captchaError, isValidCaptcha) => {
+        if (captchaError || !isValidCaptcha) {
           setIsUploading(false);
+          setError("Invalid security code. Please try again.");
+          generateCaptcha();
+          return;
+        }
 
-          if (err) {
-            setError(err.reason || 'Upload failed. Please try again.');
-            // Generate new captcha on error
-            generateCaptcha();
-            if (onUploadError) {
-              onUploadError(err);
-            }
-          } else {
-            setSuccess(`Image uploaded successfully! UUID: ${result.uuid}`);
-            // Reset form
-            setSelectedFile(null);
-            setPreview(null);
-            setCaptchaData(null);
-            setCaptchaText('');
-            if (fileInputRef.current) {
-              fileInputRef.current.value = '';
-            }
-            if (onUploadSuccess) {
-              onUploadSuccess(result);
-            }
-          }
-        },
-      );
-    } catch (err) {
-      setIsUploading(false);
-      setError('Failed to process file. Please try again.');
-      console.error('File processing error:', err);
-    }
+        try {
+          // Convert file to base64
+          const base64Data = await fileToBase64(selectedFile);
+
+          const imageData = {
+            fileName: selectedFile.name,
+            mimeType: selectedFile.type,
+            base64Data,
+          };
+
+          // CAPTCHA is valid, proceed with upload using verified session
+          Meteor.call(
+            "images.upload",
+            imageData,
+            captchaData.sessionId,
+            (err, result) => {
+              setIsUploading(false);
+
+              if (err) {
+                setError(err.reason || "Upload failed. Please try again.");
+                // Generate new captcha on error
+                generateCaptcha();
+                if (onUploadError) {
+                  onUploadError(err);
+                }
+              } else {
+                setSuccess(`Image uploaded successfully! UUID: ${result.uuid}`);
+                // Reset form
+                setSelectedFile(null);
+                setPreview(null);
+                setCaptchaData(null);
+                setCaptchaText("");
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                }
+                if (onUploadSuccess) {
+                  onUploadSuccess(result);
+                }
+              }
+            },
+          );
+        } catch (err) {
+          setIsUploading(false);
+          setError("Failed to process file. Please try again.");
+          console.error("File processing error:", err);
+        }
+      },
+    );
   };
 
   // Reset form
@@ -143,11 +174,11 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
     setSelectedFile(null);
     setPreview(null);
     setCaptchaData(null);
-    setCaptchaText('');
-    setError('');
-    setSuccess('');
+    setCaptchaText("");
+    setError("");
+    setSuccess("");
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -165,7 +196,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
             onChange={handleFileSelect}
             disabled={isUploading}
           />
-          <div style={{ marginTop: '0.5em', fontSize: '0.9em', color: '#666' }}>
+          <div style={{ marginTop: "0.5em", fontSize: "0.9em", color: "#666" }}>
             Supported formats: JPEG, PNG, GIF, WebP (max 5MB)
           </div>
         </Form.Field>
@@ -177,7 +208,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
               src={preview}
               size="medium"
               bordered
-              style={{ maxHeight: '200px', objectFit: 'contain' }}
+              style={{ maxHeight: "200px", objectFit: "contain" }}
             />
           </Form.Field>
         )}
@@ -195,8 +226,14 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
                 ) : captchaData ? (
                   <div>
                     <div
-                      dangerouslySetInnerHTML={{ __html: captchaData.captchaSvg }}
-                      style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}
+                      dangerouslySetInnerHTML={{
+                        __html: captchaData.captchaSvg,
+                      }}
+                      style={{
+                        border: "1px solid #ccc",
+                        padding: "10px",
+                        marginBottom: "10px",
+                      }}
                     />
                     <Input
                       placeholder="Enter captcha text"
@@ -242,15 +279,17 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
             <Button
               primary
               onClick={handleUpload}
-              disabled={!selectedFile || !captchaData || !captchaText.trim() || isUploading}
+              disabled={
+                !selectedFile ||
+                !captchaData ||
+                !captchaText.trim() ||
+                isUploading
+              }
               loading={isUploading}
             >
               Upload Image
             </Button>
-            <Button
-              onClick={handleReset}
-              disabled={isUploading}
-            >
+            <Button onClick={handleReset} disabled={isUploading}>
               Reset
             </Button>
           </Button.Group>
