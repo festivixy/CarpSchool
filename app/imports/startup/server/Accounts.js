@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { isCaptchaSolved, useCaptcha } from '../../api/captcha/Captcha';
+import { check } from 'meteor/check';
 
 /* eslint-disable no-console */
 
@@ -10,6 +11,10 @@ Accounts.validateLoginAttempt(async (attempt) => {
   }
   if (attempt.type === 'password') {
     const captchaSessionId = attempt.methodArguments[0].password.captchaSessionId;
+    if (captchaSessionId === undefined) {
+      throw new Meteor.Error(400, 'Match failed');
+    }
+    check(captchaSessionId, String)
     const captchaSolved = await isCaptchaSolved(captchaSessionId);
     if (!captchaSolved) {
       throw new Meteor.Error('invalid-captcha', 'CAPTCHA not solved');
