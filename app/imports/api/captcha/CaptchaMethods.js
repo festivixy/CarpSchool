@@ -2,12 +2,10 @@ import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { check } from 'meteor/check';
 import svgCaptcha from 'svg-captcha';
-
-// Store CAPTCHA sessions in memory (in production, you might want to use Redis or MongoDB)
-const captchaSessions = new Map();
+import { Captcha } from './Captcha';
 
 Meteor.methods({
-  'captcha.generate'() {
+  async 'captcha.generate'() {
     // Generate CAPTCHA
     const captcha = svgCaptcha.create({
       size: 5, // 5 characters
@@ -20,22 +18,17 @@ Meteor.methods({
     });
 
     // Generate a unique session ID
-    const sessionId = Random.id();
 
-    // Store the CAPTCHA text with session ID (expires after 10 minutes)
-    captchaSessions.set(sessionId, {
+    // Store the CAPTCHA text with session ID (expires after 10 minutes) in MongoDB
+   const sessionId = await Captcha.insertAsync({
       text: captcha.text.toLowerCase(),
       timestamp: Date.now(),
+      solved: false,
     });
 
     // Clean up old sessions (older than 10 minutes)
     const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
-    // eslint-disable-next-line no-restricted-syntax
-    for (const [id, session] of captchaSessions.entries()) {
-      if (session.timestamp < tenMinutesAgo) {
-        captchaSessions.delete(id);
-      }
-    }
+    await Captcha.removeAsync({ timestamp: { $lt: tenMinutesAgo } });
 
     return {
       sessionId: sessionId,
@@ -43,11 +36,10 @@ Meteor.methods({
     };
   },
 
-  'captcha.verify'(sessionId, userInput) {
+  async 'captcha.verify'(sessionId, userInput) {
     check(sessionId, String);
     check(userInput, String);
-
-    const session = captchaSessions.get(sessionId);
+    const session = await Captcha.findOneAsync({ _id: sessionId });
 
     if (!session) {
       throw new Meteor.Error('invalid-captcha', 'CAPTCHA session not found or expired');
@@ -56,15 +48,17 @@ Meteor.methods({
     // Check if session is expired (10 minutes)
     const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
     if (session.timestamp < tenMinutesAgo) {
-      captchaSessions.delete(sessionId);
+      await Captcha.removeAsync({ _id: sessionId });
       throw new Meteor.Error('expired-captcha', 'CAPTCHA has expired');
     }
 
     // Verify the CAPTCHA
     const isValid = session.text === userInput.toLowerCase().trim();
 
-    // Remove the session after verification attempt
-    captchaSessions.delete(sessionId);
+    if (isValid) {
+      session
+      .session.solved = true;
+    }
 
     return isValid;
   },

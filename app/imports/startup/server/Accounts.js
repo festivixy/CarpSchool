@@ -1,7 +1,20 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
+import { isCaptchaSolved } from '../../api/captcha/Captcha';
 
 /* eslint-disable no-console */
+
+Accounts.validateLoginAttempt(async (attempt) => {
+  if (!attempt.allowed) {
+    return false;
+  }
+  if (attempt.type == 'password') {
+    const captchaSolved = await isCaptchaSolved(attempt.methodArguments[0].password.captchaSessionId);
+    console.log(captchaSolved);
+    return;
+  }
+  return true;
+});
 
 async function createUser(email, firstName, lastName, password, role) {
   console.log(`  Creating user ${email}.`);

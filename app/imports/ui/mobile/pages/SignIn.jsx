@@ -1,8 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Link, Redirect } from "react-router-dom";
-import { Meteor } from "meteor/meteor";
-import { Button } from "semantic-ui-react";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link, Redirect } from 'react-router-dom';
+import { Meteor } from 'meteor/meteor';
+import { Button } from 'semantic-ui-react';
+import { Accounts } from 'meteor/accounts-base';
 
 /**
  * Mobile SignIn component with modern design and full functionality including CAPTCHA
@@ -12,12 +13,12 @@ export default class MobileSignIn extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: "",
-      password: "",
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
-      error: "",
+      email: '',
+      password: '',
+      captchaInput: '',
+      captchaSvg: '',
+      captchaSessionId: '',
+      error: '',
       redirectToReferer: false,
       isLoadingCaptcha: false,
     };
@@ -36,19 +37,19 @@ export default class MobileSignIn extends React.Component {
   /** Generate a new CAPTCHA */
   generateNewCaptcha = () => {
     this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
+    Meteor.call('captcha.generate', (error, result) => {
       if (error) {
         this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
+          error: 'Failed to load CAPTCHA. Please try again.',
           isLoadingCaptcha: false,
         });
       } else {
         this.setState({
           captchaSvg: result.svg,
           captchaSessionId: result.sessionId,
-          captchaInput: "",
+          captchaInput: '',
           isLoadingCaptcha: false,
-          error: "",
+          error: '',
         });
       }
     });
@@ -57,17 +58,17 @@ export default class MobileSignIn extends React.Component {
   /** Generate a new CAPTCHA without clearing existing error messages */
   generateNewCaptchaKeepError = () => {
     this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
+    Meteor.call('captcha.generate', (error, result) => {
       if (error) {
         this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
+          error: 'Failed to load CAPTCHA. Please try again.',
           isLoadingCaptcha: false,
         });
       } else {
         this.setState({
           captchaSvg: result.svg,
           captchaSessionId: result.sessionId,
-          captchaInput: "",
+          captchaInput: '',
           isLoadingCaptcha: false,
         });
       }
@@ -86,25 +87,43 @@ export default class MobileSignIn extends React.Component {
 
     // First verify CAPTCHA
     Meteor.call(
-      "captcha.verify",
+      'captcha.verify',
       captchaSessionId,
       captchaInput,
       (captchaError, isValidCaptcha) => {
         if (captchaError || !isValidCaptcha) {
-          this.setState({ error: "Invalid security code. Please try again." });
+          this.setState({ error: 'Invalid security code. Please try again.' });
           this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep any existing errors
           return;
         }
-
-        // CAPTCHA is valid, proceed with login
-        Meteor.loginWithPassword(email, password, (err) => {
-          if (err) {
-            this.setState({ error: err.reason });
-            this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message
-          } else {
-            this.setState({ error: "", redirectToReferer: true });
-          }
+        const methodArguments = Accounts._hashPassword(password);
+        methodArguments.captchaSessionId = this.state.captchaSessionId;
+        methodArguments.proofOfWorkResult = '';
+        Accounts.callLoginMethod({
+          methodArguments: [
+            {
+              user: { email: email },
+              password: methodArguments,
+            },
+          ],
+          userCallback: (error, result) => {
+            if (error) {
+              this.setState({ error: error.reason });
+              this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message
+            } else {
+              this.setState({ error: '', redirectToReferer: true });
+            }
+          },
         });
+        // CAPTCHA is valid, proceed with login
+        // Meteor.loginWithPassword(email, password, (err) => {
+        //   if (err) {
+        //     this.setState({ error: err.reason });
+        //     this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message
+        //   } else {
+        //     this.setState({ error: "", redirectToReferer: true });
+        //   }
+        // });
       },
     );
   };
@@ -113,7 +132,7 @@ export default class MobileSignIn extends React.Component {
   render() {
     // if correct authentication, redirect to page instead of login screen
     if (this.state.redirectToReferer) {
-      return <Redirect to={"/imDriving"} />;
+      return <Redirect to={'/imDriving'} />;
     }
 
     return (
@@ -225,11 +244,11 @@ export default class MobileSignIn extends React.Component {
             </div>
 
             <div className="mobile-signin-legal">
-              By signing in, you agree to our{" "}
+              By signing in, you agree to our{' '}
               <Link to="/tos" className="mobile-signin-legal-link">
                 Terms of Service
-              </Link>{" "}
-              and{" "}
+              </Link>{' '}
+              and{' '}
               <Link to="/privacy" className="mobile-signin-legal-link">
                 Privacy Policy
               </Link>
@@ -243,12 +262,7 @@ export default class MobileSignIn extends React.Component {
               width: 100%;
               flex-direction: column;
               align-items: center;
-              font-family:
-                Inter,
-                -apple-system,
-                Roboto,
-                Helvetica,
-                sans-serif;
+              font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
               margin: 0 auto;
               padding: 10px 0;
               min-height: 100vh;
