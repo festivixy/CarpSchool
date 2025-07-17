@@ -60,7 +60,7 @@ Meteor.methods({
         text: session.text,
         timestamp: session.timestamp,
         solved: true,
-      })
+      });
     }
 
     return isValid;

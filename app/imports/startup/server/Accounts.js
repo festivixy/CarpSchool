@@ -10,7 +10,7 @@ Accounts.validateLoginAttempt(async (attempt) => {
   }
   if (attempt.type == 'password') {
     const captchaSolved = await isCaptchaSolved(attempt.methodArguments[0].password.captchaSessionId);
-    if (!captchaSolved){
+    if (!captchaSolved) {
       throw new Meteor.Error('invalid-captcha', 'CAPTCHA not solved');
     }
     return captchaSolved;
