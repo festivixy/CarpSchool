@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import Joi from 'joi';
 import { Chats } from './Chat';
 import { isLoggedInAndEmailVerified } from '../accounts/Accounts';
+import { check } from 'meteor/check';
 
 // Generate a random 8-character code
 function generateChatCode() {
@@ -134,6 +135,7 @@ Meteor.methods({
    * Generate share code for existing chat
    */
   async 'chats.generateShareCode'(chatId) {
+    check(chatId, String);
     // Check if user is logged in
     if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error('not-authorized', 'You must be logged in.');
@@ -185,15 +187,7 @@ Meteor.methods({
    * Join a chat using share code
    */
   async 'chats.joinChat'(shareCode) {
-    // Validate input
-    const schema = Joi.object({
-      shareCode: Joi.string().required(),
-    });
-
-    const { error } = schema.validate({ shareCode });
-    if (error) {
-      throw new Meteor.Error('validation-error', error.details[0].message);
-    }
+    check(shareCode, String);
 
     // Check if user is logged in
     if (!await isLoggedInAndEmailVerified(this.userId)) {
