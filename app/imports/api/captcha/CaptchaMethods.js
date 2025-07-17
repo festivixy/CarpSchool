@@ -48,7 +48,6 @@ Meteor.methods({
     // Check if session is expired (10 minutes)
     const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
     if (session.timestamp < tenMinutesAgo) {
-      await Captcha.removeAsync({ _id: sessionId });
       throw new Meteor.Error('expired-captcha', 'CAPTCHA has expired');
     }
 
