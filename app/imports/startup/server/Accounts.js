@@ -10,8 +10,10 @@ Accounts.validateLoginAttempt(async (attempt) => {
   }
   if (attempt.type == 'password') {
     const captchaSolved = await isCaptchaSolved(attempt.methodArguments[0].password.captchaSessionId);
-    console.log(captchaSolved);
-    return;
+    if (!captchaSolved){
+      throw new Meteor.Error('invalid-captcha', 'CAPTCHA not solved');
+    }
+    return captchaSolved;
   }
   return true;
 });

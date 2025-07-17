@@ -20,7 +20,7 @@ Meteor.methods({
     // Generate a unique session ID
 
     // Store the CAPTCHA text with session ID (expires after 10 minutes) in MongoDB
-   const sessionId = await Captcha.insertAsync({
+    const sessionId = await Captcha.insertAsync({
       text: captcha.text.toLowerCase(),
       timestamp: Date.now(),
       solved: false,
@@ -56,8 +56,11 @@ Meteor.methods({
     const isValid = session.text === userInput.toLowerCase().trim();
 
     if (isValid) {
-      session
-      .session.solved = true;
+      await Captcha.updateAsync(session, {
+        text: session.text,
+        timestamp: session.timestamp,
+        solved: true,
+      })
     }
 
     return isValid;
