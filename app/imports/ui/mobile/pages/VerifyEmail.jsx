@@ -1,6 +1,6 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 /**
  * Mobile VerifyEmail component with modern design
@@ -46,11 +46,11 @@ export default class MobileVerifyEmail extends React.Component {
             </div>
 
             <div className="mobile-verify-legal">
-              By using our service, you agree to our{" "}
+              By using our service, you agree to our{' '}
               <Link to="/tos" className="mobile-verify-legal-link">
                 Terms of Service
-              </Link>{" "}
-              and{" "}
+              </Link>{' '}
+              and{' '}
               <Link to="/privacy" className="mobile-verify-legal-link">
                 Privacy Policy
               </Link>

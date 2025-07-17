@@ -1,10 +1,10 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Meteor } from "meteor/meteor";
-import { withTracker } from "meteor/react-meteor-data";
-import { withRouter, NavLink } from "react-router-dom";
-import MobileJoinRideModal from "./JoinRideModal";
-import MobileAddRidesModal from "./AddRides";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
+import { withRouter, NavLink } from 'react-router-dom';
+import MobileJoinRideModal from './JoinRideModal';
+import MobileAddRidesModal from './AddRides';
 
 /** The Mobile NavBar appears at the top of every page with modern mobile design. */
 class MobileNavBar extends React.Component {
@@ -19,7 +19,7 @@ class MobileNavBar extends React.Component {
       adminMenuOpen: false,
     };
   }
-  
+
   handleJoinRideClick = () => {
     this.setState({ joinRideModalOpen: true, mobileMenuOpen: false });
   };
@@ -80,21 +80,21 @@ class MobileNavBar extends React.Component {
 
   // Close menus when clicking outside
   componentDidMount() {
-    document.addEventListener("click", this.handleOutsideClick);
+    document.addEventListener('click', this.handleOutsideClick);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("click", this.handleOutsideClick);
+    document.removeEventListener('click', this.handleOutsideClick);
   }
 
   handleOutsideClick = (event) => {
-    if (!event.target.closest(".mobile-navbar")) {
+    if (!event.target.closest('.mobile-navbar')) {
       this.closeAllMenus();
     }
   };
 
   render() {
-    const homeLink = this.props.currentUser ? "/imDriving" : "/";
+    const homeLink = this.props.currentUser ? '/imDriving' : '/';
 
     return (
       <>
@@ -210,7 +210,7 @@ class MobileNavBar extends React.Component {
 
             {/* User Menu / Login */}
             <div className="mobile-navbar-user-section">
-              {this.props.currentUser === "" ? (
+              {this.props.currentUser === '' ? (
                 <div className="mobile-navbar-dropdown">
                   <button
                     className="mobile-navbar-dropdown-trigger"
@@ -272,7 +272,7 @@ class MobileNavBar extends React.Component {
               className="mobile-navbar-menu-toggle"
               onClick={this.toggleMobileMenu}
             >
-              {this.state.mobileMenuOpen ? "✕" : "☰"}
+              {this.state.mobileMenuOpen ? '✕' : '☰'}
             </button>
           </div>
 
@@ -638,15 +638,15 @@ MobileNavBar.propTypes = {
   currentUser: PropTypes.string,
   currentId: PropTypes.string,
   isAdmin: PropTypes.bool,
-  isLoggedInAndEmailVerified: PropTypes.bool
+  isLoggedInAndEmailVerified: PropTypes.bool,
 };
 
 /** withTracker connects Meteor data to React components. */
 const MobileNavBarContainer = withTracker(() => ({
-  currentUser: Meteor.user() ? Meteor.user().username : "",
-  currentId: Meteor.user() ? Meteor.user()._id : "",
+  currentUser: Meteor.user() ? Meteor.user().username : '',
+  currentId: Meteor.user() ? Meteor.user()._id : '',
   isAdmin: Meteor.user()
-    ? Meteor.user().roles && Meteor.user().roles.includes("admin")
+    ? Meteor.user().roles && Meteor.user().roles.includes('admin')
     : false,
   isLoggedInAndEmailVerified: Meteor.user()
     ? Meteor.user().emails &&

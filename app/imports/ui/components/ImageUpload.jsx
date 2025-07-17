@@ -18,7 +18,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   const generateCaptcha = () => {
     setIsLoadingCaptcha(true);
     setError('');
-    
+
     Meteor.call('images.generateCaptcha', (err, result) => {
       setIsLoadingCaptcha(false);
       if (err) {
@@ -67,8 +67,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   };
 
   // Convert file to base64
-  const fileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
+  const fileToBase64 = (file) => new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
@@ -78,7 +77,6 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
       };
       reader.onerror = (error) => reject(error);
     });
-  };
 
   // Handle upload
   const handleUpload = async () => {
@@ -94,7 +92,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
     try {
       // Convert file to base64
       const base64Data = await fileToBase64(selectedFile);
-      
+
       const imageData = {
         fileName: selectedFile.name,
         mimeType: selectedFile.type,
@@ -109,7 +107,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
         captchaText,
         (err, result) => {
           setIsUploading(false);
-          
+
           if (err) {
             setError(err.reason || 'Upload failed. Please try again.');
             // Generate new captcha on error
@@ -131,7 +129,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
               onUploadSuccess(result);
             }
           }
-        }
+        },
       );
     } catch (err) {
       setIsUploading(false);
@@ -156,7 +154,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   return (
     <Segment>
       <Header as="h3">Upload Image</Header>
-      
+
       <Form>
         <Form.Field>
           <label>Select Image File</label>

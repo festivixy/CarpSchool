@@ -1,8 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Link, Redirect } from "react-router-dom";
-import { Meteor } from "meteor/meteor";
-import { Accounts } from "meteor/accounts-base";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link, Redirect } from 'react-router-dom';
+import { Meteor } from 'meteor/meteor';
+import { Accounts } from 'meteor/accounts-base';
 
 /**
  * Mobile Signup component with modern design and full functionality including CAPTCHA
@@ -12,14 +12,14 @@ export default class MobileSignup extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: "",
-      firstName: "",
-      lastName: "",
-      password: "",
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
-      error: "",
+      email: '',
+      firstName: '',
+      lastName: '',
+      password: '',
+      captchaInput: '',
+      captchaSvg: '',
+      captchaSessionId: '',
+      error: '',
       redirectToReferer: false,
       isLoadingCaptcha: false,
     };
@@ -38,19 +38,19 @@ export default class MobileSignup extends React.Component {
   /** Generate a new CAPTCHA */
   generateNewCaptcha = () => {
     this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
+    Meteor.call('captcha.generate', (error, result) => {
       if (error) {
         this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
+          error: 'Failed to load CAPTCHA. Please try again.',
           isLoadingCaptcha: false,
         });
       } else {
         this.setState({
           captchaSvg: result.svg,
           captchaSessionId: result.sessionId,
-          captchaInput: "",
+          captchaInput: '',
           isLoadingCaptcha: false,
-          error: "",
+          error: '',
         });
       }
     });
@@ -59,17 +59,17 @@ export default class MobileSignup extends React.Component {
   /** Generate a new CAPTCHA without clearing existing error messages */
   generateNewCaptchaKeepError = () => {
     this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
+    Meteor.call('captcha.generate', (error, result) => {
       if (error) {
         this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
+          error: 'Failed to load CAPTCHA. Please try again.',
           isLoadingCaptcha: false,
         });
       } else {
         this.setState({
           captchaSvg: result.svg,
           captchaSessionId: result.sessionId,
-          captchaInput: "",
+          captchaInput: '',
           isLoadingCaptcha: false,
         });
       }
@@ -95,12 +95,12 @@ export default class MobileSignup extends React.Component {
 
     // First verify CAPTCHA
     Meteor.call(
-      "captcha.verify",
+      'captcha.verify',
       captchaSessionId,
       captchaInput,
       (captchaError, isValidCaptcha) => {
         if (captchaError || !isValidCaptcha) {
-          this.setState({ error: "Invalid security code. Please try again." });
+          this.setState({ error: 'Invalid security code. Please try again.' });
           this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep any existing errors
           return;
         }
@@ -121,7 +121,7 @@ export default class MobileSignup extends React.Component {
               this.setState({ error: err.reason });
               this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message
             } else {
-              this.setState({ error: "", redirectToReferer: true });
+              this.setState({ error: '', redirectToReferer: true });
             }
           },
         );
@@ -132,7 +132,7 @@ export default class MobileSignup extends React.Component {
   /** Render the signup form. */
   render() {
     const { from } = this.props.location?.state || {
-      from: { pathname: "/imDriving" },
+      from: { pathname: '/imDriving' },
     };
     // if correct authentication, redirect to from: page instead of signup screen
     if (this.state.redirectToReferer) {
@@ -270,11 +270,11 @@ export default class MobileSignup extends React.Component {
             </div>
 
             <div className="mobile-signup-legal">
-              By creating an account, you agree to our{" "}
+              By creating an account, you agree to our{' '}
               <Link to="/tos" className="mobile-signup-legal-link">
                 Terms of Service
-              </Link>{" "}
-              and{" "}
+              </Link>{' '}
+              and{' '}
               <Link to="/privacy" className="mobile-signup-legal-link">
                 Privacy Policy
               </Link>

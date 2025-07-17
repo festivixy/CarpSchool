@@ -1,11 +1,11 @@
-import React from "react";
-import { Meteor } from "meteor/meteor";
-import { withTracker } from "meteor/react-meteor-data";
-import { withRouter } from "react-router-dom";
-import PropTypes from "prop-types";
-import { Rides } from "../../../api/ride/Rides";
-import MobileRide from "../components/Ride";
-import "../../../api/chat/ChatMethods";
+import React from 'react';
+import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
+import { withRouter } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { Rides } from '../../../api/ride/Rides';
+import MobileRide from '../components/Ride';
+import '../../../api/chat/ChatMethods';
 
 /**
  * Modern Mobile ImDriving component showing rides where user is the driver
@@ -14,7 +14,7 @@ class MobileImDriving extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      searchQuery: "",
+      searchQuery: '',
       filteredRides: [],
     };
   }
@@ -44,11 +44,10 @@ class MobileImDriving extends React.Component {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredRides = filteredRides.filter(
-        (ride) =>
-          ride.origin.toLowerCase().includes(query) ||
+        (ride) => ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           (ride.rider &&
-            ride.rider !== "TBD" &&
+            ride.rider !== 'TBD' &&
             ride.rider.toLowerCase().includes(query)),
       );
     }
@@ -61,10 +60,10 @@ class MobileImDriving extends React.Component {
   };
 
   handleCancelRide = (rideId) => {
-    if (confirm("Are you sure you want to cancel this ride?")) {
-      Meteor.call("rides.remove", rideId, (error) => {
+    if (confirm('Are you sure you want to cancel this ride?')) {
+      Meteor.call('rides.remove', rideId, (error) => {
         if (error) {
-          alert("Error canceling ride: " + error.reason);
+          alert(`Error canceling ride: ${error.reason}`);
         }
       });
     }
@@ -73,13 +72,13 @@ class MobileImDriving extends React.Component {
   handleContactRider = async (rider) => {
     try {
       // Create or find existing chat with the rider (chats.create returns existing chat if one exists)
-      const chatId = await Meteor.callAsync("chats.create", [rider]);
+      const chatId = await Meteor.callAsync('chats.create', [rider]);
 
       // Navigate to chat page with the specific chat ID
-      this.props.history.push("/chat", { selectedChatId: chatId });
+      this.props.history.push('/chat', { selectedChatId: chatId });
     } catch (error) {
-      console.error("Error creating/opening chat:", error);
-      alert("Unable to open chat. Please try again.");
+      console.error('Error creating/opening chat:', error);
+      alert('Unable to open chat. Please try again.');
     }
   };
 
@@ -126,13 +125,13 @@ class MobileImDriving extends React.Component {
             {searchQuery ? (
               <p>
                 {filteredRides.length} ride
-                {filteredRides.length !== 1 ? "s" : ""} found for "{searchQuery}
+                {filteredRides.length !== 1 ? 's' : ''} found for "{searchQuery}
                 "
               </p>
             ) : (
               <p>
                 {filteredRides.length} ride
-                {filteredRides.length !== 1 ? "s" : ""} as driver
+                {filteredRides.length !== 1 ? 's' : ''} as driver
               </p>
             )}
           </div>
@@ -143,17 +142,16 @@ class MobileImDriving extends React.Component {
               <div className="mobile-imdriving-empty">
                 <div className="mobile-imdriving-empty-icon">🚗</div>
                 <h3 className="mobile-imdriving-empty-title">
-                  {searchQuery ? "No rides found" : "No rides as driver"}
+                  {searchQuery ? 'No rides found' : 'No rides as driver'}
                 </h3>
                 <p className="mobile-imdriving-empty-message">
                   {searchQuery
-                    ? "Try adjusting your search terms"
-                    : "Create a new ride to start driving other students"}
+                    ? 'Try adjusting your search terms'
+                    : 'Create a new ride to start driving other students'}
                 </p>
                 {searchQuery && (
                   <button
-                    onClick={() =>
-                      this.setState({ searchQuery: "" }, this.filterRides)
+                    onClick={() => this.setState({ searchQuery: '' }, this.filterRides)
                     }
                     className="mobile-imdriving-clear-search"
                   >
@@ -166,7 +164,7 @@ class MobileImDriving extends React.Component {
                 <div key={ride._id} className="mobile-imdriving-ride-wrapper">
                   <MobileRide ride={ride} />
                   <div className="mobile-imdriving-additional-actions">
-                    {ride.rider !== "TBD" && (
+                    {ride.rider !== 'TBD' && (
                       <button
                         onClick={() => this.handleContactRider(ride.rider)}
                         className="mobile-imdriving-contact-button"
@@ -418,7 +416,7 @@ MobileImDriving.propTypes = {
 
 export default withRouter(
   withTracker(() => {
-    const subscription = Meteor.subscribe("Rides");
+    const subscription = Meteor.subscribe('Rides');
     return {
       rides: Rides.find({}).fetch(),
       ready: subscription.ready(),

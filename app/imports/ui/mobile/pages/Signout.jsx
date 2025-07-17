@@ -1,6 +1,6 @@
-import React from "react";
-import { Meteor } from "meteor/meteor";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Meteor } from 'meteor/meteor';
+import { Link } from 'react-router-dom';
 
 /** Modern mobile signout page with clean design and user feedback */
 export default class MobileSignout extends React.Component {

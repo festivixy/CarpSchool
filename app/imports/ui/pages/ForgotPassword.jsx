@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Grid,
   Segment,
@@ -7,22 +7,22 @@ import {
   Divider,
   Input,
   Modal,
-} from "semantic-ui-react";
+} from 'semantic-ui-react';
 import {
   AutoForm,
   TextField,
   SubmitField,
   ErrorsField,
-} from "uniforms-semantic";
-import swal from "sweetalert";
-import Joi from "joi";
-import { Accounts } from "meteor/accounts-base";
-import { Meteor } from "meteor/meteor";
-import { JoiBridge } from "../forms/JoiBridge";
+} from 'uniforms-semantic';
+import swal from 'sweetalert';
+import Joi from 'joi';
+import { Accounts } from 'meteor/accounts-base';
+import { Meteor } from 'meteor/meteor';
+import { JoiBridge } from '../forms/JoiBridge';
 
 /** Create a schema to specify the structure of the data to appear in the form. */
 const formSchema = Joi.object({
-  email: Joi.string().email({ tlds: false }).required().label("Email"),
+  email: Joi.string().email({ tlds: false }).required().label('Email'),
 });
 
 const bridge = new JoiBridge(formSchema);
@@ -32,9 +32,9 @@ class ForgotPassword extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
+      captchaInput: '',
+      captchaSvg: '',
+      captchaSessionId: '',
       isLoadingCaptcha: false,
       showCaptchaErrorModal: false,
     };
@@ -47,15 +47,15 @@ class ForgotPassword extends React.Component {
   /** Generate a new CAPTCHA */
   generateNewCaptcha = () => {
     this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
+    Meteor.call('captcha.generate', (error, result) => {
       if (error) {
-        swal("Error", "Failed to load CAPTCHA. Please try again.", "error");
+        swal('Error', 'Failed to load CAPTCHA. Please try again.', 'error');
         this.setState({ isLoadingCaptcha: false });
       } else {
         this.setState({
           captchaSvg: result.svg,
           captchaSessionId: result.sessionId,
-          captchaInput: "",
+          captchaInput: '',
           isLoadingCaptcha: false,
         });
       }
@@ -79,7 +79,7 @@ class ForgotPassword extends React.Component {
 
     // First verify CAPTCHA
     Meteor.call(
-      "captcha.verify",
+      'captcha.verify',
       captchaSessionId,
       captchaInput,
       (captchaError, isValidCaptcha) => {
@@ -92,16 +92,16 @@ class ForgotPassword extends React.Component {
         // CAPTCHA is valid, proceed with password reset
         Accounts.forgotPassword({ email }, (error) => {
           if (error) {
-            swal("Error", error.message, "error");
+            swal('Error', error.message, 'error');
             this.generateNewCaptcha(); // Generate new CAPTCHA on error
           } else {
             swal(
-              "Success",
-              "An email has been sent to reset your password.",
-              "success",
+              'Success',
+              'An email has been sent to reset your password.',
+              'success',
             );
             formRef.reset();
-            this.setState({ captchaInput: "" });
+            this.setState({ captchaInput: '' });
             this.generateNewCaptcha(); // Generate new CAPTCHA after success
           }
         });
@@ -132,24 +132,24 @@ class ForgotPassword extends React.Component {
                 <Divider />
 
                 {/* CAPTCHA Section */}
-                <div style={{ textAlign: "center", marginBottom: "1em" }}>
+                <div style={{ textAlign: 'center', marginBottom: '1em' }}>
                   <label
                     style={{
-                      display: "block",
-                      marginBottom: "0.5em",
-                      fontWeight: "bold",
+                      display: 'block',
+                      marginBottom: '0.5em',
+                      fontWeight: 'bold',
                     }}
                   >
                     Security Verification
                   </label>
                   <div
                     style={{
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      padding: "10px",
-                      marginBottom: "0.5em",
-                      backgroundColor: "#f9f9f9",
-                      display: "inline-block",
+                      border: '1px solid #ccc',
+                      borderRadius: '4px',
+                      padding: '10px',
+                      marginBottom: '0.5em',
+                      backgroundColor: '#f9f9f9',
+                      display: 'inline-block',
                     }}
                   >
                     {this.state.isLoadingCaptcha ? (
@@ -176,16 +176,16 @@ class ForgotPassword extends React.Component {
                 <Input
                   label={{
                     basic: true,
-                    content: "Enter the characters shown above",
+                    content: 'Enter the characters shown above',
                   }}
                   name="captchaInput"
                   placeholder="Enter CAPTCHA"
                   value={this.state.captchaInput}
                   onChange={this.handleCaptchaChange}
                   style={{
-                    textAlign: "center",
-                    marginBottom: "1em",
-                    width: "100%",
+                    textAlign: 'center',
+                    marginBottom: '1em',
+                    width: '100%',
                   }}
                 />
 

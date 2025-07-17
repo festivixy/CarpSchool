@@ -21,7 +21,7 @@ const ImageViewer = ({ uuid: initialUuid }) => {
 
     Meteor.call('images.getByUuid', uuid.trim(), (err, result) => {
       setIsLoading(false);
-      
+
       if (err) {
         setError(err.reason || 'Failed to load image');
         console.error('Image load error:', err);
@@ -41,13 +41,13 @@ const ImageViewer = ({ uuid: initialUuid }) => {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   };
 
   return (
     <Segment>
       <Header as="h3">Image Viewer</Header>
-      
+
       <Form>
         <Form.Field>
           <label>Image UUID</label>
@@ -91,7 +91,7 @@ const ImageViewer = ({ uuid: initialUuid }) => {
           <p><strong>MIME Type:</strong> {imageData.mimeType}</p>
           <p><strong>File Size:</strong> {formatFileSize(imageData.fileSize)}</p>
           <p><strong>Uploaded:</strong> {new Date(imageData.uploadedAt).toLocaleString()}</p>
-          
+
           <Header as="h4">Image</Header>
           <Image
             src={getImageSrc()}

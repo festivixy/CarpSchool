@@ -1,8 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
-import { Accounts } from "meteor/accounts-base";
-import { Meteor } from "meteor/meteor";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import { Accounts } from 'meteor/accounts-base';
+import { Meteor } from 'meteor/meteor';
 
 /**
  * Mobile ForgotPassword component with modern design and full functionality
@@ -12,11 +12,11 @@ export default class MobileForgotPassword extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: "",
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
-      error: "",
+      email: '',
+      captchaInput: '',
+      captchaSvg: '',
+      captchaSessionId: '',
+      error: '',
       success: false,
       isSubmitting: false,
       isLoadingCaptcha: false,
@@ -36,19 +36,19 @@ export default class MobileForgotPassword extends React.Component {
   /** Generate a new CAPTCHA */
   generateNewCaptcha = () => {
     this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
+    Meteor.call('captcha.generate', (error, result) => {
       if (error) {
         this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
+          error: 'Failed to load CAPTCHA. Please try again.',
           isLoadingCaptcha: false,
         });
       } else {
         this.setState({
           captchaSvg: result.svg,
           captchaSessionId: result.sessionId,
-          captchaInput: "",
+          captchaInput: '',
           isLoadingCaptcha: false,
-          error: "",
+          error: '',
         });
       }
     });
@@ -57,17 +57,17 @@ export default class MobileForgotPassword extends React.Component {
   /** Generate a new CAPTCHA without clearing existing error messages */
   generateNewCaptchaKeepError = () => {
     this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
+    Meteor.call('captcha.generate', (error, result) => {
       if (error) {
         this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
+          error: 'Failed to load CAPTCHA. Please try again.',
           isLoadingCaptcha: false,
         });
       } else {
         this.setState({
           captchaSvg: result.svg,
           captchaSessionId: result.sessionId,
-          captchaInput: "",
+          captchaInput: '',
           isLoadingCaptcha: false,
         });
       }
@@ -84,17 +84,17 @@ export default class MobileForgotPassword extends React.Component {
   submit = () => {
     const { email, captchaInput, captchaSessionId } = this.state;
 
-    this.setState({ isSubmitting: true, error: "", success: false });
+    this.setState({ isSubmitting: true, error: '', success: false });
 
     // First verify CAPTCHA
     Meteor.call(
-      "captcha.verify",
+      'captcha.verify',
       captchaSessionId,
       captchaInput,
       (captchaError, isValidCaptcha) => {
         if (captchaError || !isValidCaptcha) {
           this.setState({
-            error: "Invalid security code. Please try again.",
+            error: 'Invalid security code. Please try again.',
             isSubmitting: false,
           });
           this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep any existing errors
@@ -111,8 +111,8 @@ export default class MobileForgotPassword extends React.Component {
           } else {
             this.setState({
               success: true,
-              email: "", // Clear the email field after success
-              captchaInput: "", // Clear CAPTCHA input
+              email: '', // Clear the email field after success
+              captchaInput: '', // Clear CAPTCHA input
             });
             this.generateNewCaptcha(); // Generate new CAPTCHA after success
           }
@@ -201,7 +201,7 @@ export default class MobileForgotPassword extends React.Component {
                     className="mobile-forgot-button"
                     disabled={this.state.isSubmitting}
                   >
-                    {this.state.isSubmitting ? "Sending..." : "Send Reset Link"}
+                    {this.state.isSubmitting ? 'Sending...' : 'Send Reset Link'}
                   </button>
                 </div>
               </form>
@@ -214,11 +214,10 @@ export default class MobileForgotPassword extends React.Component {
                   doesn't appear within a few minutes, check your spam folder.
                 </div>
                 <button
-                  onClick={() =>
-                    this.setState({
+                  onClick={() => this.setState({
                       success: false,
-                      email: "",
-                      captchaInput: "",
+                      email: '',
+                      captchaInput: '',
                     })
                   }
                   className="mobile-forgot-back-button"
@@ -248,11 +247,11 @@ export default class MobileForgotPassword extends React.Component {
             </div>
 
             <div className="mobile-forgot-legal">
-              By using our service, you agree to our{" "}
+              By using our service, you agree to our{' '}
               <Link to="/tos" className="mobile-forgot-legal-link">
                 Terms of Service
-              </Link>{" "}
-              and{" "}
+              </Link>{' '}
+              and{' '}
               <Link to="/privacy" className="mobile-forgot-legal-link">
                 Privacy Policy
               </Link>

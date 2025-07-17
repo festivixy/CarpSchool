@@ -5,7 +5,6 @@ import { withRouter } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import swal from 'sweetalert';
 
-
 /* PROFILE NOT IMPLEMENTED YET
           <Card.Content extra>
             <div className='ui two buttons'>

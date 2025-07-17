@@ -22,7 +22,7 @@ const TestImageUpload = () => {
   return (
     <Container>
       <Header as="h1">Image Upload Test</Header>
-      
+
       <ImageUpload
         onUploadSuccess={handleUploadSuccess}
         onUploadError={handleUploadError}

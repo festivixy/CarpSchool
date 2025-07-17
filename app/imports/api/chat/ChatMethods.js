@@ -1,35 +1,35 @@
-import { Meteor } from "meteor/meteor";
-import { Chats } from "./Chat";
-import Joi from "joi";
-import { isLoggedInAndEmailVerified } from "../accounts/Accounts";
+import { Meteor } from 'meteor/meteor';
+import Joi from 'joi';
+import { Chats } from './Chat';
+import { isLoggedInAndEmailVerified } from '../accounts/Accounts';
 
 // Generate a random 8-character code
 function generateChatCode() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "";
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
   for (let i = 0; i < 8; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  return result.slice(0, 4) + "-" + result.slice(4);
+  return `${result.slice(0, 4)}-${result.slice(4)}`;
 }
 
 Meteor.methods({
   /**
    * Create a new empty chat with share code
    */
-  async "chats.createWithCode"() {
+  async 'chats.createWithCode'() {
     // Check if user is logged in
     if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error(
-        "not-authorized",
-        "You must be logged in to create a chat.",
+        'not-authorized',
+        'You must be logged in to create a chat.',
       );
     }
 
     // Get current user
     const currentUser = await Meteor.users.findOneAsync(this.userId);
     if (!currentUser || !currentUser.username) {
-      throw new Meteor.Error("user-error", "Unable to find current user.");
+      throw new Meteor.Error('user-error', 'Unable to find current user.');
     }
 
     // Generate unique share code
@@ -57,7 +57,7 @@ Meteor.methods({
   /**
    * Create a new DM chat with another user
    */
-  async "chats.create"(participants) {
+  async 'chats.create'(participants) {
     // Validate input - only allow 1 other participant for DM
     const schema = Joi.object({
       participants: Joi.array().items(Joi.string()).max(1).required(),
@@ -66,23 +66,23 @@ Meteor.methods({
     const { error } = schema.validate({ participants });
     if (error) {
       throw new Meteor.Error(
-        "validation-error",
-        "Only one other participant allowed for DM.",
+        'validation-error',
+        'Only one other participant allowed for DM.',
       );
     }
 
     // Check if user is logged in
     if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error(
-        "not-authorized",
-        "You must be logged in to create a chat.",
+        'not-authorized',
+        'You must be logged in to create a chat.',
       );
     }
 
     // Get current user
     const currentUser = await Meteor.users.findOneAsync(this.userId);
     if (!currentUser || !currentUser.username) {
-      throw new Meteor.Error("user-error", "Unable to find current user.");
+      throw new Meteor.Error('user-error', 'Unable to find current user.');
     }
 
     // Create final participants array (current user + other user)
@@ -95,7 +95,7 @@ Meteor.methods({
     });
     if (!otherUser) {
       throw new Meteor.Error(
-        "user-not-found",
+        'user-not-found',
         `User "${otherUsername}" not found.`,
       );
     }
@@ -133,27 +133,27 @@ Meteor.methods({
   /**
    * Generate share code for existing chat
    */
-  async "chats.generateShareCode"(chatId) {
+  async 'chats.generateShareCode'(chatId) {
     // Check if user is logged in
     if (!await isLoggedInAndEmailVerified(this.userId)) {
-      throw new Meteor.Error("not-authorized", "You must be logged in.");
+      throw new Meteor.Error('not-authorized', 'You must be logged in.');
     }
 
     const currentUser = await Meteor.users.findOneAsync(this.userId);
     if (!currentUser || !currentUser.username) {
-      throw new Meteor.Error("user-error", "Unable to find current user.");
+      throw new Meteor.Error('user-error', 'Unable to find current user.');
     }
 
     const chat = await Chats.findOneAsync(chatId);
     if (!chat) {
-      throw new Meteor.Error("chat-not-found", "Chat not found.");
+      throw new Meteor.Error('chat-not-found', 'Chat not found.');
     }
 
     // Check if user is a participant
     if (!chat.Participants.includes(currentUser.username)) {
       throw new Meteor.Error(
-        "not-authorized",
-        "You are not a participant in this chat.",
+        'not-authorized',
+        'You are not a participant in this chat.',
       );
     }
 
@@ -184,7 +184,7 @@ Meteor.methods({
   /**
    * Join a chat using share code
    */
-  async "chats.joinChat"(shareCode) {
+  async 'chats.joinChat'(shareCode) {
     // Validate input
     const schema = Joi.object({
       shareCode: Joi.string().required(),
@@ -192,39 +192,39 @@ Meteor.methods({
 
     const { error } = schema.validate({ shareCode });
     if (error) {
-      throw new Meteor.Error("validation-error", error.details[0].message);
+      throw new Meteor.Error('validation-error', error.details[0].message);
     }
 
     // Check if user is logged in
     if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error(
-        "not-authorized",
-        "You must be logged in to join a chat.",
+        'not-authorized',
+        'You must be logged in to join a chat.',
       );
     }
 
     const currentUser = await Meteor.users.findOneAsync(this.userId);
     if (!currentUser || !currentUser.username) {
-      throw new Meteor.Error("user-error", "Unable to find current user.");
+      throw new Meteor.Error('user-error', 'Unable to find current user.');
     }
 
     // Find chat by share code
     const chat = await Chats.findOneAsync({ shareCode: shareCode });
     if (!chat) {
-      throw new Meteor.Error("chat-not-found", "Invalid chat code.");
+      throw new Meteor.Error('chat-not-found', 'Invalid chat code.');
     }
 
     // Check if user is already a participant
     if (chat.Participants.includes(currentUser.username)) {
       throw new Meteor.Error(
-        "already-participant",
-        "You are already in this chat.",
+        'already-participant',
+        'You are already in this chat.',
       );
     }
 
     // Check if chat is full (DM only allows 2 people)
     if (chat.Participants.length >= 2) {
-      throw new Meteor.Error("chat-full", "This chat is full (DM only).");
+      throw new Meteor.Error('chat-full', 'This chat is full (DM only).');
     }
 
     // Add user to chat
@@ -234,12 +234,12 @@ Meteor.methods({
 
     // Remove share code since DM is now complete
     await Chats.updateAsync(chat._id, {
-      $unset: { shareCode: "" },
+      $unset: { shareCode: '' },
     });
 
     // Add system message
     const systemMessage = {
-      Sender: "System",
+      Sender: 'System',
       Content: `${currentUser.username} joined the chat`,
       Timestamp: new Date(),
     };
@@ -254,7 +254,7 @@ Meteor.methods({
   /**
    * Send a message to a chat
    */
-  async "chats.sendMessage"(chatId, content) {
+  async 'chats.sendMessage'(chatId, content) {
     // Validate input
     const schema = Joi.object({
       chatId: Joi.string().required(),
@@ -263,32 +263,32 @@ Meteor.methods({
 
     const { error } = schema.validate({ chatId, content });
     if (error) {
-      throw new Meteor.Error("validation-error", error.details[0].message);
+      throw new Meteor.Error('validation-error', error.details[0].message);
     }
 
     // Check if user is logged in
     if (!await isLoggedInAndEmailVerified(this.userId)) {
       throw new Meteor.Error(
-        "not-authorized",
-        "You must be logged in to send messages.",
+        'not-authorized',
+        'You must be logged in to send messages.',
       );
     }
 
     const currentUser = await Meteor.users.findOneAsync(this.userId);
     if (!currentUser || !currentUser.username) {
-      throw new Meteor.Error("user-error", "Unable to find current user.");
+      throw new Meteor.Error('user-error', 'Unable to find current user.');
     }
 
     const chat = await Chats.findOneAsync(chatId);
     if (!chat) {
-      throw new Meteor.Error("chat-not-found", "Chat not found.");
+      throw new Meteor.Error('chat-not-found', 'Chat not found.');
     }
 
     // Check if user is a participant
     if (!chat.Participants.includes(currentUser.username)) {
       throw new Meteor.Error(
-        "not-authorized",
-        "You are not a participant in this chat.",
+        'not-authorized',
+        'You are not a participant in this chat.',
       );
     }
 

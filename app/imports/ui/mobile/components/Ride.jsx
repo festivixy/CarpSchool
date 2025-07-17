@@ -1,8 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { withRouter } from "react-router-dom";
-import { Meteor } from "meteor/meteor";
-import swal from "sweetalert";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
+import { Meteor } from 'meteor/meteor';
+import swal from 'sweetalert';
 
 /** Modern mobile Ride component with clean design and join functionality */
 class MobileRide extends React.Component {
@@ -23,12 +23,12 @@ class MobileRide extends React.Component {
     const existingCode = this.props.ride.shareCode;
 
     Meteor.call(
-      "rides.generateShareCode",
+      'rides.generateShareCode',
       this.props.ride._id,
       (error, result) => {
         this.setState({ isGenerating: false });
         if (error) {
-          swal("Error", error.message, "error");
+          swal('Error', error.message, 'error');
         } else {
           this.setState({
             shareCode: result,
@@ -52,7 +52,7 @@ class MobileRide extends React.Component {
     const { shareCode } = this.state;
     if (shareCode) {
       // eslint-disable-next-line no-undef
-      const inviteLink = `${window.location.origin}/#/imRiding?code=${shareCode.replace("-", "")}`;
+      const inviteLink = `${window.location.origin}/#/imRiding?code=${shareCode.replace('-', '')}`;
 
       // Copy to clipboard
       // eslint-disable-next-line no-undef
@@ -62,9 +62,9 @@ class MobileRide extends React.Component {
           .writeText(inviteLink)
           .then(() => {
             swal(
-              "Link Copied!",
-              "The invite link has been copied to your clipboard.",
-              "success",
+              'Link Copied!',
+              'The invite link has been copied to your clipboard.',
+              'success',
             );
           })
           .catch(() => {
@@ -80,11 +80,11 @@ class MobileRide extends React.Component {
 
   fallbackCopyToClipboard = (text) => {
     // eslint-disable-next-line no-undef
-    const textArea = document.createElement("textarea");
+    const textArea = document.createElement('textarea');
     textArea.value = text;
-    textArea.style.position = "fixed";
-    textArea.style.left = "-999999px";
-    textArea.style.top = "-999999px";
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
     // eslint-disable-next-line no-undef
     document.body.appendChild(textArea);
     textArea.focus();
@@ -92,31 +92,30 @@ class MobileRide extends React.Component {
 
     try {
       // eslint-disable-next-line no-undef
-      document.execCommand("copy");
+      document.execCommand('copy');
       swal(
-        "Link Copied!",
-        "The invite link has been copied to your clipboard.",
-        "success",
+        'Link Copied!',
+        'The invite link has been copied to your clipboard.',
+        'success',
       );
     } catch (err) {
-      swal("Copy Failed", `Please manually copy the link: ${text}`, "error");
+      swal('Copy Failed', `Please manually copy the link: ${text}`, 'error');
     }
 
     // eslint-disable-next-line no-undef
     document.body.removeChild(textArea);
   };
 
-  isCurrentUserDriver = () =>
-    Meteor.user() && this.props.ride.driver === Meteor.user().username;
+  isCurrentUserDriver = () => Meteor.user() && this.props.ride.driver === Meteor.user().username;
 
   canShareRide = () => {
     const rider = this.props.ride.rider;
-    return this.isCurrentUserDriver() && rider === "TBD";
+    return this.isCurrentUserDriver() && rider === 'TBD';
   };
 
   canJoinRide = () => {
     const rider = this.props.ride.rider;
-    return !this.isCurrentUserDriver() && rider === "TBD";
+    return !this.isCurrentUserDriver() && rider === 'TBD';
   };
 
   handleJoinRide = () => {
@@ -127,10 +126,10 @@ class MobileRide extends React.Component {
     } else {
       // Generate a share code first, then join
       this.setState({ isGenerating: true });
-      Meteor.call("rides.generateShareCode", ride._id, (error, result) => {
+      Meteor.call('rides.generateShareCode', ride._id, (error, result) => {
         this.setState({ isGenerating: false });
         if (error) {
-          swal("Error", error.message, "error");
+          swal('Error', error.message, 'error');
         } else {
           this.joinWithCode(result);
         }
@@ -140,31 +139,27 @@ class MobileRide extends React.Component {
 
   joinWithCode = (shareCode) => {
     // Call the join ride method
-    Meteor.call("rides.joinRide", shareCode, (error) => {
+    Meteor.call('rides.joinRide', shareCode, (error) => {
       if (error) {
-        swal("Error", error.reason || error.message, "error");
+        swal('Error', error.reason || error.message, 'error');
       } else {
-        swal("Success!", "You have successfully joined the ride!", "success");
+        swal('Success!', 'You have successfully joined the ride!', 'success');
       }
     });
   };
 
-  formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+  formatDate = (date) => new Date(date).toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
-  };
 
-  formatTime = (date) => {
-    return new Date(date).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
+  formatTime = (date) => new Date(date).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
       hour12: true,
     });
-  };
 
   render() {
     const { shareModalOpen, shareCode, isGenerating, isExistingCode } =
@@ -193,7 +188,7 @@ class MobileRide extends React.Component {
             {/* Only show status if current user is not the rider */}
             {!(Meteor.user() && ride.rider === Meteor.user().username) && (
               <div className="mobile-ride-status">
-                {ride.rider === "TBD" ? (
+                {ride.rider === 'TBD' ? (
                   <span className="mobile-ride-status-looking">
                     Looking for rider
                   </span>
@@ -226,7 +221,7 @@ class MobileRide extends React.Component {
             <div className="mobile-ride-detail-item">
               <span className="mobile-ride-detail-icon">👤</span>
               <span className="mobile-ride-detail-text">
-                {ride.rider === "TBD" ? "No rider yet" : ride.rider}
+                {ride.rider === 'TBD' ? 'No rider yet' : ride.rider}
               </span>
             </div>
           </div>
@@ -242,7 +237,7 @@ class MobileRide extends React.Component {
             <div className="mobile-ride-actions">
               {this.canShareRide() && (
                 <button
-                  className={`mobile-ride-share-button ${isGenerating ? "loading" : ""}`}
+                  className={`mobile-ride-share-button ${isGenerating ? 'loading' : ''}`}
                   onClick={this.handleShareRide}
                   disabled={isGenerating}
                 >
@@ -254,14 +249,14 @@ class MobileRide extends React.Component {
                   ) : (
                     <>
                       <span className="mobile-ride-share-icon">🔗</span>
-                      {ride.shareCode ? "View Share Code" : "Share Ride"}
+                      {ride.shareCode ? 'View Share Code' : 'Share Ride'}
                     </>
                   )}
                 </button>
               )}
               {this.canJoinRide() && (
                 <button
-                  className={`mobile-ride-join-button ${isGenerating ? "loading" : ""}`}
+                  className={`mobile-ride-join-button ${isGenerating ? 'loading' : ''}`}
                   onClick={this.handleJoinRide}
                   disabled={isGenerating}
                 >
@@ -324,8 +319,8 @@ class MobileRide extends React.Component {
 
                 <div className="mobile-share-modal-note">
                   {isExistingCode
-                    ? "This code was generated earlier and is still active."
-                    : "This code is unique to your ride and will be removed once someone joins."}
+                    ? 'This code was generated earlier and is still active.'
+                    : 'This code is unique to your ride and will be removed once someone joins.'}
                 </div>
               </div>
 

@@ -1,12 +1,12 @@
-import React from "react";
-import { Meteor } from "meteor/meteor";
-import { withTracker } from "meteor/react-meteor-data";
-import { withRouter } from "react-router-dom";
-import PropTypes from "prop-types";
-import { Rides } from "../../../api/ride/Rides";
-import JoinRideModal from "../components/JoinRideModal";
-import MobileRide from "../components/Ride";
-import "../../../api/chat/ChatMethods";
+import React from 'react';
+import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
+import { withRouter } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { Rides } from '../../../api/ride/Rides';
+import JoinRideModal from '../components/JoinRideModal';
+import MobileRide from '../components/Ride';
+import '../../../api/chat/ChatMethods';
 
 /**
  * Modern Mobile ImRiding component showing rides where user is the rider
@@ -15,10 +15,10 @@ class MobileImRiding extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      searchQuery: "",
+      searchQuery: '',
       filteredRides: [],
       joinRideModalOpen: false,
-      prefillCode: "",
+      prefillCode: '',
     };
   }
 
@@ -26,7 +26,7 @@ class MobileImRiding extends React.Component {
     this.filterRides();
     // Check for code parameter in URL
     const urlParams = new URLSearchParams(this.props.location.search);
-    const code = urlParams.get("code");
+    const code = urlParams.get('code');
 
     if (code) {
       // Format the code with dash if it's 8 characters
@@ -49,9 +49,9 @@ class MobileImRiding extends React.Component {
   }
 
   handleJoinRideClose = () => {
-    this.setState({ joinRideModalOpen: false, prefillCode: "" });
+    this.setState({ joinRideModalOpen: false, prefillCode: '' });
     // Clear the URL parameter
-    this.props.history.replace("/imRiding");
+    this.props.history.replace('/imRiding');
   };
 
   filterRides = () => {
@@ -66,8 +66,7 @@ class MobileImRiding extends React.Component {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredRides = filteredRides.filter(
-        (ride) =>
-          ride.origin.toLowerCase().includes(query) ||
+        (ride) => ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           ride.driver.toLowerCase().includes(query),
       );
@@ -81,10 +80,10 @@ class MobileImRiding extends React.Component {
   };
 
   handleLeaveRide = (rideId) => {
-    if (confirm("Are you sure you want to leave this ride?")) {
-      Meteor.call("rides.leaveRide", rideId, (error) => {
+    if (confirm('Are you sure you want to leave this ride?')) {
+      Meteor.call('rides.leaveRide', rideId, (error) => {
         if (error) {
-          alert("Error leaving ride: " + error.reason);
+          alert(`Error leaving ride: ${error.reason}`);
         }
       });
     }
@@ -93,18 +92,18 @@ class MobileImRiding extends React.Component {
   handleContactDriver = async (driver) => {
     try {
       // Create or find existing chat with the driver (chats.create returns existing chat if one exists)
-      const chatId = await Meteor.callAsync("chats.create", [driver]);
+      const chatId = await Meteor.callAsync('chats.create', [driver]);
 
       // Navigate to chat page with the specific chat ID
-      this.props.history.push("/chat", { selectedChatId: chatId });
+      this.props.history.push('/chat', { selectedChatId: chatId });
     } catch (error) {
-      console.error("Error creating/opening chat:", error);
-      alert("Unable to open chat. Please try again.");
+      console.error('Error creating/opening chat:', error);
+      alert('Unable to open chat. Please try again.');
     }
   };
 
   handleJoinNewRide = () => {
-    this.setState({ joinRideModalOpen: true, prefillCode: "" });
+    this.setState({ joinRideModalOpen: true, prefillCode: '' });
   };
 
   render() {
@@ -151,13 +150,13 @@ class MobileImRiding extends React.Component {
             {searchQuery ? (
               <p>
                 {filteredRides.length} ride
-                {filteredRides.length !== 1 ? "s" : ""} found for "{searchQuery}
+                {filteredRides.length !== 1 ? 's' : ''} found for "{searchQuery}
                 "
               </p>
             ) : (
               <p>
                 {filteredRides.length} ride
-                {filteredRides.length !== 1 ? "s" : ""} as rider
+                {filteredRides.length !== 1 ? 's' : ''} as rider
               </p>
             )}
           </div>
@@ -168,17 +167,16 @@ class MobileImRiding extends React.Component {
               <div className="mobile-imriding-empty">
                 <div className="mobile-imriding-empty-icon">🚗</div>
                 <h3 className="mobile-imriding-empty-title">
-                  {searchQuery ? "No rides found" : "No rides as rider"}
+                  {searchQuery ? 'No rides found' : 'No rides as rider'}
                 </h3>
                 <p className="mobile-imriding-empty-message">
                   {searchQuery
-                    ? "Try adjusting your search terms"
-                    : "Join a ride to get started"}
+                    ? 'Try adjusting your search terms'
+                    : 'Join a ride to get started'}
                 </p>
                 {searchQuery ? (
                   <button
-                    onClick={() =>
-                      this.setState({ searchQuery: "" }, this.filterRides)
+                    onClick={() => this.setState({ searchQuery: '' }, this.filterRides)
                     }
                     className="mobile-imriding-clear-search"
                   >
@@ -457,7 +455,7 @@ MobileImRiding.propTypes = {
 
 export default withRouter(
   withTracker(() => {
-    const subscription = Meteor.subscribe("Rides");
+    const subscription = Meteor.subscribe('Rides');
     return {
       rides: Rides.find({}).fetch(),
       ready: subscription.ready(),

@@ -1,13 +1,13 @@
-import { Meteor } from "meteor/meteor";
-import { Stuffs } from "../../api/stuff/Stuff";
-import { Profiles } from "../../api/profile/Profile";
-import { Notes } from "../../api/note/Notes";
-import { Rides } from "../../api/ride/Rides";
-import { Images } from "../../api/images/Images";
-import { Chats } from "../../api/chat/Chat";
+import { Meteor } from 'meteor/meteor';
+import { Stuffs } from '../../api/stuff/Stuff';
+import { Profiles } from '../../api/profile/Profile';
+import { Notes } from '../../api/note/Notes';
+import { Rides } from '../../api/ride/Rides';
+import { Images } from '../../api/images/Images';
+import { Chats } from '../../api/chat/Chat';
 
 /** This subscription publishes only the documents associated with the logged in user */
-Meteor.publish("Stuff", async function publish() {
+Meteor.publish('Stuff', async function publish() {
   if (this.userId) {
     const user = await Meteor.users.findOneAsync(this.userId);
     const username = user.username;
@@ -17,11 +17,11 @@ Meteor.publish("Stuff", async function publish() {
 });
 
 /** This subscription publishes all documents regardless of user, but only if the logged in user is the Admin. */
-Meteor.publish("StuffAdmin", async function publish() {
+Meteor.publish('StuffAdmin', async function publish() {
   if (this.userId) {
     // Check role assignments directly from the database
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (user && user.roles && user.roles.includes("admin")) {
+    if (user && user.roles && user.roles.includes('admin')) {
       return Stuffs.find();
     }
   }
@@ -29,7 +29,7 @@ Meteor.publish("StuffAdmin", async function publish() {
 });
 
 /** START OF PROFILE STUFF */
-Meteor.publish("Profiles", async function publish() {
+Meteor.publish('Profiles', async function publish() {
   if (this.userId) {
     const user = await Meteor.users.findOneAsync(this.userId);
     const username = user._id;
@@ -39,11 +39,11 @@ Meteor.publish("Profiles", async function publish() {
 });
 
 /** This subscription publishes all documents regardless of user, but only if the logged in user is the Admin. */
-Meteor.publish("ProfilesAdmin", async function publish() {
+Meteor.publish('ProfilesAdmin', async function publish() {
   if (this.userId) {
     // Check role assignments directly from the database
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (user && user.roles && user.roles.includes("admin")) {
+    if (user && user.roles && user.roles.includes('admin')) {
       return Profiles.find();
     }
   }
@@ -53,7 +53,7 @@ Meteor.publish("ProfilesAdmin", async function publish() {
 /** END OF PROFILE STUFF */
 
 /** This subscription publishes only the documents associated with the logged in user */
-Meteor.publish("Notes", async function publish() {
+Meteor.publish('Notes', async function publish() {
   if (this.userId) {
     const user = await Meteor.users.findOneAsync(this.userId);
     const username = user.username;
@@ -63,7 +63,7 @@ Meteor.publish("Notes", async function publish() {
 });
 
 /** This subscription publishes all rides regardless of user. */
-Meteor.publish("Rides", function publish() {
+Meteor.publish('Rides', function publish() {
   if (this.userId) {
     return Rides.find();
   }
@@ -79,10 +79,10 @@ Meteor.publish(null, function () {
 });
 
 /** Publish all users for admin management */
-Meteor.publish("AllUsers", async function () {
+Meteor.publish('AllUsers', async function () {
   if (this.userId) {
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (user && user.roles && user.roles.includes("admin")) {
+    if (user && user.roles && user.roles.includes('admin')) {
       return Meteor.users.find(
         {},
         {
@@ -101,10 +101,10 @@ Meteor.publish("AllUsers", async function () {
 });
 
 /** This subscription publishes image metadata (without image data) for admin users */
-Meteor.publish("ImagesMetadata", async function () {
+Meteor.publish('ImagesMetadata', async function () {
   if (this.userId) {
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (user && user.roles && user.roles.includes("admin")) {
+    if (user && user.roles && user.roles.includes('admin')) {
       return Images.find(
         {},
         {
@@ -126,7 +126,7 @@ Meteor.publish("ImagesMetadata", async function () {
 });
 
 /** Publish chats for the current user */
-Meteor.publish("chats", async function publishChats() {
+Meteor.publish('chats', async function publishChats() {
   if (!this.userId) {
     return this.ready();
   }
@@ -141,7 +141,7 @@ Meteor.publish("chats", async function publishChats() {
 });
 
 /** Publish all chats for admin users */
-Meteor.publish("chats.admin", async function publishAllChats() {
+Meteor.publish('chats.admin', async function publishAllChats() {
   if (!this.userId) {
     return this.ready();
   }
@@ -150,7 +150,7 @@ Meteor.publish("chats.admin", async function publishAllChats() {
   if (
     !currentUser ||
     !currentUser.roles ||
-    !currentUser.roles.includes("admin")
+    !currentUser.roles.includes('admin')
   ) {
     return this.ready();
   }
