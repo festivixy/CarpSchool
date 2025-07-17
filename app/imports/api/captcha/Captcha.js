@@ -1,5 +1,6 @@
 import { Mongo } from 'meteor/mongo';
 import Joi from 'joi';
+import { check } from 'meteor/check';
 
 /** Define a Mongo collection to hold the data. */
 const Captcha = new Mongo.Collection('Captcha');
@@ -14,11 +15,13 @@ const CaptchaSchema = Joi.object({
 });
 
 async function isCaptchaSolved(sessionId) {
+  check(sessionId, String)
   const session = await Captcha.findOneAsync({ _id: sessionId });
   return session && session.solved && !session.used;
 }
 
 async function useCaptcha(sessionId) {
+  check(sessionId, String);
   const session = await Captcha.findOneAsync({ _id: sessionId });
   await Captcha.updateAsync(session, {
     text: session.text,
