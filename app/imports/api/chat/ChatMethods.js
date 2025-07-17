@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import Joi from 'joi';
+import { check } from 'meteor/check';
 import { Chats } from './Chat';
 import { isLoggedInAndEmailVerified } from '../accounts/Accounts';
-import { check } from 'meteor/check';
 
 // Generate a random 8-character code
 function generateChatCode() {

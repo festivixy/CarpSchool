@@ -15,7 +15,7 @@ const CaptchaSchema = Joi.object({
 });
 
 async function isCaptchaSolved(sessionId) {
-  check(sessionId, String)
+  check(sessionId, String);
   const session = await Captcha.findOneAsync({ _id: sessionId });
   return session && session.solved && !session.used;
 }
