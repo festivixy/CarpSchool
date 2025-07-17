@@ -303,7 +303,7 @@ class MobileRide extends React.Component {
               <div className="mobile-share-modal-content">
                 <div className="mobile-share-modal-text">
                   {isExistingCode ? (
-                    <p>Here's your ride's existing share code:</p>
+                    <p>Here&apos;s your ride&apos;s existing share code:</p>
                   ) : (
                     <p>
                       Share this code with someone who wants to join your ride:

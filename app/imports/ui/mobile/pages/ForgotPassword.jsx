@@ -134,7 +134,7 @@ export default class MobileForgotPassword extends React.Component {
             <div className="mobile-forgot-copy">
               <div className="mobile-forgot-title">Forgot your password?</div>
               <div className="mobile-forgot-subtitle">
-                Enter your email address and we'll send you a link to reset your
+                Enter your email address and we&apos;ll send you a link to reset your
                 password
               </div>
             </div>
@@ -211,7 +211,7 @@ export default class MobileForgotPassword extends React.Component {
                 <div className="mobile-forgot-success-title">Email sent!</div>
                 <div className="mobile-forgot-success-message">
                   Check your email for a link to reset your password. If it
-                  doesn't appear within a few minutes, check your spam folder.
+                  doesn&apos;t appear within a few minutes, check your spam folder.
                 </div>
                 <button
                   onClick={() => this.setState({
@@ -242,7 +242,7 @@ export default class MobileForgotPassword extends React.Component {
                 Back to Sign In
               </Link>
               <Link to="/signup" className="mobile-forgot-link">
-                Don't have an account? Sign up
+                Don&apos;t have an account? Sign up
               </Link>
             </div>
 

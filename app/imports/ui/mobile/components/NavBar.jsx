@@ -139,14 +139,14 @@ class MobileNavBar extends React.Component {
                           className="mobile-navbar-dropdown-item"
                           onClick={this.closeAllMenus}
                         >
-                          I'm Driving
+                          I&apos;m Driving
                         </NavLink>
                         <NavLink
                           to="/imRiding"
                           className="mobile-navbar-dropdown-item"
                           onClick={this.closeAllMenus}
                         >
-                          I'm Riding
+                          I&apos;m Riding
                         </NavLink>
                       </div>
                     )}
@@ -297,14 +297,14 @@ class MobileNavBar extends React.Component {
                       className="mobile-navbar-mobile-item"
                       onClick={this.closeAllMenus}
                     >
-                      I'm Driving
+                      I&apos;m Driving
                     </NavLink>
                     <NavLink
                       to="/imRiding"
                       className="mobile-navbar-mobile-item"
                       onClick={this.closeAllMenus}
                     >
-                      I'm Riding
+                      I&apos;m Riding
                     </NavLink>
                   </div>
 

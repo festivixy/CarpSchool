@@ -22,7 +22,7 @@ export default class MobileVerifyEmail extends React.Component {
                 Please verify your email
               </div>
               <div className="mobile-verify-subtitle">
-                We've sent a verification link to your email address. Please
+                We&apos;ve sent a verification link to your email address. Please
                 check your inbox and click the link to activate your account.
               </div>
             </div>
@@ -37,7 +37,7 @@ export default class MobileVerifyEmail extends React.Component {
             </div>
 
             <div className="mobile-verify-help">
-              <p>Didn't receive the email?</p>
+              <p>Didn&apos;t receive the email?</p>
               <ul>
                 <li>Check your spam or junk folder</li>
                 <li>Make sure you entered the correct email address</li>

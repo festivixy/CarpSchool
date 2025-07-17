@@ -117,8 +117,8 @@ class MobileListMyRides extends React.Component {
             {searchQuery ? (
               <p>
                 {filteredRides.length} ride
-                {filteredRides.length !== 1 ? 's' : ''} found for "{searchQuery}
-                "
+                {filteredRides.length !== 1 ? 's' : ''} found for &quot;{searchQuery}
+                &quot;
               </p>
             ) : (
               <p>

@@ -236,7 +236,7 @@ export default class MobileSignIn extends React.Component {
 
             <div className="mobile-signin-links">
               <Link to="/signup" className="mobile-signin-link">
-                Don't have an account? Sign up
+                Don&apos;t have an account? Sign up
               </Link>
               <Link to="/forgot" className="mobile-signin-link">
                 Forgot your password?

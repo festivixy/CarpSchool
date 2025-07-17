@@ -102,7 +102,7 @@ class MobileImDriving extends React.Component {
           <div className="mobile-imdriving-header">
             <h1 className="mobile-imdriving-title">My Rides as Driver</h1>
             <p className="mobile-imdriving-subtitle">
-              Manage rides where you're the driver
+              Manage rides where you&apos;re the driver
             </p>
           </div>
 
@@ -125,8 +125,8 @@ class MobileImDriving extends React.Component {
             {searchQuery ? (
               <p>
                 {filteredRides.length} ride
-                {filteredRides.length !== 1 ? 's' : ''} found for "{searchQuery}
-                "
+                {filteredRides.length !== 1 ? 's' : ''} found for &quot;{searchQuery}
+                &quot;
               </p>
             ) : (
               <p>
