@@ -10,12 +10,23 @@ const CaptchaSchema = Joi.object({
   text: Joi.string().required(),
   timestamp: Joi.date().required(),
   solved: Joi.boolean().required(),
+  used: Joi.boolean().required(),
 });
 
 async function isCaptchaSolved(sessionId) {
-    const session = await Captcha.findOneAsync({ _id: sessionId });
-    return session && session.solved;
+  const session = await Captcha.findOneAsync({ _id: sessionId });
+  return session && session.solved && !session.used;
+}
+
+async function useCaptcha(sessionId) {
+  const session = await Captcha.findOneAsync({ _id: sessionId });
+  await Captcha.updateAsync(session, {
+    text: session.text,
+    timestamp: session.timestamp,
+    solved: session.solved,
+    used: true,
+  });
 }
 
 /** Make the collection and schema available to other code. */
-export { Captcha, CaptchaSchema, isCaptchaSolved };
+export { Captcha, CaptchaSchema, isCaptchaSolved, useCaptcha };

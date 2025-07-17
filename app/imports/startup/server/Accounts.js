@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
-import { isCaptchaSolved } from '../../api/captcha/Captcha';
+import { isCaptchaSolved, useCaptcha } from '../../api/captcha/Captcha';
 
 /* eslint-disable no-console */
 
@@ -8,12 +8,14 @@ Accounts.validateLoginAttempt(async (attempt) => {
   if (!attempt.allowed) {
     return false;
   }
-  if (attempt.type == 'password') {
-    const captchaSolved = await isCaptchaSolved(attempt.methodArguments[0].password.captchaSessionId);
+  if (attempt.type === 'password') {
+    const captchaSessionId = attempt.methodArguments[0].password.captchaSessionId;
+    const captchaSolved = await isCaptchaSolved(captchaSessionId);
     if (!captchaSolved) {
       throw new Meteor.Error('invalid-captcha', 'CAPTCHA not solved');
     }
-    return captchaSolved;
+    await useCaptcha(captchaSessionId);
+    return true;
   }
   return true;
 });

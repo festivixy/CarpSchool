@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
 import { check } from 'meteor/check';
 import svgCaptcha from 'svg-captcha';
 import { Captcha } from './Captcha';
@@ -24,6 +23,7 @@ Meteor.methods({
       text: captcha.text.toLowerCase(),
       timestamp: Date.now(),
       solved: false,
+      used: false,
     });
 
     // Clean up old sessions (older than 10 minutes)
@@ -60,6 +60,7 @@ Meteor.methods({
         text: session.text,
         timestamp: session.timestamp,
         solved: true,
+        used: session.used,
       });
     }
 
