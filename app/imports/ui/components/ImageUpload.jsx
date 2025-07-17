@@ -227,7 +227,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
                   <div>
                     <div
                       dangerouslySetInnerHTML={{
-                        __html: captchaData.captchaSvg,
+                        __html: captchaData.svg,
                       }}
                       style={{
                         border: "1px solid #ccc",
