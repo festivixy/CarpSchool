@@ -4,7 +4,6 @@ import {
   Hero,
   HeroContent,
   LogoSection,
-  AppIcon,
   AppName,
   CtaSection,
   CtaPrimary,
@@ -12,14 +11,12 @@ import {
   Features,
   SectionHeader,
   SectionTitle,
-  SectionSubtitle,
   Content,
   Paragraph,
   HowItWorks,
   FinalCta,
   CtaContent,
   CtaTitle,
-  CtaSubtitle,
   CtaButtons,
 } from "../styles/Landing";
 

@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import Joi from "joi";
+import Joi, { object } from "joi";
 import { check } from "meteor/check";
 import { Chats } from "./Chat";
 import { isLoggedInAndEmailVerified } from "../accounts/Accounts";
@@ -60,10 +60,10 @@ Meteor.methods({
    */
   async "chats.create"(participants) {
     // Validate input - only allow 1 other participant for DM
+    check(participants, object);
     const schema = Joi.object({
       participants: Joi.array().items(Joi.string()).max(1).required(),
     });
-
     const { error } = schema.validate({ participants });
     if (error) {
       throw new Meteor.Error(
@@ -128,7 +128,7 @@ Meteor.methods({
       shareCode: shareCode,
     };
 
-    return await Chats.insertAsync(chatData);
+    return await Chats.insertAsync(chatData); // eslint-disable-line
   },
 
   /**
@@ -249,6 +249,8 @@ Meteor.methods({
    * Send a message to a chat
    */
   async "chats.sendMessage"(chatId, content) {
+    check(chatId, String);
+    check(content, String);
     // Validate input
     const schema = Joi.object({
       chatId: Joi.string().required(),

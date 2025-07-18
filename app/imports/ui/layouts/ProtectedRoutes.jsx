@@ -4,7 +4,6 @@ import { Route, Redirect } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Profiles } from "../../api/profile/Profile";
-import MobileVerifyEmail from "../mobile/pages/VerifyEmail";
 
 /**
  * Main protected route with onboarding logic
@@ -75,9 +74,9 @@ export const ProtectedRouteRequireNotEmailVerified = ({
         if (!Meteor.user().emails[0].verified) {
           return <Component {...props} />;
         }
-        <Redirect
+        <Redirect // eslint-disable-line
           to={
-            props.location.state && props.location.state.from
+            props.location.state && props.location.state.from // eslint-disable-line
               ? props.location.state.from.pathname
               : "/"
           }

@@ -135,7 +135,7 @@ class MobileJoinRideModal extends React.Component {
 
     this.setState({ isJoining: true, error: null });
 
-    Meteor.call("rides.joinWithCode", formattedCode, (error, result) => {
+    Meteor.call("rides.joinWithCode", formattedCode, (error, _result) => {
       this.setState({ isJoining: false });
 
       if (error) {

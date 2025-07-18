@@ -2,7 +2,7 @@ import { WebApp } from "meteor/webapp";
 import { Images } from "../../api/images/Images";
 
 // Create endpoint to serve images directly: /image/<uuid>
-WebApp.connectHandlers.use("/image", async (req, res, next) => {
+WebApp.connectHandlers.use("/image", async (req, res, _next) => {
   try {
     // Extract UUID from URL path (remove leading slash)
     const uuid = req.url.substring(1);

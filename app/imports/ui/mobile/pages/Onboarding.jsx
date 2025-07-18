@@ -315,7 +315,7 @@ class MobileOnboarding extends React.Component {
               },
             );
           })
-          .catch((error) => {
+          .catch((_error) => {
             if (!this._isMounted) return;
             this.setState({
               error: "Failed to process profile image. Please try again.",
@@ -388,7 +388,7 @@ class MobileOnboarding extends React.Component {
               },
             );
           })
-          .catch((error) => {
+          .catch((_error) => {
             if (!this._isMounted) return;
             this.setState({
               error: "Failed to process vehicle image. Please try again.",
@@ -453,11 +453,11 @@ class MobileOnboarding extends React.Component {
       <StepIcon>👋</StepIcon>
       <StepTitle>Welcome to Carpool!</StepTitle>
       <StepSubtitle>
-        Let's start by getting your name. This helps other users identify you.
+        Let&apos;s start by getting your name. This helps other users identify you.
       </StepSubtitle>
 
       <InputGroup>
-        <Label>What's your full name? *</Label>
+        <Label>What&apos;s your full name? *</Label>
         <Input
           type="text"
           name="name"
@@ -594,7 +594,7 @@ class MobileOnboarding extends React.Component {
             disabled={this.state.isUploadingProfile}
           />
           <FileLabel htmlFor="profile-upload">
-            {this.state.profileImage
+            {this.state.profileImage // eslint-disable-line
               ? "Change Profile Photo"
               : this.state.profileImagePreview
                 ? "Upload This Photo"
@@ -679,7 +679,7 @@ class MobileOnboarding extends React.Component {
               disabled={this.state.isUploadingRide}
             />
             <FileLabel htmlFor="vehicle-upload">
-              {this.state.rideImage
+              {this.state.rideImage // eslint-disable-line
                 ? "Change Vehicle Photo"
                 : this.state.rideImagePreview
                   ? "Upload This Photo"

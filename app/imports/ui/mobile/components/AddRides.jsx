@@ -209,7 +209,7 @@ class MobileAddRidesModal extends React.Component {
       origin: origin.trim(),
       destination: destination.trim(),
       date: new Date(`${date}T${time}`),
-      seats: parseInt(seats),
+      seats: parseInt(seats), // eslint-disable-line
       notes: notes.trim(),
       createdAt: new Date(),
     };

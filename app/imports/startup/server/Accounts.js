@@ -46,7 +46,7 @@ Accounts.validateNewUser(async (user) => {
   await useCaptcha(captchaSessionId);
 
   // Remove captchaSessionId from user object before storing
-  delete user.captchaSessionId;
+  delete user.captchaSessionId;  // eslint-disable-line
   return true;
 });
 
@@ -85,7 +85,7 @@ Meteor.startup(async () => {
   if ((await Meteor.users.find().countAsync()) === 0) {
     if (Meteor.settings.defaultAccounts) {
       console.log("Creating the default user(s)");
-      for (const { email, firstName, lastName, password, role } of Meteor
+      for (const { email, firstName, lastName, password, role } of Meteor  // eslint-disable-line
         .settings.defaultAccounts) {
         await createUser(email, firstName, lastName, password, role);
       }

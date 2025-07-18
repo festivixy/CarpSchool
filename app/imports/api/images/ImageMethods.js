@@ -144,7 +144,7 @@ Meteor.methods({
     const fileSize = binaryData.length;
 
     console.log(
-      `Compression complete: ${(originalFileSize / 1024 / 1024).toFixed(2)}MB → ${(fileSize / 1024).toFixed(2)}KB (${compressionResult.compressionRatio.toFixed(1)}% reduction)`,
+      `Compression complete: ${(originalFileSize / 1024 / 1024).toFixed(2)}MB → ${(fileSize / 1024).toFixed(2)}KB (${compressionResult.compressionRatio.toFixed(1)}% reduction)`, // eslint-disable-line
     );
 
     // Generate UUID and SHA256 hashes

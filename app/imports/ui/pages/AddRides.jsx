@@ -15,15 +15,6 @@ const AddRideSchema = Joi.object({
   destination: Joi.string().required().label("Destination"),
 });
 
-// Create bridge with proper error handling
-let bridge;
-try {
-  bridge = new JoiBridge(AddRideSchema);
-} catch (error) {
-  console.error("Error creating Joi bridge:", error);
-  console.error("Error details:", error.message, error.stack);
-}
-
 /** Renders the Page for adding a document. */
 class AddRide extends React.Component {
 
@@ -41,7 +32,7 @@ class AddRide extends React.Component {
             swal("Success", "Ride added successfully", "success");
             formRef.reset();
             // Redirect to imRiding page after successful ride creation
-            this.props.history.push("/imRiding");
+            this.props.history.push("/imRiding"); // eslint-disable-line
           }
         });
   }

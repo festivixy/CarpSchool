@@ -1,8 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
-import { Button } from "semantic-ui-react";
 import { Accounts } from "meteor/accounts-base";
 import {
   Container,
@@ -134,7 +133,7 @@ export default class MobileSignIn extends React.Component {
               password: methodArguments,
             },
           ],
-          userCallback: (error, result) => {
+          userCallback: (error, _result) => {
             if (error) {
               this.setState({ error: error.reason });
               this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message

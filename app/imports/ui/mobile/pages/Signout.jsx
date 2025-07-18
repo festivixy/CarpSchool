@@ -1,6 +1,5 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
-import { Link } from "react-router-dom";
 import {
   Container,
   Content,
@@ -39,7 +38,7 @@ export default class MobileSignout extends React.Component {
   }
 
   render() {
-    const { isSigningOut, signedOut } = this.state;
+    const { isSigningOut } = this.state;
 
     return (
       <Container>

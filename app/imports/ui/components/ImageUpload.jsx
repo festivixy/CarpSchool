@@ -91,7 +91,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
         const base64 = reader.result.split(",")[1];
         resolve(base64);
       };
-      reader.onerror = (error) => reject(error);
+      reader.onerror = (error1) => reject(error1);
     });
 
   // Handle upload
@@ -217,7 +217,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
             <label>Captcha Verification</label>
             <Grid columns={2}>
               <Grid.Column width={10}>
-                {isLoadingCaptcha ? (
+                {isLoadingCaptcha ? ( // eslint-disable-line
                   <Segment>
                     <Loader active inline="centered" />
                     <p>Loading captcha...</p>

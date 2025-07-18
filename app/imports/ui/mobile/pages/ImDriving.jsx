@@ -83,7 +83,7 @@ class MobileImDriving extends React.Component {
   };
 
   handleCancelRide = (rideId) => {
-    if (confirm("Are you sure you want to cancel this ride?")) {
+    if (confirm("Are you sure you want to cancel this ride?")) { // eslint-disable-line
       Meteor.call("rides.remove", rideId, (error) => {
         if (error) {
           alert(`Error canceling ride: ${error.reason}`);

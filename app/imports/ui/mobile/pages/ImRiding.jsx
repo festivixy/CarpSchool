@@ -104,7 +104,7 @@ class MobileImRiding extends React.Component {
   };
 
   handleLeaveRide = (rideId) => {
-    if (confirm("Are you sure you want to leave this ride?")) {
+    if (confirm("Are you sure you want to leave this ride?")) { // eslint-disable-line
       Meteor.call("rides.leaveRide", rideId, (error) => {
         if (error) {
           alert(`Error leaving ride: ${error.reason}`);

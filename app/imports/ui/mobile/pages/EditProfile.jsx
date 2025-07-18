@@ -287,7 +287,7 @@ class MobileEditProfile extends React.Component {
               },
             );
           })
-          .catch((error) => {
+          .catch((_error) => {
             if (!this._isMounted) return;
             this.setState({
               error: "Failed to process profile image. Please try again.",
@@ -363,7 +363,7 @@ class MobileEditProfile extends React.Component {
               },
             );
           })
-          .catch((error) => {
+          .catch((_error) => {
             if (!this._isMounted) return;
             this.setState({
               error: "Failed to process vehicle image. Please try again.",
