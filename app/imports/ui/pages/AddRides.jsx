@@ -15,13 +15,10 @@ const AddRideSchema = Joi.object({
   destination: Joi.string().required().label('Destination'),
 });
 
-console.log('Joi AddRideSchema created:', AddRideSchema);
-
 // Create bridge with proper error handling
 let bridge;
 try {
   bridge = new JoiBridge(AddRideSchema);
-  console.log('Joi Bridge created successfully:', bridge);
 } catch (error) {
   console.error('Error creating Joi bridge:', error);
   console.error('Error details:', error.message, error.stack);
