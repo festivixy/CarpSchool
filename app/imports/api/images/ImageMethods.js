@@ -316,4 +316,23 @@ Meteor.methods({
 
     return images;
   },
+
+  /**
+   * Get image data by UUID for display
+   * @param {String} uuid - The image UUID
+   */
+  async "images.getImageData"(uuid) {
+    check(uuid, String);
+
+    const image = await Images.findOneAsync({ uuid });
+    if (!image) {
+      throw new Meteor.Error("image-not-found", "Image not found");
+    }
+
+    return {
+      imageData: image.imageData,
+      mimeType: image.mimeType,
+      fileName: image.fileName,
+    };
+  },
 });

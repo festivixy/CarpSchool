@@ -1,44 +1,43 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Meteor } from 'meteor/meteor';
-import 'semantic-ui-css/semantic.css';
+import React from "react";
+import PropTypes from "prop-types";
+import { Meteor } from "meteor/meteor";
+import "semantic-ui-css/semantic.css";
 import {
   HashRouter as Router,
   Route,
   Switch,
   Redirect,
-} from 'react-router-dom';
-import AdminRides from '../pages/AdminRides';
-import AdminUsers from '../pages/AdminUsers';
-import AddStuff from '../pages/AddStuff';
-import AddProfile from '../pages/AddProfile';
-import EditProfile from '../pages/EditProfile';
-import NotFound from '../pages/NotFound';
-import AddRides from '../pages/AddRides';
-import TestImageUpload from '../pages/TestImageUpload';
-import MobileSignIn from '../mobile/pages/SignIn';
-import MobileSignup from '../mobile/pages/Signup';
-import MobileForgotPassword from '../mobile/pages/ForgotPassword';
-import MobileLanding from '../mobile/pages/Landing';
-import MobileImDriving from '../mobile/pages/ImDriving';
-import MobileImRiding from '../mobile/pages/ImRiding';
-import MobileNavBar from '../mobile/components/NavBar';
-import MobileFooter from '../mobile/components/Footer';
-import MobileChat from '../mobile/pages/Chat';
-import MobileSignout from '../mobile/pages/Signout';
-import MobileVerifyEmail from '../mobile/pages/VerifyEmail';
+} from "react-router-dom";
+import AdminRides from "../pages/AdminRides";
+import AdminUsers from "../pages/AdminUsers";
+import AddStuff from "../pages/AddStuff";
+import NotFound from "../pages/NotFound";
+import AddRides from "../pages/AddRides";
+import TestImageUpload from "../pages/TestImageUpload";
+import MobileSignIn from "../mobile/pages/SignIn";
+import MobileSignup from "../mobile/pages/Signup";
+import MobileForgotPassword from "../mobile/pages/ForgotPassword";
+import MobileLanding from "../mobile/pages/Landing";
+import MobileImDriving from "../mobile/pages/ImDriving";
+import MobileImRiding from "../mobile/pages/ImRiding";
+import MobileNavBar from "../mobile/components/NavBar";
+import MobileFooter from "../mobile/components/Footer";
+import MobileChat from "../mobile/pages/Chat";
+import MobileSignout from "../mobile/pages/Signout";
+import MobileVerifyEmail from "../mobile/pages/VerifyEmail";
+import MobileEditProfile from "../mobile/pages/EditProfile";
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
   render() {
     const appStyle = {
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
+      display: "flex",
+      flexDirection: "column",
+      minHeight: "100vh",
     };
 
     const mainContentStyle = {
-      flex: '1',
+      flex: "1",
     };
 
     return (
@@ -48,9 +47,18 @@ class App extends React.Component {
           <main style={mainContentStyle}>
             <Switch>
               <Route exact path="/" component={MobileLanding} />
-              <ProtectedRouteNotLoggedIn path="/signin" component={MobileSignIn} />
-              <ProtectedRouteNotLoggedIn path="/signup" component={MobileSignup} />
-              <ProtectedRouteNotLoggedIn path="/forgot" component={MobileForgotPassword} />
+              <ProtectedRouteNotLoggedIn
+                path="/signin"
+                component={MobileSignIn}
+              />
+              <ProtectedRouteNotLoggedIn
+                path="/signup"
+                component={MobileSignup}
+              />
+              <ProtectedRouteNotLoggedIn
+                path="/forgot"
+                component={MobileForgotPassword}
+              />
               {/* <Route exact path="/" component={HomeRoute}/>
                 <Route path="/signin" component={SigninRoute}/>
                 <Route path="/signup" component={Signup}/>
@@ -63,11 +71,10 @@ class App extends React.Component {
                 <ProtectedRoute path="/imRiding" component={UserRide}/> */}
               {/* <AdminProtectedRoute path="/list" component={ListRides}/> */}
               <ProtectedRoute path="/add" component={AddRides} />
-              <ProtectedRoute path="/addProfile/:_id" component={AddProfile} />
               <ProtectedRoute path="/myRides" component={AddStuff} />
               <ProtectedRoute
-                path="/editProfile/:_id"
-                component={EditProfile}
+                path="/editProfile"
+                component={MobileEditProfile}
               />
               <ProtectedRoute
                 path="/testImageUpload"
@@ -75,7 +82,10 @@ class App extends React.Component {
               />
               <AdminProtectedRoute path="/adminRides" component={AdminRides} />
               <AdminProtectedRoute path="/adminUsers" component={AdminUsers} />
-              <ProtectedRouteLoggedIn path="/signout" component={MobileSignout} />
+              <ProtectedRouteLoggedIn
+                path="/signout"
+                component={MobileSignout}
+              />
               <ProtectedRoute path="/chat" component={MobileChat} />
               <Route component={NotFound} />
             </Switch>
@@ -98,17 +108,15 @@ const ProtectedRoute = ({ component: Component, ...rest }) => (
     render={(props) => {
       if (Meteor.user()) {
         if (Meteor.user().emails[0].verified) {
-           return <Component {...props} />;
+          return <Component {...props} />;
         }
-          return <MobileVerifyEmail />;
-
+        return <MobileVerifyEmail />;
       }
-        return (
-          <Redirect
-            to={{ pathname: '/signin', state: { from: props.location } }}
-          />
-        );
-
+      return (
+        <Redirect
+          to={{ pathname: "/signin", state: { from: props.location } }}
+        />
+      );
     }}
   />
 );
@@ -118,14 +126,13 @@ const ProtectedRouteLoggedIn = ({ component: Component, ...rest }) => (
     {...rest}
     render={(props) => {
       if (Meteor.user()) {
-          return <Component {...props} />;
+        return <Component {...props} />;
       }
-        return (
-          <Redirect
-            to={{ pathname: '/signin', state: { from: props.location } }}
-          />
-        );
-
+      return (
+        <Redirect
+          to={{ pathname: "/signin", state: { from: props.location } }}
+        />
+      );
     }}
   />
 );
@@ -134,15 +141,18 @@ const ProtectedRouteNotLoggedIn = ({ component: Component, ...rest }) => (
   <Route
     {...rest}
     render={(props) => {
-      if (!(Meteor.user())) {
-          return <Component {...props} />;
+      if (!Meteor.user()) {
+        return <Component {...props} />;
       }
-        return (
-          <Redirect
-            to={props.location.state && props.location.state.from ? props.location.state.from.pathname : '/'}
-          />
-        );
-
+      return (
+        <Redirect
+          to={
+            props.location.state && props.location.state.from
+              ? props.location.state.from.pathname
+              : "/"
+          }
+        />
+      );
     }}
   />
 );
@@ -158,12 +168,12 @@ const AdminProtectedRoute = ({ component: Component, ...rest }) => (
     render={(props) => {
       const isLogged = Meteor.userId() !== null;
       const user = Meteor.user();
-      const isAdmin = user && user.roles && user.roles.includes('admin');
+      const isAdmin = user && user.roles && user.roles.includes("admin");
       return isLogged && isAdmin ? (
         <Component {...props} />
       ) : (
         <Redirect
-          to={{ pathname: '/signin', state: { from: props.location } }}
+          to={{ pathname: "/signin", state: { from: props.location } }}
         />
       );
     }}
