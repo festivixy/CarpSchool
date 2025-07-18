@@ -52,7 +52,11 @@
     "indent": "off",
     "prefer-arrow-callback": "off",
     "prefer-destructuring": "off",
-    "prefer-promise-reject-errors": "off"
+    "prefer-promise-reject-errors": "off",
+    "no-await-in-loop": "off",
+    "no-undef": "off",
+    "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": true, "argsIgnorePattern": "^_" }],
+    "react/no-unknown-property": ["error", { "ignore": ["jsx"] }],
   },
   "globals": {
     "Assets": true // Meteor disallows importing of Assets, see https://docs.meteor.com/api/assets.html
