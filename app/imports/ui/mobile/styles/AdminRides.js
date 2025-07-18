@@ -263,14 +263,12 @@ export const ActionButton = styled.button`
   font-size: 14px;
 
   &:hover:not(:disabled) {
-    background-color: ${(props) =>
-      props.variant === "delete"
+    background-color: ${(props) => (props.variant === "delete"
         ? "rgba(255, 245, 245, 1)"
-        : "rgba(245, 250, 255, 1)"};
-    border-color: ${(props) =>
-      props.variant === "delete"
+        : "rgba(245, 250, 255, 1)")};
+    border-color: ${(props) => (props.variant === "delete"
         ? "rgba(255, 200, 200, 1)"
-        : "rgba(200, 220, 255, 1)"};
+        : "rgba(200, 220, 255, 1)")};
     transform: scale(1.05);
   }
 

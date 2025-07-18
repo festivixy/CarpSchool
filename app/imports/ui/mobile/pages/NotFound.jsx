@@ -38,8 +38,8 @@ export default class MobileNotFound extends React.Component {
           <Subtitle>Page Not Found</Subtitle>
 
           <Description>
-            Looks like you've taken a detour! The page you're looking for
-            doesn't exist or has been moved to a new location.
+            Looks like you&apos;ve taken a detour! The page you&apos;re looking for
+            doesn&apos;t exist or has been moved to a new location.
           </Description>
 
           <ActionButtons>

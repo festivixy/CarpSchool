@@ -8,8 +8,6 @@ import {
   Header,
   Image,
   Input,
-  Grid,
-  Loader,
 } from "semantic-ui-react";
 import PropTypes from "prop-types";
 
@@ -83,8 +81,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   };
 
   // Convert file to base64
-  const fileToBase64 = (file) =>
-    new Promise((resolve, reject) => {
+  const fileToBase64 = (file) => new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
@@ -241,9 +238,9 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
                   position: "relative",
                 }}
               >
-                {isLoadingCaptcha ? (
+                {isLoadingCaptcha ? ( // eslint-disable-line
                   <div
-                    style={{
+                    style={{ // eslint-disable-line
                       color: "rgba(130, 130, 130, 1)",
                       fontSize: "14px",
                     }}

@@ -177,19 +177,17 @@ export const ComponentContainer = styled.div`
 `;
 
 export const StatusCard = styled.div`
-  background-color: ${(props) =>
-    props.success
+  background-color: ${(props) => (props.success // eslint-disable-line
       ? "rgba(240, 255, 240, 1)"
       : props.error
         ? "rgba(255, 240, 240, 1)"
-        : "rgba(250, 250, 250, 1)"};
+        : "rgba(250, 250, 250, 1)")};
   border: 1px solid
-    ${(props) =>
-      props.success
+    ${(props) => (props.success // eslint-disable-line
         ? "rgba(200, 255, 200, 1)"
         : props.error
           ? "rgba(255, 200, 200, 1)"
-          : "rgba(230, 230, 230, 1)"};
+          : "rgba(230, 230, 230, 1)")};
   border-radius: 12px;
   padding: 20px;
   width: 100%;
