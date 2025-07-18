@@ -13,8 +13,6 @@ export default class MobileSignup extends React.Component {
     super(props);
     this.state = {
       email: "",
-      firstName: "",
-      lastName: "",
       password: "",
       captchaInput: "",
       captchaSvg: "",
@@ -84,14 +82,7 @@ export default class MobileSignup extends React.Component {
 
   /** Handle Signup submission. Create user account and a profile entry, then redirect to the home page. */
   submit = () => {
-    const {
-      email,
-      password,
-      firstName,
-      lastName,
-      captchaInput,
-      captchaSessionId,
-    } = this.state;
+    const { email, password, captchaInput, captchaSessionId } = this.state;
 
     // First verify CAPTCHA
     Meteor.call(
@@ -112,10 +103,8 @@ export default class MobileSignup extends React.Component {
             username: email,
             password,
             profile: {
-              firstName: firstName,
-              lastName: lastName,
+              captchaSessionId: captchaSessionId, // Pass captcha session ID for server-side validation
             },
-            captchaSessionId: captchaSessionId, // Pass captcha session ID for server-side validation
           },
           (err) => {
             if (err) {
@@ -167,31 +156,6 @@ export default class MobileSignup extends React.Component {
                     className="mobile-signup-input"
                     required
                   />
-                </div>
-
-                <div className="mobile-signup-name-row">
-                  <div className="mobile-signup-field mobile-signup-field-half">
-                    <input
-                      type="text"
-                      name="firstName"
-                      placeholder="First Name"
-                      value={this.state.firstName}
-                      onChange={this.handleChange}
-                      className="mobile-signup-input"
-                      required
-                    />
-                  </div>
-                  <div className="mobile-signup-field mobile-signup-field-half">
-                    <input
-                      type="text"
-                      name="lastName"
-                      placeholder="Last Name"
-                      value={this.state.lastName}
-                      onChange={this.handleChange}
-                      className="mobile-signup-input"
-                      required
-                    />
-                  </div>
                 </div>
 
                 <div className="mobile-signup-field">
@@ -362,17 +326,6 @@ export default class MobileSignup extends React.Component {
 
             .mobile-signup-field {
               margin-bottom: 16px;
-            }
-
-            .mobile-signup-name-row {
-              display: flex;
-              gap: 8px;
-              margin-bottom: 16px;
-            }
-
-            .mobile-signup-field-half {
-              flex: 1;
-              margin-bottom: 0;
             }
 
             .mobile-signup-input {
