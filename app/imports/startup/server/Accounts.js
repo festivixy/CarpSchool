@@ -1,7 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { check } from "meteor/check";
-import { isCaptchaSolved, useCaptcha } from "../../api/captcha/Captcha";
+import { isCaptchaSolved, useCaptcha, Captcha } from "../../api/captcha/Captcha";
 
 /* eslint-disable no-console */
 
@@ -10,6 +10,9 @@ Accounts.validateLoginAttempt(async (attempt) => {
     return false;
   }
   if (attempt.type === "password") {
+    if (attempt.meathodName !== "verifyEmail") {
+      return attempt.allowed
+    }
     const captchaSessionId =
       attempt.methodArguments[0].password.captchaSessionId;
     if (captchaSessionId === undefined) {
@@ -28,7 +31,7 @@ Accounts.validateLoginAttempt(async (attempt) => {
 
 Accounts.validateNewUser(async (user) => {
   // Validate captcha for new user registration
-  const captchaSessionId = user.captchaSessionId;
+  const captchaSessionId = user.captchaSessionId || user.profile?.captchaSessionId;
   if (captchaSessionId === undefined) {
     throw new Meteor.Error(
       "captcha-required",
@@ -48,15 +51,24 @@ Accounts.validateNewUser(async (user) => {
 });
 
 async function createUser(email, firstName, lastName, password, role) {
+  const captchaSessionId = await Captcha.insertAsync({
+      text: "dummy-captcha-text",
+      timestamp: Date.now(),
+      solved: true,
+      used: false,
+    });
+  console.log(`  Created dummy captcha session ID: ${captchaSessionId}`);
   console.log(`  Creating user ${email}.`);
   const userID = Accounts.createUser({
     username: email,
     profile: {
       firstName: firstName,
       lastName: lastName,
+      captchaSessionId: captchaSessionId,
     },
     email: email,
     password: password,
+    captchaSessionId: captchaSessionId,
   });
   if (role === "admin") {
     console.log(`  Assigning admin role to user ${email} with ID ${userID}`);
