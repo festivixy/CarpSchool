@@ -234,8 +234,7 @@ export default class MobileForgotPassword extends React.Component {
                 folder.
               </SuccessMessage>
               <BackButton
-                onClick={() =>
-                  this.setState({
+                onClick={() => this.setState({
                     success: false,
                     email: "",
                     captchaInput: "",

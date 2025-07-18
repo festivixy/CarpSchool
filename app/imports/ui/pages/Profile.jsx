@@ -1,11 +1,11 @@
-import React from 'react';
-import { Grid, Container, Menu, Header, Segment } from 'semantic-ui-react';
-import { AutoForm, TextField, NumField, SelectField, SubmitField, ErrorsField } from 'uniforms-semantic';
-import Avatar from 'react-avatar';
-import swal from 'sweetalert';
-import { Meteor } from 'meteor/meteor';
-import { Stuffs, StuffSchema } from '../../api/stuff/Stuff';
-import { JoiBridge } from '../forms/JoiBridge';
+import React from "react";
+import { Grid, Container, Menu, Header, Segment } from "semantic-ui-react";
+import { AutoForm, TextField, NumField, SelectField, SubmitField, ErrorsField } from "uniforms-semantic";
+import Avatar from "react-avatar";
+import swal from "sweetalert";
+import { Meteor } from "meteor/meteor";
+import { Stuffs, StuffSchema } from "../../api/stuff/Stuff";
+import { JoiBridge } from "../forms/JoiBridge";
 
 const bridge = new JoiBridge(StuffSchema);
 
@@ -19,9 +19,9 @@ class Profile extends React.Component {
     Stuffs.insert({ name, quantity, condition, owner },
         (error) => {
           if (error) {
-            swal('Error', error.message, 'error');
+            swal("Error", error.message, "error");
           } else {
-            swal('Success', 'Item added successfully', 'success');
+            swal("Success", "Item added successfully", "success");
             formRef.reset();
           }
         });
@@ -41,10 +41,10 @@ class Profile extends React.Component {
                       <TextField name='name'/>
                       <NumField name='quantity' decimal={false}/>
                       <SelectField name='condition' options={[
-                        { key: 'excellent', text: 'Excellent', value: 'excellent' },
-                        { key: 'good', text: 'Good', value: 'good' },
-                        { key: 'fair', text: 'Fair', value: 'fair' },
-                        { key: 'poor', text: 'Poor', value: 'poor' },
+                        { key: "excellent", text: "Excellent", value: "excellent" },
+                        { key: "good", text: "Good", value: "good" },
+                        { key: "fair", text: "Fair", value: "fair" },
+                        { key: "poor", text: "Poor", value: "poor" },
                       ]}/>
                       <SubmitField value='Submit'/>
                       <ErrorsField/>

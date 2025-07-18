@@ -1,12 +1,12 @@
-import React from 'react';
-import { Grid, Loader, Header, Segment } from 'semantic-ui-react';
-import swal from 'sweetalert';
-import { AutoForm, TextField, SubmitField, SelectField, ErrorsField, HiddenField } from 'uniforms-semantic';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
-import { Profiles, ProfileSchema } from '../../api/profile/Profile';
-import { JoiBridge } from '../forms/JoiBridge';
+import React from "react";
+import { Grid, Loader, Header, Segment } from "semantic-ui-react";
+import swal from "sweetalert";
+import { AutoForm, TextField, SubmitField, SelectField, ErrorsField, HiddenField } from "uniforms-semantic";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import PropTypes from "prop-types";
+import { Profiles, ProfileSchema } from "../../api/profile/Profile";
+import { JoiBridge } from "../forms/JoiBridge";
 
 const bridge = new JoiBridge(ProfileSchema);
 
@@ -45,9 +45,9 @@ class AddProfile extends React.Component {
             Owner,
           }, (error) => {
             if (error) {
-              swal('Error', error.message, 'error');
+              swal("Error", error.message, "error");
             } else {
-              swal('Success', 'Profile added successfully', 'success');
+              swal("Success", "Profile added successfully", "success");
             }
           },
 );
@@ -66,8 +66,8 @@ class AddProfile extends React.Component {
               UserType,
             },
           }, (error) => (error ?
-              swal('Error', error.message, 'error') :
-              swal('Success', 'Profile updated successfully', 'success')),
+              swal("Error", error.message, "error") :
+              swal("Success", "Profile updated successfully", "success")),
 );
     }
   }
@@ -103,9 +103,9 @@ class AddProfile extends React.Component {
                   </Segment>
                 </Segment.Group>
                 <SelectField name='UserType' options={[
-                  { key: 'Driver', text: 'Driver', value: 'Driver' },
-                  { key: 'Rider', text: 'Rider', value: 'Rider' },
-                  { key: 'Both', text: 'Both', value: 'Both' },
+                  { key: "Driver", text: "Driver", value: "Driver" },
+                  { key: "Rider", text: "Rider", value: "Rider" },
+                  { key: "Both", text: "Both", value: "Both" },
                 ]}/>
                 <HiddenField name='Owner' value={Meteor.user()._id}/>
                 <SubmitField value='Submit'/>
@@ -131,13 +131,13 @@ export default withTracker(({ match }) => {
   const usersID = match.params._id;
 
   // Get access to Profile documents.
-  const subscription = Meteor.subscribe('Profiles');
+  const subscription = Meteor.subscribe("Profiles");
 
   return {
     profileData: Profiles.findOne({
       Owner: usersID,
     }),
-    currentUser: Meteor.user() ? Meteor.user().username : '',
+    currentUser: Meteor.user() ? Meteor.user().username : "",
     ready: subscription.ready(),
   };
 })(AddProfile);

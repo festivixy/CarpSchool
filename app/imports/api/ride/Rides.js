@@ -1,9 +1,9 @@
-import { Mongo } from 'meteor/mongo';
-import Joi from 'joi';
-import { places } from '../places/Places.mjs';
+import { Mongo } from "meteor/mongo";
+import Joi from "joi";
+import { places } from "../places/Places.mjs";
 
 /** Define a Mongo collection to hold the data. */
-const Rides = new Mongo.Collection('Rides');
+const Rides = new Mongo.Collection("Rides");
 
 const RidesSchema = Joi.object({
   _id: Joi.string().optional(),

@@ -1,12 +1,12 @@
-import React from 'react';
-import { Grid, Loader, Header, Segment } from 'semantic-ui-react';
-import { Stuffs, StuffSchema } from '/imports/api/stuff/Stuff';
-import swal from 'sweetalert';
-import { AutoForm, TextField, NumField, SelectField, SubmitField, HiddenField, ErrorsField } from 'uniforms-semantic';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
-import { JoiBridge } from '../forms/JoiBridge';
+import React from "react";
+import { Grid, Loader, Header, Segment } from "semantic-ui-react";
+import { Stuffs, StuffSchema } from "/imports/api/stuff/Stuff";
+import swal from "sweetalert";
+import { AutoForm, TextField, NumField, SelectField, SubmitField, HiddenField, ErrorsField } from "uniforms-semantic";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import PropTypes from "prop-types";
+import { JoiBridge } from "../forms/JoiBridge";
 
 const bridge = new JoiBridge(StuffSchema);
 
@@ -17,8 +17,8 @@ class EditStuff extends React.Component {
   submit(data) {
     const { name, quantity, condition, _id } = data;
     Stuffs.update(_id, { $set: { name, quantity, condition } }, (error) => (error ?
-      swal('Error', error.message, 'error') :
-      swal('Success', 'Item updated successfully', 'success')));
+      swal("Error", error.message, "error") :
+      swal("Success", "Item updated successfully", "success")));
   }
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -37,10 +37,10 @@ class EditStuff extends React.Component {
                 <TextField name='name'/>
                 <NumField name='quantity' decimal={false}/>
                 <SelectField name='condition' options={[
-                  { key: 'excellent', text: 'Excellent', value: 'excellent' },
-                  { key: 'good', text: 'Good', value: 'good' },
-                  { key: 'fair', text: 'Fair', value: 'fair' },
-                  { key: 'poor', text: 'Poor', value: 'poor' },
+                  { key: "excellent", text: "Excellent", value: "excellent" },
+                  { key: "good", text: "Good", value: "good" },
+                  { key: "fair", text: "Fair", value: "fair" },
+                  { key: "poor", text: "Poor", value: "poor" },
                 ]}/>
                 <SubmitField value='Submit'/>
                 <ErrorsField/>
@@ -65,7 +65,7 @@ export default withTracker(({ match }) => {
   // Get the documentID from the URL field. See imports/ui/layouts/App.jsx for the route containing :_id.
   const documentId = match.params._id;
   // Get access to Stuff documents.
-  const subscription = Meteor.subscribe('Stuff');
+  const subscription = Meteor.subscribe("Stuff");
   return {
     doc: Stuffs.findOne(documentId),
     ready: subscription.ready(),

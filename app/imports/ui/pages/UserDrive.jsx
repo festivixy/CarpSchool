@@ -1,10 +1,10 @@
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Container, Header, Loader, Card } from 'semantic-ui-react';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
-import Ride from '/imports/ui/components/Ride';
-import { Rides } from '../../api/ride/Rides';
+import React from "react";
+import { Meteor } from "meteor/meteor";
+import { Container, Header, Loader, Card } from "semantic-ui-react";
+import { withTracker } from "meteor/react-meteor-data";
+import PropTypes from "prop-types";
+import Ride from "/imports/ui/components/Ride";
+import { Rides } from "../../api/ride/Rides";
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
 class UserDrive extends React.Component {
@@ -42,7 +42,7 @@ UserDrive.propTypes = {
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
   // Get access to Stuff documents.
-  const subscription = Meteor.subscribe('Rides');
+  const subscription = Meteor.subscribe("Rides");
   return {
     rides: Rides.find({}).fetch(),
     ready: subscription.ready(),

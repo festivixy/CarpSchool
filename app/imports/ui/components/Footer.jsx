@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 
 /** The Footer appears at the bottom of every page. Rendered by the App Layout component. */
 class Footer extends React.Component {
   render() {
-    const divStyle = { marginTop: '15px', paddingTop: '15px',
-      paddingBottom: '15px', backgroundColor: '#024731', color: 'white' };
+    const divStyle = { marginTop: "15px", paddingTop: "15px",
+      paddingBottom: "15px", backgroundColor: "#024731", color: "white" };
     return (
         <footer style={divStyle}>
           <div className="ui center aligned container inverted">

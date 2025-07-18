@@ -1,6 +1,6 @@
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Meteor } from "meteor/meteor";
+import PropTypes from "prop-types";
 
 /**
  * Modern Mobile JoinRideModal component with clean design and smooth interactions
@@ -9,7 +9,7 @@ class MobileJoinRideModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      codeInputs: ['', '', '', '', '', '', '', ''], // 8 separate inputs
+      codeInputs: ["", "", "", "", "", "", "", ""], // 8 separate inputs
       isJoining: false,
       error: null,
       success: false,
@@ -20,11 +20,11 @@ class MobileJoinRideModal extends React.Component {
   componentDidMount() {
     this.prefillCodeIfProvided();
     // Add event listener for escape key
-    document.addEventListener('keydown', this.handleEscapeKey);
+    document.addEventListener("keydown", this.handleEscapeKey);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleEscapeKey);
+    document.removeEventListener("keydown", this.handleEscapeKey);
   }
 
   componentDidUpdate(prevProps) {
@@ -44,7 +44,7 @@ class MobileJoinRideModal extends React.Component {
   }
 
   handleEscapeKey = (e) => {
-    if (e.key === 'Escape' && this.props.open) {
+    if (e.key === "Escape" && this.props.open) {
       this.handleClose();
     }
   };
@@ -53,8 +53,8 @@ class MobileJoinRideModal extends React.Component {
     const { prefillCode } = this.props;
     if (prefillCode && prefillCode.length >= 8) {
       // Remove dash and take first 8 characters
-      const cleanCode = prefillCode.replace(/-/g, '').slice(0, 8);
-      const newInputs = ['', '', '', '', '', '', '', ''];
+      const cleanCode = prefillCode.replace(/-/g, "").slice(0, 8);
+      const newInputs = ["", "", "", "", "", "", "", ""];
 
       for (let i = 0; i < cleanCode.length && i < 8; i++) {
         newInputs[i] = cleanCode[i].toUpperCase();
@@ -65,7 +65,7 @@ class MobileJoinRideModal extends React.Component {
   };
 
   handleInputChange = (index, e) => {
-    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
     if (value.length <= 1) {
       const newInputs = [...this.state.codeInputs];
@@ -86,8 +86,8 @@ class MobileJoinRideModal extends React.Component {
   handleKeyDown = (index, e) => {
     // Handle backspace to move to previous input
     if (
-      e.key === 'Backspace' &&
-      this.state.codeInputs[index] === '' &&
+      e.key === "Backspace" &&
+      this.state.codeInputs[index] === "" &&
       index > 0
     ) {
       setTimeout(() => {
@@ -101,12 +101,12 @@ class MobileJoinRideModal extends React.Component {
   handlePaste = (e) => {
     e.preventDefault();
     const pastedText = e.clipboardData
-      .getData('text')
+      .getData("text")
       .toUpperCase()
-      .replace(/[^A-Z0-9]/g, '');
+      .replace(/[^A-Z0-9]/g, "");
 
     if (pastedText.length <= 8) {
-      const newInputs = ['', '', '', '', '', '', '', ''];
+      const newInputs = ["", "", "", "", "", "", "", ""];
       for (let i = 0; i < pastedText.length; i++) {
         newInputs[i] = pastedText[i];
       }
@@ -123,10 +123,10 @@ class MobileJoinRideModal extends React.Component {
   };
 
   handleJoinRide = () => {
-    const shareCode = this.state.codeInputs.join('');
+    const shareCode = this.state.codeInputs.join("");
 
     if (shareCode.length !== 8) {
-      this.setState({ error: 'Please enter all 8 characters of the code' });
+      this.setState({ error: "Please enter all 8 characters of the code" });
       return;
     }
 
@@ -135,7 +135,7 @@ class MobileJoinRideModal extends React.Component {
 
     this.setState({ isJoining: true, error: null });
 
-    Meteor.call('rides.joinWithCode', formattedCode, (error, result) => {
+    Meteor.call("rides.joinWithCode", formattedCode, (error, result) => {
       this.setState({ isJoining: false });
 
       if (error) {
@@ -156,7 +156,7 @@ class MobileJoinRideModal extends React.Component {
 
   handleClose = () => {
     this.setState({
-      codeInputs: ['', '', '', '', '', '', '', ''],
+      codeInputs: ["", "", "", "", "", "", "", ""],
       error: null,
       success: false,
       isJoining: false,
@@ -168,7 +168,7 @@ class MobileJoinRideModal extends React.Component {
     this.setState({
       success: false,
       error: null,
-      codeInputs: ['', '', '', '', '', '', '', ''],
+      codeInputs: ["", "", "", "", "", "", "", ""],
     });
     setTimeout(() => {
       if (this.inputRefs[0]) {
@@ -265,7 +265,7 @@ class MobileJoinRideModal extends React.Component {
                     onClick={this.handleJoinRide}
                     disabled={isJoining || !isComplete}
                   >
-                    {isJoining ? 'Joining...' : 'Join Ride'}
+                    {isJoining ? "Joining..." : "Join Ride"}
                   </button>
                 </div>
               </>

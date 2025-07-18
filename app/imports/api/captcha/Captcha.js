@@ -1,9 +1,9 @@
-import { Mongo } from 'meteor/mongo';
-import Joi from 'joi';
-import { check } from 'meteor/check';
+import { Mongo } from "meteor/mongo";
+import Joi from "joi";
+import { check } from "meteor/check";
 
 /** Define a Mongo collection to hold the data. */
-const Captcha = new Mongo.Collection('Captcha');
+const Captcha = new Mongo.Collection("Captcha");
 
 /** Define a Joi schema to specify the structure of each document in the collection. */
 const CaptchaSchema = Joi.object({

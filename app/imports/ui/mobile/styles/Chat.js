@@ -152,10 +152,8 @@ export const ChatListItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: ${(props) =>
-    props.active ? "rgba(0, 0, 0, 0.05)" : "transparent"};
-  border-right: ${(props) =>
-    props.active ? "3px solid rgba(0, 0, 0, 1)" : "none"};
+  background-color: ${(props) => (props.active ? "rgba(0, 0, 0, 0.05)" : "transparent")};
+  border-right: ${(props) => (props.active ? "3px solid rgba(0, 0, 0, 1)" : "none")};
 
   &:hover {
     background-color: rgba(245, 245, 245, 1);
@@ -314,8 +312,7 @@ export const Message = styled.div`
   margin-left: ${(props) => (props.own ? "auto" : "0")};
   text-align: ${(props) => (props.own ? "right" : "left")};
 
-  ${(props) =>
-    props.system &&
+  ${(props) => props.system &&
     `
     margin: 8px auto;
     text-align: center;
@@ -339,15 +336,13 @@ export const MessageContent = styled.div`
   word-wrap: break-word;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
-  ${(props) =>
-    props.own &&
+  ${(props) => props.own &&
     `
     background-color: rgba(0, 0, 0, 1);
     color: rgba(255, 255, 255, 1);
   `}
 
-  ${(props) =>
-    props.system &&
+  ${(props) => props.system &&
     `
     background-color: rgba(240, 240, 240, 1);
     color: rgba(100, 100, 100, 1);

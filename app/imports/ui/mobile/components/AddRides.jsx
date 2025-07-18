@@ -1,9 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
-import { Meteor } from 'meteor/meteor';
-import { Rides } from '../../../api/ride/Rides';
-import { places } from '../../../api/places/Places.mjs';
+import React from "react";
+import PropTypes from "prop-types";
+import { withRouter } from "react-router-dom";
+import { Meteor } from "meteor/meteor";
+import { Rides } from "../../../api/ride/Rides";
+import { places } from "../../../api/places/Places.mjs";
 
 /**
  * Modern Mobile AddRides modal component with clean design and comprehensive functionality
@@ -12,38 +12,38 @@ class MobileAddRidesModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      origin: '',
-      destination: '',
-      date: '',
-      time: '',
-      seats: '1',
-      notes: '',
+      origin: "",
+      destination: "",
+      date: "",
+      time: "",
+      seats: "1",
+      notes: "",
       isSubmitting: false,
-      error: '',
+      error: "",
       success: false,
       showOriginDropdown: false,
       showDestinationDropdown: false,
       filteredOrigins: places,
       filteredDestinations: places,
-      originSearch: '',
-      destinationSearch: '',
+      originSearch: "",
+      destinationSearch: "",
     };
   }
 
   componentDidMount() {
     // Set minimum date to today
     const today = new Date();
-    const minDate = today.toISOString().split('T')[0];
+    const minDate = today.toISOString().split("T")[0];
     this.setState({ minDate });
 
     // Add event listener for escape key
-    document.addEventListener('keydown', this.handleEscapeKey);
-    document.addEventListener('click', this.handleOutsideClick);
+    document.addEventListener("keydown", this.handleEscapeKey);
+    document.addEventListener("click", this.handleOutsideClick);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleEscapeKey);
-    document.removeEventListener('click', this.handleOutsideClick);
+    document.removeEventListener("keydown", this.handleEscapeKey);
+    document.removeEventListener("click", this.handleOutsideClick);
   }
 
   componentDidUpdate(prevProps) {
@@ -54,13 +54,13 @@ class MobileAddRidesModal extends React.Component {
   }
 
   handleEscapeKey = (event) => {
-    if (event.key === 'Escape' && this.props.open) {
+    if (event.key === "Escape" && this.props.open) {
       this.handleClose();
     }
   };
 
   handleOutsideClick = (event) => {
-    if (!event.target.closest('.mobile-addrides-dropdown-container')) {
+    if (!event.target.closest(".mobile-addrides-dropdown-container")) {
       this.setState({
         showOriginDropdown: false,
         showDestinationDropdown: false,
@@ -70,37 +70,37 @@ class MobileAddRidesModal extends React.Component {
 
   resetForm = () => {
     const today = new Date();
-    const minDate = today.toISOString().split('T')[0];
+    const minDate = today.toISOString().split("T")[0];
 
     this.setState({
-      origin: '',
-      destination: '',
-      date: '',
-      time: '',
-      seats: '1',
-      notes: '',
+      origin: "",
+      destination: "",
+      date: "",
+      time: "",
+      seats: "1",
+      notes: "",
       isSubmitting: false,
-      error: '',
+      error: "",
       success: false,
       showOriginDropdown: false,
       showDestinationDropdown: false,
       filteredOrigins: places,
       filteredDestinations: places,
-      originSearch: '',
-      destinationSearch: '',
+      originSearch: "",
+      destinationSearch: "",
       minDate,
     });
   };
 
   handleInputChange = (field, value) => {
-    this.setState({ [field]: value, error: '' });
+    this.setState({ [field]: value, error: "" });
   };
 
   handlePlaceSearch = (field, searchValue) => {
     const searchField =
-      field === 'origin' ? 'originSearch' : 'destinationSearch';
+      field === "origin" ? "originSearch" : "destinationSearch";
     const filteredField =
-      field === 'origin' ? 'filteredOrigins' : 'filteredDestinations';
+      field === "origin" ? "filteredOrigins" : "filteredDestinations";
 
     const filtered = places.filter((place) => place.toLowerCase().includes(searchValue.toLowerCase()));
 
@@ -112,31 +112,31 @@ class MobileAddRidesModal extends React.Component {
 
   handlePlaceSelect = (field, place) => {
     const searchField =
-      field === 'origin' ? 'originSearch' : 'destinationSearch';
+      field === "origin" ? "originSearch" : "destinationSearch";
     const dropdownField =
-      field === 'origin' ? 'showOriginDropdown' : 'showDestinationDropdown';
+      field === "origin" ? "showOriginDropdown" : "showDestinationDropdown";
 
     this.setState({
       [field]: place,
       [searchField]: place,
       [dropdownField]: false,
-      error: '',
+      error: "",
     });
   };
 
   toggleDropdown = (field) => {
     const dropdownField =
-      field === 'origin' ? 'showOriginDropdown' : 'showDestinationDropdown';
+      field === "origin" ? "showOriginDropdown" : "showDestinationDropdown";
     const searchField =
-      field === 'origin' ? 'originSearch' : 'destinationSearch';
+      field === "origin" ? "originSearch" : "destinationSearch";
     const currentValue = this.state[field];
 
     this.setState({
       [dropdownField]: !this.state[dropdownField],
       showOriginDropdown:
-        field === 'origin' ? !this.state.showOriginDropdown : false,
+        field === "origin" ? !this.state.showOriginDropdown : false,
       showDestinationDropdown:
-        field === 'destination' ? !this.state.showDestinationDropdown : false,
+        field === "destination" ? !this.state.showDestinationDropdown : false,
       [searchField]: currentValue,
     });
   };
@@ -148,7 +148,7 @@ class MobileAddRidesModal extends React.Component {
       destination: origin,
       originSearch: destination,
       destinationSearch: origin,
-      error: '',
+      error: "",
     });
   };
 
@@ -156,27 +156,27 @@ class MobileAddRidesModal extends React.Component {
     const { origin, destination, date, time } = this.state;
 
     if (!origin.trim()) {
-      this.setState({ error: 'Please select an origin location' });
+      this.setState({ error: "Please select an origin location" });
       return false;
     }
 
     if (!destination.trim()) {
-      this.setState({ error: 'Please select a destination location' });
+      this.setState({ error: "Please select a destination location" });
       return false;
     }
 
     if (origin === destination) {
-      this.setState({ error: 'Origin and destination cannot be the same' });
+      this.setState({ error: "Origin and destination cannot be the same" });
       return false;
     }
 
     if (!date) {
-      this.setState({ error: 'Please select a date for your ride' });
+      this.setState({ error: "Please select a date for your ride" });
       return false;
     }
 
     if (!time) {
-      this.setState({ error: 'Please select a time for your ride' });
+      this.setState({ error: "Please select a time for your ride" });
       return false;
     }
 
@@ -185,7 +185,7 @@ class MobileAddRidesModal extends React.Component {
     const now = new Date();
 
     if (selectedDateTime <= now) {
-      this.setState({ error: 'Please select a future date and time' });
+      this.setState({ error: "Please select a future date and time" });
       return false;
     }
 
@@ -201,11 +201,11 @@ class MobileAddRidesModal extends React.Component {
 
     const { origin, destination, date, time, seats, notes } = this.state;
 
-    this.setState({ isSubmitting: true, error: '' });
+    this.setState({ isSubmitting: true, error: "" });
 
     const rideData = {
       driver: Meteor.user().username,
-      rider: 'TBD',
+      rider: "TBD",
       origin: origin.trim(),
       destination: destination.trim(),
       date: new Date(`${date}T${time}`),
@@ -219,7 +219,7 @@ class MobileAddRidesModal extends React.Component {
 
       if (error) {
         this.setState({
-          error: error.message || 'Failed to create ride. Please try again.',
+          error: error.message || "Failed to create ride. Please try again.",
         });
       } else {
         this.setState({ success: true });
@@ -324,12 +324,12 @@ class MobileAddRidesModal extends React.Component {
                     <div className="mobile-addrides-dropdown-container">
                       <div
                         className="mobile-addrides-dropdown-trigger"
-                        onClick={() => this.toggleDropdown('origin')}
+                        onClick={() => this.toggleDropdown("origin")}
                       >
                         <input
                           type="text"
                           value={originSearch}
-                          onChange={(e) => this.handlePlaceSearch('origin', e.target.value)
+                          onChange={(e) => this.handlePlaceSearch("origin", e.target.value)
                           }
                           placeholder="Search origin..."
                           className="mobile-addrides-dropdown-input"
@@ -347,7 +347,7 @@ class MobileAddRidesModal extends React.Component {
                               <div
                                 key={index}
                                 className="mobile-addrides-dropdown-item"
-                                onClick={() => this.handlePlaceSelect('origin', place)
+                                onClick={() => this.handlePlaceSelect("origin", place)
                                 }
                               >
                                 {place}
@@ -381,13 +381,13 @@ class MobileAddRidesModal extends React.Component {
                     <div className="mobile-addrides-dropdown-container">
                       <div
                         className="mobile-addrides-dropdown-trigger"
-                        onClick={() => this.toggleDropdown('destination')}
+                        onClick={() => this.toggleDropdown("destination")}
                       >
                         <input
                           type="text"
                           value={destinationSearch}
                           onChange={(e) => this.handlePlaceSearch(
-                              'destination',
+                              "destination",
                               e.target.value,
                             )
                           }
@@ -407,7 +407,7 @@ class MobileAddRidesModal extends React.Component {
                               <div
                                 key={index}
                                 className="mobile-addrides-dropdown-item"
-                                onClick={() => this.handlePlaceSelect('destination', place)
+                                onClick={() => this.handlePlaceSelect("destination", place)
                                 }
                               >
                                 {place}
@@ -439,7 +439,7 @@ class MobileAddRidesModal extends React.Component {
                         type="date"
                         value={date}
                         min={minDate}
-                        onChange={(e) => this.handleInputChange('date', e.target.value)
+                        onChange={(e) => this.handleInputChange("date", e.target.value)
                         }
                         className="mobile-addrides-modal-input"
                         required
@@ -453,7 +453,7 @@ class MobileAddRidesModal extends React.Component {
                       <input
                         type="time"
                         value={time}
-                        onChange={(e) => this.handleInputChange('time', e.target.value)
+                        onChange={(e) => this.handleInputChange("time", e.target.value)
                         }
                         className="mobile-addrides-modal-input"
                         required
@@ -474,7 +474,7 @@ class MobileAddRidesModal extends React.Component {
                     </label>
                     <select
                       value={seats}
-                      onChange={(e) => this.handleInputChange('seats', e.target.value)
+                      onChange={(e) => this.handleInputChange("seats", e.target.value)
                       }
                       className="mobile-addrides-modal-select"
                     >
@@ -494,7 +494,7 @@ class MobileAddRidesModal extends React.Component {
                     </label>
                     <textarea
                       value={notes}
-                      onChange={(e) => this.handleInputChange('notes', e.target.value)
+                      onChange={(e) => this.handleInputChange("notes", e.target.value)
                       }
                       placeholder="Additional details..."
                       className="mobile-addrides-modal-textarea"
@@ -527,7 +527,7 @@ class MobileAddRidesModal extends React.Component {
                     disabled={isSubmitting}
                     className="mobile-addrides-modal-button-primary"
                   >
-                    {isSubmitting ? 'Creating...' : 'Create Ride'}
+                    {isSubmitting ? "Creating..." : "Create Ride"}
                   </button>
                 </div>
               </form>

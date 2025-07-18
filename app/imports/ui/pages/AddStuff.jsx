@@ -1,10 +1,10 @@
-import React from 'react';
-import { Stuffs, StuffSchema } from '/imports/api/stuff/Stuff';
-import { Grid, Segment, Header } from 'semantic-ui-react';
-import { AutoForm, TextField, NumField, SelectField, SubmitField, ErrorsField } from 'uniforms-semantic';
-import swal from 'sweetalert';
-import { Meteor } from 'meteor/meteor';
-import { JoiBridge } from '../forms/JoiBridge';
+import React from "react";
+import { Stuffs, StuffSchema } from "/imports/api/stuff/Stuff";
+import { Grid, Segment, Header } from "semantic-ui-react";
+import { AutoForm, TextField, NumField, SelectField, SubmitField, ErrorsField } from "uniforms-semantic";
+import swal from "sweetalert";
+import { Meteor } from "meteor/meteor";
+import { JoiBridge } from "../forms/JoiBridge";
 
 const bridge = new JoiBridge(StuffSchema);
 
@@ -18,9 +18,9 @@ class AddStuff extends React.Component {
     Stuffs.insert({ name, quantity, condition, owner },
       (error) => {
         if (error) {
-          swal('Error', error.message, 'error');
+          swal("Error", error.message, "error");
         } else {
-          swal('Success', 'Item added successfully', 'success');
+          swal("Success", "Item added successfully", "success");
           formRef.reset();
         }
       });
@@ -38,10 +38,10 @@ class AddStuff extends React.Component {
                 <TextField name='name'/>
                 <NumField name='quantity' decimal={false}/>
                 <SelectField name='condition' options={[
-                  { key: 'excellent', text: 'Excellent', value: 'excellent' },
-                  { key: 'good', text: 'Good', value: 'good' },
-                  { key: 'fair', text: 'Fair', value: 'fair' },
-                  { key: 'poor', text: 'Poor', value: 'poor' },
+                  { key: "excellent", text: "Excellent", value: "excellent" },
+                  { key: "good", text: "Good", value: "good" },
+                  { key: "fair", text: "Fair", value: "fair" },
+                  { key: "poor", text: "Poor", value: "poor" },
                 ]}/>
                 <SubmitField value='Submit'/>
                 <ErrorsField/>

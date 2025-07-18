@@ -16,7 +16,6 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  NavItem,
   NavButton,
   MenuToggle,
   MobileMenu,

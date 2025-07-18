@@ -1,7 +1,7 @@
-import { Meteor } from 'meteor/meteor';
-import { Stuffs } from '../../api/stuff/Stuff.js';
-import { Profiles } from '../../api/profile/Profile.js';
-import { Rides } from '../../api/ride/Rides';
+import { Meteor } from "meteor/meteor";
+import { Stuffs } from "../../api/stuff/Stuff.js";
+import { Profiles } from "../../api/profile/Profile.js";
+import { Rides } from "../../api/ride/Rides";
 
 /* eslint-disable no-console */
 
@@ -16,7 +16,7 @@ Meteor.startup(async () => {
   /** Initialize the collection if empty. */
   if (await Stuffs.find().countAsync() === 0) {
     if (Meteor.settings.defaultData) {
-      console.log('Creating default data.');
+      console.log("Creating default data.");
       // eslint-disable-next-line no-restricted-syntax
       for (const data of Meteor.settings.defaultData) {
         // eslint-disable-next-line no-await-in-loop
@@ -33,7 +33,7 @@ Meteor.startup(async () => {
 
   if (await Profiles.find().countAsync() === 0) {
     if (Meteor.settings.defaultProfiles) {
-      console.log('Creating default data.');
+      console.log("Creating default data.");
       // eslint-disable-next-line no-restricted-syntax
       for (const data of Meteor.settings.defaultProfiles) {
         // eslint-disable-next-line no-await-in-loop
@@ -52,7 +52,7 @@ Meteor.startup(async () => {
 
   if (await Rides.find().countAsync() === 0) {
     if (Meteor.settings.defaultRides) {
-      console.log('Creating default rides.');
+      console.log("Creating default rides.");
       // eslint-disable-next-line no-restricted-syntax
       for (const data of Meteor.settings.defaultRides) {
         // eslint-disable-next-line no-await-in-loop

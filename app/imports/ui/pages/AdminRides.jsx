@@ -1,11 +1,11 @@
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Container, Table, Header, Loader, Button, Icon, Modal, Form, Message, Dropdown } from 'semantic-ui-react';
-import { Rides } from '/imports/api/ride/Rides';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
-import swal from 'sweetalert';
-import { placesOptions } from '../../api/places/Places.mjs';
+import React from "react";
+import { Meteor } from "meteor/meteor";
+import { Container, Table, Header, Loader, Button, Icon, Modal, Form, Message, Dropdown } from "semantic-ui-react";
+import { Rides } from "/imports/api/ride/Rides";
+import { withTracker } from "meteor/react-meteor-data";
+import PropTypes from "prop-types";
+import swal from "sweetalert";
+import { placesOptions } from "../../api/places/Places.mjs";
 
 /** Admin page for managing all rides */
 class AdminRides extends React.Component {
@@ -15,29 +15,29 @@ class AdminRides extends React.Component {
       editModalOpen: false,
       editingRide: null,
       editForm: {
-        driver: '',
-        rider: '',
-        origin: '',
-        destination: '',
-        date: '',
+        driver: "",
+        rider: "",
+        origin: "",
+        destination: "",
+        date: "",
       },
     };
   }
 
   handleDelete = (rideId) => {
     swal({
-      title: 'Are you sure?',
-      text: 'Once deleted, you will not be able to recover this ride!',
-      icon: 'warning',
+      title: "Are you sure?",
+      text: "Once deleted, you will not be able to recover this ride!",
+      icon: "warning",
       buttons: true,
       dangerMode: true,
     }).then((willDelete) => {
       if (willDelete) {
-        Meteor.call('rides.remove', rideId, (error) => {
+        Meteor.call("rides.remove", rideId, (error) => {
           if (error) {
-            swal('Error', error.message, 'error');
+            swal("Error", error.message, "error");
           } else {
-            swal('Deleted!', 'The ride has been deleted.', 'success');
+            swal("Deleted!", "The ride has been deleted.", "success");
           }
         });
       }
@@ -49,11 +49,11 @@ class AdminRides extends React.Component {
       editModalOpen: true,
       editingRide: ride,
       editForm: {
-        driver: ride.driver || '',
-        rider: ride.rider || '',
-        origin: ride.origin || '',
-        destination: ride.destination || '',
-        date: ride.date ? new Date(ride.date).toISOString().split('T')[0] : '',
+        driver: ride.driver || "",
+        rider: ride.rider || "",
+        origin: ride.origin || "",
+        destination: ride.destination || "",
+        date: ride.date ? new Date(ride.date).toISOString().split("T")[0] : "",
       },
     });
   };
@@ -66,11 +66,11 @@ class AdminRides extends React.Component {
 
   handleSaveEdit = () => {
     const { editingRide, editForm } = this.state;
-    Meteor.call('rides.update', editingRide._id, editForm, (error) => {
+    Meteor.call("rides.update", editingRide._id, editForm, (error) => {
       if (error) {
-        swal('Error', error.message, 'error');
+        swal("Error", error.message, "error");
       } else {
-        swal('Success!', 'The ride has been updated.', 'success');
+        swal("Success!", "The ride has been updated.", "success");
         this.setState({ editModalOpen: false, editingRide: null });
       }
     });
@@ -117,7 +117,7 @@ class AdminRides extends React.Component {
                   <Table.Cell>{ride.rider}</Table.Cell>
                   <Table.Cell>{ride.origin}</Table.Cell>
                   <Table.Cell>{ride.destination}</Table.Cell>
-                  <Table.Cell>{ride.date ? new Date(ride.date).toLocaleDateString() : ''}</Table.Cell>
+                  <Table.Cell>{ride.date ? new Date(ride.date).toLocaleDateString() : ""}</Table.Cell>
                   <Table.Cell>
                     <Button
                       icon
@@ -155,13 +155,13 @@ class AdminRides extends React.Component {
                   search
                   selection
                   value={editForm.driver}
-                  onChange={(e, { value }) => this.handleFormChange(e, { name: 'driver', value })}
+                  onChange={(e, { value }) => this.handleFormChange(e, { name: "driver", value })}
                   options={[
-                    { key: 'TBD', value: 'TBD', text: 'TBD' },
+                    { key: "TBD", value: "TBD", text: "TBD" },
                     ...users.map(user => ({
                       key: user._id,
                       value: user.username,
-                      text: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''} (${user.username})`,
+                      text: `${user.profile?.firstName || ""} ${user.profile?.lastName || ""} (${user.username})`,
                     })),
                   ]}
                 />
@@ -174,13 +174,13 @@ class AdminRides extends React.Component {
                   search
                   selection
                   value={editForm.rider}
-                  onChange={(e, { value }) => this.handleFormChange(e, { name: 'rider', value })}
+                  onChange={(e, { value }) => this.handleFormChange(e, { name: "rider", value })}
                   options={[
-                    { key: 'TBD', value: 'TBD', text: 'TBD' },
+                    { key: "TBD", value: "TBD", text: "TBD" },
                     ...users.map(user => ({
                       key: user._id,
                       value: user.username,
-                      text: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''} (${user.username})`,
+                      text: `${user.profile?.firstName || ""} ${user.profile?.lastName || ""} (${user.username})`,
                     })),
                   ]}
                 />
@@ -232,8 +232,8 @@ AdminRides.propTypes = {
 /** withTracker connects Meteor data to React components. */
 export default withTracker(() => {
   // Get access to all Rides documents and Users for dropdowns
-  const ridesSubscription = Meteor.subscribe('Rides');
-  const usersSubscription = Meteor.subscribe('AllUsers');
+  const ridesSubscription = Meteor.subscribe("Rides");
+  const usersSubscription = Meteor.subscribe("AllUsers");
 
   return {
     rides: Rides.find({}).fetch(),

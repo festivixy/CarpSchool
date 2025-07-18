@@ -1,11 +1,11 @@
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Container, Header, Loader, Card } from 'semantic-ui-react';
-import Profile from '/imports/ui/components/profile';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
-import { Profiles } from '../../api/profile/Profile';
-import { Notes } from '../../api/note/Notes';
+import React from "react";
+import { Meteor } from "meteor/meteor";
+import { Container, Header, Loader, Card } from "semantic-ui-react";
+import Profile from "/imports/ui/components/profile";
+import { withTracker } from "meteor/react-meteor-data";
+import PropTypes from "prop-types";
+import { Profiles } from "../../api/profile/Profile";
+import { Notes } from "../../api/note/Notes";
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
 class ListProfiles extends React.Component {
@@ -42,8 +42,8 @@ ListProfiles.propTypes = {
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
   // Get access to Stuff documents.
-  const subscription = Meteor.subscribe('Profiles');
-  const subscription2 = Meteor.subscribe('Notes');
+  const subscription = Meteor.subscribe("Profiles");
+  const subscription2 = Meteor.subscribe("Notes");
   return {
     profiles: Profiles.find({}).fetch(),
     notes: Notes.find({}).fetch(),

@@ -83,8 +83,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   };
 
   // Convert file to base64
-  const fileToBase64 = (file) =>
-    new Promise((resolve, reject) => {
+  const fileToBase64 = (file) => new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {

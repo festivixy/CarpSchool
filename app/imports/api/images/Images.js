@@ -1,8 +1,8 @@
-import { Mongo } from 'meteor/mongo';
-import Joi from 'joi';
+import { Mongo } from "meteor/mongo";
+import Joi from "joi";
 
 /** Define a Mongo collection to hold image data. */
-const Images = new Mongo.Collection('Images');
+const Images = new Mongo.Collection("Images");
 
 const ImagesSchema = Joi.object({
   _id: Joi.string().optional(),

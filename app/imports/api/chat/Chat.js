@@ -1,8 +1,8 @@
-import { Mongo } from 'meteor/mongo';
-import Joi from 'joi';
+import { Mongo } from "meteor/mongo";
+import Joi from "joi";
 
 /** Define a Mongo collection to hold the data. */
-const Chats = new Mongo.Collection('Chat');
+const Chats = new Mongo.Collection("Chat");
 
 /** Define a Joi schema to specify the structure of each document in the collection. */
 const ChatSchema = Joi.object({

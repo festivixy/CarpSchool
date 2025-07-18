@@ -11,7 +11,7 @@ Accounts.validateLoginAttempt(async (attempt) => {
   }
   if (attempt.type === "password") {
     if (attempt.meathodName !== "verifyEmail") {
-      return attempt.allowed
+      return attempt.allowed;
     }
     const captchaSessionId =
       attempt.methodArguments[0].password.captchaSessionId;
@@ -74,7 +74,7 @@ async function createUser(email, firstName, lastName, password, role) {
     console.log(`  Assigning admin role to user ${email} with ID ${userID}`);
     // Add admin role directly to user document
     await Meteor.users.updateAsync(userID, {
-      $addToSet: { "roles": ["admin"] },
+      $addToSet: { roles: ["admin"] },
     });
     console.log(`  Admin role assignment completed for user ${email}`);
   }
@@ -97,5 +97,4 @@ Meteor.startup(async () => {
   }
 });
 
-Accounts.emailTemplates.resetPassword.from = () =>
-  "Carpool Password Reset <no-reply@carpool.com>";
+Accounts.emailTemplates.resetPassword.from = () => "Carpool Password Reset <no-reply@carpool.com>";

@@ -168,15 +168,15 @@ Meteor.methods({
     });
     if (existingImage) {
       return {
-        imageId:existingImage._id,
-        uuid:existingImage.uuid,
-        sha256Hash:existingImage.sha256Hash,
-        compressedSha256Hash:existingImage.compressedSha256Hash,
-        originalFileSize:existingImage.originalFileSize,
+        imageId: existingImage._id,
+        uuid: existingImage.uuid,
+        sha256Hash: existingImage.sha256Hash,
+        compressedSha256Hash: existingImage.compressedSha256Hash,
+        originalFileSize: existingImage.originalFileSize,
         compressedFileSize: existingImage.fileSize,
         compressionRatio: existingImage.compressionRatio,
         finalMimeType: "image/png",
-      }
+      };
     }
 
     // Create the image document
@@ -199,9 +199,7 @@ Meteor.methods({
     const docForValidation = { ...imageDoc };
     delete docForValidation.imageData; // Remove binary data for Joi validation
 
-    const validationSchema = ImagesSchema.fork("imageData", (schema) =>
-      schema.optional(),
-    );
+    const validationSchema = ImagesSchema.fork("imageData", (schema) => schema.optional());
     const { error } = validationSchema.validate(docForValidation);
     if (error) {
       throw new Meteor.Error("validation-error", error.details[0].message);

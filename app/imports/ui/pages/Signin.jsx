@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Link, Redirect } from 'react-router-dom';
-import { Meteor } from 'meteor/meteor';
-import { Container, Form, Grid, Header, Message, Segment, Input, Button, Divider, Modal } from 'semantic-ui-react';
+import React from "react";
+import PropTypes from "prop-types";
+import { Link, Redirect } from "react-router-dom";
+import { Meteor } from "meteor/meteor";
+import { Container, Form, Grid, Header, Message, Segment, Input, Button, Divider, Modal } from "semantic-ui-react";
 
 /**
  * Signin page overrides the form’s submit event and call Meteor’s loginWithPassword().
@@ -14,12 +14,12 @@ export default class Signin extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: '',
-      password: '',
-      captchaInput: '',
-      captchaSvg: '',
-      captchaSessionId: '',
-      error: '',
+      email: "",
+      password: "",
+      captchaInput: "",
+      captchaSvg: "",
+      captchaSessionId: "",
+      error: "",
       redirectToReferer: false,
       isLoadingCaptcha: false,
       showCaptchaErrorModal: false,
@@ -38,16 +38,16 @@ export default class Signin extends React.Component {
   /** Generate a new CAPTCHA */
   generateNewCaptcha = () => {
     this.setState({ isLoadingCaptcha: true });
-    Meteor.call('captcha.generate', (error, result) => {
+    Meteor.call("captcha.generate", (error, result) => {
       if (error) {
-        this.setState({ error: 'Failed to load CAPTCHA. Please try again.', isLoadingCaptcha: false });
+        this.setState({ error: "Failed to load CAPTCHA. Please try again.", isLoadingCaptcha: false });
       } else {
         this.setState({
           captchaSvg: result.svg,
           captchaSessionId: result.sessionId,
-          captchaInput: '',
+          captchaInput: "",
           isLoadingCaptcha: false,
-          error: '',
+          error: "",
         });
       }
     });
@@ -63,7 +63,7 @@ export default class Signin extends React.Component {
     const { email, password, captchaInput, captchaSessionId } = this.state;
 
     // First verify CAPTCHA
-    Meteor.call('captcha.verify', captchaSessionId, captchaInput, (captchaError, isValidCaptcha) => {
+    Meteor.call("captcha.verify", captchaSessionId, captchaInput, (captchaError, isValidCaptcha) => {
       if (captchaError || !isValidCaptcha) {
         this.setState({ showCaptchaErrorModal: true });
         this.generateNewCaptcha(); // Generate new CAPTCHA
@@ -76,7 +76,7 @@ export default class Signin extends React.Component {
           this.setState({ error: err.reason });
           this.generateNewCaptcha(); // Generate new CAPTCHA on error
         } else {
-          this.setState({ error: '', redirectToReferer: true });
+          this.setState({ error: "", redirectToReferer: true });
         }
       });
     });
@@ -86,7 +86,7 @@ export default class Signin extends React.Component {
   render() {
     // if correct authentication, redirect to page instead of login screen
     if (this.state.redirectToReferer) {
-      return <Redirect to={'/listMyRides'}/>;
+      return <Redirect to={"/listMyRides"}/>;
     }
     // Otherwise return the Login form.
     return (
@@ -99,7 +99,7 @@ export default class Signin extends React.Component {
                     <Header as="h2" textAlign="center"> Sign-In </Header>
                     <Form.Field>
                       <Input
-                          label={{ basic: true, content: 'Email' }}
+                          label={{ basic: true, content: "Email" }}
                           name="email"
                           type="email"
                           placeholder="Enter email"
@@ -108,7 +108,7 @@ export default class Signin extends React.Component {
                     </Form.Field>
                     <Form.Field>
                       <Input
-                          label={{ basic: true, content: 'Password' }}
+                          label={{ basic: true, content: "Password" }}
                           name="password"
                           placeholder="Enter password"
                           type="password"
@@ -119,17 +119,17 @@ export default class Signin extends React.Component {
                     <Divider />
 
                     {/* CAPTCHA Section */}
-                    <div style={{ textAlign: 'center', marginBottom: '1em' }}>
-                      <label style={{ display: 'block', marginBottom: '0.5em', fontWeight: 'bold' }}>
+                    <div style={{ textAlign: "center", marginBottom: "1em" }}>
+                      <label style={{ display: "block", marginBottom: "0.5em", fontWeight: "bold" }}>
                         Security Verification
                       </label>
                       <div style={{
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                        padding: '10px',
-                        marginBottom: '0.5em',
-                        backgroundColor: '#f9f9f9',
-                        display: 'inline-block',
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        padding: "10px",
+                        marginBottom: "0.5em",
+                        backgroundColor: "#f9f9f9",
+                        display: "inline-block",
                       }}>
                         {this.state.isLoadingCaptcha ? (
                           <div>Loading CAPTCHA...</div>
@@ -150,12 +150,12 @@ export default class Signin extends React.Component {
 
                     <Form.Field>
                       <Input
-                          label={{ basic: true, content: 'Enter the characters shown above' }}
+                          label={{ basic: true, content: "Enter the characters shown above" }}
                           name="captchaInput"
                           placeholder="Enter CAPTCHA"
                           value={this.state.captchaInput}
                           onChange={this.handleChange}
-                          style={{ textAlign: 'center' }}
+                          style={{ textAlign: "center" }}
                       />
                     </Form.Field>
                     <Form.Button content="Submit" className='submit-button'/>
@@ -168,8 +168,8 @@ export default class Signin extends React.Component {
                     <br/>
                   </Segment>
                 </Form>
-                {this.state.error === '' ? (
-                    ''
+                {this.state.error === "" ? (
+                    ""
                 ) : (
                     <Message
                         error

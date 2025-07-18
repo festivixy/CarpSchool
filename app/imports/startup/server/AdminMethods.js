@@ -1,21 +1,21 @@
-import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
-import { Rides } from '../../api/ride/Rides';
+import { Meteor } from "meteor/meteor";
+import { check } from "meteor/check";
+import { Rides } from "../../api/ride/Rides";
 
 Meteor.methods({
-  async 'rides.remove'(rideId) {
+  async "rides.remove"(rideId) {
     check(rideId, String);
 
     // Check if user is admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes('admin')) {
-      throw new Meteor.Error('access-denied', 'You must be an admin to delete rides');
+    if (!user || !user.roles || !user.roles.includes("admin")) {
+      throw new Meteor.Error("access-denied", "You must be an admin to delete rides");
     }
 
     await Rides.removeAsync(rideId);
   },
 
-  async 'rides.update'(rideId, updateData) {
+  async "rides.update"(rideId, updateData) {
     check(rideId, String);
     check(updateData, {
       driver: String,
@@ -27,8 +27,8 @@ Meteor.methods({
 
     // Check if user is admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes('admin')) {
-      throw new Meteor.Error('access-denied', 'You must be an admin to edit rides');
+    if (!user || !user.roles || !user.roles.includes("admin")) {
+      throw new Meteor.Error("access-denied", "You must be an admin to edit rides");
     }
 
     // Only update fields that exist in the schema
@@ -43,24 +43,24 @@ Meteor.methods({
     await Rides.updateAsync(rideId, { $set: allowedFields });
   },
 
-  async 'users.remove'(userId) {
+  async "users.remove"(userId) {
     check(userId, String);
 
     // Check if user is admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes('admin')) {
-      throw new Meteor.Error('access-denied', 'You must be an admin to delete users');
+    if (!user || !user.roles || !user.roles.includes("admin")) {
+      throw new Meteor.Error("access-denied", "You must be an admin to delete users");
     }
 
     // Prevent self-deletion
     if (userId === Meteor.userId()) {
-      throw new Meteor.Error('invalid-operation', 'You cannot delete your own account');
+      throw new Meteor.Error("invalid-operation", "You cannot delete your own account");
     }
 
     await Meteor.users.removeAsync(userId);
   },
 
-  async 'users.update'(userId, updateData) {
+  async "users.update"(userId, updateData) {
     check(userId, String);
     check(updateData, {
       username: String,
@@ -71,59 +71,59 @@ Meteor.methods({
 
     // Check if user is admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes('admin')) {
-      throw new Meteor.Error('access-denied', 'You must be an admin to edit users');
+    if (!user || !user.roles || !user.roles.includes("admin")) {
+      throw new Meteor.Error("access-denied", "You must be an admin to edit users");
     }
 
     // Update user data
     await Meteor.users.updateAsync(userId, {
       $set: {
         username: updateData.username,
-        'profile.firstName': updateData.firstName,
-        'profile.lastName': updateData.lastName,
-        'emails.0.address': updateData.email,
+        "profile.firstName": updateData.firstName,
+        "profile.lastName": updateData.lastName,
+        "emails.0.address": updateData.email,
       },
     });
   },
 
-  async 'users.toggleAdmin'(userId, action) {
+  async "users.toggleAdmin"(userId, action) {
     check(userId, String);
     check(action, String);
 
     // Check if user is admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes('admin')) {
-      throw new Meteor.Error('access-denied', 'You must be an admin to modify user roles');
+    if (!user || !user.roles || !user.roles.includes("admin")) {
+      throw new Meteor.Error("access-denied", "You must be an admin to modify user roles");
     }
 
     // Prevent removing admin role from self
-    if (userId === Meteor.userId() && action === 'remove') {
-      throw new Meteor.Error('invalid-operation', 'You cannot remove admin role from yourself');
+    if (userId === Meteor.userId() && action === "remove") {
+      throw new Meteor.Error("invalid-operation", "You cannot remove admin role from yourself");
     }
 
-    if (action === 'add') {
-      await Meteor.users.updateAsync(userId, { $addToSet: { roles: 'admin' } });
-    } else if (action === 'remove') {
-      await Meteor.users.updateAsync(userId, { $pull: { roles: 'admin' } });
+    if (action === "add") {
+      await Meteor.users.updateAsync(userId, { $addToSet: { roles: "admin" } });
+    } else if (action === "remove") {
+      await Meteor.users.updateAsync(userId, { $pull: { roles: "admin" } });
     }
   },
 
-  async 'rides.generateShareCode'(rideId) {
+  async "rides.generateShareCode"(rideId) {
     check(rideId, String);
 
     const user = await Meteor.userAsync();
     if (!user) {
-      throw new Meteor.Error('not-authorized', 'You must be logged in to generate a share code');
+      throw new Meteor.Error("not-authorized", "You must be logged in to generate a share code");
     }
 
     // Check if user is the driver of this ride
     const ride = await Rides.findOneAsync(rideId);
     if (!ride) {
-      throw new Meteor.Error('not-found', 'Ride not found');
+      throw new Meteor.Error("not-found", "Ride not found");
     }
 
     if (ride.driver !== user.username) {
-      throw new Meteor.Error('access-denied', 'You can only generate share codes for rides you are driving');
+      throw new Meteor.Error("access-denied", "You can only generate share codes for rides you are driving");
     }
 
     // If ride already has a share code, return it instead of generating a new one
@@ -133,11 +133,11 @@ Meteor.methods({
 
     // Generate 8-character code: XXXX-XXXX format with uppercase letters and numbers
     const generateCode = () => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let code = '';
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let code = "";
       for (let i = 0; i < 8; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
-        if (i === 3) code += '-';
+        if (i === 3) code += "-";
       }
       return code;
     };
@@ -155,7 +155,7 @@ Meteor.methods({
     } while (attempts < 10);
 
     if (attempts >= 10) {
-      throw new Meteor.Error('code-generation-failed', 'Failed to generate unique share code');
+      throw new Meteor.Error("code-generation-failed", "Failed to generate unique share code");
     }
 
     // Update ride with share code
@@ -164,44 +164,44 @@ Meteor.methods({
     return shareCode;
   },
 
-  async 'rides.joinWithCode'(shareCode) {
+  async "rides.joinWithCode"(shareCode) {
     check(shareCode, String);
 
     const user = await Meteor.userAsync();
     if (!user) {
-      throw new Meteor.Error('not-authorized', 'You must be logged in to join a ride');
+      throw new Meteor.Error("not-authorized", "You must be logged in to join a ride");
     }
 
     // Normalize the share code format (remove spaces, convert to uppercase, ensure proper dash placement)
-    let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, '');
+    let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 
     // If code doesn't have a dash and is 8 characters, add the dash
-    if (normalizedCode.length === 8 && !normalizedCode.includes('-')) {
+    if (normalizedCode.length === 8 && !normalizedCode.includes("-")) {
       normalizedCode = `${normalizedCode.slice(0, 4)}-${normalizedCode.slice(4)}`;
     }
 
     // Find ride with this share code
     const ride = await Rides.findOneAsync({ shareCode: normalizedCode });
     if (!ride) {
-      throw new Meteor.Error('invalid-code', 'Invalid share code');
+      throw new Meteor.Error("invalid-code", "Invalid share code");
     }
 
     // Check if ride already has a rider (not TBD)
-    if (ride.rider !== 'TBD') {
-      throw new Meteor.Error('ride-full', 'This ride already has a rider');
+    if (ride.rider !== "TBD") {
+      throw new Meteor.Error("ride-full", "This ride already has a rider");
     }
 
     // Check if user is trying to join their own ride
     if (ride.driver === user.username) {
-      throw new Meteor.Error('invalid-operation', 'You cannot join your own ride');
+      throw new Meteor.Error("invalid-operation", "You cannot join your own ride");
     }
 
     // Assign user as rider and clear share code
     await Rides.updateAsync(ride._id, {
       $set: { rider: user.username },
-      $unset: { shareCode: '' },
+      $unset: { shareCode: "" },
     });
 
-    return { rideId: ride._id, message: 'Successfully joined ride!' };
+    return { rideId: ride._id, message: "Successfully joined ride!" };
   },
 });

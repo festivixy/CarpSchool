@@ -1,12 +1,12 @@
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Container, Header, Loader, Card } from 'semantic-ui-react';
-import { withTracker } from 'meteor/react-meteor-data';
-import { withRouter } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import Ride from '/imports/ui/components/Ride';
-import JoinRideModal from '/imports/ui/components/JoinRideModal';
-import { Rides } from '../../api/ride/Rides';
+import React from "react";
+import { Meteor } from "meteor/meteor";
+import { Container, Header, Loader, Card } from "semantic-ui-react";
+import { withTracker } from "meteor/react-meteor-data";
+import { withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
+import Ride from "/imports/ui/components/Ride";
+import JoinRideModal from "/imports/ui/components/JoinRideModal";
+import { Rides } from "../../api/ride/Rides";
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
 class UserRide extends React.Component {
@@ -14,14 +14,14 @@ class UserRide extends React.Component {
     super(props);
     this.state = {
       joinRideModalOpen: false,
-      prefillCode: '',
+      prefillCode: "",
     };
   }
 
   componentDidMount() {
     // Check for code parameter in URL
     const urlParams = new URLSearchParams(this.props.location.search);
-    const code = urlParams.get('code');
+    const code = urlParams.get("code");
 
     if (code) {
       // Format the code with dash if it's 8 characters
@@ -34,9 +34,9 @@ class UserRide extends React.Component {
   }
 
   handleJoinRideClose = () => {
-    this.setState({ joinRideModalOpen: false, prefillCode: '' });
+    this.setState({ joinRideModalOpen: false, prefillCode: "" });
     // Clear the URL parameter
-    this.props.history.replace('/imRiding');
+    this.props.history.replace("/imRiding");
   };
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -80,7 +80,7 @@ UserRide.propTypes = {
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withRouter(withTracker(() => {
   // Get access to Stuff documents.
-  const subscription = Meteor.subscribe('Rides');
+  const subscription = Meteor.subscribe("Rides");
   return {
     rides: Rides.find({}).fetch(),
     ready: subscription.ready(),

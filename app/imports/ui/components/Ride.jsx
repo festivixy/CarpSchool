@@ -1,9 +1,9 @@
-import React from 'react';
-import { Card, Button, Modal, Header, Icon, Segment } from 'semantic-ui-react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
-import { Meteor } from 'meteor/meteor';
-import swal from 'sweetalert';
+import React from "react";
+import { Card, Button, Modal, Header, Icon, Segment } from "semantic-ui-react";
+import PropTypes from "prop-types";
+import { withRouter } from "react-router-dom";
+import { Meteor } from "meteor/meteor";
+import swal from "sweetalert";
 
 /* PROFILE NOT IMPLEMENTED YET
           <Card.Content extra>
@@ -35,10 +35,10 @@ class Ride extends React.Component {
     // Check if ride already has a share code
     const existingCode = this.props.ride.shareCode;
 
-    Meteor.call('rides.generateShareCode', this.props.ride._id, (error, result) => {
+    Meteor.call("rides.generateShareCode", this.props.ride._id, (error, result) => {
       this.setState({ isGenerating: false });
       if (error) {
-        swal('Error', error.message, 'error');
+        swal("Error", error.message, "error");
       } else {
         this.setState({
           shareCode: result,
@@ -57,14 +57,14 @@ class Ride extends React.Component {
     const { shareCode } = this.state;
     if (shareCode) {
       // eslint-disable-next-line no-undef
-      const inviteLink = `${window.location.origin}/#/imRiding?code=${shareCode.replace('-', '')}`;
+      const inviteLink = `${window.location.origin}/#/imRiding?code=${shareCode.replace("-", "")}`;
 
       // Copy to clipboard
       // eslint-disable-next-line no-undef
       if (navigator.clipboard) {
         // eslint-disable-next-line no-undef
         navigator.clipboard.writeText(inviteLink).then(() => {
-          swal('Link Copied!', 'The invite link has been copied to your clipboard.', 'success');
+          swal("Link Copied!", "The invite link has been copied to your clipboard.", "success");
         }).catch(() => {
           // Fallback if clipboard API fails
           this.fallbackCopyToClipboard(inviteLink);
@@ -78,11 +78,11 @@ class Ride extends React.Component {
 
   fallbackCopyToClipboard = (text) => {
     // eslint-disable-next-line no-undef
-    const textArea = document.createElement('textarea');
+    const textArea = document.createElement("textarea");
     textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
     // eslint-disable-next-line no-undef
     document.body.appendChild(textArea);
     textArea.focus();
@@ -90,10 +90,10 @@ class Ride extends React.Component {
 
     try {
       // eslint-disable-next-line no-undef
-      document.execCommand('copy');
-      swal('Link Copied!', 'The invite link has been copied to your clipboard.', 'success');
+      document.execCommand("copy");
+      swal("Link Copied!", "The invite link has been copied to your clipboard.", "success");
     } catch (err) {
-      swal('Copy Failed', `Please manually copy the link: ${text}`, 'error');
+      swal("Copy Failed", `Please manually copy the link: ${text}`, "error");
     }
 
     // eslint-disable-next-line no-undef
@@ -104,7 +104,7 @@ class Ride extends React.Component {
 
   canShareRide = () => {
     const rider = this.props.ride.rider;
-    return this.isCurrentUserDriver() && (rider === 'TBD');
+    return this.isCurrentUserDriver() && (rider === "TBD");
   };
 
   render() {
@@ -117,7 +117,7 @@ class Ride extends React.Component {
           <Card.Content>
             <Card.Header>{ride.origin} to {ride.destination}</Card.Header>
             <Card.Meta>
-              {new Date(ride.date).toLocaleDateString('en-US')}
+              {new Date(ride.date).toLocaleDateString("en-US")}
             </Card.Meta>
             <Card.Description>
               <strong>Driver:</strong> {ride.driver}
@@ -131,7 +131,7 @@ class Ride extends React.Component {
                 fluid
                 color="blue"
                 icon="share alternate"
-                content={ride.shareCode ? 'View Share Code' : 'Share Ride'}
+                content={ride.shareCode ? "View Share Code" : "Share Ride"}
                 loading={isGenerating}
                 disabled={isGenerating}
                 onClick={this.handleShareRide}
@@ -148,7 +148,7 @@ class Ride extends React.Component {
         >
           <Header icon="share alternate" content="Share Your Ride" />
           <Modal.Content>
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: "center" }}>
               {isExistingCode ? (
                 <p>Here&apos;s your ride&apos;s existing share code:</p>
               ) : (
@@ -157,18 +157,18 @@ class Ride extends React.Component {
               {shareCode && (
                 <Segment>
                   <Header as="h2" style={{
-                    fontFamily: 'monospace',
-                    letterSpacing: '2px',
-                    color: '#2185d0',
+                    fontFamily: "monospace",
+                    letterSpacing: "2px",
+                    color: "#2185d0",
                   }}>
                     {shareCode}
                   </Header>
                 </Segment>
               )}
-              <p style={{ fontSize: '0.9em', color: '#666' }}>
+              <p style={{ fontSize: "0.9em", color: "#666" }}>
                 {isExistingCode
-                  ? 'This code was generated earlier and is still active.'
-                  : 'This code is unique to your ride and will be removed once someone joins.'
+                  ? "This code was generated earlier and is still active."
+                  : "This code is unique to your ride and will be removed once someone joins."
                 }
               </p>
             </div>

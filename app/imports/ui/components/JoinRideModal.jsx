@@ -1,14 +1,14 @@
-import React from 'react';
-import { Modal, Button, Header, Icon, Message } from 'semantic-ui-react';
-import { Meteor } from 'meteor/meteor';
-import PropTypes from 'prop-types';
-import swal from 'sweetalert';
+import React from "react";
+import { Modal, Button, Header, Icon, Message } from "semantic-ui-react";
+import { Meteor } from "meteor/meteor";
+import PropTypes from "prop-types";
+import swal from "sweetalert";
 
 class JoinRideModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      codeInputs: ['', '', '', '', '', '', '', ''], // 8 separate inputs
+      codeInputs: ["", "", "", "", "", "", "", ""], // 8 separate inputs
       isJoining: false,
       error: null,
     };
@@ -30,8 +30,8 @@ class JoinRideModal extends React.Component {
     const { prefillCode } = this.props;
     if (prefillCode && prefillCode.length >= 8) {
       // Remove dash and take first 8 characters
-      const cleanCode = prefillCode.replace(/-/g, '').slice(0, 8);
-      const newInputs = ['', '', '', '', '', '', '', ''];
+      const cleanCode = prefillCode.replace(/-/g, "").slice(0, 8);
+      const newInputs = ["", "", "", "", "", "", "", ""];
 
       for (let i = 0; i < cleanCode.length && i < 8; i++) {
         newInputs[i] = cleanCode[i].toUpperCase();
@@ -42,7 +42,7 @@ class JoinRideModal extends React.Component {
   };
 
   handleInputChange = (index, e) => {
-    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
     if (value.length <= 1) {
       const newInputs = [...this.state.codeInputs];
@@ -62,7 +62,7 @@ class JoinRideModal extends React.Component {
 
   handleKeyDown = (index, e) => {
     // Handle backspace to move to previous input
-    if (e.key === 'Backspace' && this.state.codeInputs[index] === '' && index > 0) {
+    if (e.key === "Backspace" && this.state.codeInputs[index] === "" && index > 0) {
       setTimeout(() => {
         if (this.inputRefs[index - 1]) {
           this.inputRefs[index - 1].focus();
@@ -73,10 +73,10 @@ class JoinRideModal extends React.Component {
 
   handlePaste = (e) => {
     e.preventDefault();
-    const pastedText = e.clipboardData.getData('text').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const pastedText = e.clipboardData.getData("text").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
     if (pastedText.length <= 8) {
-      const newInputs = ['', '', '', '', '', '', '', ''];
+      const newInputs = ["", "", "", "", "", "", "", ""];
       for (let i = 0; i < pastedText.length; i++) {
         newInputs[i] = pastedText[i];
       }
@@ -93,10 +93,10 @@ class JoinRideModal extends React.Component {
   };
 
   handleJoinRide = () => {
-    const shareCode = this.state.codeInputs.join('');
+    const shareCode = this.state.codeInputs.join("");
 
     if (shareCode.length !== 8) {
-      this.setState({ error: 'Please enter all 8 characters of the code' });
+      this.setState({ error: "Please enter all 8 characters of the code" });
       return;
     }
 
@@ -105,14 +105,14 @@ class JoinRideModal extends React.Component {
 
     this.setState({ isJoining: true, error: null });
 
-    Meteor.call('rides.joinWithCode', formattedCode, (error, result) => {
+    Meteor.call("rides.joinWithCode", formattedCode, (error, result) => {
       this.setState({ isJoining: false });
 
       if (error) {
         this.setState({ error: error.message });
       } else {
-        swal('Success!', result.message, 'success');
-        this.setState({ codeInputs: ['', '', '', '', '', '', '', ''], error: null });
+        swal("Success!", result.message, "success");
+        this.setState({ codeInputs: ["", "", "", "", "", "", "", ""], error: null });
         this.props.onClose();
         // Optionally redirect to the ride page
         // this.props.history.push('/userRides');
@@ -121,7 +121,7 @@ class JoinRideModal extends React.Component {
   };
 
   handleClose = () => {
-    this.setState({ codeInputs: ['', '', '', '', '', '', '', ''], error: null });
+    this.setState({ codeInputs: ["", "", "", "", "", "", "", ""], error: null });
     this.props.onClose();
   };
 
@@ -130,25 +130,25 @@ class JoinRideModal extends React.Component {
     const { codeInputs, isJoining, error } = this.state;
 
     const inputStyle = {
-      width: '40px',
-      height: '50px',
-      fontSize: '1.5em',
-      fontFamily: 'monospace',
-      textAlign: 'center',
-      fontWeight: 'bold',
-      margin: '0 2px',
-      border: '2px solid #ddd',
-      borderRadius: '6px',
-      outline: 'none',
-      backgroundColor: '#fff',
-      transition: 'border-color 0.2s ease',
+      width: "40px",
+      height: "50px",
+      fontSize: "1.5em",
+      fontFamily: "monospace",
+      textAlign: "center",
+      fontWeight: "bold",
+      margin: "0 2px",
+      border: "2px solid #ddd",
+      borderRadius: "6px",
+      outline: "none",
+      backgroundColor: "#fff",
+      transition: "border-color 0.2s ease",
     };
 
     const dashStyle = {
-      fontSize: '1.5em',
-      fontWeight: 'bold',
-      margin: '0 8px',
-      color: '#333',
+      fontSize: "1.5em",
+      fontWeight: "bold",
+      margin: "0 8px",
+      color: "#333",
     };
 
     const isComplete = codeInputs.every(input => input.length === 1);
@@ -157,13 +157,13 @@ class JoinRideModal extends React.Component {
       <Modal open={open} onClose={this.handleClose} size="small">
         <Header icon="car" content="Join a Ride" />
         <Modal.Content>
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: "center" }}>
             <p>Enter the 8-character code shared by the driver:</p>
             <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: '20px 0',
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              margin: "20px 0",
             }}>
               {codeInputs.map((value, index) => (
                 <React.Fragment key={index}>
@@ -173,8 +173,8 @@ class JoinRideModal extends React.Component {
                     onChange={(e) => this.handleInputChange(index, e)}
                     onKeyDown={(e) => this.handleKeyDown(index, e)}
                     onPaste={index === 0 ? this.handlePaste : undefined}
-                    onFocus={(e) => { e.target.style.borderColor = '#2185d0'; }}
-                    onBlur={(e) => { e.target.style.borderColor = '#ddd'; }}
+                    onFocus={(e) => { e.target.style.borderColor = "#2185d0"; }}
+                    onBlur={(e) => { e.target.style.borderColor = "#ddd"; }}
                     style={inputStyle}
                     maxLength={1}
                     type="text"
@@ -184,7 +184,7 @@ class JoinRideModal extends React.Component {
               ))}
             </div>
             {error && (
-              <Message negative style={{ marginTop: '10px' }}>
+              <Message negative style={{ marginTop: "10px" }}>
                 <Message.Header>Error</Message.Header>
                 <p>{error}</p>
               </Message>

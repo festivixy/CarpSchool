@@ -1,8 +1,8 @@
-import { Meteor } from 'meteor/meteor';
-import { Chats } from './Chat';
+import { Meteor } from "meteor/meteor";
+import { Chats } from "./Chat";
 
 /** Publish chats for the current user */
-Meteor.publish('chats', function publishChats() {
+Meteor.publish("chats", function publishChats() {
   if (!this.userId) {
     return this.ready();
   }
@@ -17,7 +17,7 @@ Meteor.publish('chats', function publishChats() {
 });
 
 /** Publish all chats for admin users */
-Meteor.publish('chats.admin', function publishAllChats() {
+Meteor.publish("chats.admin", function publishAllChats() {
   if (!this.userId) {
     return this.ready();
   }
@@ -26,7 +26,7 @@ Meteor.publish('chats.admin', function publishAllChats() {
   if (
     !currentUser ||
     !currentUser.roles ||
-    !currentUser.roles.includes('admin')
+    !currentUser.roles.includes("admin")
   ) {
     return this.ready();
   }

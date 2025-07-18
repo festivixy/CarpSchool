@@ -304,8 +304,7 @@ class MobileChat extends React.Component {
     }
   };
 
-  formatTime = (timestamp) =>
-    new Date(timestamp).toLocaleTimeString("en-US", {
+  formatTime = (timestamp) => new Date(timestamp).toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
@@ -332,8 +331,7 @@ class MobileChat extends React.Component {
 
   getCurrentUser = () => Meteor.user()?.username;
 
-  getSelectedChat = () =>
-    this.props.chats?.find((chat) => chat._id === this.state.selectedChatId);
+  getSelectedChat = () => this.props.chats?.find((chat) => chat._id === this.state.selectedChatId);
 
   getChatDisplayName = (chat) => {
     const currentUser = this.getCurrentUser();
@@ -347,8 +345,7 @@ class MobileChat extends React.Component {
     return otherParticipants[0];
   };
 
-  getChatStatus = (chat) =>
-    chat.Participants.length === 1 ? "Waiting for participant" : "Active";
+  getChatStatus = (chat) => (chat.Participants.length === 1 ? "Waiting for participant" : "Active");
 
   render() {
     if (!this.props.ready) {
@@ -411,8 +408,7 @@ class MobileChat extends React.Component {
                     <ChatListItem
                       key={chat._id}
                       active={selectedChatId === chat._id}
-                      onClick={() =>
-                        this.setState({ selectedChatId: chat._id })
+                      onClick={() => this.setState({ selectedChatId: chat._id })
                       }
                     >
                       <ChatListItemContent>
@@ -438,8 +434,7 @@ class MobileChat extends React.Component {
                         Create Chat
                       </CreateFirstButton>
                       <JoinFirstButton
-                        onClick={() =>
-                          this.setState({ showJoinChatModal: true })
+                        onClick={() => this.setState({ showJoinChatModal: true })
                         }
                       >
                         Join Chat
@@ -466,8 +461,7 @@ class MobileChat extends React.Component {
                     </ConversationInfo>
                     {selectedChat.Participants.length === 1 && (
                       <ShareButton
-                        onClick={() =>
-                          this.handleShowShareCode(selectedChat._id)
+                        onClick={() => this.handleShowShareCode(selectedChat._id)
                         }
                       >
                         Share Code
@@ -523,8 +517,7 @@ class MobileChat extends React.Component {
                       type="text"
                       placeholder="Type a message..."
                       value={messageInput}
-                      onChange={(e) =>
-                        this.setState({ messageInput: e.target.value })
+                      onChange={(e) => this.setState({ messageInput: e.target.value })
                       }
                     />
                     <SendButton type="submit" disabled={!messageInput.trim()}>
@@ -550,8 +543,7 @@ class MobileChat extends React.Component {
         {/* Join Chat Modal */}
         {showJoinChatModal && (
           <ModalOverlay
-            onClick={() =>
-              this.setState({
+            onClick={() => this.setState({
                 showJoinChatModal: false,
                 error: "",
                 codeInputs: ["", "", "", "", "", "", "", ""],
@@ -561,8 +553,7 @@ class MobileChat extends React.Component {
             <Modal onClick={(e) => e.stopPropagation()}>
               <ModalHeader>
                 <ModalClose
-                  onClick={() =>
-                    this.setState({
+                  onClick={() => this.setState({
                       showJoinChatModal: false,
                       error: "",
                       codeInputs: ["", "", "", "", "", "", "", ""],
@@ -607,8 +598,7 @@ class MobileChat extends React.Component {
               </ModalContent>
               <ModalActions>
                 <ButtonSecondary
-                  onClick={() =>
-                    this.setState({
+                  onClick={() => this.setState({
                       showJoinChatModal: false,
                       error: "",
                       codeInputs: ["", "", "", "", "", "", "", ""],

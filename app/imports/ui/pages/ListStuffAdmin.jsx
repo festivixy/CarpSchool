@@ -1,10 +1,10 @@
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Container, Table, Header, Loader } from 'semantic-ui-react';
-import { Stuffs } from '/imports/api/stuff/Stuff';
-import StuffItemAdmin from '/imports/ui/components/StuffItemAdmin';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Meteor } from "meteor/meteor";
+import { Container, Table, Header, Loader } from "semantic-ui-react";
+import { Stuffs } from "/imports/api/stuff/Stuff";
+import StuffItemAdmin from "/imports/ui/components/StuffItemAdmin";
+import { withTracker } from "meteor/react-meteor-data";
+import PropTypes from "prop-types";
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
 class ListStuffAdmin extends React.Component {
@@ -46,7 +46,7 @@ ListStuffAdmin.propTypes = {
 /** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
   // Get access to Stuff documents.
-  const subscription = Meteor.subscribe('StuffAdmin');
+  const subscription = Meteor.subscribe("StuffAdmin");
   return {
     stuffs: Stuffs.find({}).fetch(),
     ready: subscription.ready(),

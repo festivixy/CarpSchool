@@ -1,8 +1,8 @@
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
-import { Rides } from '../../../api/ride/Rides';
+import React from "react";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import PropTypes from "prop-types";
+import { Rides } from "../../../api/ride/Rides";
 
 /**
  * Modern Mobile ListMyRides component showing all available rides
@@ -11,7 +11,7 @@ class MobileListMyRides extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      searchQuery: '',
+      searchQuery: "",
       filteredRides: [],
     };
   }
@@ -37,7 +37,7 @@ class MobileListMyRides extends React.Component {
     const currentUser = Meteor.user()?.username;
 
     let filteredRides = rides.filter(
-      (ride) => ride.driver !== currentUser && ride.rider === 'TBD',
+      (ride) => ride.driver !== currentUser && ride.rider === "TBD",
     );
 
     if (searchQuery.trim()) {
@@ -56,22 +56,22 @@ class MobileListMyRides extends React.Component {
     this.setState({ searchQuery: e.target.value }, this.filterRides);
   };
 
-  formatDate = (date) => new Date(date).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+  formatDate = (date) => new Date(date).toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
 
-  formatTime = (date) => new Date(date).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
+  formatTime = (date) => new Date(date).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
       hour12: true,
     });
 
   handleJoinRide = (rideId) => {
     // This would typically open a join ride modal or handle the join logic
-    console.log('Join ride:', rideId);
+    console.log("Join ride:", rideId);
   };
 
   render() {
@@ -117,13 +117,13 @@ class MobileListMyRides extends React.Component {
             {searchQuery ? (
               <p>
                 {filteredRides.length} ride
-                {filteredRides.length !== 1 ? 's' : ''} found for &quot;{searchQuery}
+                {filteredRides.length !== 1 ? "s" : ""} found for &quot;{searchQuery}
                 &quot;
               </p>
             ) : (
               <p>
                 {filteredRides.length} ride
-                {filteredRides.length !== 1 ? 's' : ''} available
+                {filteredRides.length !== 1 ? "s" : ""} available
               </p>
             )}
           </div>
@@ -134,16 +134,16 @@ class MobileListMyRides extends React.Component {
               <div className="mobile-listrides-empty">
                 <div className="mobile-listrides-empty-icon">🚗</div>
                 <h3 className="mobile-listrides-empty-title">
-                  {searchQuery ? 'No rides found' : 'No rides available'}
+                  {searchQuery ? "No rides found" : "No rides available"}
                 </h3>
                 <p className="mobile-listrides-empty-message">
                   {searchQuery
-                    ? 'Try adjusting your search terms'
-                    : 'Check back later or create your own ride'}
+                    ? "Try adjusting your search terms"
+                    : "Check back later or create your own ride"}
                 </p>
                 {searchQuery && (
                   <button
-                    onClick={() => this.setState({ searchQuery: '' }, this.filterRides)
+                    onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
                     }
                     className="mobile-listrides-clear-search"
                   >
@@ -197,7 +197,7 @@ class MobileListMyRides extends React.Component {
                       <div className="mobile-listrides-detail-item">
                         <span className="mobile-listrides-detail-icon">🪑</span>
                         <span className="mobile-listrides-detail-text">
-                          {ride.seats} seat{ride.seats !== 1 ? 's' : ''}{' '}
+                          {ride.seats} seat{ride.seats !== 1 ? "s" : ""}{" "}
                           available
                         </span>
                       </div>
@@ -543,7 +543,7 @@ MobileListMyRides.propTypes = {
 };
 
 export default withTracker(() => {
-  const subscription = Meteor.subscribe('Rides');
+  const subscription = Meteor.subscribe("Rides");
   return {
     rides: Rides.find({}).fetch(),
     ready: subscription.ready(),

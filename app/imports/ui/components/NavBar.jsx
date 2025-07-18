@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import { withRouter, NavLink } from 'react-router-dom';
-import { Menu, Dropdown, Image, Icon } from 'semantic-ui-react';
-import JoinRideModal from './JoinRideModal';
+import React from "react";
+import PropTypes from "prop-types";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import { withRouter, NavLink } from "react-router-dom";
+import { Menu, Dropdown, Image, Icon } from "semantic-ui-react";
+import JoinRideModal from "./JoinRideModal";
 
 /** The NavBar appears at the top of every page. Rendered by the App Layout component. */
 class NavBar extends React.Component {
@@ -24,7 +24,7 @@ class NavBar extends React.Component {
   };
 
   render() {
-    const menuStyle = { marginBottom: '10px', backgroundColor: '#024731' };
+    const menuStyle = { marginBottom: "10px", backgroundColor: "#024731" };
     return (
       <>
         <Menu style={menuStyle} attached="top" borderless inverted>
@@ -33,7 +33,7 @@ class NavBar extends React.Component {
             as={NavLink}
             activeClassName=""
             exact
-            to={this.props.currentUser ? '/listMyRides' : '/'}
+            to={this.props.currentUser ? "/listMyRides" : "/"}
           >
             <Image size="small" src="/staticimages/Carpool.png" />
           </Menu.Item>
@@ -78,13 +78,13 @@ class NavBar extends React.Component {
                   position="left"
                   onClick={this.handleJoinRideClick}
                   key="joinRide"
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: "pointer" }}
                 >
                   <Icon name="code" size="large" />
                   Join Ride
                 </Menu.Item>,
               ]
-            : ''}
+            : ""}
           {this.props.isAdmin ? (
             <Dropdown item text="Admin" key="admin">
               <Dropdown.Menu>
@@ -115,12 +115,12 @@ class NavBar extends React.Component {
               </Dropdown.Menu>
             </Dropdown>
           ) : (
-            ''
+            ""
           )}
 
           <Menu.Item position="right">
-            {this.props.currentUser === '' ? (
-              <Dropdown text="Login" pointing="top right" icon={'caret down'}>
+            {this.props.currentUser === "" ? (
+              <Dropdown text="Login" pointing="top right" icon={"caret down"}>
                 <Dropdown.Menu>
                   <Dropdown.Item
                     icon="sign-in"
@@ -142,7 +142,7 @@ class NavBar extends React.Component {
               <Dropdown
                 text={this.props.currentUser}
                 pointing="top right"
-                icon={'user'}
+                icon={"user"}
               >
                 <Dropdown.Menu>
                   <Dropdown.Item
@@ -187,10 +187,10 @@ const NavBarContainer = withTracker(() =>
   // The null publication should automatically publish roles
   // eslint-disable-next-line implicit-arrow-linebreak
   ({
-    currentUser: Meteor.user() ? Meteor.user().username : '',
-    currentId: Meteor.user() ? Meteor.user()._id : '',
+    currentUser: Meteor.user() ? Meteor.user().username : "",
+    currentId: Meteor.user() ? Meteor.user()._id : "",
     isAdmin: Meteor.user()
-      ? Meteor.user().roles && Meteor.user().roles.includes('admin')
+      ? Meteor.user().roles && Meteor.user().roles.includes("admin")
       : false,
   }))(NavBar);
 
