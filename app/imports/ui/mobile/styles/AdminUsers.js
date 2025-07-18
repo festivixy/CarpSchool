@@ -317,6 +317,13 @@ export const DetailValue = styled.span`
   font-weight: 500;
 `;
 
+export const BadgeContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+`;
+
 export const AdminBadge = styled.div`
   display: inline-flex;
   align-items: center;
@@ -325,7 +332,6 @@ export const AdminBadge = styled.div`
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  margin-top: 8px;
 
   ${(props) =>
     props.isAdmin
@@ -338,6 +344,29 @@ export const AdminBadge = styled.div`
     background-color: rgba(248, 248, 248, 1);
     color: rgba(100, 100, 100, 1);
     border: 1px solid rgba(230, 230, 230, 1);
+  `}
+`;
+
+export const EmailBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+
+  ${(props) =>
+    props.isVerified
+      ? `
+    background-color: rgba(240, 255, 245, 1);
+    color: rgba(22, 101, 52, 1);
+    border: 1px solid rgba(187, 247, 208, 1);
+  `
+      : `
+    background-color: rgba(255, 245, 240, 1);
+    color: rgba(153, 27, 27, 1);
+    border: 1px solid rgba(254, 202, 202, 1);
   `}
 `;
 

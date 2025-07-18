@@ -32,7 +32,9 @@ import {
   DetailItem,
   DetailLabel,
   DetailValue,
+  BadgeContainer,
   AdminBadge,
+  EmailBadge,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -303,6 +305,10 @@ class MobileAdminUsers extends React.Component {
                   const isCurrentUser = user._id === Meteor.userId();
                   const fullName =
                     `${user.profile?.firstName || ""} ${user.profile?.lastName || ""}`.trim();
+                  const isEmailVerified =
+                    user.emails &&
+                    user.emails.length > 0 &&
+                    user.emails[0].verified;
 
                   return (
                     <UserCard key={user._id}>
@@ -313,9 +319,16 @@ class MobileAdminUsers extends React.Component {
                             {isCurrentUser && " (You)"}
                           </UserName>
                           <UserUsername>@{user.username}</UserUsername>
-                          <AdminBadge isAdmin={isAdmin}>
-                            {isAdmin ? "✅ Admin" : "👤 User"}
-                          </AdminBadge>
+                          <BadgeContainer>
+                            <AdminBadge isAdmin={isAdmin}>
+                              {isAdmin ? "✅ Admin" : "👤 User"}
+                            </AdminBadge>
+                            <EmailBadge isVerified={isEmailVerified}>
+                              {isEmailVerified
+                                ? "✅ Verified"
+                                : "❌ Unverified"}
+                            </EmailBadge>
+                          </BadgeContainer>
                         </UserInfo>
                         <ActionButtons>
                           <ActionButton
