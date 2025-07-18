@@ -7,7 +7,7 @@ import {
   Redirect,
 } from "react-router-dom";
 import MobileAdminRides from "../mobile/pages/AdminRides";
-import AdminUsers from "../pages/AdminUsers";
+import MobileAdminUsers from "../mobile/pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../mobile/pages/SignIn";
@@ -87,7 +87,7 @@ class App extends React.Component {
               />
               <ProtectedRouteRequireAdmin
                 path="/adminUsers"
-                component={AdminUsers}
+                component={MobileAdminUsers}
               />
 
               {/* Test routes */}
