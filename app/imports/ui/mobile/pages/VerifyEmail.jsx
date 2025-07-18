@@ -45,7 +45,6 @@ export default class MobileVerifyEmail extends React.Component {
           captchaSessionId: result.sessionId,
           captchaInput: "",
           isLoadingCaptcha: false,
-          resendError: "",
         });
       }
     });
