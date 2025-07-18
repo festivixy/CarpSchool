@@ -35,11 +35,6 @@ class MobileEditProfile extends React.Component {
       rideImagePreview: null,
       isUploadingProfile: false,
       isUploadingRide: false,
-      // Image data states
-      profileImageData: null,
-      rideImageData: null,
-      isLoadingProfileImage: false,
-      isLoadingRideImage: false,
     };
   }
 
@@ -71,45 +66,7 @@ class MobileEditProfile extends React.Component {
         other: profile.Other || "",
         userType: profile.UserType || "Both",
       });
-
-      // Load existing images if they exist
-      if (profile.Image) {
-        this.loadImageData(profile.Image, "profile");
-      }
-      if (profile.Ride) {
-        this.loadImageData(profile.Ride, "ride");
-      }
     }
-  };
-
-  loadImageData = (uuid, imageType) => {
-    if (!uuid || !this._isMounted) return;
-
-    if (imageType === "profile") {
-      this.setState({ isLoadingProfileImage: true });
-    } else {
-      this.setState({ isLoadingRideImage: true });
-    }
-
-    Meteor.call("images.getByUuid", uuid, (err, result) => {
-      if (!this._isMounted) return;
-
-      if (imageType === "profile") {
-        this.setState({ isLoadingProfileImage: false });
-      } else {
-        this.setState({ isLoadingRideImage: false });
-      }
-
-      if (err) {
-        console.error("Failed to load image:", err);
-      } else {
-        if (imageType === "profile") {
-          this.setState({ profileImageData: result });
-        } else {
-          this.setState({ rideImageData: result });
-        }
-      }
-    });
   };
 
   handleChange = (e) => {
@@ -511,25 +468,18 @@ class MobileEditProfile extends React.Component {
                   </h3>
 
                   {(this.state.profileImagePreview ||
-                    this.state.profileImageData ||
-                    this.state.isLoadingProfileImage) && (
+                    this.state.profileImage) && (
                     <div className="mobile-edit-profile-image-preview">
-                      {this.state.isLoadingProfileImage ? (
-                        <div className="mobile-edit-profile-image-loading">
-                          Loading...
-                        </div>
-                      ) : (
-                        <img
-                          src={
-                            this.state.profileImagePreview ||
-                            (this.state.profileImageData
-                              ? `data:${this.state.profileImageData.mimeType};base64,${this.state.profileImageData.imageData}`
-                              : "")
-                          }
-                          alt="Profile preview"
-                          className="mobile-edit-profile-preview-img"
-                        />
-                      )}
+                      <img
+                        src={
+                          this.state.profileImagePreview ||
+                          (this.state.profileImage
+                            ? `/image/${this.state.profileImage}`
+                            : "")
+                        }
+                        alt="Profile preview"
+                        className="mobile-edit-profile-preview-img"
+                      />
                     </div>
                   )}
 
@@ -556,26 +506,18 @@ class MobileEditProfile extends React.Component {
                     Vehicle Photo
                   </h3>
 
-                  {(this.state.rideImagePreview ||
-                    this.state.rideImageData ||
-                    this.state.isLoadingRideImage) && (
+                  {(this.state.rideImagePreview || this.state.rideImage) && (
                     <div className="mobile-edit-profile-image-preview">
-                      {this.state.isLoadingRideImage ? (
-                        <div className="mobile-edit-profile-image-loading">
-                          Loading...
-                        </div>
-                      ) : (
-                        <img
-                          src={
-                            this.state.rideImagePreview ||
-                            (this.state.rideImageData
-                              ? `data:${this.state.rideImageData.mimeType};base64,${this.state.rideImageData.imageData}`
-                              : "")
-                          }
-                          alt="Vehicle preview"
-                          className="mobile-edit-profile-preview-img"
-                        />
-                      )}
+                      <img
+                        src={
+                          this.state.rideImagePreview ||
+                          (this.state.rideImage
+                            ? `/image/${this.state.rideImage}`
+                            : "")
+                        }
+                        alt="Vehicle preview"
+                        className="mobile-edit-profile-preview-img"
+                      />
                     </div>
                   )}
 
@@ -885,19 +827,6 @@ class MobileEditProfile extends React.Component {
               border-radius: 8px;
               border: 2px solid rgba(224, 224, 224, 1);
               object-fit: cover;
-            }
-
-            .mobile-edit-profile-image-loading {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 150px;
-              height: 150px;
-              border-radius: 8px;
-              border: 2px solid rgba(224, 224, 224, 1);
-              background-color: rgba(250, 250, 250, 1);
-              color: rgba(130, 130, 130, 1);
-              font-size: 14px;
             }
 
             .mobile-edit-profile-captcha-container {
