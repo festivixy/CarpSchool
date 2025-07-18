@@ -83,7 +83,8 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   };
 
   // Convert file to base64
-  const fileToBase64 = (file) => new Promise((resolve, reject) => {
+  const fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
@@ -214,48 +215,108 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
 
         {selectedFile && (
           <Form.Field>
-            <label>Captcha Verification</label>
-            <Grid columns={2}>
-              <Grid.Column width={10}>
-                {isLoadingCaptcha ? ( // eslint-disable-line
-                  <Segment>
-                    <Loader active inline="centered" />
-                    <p>Loading captcha...</p>
-                  </Segment>
+            <div style={{ margin: "20px 0", textAlign: "center" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "8px",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  color: "rgba(0, 0, 0, 1)",
+                }}
+              >
+                Security Verification
+              </label>
+              <div
+                style={{
+                  border: "1px solid rgba(224, 224, 224, 1)",
+                  borderRadius: "8px",
+                  padding: "10px",
+                  marginBottom: "8px",
+                  backgroundColor: "rgba(249, 249, 249, 1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "50px",
+                  position: "relative",
+                }}
+              >
+                {isLoadingCaptcha ? (
+                  <div
+                    style={{
+                      color: "rgba(130, 130, 130, 1)",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Loading CAPTCHA...
+                  </div>
                 ) : captchaData ? (
-                  <div>
+                  <>
                     <div
                       dangerouslySetInnerHTML={{
                         __html: captchaData.svg,
                       }}
+                      style={{ lineHeight: "1" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={generateCaptcha}
+                      disabled={isUploading || isLoadingCaptcha}
+                      title="Refresh CAPTCHA"
                       style={{
-                        border: "1px solid #ccc",
-                        padding: "10px",
-                        marginBottom: "10px",
+                        position: "absolute",
+                        bottom: "4px",
+                        right: "4px",
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        border: "1px solid rgba(200, 200, 200, 1)",
+                        borderRadius: "50%",
+                        width: "24px",
+                        height: "24px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor:
+                          isUploading || isLoadingCaptcha
+                            ? "not-allowed"
+                            : "pointer",
+                        transition: "all 0.2s ease",
+                        backdropFilter: "blur(2px)",
+                        padding: "0",
                       }}
-                    />
-                    <Input
-                      placeholder="Enter captcha text"
-                      value={captchaText}
-                      onChange={(e) => setCaptchaText(e.target.value)}
-                      disabled={isUploading}
-                    />
-                  </div>
+                    >
+                      <img
+                        src="/svg/refresh.svg"
+                        alt="Refresh"
+                        style={{
+                          width: "14px",
+                          height: "14px",
+                          opacity:
+                            isUploading || isLoadingCaptcha ? "0.3" : "0.7",
+                        }}
+                      />
+                    </button>
+                  </>
                 ) : (
                   <Button onClick={generateCaptcha} disabled={isUploading}>
                     Generate Captcha
                   </Button>
                 )}
-              </Grid.Column>
-              <Grid.Column width={6}>
-                <Button
-                  onClick={generateCaptcha}
-                  disabled={isUploading || isLoadingCaptcha}
-                  icon="refresh"
-                  content="New Captcha"
-                />
-              </Grid.Column>
-            </Grid>
+              </div>
+              <Input
+                placeholder="Enter the characters shown above"
+                value={captchaText}
+                onChange={(e) => setCaptchaText(e.target.value)}
+                disabled={isUploading}
+                style={{
+                  borderRadius: "8px",
+                  border: "1px solid rgba(224, 224, 224, 1)",
+                  padding: "10px 16px",
+                  fontSize: "14px",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
           </Form.Field>
         )}
 
@@ -285,10 +346,15 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
                 isUploading
               }
               loading={isUploading}
+              style={{ borderRadius: "4px" }}
             >
               Upload Image
             </Button>
-            <Button onClick={handleReset} disabled={isUploading}>
+            <Button
+              onClick={handleReset}
+              disabled={isUploading}
+              style={{ borderRadius: "4px" }}
+            >
               Reset
             </Button>
           </Button.Group>
