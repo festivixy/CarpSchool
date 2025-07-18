@@ -14,7 +14,7 @@ class MobileOnboarding extends React.Component {
     this._isMounted = false;
     this.state = {
       currentStep: 1,
-      totalSteps: 5,
+      totalSteps: 4, // Reduced from 5 since we removed the captcha step
       // Profile data
       name: "",
       location: "",
@@ -24,13 +24,9 @@ class MobileOnboarding extends React.Component {
       profileImage: "",
       rideImage: "",
       // UI states
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
       error: "",
       success: "",
       isSubmitting: false,
-      isLoadingCaptcha: false,
       redirectToReferer: false,
       // Image upload states
       selectedProfileImage: null,
@@ -39,6 +35,18 @@ class MobileOnboarding extends React.Component {
       rideImagePreview: null,
       isUploadingProfile: false,
       isUploadingRide: false,
+      // Profile image captcha states
+      profileCaptchaInput: "",
+      profileCaptchaSvg: "",
+      profileCaptchaSessionId: "",
+      isLoadingProfileCaptcha: false,
+      showProfileUpload: false,
+      // Ride image captcha states
+      rideCaptchaInput: "",
+      rideCaptchaSvg: "",
+      rideCaptchaSessionId: "",
+      isLoadingRideCaptcha: false,
+      showRideUpload: false,
     };
   }
 
@@ -69,10 +77,6 @@ class MobileOnboarding extends React.Component {
     const { currentStep, totalSteps } = this.state;
     if (currentStep < totalSteps) {
       this.setState({ currentStep: currentStep + 1 });
-      // Generate CAPTCHA when reaching final step
-      if (currentStep + 1 === totalSteps) {
-        this.generateNewCaptcha();
-      }
     }
   };
 
@@ -92,30 +96,51 @@ class MobileOnboarding extends React.Component {
       case 3:
         return true; // User type selection is optional
       case 4:
-        return true; // Images are optional
-      case 5:
-        return this.state.captchaInput.trim().length > 0;
+        return true; // Final step - ready to finish
       default:
         return false;
     }
   };
 
-  generateNewCaptcha = () => {
+  generateProfileCaptcha = () => {
     if (!this._isMounted) return;
-    this.setState({ isLoadingCaptcha: true });
+    this.setState({ isLoadingProfileCaptcha: true });
     Meteor.call("captcha.generate", (error, result) => {
       if (!this._isMounted) return;
       if (error) {
         this.setState({
           error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
+          isLoadingProfileCaptcha: false,
         });
       } else {
         this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
+          profileCaptchaSvg: result.svg,
+          profileCaptchaSessionId: result.sessionId,
+          profileCaptchaInput: "",
+          isLoadingProfileCaptcha: false,
+          showProfileUpload: true,
+        });
+      }
+    });
+  };
+
+  generateRideCaptcha = () => {
+    if (!this._isMounted) return;
+    this.setState({ isLoadingRideCaptcha: true });
+    Meteor.call("captcha.generate", (error, result) => {
+      if (!this._isMounted) return;
+      if (error) {
+        this.setState({
+          error: "Failed to load CAPTCHA. Please try again.",
+          isLoadingRideCaptcha: false,
+        });
+      } else {
+        this.setState({
+          rideCaptchaSvg: result.svg,
+          rideCaptchaSessionId: result.sessionId,
+          rideCaptchaInput: "",
+          isLoadingRideCaptcha: false,
+          showRideUpload: true,
         });
       }
     });
@@ -166,11 +191,15 @@ class MobileOnboarding extends React.Component {
           selectedProfileImage: file,
           profileImagePreview: event.target.result,
         });
+        // Generate captcha for profile image upload
+        this.generateProfileCaptcha();
       } else {
         this.setState({
           selectedRideImage: file,
           rideImagePreview: event.target.result,
         });
+        // Generate captcha for ride image upload
+        this.generateRideCaptcha();
       }
     };
     reader.readAsDataURL(file);
@@ -178,125 +207,186 @@ class MobileOnboarding extends React.Component {
     this.setState({ error: "" });
   };
 
-  uploadImage = async (file, imageType) => {
-    return new Promise((resolve, reject) => {
-      this.fileToBase64(file)
-        .then((base64Data) => {
-          const imageData = {
-            fileName: file.name,
-            mimeType: file.type,
-            base64Data,
-          };
-
-          Meteor.call(
-            "images.upload",
-            imageData,
-            this.state.captchaSessionId,
-            (err, result) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve(result.uuid);
-              }
-            },
-          );
-        })
-        .catch(reject);
-    });
-  };
-
-  handleFinish = () => {
+  uploadProfileImage = () => {
     const {
-      name,
-      location,
-      userType,
-      phone,
-      other,
-      captchaInput,
-      captchaSessionId,
       selectedProfileImage,
-      selectedRideImage,
+      profileCaptchaInput,
+      profileCaptchaSessionId,
     } = this.state;
 
-    this.setState({ isSubmitting: true, error: "", success: "" });
+    if (!selectedProfileImage || !profileCaptchaInput.trim()) {
+      this.setState({ error: "Please enter the security code and try again." });
+      return;
+    }
 
-    // First verify CAPTCHA
+    this.setState({ isUploadingProfile: true, error: "" });
+
     Meteor.call(
       "captcha.verify",
-      captchaSessionId,
-      captchaInput,
-      async (captchaError, isValidCaptcha) => {
+      profileCaptchaSessionId,
+      profileCaptchaInput,
+      (captchaError, isValidCaptcha) => {
         if (!this._isMounted) return;
 
         if (captchaError || !isValidCaptcha) {
           this.setState({
             error: "Invalid security code. Please try again.",
-            isSubmitting: false,
+            isUploadingProfile: false,
           });
-          this.generateNewCaptcha();
+          this.generateProfileCaptcha();
           return;
         }
 
-        try {
-          let finalProfileImage = "";
-          let finalRideImage = "";
+        this.fileToBase64(selectedProfileImage)
+          .then((base64Data) => {
+            const imageData = {
+              fileName: selectedProfileImage.name,
+              mimeType: selectedProfileImage.type,
+              base64Data,
+            };
 
-          // Upload profile image if selected
-          if (selectedProfileImage) {
-            this.setState({ isUploadingProfile: true });
-            finalProfileImage = await this.uploadImage(
-              selectedProfileImage,
-              "profile",
+            Meteor.call(
+              "images.upload",
+              imageData,
+              profileCaptchaSessionId,
+              (err, result) => {
+                if (!this._isMounted) return;
+
+                if (err) {
+                  this.setState({
+                    error:
+                      err.reason ||
+                      "Failed to upload profile image. Please try again.",
+                    isUploadingProfile: false,
+                  });
+                  this.generateProfileCaptcha();
+                } else {
+                  this.setState({
+                    profileImage: result.uuid,
+                    selectedProfileImage: null,
+                    profileImagePreview: null,
+                    showProfileUpload: false,
+                    isUploadingProfile: false,
+                  });
+                }
+              },
             );
-            this.setState({ isUploadingProfile: false });
-          }
-
-          // Upload ride image if selected
-          if (selectedRideImage) {
-            this.setState({ isUploadingRide: true });
-            finalRideImage = await this.uploadImage(selectedRideImage, "ride");
-            this.setState({ isUploadingRide: false });
-          }
-
-          const profileData = {
-            Name: name,
-            Location: location,
-            Image: finalProfileImage,
-            Ride: finalRideImage,
-            Phone: phone,
-            Other: other,
-            UserType: userType,
-            Owner: Meteor.user()._id,
-          };
-
-          // Insert new profile
-          Profiles.insert(profileData, (error) => {
+          })
+          .catch((error) => {
             if (!this._isMounted) return;
-            this.setState({ isSubmitting: false });
-            if (error) {
-              this.setState({ error: error.message });
-              this.generateNewCaptcha();
-            } else {
-              this.setState({
-                success:
-                  "Welcome to Carpool! Your profile has been created successfully!",
-                redirectToReferer: true,
-              });
-            }
+            this.setState({
+              error: "Failed to process profile image. Please try again.",
+              isUploadingProfile: false,
+            });
           });
-        } catch (uploadError) {
-          if (!this._isMounted) return;
-          this.setState({
-            error:
-              uploadError.reason || "Failed to upload image. Please try again.",
-            isSubmitting: false,
-            isUploadingProfile: false,
-            isUploadingRide: false,
-          });
-          this.generateNewCaptcha();
-        }
       },
     );
+  };
+
+  uploadRideImage = () => {
+    const { selectedRideImage, rideCaptchaInput, rideCaptchaSessionId } =
+      this.state;
+
+    if (!selectedRideImage || !rideCaptchaInput.trim()) {
+      this.setState({ error: "Please enter the security code and try again." });
+      return;
+    }
+
+    this.setState({ isUploadingRide: true, error: "" });
+
+    Meteor.call(
+      "captcha.verify",
+      rideCaptchaSessionId,
+      rideCaptchaInput,
+      (captchaError, isValidCaptcha) => {
+        if (!this._isMounted) return;
+
+        if (captchaError || !isValidCaptcha) {
+          this.setState({
+            error: "Invalid security code. Please try again.",
+            isUploadingRide: false,
+          });
+          this.generateRideCaptcha();
+          return;
+        }
+
+        this.fileToBase64(selectedRideImage)
+          .then((base64Data) => {
+            const imageData = {
+              fileName: selectedRideImage.name,
+              mimeType: selectedRideImage.type,
+              base64Data,
+            };
+
+            Meteor.call(
+              "images.upload",
+              imageData,
+              rideCaptchaSessionId,
+              (err, result) => {
+                if (!this._isMounted) return;
+
+                if (err) {
+                  this.setState({
+                    error:
+                      err.reason ||
+                      "Failed to upload vehicle image. Please try again.",
+                    isUploadingRide: false,
+                  });
+                  this.generateRideCaptcha();
+                } else {
+                  this.setState({
+                    rideImage: result.uuid,
+                    selectedRideImage: null,
+                    rideImagePreview: null,
+                    showRideUpload: false,
+                    isUploadingRide: false,
+                  });
+                }
+              },
+            );
+          })
+          .catch((error) => {
+            if (!this._isMounted) return;
+            this.setState({
+              error: "Failed to process vehicle image. Please try again.",
+              isUploadingRide: false,
+            });
+          });
+      },
+    );
+  };
+
+  handleFinish = () => {
+    const { name, location, userType, phone, other, profileImage, rideImage } =
+      this.state;
+
+    this.setState({ isSubmitting: true, error: "", success: "" });
+
+    const profileData = {
+      Name: name,
+      Location: location,
+      Image: profileImage,
+      Ride: rideImage,
+      Phone: phone,
+      Other: other,
+      UserType: userType,
+      Owner: Meteor.user()._id,
+    };
+
+    // Insert new profile
+    Profiles.insert(profileData, (error) => {
+      if (!this._isMounted) return;
+      this.setState({ isSubmitting: false });
+      if (error) {
+        this.setState({ error: error.message });
+      } else {
+        this.setState({
+          success:
+            "Welcome to Carpool! Your profile has been created successfully!",
+          redirectToReferer: true,
+        });
+      }
+    });
   };
 
   renderProgressBar = () => {
@@ -448,17 +538,22 @@ class MobileOnboarding extends React.Component {
       <h2 className="onboarding-step-title">Add some photos!</h2>
       <p className="onboarding-step-subtitle">
         Photos help build trust with other carpoolers. These are optional but
-        recommended.
+        recommended. Upload photos one at a time with security verification.
       </p>
 
       <div className="onboarding-photo-sections">
         {/* Profile Photo */}
         <div className="onboarding-photo-section">
           <h3>Profile Photo</h3>
-          {this.state.profileImagePreview && (
+          {(this.state.profileImagePreview || this.state.profileImage) && (
             <div className="onboarding-photo-preview">
               <img
-                src={this.state.profileImagePreview}
+                src={
+                  this.state.profileImagePreview ||
+                  (this.state.profileImage
+                    ? `/image/${this.state.profileImage}`
+                    : "")
+                }
                 alt="Profile preview"
                 className="onboarding-preview-img"
               />
@@ -470,22 +565,86 @@ class MobileOnboarding extends React.Component {
             onChange={(e) => this.handleImageSelect(e, "profile")}
             className="onboarding-file-input"
             id="profile-upload"
+            disabled={this.state.isUploadingProfile}
           />
           <label htmlFor="profile-upload" className="onboarding-file-label">
-            {this.state.profileImagePreview
-              ? "Change Photo"
-              : "Add Profile Photo"}
+            {this.state.profileImage
+              ? "Change Profile Photo"
+              : this.state.profileImagePreview
+                ? "Upload This Photo"
+                : "Add Profile Photo"}
           </label>
+
+          {/* Profile Image Upload with Captcha */}
+          {this.state.showProfileUpload && (
+            <div className="onboarding-upload-section">
+              <div className="onboarding-captcha-container">
+                {this.state.isLoadingProfileCaptcha ? (
+                  <div className="onboarding-captcha-loading">Loading...</div>
+                ) : (
+                  <div
+                    className="onboarding-captcha-display"
+                    dangerouslySetInnerHTML={{
+                      __html: this.state.profileCaptchaSvg,
+                    }}
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={this.generateProfileCaptcha}
+                  disabled={
+                    this.state.isLoadingProfileCaptcha ||
+                    this.state.isUploadingProfile
+                  }
+                  className="onboarding-captcha-refresh"
+                  title="Generate new code"
+                >
+                  <img src="/svg/refresh.svg" alt="Refresh" />
+                </button>
+              </div>
+
+              <div className="onboarding-input-group">
+                <input
+                  type="text"
+                  name="profileCaptchaInput"
+                  placeholder="Enter security code"
+                  value={this.state.profileCaptchaInput}
+                  onChange={this.handleChange}
+                  className="onboarding-input"
+                  disabled={this.state.isUploadingProfile}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={this.uploadProfileImage}
+                className="onboarding-upload-button"
+                disabled={
+                  this.state.isUploadingProfile ||
+                  !this.state.profileCaptchaInput.trim()
+                }
+              >
+                {this.state.isUploadingProfile
+                  ? "Uploading..."
+                  : "Upload Profile Photo"}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Vehicle Photo - Only show for Drivers */}
         {this.state.userType !== "Rider" && (
           <div className="onboarding-photo-section">
             <h3>Vehicle Photo</h3>
-            {this.state.rideImagePreview && (
+            {(this.state.rideImagePreview || this.state.rideImage) && (
               <div className="onboarding-photo-preview">
                 <img
-                  src={this.state.rideImagePreview}
+                  src={
+                    this.state.rideImagePreview ||
+                    (this.state.rideImage
+                      ? `/image/${this.state.rideImage}`
+                      : "")
+                  }
                   alt="Vehicle preview"
                   className="onboarding-preview-img"
                 />
@@ -497,68 +656,77 @@ class MobileOnboarding extends React.Component {
               onChange={(e) => this.handleImageSelect(e, "ride")}
               className="onboarding-file-input"
               id="vehicle-upload"
+              disabled={this.state.isUploadingRide}
             />
             <label htmlFor="vehicle-upload" className="onboarding-file-label">
-              {this.state.rideImagePreview
-                ? "Change Photo"
-                : "Add Vehicle Photo"}
+              {this.state.rideImage
+                ? "Change Vehicle Photo"
+                : this.state.rideImagePreview
+                  ? "Upload This Photo"
+                  : "Add Vehicle Photo"}
             </label>
+
+            {/* Ride Image Upload with Captcha */}
+            {this.state.showRideUpload && (
+              <div className="onboarding-upload-section">
+                <div className="onboarding-captcha-container">
+                  {this.state.isLoadingRideCaptcha ? (
+                    <div className="onboarding-captcha-loading">Loading...</div>
+                  ) : (
+                    <div
+                      className="onboarding-captcha-display"
+                      dangerouslySetInnerHTML={{
+                        __html: this.state.rideCaptchaSvg,
+                      }}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={this.generateRideCaptcha}
+                    disabled={
+                      this.state.isLoadingRideCaptcha ||
+                      this.state.isUploadingRide
+                    }
+                    className="onboarding-captcha-refresh"
+                    title="Generate new code"
+                  >
+                    <img src="/svg/refresh.svg" alt="Refresh" />
+                  </button>
+                </div>
+
+                <div className="onboarding-input-group">
+                  <input
+                    type="text"
+                    name="rideCaptchaInput"
+                    placeholder="Enter security code"
+                    value={this.state.rideCaptchaInput}
+                    onChange={this.handleChange}
+                    className="onboarding-input"
+                    disabled={this.state.isUploadingRide}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={this.uploadRideImage}
+                  className="onboarding-upload-button"
+                  disabled={
+                    this.state.isUploadingRide ||
+                    !this.state.rideCaptchaInput.trim()
+                  }
+                >
+                  {this.state.isUploadingRide
+                    ? "Uploading..."
+                    : "Upload Vehicle Photo"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       <div className="onboarding-file-info">
         Supported: JPEG, PNG, GIF, WebP (max 5MB each)
-      </div>
-    </div>
-  );
-
-  renderStep5 = () => (
-    <div className="onboarding-step">
-      <div className="onboarding-step-icon">🔒</div>
-      <h2 className="onboarding-step-title">Security Check</h2>
-      <p className="onboarding-step-subtitle">
-        One last step! Please complete this security verification to create your
-        profile.
-      </p>
-
-      <div className="onboarding-captcha-section">
-        <div className="onboarding-captcha-container">
-          {this.state.isLoadingCaptcha ? (
-            <div className="onboarding-captcha-loading">Loading...</div>
-          ) : (
-            <div
-              className="onboarding-captcha-display"
-              dangerouslySetInnerHTML={{
-                __html: this.state.captchaSvg,
-              }}
-            />
-          )}
-          <button
-            type="button"
-            onClick={this.generateNewCaptcha}
-            disabled={this.state.isLoadingCaptcha || this.state.isSubmitting}
-            className="onboarding-captcha-refresh"
-            title="Generate new code"
-          >
-            <img src="/svg/refresh.svg" alt="Refresh" />
-          </button>
-        </div>
-
-        <div className="onboarding-input-group">
-          <label className="onboarding-label">
-            Enter the characters shown above *
-          </label>
-          <input
-            type="text"
-            name="captchaInput"
-            placeholder="Security code"
-            value={this.state.captchaInput}
-            onChange={this.handleChange}
-            className="onboarding-input"
-            required
-          />
-        </div>
       </div>
 
       <div className="onboarding-summary">
@@ -577,6 +745,16 @@ class MobileOnboarding extends React.Component {
             <strong>Phone:</strong> {this.state.phone}
           </div>
         )}
+        {this.state.profileImage && (
+          <div className="onboarding-summary-item">
+            <strong>Profile Photo:</strong> ✅ Uploaded
+          </div>
+        )}
+        {this.state.rideImage && (
+          <div className="onboarding-summary-item">
+            <strong>Vehicle Photo:</strong> ✅ Uploaded
+          </div>
+        )}
       </div>
     </div>
   );
@@ -591,8 +769,6 @@ class MobileOnboarding extends React.Component {
         return this.renderStep3();
       case 4:
         return this.renderStep4();
-      case 5:
-        return this.renderStep5();
       default:
         return this.renderStep1();
     }
@@ -976,6 +1152,37 @@ class MobileOnboarding extends React.Component {
 
             .onboarding-captcha-refresh:disabled img {
               opacity: 0.3;
+            }
+
+            .onboarding-upload-section {
+              margin-top: 16px;
+              padding: 16px;
+              background-color: rgba(240, 248, 255, 0.8);
+              border-radius: 12px;
+              border: 2px solid rgba(200, 220, 240, 0.5);
+            }
+
+            .onboarding-upload-button {
+              border-radius: 8px;
+              background-color: #5a6fd8;
+              color: white;
+              padding: 12px 20px;
+              border: none;
+              font-size: 14px;
+              font-weight: 600;
+              cursor: pointer;
+              width: 100%;
+              margin-top: 12px;
+              transition: background-color 0.2s ease;
+            }
+
+            .onboarding-upload-button:hover:not(:disabled) {
+              background-color: #4a5fc8;
+            }
+
+            .onboarding-upload-button:disabled {
+              background-color: #ccc;
+              cursor: not-allowed;
             }
 
             .onboarding-summary {
