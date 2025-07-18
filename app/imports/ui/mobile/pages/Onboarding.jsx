@@ -116,7 +116,6 @@ class MobileOnboarding extends React.Component {
           captchaSessionId: result.sessionId,
           captchaInput: "",
           isLoadingCaptcha: false,
-          error: "",
         });
       }
     });
