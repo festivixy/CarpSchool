@@ -3,7 +3,7 @@ import "semantic-ui-css/semantic.css";
 import { HashRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 import AdminRides from "../pages/AdminRides";
 import AdminUsers from "../pages/AdminUsers";
-import TestImageUpload from "../pages/TestImageUpload";
+import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../mobile/pages/SignIn";
 import MobileSignup from "../mobile/pages/Signup";
@@ -88,7 +88,7 @@ class App extends React.Component {
               {/* Test routes */}
               <ProtectedRoute
                 path="/testImageUpload"
-                component={TestImageUpload}
+                component={MobileTestImageUpload}
               />
               <ProtectedRoute path="/signout" component={MobileSignout} />
 
