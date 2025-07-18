@@ -1,10 +1,10 @@
 import React from "react";
 import "semantic-ui-css/semantic.css";
-import { HashRouter as Router, Route, Switch } from "react-router-dom";
+import { HashRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 import AdminRides from "../pages/AdminRides";
 import AdminUsers from "../pages/AdminUsers";
-import NotFound from "../pages/NotFound";
 import TestImageUpload from "../pages/TestImageUpload";
+import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../mobile/pages/SignIn";
 import MobileSignup from "../mobile/pages/Signup";
 import MobileForgotPassword from "../mobile/pages/ForgotPassword";
@@ -45,6 +45,7 @@ class App extends React.Component {
           <main style={mainContentStyle}>
             <Switch>
               <Route exact path="/" component={MobileLanding} />
+              <Route exact path="/404" component={MobileNotFound} />
               <ProtectedRouteRequireNotLoggedIn
                 path="/signin"
                 component={MobileSignIn}
@@ -91,7 +92,8 @@ class App extends React.Component {
               />
               <ProtectedRoute path="/signout" component={MobileSignout} />
 
-              <Route component={NotFound} />
+              {/* Catch-all route for 404 */}
+              <Redirect to="/404" />
             </Switch>
           </main>
           <MobileFooter />
