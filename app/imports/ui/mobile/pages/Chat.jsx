@@ -1,10 +1,71 @@
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import { withRouter } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { Chats } from '../../../api/chat/Chat';
-import '../../../api/chat/ChatMethods';
+import React from "react";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import { withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
+import { Chats } from "../../../api/chat/Chat";
+import "../../../api/chat/ChatMethods";
+import {
+  Container,
+  Header,
+  Title,
+  HeaderButtons,
+  CreateButton,
+  JoinButton,
+  ErrorMessage,
+  SuccessMessage,
+  Content,
+  Sidebar,
+  SidebarHeader,
+  ChatList,
+  ChatListItem,
+  ChatListItemContent,
+  ChatListItemName,
+  ChatListItemLast,
+  ChatListItemCount,
+  ChatListEmpty,
+  EmptyButtons,
+  CreateFirstButton,
+  JoinFirstButton,
+  Main,
+  ConversationHeader,
+  ConversationInfo,
+  ConversationName,
+  ConversationParticipants,
+  ShareButton,
+  Messages,
+  DateSeparator,
+  Message,
+  MessageSender,
+  MessageContent,
+  MessageTime,
+  InputForm,
+  Input,
+  SendButton,
+  NoSelection,
+  NoSelectionContent,
+  NoSelectionIcon,
+  Loading,
+  LoadingSpinner,
+  ModalOverlay,
+  Modal,
+  ModalHeader,
+  ModalClose,
+  ModalTitle,
+  ModalSubtitle,
+  ModalContent,
+  FormGroup,
+  FormHint,
+  ShareCodeDisplay,
+  CodeContainer,
+  Code,
+  CodeInputs,
+  CodeInput,
+  Dash,
+  ModalActions,
+  ButtonSecondary,
+  ButtonPrimary,
+} from "../styles/Chat";
 
 /**
  * Modern Mobile Chat component
@@ -14,15 +75,15 @@ class MobileChat extends React.Component {
     super(props);
     this.state = {
       selectedChatId: null,
-      messageInput: '',
+      messageInput: "",
       showJoinChatModal: false,
       showShareCodeModal: false,
       showCreateChatModal: false,
-      codeInputs: ['', '', '', '', '', '', '', ''], // 8 separate inputs for join code
-      selectedChatShareCode: '',
-      newChatShareCode: '',
-      error: '',
-      success: '',
+      codeInputs: ["", "", "", "", "", "", "", ""], // 8 separate inputs for join code
+      selectedChatShareCode: "",
+      newChatShareCode: "",
+      error: "",
+      success: "",
     };
     this.codeInputRefs = [];
     this.isSubmitting = false;
@@ -75,11 +136,11 @@ class MobileChat extends React.Component {
 
     // Clear input immediately to show message was sent
     const messageToSend = messageInput.trim();
-    this.setState({ messageInput: '' });
+    this.setState({ messageInput: "" });
 
     try {
       await Meteor.callAsync(
-        'chats.sendMessage',
+        "chats.sendMessage",
         selectedChatId,
         messageToSend,
       );
@@ -97,14 +158,14 @@ class MobileChat extends React.Component {
 
   handleCreateChat = async () => {
     try {
-      const result = await Meteor.callAsync('chats.createWithCode');
+      const result = await Meteor.callAsync("chats.createWithCode");
       this.setState({
         showCreateChatModal: true,
         newChatShareCode: result.shareCode,
         selectedChatId: result.chatId,
-        success: 'Chat created successfully!',
+        success: "Chat created successfully!",
       });
-      setTimeout(() => this.setState({ success: '' }), 3000);
+      setTimeout(() => this.setState({ success: "" }), 3000);
     } catch (error) {
       this.setState({ error: error.reason || error.message });
     }
@@ -116,7 +177,7 @@ class MobileChat extends React.Component {
     if (value.length <= 1) {
       const newInputs = [...this.state.codeInputs];
       newInputs[index] = value;
-      this.setState({ codeInputs: newInputs, error: '' });
+      this.setState({ codeInputs: newInputs, error: "" });
 
       // Auto-advance to next input
       if (value.length === 1 && index < 7) {
@@ -131,8 +192,8 @@ class MobileChat extends React.Component {
   handleCodeKeyDown = (index, e) => {
     // Handle backspace to go to previous input
     if (
-      e.key === 'Backspace' &&
-      this.state.codeInputs[index] === '' &&
+      e.key === "Backspace" &&
+      this.state.codeInputs[index] === "" &&
       index > 0
     ) {
       const prevInput = this.codeInputRefs[index - 1];
@@ -144,23 +205,23 @@ class MobileChat extends React.Component {
 
   handleCodePaste = (e) => {
     e.preventDefault();
-    const paste = e.clipboardData.getData('text').toUpperCase();
-    const cleanPaste = paste.replace(/[^A-Z0-9]/g, '');
+    const paste = e.clipboardData.getData("text").toUpperCase();
+    const cleanPaste = paste.replace(/[^A-Z0-9]/g, "");
 
     if (cleanPaste.length <= 8) {
       const newInputs = [...this.state.codeInputs];
       for (let i = 0; i < 8; i++) {
-        newInputs[i] = cleanPaste[i] || '';
+        newInputs[i] = cleanPaste[i] || "";
       }
-      this.setState({ codeInputs: newInputs, error: '' });
+      this.setState({ codeInputs: newInputs, error: "" });
     }
   };
 
   handleJoinChat = async () => {
-    const shareCode = this.state.codeInputs.join('');
+    const shareCode = this.state.codeInputs.join("");
 
     if (shareCode.length !== 8) {
-      this.setState({ error: 'Please enter a complete 8-character code' });
+      this.setState({ error: "Please enter a complete 8-character code" });
       return;
     }
 
@@ -168,14 +229,14 @@ class MobileChat extends React.Component {
     const formattedCode = `${shareCode.slice(0, 4)}-${shareCode.slice(4)}`;
 
     try {
-      const chatId = await Meteor.callAsync('chats.joinChat', formattedCode);
+      const chatId = await Meteor.callAsync("chats.joinChat", formattedCode);
       this.setState({
         showJoinChatModal: false,
-        codeInputs: ['', '', '', '', '', '', '', ''],
+        codeInputs: ["", "", "", "", "", "", "", ""],
         selectedChatId: chatId,
-        success: 'Joined chat successfully!',
+        success: "Joined chat successfully!",
       });
-      setTimeout(() => this.setState({ success: '' }), 3000);
+      setTimeout(() => this.setState({ success: "" }), 3000);
     } catch (error) {
       this.setState({ error: error.reason || error.message });
     }
@@ -184,7 +245,7 @@ class MobileChat extends React.Component {
   handleShowShareCode = async (chatId) => {
     try {
       const shareCode = await Meteor.callAsync(
-        'chats.generateShareCode',
+        "chats.generateShareCode",
         chatId,
       );
       this.setState({
@@ -200,19 +261,19 @@ class MobileChat extends React.Component {
     const { selectedChatShareCode } = this.state;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(selectedChatShareCode).then(() => {
-        this.setState({ success: 'Share code copied to clipboard!' });
-        setTimeout(() => this.setState({ success: '' }), 3000);
+        this.setState({ success: "Share code copied to clipboard!" });
+        setTimeout(() => this.setState({ success: "" }), 3000);
       });
     } else {
       // Fallback for older browsers
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = selectedChatShareCode;
       document.body.appendChild(textArea);
       textArea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textArea);
-      this.setState({ success: 'Share code copied to clipboard!' });
-      setTimeout(() => this.setState({ success: '' }), 3000);
+      this.setState({ success: "Share code copied to clipboard!" });
+      setTimeout(() => this.setState({ success: "" }), 3000);
     }
   };
 
@@ -220,32 +281,33 @@ class MobileChat extends React.Component {
     const { newChatShareCode } = this.state;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(newChatShareCode).then(() => {
-        this.setState({ success: 'Chat code copied to clipboard!' });
-        setTimeout(() => this.setState({ success: '' }), 3000);
+        this.setState({ success: "Chat code copied to clipboard!" });
+        setTimeout(() => this.setState({ success: "" }), 3000);
       });
     } else {
       // Fallback for older browsers
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = newChatShareCode;
       document.body.appendChild(textArea);
       textArea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textArea);
-      this.setState({ success: 'Chat code copied to clipboard!' });
-      setTimeout(() => this.setState({ success: '' }), 3000);
+      this.setState({ success: "Chat code copied to clipboard!" });
+      setTimeout(() => this.setState({ success: "" }), 3000);
     }
   };
 
   scrollToBottom = () => {
-    const messagesContainer = document.querySelector('.mobile-chat-messages');
+    const messagesContainer = document.querySelector(".mobile-chat-messages");
     if (messagesContainer) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   };
 
-  formatTime = (timestamp) => new Date(timestamp).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
+  formatTime = (timestamp) =>
+    new Date(timestamp).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
       hour12: true,
     });
 
@@ -256,23 +318,22 @@ class MobileChat extends React.Component {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
-    } if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return "Today";
     }
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-
+    if (date.toDateString() === yesterday.toDateString()) {
+      return "Yesterday";
+    }
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   getCurrentUser = () => Meteor.user()?.username;
 
-  getSelectedChat = () => this.props.chats?.find(
-      (chat) => chat._id === this.state.selectedChatId,
-    );
+  getSelectedChat = () =>
+    this.props.chats?.find((chat) => chat._id === this.state.selectedChatId);
 
   getChatDisplayName = (chat) => {
     const currentUser = this.getCurrentUser();
@@ -281,25 +342,23 @@ class MobileChat extends React.Component {
     );
 
     if (otherParticipants.length === 0) {
-      return chat.shareCode ? 'Waiting for someone to join...' : 'Empty Chat';
+      return chat.shareCode ? "Waiting for someone to join..." : "Empty Chat";
     }
-      return otherParticipants[0];
-
+    return otherParticipants[0];
   };
 
-  getChatStatus = (chat) => (chat.Participants.length === 1
-      ? 'Waiting for participant'
-      : 'Active');
+  getChatStatus = (chat) =>
+    chat.Participants.length === 1 ? "Waiting for participant" : "Active";
 
   render() {
     if (!this.props.ready) {
       return (
-        <div className="mobile-chat-container">
-          <div className="mobile-chat-loading">
-            <div className="mobile-chat-loading-spinner"></div>
+        <Container>
+          <Loading>
+            <LoadingSpinner />
             <p>Loading chats...</p>
-          </div>
-        </div>
+          </Loading>
+        </Container>
       );
     }
 
@@ -320,115 +379,107 @@ class MobileChat extends React.Component {
 
     return (
       <>
-        <div className="mobile-chat-container">
+        <Container>
           {/* Header */}
-          <div className="mobile-chat-header">
-            <h1 className="mobile-chat-title">Messages</h1>
-            <div className="mobile-chat-header-buttons">
-              <button
-                className="mobile-chat-create-button"
-                onClick={this.handleCreateChat}
-              >
+          <Header>
+            <Title>Messages</Title>
+            <HeaderButtons>
+              <CreateButton onClick={this.handleCreateChat}>
                 Create Chat
-              </button>
-              <button
-                className="mobile-chat-join-button"
+              </CreateButton>
+              <JoinButton
                 onClick={() => this.setState({ showJoinChatModal: true })}
               >
                 Join Chat
-              </button>
-            </div>
-          </div>
+              </JoinButton>
+            </HeaderButtons>
+          </Header>
 
           {/* Error/Success Messages */}
-          {error && <div className="mobile-chat-error">{error}</div>}
-          {success && <div className="mobile-chat-success">{success}</div>}
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          {success && <SuccessMessage>{success}</SuccessMessage>}
 
-          <div className="mobile-chat-content">
+          <Content>
             {/* Chat List Sidebar */}
-            <div className="mobile-chat-sidebar">
-              <div className="mobile-chat-sidebar-header">
+            <Sidebar>
+              <SidebarHeader>
                 <h3>Chats</h3>
-              </div>
-              <div className="mobile-chat-list">
+              </SidebarHeader>
+              <ChatList>
                 {this.props.chats && this.props.chats.length > 0 ? (
                   this.props.chats.map((chat) => (
-                    <div
+                    <ChatListItem
                       key={chat._id}
-                      className={`mobile-chat-list-item ${
-                        selectedChatId === chat._id ? 'active' : ''
-                      }`}
-                      onClick={() => this.setState({ selectedChatId: chat._id })
+                      active={selectedChatId === chat._id}
+                      onClick={() =>
+                        this.setState({ selectedChatId: chat._id })
                       }
                     >
-                      <div className="mobile-chat-list-item-content">
-                        <div className="mobile-chat-list-item-name">
+                      <ChatListItemContent>
+                        <ChatListItemName>
                           {this.getChatDisplayName(chat)}
-                        </div>
-                        <div className="mobile-chat-list-item-last">
+                        </ChatListItemName>
+                        <ChatListItemLast>
                           {chat.Messages.length > 0
                             ? chat.Messages[chat.Messages.length - 1].Content
-                            : 'No messages yet'}
-                        </div>
-                      </div>
-                      <div className="mobile-chat-list-item-count">
+                            : "No messages yet"}
+                        </ChatListItemLast>
+                      </ChatListItemContent>
+                      <ChatListItemCount>
                         {chat.Participants.length}
-                      </div>
-                    </div>
+                      </ChatListItemCount>
+                    </ChatListItem>
                   ))
                 ) : (
-                  <div className="mobile-chat-list-empty">
+                  <ChatListEmpty>
                     <p>No chats yet</p>
-                    <div className="mobile-chat-empty-buttons">
-                      <button
-                        className="mobile-chat-create-first-button"
-                        onClick={this.handleCreateChat}
-                      >
+                    <EmptyButtons>
+                      <CreateFirstButton onClick={this.handleCreateChat}>
                         Create Chat
-                      </button>
-                      <button
-                        className="mobile-chat-join-first-button"
-                        onClick={() => this.setState({ showJoinChatModal: true })
+                      </CreateFirstButton>
+                      <JoinFirstButton
+                        onClick={() =>
+                          this.setState({ showJoinChatModal: true })
                         }
                       >
                         Join Chat
-                      </button>
-                    </div>
-                  </div>
+                      </JoinFirstButton>
+                    </EmptyButtons>
+                  </ChatListEmpty>
                 )}
-              </div>
-            </div>
+              </ChatList>
+            </Sidebar>
 
             {/* Chat Messages */}
-            <div className="mobile-chat-main">
+            <Main>
               {selectedChat ? (
                 <>
                   {/* Chat Header */}
-                  <div className="mobile-chat-conversation-header">
-                    <div className="mobile-chat-conversation-info">
-                      <h3 className="mobile-chat-conversation-name">
+                  <ConversationHeader>
+                    <ConversationInfo>
+                      <ConversationName>
                         {this.getChatDisplayName(selectedChat)}
-                      </h3>
-                      <p className="mobile-chat-conversation-participants">
-                        {selectedChat.Participants.join(', ')}
-                      </p>
-                    </div>
+                      </ConversationName>
+                      <ConversationParticipants>
+                        {selectedChat.Participants.join(", ")}
+                      </ConversationParticipants>
+                    </ConversationInfo>
                     {selectedChat.Participants.length === 1 && (
-                      <button
-                        className="mobile-chat-share-button"
-                        onClick={() => this.handleShowShareCode(selectedChat._id)
+                      <ShareButton
+                        onClick={() =>
+                          this.handleShowShareCode(selectedChat._id)
                         }
                       >
                         Share Code
-                      </button>
+                      </ShareButton>
                     )}
-                  </div>
+                  </ConversationHeader>
 
                   {/* Messages */}
-                  <div className="mobile-chat-messages">
+                  <Messages>
                     {selectedChat.Messages.map((message, index) => {
                       const isCurrentUser = message.Sender === currentUser;
-                      const isSystem = message.Sender === 'System';
+                      const isSystem = message.Sender === "System";
                       const showDateSeparator =
                         index === 0 ||
                         this.formatDate(message.Timestamp) !==
@@ -443,113 +494,95 @@ class MobileChat extends React.Component {
                           }-${index}`}
                         >
                           {showDateSeparator && (
-                            <div className="mobile-chat-date-separator">
+                            <DateSeparator>
                               {this.formatDate(message.Timestamp)}
-                            </div>
+                            </DateSeparator>
                           )}
-                          <div
-                            className={`mobile-chat-message ${
-                              isCurrentUser
-                                ? 'own'
-                                : isSystem
-                                  ? 'system'
-                                  : 'other'
-                            }`}
-                          >
+                          <Message own={isCurrentUser} system={isSystem}>
                             {!isCurrentUser && !isSystem && (
-                              <div className="mobile-chat-message-sender">
-                                {message.Sender}
-                              </div>
+                              <MessageSender>{message.Sender}</MessageSender>
                             )}
-                            <div className="mobile-chat-message-content">
+                            <MessageContent
+                              own={isCurrentUser}
+                              system={isSystem}
+                            >
                               {message.Content}
-                            </div>
-                            <div className="mobile-chat-message-time">
+                            </MessageContent>
+                            <MessageTime>
                               {this.formatTime(message.Timestamp)}
-                            </div>
-                          </div>
+                            </MessageTime>
+                          </Message>
                         </React.Fragment>
                       );
                     })}
-                  </div>
+                  </Messages>
 
                   {/* Message Input */}
-                  <form
-                    className="mobile-chat-input-form"
-                    onSubmit={this.handleSendMessage}
-                  >
-                    <input
+                  <InputForm onSubmit={this.handleSendMessage}>
+                    <Input
                       type="text"
-                      className="mobile-chat-input"
                       placeholder="Type a message..."
                       value={messageInput}
-                      onChange={(e) => this.setState({ messageInput: e.target.value })
+                      onChange={(e) =>
+                        this.setState({ messageInput: e.target.value })
                       }
                     />
-                    <button
-                      type="submit"
-                      className="mobile-chat-send-button"
-                      disabled={!messageInput.trim()}
-                    >
+                    <SendButton type="submit" disabled={!messageInput.trim()}>
                       Send
-                    </button>
-                  </form>
+                    </SendButton>
+                  </InputForm>
                 </>
               ) : (
-                <div className="mobile-chat-no-selection">
-                  <div className="mobile-chat-no-selection-content">
-                    <div className="mobile-chat-no-selection-icon">💬</div>
+                <NoSelection>
+                  <NoSelectionContent>
+                    <NoSelectionIcon>💬</NoSelectionIcon>
                     <h3>Select a chat to start messaging</h3>
                     <p>
                       Choose a conversation from the list or create a new one
                     </p>
-                  </div>
-                </div>
+                  </NoSelectionContent>
+                </NoSelection>
               )}
-            </div>
-          </div>
-        </div>
+            </Main>
+          </Content>
+        </Container>
 
         {/* Join Chat Modal */}
         {showJoinChatModal && (
-          <div
-            className="mobile-chat-modal-overlay"
-            onClick={() => this.setState({
+          <ModalOverlay
+            onClick={() =>
+              this.setState({
                 showJoinChatModal: false,
-                error: '',
-                codeInputs: ['', '', '', '', '', '', '', ''],
+                error: "",
+                codeInputs: ["", "", "", "", "", "", "", ""],
               })
             }
           >
-            <div
-              className="mobile-chat-modal"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mobile-chat-modal-header">
-                <button
-                  className="mobile-chat-modal-close"
-                  onClick={() => this.setState({
+            <Modal onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalClose
+                  onClick={() =>
+                    this.setState({
                       showJoinChatModal: false,
-                      error: '',
-                      codeInputs: ['', '', '', '', '', '', '', ''],
+                      error: "",
+                      codeInputs: ["", "", "", "", "", "", "", ""],
                     })
                   }
                   aria-label="Close"
                 >
                   ✕
-                </button>
-                <h2 className="mobile-chat-modal-title">Join Chat</h2>
-                <div className="mobile-chat-modal-subtitle">
+                </ModalClose>
+                <ModalTitle>Join Chat</ModalTitle>
+                <ModalSubtitle>
                   Enter the 8-character code shared with you
-                </div>
-              </div>
-              <div className="mobile-chat-modal-content">
-                <div className="mobile-chat-form-group">
-                  {/* <label>Enter Chat Code</label> */}
-                  <div className="mobile-chat-code-inputs">
+                </ModalSubtitle>
+              </ModalHeader>
+              <ModalContent>
+                <FormGroup>
+                  <CodeInputs>
                     {this.state.codeInputs.map((value, index) => (
                       <React.Fragment key={index}>
-                        <input
+                        <CodeInput
                           ref={(ref) => {
                             this.codeInputRefs[index] = ref;
                           }}
@@ -559,7 +592,6 @@ class MobileChat extends React.Component {
                           onPaste={
                             index === 0 ? this.handleCodePaste : undefined
                           }
-                          className="mobile-chat-code-input"
                           maxLength={1}
                           type="text"
                           inputMode="alphanumeric"
@@ -567,827 +599,112 @@ class MobileChat extends React.Component {
                           autoComplete="off"
                           spellCheck="false"
                         />
-                        {index === 3 && (
-                          <span className="mobile-chat-dash">-</span>
-                        )}
+                        {index === 3 && <Dash>-</Dash>}
                       </React.Fragment>
                     ))}
-                  </div>
-                  {/* <p className="mobile-chat-form-hint">
-                    Ask someone to share their chat code with you
-                  </p> */}
-                </div>
-              </div>
-              <div className="mobile-chat-modal-actions">
-                <button
-                  className="mobile-chat-button-secondary"
-                  onClick={() => this.setState({
+                  </CodeInputs>
+                </FormGroup>
+              </ModalContent>
+              <ModalActions>
+                <ButtonSecondary
+                  onClick={() =>
+                    this.setState({
                       showJoinChatModal: false,
-                      error: '',
-                      codeInputs: ['', '', '', '', '', '', '', ''],
+                      error: "",
+                      codeInputs: ["", "", "", "", "", "", "", ""],
                     })
                   }
                 >
                   Cancel
-                </button>
-                <button
-                  className="mobile-chat-button-primary"
+                </ButtonSecondary>
+                <ButtonPrimary
                   onClick={this.handleJoinChat}
-                  disabled={this.state.codeInputs.some((input) => input === '')}
+                  disabled={this.state.codeInputs.some((input) => input === "")}
                 >
                   Join Chat
-                </button>
-              </div>
-            </div>
-          </div>
+                </ButtonPrimary>
+              </ModalActions>
+            </Modal>
+          </ModalOverlay>
         )}
 
         {/* Share Code Modal */}
         {showShareCodeModal && (
-          <div
-            className="mobile-chat-modal-overlay"
+          <ModalOverlay
             onClick={() => this.setState({ showShareCodeModal: false })}
           >
-            <div
-              className="mobile-chat-modal"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mobile-chat-modal-header">
-                <h2>Share Chat Code</h2>
-                <button
-                  className="mobile-chat-modal-close"
+            <Modal onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalTitle>Share Chat Code</ModalTitle>
+                <ModalClose
                   onClick={() => this.setState({ showShareCodeModal: false })}
                 >
                   ✕
-                </button>
-              </div>
-              <div className="mobile-chat-modal-content">
-                <div className="mobile-chat-share-code-display">
+                </ModalClose>
+              </ModalHeader>
+              <ModalContent>
+                <ShareCodeDisplay>
                   <label>Share this code with someone to join your chat:</label>
-                  <div className="mobile-chat-code-container">
-                    <div className="mobile-chat-code">
-                      {selectedChatShareCode}
-                    </div>
-                  </div>
-                  <p className="mobile-chat-form-hint">
+                  <CodeContainer>
+                    <Code>{selectedChatShareCode}</Code>
+                  </CodeContainer>
+                  <FormHint>
                     This code will be removed once someone joins the chat
-                  </p>
-                </div>
-              </div>
-              <div className="mobile-chat-modal-actions">
-                <button
-                  className="mobile-chat-button-primary"
-                  onClick={this.copyShareCode}
-                >
+                  </FormHint>
+                </ShareCodeDisplay>
+              </ModalContent>
+              <ModalActions>
+                <ButtonPrimary onClick={this.copyShareCode}>
                   📋 Copy Code
-                </button>
-                <button
-                  className="mobile-chat-button-secondary"
+                </ButtonPrimary>
+                <ButtonSecondary
                   onClick={() => this.setState({ showShareCodeModal: false })}
                 >
                   Done
-                </button>
-              </div>
-            </div>
-          </div>
+                </ButtonSecondary>
+              </ModalActions>
+            </Modal>
+          </ModalOverlay>
         )}
 
         {/* Create Chat Success Modal */}
         {showCreateChatModal && (
-          <div
-            className="mobile-chat-modal-overlay"
+          <ModalOverlay
             onClick={() => this.setState({ showCreateChatModal: false })}
           >
-            <div
-              className="mobile-chat-modal"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mobile-chat-modal-header">
-                <h2>Chat Created!</h2>
-                <button
-                  className="mobile-chat-modal-close"
+            <Modal onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalTitle>Chat Created!</ModalTitle>
+                <ModalClose
                   onClick={() => this.setState({ showCreateChatModal: false })}
                 >
                   ✕
-                </button>
-              </div>
-              <div className="mobile-chat-modal-content">
-                <div className="mobile-chat-share-code-display">
+                </ModalClose>
+              </ModalHeader>
+              <ModalContent>
+                <ShareCodeDisplay>
                   <label>Your chat code is ready! Share it with someone:</label>
-                  <div className="mobile-chat-code-container">
-                    <div className="mobile-chat-code">{newChatShareCode}</div>
-                  </div>
-                  <p className="mobile-chat-form-hint">
+                  <CodeContainer>
+                    <Code>{newChatShareCode}</Code>
+                  </CodeContainer>
+                  <FormHint>
                     Send this code to someone so they can join your chat
-                  </p>
-                </div>
-              </div>
-              <div className="mobile-chat-modal-actions">
-                <button
-                  className="mobile-chat-button-primary"
-                  onClick={this.copyNewChatCode}
-                >
+                  </FormHint>
+                </ShareCodeDisplay>
+              </ModalContent>
+              <ModalActions>
+                <ButtonPrimary onClick={this.copyNewChatCode}>
                   📋 Copy Code
-                </button>
-                <button
-                  className="mobile-chat-button-secondary"
+                </ButtonPrimary>
+                <ButtonSecondary
                   onClick={() => this.setState({ showCreateChatModal: false })}
                 >
                   Done
-                </button>
-              </div>
-            </div>
-          </div>
+                </ButtonSecondary>
+              </ModalActions>
+            </Modal>
+          </ModalOverlay>
         )}
-
-        <style jsx>{`
-          .mobile-chat-container {
-            background-color: rgba(248, 249, 250, 1);
-            min-height: 100vh;
-            font-family:
-              Inter,
-              -apple-system,
-              Roboto,
-              Helvetica,
-              sans-serif;
-            display: flex;
-            flex-direction: column;
-          }
-
-          .mobile-chat-header {
-            background-color: rgba(255, 255, 255, 1);
-            padding: 20px;
-            border-bottom: 1px solid rgba(240, 240, 240, 1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-
-          .mobile-chat-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: rgba(0, 0, 0, 0.87);
-            margin: 0;
-          }
-
-          .mobile-chat-header-buttons {
-            display: flex;
-            gap: 8px;
-          }
-
-          .mobile-chat-create-button,
-          .mobile-chat-join-button {
-            background-color: rgba(0, 0, 0, 1);
-            color: rgba(255, 255, 255, 1);
-            border: none;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-          }
-
-          .mobile-chat-create-button:hover,
-          .mobile-chat-join-button:hover {
-            background-color: rgba(40, 40, 40, 1);
-            transform: translateY(-1px);
-          }
-
-          .mobile-chat-error {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: rgba(244, 67, 54, 1);
-            padding: 12px 20px;
-            border-left: 4px solid rgba(244, 67, 54, 1);
-          }
-
-          .mobile-chat-success {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: rgba(56, 142, 60, 1);
-            padding: 12px 20px;
-            border-left: 4px solid rgba(76, 175, 80, 1);
-          }
-
-          .mobile-chat-content {
-            display: flex;
-            flex: 1;
-            min-height: 0;
-          }
-
-          .mobile-chat-sidebar {
-            width: 300px;
-            background-color: rgba(255, 255, 255, 1);
-            border-right: 1px solid rgba(240, 240, 240, 1);
-            display: flex;
-            flex-direction: column;
-          }
-
-          .mobile-chat-sidebar-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(240, 240, 240, 1);
-          }
-
-          .mobile-chat-sidebar-header h3 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: rgba(0, 0, 0, 0.87);
-          }
-
-          .mobile-chat-list {
-            flex: 1;
-            overflow-y: auto;
-          }
-
-          .mobile-chat-list-item {
-            padding: 16px 20px;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(245, 245, 245, 1);
-            transition: background-color 0.2s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-
-          .mobile-chat-list-item:hover {
-            background-color: rgba(245, 245, 245, 1);
-          }
-
-          .mobile-chat-list-item.active {
-            background-color: rgba(0, 0, 0, 0.05);
-            border-right: 3px solid rgba(0, 0, 0, 1);
-          }
-
-          .mobile-chat-list-item-content {
-            flex: 1;
-          }
-
-          .mobile-chat-list-item-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(0, 0, 0, 0.87);
-            margin-bottom: 4px;
-          }
-
-          .mobile-chat-list-item-last {
-            font-size: 12px;
-            color: rgba(100, 100, 100, 1);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-          }
-
-          .mobile-chat-list-item-count {
-            background-color: rgba(0, 0, 0, 0.1);
-            color: rgba(0, 0, 0, 0.7);
-            border-radius: 12px;
-            padding: 2px 8px;
-            font-size: 10px;
-            font-weight: 600;
-          }
-
-          .mobile-chat-list-empty {
-            padding: 40px 20px;
-            text-align: center;
-          }
-
-          .mobile-chat-list-empty p {
-            color: rgba(100, 100, 100, 1);
-            margin-bottom: 16px;
-          }
-
-          .mobile-chat-empty-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            align-items: center;
-          }
-
-          .mobile-chat-create-first-button,
-          .mobile-chat-join-first-button {
-            background-color: rgba(0, 0, 0, 1);
-            color: rgba(255, 255, 255, 1);
-            border: none;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 140px;
-          }
-
-          .mobile-chat-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-          }
-
-          .mobile-chat-conversation-header {
-            background-color: rgba(255, 255, 255, 1);
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(240, 240, 240, 1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-
-          .mobile-chat-conversation-name {
-            margin: 0 0 4px 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: rgba(0, 0, 0, 0.87);
-          }
-
-          .mobile-chat-conversation-participants {
-            margin: 0;
-            font-size: 12px;
-            color: rgba(100, 100, 100, 1);
-          }
-
-          .mobile-chat-share-button {
-            background-color: rgba(0, 0, 0, 1);
-            color: rgba(255, 255, 255, 1);
-            border: none;
-            border-radius: 6px;
-            padding: 8px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-          }
-
-          .mobile-chat-form-hint {
-            font-size: 12px;
-            color: rgba(100, 100, 100, 1);
-            margin-top: 8px;
-            line-height: 1.4;
-          }
-
-          .mobile-chat-share-code-display {
-            text-align: center;
-          }
-
-          .mobile-chat-code-container {
-            background-color: rgba(248, 249, 250, 1);
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px !important;
-            padding: 24px !important;
-            margin: 16px 0 !important;
-          }
-
-          .mobile-chat-code {
-            font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-            font-size: 28px !important;
-            font-weight: 700 !important;
-            color: rgba(0, 0, 0, 1) !important;
-            letter-spacing: 2px !important;
-            text-align: center !important;
-          }
-
-          .mobile-chat-code-inputs {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            gap: 8px !important;
-            margin-bottom: 16px !important;
-          }
-
-          .mobile-chat-code-input {
-            width: 32px !important;
-            height: 48px !important;
-            border: 2px solid rgba(224, 224, 224, 1) !important;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 600;
-            font-family: "SF Mono", "Monaco", "Consolas", monospace;
-            background-color: rgba(255, 255, 255, 1);
-            transition: all 0.2s ease;
-            outline: none;
-            color: rgba(0, 0, 0, 1);
-            overflow: hidden;
-          }
-
-          .mobile-chat-code-input:focus {
-            border-color: rgba(0, 0, 0, 1);
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
-          }
-
-          .mobile-chat-code-input:not(:placeholder-shown) {
-            border-color: rgba(0, 150, 0, 1) !important;
-            background-color: rgba(240, 255, 240, 1);
-          }
-
-          .mobile-chat-dash {
-            font-size: 20px;
-            font-weight: 600;
-            color: rgba(150, 150, 150, 1);
-            margin: 0 4px;
-            font-family: "SF Mono", "Monaco", "Consolas", monospace;
-          }
-
-          .mobile-chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background-color: rgba(248, 249, 250, 1);
-          }
-
-          .mobile-chat-date-separator {
-            text-align: center;
-            margin: 16px 0;
-            font-size: 12px;
-            color: rgba(100, 100, 100, 1);
-            position: relative;
-          }
-
-          .mobile-chat-date-separator::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background-color: rgba(224, 224, 224, 1);
-            z-index: 1;
-          }
-
-          .mobile-chat-date-separator::after {
-            content: attr(data-date);
-            background-color: rgba(248, 249, 250, 1);
-            padding: 0 12px;
-            position: relative;
-            z-index: 2;
-          }
-
-          .mobile-chat-message {
-            margin-bottom: 12px;
-            max-width: 70%;
-          }
-
-          .mobile-chat-message.own {
-            margin-left: auto;
-            text-align: right;
-          }
-
-          .mobile-chat-message.system {
-            margin: 8px auto;
-            text-align: center;
-            max-width: 80%;
-          }
-
-          .mobile-chat-message-sender {
-            font-size: 11px;
-            color: rgba(100, 100, 100, 1);
-            margin-bottom: 2px;
-            font-weight: 600;
-          }
-
-          .mobile-chat-message-content {
-            background-color: rgba(255, 255, 255, 1);
-            padding: 10px 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            line-height: 1.4;
-            word-wrap: break-word;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-          }
-
-          .mobile-chat-message.own .mobile-chat-message-content {
-            background-color: rgba(0, 0, 0, 1);
-            color: rgba(255, 255, 255, 1);
-          }
-
-          .mobile-chat-message.system .mobile-chat-message-content {
-            background-color: rgba(240, 240, 240, 1);
-            color: rgba(100, 100, 100, 1);
-            font-style: italic;
-            font-size: 12px;
-          }
-
-          .mobile-chat-message-time {
-            font-size: 10px;
-            color: rgba(150, 150, 150, 1);
-            margin-top: 4px;
-          }
-
-          .mobile-chat-input-form {
-            background-color: rgba(255, 255, 255, 1);
-            padding: 16px 20px;
-            border-top: 1px solid rgba(240, 240, 240, 1);
-            display: flex;
-            gap: 12px;
-          }
-
-          .mobile-chat-input {
-            flex: 1;
-            padding: 10px 12px;
-            border: 1px solid rgba(224, 224, 224, 1);
-            border-radius: 20px;
-            font-size: 14px;
-            outline: none;
-            font-family: inherit;
-          }
-
-          .mobile-chat-input:focus {
-            border-color: rgba(0, 0, 0, 0.3);
-          }
-
-          .mobile-chat-send-button {
-            background-color: rgba(0, 0, 0, 1);
-            color: rgba(255, 255, 255, 1);
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-          }
-
-          .mobile-chat-send-button:hover:not(:disabled) {
-            background-color: rgba(40, 40, 40, 1);
-          }
-
-          .mobile-chat-send-button:disabled {
-            background-color: rgba(200, 200, 200, 1);
-            cursor: not-allowed;
-          }
-
-          .mobile-chat-no-selection {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(248, 249, 250, 1);
-          }
-
-          .mobile-chat-no-selection-content {
-            text-align: center;
-          }
-
-          .mobile-chat-no-selection-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-          }
-
-          .mobile-chat-no-selection-content h3 {
-            margin: 0 0 8px 0;
-            color: rgba(0, 0, 0, 0.87);
-          }
-
-          .mobile-chat-no-selection-content p {
-            margin: 0;
-            color: rgba(100, 100, 100, 1);
-          }
-
-          .mobile-chat-loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 200px;
-          }
-
-          .mobile-chat-loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(240, 240, 240, 1);
-            border-top: 3px solid rgba(0, 0, 0, 1);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
-          }
-
-          @keyframes spin {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
-          }
-
-          /* Modal Styles */
-          .mobile-chat-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-            backdrop-filter: blur(4px);
-          }
-
-          .mobile-chat-modal {
-            background-color: rgba(255, 255, 255, 1);
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            max-width: 500px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            font-family:
-              Inter,
-              -apple-system,
-              Roboto,
-              Helvetica,
-              sans-serif;
-            animation: modalSlideIn 0.3s ease-out;
-          }
-
-          @keyframes modalSlideIn {
-            from {
-              opacity: 0;
-              transform: scale(0.9) translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: scale(1) translateY(0);
-            }
-          }
-
-          .mobile-chat-modal-header {
-            padding: 24px 24px 16px 24px;
-            border-bottom: 1px solid rgba(240, 240, 240, 1);
-            position: relative;
-            text-align: center;
-          }
-
-          .mobile-chat-modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: rgba(100, 100, 100, 1);
-            cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-          }
-
-          .mobile-chat-modal-close:hover {
-            background-color: rgba(240, 240, 240, 1);
-            color: rgba(0, 0, 0, 1);
-          }
-
-          .mobile-chat-modal-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: rgba(0, 0, 0, 1);
-            margin: 0 0 8px 0;
-            letter-spacing: -0.3px;
-          }
-
-          .mobile-chat-modal-subtitle {
-            font-size: 14px;
-            color: rgba(100, 100, 100, 1);
-            margin: 0;
-            line-height: 1.4;
-          }
-
-          .mobile-chat-modal-content {
-            padding: 20px;
-          }
-
-          .mobile-chat-form-group {
-            margin-bottom: 16px;
-          }
-
-          .mobile-chat-form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(0, 0, 0, 0.87);
-          }
-
-          .mobile-chat-form-group input {
-            width: 100%;
-            // padding: 10px 12px;
-            border: 1px solid rgba(224, 224, 224, 1);
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            box-sizing: border-box;
-          }
-
-          .mobile-chat-add-participant {
-            display: flex;
-            gap: 8px;
-          }
-
-          .mobile-chat-add-participant input {
-            flex: 1;
-          }
-
-          .mobile-chat-add-participant button {
-            background-color: rgba(0, 0, 0, 1);
-            color: rgba(255, 255, 255, 1);
-            border: none;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-size: 14px;
-            cursor: pointer;
-          }
-
-          .mobile-chat-participants-list {
-            margin-top: 16px;
-          }
-
-          .mobile-chat-participants-list h4 {
-            margin: 0 0 8px 0;
-            font-size: 14px;
-            color: rgba(0, 0, 0, 0.87);
-          }
-
-          .mobile-chat-participant-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            background-color: rgba(248, 249, 250, 1);
-            border-radius: 6px;
-            margin-bottom: 4px;
-          }
-
-          .mobile-chat-remove-participant {
-            background: none;
-            border: none;
-            color: rgba(244, 67, 54, 1);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 0;
-            width: 20px;
-            height: 20px;
-          }
-
-          .mobile-chat-modal-actions {
-            display: flex;
-            gap: 12px;
-            padding: 20px;
-            border-top: 1px solid rgba(240, 240, 240, 1);
-          }
-
-          .mobile-chat-button-secondary {
-            flex: 1;
-            background-color: rgba(248, 249, 250, 1);
-            color: rgba(0, 0, 0, 0.87);
-            border: 1px solid rgba(224, 224, 224, 1);
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-size: 14px;
-            cursor: pointer;
-          }
-
-          .mobile-chat-button-primary {
-            flex: 1;
-            background-color: rgba(0, 0, 0, 1);
-            color: rgba(255, 255, 255, 1);
-            border: none;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-size: 14px;
-            cursor: pointer;
-          }
-
-          .mobile-chat-button-primary:disabled {
-            background-color: rgba(200, 200, 200, 1);
-            cursor: not-allowed;
-          }
-
-          @media (max-width: 768px) {
-            .mobile-chat-content {
-              flex-direction: column;
-            }
-
-            .mobile-chat-sidebar {
-              width: 100%;
-              height: 200px;
-            }
-
-            .mobile-chat-main {
-              flex: 1;
-            }
-
-            .mobile-chat-modal {
-              margin: 0;
-              border-radius: 12px;
-            }
-          }
-        `}</style>
       </>
     );
   }
@@ -1401,7 +718,7 @@ MobileChat.propTypes = {
 
 export default withRouter(
   withTracker(() => {
-    const subscription = Meteor.subscribe('chats');
+    const subscription = Meteor.subscribe("chats");
     const ready = subscription.ready();
 
     return {
