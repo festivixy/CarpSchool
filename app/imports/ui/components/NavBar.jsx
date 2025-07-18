@@ -35,7 +35,7 @@ class NavBar extends React.Component {
             exact
             to={this.props.currentUser ? '/listMyRides' : '/'}
           >
-            <Image size="small" src="/images/Carpool.png" />
+            <Image size="small" src="/staticimages/Carpool.png" />
           </Menu.Item>
           {this.props.currentUser
             ? [

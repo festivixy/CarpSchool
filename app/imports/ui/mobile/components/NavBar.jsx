@@ -107,7 +107,7 @@ class MobileNavBar extends React.Component {
               onClick={this.closeAllMenus}
             >
               <img
-                src="/images/Carpool.png"
+                src="/staticimages/Carpool.png"
                 alt="Carpool"
                 className="mobile-navbar-logo-img"
               />
