@@ -934,32 +934,31 @@ class MobileOnboarding extends React.Component {
 
             .onboarding-captcha-refresh {
               position: absolute;
-              bottom: 4px;
-              right: 4px;
+              bottom: 8px;
+              right: 8px;
               background-color: rgba(255, 255, 255, 0.9);
               border: 1px solid rgba(200, 200, 200, 1);
               border-radius: 50%;
-              width: 24px;
-              height: 24px;
+              width: 28px;
+              height: 28px;
               display: flex;
               align-items: center;
               justify-content: center;
               cursor: pointer;
               transition: all 0.2s ease;
-              backdrop-filter: blur(2px);
               padding: 0;
             }
 
             .onboarding-captcha-refresh img {
-              width: 14px;
-              height: 14px;
+              width: 16px;
+              height: 16px;
               opacity: 0.7;
             }
 
             .onboarding-captcha-refresh:hover:not(:disabled) {
               background-color: rgba(255, 255, 255, 1);
-              border-color: rgba(0, 0, 0, 0.3);
-              transform: scale(1.1);
+              border-color: #667eea;
+              transform: scale(1.05);
             }
 
             .onboarding-captcha-refresh:hover:not(:disabled) img {
