@@ -167,10 +167,16 @@ Meteor.methods({
       $or: [{ sha256Hash }, { compressedSha256Hash }],
     });
     if (existingImage) {
-      throw new Meteor.Error(
-        "duplicate-image",
-        "This image has already been uploaded",
-      );
+      return {
+        imageId:existingImage._id,
+        uuid:existingImage.uuid,
+        sha256Hash:existingImage.sha256Hash,
+        compressedSha256Hash:existingImage.compressedSha256Hash,
+        originalFileSize:existingImage.originalFileSize,
+        compressedFileSize: existingImage.fileSize,
+        compressionRatio: existingImage.compressionRatio,
+        finalMimeType: "image/png",
+      }
     }
 
     // Create the image document
