@@ -622,7 +622,9 @@ class MobileOnboarding extends React.Component {
               <div className="onboarding-success">{this.state.success}</div>
             )}
 
-            <div className="onboarding-navigation">
+            <div
+              className={`onboarding-navigation ${currentStep > 1 ? "has-back-button" : ""}`}
+            >
               {currentStep > 1 && (
                 <button
                   onClick={this.prevStep}
@@ -989,8 +991,12 @@ class MobileOnboarding extends React.Component {
             .onboarding-navigation {
               display: flex;
               gap: 16px;
-              justify-content: space-between;
+              justify-content: flex-end;
               margin-top: 32px;
+            }
+
+            .onboarding-navigation.has-back-button {
+              justify-content: space-between;
             }
 
             .onboarding-btn {
