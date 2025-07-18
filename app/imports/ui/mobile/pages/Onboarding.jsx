@@ -479,29 +479,33 @@ class MobileOnboarding extends React.Component {
           </label>
         </div>
 
-        {/* Vehicle Photo */}
-        <div className="onboarding-photo-section">
-          <h3>Vehicle Photo</h3>
-          {this.state.rideImagePreview && (
-            <div className="onboarding-photo-preview">
-              <img
-                src={this.state.rideImagePreview}
-                alt="Vehicle preview"
-                className="onboarding-preview-img"
-              />
-            </div>
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => this.handleImageSelect(e, "ride")}
-            className="onboarding-file-input"
-            id="vehicle-upload"
-          />
-          <label htmlFor="vehicle-upload" className="onboarding-file-label">
-            {this.state.rideImagePreview ? "Change Photo" : "Add Vehicle Photo"}
-          </label>
-        </div>
+        {/* Vehicle Photo - Only show for Drivers */}
+        {this.state.userType !== "Rider" && (
+          <div className="onboarding-photo-section">
+            <h3>Vehicle Photo</h3>
+            {this.state.rideImagePreview && (
+              <div className="onboarding-photo-preview">
+                <img
+                  src={this.state.rideImagePreview}
+                  alt="Vehicle preview"
+                  className="onboarding-preview-img"
+                />
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => this.handleImageSelect(e, "ride")}
+              className="onboarding-file-input"
+              id="vehicle-upload"
+            />
+            <label htmlFor="vehicle-upload" className="onboarding-file-label">
+              {this.state.rideImagePreview
+                ? "Change Photo"
+                : "Add Vehicle Photo"}
+            </label>
+          </div>
+        )}
       </div>
 
       <div className="onboarding-file-info">
