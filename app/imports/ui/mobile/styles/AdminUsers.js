@@ -489,6 +489,67 @@ export const Input = styled.input`
   }
 `;
 
+export const SwitchContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+export const SwitchLabel = styled.span`
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+  flex: 1;
+`;
+
+export const Switch = styled.label`
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+`;
+
+export const SwitchInput = styled.input.attrs({ type: "checkbox" })`
+  opacity: 0;
+  width: 0;
+  height: 0;
+
+  &:checked + span {
+    background-color: rgba(34, 139, 34, 1);
+  }
+
+  &:checked + span:before {
+    transform: translateX(20px);
+  }
+`;
+
+export const SwitchSlider = styled.span`
+  position: absolute;
+  cursor: inherit;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(200, 200, 200, 1);
+  transition: 0.3s;
+  border-radius: 24px;
+
+  &:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+`;
+
 // Button Styles
 export const Button = styled.button`
   border-radius: 8px;

@@ -3,6 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
+import { Profiles } from "../../../api/profile/Profile";
 import {
   Container,
   Header,
@@ -45,6 +46,11 @@ import {
   FormField,
   Label,
   Input,
+  SwitchContainer,
+  SwitchLabel,
+  Switch,
+  SwitchInput,
+  SwitchSlider,
   Button,
   ErrorMessage,
 } from "../styles/AdminUsers";
@@ -60,9 +66,9 @@ class MobileAdminUsers extends React.Component {
       editingUser: null,
       editForm: {
         username: "",
-        firstName: "",
-        lastName: "",
+        profileName: "",
         email: "",
+        emailVerified: false,
       },
       loading: false,
       error: "",
@@ -113,23 +119,27 @@ class MobileAdminUsers extends React.Component {
   };
 
   handleEdit = (user) => {
+    const { profiles } = this.props;
+    const userProfile = profiles.find((profile) => profile.Owner === user._id);
+
     this.setState({
       editModalOpen: true,
       editingUser: user,
       editForm: {
         username: user.username || "",
-        firstName: user.profile?.firstName || "",
-        lastName: user.profile?.lastName || "",
+        profileName: userProfile?.Name || "",
         email: user.emails?.[0]?.address || "",
+        emailVerified: user.emails?.[0]?.verified || false,
       },
       error: "",
     });
   };
 
   handleFormChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
     this.setState({
-      editForm: { ...this.state.editForm, [name]: value },
+      editForm: { ...this.state.editForm, [name]: newValue },
     });
   };
 
@@ -208,20 +218,28 @@ class MobileAdminUsers extends React.Component {
 
   filterUsers = (users) => {
     const { searchQuery } = this.state;
+    const { profiles } = this.props;
     if (!searchQuery.trim()) return users;
 
     const query = searchQuery.toLowerCase();
-    return users.filter(
-      (user) =>
+    return users.filter((user) => {
+      const userProfile = profiles.find(
+        (profile) => profile.Owner === user._id,
+      );
+      const profileName = userProfile?.Name || "";
+
+      return (
         (user.username && user.username.toLowerCase().includes(query)) ||
         (user.profile?.firstName &&
           user.profile.firstName.toLowerCase().includes(query)) ||
         (user.profile?.lastName &&
           user.profile.lastName.toLowerCase().includes(query)) ||
+        (profileName && profileName.toLowerCase().includes(query)) ||
         (user.emails?.[0]?.address &&
           user.emails[0].address.toLowerCase().includes(query)) ||
-        (user.roles && user.roles.includes("admin") && "admin".includes(query)),
-    );
+        (user.roles && user.roles.includes("admin") && "admin".includes(query))
+      );
+    });
   };
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -251,7 +269,7 @@ class MobileAdminUsers extends React.Component {
   /** Render the page once subscriptions have been received. */
   renderPage() {
     const { editModalOpen, editForm, loading, error, searchQuery } = this.state;
-    const { users } = this.props;
+    const { users, profiles } = this.props;
     const filteredUsers = this.filterUsers(users);
 
     return (
@@ -303,7 +321,11 @@ class MobileAdminUsers extends React.Component {
                 {filteredUsers.map((user) => {
                   const isAdmin = user.roles && user.roles.includes("admin");
                   const isCurrentUser = user._id === Meteor.userId();
-                  const fullName =
+                  const userProfile = profiles.find(
+                    (profile) => profile.Owner === user._id,
+                  );
+                  const displayName =
+                    userProfile?.Name ||
                     `${user.profile?.firstName || ""} ${user.profile?.lastName || ""}`.trim();
                   const isEmailVerified =
                     user.emails &&
@@ -315,7 +337,7 @@ class MobileAdminUsers extends React.Component {
                       <UserHeader>
                         <UserInfo>
                           <UserName>
-                            {fullName || "No name set"}
+                            {displayName || "No name set"}
                             {isCurrentUser && " (You)"}
                           </UserName>
                           <UserUsername>@{user.username}</UserUsername>
@@ -414,26 +436,14 @@ class MobileAdminUsers extends React.Component {
                     </FormField>
 
                     <FormField>
-                      <Label>First Name</Label>
+                      <Label>Profile Name</Label>
                       <Input
                         type="text"
-                        name="firstName"
-                        value={editForm.firstName}
+                        name="profileName"
+                        value={editForm.profileName}
                         onChange={this.handleFormChange}
                         disabled={loading}
-                        placeholder="Enter first name"
-                      />
-                    </FormField>
-
-                    <FormField>
-                      <Label>Last Name</Label>
-                      <Input
-                        type="text"
-                        name="lastName"
-                        value={editForm.lastName}
-                        onChange={this.handleFormChange}
-                        disabled={loading}
-                        placeholder="Enter last name"
+                        placeholder="Enter profile display name"
                       />
                     </FormField>
 
@@ -447,6 +457,25 @@ class MobileAdminUsers extends React.Component {
                         disabled={loading}
                         placeholder="Enter email address"
                       />
+                    </FormField>
+
+                    <FormField>
+                      <Label>Email Verification</Label>
+                      <SwitchContainer>
+                        <SwitchLabel>
+                          Email is{" "}
+                          {editForm.emailVerified ? "verified" : "unverified"}
+                        </SwitchLabel>
+                        <Switch disabled={loading}>
+                          <SwitchInput
+                            name="emailVerified"
+                            checked={editForm.emailVerified}
+                            onChange={this.handleFormChange}
+                            disabled={loading}
+                          />
+                          <SwitchSlider />
+                        </Switch>
+                      </SwitchContainer>
                     </FormField>
 
                     {error && <ErrorMessage>{error}</ErrorMessage>}
@@ -479,18 +508,22 @@ class MobileAdminUsers extends React.Component {
   }
 }
 
-/** Require an array of User documents in the props. */
+/** Require an array of User documents and Profiles in the props. */
 MobileAdminUsers.propTypes = {
   users: PropTypes.array.isRequired,
+  profiles: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
 };
 
 /** withTracker connects Meteor data to React components. */
 export default withTracker(() => {
-  // Get access to all Users documents (admin view)
-  const subscription = Meteor.subscribe("AllUsers");
+  // Get access to all Users documents and Profiles (admin view)
+  const usersSubscription = Meteor.subscribe("AllUsers");
+  const profilesSubscription = Meteor.subscribe("ProfilesAdmin");
+
   return {
     users: Meteor.users.find({}, { sort: { createdAt: -1 } }).fetch(),
-    ready: subscription.ready(),
+    profiles: Profiles.find({}).fetch(),
+    ready: usersSubscription.ready() && profilesSubscription.ready(),
   };
 })(MobileAdminUsers);
