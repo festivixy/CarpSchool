@@ -1,7 +1,12 @@
 import React from "react";
 import "semantic-ui-css/semantic.css";
-import { HashRouter as Router, Route, Switch, Redirect } from "react-router-dom";
-import AdminRides from "../pages/AdminRides";
+import {
+  HashRouter as Router,
+  Route,
+  Switch,
+  Redirect,
+} from "react-router-dom";
+import MobileAdminRides from "../mobile/pages/AdminRides";
 import AdminUsers from "../pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import MobileNotFound from "../mobile/pages/NotFound";
@@ -78,7 +83,7 @@ class App extends React.Component {
               {/* Admin routes */}
               <ProtectedRouteRequireAdmin
                 path="/adminRides"
-                component={AdminRides}
+                component={MobileAdminRides}
               />
               <ProtectedRouteRequireAdmin
                 path="/adminUsers"
