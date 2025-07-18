@@ -1,15 +1,10 @@
 import React from "react";
 import "semantic-ui-css/semantic.css";
-import {
-  HashRouter as Router,
-  Route,
-  Switch,
-} from "react-router-dom";
+import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import AdminRides from "../pages/AdminRides";
 import AdminUsers from "../pages/AdminUsers";
 import AddStuff from "../pages/AddStuff";
 import NotFound from "../pages/NotFound";
-import AddRides from "../pages/AddRides";
 import TestImageUpload from "../pages/TestImageUpload";
 import MobileSignIn from "../mobile/pages/SignIn";
 import MobileSignup from "../mobile/pages/Signup";
@@ -74,7 +69,6 @@ class App extends React.Component {
               {/* Main app routes with full onboarding flow */}
               <ProtectedRoutes path="/imDriving" component={MobileImDriving} />
               <ProtectedRoutes path="/imRiding" component={MobileImRiding} />
-              <ProtectedRoutes path="/add" component={AddRides} />
               <ProtectedRoutes path="/myRides" component={AddStuff} />
               <ProtectedRoutes
                 path="/editProfile"
