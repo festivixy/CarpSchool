@@ -538,7 +538,7 @@ class MobileOnboarding extends React.Component {
             className="onboarding-captcha-refresh"
             title="Generate new code"
           >
-            🔄
+            <img src="/svg/refresh.svg" alt="Refresh" />
           </button>
         </div>
 
@@ -934,18 +934,46 @@ class MobileOnboarding extends React.Component {
 
             .onboarding-captcha-refresh {
               position: absolute;
-              top: 8px;
-              right: 8px;
-              background: white;
-              border: 1px solid #ddd;
+              bottom: 4px;
+              right: 4px;
+              background-color: rgba(255, 255, 255, 0.9);
+              border: 1px solid rgba(200, 200, 200, 1);
               border-radius: 50%;
-              width: 32px;
-              height: 32px;
-              cursor: pointer;
-              font-size: 14px;
+              width: 24px;
+              height: 24px;
               display: flex;
               align-items: center;
               justify-content: center;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              backdrop-filter: blur(2px);
+              padding: 0;
+            }
+
+            .onboarding-captcha-refresh img {
+              width: 14px;
+              height: 14px;
+              opacity: 0.7;
+            }
+
+            .onboarding-captcha-refresh:hover:not(:disabled) {
+              background-color: rgba(255, 255, 255, 1);
+              border-color: rgba(0, 0, 0, 0.3);
+              transform: scale(1.1);
+            }
+
+            .onboarding-captcha-refresh:hover:not(:disabled) img {
+              opacity: 1;
+            }
+
+            .onboarding-captcha-refresh:disabled {
+              background-color: rgba(245, 245, 245, 0.8);
+              cursor: not-allowed;
+              transform: none;
+            }
+
+            .onboarding-captcha-refresh:disabled img {
+              opacity: 0.3;
             }
 
             .onboarding-summary {
