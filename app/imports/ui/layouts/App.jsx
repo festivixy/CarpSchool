@@ -26,6 +26,13 @@ import MobileChat from "../mobile/pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
 import MobileVerifyEmail from "../mobile/pages/VerifyEmail";
 import MobileEditProfile from "../mobile/pages/EditProfile";
+import MobileOnboarding from "../mobile/pages/Onboarding";
+import ProtectedRoutes, {
+  ProtectedRoute,
+  ProtectedRouteRequireNotLoggedIn,
+  ProtectedRouteRequireAdmin,
+  ProtectedRouteRequireNotEmailVerified,
+} from "./ProtectedRoutes";
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -47,46 +54,54 @@ class App extends React.Component {
           <main style={mainContentStyle}>
             <Switch>
               <Route exact path="/" component={MobileLanding} />
-              <ProtectedRouteNotLoggedIn
+              <ProtectedRouteRequireNotLoggedIn
                 path="/signin"
                 component={MobileSignIn}
               />
-              <ProtectedRouteNotLoggedIn
+              <ProtectedRouteRequireNotLoggedIn
                 path="/signup"
                 component={MobileSignup}
               />
-              <ProtectedRouteNotLoggedIn
+              <ProtectedRouteRequireNotLoggedIn
                 path="/forgot"
                 component={MobileForgotPassword}
               />
-              {/* <Route exact path="/" component={HomeRoute}/>
-                <Route path="/signin" component={SigninRoute}/>
-                <Route path="/signup" component={Signup}/>
-                <Route path="/forgot" component={ForgotPassword}/> */}
-              {/* <ProtectedRoute path="/listMyRides" component={MobileListMyRides}/> */}
-              <ProtectedRoute path="/imDriving" component={MobileImDriving} />
-              <ProtectedRoute path="/imRiding" component={MobileImRiding} />
-              {/* <ProtectedRoute path="/listMyRides" component={ActiveRides}/>
-                <ProtectedRoute path="/imDriving" component={UserDrive}/>
-                <ProtectedRoute path="/imRiding" component={UserRide}/> */}
-              {/* <AdminProtectedRoute path="/list" component={ListRides}/> */}
-              <ProtectedRoute path="/add" component={AddRides} />
-              <ProtectedRoute path="/myRides" component={AddStuff} />
-              <ProtectedRoute
+              <ProtectedRouteRequireNotEmailVerified
+                path="/verify-email"
+                component={MobileVerifyEmail}
+              />
+
+              {/* Onboarding route - simple auth check without profile requirement */}
+              <ProtectedRoute path="/onboarding" component={MobileOnboarding} />
+
+              {/* Main app routes with full onboarding flow */}
+              <ProtectedRoutes path="/imDriving" component={MobileImDriving} />
+              <ProtectedRoutes path="/imRiding" component={MobileImRiding} />
+              <ProtectedRoutes path="/add" component={AddRides} />
+              <ProtectedRoutes path="/myRides" component={AddStuff} />
+              <ProtectedRoutes
                 path="/editProfile"
                 component={MobileEditProfile}
               />
+              <ProtectedRoutes path="/chat" component={MobileChat} />
+
+              {/* Admin routes */}
+              <ProtectedRouteRequireAdmin
+                path="/adminRides"
+                component={AdminRides}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/adminUsers"
+                component={AdminUsers}
+              />
+
+              {/* Test routes */}
               <ProtectedRoute
                 path="/testImageUpload"
                 component={TestImageUpload}
               />
-              <AdminProtectedRoute path="/adminRides" component={AdminRides} />
-              <AdminProtectedRoute path="/adminUsers" component={AdminUsers} />
-              <ProtectedRouteLoggedIn
-                path="/signout"
-                component={MobileSignout}
-              />
-              <ProtectedRoute path="/chat" component={MobileChat} />
+              <ProtectedRoute path="/signout" component={MobileSignout} />
+
               <Route component={NotFound} />
             </Switch>
           </main>
@@ -96,100 +111,5 @@ class App extends React.Component {
     );
   }
 }
-
-/**
- * ProtectedRoute (see React Router v4 sample)
- * Checks for Meteor login before routing to the requested page, otherwise goes to signin page.
- * @param {any} { component: Component, ...rest }
- */
-const ProtectedRoute = ({ component: Component, ...rest }) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      if (Meteor.user()) {
-        if (Meteor.user().emails[0].verified) {
-          return <Component {...props} />;
-        }
-        return <MobileVerifyEmail />;
-      }
-      return (
-        <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
-        />
-      );
-    }}
-  />
-);
-
-const ProtectedRouteLoggedIn = ({ component: Component, ...rest }) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      if (Meteor.user()) {
-        return <Component {...props} />;
-      }
-      return (
-        <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
-        />
-      );
-    }}
-  />
-);
-
-const ProtectedRouteNotLoggedIn = ({ component: Component, ...rest }) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      if (!Meteor.user()) {
-        return <Component {...props} />;
-      }
-      return (
-        <Redirect
-          to={
-            props.location.state && props.location.state.from
-              ? props.location.state.from.pathname
-              : "/"
-          }
-        />
-      );
-    }}
-  />
-);
-
-/**
- * AdminProtectedRoute (see React Router v4 sample)
- * Checks for Meteor login and admin role before routing to the requested page, otherwise goes to signin page.
- * @param {any} { component: Component, ...rest }
- */
-const AdminProtectedRoute = ({ component: Component, ...rest }) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      const isLogged = Meteor.userId() !== null;
-      const user = Meteor.user();
-      const isAdmin = user && user.roles && user.roles.includes("admin");
-      return isLogged && isAdmin ? (
-        <Component {...props} />
-      ) : (
-        <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
-        />
-      );
-    }}
-  />
-);
-
-/** Require a component and location to be passed to each ProtectedRoute. */
-ProtectedRoute.propTypes = {
-  component: PropTypes.func.isRequired,
-  location: PropTypes.object,
-};
-
-/** Require a component and location to be passed to each AdminProtectedRoute. */
-AdminProtectedRoute.propTypes = {
-  component: PropTypes.func.isRequired,
-  location: PropTypes.object,
-};
 
 export default App;
