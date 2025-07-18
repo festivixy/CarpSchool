@@ -1,6 +1,6 @@
-# Carpool - University Ride Sharing Application
+# Carpool
 
-A modern web application built with Meteor and React that facilitates ride sharing within school communities. Users can create, join, and manage carpools with features including secure authentication, CAPTCHA verification, and administrative tools.
+A modern web application built with Meteor and React that facilitates ride sharing within school communities. Users can create, join, and manage carpools.
 
 ## Features
 
@@ -11,19 +11,14 @@ A modern web application built with Meteor and React that facilitates ride shari
 - **Real-time Updates**: Dynamic ride status updates and availability
 
 ### Other Features
-- **Secure User Registration**: Email-based signup with password validation
 - **CAPTCHA Verification**: SVG-based CAPTCHA for bot prevention during signup and signin
-- **User Management**: Admins can view, edit, and manage user accounts and roles
-- **Ride Oversight**: Administrative dashboard for monitoring all rides
-- **Content Moderation**: Tools for managing user-generated content
-- **Responsive Design**: Mobile-friendly interface using Semantic UI React
 
 ## Prerequisites
 
 Before running this application, make sure you have the following installed:
 
 - [Node.js](https://nodejs.org/) (version 14 or higher)
-- [Meteor](https://www.meteor.com/install) (latest version)
+- [Meteor](https://www.meteor.com/install) (@3.3.0)
 - [Git](https://git-scm.com/downloads)
 
 ## Installation & Setup
@@ -53,14 +48,25 @@ Before running this application, make sure you have the following installed:
 
 ```bash
 cd app
-meteor run --settings ../config/settings.development.json
+npm start
 ```
 
 This will start the Meteor development server with:
 - Hot reloading enabled
 - Development settings loaded
 - MongoDB server
-- Application available at `http://localhost:3000`
+- Application available at `http://localhost:3001`
+
+### Production Mode
+
+To run the application in production mode, just run:
+
+```bash
+cd app
+npm start prod
+```
+
+This will build, setup, and run the application in production mode with docker.
 
 ## Code Quality & Linting
 
