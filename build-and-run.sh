@@ -27,6 +27,17 @@ echo -e "${YELLOW}🚀 Building Meteor bundle...${NC}"
 meteor build ../build --architecture os.linux.x86_64 --server-only
 cd ..
 
+if [ ! -d "openmaptilesdata/data" ]; then
+  echo -e "${RED}⚠️  openmaptilesdata/data directory not found!${NC}"
+  echo -e "${YELLOW}You need to build map data before continuing.${NC}"
+  echo -e "${YELLOW}Run './build-openmaptiles.sh' to generate map data, or quit if you do not need it.${NC}"
+  read -p "Do you want to quit now? (y/n): " yn
+  case $yn in
+    [Yy]* ) echo "Exiting..."; exit 1;;
+    * ) echo "Continuing run...";;
+  esac
+fi
+
 # Step 3: Start services with Docker Compose
 echo -e "${YELLOW}🚀 Starting services with Docker Compose...${NC}"
 docker compose up -d

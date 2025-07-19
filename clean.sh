@@ -28,9 +28,17 @@ rm -rf build
 echo -e "${YELLOW}🗑️  Removing local Meteor build artifacts...${NC}"
 rm -rf app/.meteor/local
 
-# Step 4: Clean Docker images (optional - uncomment if needed)
-# echo -e "${YELLOW}🐳 Removing unused Docker images...${NC}"
-# docker image prune -f
+
+read -p $'${YELLOW}Do you want to remove the openmaptiles directory? (y/n): ${NC}' yn
+case $yn in
+  [Yy]* )
+    echo -e "${YELLOW}  Removing openmaptiles directory...${NC}"
+    rm -rf openmaptiles
+    ;;
+  * )
+    echo -e "${YELLOW}Skipping removal of openmaptiles directory.${NC}"
+    ;;
+esac
 
 echo -e "${GREEN}✅ Cleanup completed!${NC}"
 echo ""

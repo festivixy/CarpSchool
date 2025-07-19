@@ -9,3 +9,5 @@ app/.deploy
 build/
 config/settings.prod.json
 .env
+openmaptiles/
+openmaptilesdata/*

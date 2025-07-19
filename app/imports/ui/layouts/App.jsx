@@ -9,6 +9,7 @@ import {
 import MobileAdminRides from "../mobile/pages/AdminRides";
 import MobileAdminUsers from "../mobile/pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
+import MobileTestMapView from "../mobile/pages/TestMapView";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../mobile/pages/SignIn";
 import MobileSignup from "../mobile/pages/Signup";
@@ -94,6 +95,10 @@ class App extends React.Component {
               <ProtectedRoute
                 path="/testImageUpload"
                 component={MobileTestImageUpload}
+              />
+              <ProtectedRoutes
+                path="/_test/MapView"
+                component={MobileTestMapView}
               />
               <ProtectedRoute path="/signout" component={MobileSignout} />
 

@@ -36,5 +36,19 @@ services:
       - mongo
     restart: unless-stopped
 
+  tileserver-gl:
+    image: "maptiler/tileserver-gl:latest"
+    command:
+      - --port
+      - "${TPORT:-8080}"
+      - --config
+      - "/style/config.json"
+    ports:
+      - "${TPORT:-8080}:${TPORT:-8080}"
+    volumes:
+      - ./openmaptilesdata/data:/data
+      - ./openmaptilesdata/style:/style
+      - ./openmaptilesdata/build:/build
+
 volumes:
   mongo_data:
