@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import ImageUpload from "../../components/ImageUpload";
-import ImageViewer from "../../components/ImageViewer";
+import ImageUpload from "../components/ImageUpload";
+import ImageViewer from "../components/ImageViewer";
 import {
   Container,
   Header,
