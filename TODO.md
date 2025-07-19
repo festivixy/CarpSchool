@@ -14,3 +14,6 @@ only implemented for Login, Register, and Send Verify Email.
 
 [ ] - Implement the `accounts.email.send.verification` method in `AccountsMethods.js`.
 [ ] - Add school regions
+[ ] - Finish Modern look
+[ ] - Move Publications to their own files
+[ ] - Move Methods to their own files
