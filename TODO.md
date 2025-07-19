@@ -18,3 +18,6 @@ only implemented for Login, Register, and Send Verify Email.
 [ ] - Move Publications to their own files
 [ ] - Move Methods to their own files
 [ ] - Make captcha its own component
+[ ] - OpenTilesMap server proxy
+[ ] - OpenTilesMap data auto download
+[ ] - Upload opentilesmap bundle and app bundle to github release
