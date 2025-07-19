@@ -1,8 +1,7 @@
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
 
-async function isLoggedInAndEmailVerified(userId) {
-    check(userId, String);
+async function isEmailVerified(userId) {
+    // check(userId, String);
     if (userId) {
         const user = await Meteor.users.findOneAsync(userId);
         if (user.emails[0].verified) {
@@ -12,4 +11,4 @@ async function isLoggedInAndEmailVerified(userId) {
     return false;
 }
 
-export { isLoggedInAndEmailVerified };
+export { isEmailVerified };
