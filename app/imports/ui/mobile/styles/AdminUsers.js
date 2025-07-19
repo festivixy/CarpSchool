@@ -333,8 +333,7 @@ export const AdminBadge = styled.div`
   font-size: 12px;
   font-weight: 600;
 
-  ${(props) =>
-    props.isAdmin
+  ${(props) => (props.isAdmin
       ? `
     background-color: rgba(240, 255, 240, 1);
     color: rgba(34, 139, 34, 1);
@@ -344,7 +343,7 @@ export const AdminBadge = styled.div`
     background-color: rgba(248, 248, 248, 1);
     color: rgba(100, 100, 100, 1);
     border: 1px solid rgba(230, 230, 230, 1);
-  `}
+  `)}
 `;
 
 export const EmailBadge = styled.div`
@@ -356,8 +355,7 @@ export const EmailBadge = styled.div`
   font-size: 12px;
   font-weight: 600;
 
-  ${(props) =>
-    props.isVerified
+  ${(props) => (props.isVerified
       ? `
     background-color: rgba(240, 255, 245, 1);
     color: rgba(22, 101, 52, 1);
@@ -367,7 +365,7 @@ export const EmailBadge = styled.div`
     background-color: rgba(255, 245, 240, 1);
     color: rgba(153, 27, 27, 1);
     border: 1px solid rgba(254, 202, 202, 1);
-  `}
+  `)}
 `;
 
 // Modal Styles

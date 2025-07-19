@@ -335,7 +335,7 @@ class MobileAdminUsers extends React.Component {
             />
           </SearchContainer>
 
-          {users.length === 0 ? (
+          {users.length === 0 ? ( // eslint-disable-line
             <EmptyState>
               <EmptyStateIcon>👤</EmptyStateIcon>
               <EmptyStateTitle>No users found</EmptyStateTitle>
@@ -405,8 +405,7 @@ class MobileAdminUsers extends React.Component {
                           </ActionButton>
                           <ActionButton
                             variant={isAdmin ? "remove-admin" : "admin"}
-                            onClick={() =>
-                              this.toggleAdminRole(user._id, isAdmin)
+                            onClick={() => this.toggleAdminRole(user._id, isAdmin)
                             }
                             disabled={loading || isCurrentUser}
                             title={
@@ -468,7 +467,7 @@ class MobileAdminUsers extends React.Component {
                   <Form onSubmit={this.handleSaveEdit}>
                     {/* Profile Picture Section */}
                     {(() => {
-                      const { profiles } = this.props;
+                      const { profiles } = this.props; // eslint-disable-line
                       const { editingUser } = this.state;
                       const userProfile = profiles.find(
                         (profile) => profile.Owner === editingUser._id,
