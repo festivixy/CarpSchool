@@ -12,6 +12,7 @@ services:
       - ./build/app.tar.gz:/bundle/bundle.tar.gz
     depends_on:
       - mongo
+      - tileserver-gl
     restart: unless-stopped
 
   mongo:
@@ -43,8 +44,8 @@ services:
       - "${TPORT:-8080}"
       - --config
       - "/style/config.json"
-    ports:
-      - "${TPORT:-8080}:${TPORT:-8080}"
+    # ports:
+    #   - "${TPORT:-8080}:${TPORT:-8080}"
     volumes:
       - ./openmaptilesdata/data:/data
       - ./openmaptilesdata/style:/style
