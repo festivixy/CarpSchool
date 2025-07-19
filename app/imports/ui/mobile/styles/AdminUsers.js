@@ -550,6 +550,56 @@ export const SwitchSlider = styled.span`
   }
 `;
 
+export const ProfilePictureSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(224, 224, 224, 1);
+  border-radius: 8px;
+  background-color: rgba(250, 250, 250, 1);
+`;
+
+export const ProfilePicture = styled.img`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(224, 224, 224, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+export const ProfilePictureText = styled.div`
+  font-size: 14px;
+  color: rgba(100, 100, 100, 1);
+  text-align: center;
+`;
+
+export const RemoveButton = styled.button`
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid rgba(220, 38, 38, 1);
+  background-color: rgba(255, 255, 255, 1);
+  color: rgba(220, 38, 38, 1);
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(220, 38, 38, 1);
+    color: rgba(255, 255, 255, 1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
 // Button Styles
 export const Button = styled.button`
   border-radius: 8px;

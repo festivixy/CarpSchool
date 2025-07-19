@@ -51,6 +51,10 @@ import {
   Switch,
   SwitchInput,
   SwitchSlider,
+  ProfilePictureSection,
+  ProfilePicture,
+  ProfilePictureText,
+  RemoveButton,
   Button,
   ErrorMessage,
 } from "../styles/AdminUsers";
@@ -165,6 +169,45 @@ class MobileAdminUsers extends React.Component {
       editModalOpen: false,
       editingUser: null,
       error: "",
+    });
+  };
+
+  handleRemoveProfilePicture = () => {
+    const { editingUser } = this.state;
+
+    swal({
+      title: "Remove Profile Picture?",
+      text: "This will permanently remove the user's profile picture.",
+      icon: "warning",
+      buttons: {
+        cancel: {
+          text: "Cancel",
+          visible: true,
+          className: "swal-button--cancel",
+        },
+        confirm: {
+          text: "Remove",
+          className: "swal-button--danger",
+        },
+      },
+      dangerMode: true,
+    }).then((willRemove) => {
+      if (willRemove) {
+        this.setState({ loading: true, error: "" });
+        Meteor.call("users.removeProfilePicture", editingUser._id, (error) => {
+          this.setState({ loading: false });
+          if (error) {
+            this.setState({ error: error.message });
+            swal("Error", error.message, "error");
+          } else {
+            swal(
+              "Removed!",
+              "Profile picture has been successfully removed.",
+              "success",
+            );
+          }
+        });
+      }
     });
   };
 
@@ -423,6 +466,42 @@ class MobileAdminUsers extends React.Component {
 
                 <ModalBody>
                   <Form onSubmit={this.handleSaveEdit}>
+                    {/* Profile Picture Section */}
+                    {(() => {
+                      const { profiles } = this.props;
+                      const { editingUser } = this.state;
+                      const userProfile = profiles.find(
+                        (profile) => profile.Owner === editingUser._id,
+                      );
+                      const hasProfilePicture =
+                        userProfile?.Image && userProfile.Image.trim() !== "";
+
+                      return hasProfilePicture ? (
+                        <FormField>
+                          <Label>Profile Picture</Label>
+                          <ProfilePictureSection>
+                            <ProfilePicture
+                              src={`/image/${userProfile.Image}`}
+                              alt="User profile"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                            />
+                            <ProfilePictureText>
+                              Current profile picture
+                            </ProfilePictureText>
+                            <RemoveButton
+                              type="button"
+                              onClick={this.handleRemoveProfilePicture}
+                              disabled={loading}
+                            >
+                              Remove PFP
+                            </RemoveButton>
+                          </ProfilePictureSection>
+                        </FormField>
+                      ) : null;
+                    })()}
+
                     <FormField>
                       <Label>Username</Label>
                       <Input
