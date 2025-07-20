@@ -24,6 +24,10 @@ area="north-america/canada/british-columbia"
 MAX_ZOOM=14
 MIN_ZOOM=1
 MBTILES_FILE=tiles.mbtiles
+export area="north-america/canada/british-columbia"
+export MAX_ZOOM=14
+export MIN_ZOOM=1
+export MBTILES_FILE=tiles.mbtiles
 
 echo -e "using MBTILES_FILE: $MBTILES_FILE"
 echo -e "using area: $area"
@@ -47,20 +51,19 @@ make
 
 echo -e "\033[1;34m[INFO]\033[0m Starting database"
 make start-db
-echo -e "\033[1;34m[INFO]\033[0m Importing data skipped"
-# make import-data
+
 
 rm -f "./data/$MBTILES_FILE"
 echo -e "\033[1;32m[DATA]\033[0m Downloading area: north-america/canada/british-columbia"
 make download
-# echo -e "\033[1;34m[INFO]\033[0m Cleaning build"
-# make clean
-echo -e "\033[1;34m[INFO]\033[0m Building all tiles"
-make all
+echo -e "\033[1;34m[INFO]\033[0m Importing data skipped"
+make import-data
 echo -e "\033[1;34m[INFO]\033[0m Importing OSM"
 make import-osm
 echo -e "\033[1;34m[INFO]\033[0m Importing SQL"
 make import-sql
+echo -e "\033[1;34m[INFO]\033[0m Importing wikidata"
+make import-wikidata
 # echo -e "\033[1;34m[INFO]\033[0m Analyzing database"
 # make analyze-db
 # echo -e "\033[1;34m[INFO]\033[0m Testing performance (null)"
