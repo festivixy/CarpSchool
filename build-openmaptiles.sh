@@ -56,7 +56,7 @@ make start-db
 rm -f "./data/$MBTILES_FILE"
 echo -e "\033[1;32m[DATA]\033[0m Downloading area: north-america/canada/british-columbia"
 make download
-echo -e "\033[1;34m[INFO]\033[0m Importing data skipped"
+echo -e "\033[1;34m[INFO]\033[0m Importing data"
 make import-data
 echo -e "\033[1;34m[INFO]\033[0m Importing OSM"
 make import-osm
