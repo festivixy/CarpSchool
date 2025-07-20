@@ -1,6 +1,5 @@
 import { Meteor } from "meteor/meteor";
 import { Rides } from "../../api/ride/Rides";
-import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { Captcha } from "../../api/captcha/Captcha";
 
