@@ -1,6 +1,6 @@
 # TODO
 
-[ ] - IMPORTANT: fix how captcha are being validated on client-side.
+- [ ] IMPORTANT: fix how captcha are being validated on client-side.
 
 **Vulnerability:** Client-side only CAPTCHA validation allows attackers to bypass bot protection
 by directly calling server methods (e.g., `Accounts.forgotPassword()`) from browser
@@ -12,12 +12,12 @@ fixed with mongodb collection and session IDs.
 
 only implemented for Login, Register, and Send Verify Email.
 
-[ ] - Implement the `accounts.email.send.verification` method in `AccountsMethods.js`.
-[ ] - Add school regions
-[ ] - Finish Modern look
-[ ] - Move Publications to their own files
-[ ] - Move Methods to their own files
-[ ] - Make captcha its own component
-[ ] - OpenTilesMap server proxy
-[ ] - OpenTilesMap data auto download
-[ ] - Upload opentilesmap bundle and app bundle to github release
+- [ ] Implement the `accounts.email.send.verification` method in `AccountsMethods.js`.
+- [ ] Add school regions
+- [ ] Finish Modern look
+- [ ] Move Publications to their own files
+- [ ] Move Methods to their own files
+- [ ] Make captcha its own component
+- [ ] OpenTilesMap server proxy
+- [ ] OpenTilesMap data auto download
+- [ ] Upload opentilesmap bundle and app bundle to github release
