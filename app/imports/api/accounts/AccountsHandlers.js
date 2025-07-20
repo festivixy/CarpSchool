@@ -49,5 +49,3 @@ Accounts.validateNewUser(async (user) => {
   delete user.captchaSessionId;  // eslint-disable-line
   return true;
 });
-
-Accounts.emailTemplates.resetPassword.from = () => "Carpool Password Reset <no-reply@carpool.com>";

@@ -2,12 +2,12 @@ import { Meteor } from "meteor/meteor";
 import { Chats } from "./Chat";
 
 /** Publish chats for the current user */
-Meteor.publish("chats", function publishChats() {
+Meteor.publish("chats", async function publishChats() {
   if (!this.userId) {
     return this.ready();
   }
 
-  const currentUser = Meteor.users.findOne(this.userId);
+  const currentUser = await Meteor.users.findOneAsync(this.userId);
   if (!currentUser || !currentUser.username) {
     return this.ready();
   }
@@ -17,12 +17,12 @@ Meteor.publish("chats", function publishChats() {
 });
 
 /** Publish all chats for admin users */
-Meteor.publish("chats.admin", function publishAllChats() {
+Meteor.publish("chats.admin", async function publishAllChats() {
   if (!this.userId) {
     return this.ready();
   }
 
-  const currentUser = Meteor.users.findOne(this.userId);
+  const currentUser = await Meteor.users.findOneAsync(this.userId);
   if (
     !currentUser ||
     !currentUser.roles ||
