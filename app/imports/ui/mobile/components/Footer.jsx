@@ -23,6 +23,7 @@ export default function MobileFooter() {
         <FooterLinks>
           <FooterLink to="/tos">Terms</FooterLink>
           <FooterLink to="/privacy">Privacy</FooterLink>
+          <FooterLink to="/credits">Credits</FooterLink>
           <FooterLinkExternal href="mailto:support@carpool.edu">
             Support
           </FooterLinkExternal>
