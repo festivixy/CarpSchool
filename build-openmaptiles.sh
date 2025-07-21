@@ -90,10 +90,7 @@ echo -e "\033[1;34m[INFO]\033[0m Building map styles"
 make build-style
 
 echo -e "\033[1;34m[INFO]\033[0m Stopping database"
-rm -r ./data/fonts
 make stop-db
-echo -e "\033[1;34m[INFO]\033[0m Removing quickstart checklist"
-rm -f ./data/quickstart_checklist.chk
 read -p $'\033[1;33m[STEP]\033[0m Do you want to remove Docker images? (y/n): ' yn
 case $yn in
   [Yy]* )
@@ -117,3 +114,21 @@ cp -r ./data ../openmaptilesdata
 cp -r ./style ../openmaptilesdata
 cp -r ./build ../openmaptilesdata
 echo -e "\033[1;32m[COMPLETE]\033[0m OpenMapTiles build completed successfully! "
+
+read -p $'\033[1;33m[STEP]\033[0m Do you want to create a tarball chunks of the built data? (y/n): ' yn
+case $yn in
+  [Yy]* )
+    echo -e "\033[1;34m[INFO]\033[0m Creating tarball of the built data"
+    cd ..
+    tar -czf openmaptilesdata.tar.gz openmaptilesdata
+    echo -e "\033[1;32m[COMPLETE]\033[0m Tarball created: openmaptilesdata.tar.gz"
+    echo -e "\033[1;34m[INFO]\033[0m Creating chunks directory and moving tarball"
+    mkdir -p openmaptilesdata/tarballs/chunks
+    mv openmaptilesdata.tar.gz openmaptilesdata/tarballs/openmaptilesdata.tar.gz
+    split -b 256M openmaptilesdata/tarballs/openmaptilesdata.tar.gz openmaptilesdata/tarballs/chunks/openmaptilesdata.tar.gz. --additional-suffix=.part -a 3 --numeric-suffixes
+
+    ;;
+  * )
+    echo -e "\033[1;34m[INFO]\033[0m Skipping tarball creation"
+    ;;
+esac
