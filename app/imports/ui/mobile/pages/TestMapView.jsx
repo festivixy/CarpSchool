@@ -26,8 +26,8 @@ import {
  * Test page for MapView component - Admin only
  */
 const MobileTestMapView = () => {
-  const [latitude, setLatitude] = useState(37.7749);
-  const [longitude, setLongitude] = useState(-122.4194);
+  const [latitude, setLatitude] = useState(49.3);
+  const [longitude, setLongitude] = useState(-123.14);
   const [tileServerUrl, setTileServerUrl] = useState("");
 
   const handleLatitudeChange = (e) => {

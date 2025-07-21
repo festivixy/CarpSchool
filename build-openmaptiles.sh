@@ -21,7 +21,7 @@ else
 fi
 
 area="north-america/canada/british-columbia"
-MAX_ZOOM=14
+MAX_ZOOM=18
 MIN_ZOOM=1
 MBTILES_FILE=tiles.mbtiles
 export area="north-america/canada/british-columbia"
