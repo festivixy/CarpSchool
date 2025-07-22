@@ -136,6 +136,8 @@ services:
     #   - "5433:5432"
     environment:
       POSTGRES_DB: nominatim
+      POSTGRES_USER: nominatim
+      POSTGRES_PASSWORD: nominatim
       POSTGRES_HOST_AUTH_METHOD: trust
       PGPORT: 5432
     networks:
