@@ -315,7 +315,9 @@ const MobileTestMapView = () => {
               </InfoItem>
               <InfoItem>
                 <InfoLabel>Geocoding</InfoLabel>
-                <InfoValue>Nominatim (OpenStreetMap)</InfoValue>
+                <InfoValue>
+                  TileServer GL (local) with Nominatim fallback
+                </InfoValue>
               </InfoItem>
             </InfoCard>
 
