@@ -64,6 +64,20 @@ echo -e "\033[1;34m[INFO]\033[0m Importing SQL"
 make import-sql
 echo -e "\033[1;34m[INFO]\033[0m Importing wikidata"
 make import-wikidata
+echo -e "\033[1;34m[INFO]\033[0m Backing up wikidata cache"
+# Create backup directory for wikidata files
+mkdir -p ./data/wikidata-backup
+# Copy the wikidata cache file if it exists
+if [ -f "./cache/wikidata-cache.json" ]; then
+  cp "./cache/wikidata-cache.json" "./data/wikidata-backup/"
+  echo -e "\033[1;32m[BACKUP]\033[0m Saved wikidata-cache.json"
+fi
+# Also download Nominatim-compatible wikidata importance rankings
+if [ ! -f "./data/wikidata-backup/wikimedia-importance.sql.gz" ]; then
+  echo -e "\033[1;36m[DOWNLOAD]\033[0m Downloading Nominatim-compatible wikidata importance rankings"
+  wget -q --show-progress -O "./data/wikidata-backup/wikimedia-importance.sql.gz" \
+    "https://www.nominatim.org/data/wikimedia-importance.sql.gz" || echo -e "\033[1;31m[WARNING]\033[0m Failed to download wikimedia-importance.sql.gz"
+fi
 # echo -e "\033[1;34m[INFO]\033[0m Analyzing database"
 # make analyze-db
 # echo -e "\033[1;34m[INFO]\033[0m Testing performance (null)"
@@ -113,6 +127,7 @@ echo -e "\033[1;34m[INFO]\033[0m Copying data, style, and build outputs"
 cp -r ./data ../openmaptilesdata
 cp -r ./style ../openmaptilesdata
 cp -r ./build ../openmaptilesdata
+echo -e "\033[1;32m[WIKIDATA]\033[0m Wikidata files available in: ../openmaptilesdata/data/wikidata-backup/"
 echo -e "\033[1;32m[COMPLETE]\033[0m OpenMapTiles build completed successfully! "
 
 read -p $'\033[1;33m[STEP]\033[0m Do you want to create a tarball chunks of the built data? (y/n): ' yn
