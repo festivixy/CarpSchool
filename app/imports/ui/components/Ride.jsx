@@ -65,7 +65,7 @@ class Ride extends React.Component {
     const { shareCode } = this.state;
     if (shareCode) {
       // eslint-disable-next-line no-undef
-      const inviteLink = `${window.location.origin}/#/imRiding?code=${shareCode.replace("-", "")}`;
+      const inviteLink = `${window.location.origin}/#/myRides?code=${shareCode.replace("-", "")}`;
 
       // Copy to clipboard
       // eslint-disable-next-line no-undef

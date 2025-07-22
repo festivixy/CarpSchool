@@ -49,16 +49,10 @@ class NavBar extends React.Component {
                       key="myRides"
                     />
                     <Dropdown.Item
-                      text="Im driving"
+                      text="My Rides"
                       as={NavLink}
                       exact
-                      to="/imDriving"
-                    />
-                    <Dropdown.Item
-                      text="Im riding"
-                      as={NavLink}
-                      exact
-                      to="/imRiding"
+                      to="/myRides"
                     />
                   </Dropdown.Menu>
                 </Dropdown>,
@@ -192,7 +186,8 @@ const NavBarContainer = withTracker(() =>
     isAdmin: Meteor.user()
       ? Meteor.user().roles && Meteor.user().roles.includes("admin")
       : false,
-  }))(NavBar);
+  }),
+)(NavBar);
 
 /** Enable ReactRouter for this component. https://reacttraining.com/react-router/web/api/withRouter */
 export default withRouter(NavBarContainer);

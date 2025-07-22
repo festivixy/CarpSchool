@@ -33,8 +33,8 @@ class AddRide extends React.Component {
         } else {
           swal("Success", "Ride added successfully", "success");
           formRef.reset();
-          // Redirect to imRiding page after successful ride creation
-          this.props.history.push("/imRiding"); // eslint-disable-line
+          // Redirect to myRides page after successful ride creation
+          this.props.history.push("/myRides"); // eslint-disable-line
         }
       },
     );
