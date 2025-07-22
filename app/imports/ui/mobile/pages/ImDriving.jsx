@@ -70,8 +70,12 @@ class MobileImDriving extends React.Component {
         (ride) =>
           ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
-          (ride.riders.length > 0 &&
-            ride.riders.some((rider) => rider.toLowerCase().includes(query))),
+          (ride.riders &&
+            ride.riders.length > 0 &&
+            ride.riders.some((rider) => rider.toLowerCase().includes(query))) ||
+          (ride.rider &&
+            ride.rider !== "TBD" &&
+            ride.rider.toLowerCase().includes(query)),
       );
     }
 
@@ -210,7 +214,8 @@ class MobileImDriving extends React.Component {
               <RideWrapper key={ride._id}>
                 <MobileRide ride={ride} />
                 <AdditionalActions>
-                  {ride.riders.length > 0 && (
+                  {/* Handle new schema with riders array */}
+                  {ride.riders && ride.riders.length > 0 && (
                     <div>
                       {ride.riders.map((rider) => (
                         <div
@@ -236,6 +241,22 @@ class MobileImDriving extends React.Component {
                           </ContactButton>
                         </div>
                       ))}
+                    </div>
+                  )}
+                  {/* Handle legacy schema with single rider */}
+                  {!ride.riders && ride.rider && ride.rider !== "TBD" && (
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <ContactButton
+                        onClick={() => this.handleContactRider(ride.rider)}
+                      >
+                        Contact {ride.rider}
+                      </ContactButton>
                     </div>
                   )}
                   <CancelButton onClick={() => this.handleCancelRide(ride._id)}>

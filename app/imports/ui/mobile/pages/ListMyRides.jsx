@@ -39,8 +39,13 @@ class MobileListMyRides extends React.Component {
     let filteredRides = rides.filter(
       (ride) =>
         ride.driver !== currentUser &&
-        ride.riders.length < ride.seats &&
-        !ride.riders.includes(currentUser),
+        // Handle new schema
+        ((ride.riders !== undefined &&
+          ride.seats !== undefined &&
+          ride.riders.length < ride.seats &&
+          !ride.riders.includes(currentUser)) ||
+          // Handle legacy schema
+          (ride.riders === undefined && ride.rider === "TBD")),
     );
 
     if (searchQuery.trim()) {

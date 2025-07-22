@@ -149,19 +149,29 @@ class MobileRide extends React.Component {
     Meteor.user() && this.props.ride.driver === Meteor.user().username;
 
   canShareRide = () => {
-    const { riders, seats } = this.props.ride;
-    return this.isCurrentUserDriver() && riders.length < seats;
+    const { riders, seats, rider } = this.props.ride;
+    // Handle new schema
+    if (riders !== undefined && seats !== undefined) {
+      return this.isCurrentUserDriver() && riders.length < seats;
+    }
+    // Handle legacy schema
+    return this.isCurrentUserDriver() && rider === "TBD";
   };
 
   canJoinRide = () => {
-    const { riders, seats } = this.props.ride;
+    const { riders, seats, rider } = this.props.ride;
     const currentUser = Meteor.user();
-    return (
-      !this.isCurrentUserDriver() &&
-      riders.length < seats &&
-      currentUser &&
-      !riders.includes(currentUser.username)
-    );
+    // Handle new schema
+    if (riders !== undefined && seats !== undefined) {
+      return (
+        !this.isCurrentUserDriver() &&
+        riders.length < seats &&
+        currentUser &&
+        !riders.includes(currentUser.username)
+      );
+    }
+    // Handle legacy schema
+    return !this.isCurrentUserDriver() && rider === "TBD";
   };
 
   handleJoinRide = () => {
@@ -226,16 +236,27 @@ class MobileRide extends React.Component {
             </Route>
             {/* Only show status if current user is not a rider */}
             {!(
-              Meteor.user() && ride.riders.includes(Meteor.user().username)
+              Meteor.user() &&
+              ((ride.riders && ride.riders.includes(Meteor.user().username)) ||
+                ride.rider === Meteor.user().username)
             ) && (
               <Status>
-                {ride.riders.length < ride.seats ? (
-                  <StatusLooking>
-                    {ride.seats - ride.riders.length} seat
-                    {ride.seats - ride.riders.length !== 1 ? "s" : ""} available
-                  </StatusLooking>
+                {/* Handle new schema */}
+                {ride.riders !== undefined && ride.seats !== undefined ? (
+                  ride.riders.length < ride.seats ? (
+                    <StatusLooking>
+                      {ride.seats - ride.riders.length} seat
+                      {ride.seats - ride.riders.length !== 1 ? "s" : ""}{" "}
+                      available
+                    </StatusLooking>
+                  ) : (
+                    <StatusMatched>Ride full</StatusMatched>
+                  )
+                ) : /* Handle legacy schema */
+                ride.rider === "TBD" ? (
+                  <StatusLooking>Looking for rider</StatusLooking>
                 ) : (
-                  <StatusMatched>Ride full</StatusMatched>
+                  <StatusMatched>Rider found</StatusMatched>
                 )}
               </Status>
             )}
@@ -257,9 +278,15 @@ class MobileRide extends React.Component {
             <DetailItem>
               <DetailIcon>👥</DetailIcon>
               <DetailText>
-                {ride.riders.length > 0
-                  ? `${ride.riders.length}/${ride.seats} riders: ${ride.riders.join(", ")}`
-                  : `0/${ride.seats} riders - None yet`}
+                {/* Handle new schema */}
+                {ride.riders !== undefined && ride.seats !== undefined
+                  ? ride.riders.length > 0
+                    ? `${ride.riders.length}/${ride.seats} riders: ${ride.riders.join(", ")}`
+                    : `0/${ride.seats} riders - None yet`
+                  : /* Handle legacy schema */
+                    ride.rider === "TBD"
+                    ? "No rider yet"
+                    : ride.rider}
               </DetailText>
             </DetailItem>
           </Details>

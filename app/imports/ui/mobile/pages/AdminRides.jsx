@@ -300,12 +300,16 @@ class MobileAdminRides extends React.Component {
                       </DetailItem>
                       <DetailItem>
                         <DetailLabel>
-                          Riders ({ride.riders.length}/{ride.seats})
+                          {ride.riders !== undefined && ride.seats !== undefined
+                            ? `Riders (${ride.riders.length}/${ride.seats})`
+                            : "Rider"}
                         </DetailLabel>
                         <DetailValue>
-                          {ride.riders.length > 0
-                            ? ride.riders.join(", ")
-                            : "None yet"}
+                          {ride.riders !== undefined && ride.seats !== undefined
+                            ? ride.riders.length > 0
+                              ? ride.riders.join(", ")
+                              : "None yet"
+                            : ride.rider || "TBD"}
                         </DetailValue>
                       </DetailItem>
                     </RideDetails>
