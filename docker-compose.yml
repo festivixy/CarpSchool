@@ -41,7 +41,7 @@ services:
     image: "maptiler/tileserver-gl:latest"
     command:
       - --port
-      - "${TPORT:-8080}"
+      - "8080"
       - --config
       - "/style/config.json"
     # ports:

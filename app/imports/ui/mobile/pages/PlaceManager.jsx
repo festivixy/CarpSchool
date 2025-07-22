@@ -4,10 +4,6 @@ import PlaceManager from "../components/PlaceManager";
 /**
  * Mobile page component for users to manage their places
  */
-const MobilePlaceManager = () => (
-  <div style={{ padding: "1rem" }}>
-    <PlaceManager />
-  </div>
-);
+const MobilePlaceManager = () => <PlaceManager />;
 
 export default MobilePlaceManager;

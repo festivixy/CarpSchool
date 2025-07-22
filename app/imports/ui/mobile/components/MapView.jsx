@@ -47,9 +47,16 @@ export default function MapView({ latitude, longitude, tileServerUrl }) {
   // Update map URL whenever input changes
   useEffect(() => {
     setRetryCount(0);
-    // Use localhost:8080 if tileServerUrl is empty or falsy
-    const effectiveTileServerUrl = tileServerUrl && tileServerUrl.trim() !== "" ? tileServerUrl : "http://localhost:8080";
-    const url = generateTileServerGLMapUrl(latitude, longitude, effectiveTileServerUrl)
+    // Use /tileserver proxy route if tileServerUrl is empty or falsy
+    const effectiveTileServerUrl =
+      tileServerUrl && tileServerUrl.trim() !== ""
+        ? tileServerUrl
+        : "/tileserver";
+    const url = generateTileServerGLMapUrl(
+      latitude,
+      longitude,
+      effectiveTileServerUrl,
+    );
     setMapUrl(url);
   }, [latitude, longitude, tileServerUrl]);
 
@@ -57,14 +64,29 @@ export default function MapView({ latitude, longitude, tileServerUrl }) {
   const handleMapError = (e) => {
     const currentSrc = e.target.src;
     let nextUrl = "";
-    // Use localhost:8080 if tileServerUrl is empty or falsy
-    const effectiveTileServerUrl = tileServerUrl && tileServerUrl.trim() !== "" ? tileServerUrl : "http://localhost:8080";
-    if (effectiveTileServerUrl && currentSrc.includes(effectiveTileServerUrl)) {
-      nextUrl = generateTileServerGLMapUrl(latitude, longitude, effectiveTileServerUrl);
-    } else if (currentSrc.includes("127.0.0.1")) {
-      nextUrl = generateTileServerGLMapUrl(latitude, longitude, "http://localhost:8080");
+    // Use /tileserver proxy route if tileServerUrl is empty or falsy
+    const effectiveTileServerUrl =
+      tileServerUrl && tileServerUrl.trim() !== ""
+        ? tileServerUrl
+        : "/tileserver";
+    if (
+      effectiveTileServerUrl &&
+      (currentSrc.includes(effectiveTileServerUrl) ||
+        currentSrc.includes("/tileserver"))
+    ) {
+      nextUrl = generateTileServerGLMapUrl(
+        latitude,
+        longitude,
+        effectiveTileServerUrl,
+      );
+    } else if (
+      currentSrc.includes("127.0.0.1") ||
+      currentSrc.includes("localhost")
+    ) {
+      nextUrl = generateTileServerGLMapUrl(latitude, longitude, "/tileserver");
     } else {
-      nextUrl = "https://api.builder.io/api/v1/image/assets/TEMP/6c0d2472327d5959e89f81bdc544d6ac3f3feed8?width=752";
+      nextUrl =
+        "https://api.builder.io/api/v1/image/assets/TEMP/6c0d2472327d5959e89f81bdc544d6ac3f3feed8?width=752";
     }
     // Only retry up to 3 times to avoid infinite loop
     if (retryCount < 3) {

@@ -1,5 +1,6 @@
 import { WebApp } from "meteor/webapp";
 import { Images } from "../../api/images/Images";
+import http from "http";
 
 // Create endpoint to serve images directly: /image/<uuid>
 WebApp.connectHandlers.use("/image", async (req, res, _next) => {
@@ -53,5 +54,49 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
     console.error("Error serving image:", error);
     res.writeHead(500, { "Content-Type": "text/plain" });
     res.end("Internal Server Error");
+  }
+});
+
+// Create proxy endpoint to forward requests to tileserver: /tileserver/*
+WebApp.connectHandlers.use("/tileserver", (req, res, _next) => {
+  try {
+    // Remove /tileserver from the path and forward to tileserver-gl:8080
+    const targetPath = req.url;
+
+    const options = {
+      hostname: "tileserver-gl",
+      port: 8080,
+      path: targetPath,
+      method: req.method,
+      headers: {
+        ...req.headers,
+        host: "tileserver-gl:8080", // Update host header for the target
+      },
+    };
+
+    const proxyReq = http.request(options, (proxyRes) => {
+      // Forward status code and headers
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+
+      // Pipe the response data
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on("error", (error) => {
+      console.error("Tileserver proxy error:", error);
+      if (!res.headersSent) {
+        res.writeHead(502, { "Content-Type": "text/plain" });
+        res.end("Bad Gateway: Tileserver unavailable");
+      }
+    });
+
+    // Forward request body if present
+    req.pipe(proxyReq);
+  } catch (error) {
+    console.error("Tileserver proxy setup error:", error);
+    if (!res.headersSent) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end("Internal Server Error");
+    }
   }
 });

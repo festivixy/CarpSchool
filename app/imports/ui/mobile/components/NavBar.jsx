@@ -16,6 +16,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  NavItem,
   NavButton,
   MenuToggle,
   MobileMenu,
@@ -160,6 +161,11 @@ class MobileNavBar extends React.Component {
                   <NavButton onClick={this.handleJoinRideClick}>
                     📱 Join Ride
                   </NavButton>
+
+                  {/* My Places */}
+                  <NavItem to="/places" onClick={this.closeAllMenus}>
+                    📍 My Places
+                  </NavItem>
                 </>
               ) : null}
 
@@ -194,6 +200,12 @@ class MobileNavBar extends React.Component {
                         onClick={this.closeAllMenus}
                       >
                         Test Image Upload
+                      </DropdownItem>
+                      <DropdownItem
+                        to="/_test/MapView"
+                        onClick={this.closeAllMenus}
+                      >
+                        Test Map Components
                       </DropdownItem>
                     </DropdownMenu>
                   )}
@@ -271,6 +283,12 @@ class MobileNavBar extends React.Component {
                     </MobileButton>
                   </MobileSection>
 
+                  <MobileSection>
+                    <MobileItem to="/places" onClick={this.closeAllMenus}>
+                      📍 My Places
+                    </MobileItem>
+                  </MobileSection>
+
                   {this.props.isAdmin && (
                     <MobileSection>
                       <MobileSectionTitle>Admin</MobileSectionTitle>
@@ -280,7 +298,10 @@ class MobileNavBar extends React.Component {
                       <MobileItem to="/adminUsers" onClick={this.closeAllMenus}>
                         Manage Users
                       </MobileItem>
-                      <MobileItem to="/adminPlaces" onClick={this.closeAllMenus}>
+                      <MobileItem
+                        to="/adminPlaces"
+                        onClick={this.closeAllMenus}
+                      >
                         Manage Places
                       </MobileItem>
                       <MobileItem
@@ -288,6 +309,12 @@ class MobileNavBar extends React.Component {
                         onClick={this.closeAllMenus}
                       >
                         Test Image Upload
+                      </MobileItem>
+                      <MobileItem
+                        to="/_test/MapView"
+                        onClick={this.closeAllMenus}
+                      >
+                        Test Map Components
                       </MobileItem>
                     </MobileSection>
                   )}

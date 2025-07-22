@@ -2,9 +2,50 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Button, Card, Form, Modal, Table, Icon, Header, Message } from "semantic-ui-react";
 import swal from "sweetalert";
 import { Places } from "../../../api/places/Places";
+import InteractiveMapPicker from "./InteractiveMapPicker";
+import {
+  Container,
+  Header,
+  Title,
+  TitleIcon,
+  AddButton,
+  Content,
+  LoadingContainer,
+  LoadingSpinner,
+  LoadingText,
+  EmptyState,
+  EmptyStateIcon,
+  EmptyStateTitle,
+  EmptyStateText,
+  PlacesGrid,
+  PlaceCard,
+  PlaceHeader,
+  PlaceInfo,
+  PlaceName,
+  PlaceIcon,
+  PlaceCoordinates,
+  PlaceDate,
+  ActionButtons,
+  ActionButton,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalBody,
+  ModalActions,
+  Form,
+  FormField,
+  Label,
+  Input,
+  ErrorText,
+  InfoBox,
+  InfoTitle,
+  InfoText,
+  Button,
+  LoadingButton,
+} from "../styles/PlaceManager";
 
 /**
  * Component for users to manage their own places
@@ -21,6 +62,8 @@ class PlaceManager extends React.Component {
       },
       errors: {},
       loading: false,
+      showMapPicker: false,
+      selectedCoordinates: null,
     };
   }
 
@@ -52,6 +95,55 @@ class PlaceManager extends React.Component {
       formData: { text: "", value: "" },
       errors: {},
       loading: false,
+      showMapPicker: false,
+      selectedCoordinates: null,
+    });
+  };
+
+  toggleMapPicker = () => {
+    const { editingPlace, formData } = this.state;
+    let coordinates = null;
+
+    // If editing and has coordinates, parse them
+    if (editingPlace && editingPlace.value) {
+      const [lat, lng] = editingPlace.value
+        .split(",")
+        .map((coord) => parseFloat(coord.trim()));
+      if (!isNaN(lat) && !isNaN(lng)) {
+        coordinates = { lat, lng };
+      }
+    }
+    // If manual input has valid coordinates, parse them
+    else if (
+      formData.value &&
+      /^-?\d+\.?\d*,-?\d+\.?\d*$/.test(formData.value.trim())
+    ) {
+      const [lat, lng] = formData.value
+        .split(",")
+        .map((coord) => parseFloat(coord.trim()));
+      if (!isNaN(lat) && !isNaN(lng)) {
+        coordinates = { lat, lng };
+      }
+    }
+
+    this.setState((prevState) => ({
+      showMapPicker: !prevState.showMapPicker,
+      selectedCoordinates: coordinates,
+    }));
+  };
+
+  handleLocationSelect = (location) => {
+    const coordinateString = `${location.lat},${location.lng}`;
+    this.setState({
+      formData: {
+        ...this.state.formData,
+        value: coordinateString,
+      },
+      selectedCoordinates: location,
+      errors: {
+        ...this.state.errors,
+        value: null,
+      },
     });
   };
 
@@ -79,7 +171,8 @@ class PlaceManager extends React.Component {
     if (!value.trim()) {
       errors.value = "Coordinates are required";
     } else if (!/^-?\d+\.?\d*,-?\d+\.?\d*$/.test(value.trim())) {
-      errors.value = "Coordinates must be in format: latitude,longitude (e.g., 21.3099,-157.8581)";
+      errors.value =
+        "Coordinates must be in format: latitude,longitude (e.g., 21.3099,-157.8581)";
     }
 
     this.setState({ errors });
@@ -97,17 +190,21 @@ class PlaceManager extends React.Component {
     const { editingPlace } = this.state;
 
     const method = editingPlace ? "places.update" : "places.insert";
-    const args = editingPlace 
+    const args = editingPlace
       ? [editingPlace._id, { text: text.trim(), value: value.trim() }]
       : [{ text: text.trim(), value: value.trim() }];
 
     Meteor.call(method, ...args, (error) => {
       this.setState({ loading: false });
-      
+
       if (error) {
         swal("Error", error.message, "error");
       } else {
-        swal("Success", `Place ${editingPlace ? "updated" : "created"} successfully!`, "success");
+        swal(
+          "Success",
+          `Place ${editingPlace ? "updated" : "created"} successfully!`,
+          "success",
+        );
         this.closeModal();
       }
     });
@@ -143,113 +240,162 @@ class PlaceManager extends React.Component {
     const { modalOpen, editingPlace, formData, errors, loading } = this.state;
 
     if (!ready) {
-      return <div>Loading places...</div>;
+      return (
+        <Container>
+          <LoadingContainer>
+            <LoadingSpinner />
+            <LoadingText>Loading places...</LoadingText>
+          </LoadingContainer>
+        </Container>
+      );
     }
 
     return (
-      <Card fluid>
-        <Card.Content>
-          <Card.Header>
-            <Icon name="map marker alternate" />
+      <Container>
+        <Header>
+          <Title>
+            <TitleIcon>📍</TitleIcon>
             My Places
-            <Button
-              primary
-              floated="right"
-              icon="plus"
-              content="Add Place"
-              onClick={this.openAddModal}
-            />
-          </Card.Header>
-        </Card.Content>
-        
-        <Card.Content>
+          </Title>
+          <AddButton onClick={this.openAddModal}>➕ Add Place</AddButton>
+        </Header>
+
+        <Content>
           {places.length === 0 ? (
-            <Message info>
-              <Message.Header>No places yet</Message.Header>
-              <p>Create your first place to get started with ride sharing!</p>
-            </Message>
+            <EmptyState>
+              <EmptyStateIcon>📍</EmptyStateIcon>
+              <EmptyStateTitle>No places yet</EmptyStateTitle>
+              <EmptyStateText>
+                Create your first place to get started with ride sharing!
+              </EmptyStateText>
+            </EmptyState>
           ) : (
-            <Table celled>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell>Location Name</Table.HeaderCell>
-                  <Table.HeaderCell>Coordinates</Table.HeaderCell>
-                  <Table.HeaderCell>Created</Table.HeaderCell>
-                  <Table.HeaderCell>Actions</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {places.map((place) => (
-                  <Table.Row key={place._id}>
-                    <Table.Cell>
-                      <Icon name="map pin" />
-                      {place.text}
-                    </Table.Cell>
-                    <Table.Cell>{place.value}</Table.Cell>
-                    <Table.Cell>
-                      {new Date(place.createdAt).toLocaleDateString()}
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Button
-                        icon="edit"
-                        size="mini"
-                        onClick={() => this.openEditModal(place)}
-                      />
-                      <Button
-                        icon="trash"
-                        size="mini"
-                        color="red"
+            <PlacesGrid>
+              {places.map((place) => (
+                <PlaceCard key={place._id}>
+                  <PlaceHeader>
+                    <PlaceInfo>
+                      <PlaceName>
+                        <PlaceIcon>📍</PlaceIcon>
+                        {place.text}
+                      </PlaceName>
+                      <PlaceCoordinates>{place.value}</PlaceCoordinates>
+                      <PlaceDate>
+                        Created:{" "}
+                        {new Date(place.createdAt).toLocaleDateString()}
+                      </PlaceDate>
+                    </PlaceInfo>
+                    <ActionButtons>
+                      <ActionButton onClick={() => this.openEditModal(place)}>
+                        ✏️
+                      </ActionButton>
+                      <ActionButton
+                        variant="delete"
                         onClick={() => this.handleDelete(place)}
-                      />
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
+                      >
+                        🗑️
+                      </ActionButton>
+                    </ActionButtons>
+                  </PlaceHeader>
+                </PlaceCard>
+              ))}
+            </PlacesGrid>
           )}
-        </Card.Content>
+        </Content>
 
-        <Modal open={modalOpen} onClose={this.closeModal} size="small">
-          <Header icon="map marker alternate" content={editingPlace ? "Edit Place" : "Add New Place"} />
-          
-          <Modal.Content>
-            <Form loading={loading}>
-              <Form.Input
-                label="Location Name"
-                name="text"
-                value={formData.text}
-                onChange={this.handleInputChange}
-                error={errors.text}
-                placeholder="e.g., Downtown Honolulu"
-              />
-              <Form.Input
-                label="Coordinates (Latitude, Longitude)"
-                name="value"
-                value={formData.value}
-                onChange={this.handleInputChange}
-                error={errors.value}
-                placeholder="e.g., 21.3099,-157.8581"
-              />
-              <Message info>
-                <Message.Header>Need coordinates?</Message.Header>
-                <p>You can find coordinates by searching for a location on Google Maps and clicking on the map. The coordinates will appear at the bottom.</p>
-              </Message>
-            </Form>
-          </Modal.Content>
+        {modalOpen && (
+          <ModalOverlay onClick={this.closeModal}>
+            <ModalContent onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalTitle>
+                  📍 {editingPlace ? "Edit Place" : "Add New Place"}
+                </ModalTitle>
+              </ModalHeader>
 
-          <Modal.Actions>
-            <Button onClick={this.closeModal}>Cancel</Button>
-            <Button
-              primary
-              onClick={this.handleSubmit}
-              loading={loading}
-              disabled={loading}
-            >
-              {editingPlace ? "Update" : "Create"} Place
-            </Button>
-          </Modal.Actions>
-        </Modal>
-      </Card>
+              <ModalBody>
+                <Form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    this.handleSubmit();
+                  }}
+                >
+                  <FormField>
+                    <Label>Location Name</Label>
+                    <Input
+                      name="text"
+                      value={formData.text}
+                      onChange={(e) =>
+                        this.handleInputChange(e, {
+                          name: e.target.name,
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder="e.g., Downtown Honolulu"
+                    />
+                    {errors.text && <ErrorText>{errors.text}</ErrorText>}
+                  </FormField>
+
+                  <FormField>
+                    <Label>Coordinates (Latitude, Longitude)</Label>
+                    <Input
+                      name="value"
+                      value={formData.value}
+                      onChange={(e) =>
+                        this.handleInputChange(e, {
+                          name: e.target.name,
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder="e.g., 21.3099,-157.8581"
+                    />
+                    {errors.value && <ErrorText>{errors.value}</ErrorText>}
+                    <Button
+                      type="button"
+                      onClick={this.toggleMapPicker}
+                      style={{ marginTop: "8px" }}
+                    >
+                      {this.state.showMapPicker
+                        ? "📝 Manual Entry"
+                        : "🗺️ Pick on Map"}
+                    </Button>
+                  </FormField>
+
+                  {this.state.showMapPicker && (
+                    <FormField>
+                      <Label>Select location on map:</Label>
+                      <InteractiveMapPicker
+                        onLocationSelect={this.handleLocationSelect}
+                        selectedLocation={this.state.selectedCoordinates}
+                        height="300px"
+                      />
+                    </FormField>
+                  )}
+
+                  <InfoBox>
+                    <InfoTitle>Need coordinates?</InfoTitle>
+                    <InfoText>
+                      You can find coordinates by searching for a location on
+                      Google Maps and clicking on the map. The coordinates will
+                      appear at the bottom.
+                    </InfoText>
+                  </InfoBox>
+                </Form>
+              </ModalBody>
+
+              <ModalActions>
+                <Button onClick={this.closeModal}>Cancel</Button>
+                <LoadingButton
+                  variant="primary"
+                  onClick={this.handleSubmit}
+                  disabled={loading}
+                >
+                  {editingPlace ? "Update" : "Create"} Place
+                </LoadingButton>
+              </ModalActions>
+            </ModalContent>
+          </ModalOverlay>
+        )}
+      </Container>
     );
   }
 }
