@@ -50,6 +50,7 @@ services:
       - ./openmaptilesdata/data:/data
       - ./openmaptilesdata/style:/style
       - ./openmaptilesdata/build:/build
+    restart: unless-stopped
 
 volumes:
   mongo_data:
