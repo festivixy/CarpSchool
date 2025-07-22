@@ -53,5 +53,22 @@ services:
       - ./openmaptilesdata/build:/build
     restart: unless-stopped
 
+  tileserver-gl-dev:
+    image: "maptiler/tileserver-gl:latest"
+    container_name: tileserver-gl-dev
+    command:
+      - --port
+      - "8080"
+      - --config
+      - "/style/config.json"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./openmaptilesdata/data:/data
+      - ./openmaptilesdata/style:/style
+      - ./openmaptilesdata/build:/build
+    restart: unless-stopped
+    profiles: ["manual"]
+
 volumes:
   mongo_data:
