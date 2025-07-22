@@ -184,6 +184,12 @@ class MobileNavBar extends React.Component {
                         Manage Users
                       </DropdownItem>
                       <DropdownItem
+                        to="/adminPlaces"
+                        onClick={this.closeAllMenus}
+                      >
+                        Manage Places
+                      </DropdownItem>
+                      <DropdownItem
                         to="/testImageUpload"
                         onClick={this.closeAllMenus}
                       >
@@ -273,6 +279,9 @@ class MobileNavBar extends React.Component {
                       </MobileItem>
                       <MobileItem to="/adminUsers" onClick={this.closeAllMenus}>
                         Manage Users
+                      </MobileItem>
+                      <MobileItem to="/adminPlaces" onClick={this.closeAllMenus}>
+                        Manage Places
                       </MobileItem>
                       <MobileItem
                         to="/testImageUpload"
