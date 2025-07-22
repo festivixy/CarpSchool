@@ -75,7 +75,7 @@ class MobileImRiding extends React.Component {
   handleJoinRideClose = () => {
     this.setState({ joinRideModalOpen: false, prefillCode: "" });
     // Clear the URL parameter
-    this.props.history.replace("/imRiding");
+    this.props.history.replace("/myRides");
   };
 
   filterRides = () => {
@@ -90,7 +90,8 @@ class MobileImRiding extends React.Component {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredRides = filteredRides.filter(
-        (ride) => ride.origin.toLowerCase().includes(query) ||
+        (ride) =>
+          ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           ride.driver.toLowerCase().includes(query),
       );
@@ -104,7 +105,8 @@ class MobileImRiding extends React.Component {
   };
 
   handleLeaveRide = (rideId) => {
-    if (confirm("Are you sure you want to leave this ride?")) { // eslint-disable-line
+    if (confirm("Are you sure you want to leave this ride?")) {
+      // eslint-disable-line
       Meteor.call("rides.leaveRide", rideId, (error) => {
         if (error) {
           alert(`Error leaving ride: ${error.reason}`);
@@ -198,7 +200,8 @@ class MobileImRiding extends React.Component {
                 </EmptyMessage>
                 {searchQuery ? (
                   <ClearSearchButton
-                    onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
+                    onClick={() =>
+                      this.setState({ searchQuery: "" }, this.filterRides)
                     }
                   >
                     Clear Search

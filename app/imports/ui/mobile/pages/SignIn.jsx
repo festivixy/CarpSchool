@@ -159,7 +159,7 @@ export default class MobileSignIn extends React.Component {
   render() {
     // if correct authentication, redirect to page instead of login screen
     if (this.state.redirectToReferer) {
-      return <Redirect to={"/imDriving"} />;
+      return <Redirect to={"/myRides"} />;
     }
 
     return (

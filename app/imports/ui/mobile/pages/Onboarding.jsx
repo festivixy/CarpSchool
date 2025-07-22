@@ -191,7 +191,8 @@ class MobileOnboarding extends React.Component {
   };
 
   // Convert file to base64
-  fileToBase64 = (file) => new Promise((resolve, reject) => {
+  fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
@@ -453,7 +454,8 @@ class MobileOnboarding extends React.Component {
       <StepIcon>👋</StepIcon>
       <StepTitle>Welcome to Carpool!</StepTitle>
       <StepSubtitle>
-        Let&apos;s start by getting your name. This helps other users identify you.
+        Let&apos;s start by getting your name. This helps other users identify
+        you.
       </StepSubtitle>
 
       <InputGroup>
@@ -790,7 +792,7 @@ class MobileOnboarding extends React.Component {
 
   render() {
     if (this.state.redirectToReferer) {
-      return <Redirect to="/imDriving" />;
+      return <Redirect to="/myRides" />;
     }
 
     const { currentStep, totalSteps, isSubmitting } = this.state;

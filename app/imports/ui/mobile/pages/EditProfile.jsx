@@ -160,7 +160,8 @@ class MobileEditProfile extends React.Component {
   };
 
   // Convert file to base64
-  fileToBase64 = (file) => new Promise((resolve, reject) => {
+  fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
@@ -442,7 +443,7 @@ class MobileEditProfile extends React.Component {
 
   render() {
     if (this.state.redirectToReferer) {
-      return <Redirect to="/imDriving" />;
+      return <Redirect to="/myRides" />;
     }
 
     if (!this.props.ready) {
@@ -732,7 +733,7 @@ class MobileEditProfile extends React.Component {
           )}
 
           <Links>
-            <StyledLink to="/imDriving">Back to Dashboard</StyledLink>
+            <StyledLink to="/myRides">Back to Dashboard</StyledLink>
           </Links>
         </Content>
       </Container>
