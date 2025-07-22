@@ -13,6 +13,7 @@ services:
     depends_on:
       - mongo
       - tileserver-gl
+      - nominatim
     restart: unless-stopped
 
   mongo:
@@ -36,6 +37,7 @@ services:
     depends_on:
       - mongo
     restart: unless-stopped
+    profiles: ["manual"]
 
   tileserver-gl:
     image: "maptiler/tileserver-gl:latest"
@@ -68,6 +70,27 @@ services:
       - ./openmaptilesdata/style:/style
       - ./openmaptilesdata/build:/build
     restart: unless-stopped
+    profiles: ["manual"]
+
+  nominatim:
+    container_name: nominatim
+    image: mediagis/nominatim:5.1
+    # ports:
+    #   - "8082:8080"
+    environment:
+      - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
+    volumes:
+      - ./openmaptilesdata/data:/nominatim/data
+
+  nominatim-dev:
+    container_name: nominatim-dev
+    image: mediagis/nominatim:5.1
+    ports:
+      - "8082:8080"
+    environment:
+      - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
+    volumes:
+      - ./openmaptilesdata/data:/nominatim/data
     profiles: ["manual"]
 
 volumes:
