@@ -18,8 +18,17 @@ echo -e "${YELLOW}🛑 Stopping Docker containers...${NC}"
 docker compose down
 
 # Step 2: Remove Docker volumes (optional - uncomment if needed)
-# echo -e "${YELLOW}🗑️  Removing Docker volumes...${NC}"
-# docker compose down -v
+echo -e "${YELLOW}Do you want to remove docker volumes? (y/n): ${NC}"
+read -p $'' yn
+case $yn in
+  [Yy]* )
+    echo -e "${YELLOW}🗑️  Removing Docker volumes...${NC}"
+    docker compose down -v
+    ;;
+  * )
+    echo -e "${YELLOW}Skipping removal of Docker volumes.${NC}"
+    ;;
+esac
 
 # Step 3: Clean build artifacts
 echo -e "${YELLOW}🗂️  Cleaning build artifacts...${NC}"
@@ -28,8 +37,8 @@ rm -rf build
 echo -e "${YELLOW}🗑️  Removing local Meteor build artifacts...${NC}"
 rm -rf app/.meteor/local
 
-
-read -p $'${YELLOW}Do you want to remove the openmaptiles directory? (y/n): ${NC}' yn
+echo -e "${YELLOW}Do you want to remove the openmaptiles directory? (y/n): ${NC}"
+read -p $'' yn
 case $yn in
   [Yy]* )
     echo -e "${YELLOW}  Removing openmaptiles directory...${NC}"
@@ -39,6 +48,9 @@ case $yn in
     echo -e "${YELLOW}Skipping removal of openmaptiles directory.${NC}"
     ;;
 esac
+
+rm app/package-lock.json
+rm -rf app/node_modules
 
 echo -e "${GREEN}✅ Cleanup completed!${NC}"
 echo ""
