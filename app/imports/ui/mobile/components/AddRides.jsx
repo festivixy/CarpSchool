@@ -316,7 +316,7 @@ class MobileAddRidesModal extends React.Component {
         // Close modal and redirect after showing success
         setTimeout(() => {
           this.handleClose();
-          this.props.history.push("/imRiding");
+          this.props.history.push("/myRides");
         }, 2000);
       }
     });
