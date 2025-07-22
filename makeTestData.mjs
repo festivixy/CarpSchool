@@ -244,7 +244,7 @@ console.log("Generating test data with UUID-based place references...");
 
 import fs from "fs";
 import path from "path";
-const settingsPath = path.join(process.cwd(), "config", "settings.prod.json");
+const settingsPath = path.join(process.cwd(), "config", "settings.development.json");
 fs.writeFileSync(settingsPath, JSON.stringify(template, null, 2), "utf8");
 console.log(`\n✅ Test data generation complete!`);
 console.log(`📊 Summary:`);
