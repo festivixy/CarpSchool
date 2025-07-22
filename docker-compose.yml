@@ -15,13 +15,17 @@ services:
       - tileserver-gl
       - nominatim
     restart: unless-stopped
+    networks:
+      - carpool_network
 
   mongo:
     image: mongo:4.4
     container_name: carpool-mongo
     volumes:
-      - mongo_data:/data/db
+      - ./mongo_data:/data/db
     restart: unless-stopped
+    networks:
+      - carpool_network
 
   mongo-express:
     image: mongo-express
@@ -38,10 +42,12 @@ services:
       - mongo
     restart: unless-stopped
     profiles: ["manual"]
+    networks:
+      - carpool_network
 
   tileserver-gl:
     image: "maptiler/tileserver-gl:latest"
-    container_name: tileserver-gl
+    container_name: carpool-tileserver-gl
     command:
       - --port
       - "8080"
@@ -54,6 +60,8 @@ services:
       - ./openmaptilesdata/style:/style
       - ./openmaptilesdata/build:/build
     restart: unless-stopped
+    networks:
+      - carpool_network
 
   tileserver-gl-dev:
     image: "maptiler/tileserver-gl:latest"
@@ -71,16 +79,31 @@ services:
       - ./openmaptilesdata/build:/build
     restart: unless-stopped
     profiles: ["manual"]
+    networks:
+      - carpool_network
 
   nominatim:
-    container_name: nominatim
+    container_name: carpool-nominatim
     image: mediagis/nominatim:5.1
     # ports:
     #   - "8082:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
+      - PGHOSTADDR=postgres
+      - PGDATABASE=nominatim
+      - PGUSER=nominatim
+      - PGPASSWORD=nominatim
+      - NOMINATIM_TOKENIZER=icu
+      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;hostaddr=postgres;user=nominatim;password=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    networks:
+      - carpool_network
 
   nominatim-dev:
     container_name: nominatim-dev
@@ -89,9 +112,46 @@ services:
       - "8082:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
+      - PGHOSTADDR=postgres
+      - PGPORT=5432
+      - PGDATABASE=nominatim
+      - PGUSER=nominatim
+      - PGPASSWORD=nominatim
+      - NOMINATIM_TOKENIZER=icu
+      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;hostaddr=postgres;user=nominatim;password=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
     profiles: ["manual"]
+    networks:
+      - carpool_network
 
-volumes:
-  mongo_data:
+  postgres:
+    image: postgres
+    container_name: carpool-postgres
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: nominatim
+      POSTGRES_USER: nominatim
+      POSTGRES_PASSWORD: nominatim
+      PGPORT: 5432
+    networks:
+      - carpool_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+networks:
+  carpool_network:
+    driver: bridge
