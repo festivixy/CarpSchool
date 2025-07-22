@@ -3,6 +3,8 @@ import { Rides } from "../../api/ride/Rides";
 import { Places } from "../../api/places/Places";
 import { Accounts } from "meteor/accounts-base";
 import { Captcha } from "../../api/captcha/Captcha";
+import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
 
 /* eslint-disable no-console */
 
@@ -15,17 +17,21 @@ async function createUser(email, firstName, lastName, password, role) {
   });
   console.log(`  Created dummy captcha session ID: ${captchaSessionId}`);
   console.log(`  Creating user ${email}.`);
-  const userID = Accounts.createUser({
-    username: email,
-    profile: {
-      firstName: firstName,
-      lastName: lastName,
+  const userID = await new Promise((resolve, reject) => {
+    const id = Accounts.createUser({
+      username: email,
+      profile: {
+        firstName: firstName,
+        lastName: lastName,
+        captchaSessionId: captchaSessionId,
+      },
+      email: email,
+      password: password,
       captchaSessionId: captchaSessionId,
-    },
-    email: email,
-    password: password,
-    captchaSessionId: captchaSessionId,
+    });
+    resolve(id);
   });
+
   if (role === "admin") {
     console.log(`  Assigning admin role to user ${email} with ID ${userID}`);
     // Add admin role directly to user document
@@ -34,20 +40,46 @@ async function createUser(email, firstName, lastName, password, role) {
     });
     console.log(`  Admin role assignment completed for user ${email}`);
   }
+
+  return userID;
 }
 
 async function addPlace(data) {
   console.log(`  Adding: Place "${data.text}" for ${data.createdBy}`);
 
   // Find the user by email to get their user ID
-  const user = await Meteor.users.findOneAsync({
-    $or: [{ "emails.address": data.createdBy }, { username: data.createdBy }],
+  let user = await Meteor.users.findOneAsync({
+    $or: [
+      { "emails.address": data.createdBy },
+      { username: data.createdBy },
+      { "emails.0.address": data.createdBy },
+    ],
   });
+
+  // If still not found, try a more exhaustive search
+  if (!user) {
+    user = await Meteor.users.findOneAsync({
+      $or: [
+        { emails: { $elemMatch: { address: data.createdBy } } },
+        { username: data.createdBy },
+      ],
+    });
+  }
 
   if (!user) {
     console.error(`    Error: User not found for ${data.createdBy}`);
+    console.log(
+      `    Available users:`,
+      await Meteor.users
+        .find({}, { fields: { emails: 1, username: 1 } })
+        .fetchAsync(),
+    );
     return;
   }
+
+  // Generate SHA256 hashed UUID for place ID
+  const uuid = uuidv4();
+  const hashedId = crypto.createHash("sha256").update(uuid).digest("hex");
 
   // Create place data with user ID
   const placeData = {
@@ -67,6 +99,7 @@ async function addPlace(data) {
     }
     placeData._id = data._id;
   } else {
+    // Check for existing place by text and user
     existingPlace = await Places.findOneAsync({
       text: placeData.text,
       createdBy: placeData.createdBy,
@@ -77,7 +110,11 @@ async function addPlace(data) {
       );
       return;
     }
+    // Use the SHA256 hashed UUID as the place ID
+    placeData._id = hashedId;
   }
+
+  console.log(`    Generated place ID: ${placeData._id} (from UUID: ${uuid})`);
 
   await Places.insertAsync(placeData);
 }
@@ -110,26 +147,46 @@ async function addRide(data) {
     rideData.createdAt = new Date();
   }
 
-  // Validate that origin and destination place IDs exist
+  // Validate and resolve origin and destination places
   if (rideData.origin) {
-    const originPlace = await Places.findOneAsync({ _id: rideData.origin });
+    let originPlace = await Places.findOneAsync({ _id: rideData.origin });
+    // If not found by ID, try to find by text (place name)
     if (!originPlace) {
-      console.error(
-        `    Error: Origin place ID "${rideData.origin}" not found`,
-      );
-      return;
+      originPlace = await Places.findOneAsync({ text: rideData.origin });
+      if (originPlace) {
+        console.log(
+          `    Resolved origin "${rideData.origin}" to place ID: ${originPlace._id}`,
+        );
+        rideData.origin = originPlace._id;
+      } else {
+        console.error(
+          `    Error: Origin place "${rideData.origin}" not found by ID or name`,
+        );
+        return;
+      }
     }
   }
 
   if (rideData.destination) {
-    const destinationPlace = await Places.findOneAsync({
+    let destinationPlace = await Places.findOneAsync({
       _id: rideData.destination,
     });
+    // If not found by ID, try to find by text (place name)
     if (!destinationPlace) {
-      console.error(
-        `    Error: Destination place ID "${rideData.destination}" not found`,
-      );
-      return;
+      destinationPlace = await Places.findOneAsync({
+        text: rideData.destination,
+      });
+      if (destinationPlace) {
+        console.log(
+          `    Resolved destination "${rideData.destination}" to place ID: ${destinationPlace._id}`,
+        );
+        rideData.destination = destinationPlace._id;
+      } else {
+        console.error(
+          `    Error: Destination place "${rideData.destination}" not found by ID or name`,
+        );
+        return;
+      }
     }
   }
 
@@ -180,6 +237,8 @@ Meteor.startup(async () => {
         .settings.defaultAccounts) {
         await createUser(email, firstName, lastName, password, role);
       }
+      // Wait a moment for all users to be fully indexed
+      await new Promise((resolve) => setTimeout(resolve, 100));
     } else {
       console.log(
         "Cannot initialize the database!  Please invoke meteor with a settings file.",
