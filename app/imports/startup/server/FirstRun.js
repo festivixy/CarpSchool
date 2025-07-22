@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { Rides } from "../../api/ride/Rides";
+import { Places } from "../../api/places/Places";
 import { Accounts } from "meteor/accounts-base";
 import { Captcha } from "../../api/captcha/Captcha";
 
@@ -33,6 +34,43 @@ async function createUser(email, firstName, lastName, password, role) {
     });
     console.log(`  Admin role assignment completed for user ${email}`);
   }
+}
+
+async function addPlace(data) {
+  console.log(`  Adding: Place "${data.text}" for ${data.createdBy}`);
+
+  // Find the user by email to get their user ID
+  const user = await Meteor.users.findOneAsync({
+    $or: [{ "emails.address": data.createdBy }, { username: data.createdBy }],
+  });
+
+  if (!user) {
+    console.error(`    Error: User not found for ${data.createdBy}`);
+    return;
+  }
+
+  // Create place data with user ID
+  const placeData = {
+    text: data.text,
+    value: data.value,
+    createdBy: user._id,
+    createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+  };
+
+  // Check if place already exists for this user
+  const existingPlace = await Places.findOneAsync({
+    text: placeData.text,
+    createdBy: placeData.createdBy,
+  });
+
+  if (existingPlace) {
+    console.log(
+      `    Place "${data.text}" already exists for user ${data.createdBy}`,
+    );
+    return;
+  }
+
+  await Places.insertAsync(placeData);
 }
 
 async function addRide(data) {
@@ -116,6 +154,19 @@ Meteor.startup(async () => {
       );
     }
   }
+  // Create default places
+  if ((await Places.find().countAsync()) === 0) {
+    if (Meteor.settings.defaultPlaces) {
+      console.log("Creating default places.");
+      // eslint-disable-next-line no-restricted-syntax
+      for (const data of Meteor.settings.defaultPlaces) {
+        // eslint-disable-next-line no-await-in-loop
+        await addPlace(data);
+      }
+    }
+  }
+
+  // Create default rides
   if ((await Rides.find().countAsync()) === 0) {
     if (Meteor.settings.defaultRides) {
       console.log("Creating default rides.");
