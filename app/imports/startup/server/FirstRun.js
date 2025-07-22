@@ -57,22 +57,26 @@ async function addPlace(data) {
     createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
   };
 
-  // If explicit _id is provided (from test data), use it
+  // Check if place already exists (by _id if provided, or by text+user)
+  let existingPlace;
   if (data._id) {
+    existingPlace = await Places.findOneAsync({ _id: data._id });
+    if (existingPlace) {
+      console.log(`    Place with ID "${data._id}" already exists`);
+      return;
+    }
     placeData._id = data._id;
-  }
-
-  // Check if place already exists for this user
-  const existingPlace = await Places.findOneAsync({
-    text: placeData.text,
-    createdBy: placeData.createdBy,
-  });
-
-  if (existingPlace) {
-    console.log(
-      `    Place "${data.text}" already exists for user ${data.createdBy}`,
-    );
-    return;
+  } else {
+    existingPlace = await Places.findOneAsync({
+      text: placeData.text,
+      createdBy: placeData.createdBy,
+    });
+    if (existingPlace) {
+      console.log(
+        `    Place "${data.text}" already exists for user ${data.createdBy}`,
+      );
+      return;
+    }
   }
 
   await Places.insertAsync(placeData);
@@ -104,6 +108,29 @@ async function addRide(data) {
   }
   if (rideData.createdAt === undefined) {
     rideData.createdAt = new Date();
+  }
+
+  // Validate that origin and destination place IDs exist
+  if (rideData.origin) {
+    const originPlace = await Places.findOneAsync({ _id: rideData.origin });
+    if (!originPlace) {
+      console.error(
+        `    Error: Origin place ID "${rideData.origin}" not found`,
+      );
+      return;
+    }
+  }
+
+  if (rideData.destination) {
+    const destinationPlace = await Places.findOneAsync({
+      _id: rideData.destination,
+    });
+    if (!destinationPlace) {
+      console.error(
+        `    Error: Destination place ID "${rideData.destination}" not found`,
+      );
+      return;
+    }
   }
 
   await Rides.insertAsync(rideData);

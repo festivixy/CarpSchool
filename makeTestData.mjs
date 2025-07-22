@@ -148,6 +148,7 @@ allUsers.forEach((userEmail, userIndex) => {
 // Create array of place IDs for ride generation (instead of names)
 const availablePlaceIds = createdPlaces.map((place) => place._id);
 console.log(`Total places generated: ${availablePlaceIds.length}`);
+console.log(`Sample place IDs: ${availablePlaceIds.slice(0, 3).join(", ")}...`);
 
 const sampleNotes = [
   "",
@@ -239,8 +240,17 @@ function generateObjectId() {
   return timestamp + randomBytes;
 }
 
+console.log("Generating test data with UUID-based place references...");
+
 import fs from "fs";
 import path from "path";
 const settingsPath = path.join(process.cwd(), "config", "settings.prod.json");
 fs.writeFileSync(settingsPath, JSON.stringify(template, null, 2), "utf8");
-console.log(`Test data written to ${settingsPath}`);
+console.log(`\n✅ Test data generation complete!`);
+console.log(`📊 Summary:`);
+console.log(`   • ${template.defaultAccounts.length} user accounts`);
+console.log(`   • ${template.defaultPlaces.length} places with UUIDs`);
+console.log(
+  `   • ${template.defaultRides.length} rides with place ID references`,
+);
+console.log(`📁 Written to: ${settingsPath}`);
