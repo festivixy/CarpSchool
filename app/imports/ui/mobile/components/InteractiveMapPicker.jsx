@@ -145,7 +145,7 @@ const InteractiveMapPicker = ({
     }
   };
 
-  // Search for locations using local tileserver-gl search
+  // Search for locations using local Nominatim proxy
   const searchLocation = async () => {
     if (!searchQuery.trim()) return;
 
@@ -153,53 +153,59 @@ const InteractiveMapPicker = ({
     setSearchResults([]);
 
     try {
-      // Try tileserver-gl search endpoint first
+      // Use local Nominatim proxy first
       const response = await fetch(
-        `/tileserver/search/${encodeURIComponent(searchQuery)}.json?limit=5`,
+        `/nominatim/search?q=${encodeURIComponent(
+          searchQuery,
+        )}&format=json&limit=5&addressdetails=1&countrycodes=ca`,
       );
 
       if (!response.ok) {
-        throw new Error(`Search endpoint returned ${response.status}`);
+        throw new Error(`Nominatim search returned ${response.status}`);
       }
 
-      const data = await response.json();
+      const results = await response.json();
 
-      // TileServer GL search response format
-      const results = data.features || [];
-      const formattedResults = results.map((result, index) => ({
-        id: result.id || `search_${index}`,
-        display_name:
-          result.place_name ||
-          result.properties?.name ||
-          result.text ||
-          "Unknown location",
-        lat: parseFloat(
-          result.center ? result.center[1] : result.geometry.coordinates[1],
-        ),
-        lng: parseFloat(
-          result.center ? result.center[0] : result.geometry.coordinates[0],
-        ),
+      // Nominatim response format
+      const formattedResults = results.map((result) => ({
+        id: result.place_id,
+        display_name: result.display_name,
+        lat: parseFloat(result.lat),
+        lng: parseFloat(result.lon),
       }));
 
       setSearchResults(formattedResults);
     } catch (error) {
-      console.error("Local search error:", error);
+      console.error("Nominatim search error:", error);
 
-      // Fallback to Nominatim if local search fails
+      // Fallback to tileserver-gl search if Nominatim fails
       try {
-        console.log("Falling back to Nominatim search...");
+        console.log("Falling back to tileserver-gl search...");
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-            searchQuery,
-          )}&format=json&limit=5&addressdetails=1`,
+          `/tileserver/search/${encodeURIComponent(searchQuery)}.json?limit=5`,
         );
-        const results = await response.json();
 
-        const formattedResults = results.map((result) => ({
-          id: result.place_id,
-          display_name: result.display_name,
-          lat: parseFloat(result.lat),
-          lng: parseFloat(result.lon),
+        if (!response.ok) {
+          throw new Error(`Tileserver search returned ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // TileServer GL search response format
+        const results = data.features || [];
+        const formattedResults = results.map((result, index) => ({
+          id: result.id || `search_${index}`,
+          display_name:
+            result.place_name ||
+            result.properties?.name ||
+            result.text ||
+            "Unknown location",
+          lat: parseFloat(
+            result.center ? result.center[1] : result.geometry.coordinates[1],
+          ),
+          lng: parseFloat(
+            result.center ? result.center[0] : result.geometry.coordinates[0],
+          ),
         }));
 
         setSearchResults(formattedResults);

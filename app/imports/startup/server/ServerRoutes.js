@@ -101,3 +101,48 @@ WebApp.connectHandlers.use("/tileserver", (req, res, _next) => {
     }
   }
 });
+
+// Create proxy endpoint to forward requests to nominatim: /nominatim/*
+WebApp.connectHandlers.use("/nominatim", (req, res, _next) => {
+  try {
+    // Remove /nominatim from the path and forward to nominatim:8080
+    const targetPath = req.url;
+
+    const options = {
+      // hostname: "nominatim",
+      hostname: "localhost", // Use localhost for local development
+      port: 8082, // Nominatim runs on port 8082 according to docker-compose.yml
+      path: targetPath,
+      method: req.method,
+      headers: {
+        ...req.headers,
+        host: "nominatim:8080", // Update host header for the target
+      },
+    };
+
+    const proxyReq = http.request(options, (proxyRes) => {
+      // Forward status code and headers
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+
+      // Pipe the response data
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on("error", (error) => {
+      console.error("Nominatim proxy error:", error);
+      if (!res.headersSent) {
+        res.writeHead(502, { "Content-Type": "text/plain" });
+        res.end("Bad Gateway: Nominatim unavailable");
+      }
+    });
+
+    // Forward request body if present
+    req.pipe(proxyReq);
+  } catch (error) {
+    console.error("Nominatim proxy setup error:", error);
+    if (!res.headersSent) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end("Internal Server Error");
+    }
+  }
+});
