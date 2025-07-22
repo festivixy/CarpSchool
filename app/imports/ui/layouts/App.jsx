@@ -15,8 +15,6 @@ import MobileSignIn from "../mobile/pages/SignIn";
 import MobileSignup from "../mobile/pages/Signup";
 import MobileForgotPassword from "../mobile/pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
-import MobileImDriving from "../mobile/pages/ImDriving";
-import MobileImRiding from "../mobile/pages/ImRiding";
 import MobileMyRides from "../mobile/pages/MyRides";
 import MobileNavBar from "../mobile/components/NavBar";
 import MobileFooter from "../mobile/components/Footer";
@@ -80,8 +78,6 @@ class App extends React.Component {
 
               {/* Main app routes with full onboarding flow */}
               <ProtectedRoutes path="/myRides" component={MobileMyRides} />
-              <ProtectedRoutes path="/imDriving" component={MobileImDriving} />
-              <ProtectedRoutes path="/imRiding" component={MobileImRiding} />
               <ProtectedRoutes
                 path="/editProfile"
                 component={MobileEditProfile}
