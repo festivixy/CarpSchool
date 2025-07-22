@@ -400,10 +400,13 @@ export const SuccessMessage = styled.div`
   font-size: 14px;
 `;
 
-export const Navigation = styled.div`
+export const Navigation = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "hasBackButton",
+})`
   display: flex;
   gap: 16px;
-  justify-content: ${(props) => (props.hasBackButton ? "space-between" : "flex-end")};
+  justify-content: ${(props) =>
+    props.hasBackButton ? "space-between" : "flex-end"};
   margin-top: 32px;
 
   @media (max-width: 480px) {
