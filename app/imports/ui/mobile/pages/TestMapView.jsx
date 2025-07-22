@@ -27,21 +27,46 @@ import {
  * Test page for MapView component - Admin only
  */
 const MobileTestMapView = () => {
-  const [latitude, setLatitude] = useState(49.345196);
-  const [longitude, setLongitude] = useState(-123.149805);
+  const [coordinates, setCoordinates] = useState([
+    { lat: 49.345196, lng: -123.149805, label: "Vancouver" },
+    { lat: 49.35, lng: -123.155, label: "Point 2" },
+    { lat: 49.34, lng: -123.145, label: "Point 3" },
+  ]);
   const [tileServerUrl, setTileServerUrl] = useState("");
   const [selectedLocation, setSelectedLocation] = useState({
     lat: 49.345196,
     lng: -123.149805,
   });
   const [mapPickerHeight, setMapPickerHeight] = useState("400px");
+  const [newPointLat, setNewPointLat] = useState("");
+  const [newPointLng, setNewPointLng] = useState("");
+  const [newPointLabel, setNewPointLabel] = useState("");
 
-  const handleLatitudeChange = (e) => {
-    setLatitude(parseFloat(e.target.value) || 0);
+  const handleAddPoint = () => {
+    const lat = parseFloat(newPointLat);
+    const lng = parseFloat(newPointLng);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      setCoordinates([
+        ...coordinates,
+        {
+          lat,
+          lng,
+          label: newPointLabel || `Point ${coordinates.length + 1}`,
+        },
+      ]);
+      setNewPointLat("");
+      setNewPointLng("");
+      setNewPointLabel("");
+    }
   };
 
-  const handleLongitudeChange = (e) => {
-    setLongitude(parseFloat(e.target.value) || 0);
+  const handleRemovePoint = (index) => {
+    setCoordinates(coordinates.filter((_, i) => i !== index));
+  };
+
+  const handleClearPoints = () => {
+    setCoordinates([]);
   };
 
   return (
@@ -54,8 +79,8 @@ const MobileTestMapView = () => {
         <Copy>
           <Title>Test MapView Component</Title>
           <Subtitle>
-            Interactive testing page for the MapView component with price chips
-            overlay
+            Interactive testing page for the MapView component with Leaflet.js
+            integration
           </Subtitle>
         </Copy>
 
@@ -64,26 +89,72 @@ const MobileTestMapView = () => {
           <SectionContent>
             <ControlsGrid>
               <ControlItem>
-                <Label htmlFor="latitude">Latitude</Label>
+                <Label htmlFor="newPointLat">Add Point - Latitude</Label>
                 <Input
-                  id="latitude"
+                  id="newPointLat"
                   type="number"
                   step="0.000001"
-                  value={latitude}
-                  onChange={handleLatitudeChange}
+                  value={newPointLat}
+                  onChange={(e) => setNewPointLat(e.target.value)}
                   placeholder="Enter latitude"
                 />
               </ControlItem>
               <ControlItem>
-                <Label htmlFor="longitude">Longitude</Label>
+                <Label htmlFor="newPointLng">Add Point - Longitude</Label>
                 <Input
-                  id="longitude"
+                  id="newPointLng"
                   type="number"
                   step="0.000001"
-                  value={longitude}
-                  onChange={handleLongitudeChange}
+                  value={newPointLng}
+                  onChange={(e) => setNewPointLng(e.target.value)}
                   placeholder="Enter longitude"
                 />
+              </ControlItem>
+            </ControlsGrid>
+
+            <ControlsGrid>
+              <ControlItem>
+                <Label htmlFor="newPointLabel">
+                  Add Point - Label (optional)
+                </Label>
+                <Input
+                  id="newPointLabel"
+                  type="text"
+                  value={newPointLabel}
+                  onChange={(e) => setNewPointLabel(e.target.value)}
+                  placeholder="Enter point label"
+                />
+              </ControlItem>
+              <ControlItem>
+                <Label>Actions</Label>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={handleAddPoint}
+                    style={{
+                      padding: "8px 16px",
+                      backgroundColor: "#007bff",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Add Point
+                  </button>
+                  <button
+                    onClick={handleClearPoints}
+                    style={{
+                      padding: "8px 16px",
+                      backgroundColor: "#dc3545",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Clear All
+                  </button>
+                </div>
               </ControlItem>
             </ControlsGrid>
 
@@ -102,17 +173,50 @@ const MobileTestMapView = () => {
 
             <ComponentContainer>
               <MapView
-                latitude={latitude}
-                longitude={longitude}
+                coordinates={coordinates}
                 tileServerUrl={tileServerUrl || undefined}
               />
             </ComponentContainer>
 
             <InfoCard>
               <InfoItem>
-                <InfoLabel>Current Coordinates</InfoLabel>
+                <InfoLabel>Current Points</InfoLabel>
                 <InfoValue>
-                  {latitude.toFixed(6)}, {longitude.toFixed(6)}
+                  {coordinates.length} point(s) displayed
+                  {coordinates.length > 0 && (
+                    <div style={{ marginTop: "8px" }}>
+                      {coordinates.map((coord, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          <span>
+                            {coord.label}: {coord.lat.toFixed(6)},{" "}
+                            {coord.lng.toFixed(6)}
+                          </span>
+                          <button
+                            onClick={() => handleRemovePoint(index)}
+                            style={{
+                              padding: "2px 6px",
+                              backgroundColor: "#dc3545",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "2px",
+                              cursor: "pointer",
+                              fontSize: "12px",
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </InfoValue>
               </InfoItem>
               <InfoItem>
@@ -122,12 +226,14 @@ const MobileTestMapView = () => {
               <InfoItem>
                 <InfoLabel>Map Source</InfoLabel>
                 <InfoValue>
-                  {tileServerUrl ? "Self-hosted tiles" : "Public OSM"}
+                  {tileServerUrl ? "Self-hosted tiles" : "Tileserver proxy"}
                 </InfoValue>
               </InfoItem>
               <InfoItem>
-                <InfoLabel>Price Chips</InfoLabel>
-                <InfoValue>7 sample price points displayed</InfoValue>
+                <InfoLabel>Features</InfoLabel>
+                <InfoValue>
+                  Interactive Leaflet map with markers and popups
+                </InfoValue>
               </InfoItem>
             </InfoCard>
           </SectionContent>
