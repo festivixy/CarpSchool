@@ -34,8 +34,8 @@ L.Icon.Default.mergeOptions({
  * Uses the tileserver proxy for map tiles
  */
 const InteractiveMapPicker = ({
-  initialLat = 21.3099,
-  initialLng = -157.8581,
+  initialLat = 49.345196,
+  initialLng = -123.149805,
   onLocationSelect,
   selectedLocation,
   height = "400px",

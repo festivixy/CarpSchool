@@ -172,7 +172,7 @@ class MobileAddRidesModal extends React.Component {
 
     const places = this.props.places || [];
     const filtered = places.filter((place) =>
-      place.text.toLowerCase().includes(searchValue.toLowerCase()),
+      place.toLowerCase().includes(searchValue.toLowerCase()),
     );
 
     this.setState({
@@ -187,10 +187,10 @@ class MobileAddRidesModal extends React.Component {
     const dropdownField =
       field === "origin" ? "showOriginDropdown" : "showDestinationDropdown";
 
-    // Use place.text for display, but store place.text as the value
+    // Place is already a string (place.text), not an object
     this.setState({
-      [field]: place.text,
-      [searchField]: place.text,
+      [field]: place,
+      [searchField]: place,
       [dropdownField]: false,
       error: "",
     });

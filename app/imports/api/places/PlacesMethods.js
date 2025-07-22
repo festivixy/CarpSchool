@@ -6,9 +6,12 @@ import { Places, PlacesSchema } from "./Places";
  * Create a new place (user can only create places for themselves)
  */
 Meteor.methods({
-  "places.insert"(placeData) {
+  async "places.insert"(placeData) {
     if (!this.userId) {
-      throw new Meteor.Error("not-authorized", "You must be logged in to create places");
+      throw new Meteor.Error(
+        "not-authorized",
+        "You must be logged in to create places",
+      );
     }
 
     // Validate input
@@ -23,43 +26,53 @@ Meteor.methods({
     }
 
     // Check if place with same name already exists for this user
-    const existingPlace = Places.findOne({
+    const existingPlace = await Places.findOneAsync({
       text: value.text,
       createdBy: this.userId,
     });
 
     if (existingPlace) {
-      throw new Meteor.Error("duplicate-place", "You already have a place with this name");
+      throw new Meteor.Error(
+        "duplicate-place",
+        "You already have a place with this name",
+      );
     }
 
-    return Places.insert(value);
+    return await Places.insertAsync(value);
   },
 
-  "places.update"(placeId, updateData) {
+  async "places.update"(placeId, updateData) {
     check(placeId, String);
-    
+
     if (!this.userId) {
-      throw new Meteor.Error("not-authorized", "You must be logged in to update places");
+      throw new Meteor.Error(
+        "not-authorized",
+        "You must be logged in to update places",
+      );
     }
 
-    const place = Places.findOne(placeId);
+    const place = await Places.findOneAsync(placeId);
     if (!place) {
       throw new Meteor.Error("not-found", "Place not found");
     }
 
-    const currentUser = Meteor.users.findOne(this.userId);
-    const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes("admin");
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
+    const isAdmin =
+      currentUser && currentUser.roles && currentUser.roles.includes("admin");
 
     // Only the creator or admin can update
     if (place.createdBy !== this.userId && !isAdmin) {
-      throw new Meteor.Error("access-denied", "You can only update places you created");
+      throw new Meteor.Error(
+        "access-denied",
+        "You can only update places you created",
+      );
     }
 
     // Validate update data
     const allowedFields = ["text", "value"];
     const filteredUpdate = {};
-    
-    allowedFields.forEach(field => {
+
+    allowedFields.forEach((field) => {
       if (updateData[field] !== undefined) {
         filteredUpdate[field] = updateData[field];
       }
@@ -84,42 +97,52 @@ Meteor.methods({
 
     // Check for duplicate names (excluding current place)
     if (filteredUpdate.text) {
-      const existingPlace = Places.findOne({
+      const existingPlace = await Places.findOneAsync({
         _id: { $ne: placeId },
         text: filteredUpdate.text,
         createdBy: place.createdBy,
       });
 
       if (existingPlace) {
-        throw new Meteor.Error("duplicate-place", "A place with this name already exists");
+        throw new Meteor.Error(
+          "duplicate-place",
+          "A place with this name already exists",
+        );
       }
     }
 
-    Places.update(placeId, { $set: filteredUpdate });
+    await Places.updateAsync(placeId, { $set: filteredUpdate });
     return placeId;
   },
 
-  "places.remove"(placeId) {
+  async "places.remove"(placeId) {
     check(placeId, String);
-    
+
     if (!this.userId) {
-      throw new Meteor.Error("not-authorized", "You must be logged in to delete places");
+      throw new Meteor.Error(
+        "not-authorized",
+        "You must be logged in to delete places",
+      );
     }
 
-    const place = Places.findOne(placeId);
+    const place = await Places.findOneAsync(placeId);
     if (!place) {
       throw new Meteor.Error("not-found", "Place not found");
     }
 
-    const currentUser = Meteor.users.findOne(this.userId);
-    const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes("admin");
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
+    const isAdmin =
+      currentUser && currentUser.roles && currentUser.roles.includes("admin");
 
     // Only the creator or admin can delete
     if (place.createdBy !== this.userId && !isAdmin) {
-      throw new Meteor.Error("access-denied", "You can only delete places you created");
+      throw new Meteor.Error(
+        "access-denied",
+        "You can only delete places you created",
+      );
     }
 
-    Places.remove(placeId);
+    await Places.removeAsync(placeId);
     return placeId;
   },
 });

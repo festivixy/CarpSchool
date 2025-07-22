@@ -45,7 +45,7 @@ services:
       - --config
       - "/style/config.json"
     # ports:
-    #   - "${TPORT:-8080}:${TPORT:-8080}"
+    #   - "8080:8080"
     volumes:
       - ./openmaptilesdata/data:/data
       - ./openmaptilesdata/style:/style

@@ -27,12 +27,12 @@ import {
  * Test page for MapView component - Admin only
  */
 const MobileTestMapView = () => {
-  const [latitude, setLatitude] = useState(49.2827);
-  const [longitude, setLongitude] = useState(-123.1207);
+  const [latitude, setLatitude] = useState(49.345196);
+  const [longitude, setLongitude] = useState(-123.149805);
   const [tileServerUrl, setTileServerUrl] = useState("");
   const [selectedLocation, setSelectedLocation] = useState({
-    lat: 49.2827,
-    lng: -123.1207,
+    lat: 49.345196,
+    lng: -123.149805,
   });
   const [mapPickerHeight, setMapPickerHeight] = useState("400px");
 
@@ -151,7 +151,7 @@ const MobileTestMapView = () => {
                 <Label>Reset to Default Location</Label>
                 <button
                   onClick={() =>
-                    setSelectedLocation({ lat: 49.2827, lng: -123.1207 })
+                    setSelectedLocation({ lat: 49.345196, lng: -123.149805 })
                   }
                   style={{
                     padding: "8px 16px",
