@@ -89,12 +89,12 @@ services:
     #   - "8082:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
-      - PGHOSTADDR=postgres
+      - PGHOST=postgres
       - PGDATABASE=nominatim
       - PGUSER=nominatim
       - PGPASSWORD=nominatim
       - NOMINATIM_TOKENIZER=icu
-      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;hostaddr=postgres;user=nominatim;password=nominatim
+      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgres;user=nominatim;password=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
     restart: unless-stopped
@@ -108,17 +108,17 @@ services:
   nominatim-dev:
     container_name: nominatim-dev
     image: mediagis/nominatim:5.1
-    ports:
-      - "8082:8080"
+    # ports:
+    #   - "8082:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
-      - PGHOSTADDR=postgres
+      - PGHOST=postgres
       - PGPORT=5432
       - PGDATABASE=nominatim
       - PGUSER=nominatim
       - PGPASSWORD=nominatim
       - NOMINATIM_TOKENIZER=icu
-      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;hostaddr=postgres;user=nominatim;password=nominatim
+      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgres;user=nominatim;password=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
     restart: unless-stopped
@@ -131,7 +131,7 @@ services:
       - carpool_network
 
   postgres:
-    image: postgres
+    image: openmaptiles/postgis:7.1
     container_name: carpool-postgres
     volumes:
       - ./pgdata:/var/lib/postgresql/data
@@ -146,10 +146,10 @@ services:
       - carpool_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U nominatim -d nominatim"]
       interval: 10s
       retries: 5
-      start_period: 30s
+      start_period: 60s
       timeout: 10s
 
 networks:
