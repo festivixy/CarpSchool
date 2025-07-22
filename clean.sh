@@ -17,16 +17,18 @@ NC='\033[0m' # No Color
 echo -e "${YELLOW}🛑 Stopping Docker containers...${NC}"
 docker compose down
 
-# Step 2: Remove Docker volumes (optional - uncomment if needed)
-echo -e "${YELLOW}Do you want to remove docker volumes? (y/n): ${NC}"
+# Step 2: Remove database folders
+echo -e "${YELLOW}Do you want to remove database folders (mongo_data/ and pgdata/)? (Y/n): ${NC}"
 read -p $'' yn
 case $yn in
-  [Yy]* )
-    echo -e "${YELLOW}🗑️  Removing Docker volumes...${NC}"
-    docker compose down -v
+  [Nn]* )
+    echo -e "${YELLOW}Skipping removal of database folders.${NC}"
     ;;
   * )
-    echo -e "${YELLOW}Skipping removal of Docker volumes.${NC}"
+    echo -e "${YELLOW}🗑️  Removing database folders...${NC}"
+    rm -rf mongo_data
+    rm -rf pgdata
+    echo -e "${GREEN}   Removed mongo_data/ and pgdata/ directories${NC}"
     ;;
 esac
 
@@ -34,23 +36,55 @@ esac
 echo -e "${YELLOW}🗂️  Cleaning build artifacts...${NC}"
 rm -rf build
 
-echo -e "${YELLOW}🗑️  Removing local Meteor build artifacts...${NC}"
-rm -rf app/.meteor/local
-
-echo -e "${YELLOW}Do you want to remove the openmaptiles directory? (y/n): ${NC}"
+echo -e "${YELLOW}Do you want to remove the entire Meteor local directory (app/.meteor/local)? (Y/n): ${NC}"
 read -p $'' yn
 case $yn in
-  [Yy]* )
-    echo -e "${YELLOW}  Removing openmaptiles directory...${NC}"
-    rm -rf openmaptiles
+  [Nn]* )
+    echo -e "${YELLOW}Do you want to remove just the Meteor database (app/.meteor/local/db)? (Y/n): ${NC}"
+    read -p $'' yn2
+    case $yn2 in
+      [Nn]* )
+        echo -e "${YELLOW}Skipping removal of Meteor local artifacts.${NC}"
+        ;;
+      * )
+        echo -e "${YELLOW}🗑️  Removing Meteor local database...${NC}"
+        rm -rf app/.meteor/local/db
+        echo -e "${GREEN}   Removed app/.meteor/local/db${NC}"
+        ;;
+    esac
     ;;
   * )
-    echo -e "${YELLOW}Skipping removal of openmaptiles directory.${NC}"
+    echo -e "${YELLOW}🗑️  Removing entire Meteor local directory...${NC}"
+    rm -rf app/.meteor/local
+    echo -e "${GREEN}   Removed app/.meteor/local${NC}"
     ;;
 esac
 
-rm app/package-lock.json
-rm -rf app/node_modules
+echo -e "${YELLOW}Do you want to remove the openmaptiles directory? (Y/n): ${NC}"
+read -p $'' yn
+case $yn in
+  [Nn]* )
+    echo -e "${YELLOW}Skipping removal of openmaptiles directory.${NC}"
+    ;;
+  * )
+    echo -e "${YELLOW}  Removing openmaptiles directory...${NC}"
+    rm -rf openmaptiles
+    ;;
+esac
+
+echo -e "${YELLOW}Do you want to remove Node.js dependencies (package-lock.json and node_modules)? (Y/n): ${NC}"
+read -p $'' yn
+case $yn in
+  [Nn]* )
+    echo -e "${YELLOW}Skipping removal of Node.js dependencies.${NC}"
+    ;;
+  * )
+    echo -e "${YELLOW}🗑️  Removing Node.js dependencies...${NC}"
+    rm -f app/package-lock.json
+    rm -rf app/node_modules
+    echo -e "${GREEN}   Removed package-lock.json and node_modules${NC}"
+    ;;
+esac
 
 echo -e "${GREEN}✅ Cleanup completed!${NC}"
 echo ""
