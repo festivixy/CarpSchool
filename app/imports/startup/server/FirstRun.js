@@ -57,6 +57,11 @@ async function addPlace(data) {
     createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
   };
 
+  // If explicit _id is provided (from test data), use it
+  if (data._id) {
+    placeData._id = data._id;
+  }
+
   // Check if place already exists for this user
   const existingPlace = await Places.findOneAsync({
     text: placeData.text,

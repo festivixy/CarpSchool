@@ -172,7 +172,7 @@ class MobileAddRidesModal extends React.Component {
 
     const places = this.props.places || [];
     const filtered = places.filter((place) =>
-      place.toLowerCase().includes(searchValue.toLowerCase()),
+      place.text.toLowerCase().includes(searchValue.toLowerCase()),
     );
 
     this.setState({
@@ -187,10 +187,10 @@ class MobileAddRidesModal extends React.Component {
     const dropdownField =
       field === "origin" ? "showOriginDropdown" : "showDestinationDropdown";
 
-    // Place is already a string (place.text), not an object
+    // Store place ID for database, but display place name for user
     this.setState({
-      [field]: place,
-      [searchField]: place,
+      [field]: place._id, // Store place ID
+      [searchField]: place.text, // Display place name
       [dropdownField]: false,
       error: "",
     });
@@ -239,14 +239,15 @@ class MobileAddRidesModal extends React.Component {
     }
 
     // Validate that selected places are from available options
-    if (!places.includes(origin)) {
+    const placeIds = places.map((place) => place._id);
+    if (!placeIds.includes(origin)) {
       this.setState({
         error: "Please select a valid origin from the available options",
       });
       return false;
     }
 
-    if (!places.includes(destination)) {
+    if (!placeIds.includes(destination)) {
       this.setState({
         error: "Please select a valid destination from the available options",
       });
@@ -321,6 +322,11 @@ class MobileAddRidesModal extends React.Component {
     });
   };
 
+  getPlaceNameById = (placeId) => {
+    const place = this.props.places.find((p) => p._id === placeId);
+    return place ? place.text : "Unknown location";
+  };
+
   handleClose = () => {
     this.resetForm();
     this.props.onClose();
@@ -389,7 +395,8 @@ class MobileAddRidesModal extends React.Component {
                 <SuccessIcon>✓</SuccessIcon>
                 <SuccessTitle>Ride Created!</SuccessTitle>
                 <SuccessMessage>
-                  Your ride from {origin} to {destination} has been added
+                  Your ride from {this.getPlaceNameById(origin)} to{" "}
+                  {this.getPlaceNameById(destination)} has been added
                   successfully.
                 </SuccessMessage>
                 <SuccessDetails>
@@ -432,14 +439,14 @@ class MobileAddRidesModal extends React.Component {
                       {showOriginDropdown && (
                         <DropdownMenu>
                           {filteredOrigins.length > 0 ? (
-                            filteredOrigins.map((place, index) => (
+                            filteredOrigins.map((place) => (
                               <DropdownItem
-                                key={index}
+                                key={place._id}
                                 onClick={() =>
                                   this.handlePlaceSelect("origin", place)
                                 }
                               >
-                                {place}
+                                {place.text}
                               </DropdownItem>
                             ))
                           ) : (
@@ -488,14 +495,14 @@ class MobileAddRidesModal extends React.Component {
                       {showDestinationDropdown && (
                         <DropdownMenu>
                           {filteredDestinations.length > 0 ? (
-                            filteredDestinations.map((place, index) => (
+                            filteredDestinations.map((place) => (
                               <DropdownItem
-                                key={index}
+                                key={place._id}
                                 onClick={() =>
                                   this.handlePlaceSelect("destination", place)
                                 }
                               >
-                                {place}
+                                {place.text}
                               </DropdownItem>
                             ))
                           ) : (
@@ -616,10 +623,9 @@ export default withRouter(
     const placesSubscription = Meteor.subscribe("places.options");
 
     const places = Places.find({}, { sort: { text: 1 } }).fetch();
-    const placesData = places.map((place) => place.text);
 
     return {
-      places: placesData,
+      places: places, // Return full place objects instead of just names
       ready: placesSubscription.ready(),
     };
   })(MobileAddRidesModal),

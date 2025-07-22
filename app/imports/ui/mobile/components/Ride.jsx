@@ -1,8 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
+import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
+import { Places } from "../../../api/places/Places";
 import {
   RideCard,
   Header,
@@ -148,6 +150,11 @@ class MobileRide extends React.Component {
   isCurrentUserDriver = () =>
     Meteor.user() && this.props.ride.driver === Meteor.user().username;
 
+  getPlaceName = (placeId) => {
+    const place = this.props.places.find((p) => p._id === placeId);
+    return place ? place.text : placeId; // Fallback to ID if place not found
+  };
+
   canShareRide = () => {
     const { riders, seats, rider } = this.props.ride;
     // Handle new schema
@@ -226,12 +233,14 @@ class MobileRide extends React.Component {
             <Route>
               <RouteItem>
                 <RouteLabel>From</RouteLabel>
-                <RouteLocation>{ride.origin}</RouteLocation>
+                <RouteLocation>{this.getPlaceName(ride.origin)}</RouteLocation>
               </RouteItem>
               <RouteArrow>→</RouteArrow>
               <RouteItem>
                 <RouteLabel>To</RouteLabel>
-                <RouteLocation>{ride.destination}</RouteLocation>
+                <RouteLocation>
+                  {this.getPlaceName(ride.destination)}
+                </RouteLocation>
               </RouteItem>
             </Route>
             {/* Only show status if current user is not a rider */}
@@ -394,6 +403,14 @@ class MobileRide extends React.Component {
 
 MobileRide.propTypes = {
   ride: PropTypes.object.isRequired,
+  places: PropTypes.array.isRequired,
 };
 
-export default withRouter(MobileRide);
+export default withRouter(
+  withTracker(() => {
+    Meteor.subscribe("places.options");
+    return {
+      places: Places.find({}).fetch(),
+    };
+  })(MobileRide),
+);

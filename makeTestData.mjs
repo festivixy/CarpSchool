@@ -106,6 +106,7 @@ const allUsers = [...template.defaultAccounts.map((acc) => acc.email)];
 
 // Distribute places among users (each user gets 3-5 places)
 let createdPlaces = [];
+let placeIdToName = {}; // Map place IDs to names for logging
 allUsers.forEach((userEmail, userIndex) => {
   const numPlaces = Math.floor(Math.random() * 3) + 3; // 3-5 places per user
   const userPlaces = [];
@@ -118,7 +119,9 @@ allUsers.forEach((userEmail, userIndex) => {
   for (let i = 0; i < Math.min(numPlaces, availablePlaces.length); i++) {
     const randomPlace =
       availablePlaces[Math.floor(Math.random() * availablePlaces.length)];
+    const placeId = generateObjectId();
     const placeData = {
+      _id: placeId,
       text: randomPlace.name,
       value: `${randomPlace.lat},${randomPlace.lng}`,
       createdBy: userEmail,
@@ -130,6 +133,7 @@ allUsers.forEach((userEmail, userIndex) => {
     template.defaultPlaces.push(placeData);
     createdPlaces.push(placeData);
     userPlaces.push(randomPlace.name);
+    placeIdToName[placeId] = randomPlace.name;
 
     // Remove from available to avoid duplicates
     const index = availablePlaces.indexOf(randomPlace);
@@ -141,9 +145,9 @@ allUsers.forEach((userEmail, userIndex) => {
   );
 });
 
-// Create array of just place names for ride generation
-const availablePlaceNames = createdPlaces.map((place) => place.text);
-console.log(`Total places generated: ${availablePlaceNames.length}`);
+// Create array of place IDs for ride generation (instead of names)
+const availablePlaceIds = createdPlaces.map((place) => place._id);
+console.log(`Total places generated: ${availablePlaceIds.length}`);
 
 const sampleNotes = [
   "",
@@ -158,14 +162,22 @@ for (let index = 0; index < 15; index++) {
   let defaultRides = Object.assign({}, defaultRidesTemplate);
 
   // Random origin and destination from generated places (ensure they're different)
-  let originIndex = Math.floor(Math.random() * availablePlaceNames.length);
+  let originIndex = Math.floor(Math.random() * availablePlaceIds.length);
   let destinationIndex;
   do {
-    destinationIndex = Math.floor(Math.random() * availablePlaceNames.length);
+    destinationIndex = Math.floor(Math.random() * availablePlaceIds.length);
   } while (destinationIndex === originIndex);
 
-  defaultRides.origin = availablePlaceNames[originIndex];
-  defaultRides.destination = availablePlaceNames[destinationIndex];
+  const originId = availablePlaceIds[originIndex];
+  const destinationId = availablePlaceIds[destinationIndex];
+
+  defaultRides.origin = originId;
+  defaultRides.destination = destinationId;
+
+  // Log readable place names for debugging
+  console.log(
+    `  Route: ${placeIdToName[originId]} → ${placeIdToName[destinationId]}`,
+  );
 
   // Random driver
   defaultRides.driver =
@@ -213,6 +225,19 @@ for (let index = 0; index < 15; index++) {
 }
 
 // dump the template to config/settings.prod.json
+
+// Function to generate MongoDB-style ObjectIds for consistency
+function generateObjectId() {
+  const timestamp = Math.floor(Date.now() / 1000).toString(16);
+  const randomBytes = Array.from({ length: 16 }, () =>
+    Math.floor(Math.random() * 256)
+      .toString(16)
+      .padStart(2, "0"),
+  )
+    .join("")
+    .slice(0, 16);
+  return timestamp + randomBytes;
+}
 
 import fs from "fs";
 import path from "path";

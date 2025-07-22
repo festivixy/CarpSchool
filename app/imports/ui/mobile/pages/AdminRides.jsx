@@ -5,6 +5,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
 import { placesOptions } from "../../../api/places/Places.mjs";
+import { Places } from "../../../api/places/Places";
 import {
   Container,
   Header,
@@ -165,6 +166,11 @@ class MobileAdminRides extends React.Component {
     this.setState({ searchQuery: e.target.value });
   };
 
+  getPlaceName = (placeId) => {
+    const place = this.props.places.find((p) => p._id === placeId);
+    return place ? place.text : placeId; // Fallback to ID if place not found
+  };
+
   filterRides = (rides) => {
     const { searchQuery } = this.state;
     if (!searchQuery.trim()) return rides;
@@ -261,7 +267,8 @@ class MobileAdminRides extends React.Component {
                     <RideHeader>
                       <RideRoute>
                         <RouteText>
-                          {ride.origin} → {ride.destination}
+                          {this.getPlaceName(ride.origin)} →{" "}
+                          {this.getPlaceName(ride.destination)}
                         </RouteText>
                         <RouteDate>
                           {ride.date
@@ -452,10 +459,15 @@ export default withTracker(() => {
   // Get access to all Rides documents and Users for dropdowns
   const ridesSubscription = Meteor.subscribe("Rides");
   const usersSubscription = Meteor.subscribe("AllUsers");
+  const placesSubscription = Meteor.subscribe("places.options");
 
   return {
     rides: Rides.find({}, { sort: { date: -1 } }).fetch(),
     users: Meteor.users.find({}).fetch(),
-    ready: ridesSubscription.ready() && usersSubscription.ready(),
+    places: Places.find({}).fetch(),
+    ready:
+      ridesSubscription.ready() &&
+      usersSubscription.ready() &&
+      placesSubscription.ready(),
   };
 })(MobileAdminRides);
