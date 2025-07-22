@@ -35,22 +35,30 @@ class Ride extends React.Component {
     // Check if ride already has a share code
     const existingCode = this.props.ride.shareCode;
 
-    Meteor.call("rides.generateShareCode", this.props.ride._id, (error, result) => {
-      this.setState({ isGenerating: false });
-      if (error) {
-        swal("Error", error.message, "error");
-      } else {
-        this.setState({
-          shareCode: result,
-          shareModalOpen: true,
-          isExistingCode: !!existingCode && existingCode === result,
-        });
-      }
-    });
+    Meteor.call(
+      "rides.generateShareCode",
+      this.props.ride._id,
+      (error, result) => {
+        this.setState({ isGenerating: false });
+        if (error) {
+          swal("Error", error.message, "error");
+        } else {
+          this.setState({
+            shareCode: result,
+            shareModalOpen: true,
+            isExistingCode: !!existingCode && existingCode === result,
+          });
+        }
+      },
+    );
   };
 
   closeShareModal = () => {
-    this.setState({ shareModalOpen: false, shareCode: null, isExistingCode: false });
+    this.setState({
+      shareModalOpen: false,
+      shareCode: null,
+      isExistingCode: false,
+    });
   };
 
   generateInviteLink = () => {
@@ -63,12 +71,19 @@ class Ride extends React.Component {
       // eslint-disable-next-line no-undef
       if (navigator.clipboard) {
         // eslint-disable-next-line no-undef
-        navigator.clipboard.writeText(inviteLink).then(() => {
-          swal("Link Copied!", "The invite link has been copied to your clipboard.", "success");
-        }).catch(() => {
-          // Fallback if clipboard API fails
-          this.fallbackCopyToClipboard(inviteLink);
-        });
+        navigator.clipboard
+          .writeText(inviteLink)
+          .then(() => {
+            swal(
+              "Link Copied!",
+              "The invite link has been copied to your clipboard.",
+              "success",
+            );
+          })
+          .catch(() => {
+            // Fallback if clipboard API fails
+            this.fallbackCopyToClipboard(inviteLink);
+          });
       } else {
         // Fallback for older browsers
         this.fallbackCopyToClipboard(inviteLink);
@@ -91,7 +106,11 @@ class Ride extends React.Component {
     try {
       // eslint-disable-next-line no-undef
       document.execCommand("copy");
-      swal("Link Copied!", "The invite link has been copied to your clipboard.", "success");
+      swal(
+        "Link Copied!",
+        "The invite link has been copied to your clipboard.",
+        "success",
+      );
     } catch (err) {
       swal("Copy Failed", `Please manually copy the link: ${text}`, "error");
     }
@@ -100,22 +119,26 @@ class Ride extends React.Component {
     document.body.removeChild(textArea);
   };
 
-  isCurrentUserDriver = () => Meteor.user() && this.props.ride.driver === Meteor.user().username;
+  isCurrentUserDriver = () =>
+    Meteor.user() && this.props.ride.driver === Meteor.user().username;
 
   canShareRide = () => {
-    const rider = this.props.ride.rider;
-    return this.isCurrentUserDriver() && (rider === "TBD");
+    const { riders, seats } = this.props.ride;
+    return this.isCurrentUserDriver() && riders.length < seats;
   };
 
   render() {
-    const { shareModalOpen, shareCode, isGenerating, isExistingCode } = this.state;
+    const { shareModalOpen, shareCode, isGenerating, isExistingCode } =
+      this.state;
     const { ride } = this.props;
 
     return (
       <>
         <Card centered>
           <Card.Content>
-            <Card.Header>{ride.origin} to {ride.destination}</Card.Header>
+            <Card.Header>
+              {ride.origin} to {ride.destination}
+            </Card.Header>
             <Card.Meta>
               {new Date(ride.date).toLocaleDateString("en-US")}
             </Card.Meta>
@@ -156,11 +179,14 @@ class Ride extends React.Component {
               )}
               {shareCode && (
                 <Segment>
-                  <Header as="h2" style={{
-                    fontFamily: "monospace",
-                    letterSpacing: "2px",
-                    color: "#2185d0",
-                  }}>
+                  <Header
+                    as="h2"
+                    style={{
+                      fontFamily: "monospace",
+                      letterSpacing: "2px",
+                      color: "#2185d0",
+                    }}
+                  >
                     {shareCode}
                   </Header>
                 </Segment>
@@ -168,8 +194,7 @@ class Ride extends React.Component {
               <p style={{ fontSize: "0.9em", color: "#666" }}>
                 {isExistingCode
                   ? "This code was generated earlier and is still active."
-                  : "This code is unique to your ride and will be removed once someone joins."
-                }
+                  : "This code is unique to your ride and will be removed once someone joins."}
               </p>
             </div>
           </Modal.Content>

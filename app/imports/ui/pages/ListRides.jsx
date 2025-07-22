@@ -31,37 +31,55 @@ class ListRides extends React.Component {
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
-    return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
+    return this.props.ready ? (
+      this.renderPage()
+    ) : (
+      <Loader active>Getting data</Loader>
+    );
   }
 
   /** Render the page once subscriptions have been received. */
   renderPage() {
     let availRides = this.props.rides;
-    availRides = availRides.filter(a => ((a.origin.toLowerCase().indexOf(this.state.search.toLowerCase())) !== -1 ||
-        (a.destination.toLowerCase().indexOf(this.state.search.toLowerCase())) !== -1)
-        && (a.driver !== Meteor.user().username) && (a.rider === "TBD"));
+    availRides = availRides.filter(
+      (a) =>
+        (a.origin.toLowerCase().indexOf(this.state.search.toLowerCase()) !==
+          -1 ||
+          a.destination
+            .toLowerCase()
+            .indexOf(this.state.search.toLowerCase()) !== -1) &&
+        a.driver !== Meteor.user().username &&
+        a.riders.length < a.seats &&
+        !a.riders.includes(Meteor.user().username),
+    );
 
     return (
-        <div>
+      <div>
         <Container>
-          <Header as="h2" textAlign="center"> Available Rides</Header>
+          <Header as="h2" textAlign="center">
+            {" "}
+            Available Rides
+          </Header>
           <div>
-          <Input
-              placeholder='Search rides by city'
-              type='text'
+            <Input
+              placeholder="Search rides by city"
+              type="text"
               value={this.state.value}
               onChange={this.handleChange}
               onKeyPress={this.handleClick}
-              icon='search'
-          />
+              icon="search"
+            />
           </div>
-          <br/>
+          <br />
           <Card.Group itemsPerRow={4}>
-            {availRides.length === 0 ? (<h2>No rides available.</h2>) :
-                (availRides.map((ride, index) => <Ride key = {index} ride={ride} />))}
+            {availRides.length === 0 ? (
+              <h2>No rides available.</h2>
+            ) : (
+              availRides.map((ride, index) => <Ride key={index} ride={ride} />)
+            )}
           </Card.Group>
         </Container>
-        </div>
+      </div>
     );
   }
 }

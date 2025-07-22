@@ -171,7 +171,8 @@ class MobileAdminRides extends React.Component {
 
     const query = searchQuery.toLowerCase();
     return rides.filter(
-      (ride) => (ride.driver && ride.driver.toLowerCase().includes(query)) ||
+      (ride) =>
+        (ride.driver && ride.driver.toLowerCase().includes(query)) ||
         (ride.rider && ride.rider.toLowerCase().includes(query)) ||
         (ride.origin && ride.origin.toLowerCase().includes(query)) ||
         (ride.destination && ride.destination.toLowerCase().includes(query)) ||
@@ -298,8 +299,14 @@ class MobileAdminRides extends React.Component {
                         <DetailValue>{ride.driver || "TBD"}</DetailValue>
                       </DetailItem>
                       <DetailItem>
-                        <DetailLabel>Rider</DetailLabel>
-                        <DetailValue>{ride.rider || "TBD"}</DetailValue>
+                        <DetailLabel>
+                          Riders ({ride.riders.length}/{ride.seats})
+                        </DetailLabel>
+                        <DetailValue>
+                          {ride.riders.length > 0
+                            ? ride.riders.join(", ")
+                            : "None yet"}
+                        </DetailValue>
                       </DetailItem>
                     </RideDetails>
                   </RideCard>

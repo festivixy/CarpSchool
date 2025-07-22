@@ -67,11 +67,11 @@ class MobileImDriving extends React.Component {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredRides = filteredRides.filter(
-        (ride) => ride.origin.toLowerCase().includes(query) ||
+        (ride) =>
+          ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
-          (ride.rider &&
-            ride.rider !== "TBD" &&
-            ride.rider.toLowerCase().includes(query)),
+          (ride.riders.length > 0 &&
+            ride.riders.some((rider) => rider.toLowerCase().includes(query))),
       );
     }
 
@@ -83,7 +83,8 @@ class MobileImDriving extends React.Component {
   };
 
   handleCancelRide = (rideId) => {
-    if (confirm("Are you sure you want to cancel this ride?")) { // eslint-disable-line
+    if (confirm("Are you sure you want to cancel this ride?")) {
+      // eslint-disable-line
       Meteor.call("rides.remove", rideId, (error) => {
         if (error) {
           alert(`Error canceling ride: ${error.reason}`);
@@ -103,6 +104,31 @@ class MobileImDriving extends React.Component {
       console.error("Error creating/opening chat:", error);
       alert("Unable to open chat. Please try again.");
     }
+  };
+
+  handleRemoveRider = (rideId, riderUsername) => {
+    swal({
+      title: "Remove Rider?",
+      text: `Are you sure you want to remove ${riderUsername} from this ride?`,
+      icon: "warning",
+      buttons: {
+        cancel: "Cancel",
+        confirm: {
+          text: "Remove",
+          className: "swal-button--danger",
+        },
+      },
+    }).then((willRemove) => {
+      if (willRemove) {
+        Meteor.call("rides.removeRider", rideId, riderUsername, (error) => {
+          if (error) {
+            swal("Error", error.message, "error");
+          } else {
+            swal("Removed", "Rider removed successfully!", "success");
+          }
+        });
+      }
+    });
   };
 
   render() {
@@ -171,7 +197,8 @@ class MobileImDriving extends React.Component {
               </EmptyMessage>
               {searchQuery && (
                 <ClearSearchButton
-                  onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
+                  onClick={() =>
+                    this.setState({ searchQuery: "" }, this.filterRides)
                   }
                 >
                   Clear Search
@@ -183,12 +210,33 @@ class MobileImDriving extends React.Component {
               <RideWrapper key={ride._id}>
                 <MobileRide ride={ride} />
                 <AdditionalActions>
-                  {ride.rider !== "TBD" && (
-                    <ContactButton
-                      onClick={() => this.handleContactRider(ride.rider)}
-                    >
-                      Contact Rider
-                    </ContactButton>
+                  {ride.riders.length > 0 && (
+                    <div>
+                      {ride.riders.map((rider) => (
+                        <div
+                          key={rider}
+                          style={{
+                            display: "flex",
+                            gap: "8px",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <ContactButton
+                            onClick={() => this.handleContactRider(rider)}
+                          >
+                            Contact {rider}
+                          </ContactButton>
+                          <ContactButton
+                            onClick={() =>
+                              this.handleRemoveRider(ride._id, rider)
+                            }
+                            style={{ backgroundColor: "#ff4757" }}
+                          >
+                            Remove
+                          </ContactButton>
+                        </div>
+                      ))}
+                    </div>
                   )}
                   <CancelButton onClick={() => this.handleCancelRide(ride._id)}>
                     Cancel Ride

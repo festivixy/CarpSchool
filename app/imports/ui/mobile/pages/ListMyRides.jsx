@@ -37,13 +37,17 @@ class MobileListMyRides extends React.Component {
     const currentUser = Meteor.user()?.username;
 
     let filteredRides = rides.filter(
-      (ride) => ride.driver !== currentUser && ride.rider === "TBD",
+      (ride) =>
+        ride.driver !== currentUser &&
+        ride.riders.length < ride.seats &&
+        !ride.riders.includes(currentUser),
     );
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredRides = filteredRides.filter(
-        (ride) => ride.origin.toLowerCase().includes(query) ||
+        (ride) =>
+          ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           ride.driver.toLowerCase().includes(query),
       );
@@ -56,14 +60,16 @@ class MobileListMyRides extends React.Component {
     this.setState({ searchQuery: e.target.value }, this.filterRides);
   };
 
-  formatDate = (date) => new Date(date).toLocaleDateString("en-US", {
+  formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
       year: "numeric",
     });
 
-  formatTime = (date) => new Date(date).toLocaleTimeString("en-US", {
+  formatTime = (date) =>
+    new Date(date).toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
@@ -117,7 +123,8 @@ class MobileListMyRides extends React.Component {
             {searchQuery ? (
               <p>
                 {filteredRides.length} ride
-                {filteredRides.length !== 1 ? "s" : ""} found for &quot;{searchQuery}
+                {filteredRides.length !== 1 ? "s" : ""} found for &quot;
+                {searchQuery}
                 &quot;
               </p>
             ) : (
@@ -143,7 +150,8 @@ class MobileListMyRides extends React.Component {
                 </p>
                 {searchQuery && (
                   <button
-                    onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
+                    onClick={() =>
+                      this.setState({ searchQuery: "" }, this.filterRides)
                     }
                     className="mobile-listrides-clear-search"
                   >
@@ -182,7 +190,7 @@ class MobileListMyRides extends React.Component {
                       </span>
                     </div>
                     <div className="mobile-listrides-detail-item">
-                      <span className="mobile-listrides-detail-icon">🕒</span>
+                      <span className="mobile-listrides-detail-icon">����</span>
                       <span className="mobile-listrides-detail-text">
                         {this.formatTime(ride.date)}
                       </span>

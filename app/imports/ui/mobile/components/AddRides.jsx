@@ -293,7 +293,7 @@ class MobileAddRidesModal extends React.Component {
 
     const rideData = {
       driver: Meteor.user().username,
-      rider: "TBD",
+      riders: [], // Start with empty riders array
       origin: origin.trim(),
       destination: destination.trim(),
       date: new Date(`${date}T${time}`),

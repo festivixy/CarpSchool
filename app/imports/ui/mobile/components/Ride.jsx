@@ -145,35 +145,37 @@ class MobileRide extends React.Component {
     document.body.removeChild(textArea);
   };
 
-  isCurrentUserDriver = () => Meteor.user() && this.props.ride.driver === Meteor.user().username;
+  isCurrentUserDriver = () =>
+    Meteor.user() && this.props.ride.driver === Meteor.user().username;
 
   canShareRide = () => {
-    const rider = this.props.ride.rider;
-    return this.isCurrentUserDriver() && rider === "TBD";
+    const { riders, seats } = this.props.ride;
+    return this.isCurrentUserDriver() && riders.length < seats;
   };
 
   canJoinRide = () => {
-    const rider = this.props.ride.rider;
-    return !this.isCurrentUserDriver() && rider === "TBD";
+    const { riders, seats } = this.props.ride;
+    const currentUser = Meteor.user();
+    return (
+      !this.isCurrentUserDriver() &&
+      riders.length < seats &&
+      currentUser &&
+      !riders.includes(currentUser.username)
+    );
   };
 
   handleJoinRide = () => {
     const { ride } = this.props;
-    if (ride.shareCode) {
-      // If ride already has a share code, use it to join
-      this.joinWithCode(ride.shareCode);
-    } else {
-      // Generate a share code first, then join
-      this.setState({ isGenerating: true });
-      Meteor.call("rides.generateShareCode", ride._id, (error, result) => {
-        this.setState({ isGenerating: false });
-        if (error) {
-          swal("Error", error.message, "error");
-        } else {
-          this.joinWithCode(result);
-        }
-      });
-    }
+
+    this.setState({ isGenerating: true });
+    Meteor.call("rides.join", ride._id, (error, result) => {
+      this.setState({ isGenerating: false });
+      if (error) {
+        swal("Error", error.message, "error");
+      } else {
+        swal("Success", result.message, "success");
+      }
+    });
   };
 
   joinWithCode = (shareCode) => {
@@ -187,14 +189,16 @@ class MobileRide extends React.Component {
     });
   };
 
-  formatDate = (date) => new Date(date).toLocaleDateString("en-US", {
+  formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
       year: "numeric",
     });
 
-  formatTime = (date) => new Date(date).toLocaleTimeString("en-US", {
+  formatTime = (date) =>
+    new Date(date).toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
@@ -220,13 +224,18 @@ class MobileRide extends React.Component {
                 <RouteLocation>{ride.destination}</RouteLocation>
               </RouteItem>
             </Route>
-            {/* Only show status if current user is not the rider */}
-            {!(Meteor.user() && ride.rider === Meteor.user().username) && (
+            {/* Only show status if current user is not a rider */}
+            {!(
+              Meteor.user() && ride.riders.includes(Meteor.user().username)
+            ) && (
               <Status>
-                {ride.rider === "TBD" ? (
-                  <StatusLooking>Looking for rider</StatusLooking>
+                {ride.riders.length < ride.seats ? (
+                  <StatusLooking>
+                    {ride.seats - ride.riders.length} seat
+                    {ride.seats - ride.riders.length !== 1 ? "s" : ""} available
+                  </StatusLooking>
                 ) : (
-                  <StatusMatched>Rider found</StatusMatched>
+                  <StatusMatched>Ride full</StatusMatched>
                 )}
               </Status>
             )}
@@ -246,9 +255,11 @@ class MobileRide extends React.Component {
               <DetailText>{ride.driver}</DetailText>
             </DetailItem>
             <DetailItem>
-              <DetailIcon>👤</DetailIcon>
+              <DetailIcon>👥</DetailIcon>
               <DetailText>
-                {ride.rider === "TBD" ? "No rider yet" : ride.rider}
+                {ride.riders.length > 0
+                  ? `${ride.riders.length}/${ride.seats} riders: ${ride.riders.join(", ")}`
+                  : `0/${ride.seats} riders - None yet`}
               </DetailText>
             </DetailItem>
           </Details>
