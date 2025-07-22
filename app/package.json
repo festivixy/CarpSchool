@@ -15,6 +15,7 @@
     "react-avatar": "^3.10.0",
     "react-datepicker": "^2.10.1",
     "react-dom": "^16.14.0",
+    "react-markdown": "^8.0.7",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "semantic-ui-css": "^2.5.0",
@@ -27,7 +28,9 @@
     "uniforms": "^4.0.0",
     "uniforms-bridge-simple-schema-2": "^4.0.0",
     "uniforms-semantic": "^4.0.0",
-    "uuid": "^11.1.0"
+    "unist-util-visit-parents": "^6.0.1",
+    "uuid": "^11.1.0",
+    "vfile": "^6.0.3"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

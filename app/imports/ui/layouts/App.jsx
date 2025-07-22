@@ -24,6 +24,9 @@ import MobileSignout from "../mobile/pages/Signout";
 import MobileVerifyEmail from "../mobile/pages/VerifyEmail";
 import MobileEditProfile from "../mobile/pages/EditProfile";
 import MobileOnboarding from "../mobile/pages/Onboarding";
+import MobileTOS from "../mobile/pages/TOS";
+import MobilePrivacy from "../mobile/pages/Privacy";
+import MobileCredits from "../mobile/pages/Credits";
 import ProtectedRoutes, {
   ProtectedRoute,
   ProtectedRouteRequireNotLoggedIn,
@@ -101,6 +104,11 @@ class App extends React.Component {
                 component={MobileTestMapView}
               />
               <ProtectedRoute path="/signout" component={MobileSignout} />
+
+              {/* Public pages */}
+              <Route exact path="/tos" component={MobileTOS} />
+              <Route exact path="/privacy" component={MobilePrivacy} />
+              <Route exact path="/credits" component={MobileCredits} />
 
               {/* Catch-all route for 404 */}
               <Redirect to="/404" />
