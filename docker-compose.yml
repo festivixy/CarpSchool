@@ -89,17 +89,17 @@ services:
     #   - "8082:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
-      - PGHOST=postgres
+      - PGHOST=postgis
       - PGDATABASE=nominatim
       - PGUSER=nominatim
       - PGPASSWORD=nominatim
       - NOMINATIM_TOKENIZER=icu
-      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgres;user=nominatim;password=nominatim
+      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim;password=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
     restart: unless-stopped
     depends_on:
-      postgres:
+      postgis:
         condition: service_healthy
         restart: true
     networks:
@@ -112,27 +112,27 @@ services:
     #   - "8082:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
-      - PGHOST=postgres
+      - PGHOST=postgis
       - PGPORT=5432
       - PGDATABASE=nominatim
       - PGUSER=nominatim
       - PGPASSWORD=nominatim
       - NOMINATIM_TOKENIZER=icu
-      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgres;user=nominatim;password=nominatim
+      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim;password=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
     restart: unless-stopped
     depends_on:
-      postgres:
+      postgis:
         condition: service_healthy
         restart: true
     profiles: ["manual"]
     networks:
       - carpool_network
 
-  postgres:
-    image: openmaptiles/postgis:7.1
-    container_name: carpool-postgres
+  postgis:
+    image: postgis/postgis:16-3.4
+    container_name: carpool-postgis
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     ports:
@@ -147,10 +147,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nominatim -d nominatim"]
-      interval: 10s
+      interval: 5s
+      timeout: 5s
       retries: 5
-      start_period: 60s
-      timeout: 10s
+      start_period: 10s
 
 networks:
   carpool_network:
