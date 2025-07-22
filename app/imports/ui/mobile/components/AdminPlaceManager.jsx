@@ -444,14 +444,6 @@ class AdminPlaceManager extends React.Component {
                       />
                     </FormField>
                   )}
-
-                  <InfoBox>
-                    <InfoTitle>Need coordinates?</InfoTitle>
-                    <InfoText>
-                      You can find coordinates by searching for a location on
-                      Google Maps and clicking on the map.
-                    </InfoText>
-                  </InfoBox>
                 </Form>
               </ModalBody>
 
