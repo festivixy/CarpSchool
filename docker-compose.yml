@@ -92,9 +92,8 @@ services:
       - PGHOST=postgis
       - PGDATABASE=nominatim
       - PGUSER=nominatim
-      - PGPASSWORD=nominatim
       - NOMINATIM_TOKENIZER=icu
-      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim;password=nominatim
+      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
     restart: unless-stopped
@@ -108,17 +107,15 @@ services:
   nominatim-dev:
     container_name: nominatim-dev
     image: mediagis/nominatim:5.1
-    # ports:
-    #   - "8082:8080"
+    ports:
+      - "8082:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
       - PGHOST=postgis
-      - PGPORT=5432
       - PGDATABASE=nominatim
       - PGUSER=nominatim
-      - PGPASSWORD=nominatim
       - NOMINATIM_TOKENIZER=icu
-      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim;password=nominatim
+      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
     restart: unless-stopped
@@ -135,12 +132,11 @@ services:
     container_name: carpool-postgis
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
+    # ports:
+    #   - "5433:5432"
     environment:
       POSTGRES_DB: nominatim
-      POSTGRES_USER: nominatim
-      POSTGRES_PASSWORD: nominatim
+      POSTGRES_HOST_AUTH_METHOD: trust
       PGPORT: 5432
     networks:
       - carpool_network
@@ -150,7 +146,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 60s
 
 networks:
   carpool_network:
