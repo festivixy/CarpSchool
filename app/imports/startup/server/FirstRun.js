@@ -30,7 +30,7 @@ async function createUser(email, firstName, lastName, password, role) {
     console.log(`  Assigning admin role to user ${email} with ID ${userID}`);
     // Add admin role directly to user document
     await Meteor.users.updateAsync(userID, {
-      $addToSet: { roles: ["admin"] },
+      $set: { roles: ["admin"] },
     });
     console.log(`  Admin role assignment completed for user ${email}`);
   }
