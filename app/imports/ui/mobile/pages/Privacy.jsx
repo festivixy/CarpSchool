@@ -8,8 +8,6 @@ import {
 } from "../styles/Landing";
 
 const privacyContent = `
-# Privacy Policy
-
 # **__DEV BUILD__**
 `;
 

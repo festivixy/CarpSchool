@@ -8,8 +8,6 @@ import {
 } from "../styles/Landing";
 
 const creditsContent = `
-# Credits
-
 ## Development Team
 
 This application was built with dedication and care by our development team.

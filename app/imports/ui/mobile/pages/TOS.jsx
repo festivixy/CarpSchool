@@ -8,8 +8,6 @@ import {
 } from "../styles/Landing";
 
 const tosContent = `
-# Terms of Service
-
 # **__DEV BUILD__**
 `;
 
