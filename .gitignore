@@ -11,3 +11,5 @@ config/settings.prod.json
 .env
 openmaptiles/
 openmaptilesdata/*
+pgdata/
+mongo_data/
