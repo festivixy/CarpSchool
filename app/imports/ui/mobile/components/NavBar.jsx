@@ -35,7 +35,6 @@ class MobileNavBar extends React.Component {
       addRidesModalOpen: false,
       mobileMenuOpen: false,
       userMenuOpen: false,
-      myRidesMenuOpen: false,
       adminMenuOpen: false,
     };
   }
@@ -60,7 +59,6 @@ class MobileNavBar extends React.Component {
     this.setState((prevState) => ({
       mobileMenuOpen: !prevState.mobileMenuOpen,
       userMenuOpen: false,
-      myRidesMenuOpen: false,
       adminMenuOpen: false,
     }));
   };
@@ -68,15 +66,6 @@ class MobileNavBar extends React.Component {
   toggleUserMenu = () => {
     this.setState((prevState) => ({
       userMenuOpen: !prevState.userMenuOpen,
-      myRidesMenuOpen: false,
-      adminMenuOpen: false,
-    }));
-  };
-
-  toggleMyRidesMenu = () => {
-    this.setState((prevState) => ({
-      myRidesMenuOpen: !prevState.myRidesMenuOpen,
-      userMenuOpen: false,
       adminMenuOpen: false,
     }));
   };
@@ -85,7 +74,6 @@ class MobileNavBar extends React.Component {
     this.setState((prevState) => ({
       adminMenuOpen: !prevState.adminMenuOpen,
       userMenuOpen: false,
-      myRidesMenuOpen: false,
     }));
   };
 
@@ -93,7 +81,6 @@ class MobileNavBar extends React.Component {
     this.setState({
       mobileMenuOpen: false,
       userMenuOpen: false,
-      myRidesMenuOpen: false,
       adminMenuOpen: false,
     });
   };
@@ -129,28 +116,10 @@ class MobileNavBar extends React.Component {
             <DesktopNav>
               {this.props.isLoggedInAndEmailVerified ? (
                 <>
-                  {/* My Rides Dropdown */}
-                  <Dropdown>
-                    <DropdownTrigger onClick={this.toggleMyRidesMenu}>
-                      My Rides ▼
-                    </DropdownTrigger>
-                    {this.state.myRidesMenuOpen && (
-                      <DropdownMenu>
-                        <DropdownItem
-                          to="/imDriving"
-                          onClick={this.closeAllMenus}
-                        >
-                          I&apos;m Driving
-                        </DropdownItem>
-                        <DropdownItem
-                          to="/imRiding"
-                          onClick={this.closeAllMenus}
-                        >
-                          I&apos;m Riding
-                        </DropdownItem>
-                      </DropdownMenu>
-                    )}
-                  </Dropdown>
+                  {/* My Rides */}
+                  <NavItem to="/myRides" onClick={this.closeAllMenus}>
+                    🚗 My Rides
+                  </NavItem>
 
                   {/* Create Ride */}
                   <NavButton onClick={this.handleAddRidesClick}>
@@ -265,12 +234,8 @@ class MobileNavBar extends React.Component {
               {this.props.isLoggedInAndEmailVerified ? (
                 <>
                   <MobileSection>
-                    <MobileSectionTitle>My Rides</MobileSectionTitle>
-                    <MobileItem to="/imDriving" onClick={this.closeAllMenus}>
-                      I&apos;m Driving
-                    </MobileItem>
-                    <MobileItem to="/imRiding" onClick={this.closeAllMenus}>
-                      I&apos;m Riding
+                    <MobileItem to="/myRides" onClick={this.closeAllMenus}>
+                      🚗 My Rides
                     </MobileItem>
                   </MobileSection>
 
