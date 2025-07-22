@@ -4,16 +4,12 @@ import { AutoForm, SelectField, SubmitField, ErrorsField } from "uniforms-semant
 import swal from "sweetalert";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
+import { withTracker } from "meteor/react-meteor-data";
+import PropTypes from "prop-types";
 import Joi from "joi";
 import { JoiBridge } from "../forms/JoiBridge";
 import { Rides } from "../../api/ride/Rides";
-import { placesOptions } from "../../api/places/Places.mjs";
-
-// Create a minimal test schema using Joi
-const AddRideSchema = Joi.object({
-  origin: Joi.string().required().label("Origin"),
-  destination: Joi.string().required().label("Destination"),
-});
+import { Places } from "../../api/places/Places";
 
 /** Renders the Page for adding a document. */
 class AddRide extends React.Component {
@@ -39,16 +35,25 @@ class AddRide extends React.Component {
 
   /** Render the form. Use Uniforms: https://github.com/vazco/uniforms */
   render() {
-    let fRef = null;
+    const { ready, placesOptions } = this.props;
 
-    // Try creating the bridge inside the render method
+    if (!ready) {
+      return <div>Loading places...</div>;
+    }
+
+    // Create schema with dynamic places validation
+    const AddRideSchema = Joi.object({
+      origin: Joi.string().valid(...placesOptions.map(p => p.value)).required().label("Origin"),
+      destination: Joi.string().valid(...placesOptions.map(p => p.value)).required().label("Destination"),
+    });
+
+    let fRef = null;
     let localBridge;
     try {
       localBridge = new JoiBridge(AddRideSchema);
-      console.log("Local Joi bridge created successfully in render");
     } catch (error) {
-      console.error("Error creating local Joi bridge in render:", error);
-      return <div>Error: Could not create Joi form bridge in render. Check console for details.</div>;
+      console.error("Error creating Joi bridge:", error);
+      return <div>Error: Could not create form. Check console for details.</div>;
     }
 
     return (
@@ -71,4 +76,24 @@ class AddRide extends React.Component {
   }
 }
 
-export default withRouter(AddRide);
+AddRide.propTypes = {
+  ready: PropTypes.bool.isRequired,
+  placesOptions: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired,
+};
+
+export default withRouter(withTracker(() => {
+  const placesSubscription = Meteor.subscribe("places.options");
+
+  const places = Places.find({}, { sort: { text: 1 } }).fetch();
+  const placesOptions = places.map(place => ({
+    key: place._id,
+    text: place.text,
+    value: place.text, // Use text as value to maintain compatibility
+  }));
+
+  return {
+    ready: placesSubscription.ready(),
+    placesOptions,
+  };
+})(AddRide));

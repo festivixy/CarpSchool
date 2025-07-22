@@ -27,6 +27,8 @@ import MobileOnboarding from "../mobile/pages/Onboarding";
 import MobileTOS from "../mobile/pages/TOS";
 import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
+import MobilePlaceManager from "../mobile/pages/PlaceManager";
+import MobileAdminPlaceManager from "../mobile/pages/AdminPlaceManager";
 import ProtectedRoutes, {
   ProtectedRoute,
   ProtectedRouteRequireNotLoggedIn,
@@ -83,6 +85,7 @@ class App extends React.Component {
                 component={MobileEditProfile}
               />
               <ProtectedRoutes path="/chat" component={MobileChat} />
+              <ProtectedRoutes path="/places" component={MobilePlaceManager} />
 
               {/* Admin routes */}
               <ProtectedRouteRequireAdmin
@@ -92,6 +95,10 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/adminUsers"
                 component={MobileAdminUsers}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/adminPlaces"
+                component={MobileAdminPlaceManager}
               />
 
               {/* Test routes */}

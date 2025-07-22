@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
+import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Rides } from "../../../api/ride/Rides";
-import { places } from "../../../api/places/Places.mjs";
+import { Places } from "../../../api/places/Places";
 import {
   ModalOverlay,
   Modal,
@@ -60,11 +61,41 @@ class MobileAddRidesModal extends React.Component {
       success: false,
       showOriginDropdown: false,
       showDestinationDropdown: false,
-      filteredOrigins: places,
-      filteredDestinations: places,
+      filteredOrigins: [],
+      filteredDestinations: [],
       originSearch: "",
       destinationSearch: "",
     };
+  }
+
+  componentDidMount() {
+    // Set minimum date to today
+    const today = new Date();
+    const minDate = today.toISOString().split("T")[0];
+    this.setState({
+      minDate,
+      filteredOrigins: this.props.places || [],
+      filteredDestinations: this.props.places || [],
+    });
+
+    // Add event listener for escape key
+    document.addEventListener("keydown", this.handleEscapeKey);
+    document.addEventListener("click", this.handleOutsideClick);
+  }
+
+  componentDidUpdate(prevProps) {
+    // Update places when they change
+    if (prevProps.places !== this.props.places) {
+      this.setState({
+        filteredOrigins: this.props.places || [],
+        filteredDestinations: this.props.places || [],
+      });
+    }
+
+    // Reset form when modal opens
+    if (!prevProps.open && this.props.open) {
+      this.resetForm();
+    }
   }
 
   componentDidMount() {
@@ -121,8 +152,8 @@ class MobileAddRidesModal extends React.Component {
       success: false,
       showOriginDropdown: false,
       showDestinationDropdown: false,
-      filteredOrigins: places,
-      filteredDestinations: places,
+      filteredOrigins: this.props.places || [],
+      filteredDestinations: this.props.places || [],
       originSearch: "",
       destinationSearch: "",
       minDate,
@@ -139,7 +170,10 @@ class MobileAddRidesModal extends React.Component {
     const filteredField =
       field === "origin" ? "filteredOrigins" : "filteredDestinations";
 
-    const filtered = places.filter((place) => place.toLowerCase().includes(searchValue.toLowerCase()));
+    const places = this.props.places || [];
+    const filtered = places.filter((place) =>
+      place.text.toLowerCase().includes(searchValue.toLowerCase()),
+    );
 
     this.setState({
       [searchField]: searchValue,
@@ -153,9 +187,10 @@ class MobileAddRidesModal extends React.Component {
     const dropdownField =
       field === "origin" ? "showOriginDropdown" : "showDestinationDropdown";
 
+    // Use place.text for display, but store place.text as the value
     this.setState({
-      [field]: place,
-      [searchField]: place,
+      [field]: place.text,
+      [searchField]: place.text,
       [dropdownField]: false,
       error: "",
     });
@@ -191,6 +226,7 @@ class MobileAddRidesModal extends React.Component {
 
   validateForm = () => {
     const { origin, destination, date, time } = this.state;
+    const { places } = this.props;
 
     if (!origin.trim()) {
       this.setState({ error: "Please select an origin location" });
@@ -199,6 +235,21 @@ class MobileAddRidesModal extends React.Component {
 
     if (!destination.trim()) {
       this.setState({ error: "Please select a destination location" });
+      return false;
+    }
+
+    // Validate that selected places are from available options
+    if (!places.includes(origin)) {
+      this.setState({
+        error: "Please select a valid origin from the available options",
+      });
+      return false;
+    }
+
+    if (!places.includes(destination)) {
+      this.setState({
+        error: "Please select a valid destination from the available options",
+      });
       return false;
     }
 
@@ -262,11 +313,10 @@ class MobileAddRidesModal extends React.Component {
         this.setState({ success: true });
 
         // Close modal and redirect after showing success
-        // setTimeout(() => {
-        //   this.handleClose();
-        //   this.props.history.push("/imRiding");
-        // }, 2000);
-        // removed redirect to allow user to stay on the same page after ride creation
+        setTimeout(() => {
+          this.handleClose();
+          this.props.history.push("/imRiding");
+        }, 2000);
       }
     });
   };
@@ -277,7 +327,7 @@ class MobileAddRidesModal extends React.Component {
   };
 
   render() {
-    const { open } = this.props;
+    const { open, ready } = this.props;
     const {
       origin,
       destination,
@@ -298,6 +348,27 @@ class MobileAddRidesModal extends React.Component {
     } = this.state;
 
     if (!open) return null;
+
+    if (!ready) {
+      return (
+        <ModalOverlay onClick={this.handleClose}>
+          <Modal onClick={(e) => e.stopPropagation()}>
+            <Header>
+              <CloseButton onClick={this.handleClose} aria-label="Close">
+                ✕
+              </CloseButton>
+              <Title>Create Your Ride</Title>
+              <Subtitle>Share your ride with fellow students</Subtitle>
+            </Header>
+            <Content>
+              <div style={{ textAlign: "center", padding: "2rem" }}>
+                Loading places...
+              </div>
+            </Content>
+          </Modal>
+        </ModalOverlay>
+      );
+    }
 
     return (
       <ModalOverlay onClick={this.handleClose}>
@@ -349,7 +420,8 @@ class MobileAddRidesModal extends React.Component {
                         <DropdownInput
                           type="text"
                           value={originSearch}
-                          onChange={(e) => this.handlePlaceSearch("origin", e.target.value)
+                          onChange={(e) =>
+                            this.handlePlaceSearch("origin", e.target.value)
                           }
                           placeholder="Search origin..."
                           autoComplete="off"
@@ -363,7 +435,8 @@ class MobileAddRidesModal extends React.Component {
                             filteredOrigins.map((place, index) => (
                               <DropdownItem
                                 key={index}
-                                onClick={() => this.handlePlaceSelect("origin", place)
+                                onClick={() =>
+                                  this.handlePlaceSelect("origin", place)
                                 }
                               >
                                 {place}
@@ -400,7 +473,8 @@ class MobileAddRidesModal extends React.Component {
                         <DropdownInput
                           type="text"
                           value={destinationSearch}
-                          onChange={(e) => this.handlePlaceSearch(
+                          onChange={(e) =>
+                            this.handlePlaceSearch(
                               "destination",
                               e.target.value,
                             )
@@ -417,7 +491,8 @@ class MobileAddRidesModal extends React.Component {
                             filteredDestinations.map((place, index) => (
                               <DropdownItem
                                 key={index}
-                                onClick={() => this.handlePlaceSelect("destination", place)
+                                onClick={() =>
+                                  this.handlePlaceSelect("destination", place)
                                 }
                               >
                                 {place}
@@ -445,7 +520,8 @@ class MobileAddRidesModal extends React.Component {
                         type="date"
                         value={date}
                         min={minDate}
-                        onChange={(e) => this.handleInputChange("date", e.target.value)
+                        onChange={(e) =>
+                          this.handleInputChange("date", e.target.value)
                         }
                         required
                       />
@@ -456,7 +532,8 @@ class MobileAddRidesModal extends React.Component {
                       <Input
                         type="time"
                         value={time}
-                        onChange={(e) => this.handleInputChange("time", e.target.value)
+                        onChange={(e) =>
+                          this.handleInputChange("time", e.target.value)
                         }
                         required
                       />
@@ -472,7 +549,8 @@ class MobileAddRidesModal extends React.Component {
                     <Label>Available Seats</Label>
                     <Select
                       value={seats}
-                      onChange={(e) => this.handleInputChange("seats", e.target.value)
+                      onChange={(e) =>
+                        this.handleInputChange("seats", e.target.value)
                       }
                     >
                       <option value="1">1 seat</option>
@@ -489,7 +567,8 @@ class MobileAddRidesModal extends React.Component {
                     <Label>Notes (Optional)</Label>
                     <Textarea
                       value={notes}
-                      onChange={(e) => this.handleInputChange("notes", e.target.value)
+                      onChange={(e) =>
+                        this.handleInputChange("notes", e.target.value)
                       }
                       placeholder="Additional details..."
                       rows="2"
@@ -528,6 +607,20 @@ MobileAddRidesModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  places: PropTypes.array.isRequired,
+  ready: PropTypes.bool.isRequired,
 };
 
-export default withRouter(MobileAddRidesModal);
+export default withRouter(
+  withTracker(() => {
+    const placesSubscription = Meteor.subscribe("places.options");
+
+    const places = Places.find({}, { sort: { text: 1 } }).fetch();
+    const placesData = places.map((place) => place.text);
+
+    return {
+      places: placesData,
+      ready: placesSubscription.ready(),
+    };
+  })(MobileAddRidesModal),
+);
