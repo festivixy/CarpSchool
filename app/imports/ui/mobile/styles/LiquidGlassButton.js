@@ -11,14 +11,20 @@ export const ButtonContainer = styled.div`
   min-width: 120px;
   height: 48px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  transform: translateY(0px) translateX(0px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 
   &:hover {
-    transform: translateY(-1px);
+    transform: translateY(-1px) translateX(0px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
   }
 
   &:active {
-    transform: translateY(0px);
+    transform: translateY(0px) translateX(0px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -113,6 +119,7 @@ export const LabelContainer = styled.div`
   position: relative;
   z-index: 10;
   pointer-events: none;
+  transform: translateX(0px);
 `;
 
 export const LabelSymbol = styled.div`
@@ -130,6 +137,9 @@ export const LabelText = styled.div`
     sans-serif;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   white-space: nowrap;
+  transform: translateX(0px);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 
   @media (max-width: 991px) {
     font-size: 13px;

@@ -42,6 +42,9 @@ const MobileTestMapView = () => {
   const [newPointLat, setNewPointLat] = useState("");
   const [newPointLng, setNewPointLng] = useState("");
   const [newPointLabel, setNewPointLabel] = useState("");
+  const [backgroundPosition, setBackgroundPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const handleAddPoint = () => {
     const lat = parseFloat(newPointLat);
@@ -68,6 +71,51 @@ const MobileTestMapView = () => {
 
   const handleClearPoints = () => {
     setCoordinates([]);
+  };
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - backgroundPosition.x,
+      y: e.clientY - backgroundPosition.y,
+    });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+
+    setBackgroundPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStart({
+      x: touch.clientX - backgroundPosition.x,
+      y: touch.clientY - backgroundPosition.y,
+    });
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+
+    const touch = e.touches[0];
+    setBackgroundPosition({
+      x: touch.clientX - dragStart.x,
+      y: touch.clientY - dragStart.y,
+    });
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
   };
 
   return (
@@ -237,6 +285,20 @@ const MobileTestMapView = () => {
 
             <ControlsGrid>
               <ControlItem>
+                <Label>Background Control</Label>
+                <div
+                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
+                >
+                  <LiquidGlassButton
+                    label="Reset Pattern"
+                    onClick={() => setBackgroundPosition({ x: 0, y: 0 })}
+                  />
+                  <span style={{ fontSize: "12px", color: "#666" }}>
+                    Drag the background to test glass effect
+                  </span>
+                </div>
+              </ControlItem>
+              <ControlItem>
                 <Label>Sample Buttons</Label>
                 <div
                   style={{
@@ -245,22 +307,33 @@ const MobileTestMapView = () => {
                     flexWrap: "wrap",
                     padding: "40px 20px",
                     background: `linear-gradient(45deg,
-                    transparent 45%,
-                    #007bff 47%,
-                    #007bff 53%,
-                    transparent 55%),
-                    linear-gradient(-45deg,
-                    transparent 45%,
-                    #28a745 47%,
-                    #28a745 53%,
-                    transparent 55%),
-                    linear-gradient(0deg,
-                    #f8f9fa 0%,
-                    #e9ecef 100%)`,
+                      transparent 45%,
+                      #007bff 47%,
+                      #007bff 53%,
+                      transparent 55%),
+                      linear-gradient(-45deg,
+                      transparent 45%,
+                      #28a745 47%,
+                      #28a745 53%,
+                      transparent 55%),
+                      linear-gradient(0deg,
+                      #f8f9fa 0%,
+                      #e9ecef 100%)`,
                     backgroundSize: "30px 30px, 30px 30px, 100% 100%",
+                    backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px, ${backgroundPosition.x}px ${backgroundPosition.y}px, 0 0`,
                     borderRadius: "8px",
                     position: "relative",
+                    cursor: isDragging ? "grabbing" : "grab",
+                    userSelect: "none",
+                    touchAction: "none",
                   }}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                 >
                   <LiquidGlassButton
                     label="Sample Action"
@@ -280,7 +353,7 @@ const MobileTestMapView = () => {
 
             <InfoCard>
               <InfoItem>
-                <InfoLabel>🧪 LiquidGlassButton Features</InfoLabel>
+                <InfoLabel>🧪 LiquidGlassButton Features & Testing</InfoLabel>
                 <InfoValue>
                   1. Liquid glass visual effect with multiple layers
                   <br />
@@ -293,6 +366,11 @@ const MobileTestMapView = () => {
                   5. Smooth animations and transitions
                   <br />
                   6. Modern design with glass morphism style
+                  <br />
+                  7. 🖱️ <strong>Drag the background</strong> to test
+                  transparency effect
+                  <br />
+                  8. Use "Reset Pattern" button to center the background
                 </InfoValue>
               </InfoItem>
             </InfoCard>
