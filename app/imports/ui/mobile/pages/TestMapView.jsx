@@ -724,10 +724,41 @@ const MobileTestMapView = () => {
 
         <Section>
           <SectionTitle>📝 LiquidGlass TextInput & IconButton Test</SectionTitle>
-          <SectionContent>
+          <SectionContent
+            style={{
+              background: `linear-gradient(45deg,
+                transparent 45%,
+                #007bff 47%,
+                #007bff 53%,
+                transparent 55%),
+                linear-gradient(-45deg,
+                transparent 45%,
+                #007bff 47%,
+                #007bff 53%,
+                transparent 55%),
+                linear-gradient(0deg,
+                #f8f9fa 0%,
+                #e9ecef 100%)`,
+              backgroundSize: "30px 30px, 30px 30px, 100% 100%",
+              backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px, ${backgroundPosition.x}px ${backgroundPosition.y}px, 0 0`,
+              borderRadius: "8px",
+              position: "relative",
+              cursor: isDragging ? "grabbing" : "grab",
+              userSelect: "none",
+              touchAction: "none",
+              padding: "20px",
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <InfoCard>
               <InfoItem>
-                <InfoLabel>Component Test</InfoLabel>
+                <InfoLabel>Component Demo</InfoLabel>
                 <InfoValue>
                   Testing the LiquidGlassTextInput and LiquidGlassIconButton components with glass morphism effects
                 </InfoValue>
