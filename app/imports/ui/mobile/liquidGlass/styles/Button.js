@@ -65,7 +65,6 @@ export const BlurEffect = styled.div`
   left: 0;
   backdrop-filter: blur(6px);
   background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.15);
   overflow: hidden;
 
   /* Chromatic aberration color-bending effect */

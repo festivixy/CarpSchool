@@ -62,22 +62,47 @@ export const TriggerBlur = styled.div`
   left: 0;
   backdrop-filter: blur(6px);
   background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 1000px;
+  overflow: hidden;
+
+  /* Chromatic aberration color-bending effect */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 1000px;
+    backdrop-filter: hue-rotate(8deg) saturate(1.15);
+    mix-blend-mode: color-dodge;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 1000px;
+    backdrop-filter: hue-rotate(-8deg) saturate(1.2) contrast(1.05);
+    mix-blend-mode: soft-light;
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  /* Additional color shift layers */
   box-shadow:
-    /* Smooth prismatic light-bending edges */
-    inset 3px 0 4px -1px rgba(255, 100, 150, 0.12),
-    inset -3px 0 4px -1px rgba(100, 150, 255, 0.12),
-    inset 0 3px 4px -1px rgba(150, 255, 100, 0.1),
-    inset 0 -3px 4px -1px rgba(255, 200, 100, 0.12),
-    /* Gradual mid-transitions */ inset 2px 0 6px -2px rgba(255, 100, 150, 0.06),
-    inset -2px 0 6px -2px rgba(100, 150, 255, 0.06),
-    inset 0 2px 6px -2px rgba(150, 255, 100, 0.05),
-    inset 0 -2px 6px -2px rgba(255, 200, 100, 0.06),
-    /* Soft inner glow */ inset 1px 0 8px -3px rgba(255, 100, 150, 0.03),
-    inset -1px 0 8px -3px rgba(100, 150, 255, 0.03),
-    inset 0 1px 8px -3px rgba(150, 255, 100, 0.025),
-    inset 0 -1px 8px -3px rgba(255, 200, 100, 0.03);
+    /* Red channel shift */
+    inset 2px 0 4px rgba(255, 0, 0, 0.08),
+    inset -1px 0 4px rgba(0, 255, 255, 0.08),
+    /* Green channel shift */ inset 0 2px 4px rgba(0, 255, 0, 0.06),
+    inset 0 -1px 4px rgba(255, 0, 255, 0.06),
+    /* Blue channel shift */ inset 1px 1px 4px rgba(0, 0, 255, 0.08),
+    inset -2px -2px 4px rgba(255, 255, 0, 0.08);
 `;
 
 export const TriggerGlass = styled.div`
@@ -213,22 +238,47 @@ export const MenuBlur = styled.div`
   bottom: 0;
   backdrop-filter: blur(4px);
   background: rgba(255, 255, 255, 0.08);
-  border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
+  overflow: hidden;
+
+  /* Chromatic aberration color-bending effect */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    backdrop-filter: hue-rotate(6deg) saturate(1.1);
+    mix-blend-mode: color-dodge;
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    backdrop-filter: hue-rotate(-6deg) saturate(1.15) contrast(1.03);
+    mix-blend-mode: soft-light;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+
+  /* Additional color shift layers */
   box-shadow:
-    /* Smooth prismatic light-bending edges */
-    inset 4px 0 5px -1px rgba(255, 100, 150, 0.1),
-    inset -4px 0 5px -1px rgba(100, 150, 255, 0.1),
-    inset 0 4px 5px -1px rgba(150, 255, 100, 0.08),
-    inset 0 -4px 5px -1px rgba(255, 200, 100, 0.1),
-    /* Gradual mid-transitions */ inset 2px 0 7px -2px rgba(255, 100, 150, 0.05),
-    inset -2px 0 7px -2px rgba(100, 150, 255, 0.05),
-    inset 0 2px 7px -2px rgba(150, 255, 100, 0.04),
-    inset 0 -2px 7px -2px rgba(255, 200, 100, 0.05),
-    /* Soft inner glow */ inset 1px 0 9px -3px rgba(255, 100, 150, 0.025),
-    inset -1px 0 9px -3px rgba(100, 150, 255, 0.025),
-    inset 0 1px 9px -3px rgba(150, 255, 100, 0.02),
-    inset 0 -1px 9px -3px rgba(255, 200, 100, 0.025);
+    /* Red channel shift */
+    inset 3px 0 5px rgba(255, 0, 0, 0.06),
+    inset -2px 0 5px rgba(0, 255, 255, 0.06),
+    /* Green channel shift */ inset 0 3px 5px rgba(0, 255, 0, 0.05),
+    inset 0 -2px 5px rgba(255, 0, 255, 0.05),
+    /* Blue channel shift */ inset 2px 2px 5px rgba(0, 0, 255, 0.06),
+    inset -3px -3px 5px rgba(255, 255, 0, 0.06);
 `;
 
 export const MenuGlass = styled.div`
@@ -322,7 +372,7 @@ export const MenuItem = styled.div`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   overflow: hidden;
 
-  /* Liquid glass background layers */
+  /* Liquid glass background layers with chromatic aberration */
   &::before {
     content: "";
     position: absolute;
@@ -330,12 +380,13 @@ export const MenuItem = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px) hue-rotate(4deg) saturate(1.05);
     background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 1000px;
     z-index: 1;
     transition: all 0.2s ease;
+    mix-blend-mode: color-dodge;
+    opacity: 0.8;
   }
 
   &::after {
@@ -346,6 +397,7 @@ export const MenuItem = styled.div`
     right: 0;
     bottom: 0;
     border-radius: 1000px;
+    backdrop-filter: hue-rotate(-4deg) saturate(1.1) contrast(1.02);
     background:
       radial-gradient(
         ellipse at center,
@@ -359,10 +411,17 @@ export const MenuItem = styled.div`
         rgba(255, 255, 255, 0.08) 100%
       );
     box-shadow:
-      inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+      /* Chromatic color shifts */
+      inset 1px 0 3px rgba(255, 0, 0, 0.04),
+      inset -1px 0 3px rgba(0, 255, 255, 0.04),
+      inset 0 1px 3px rgba(0, 255, 0, 0.03),
+      inset 0 -1px 3px rgba(255, 0, 255, 0.03),
+      /* Original glass shadows */ inset 2px 2px 4px rgba(255, 255, 255, 0.3),
       inset -1px -1px 2px rgba(0, 0, 0, 0.08);
     z-index: 2;
     transition: all 0.2s ease;
+    mix-blend-mode: soft-light;
+    opacity: 0.9;
   }
 
   &:hover {
@@ -374,7 +433,7 @@ export const MenuItem = styled.div`
 
     &::before {
       background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(6px) hue-rotate(6deg) saturate(1.1);
     }
 
     &::after {
