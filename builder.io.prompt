@@ -1,1 +1,21 @@
-You are working on a Meteor.js rideshare application with multi-rider carpooling, interactive map-based place selection using tileserver proxy, UUID-based place references, modern mobile UI with styled-components, and comprehensive test data generation - the codebase follows imports/api/{collection}/{Methods,Publications}.js for backend, imports/ui/mobile/{components,pages}/ for frontend, with places/rides relational data structure and backward compatibility for legacy schemas. commit after each change. app/imports/ui/pages and app/imports/ui/components is legacy and not updated anymore
+You are working on a Meteor.js rideshare application with multi-rider carpooling, interactive map-based place selection using tileserver proxy, UUID-based place references, modern mobile UI with styled-components, and comprehensive test data generation - the codebase follows imports/api/{collection}/{Methods,Publications}.js for backend, imports/ui/mobile/{components,pages}/ for frontend, with places/rides relational data structure and backward compatibility for legacy schemas.
+
+### Package Manager: 
+- Uses `meteor` commands (not npm/yarn/pnpm)
+
+## IMPORTANT
+
+### file locations
+
+- docker compose: docker-compose.yml
+- normal components: app/imports/ui/mobile/components
+- normal styles app/imports/ui/mobile/styles
+- pages: app/imports/ui/mobile/pages
+
+LiquidGlass Component Library Location:
+- **Components**: `app/imports/ui/mobile/liquidGlass/components/`
+- **Styles**: `app/imports/ui/mobile/liquidGlass/styles/`
+
+# DO NOT USE app/imports/ui/components and app/imports/ui/pages! legacy.
+
+# commit to git, after each changes.
