@@ -4,6 +4,7 @@ import InteractiveMapPicker from "../components/InteractiveMapPicker";
 import LiquidGlassButton from "../liquidGlass/components/Button";
 import LiquidGlassNavbar from "../liquidGlass/components/Navbar";
 import LiquidGlassDropdown from "../liquidGlass/components/Dropdown";
+import LiquidGlassFooter from "../liquidGlass/components/Footer";
 import {
   Container,
   Header,
@@ -180,10 +181,6 @@ const MobileTestMapView = () => {
 
   return (
     <Container>
-      <Header>
-        <AppName>Components Test</AppName>
-      </Header>
-
       {/* Demo LiquidGlass Navbar */}
       <div
         style={{
@@ -224,7 +221,6 @@ const MobileTestMapView = () => {
 
       <Content>
         <Copy>
-          <Title>Components Test</Title>
           <Subtitle>
             Interactive testing page for LiquidGlass components and MapView
             integration
@@ -831,6 +827,23 @@ const MobileTestMapView = () => {
           </SectionContent>
         </Section>
       </Content>
+
+      {/* Demo LiquidGlass Footer */}
+      <LiquidGlassFooter
+        companyName="Carpool Test"
+        description="Testing the LiquidGlass footer component with glass morphism effects and responsive design."
+        email="test@carpool.app"
+        phone="+1 (555) 123-TEST"
+        address="123 Test Street, Component City, CC 12345"
+        onNewsletterSubmit={(email) => {
+          console.log("Newsletter signup:", email);
+          alert(`Newsletter signup: ${email}`);
+        }}
+        onLinkClick={(link) => {
+          console.log("Footer link clicked:", link);
+          alert(`Footer link clicked: ${link}`);
+        }}
+      />
     </Container>
   );
 };
