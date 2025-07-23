@@ -111,37 +111,18 @@ The LiquidGlass component library now includes these fully implemented component
 - New tasks should be added to TODO.md as needed
 
 
-## ✅ RECENTLY COMPLETED TODOS (January 2025)
 
-### ✅ TODO 1 - Performance Issues Fixed [2b9837b]
-- **Issue**: LiquidGlass components causing 6-second lag in Firefox
-- **Solution**: Fixed prop forwarding issues using transient props ($) to prevent DOM warnings
-- **Result**: Eliminated performance bottlenecks in LiquidGlass components
 
-### ✅ TODO 2 - FooterVerbose Component [7e61bc1]
-- **Created**: Enhanced non-LiquidGlass footer at `app/imports/ui/mobile/components/FooterVerbose`
-- **Features**: Comprehensive footer with better styling than legacy version
-- **Implementation**: Clean, responsive design with proper navigation links
+## NEW TODOS
 
-### ✅ TODO 3 - LiquidGlass Login Page [1cee28d]
-- **Created**: Fully functional LiquidGlass login page at `app/imports/ui/mobile/liquidGlass/pages/SignIn.jsx`
-- **Route**: Available at `/_test/liquidglass/login` via ProtectedRouteRequireNotLoggedIn
-- **Features**: Complete glass morphism styling with working authentication
+### TODO 1. Update all pages to use centralized component instead of individual implementations
 
-### ✅ TODO 4 - Place Creator Display [ed7d0ba]
-- **Enhanced**: PlaceManager.jsx now shows who created each place
-- **Implementation**: Added creator information display with proper user attribution
-- **Location**: `app/imports/ui/mobile/pages/PlaceManager.jsx`
+8756649 did not completely finish that.
 
-### ✅ TODO 5 - Centralized Captcha Component [8756649]
-- **Created**: Reusable Captcha component at `app/imports/ui/mobile/components/Captcha.jsx`
-- **Migration**: Updated all pages to use centralized component instead of individual implementations
-- **Result**: Consistent captcha functionality across entire application
+remember,
 
-## Status: All Major TODOs Completed ✅
-All critical development tasks have been successfully implemented and tested. The application now features:
-- ✅ Performance-optimized LiquidGlass components
-- ✅ Enhanced footer options (both LiquidGlass and standard)
-- ✅ Complete LiquidGlass authentication system
-- ✅ Improved place management with creator attribution
-- ✅ Centralized, reusable captcha system
+- normal components: app/imports/ui/mobile/components
+- normal styles app/imports/ui/mobile/styles
+- pages: app/imports/ui/mobile/pages
+
+app/imports/ui/components and app/imports/ui/pages is legacy and not updated anymore
