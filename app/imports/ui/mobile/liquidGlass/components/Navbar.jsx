@@ -148,7 +148,8 @@ function LiquidGlassNavbar({
 
         {/* User Section */}
         <UserSection>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {/* Desktop User Menu - Hidden on Mobile */}
+          <div className="desktop-user-menu">
             {user ? (
               <>
                 <UserAvatar>

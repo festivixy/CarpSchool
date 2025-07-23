@@ -286,6 +286,16 @@ export const UserSection = styled.div`
   align-items: center;
   gap: 16px;
   position: relative;
+
+  .desktop-user-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
 `;
 
 export const UserAvatar = styled.div`
