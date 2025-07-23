@@ -997,7 +997,7 @@ const MobileTestMapView = () => {
 
       {/* Demo LiquidGlass Footer */}
       <LiquidGlassFooter
-        companyName="Carpool Test"
+        companyName="Carpool"
         description="Testing the LiquidGlass footer component with glass morphism effects and responsive design."
         email="test@carpool.app"
         phone="+1 (555) 123-TEST"
