@@ -31,7 +31,7 @@ services:
     image: mongo-express
     container_name: carpool-mongo-express
     ports:
-      - "127.0.0.1:8081:8081"
+      - "8081:8081"
     environment:
       - ME_CONFIG_MONGODB_SERVER=mongo
       - ME_CONFIG_MONGODB_PORT=27017
@@ -53,8 +53,6 @@ services:
       - "8080"
       - --config
       - "/style/config.json"
-    # ports:
-    #   - "8080:8080"
     volumes:
       - ./openmaptilesdata/data:/data
       - ./openmaptilesdata/style:/style
@@ -85,23 +83,12 @@ services:
   nominatim:
     container_name: carpool-nominatim
     image: mediagis/nominatim:5.1
-    # ports:
-    #   - "8082:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
-      - PGHOST=postgis
-      - PGDATABASE=nominatim
-      - PGUSER=nominatim
-      - NOMINATIM_TOKENIZER=icu
-      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
       - ./pgdataNominatimInternal:/var/lib/postgresql/16/main
     restart: unless-stopped
-    depends_on:
-      postgis:
-        condition: service_healthy
-        restart: true
     networks:
       - carpool_network
 
@@ -112,45 +99,13 @@ services:
       - "8082:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
-      - PGHOST=postgis
-      - PGDATABASE=nominatim
-      - PGUSER=nominatim
-      - NOMINATIM_TOKENIZER=icu
-      - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
       - ./pgdataNominatimInternal:/var/lib/postgresql/16/main
     restart: unless-stopped
-    depends_on:
-      postgis:
-        condition: service_healthy
-        restart: true
     profiles: ["manual"]
     networks:
       - carpool_network
-
-  postgis:
-    image: postgis/postgis:16-3.4
-    container_name: carpool-postgis
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
-    # ports:
-    #   - "5433:5432"
-    environment:
-      POSTGRES_DB: nominatim
-      POSTGRES_USER: nominatim
-      POSTGRES_PASSWORD: nominatim
-      POSTGRES_HOST_AUTH_METHOD: trust
-      PGPORT: 5432
-    networks:
-      - carpool_network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nominatim -d nominatim"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
 
 networks:
   carpool_network:
