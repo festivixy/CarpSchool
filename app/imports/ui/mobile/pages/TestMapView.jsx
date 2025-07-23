@@ -211,7 +211,7 @@ const MobileTestMapView = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .test-navbar {
           position: relative !important;
           top: auto !important;
