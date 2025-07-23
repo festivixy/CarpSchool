@@ -36,34 +36,6 @@ export const BlurLayer = styled.div`
   bottom: 0;
   background: rgba(255, 255, 255, 0.06);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background-image:
-    radial-gradient(
-      circle at 1px 1px,
-      rgba(255, 255, 255, 0.04) 1px,
-      transparent 0
-    ),
-    linear-gradient(
-      45deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.01) 30%,
-      rgba(255, 255, 255, 0.01) 70%,
-      transparent 70%
-    ),
-    linear-gradient(
-      -45deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.01) 30%,
-      rgba(255, 255, 255, 0.01) 70%,
-      transparent 70%
-    );
-  background-size:
-    2px 2px,
-    4px 4px,
-    4px 4px;
-  background-position:
-    0 0,
-    0 0,
-    2px 2px;
 
   /* Chromatic aberration color-bending effect */
   &::before {
@@ -99,27 +71,12 @@ export const GlassLayer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 0.5px,
-      rgba(255, 255, 255, 0.005) 0.5px,
-      rgba(255, 255, 255, 0.005) 1px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 0.5px,
-      rgba(255, 255, 255, 0.005) 0.5px,
-      rgba(255, 255, 255, 0.005) 1px
-    ),
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.04) 0%,
-      rgba(255, 255, 255, 0.02) 50%,
-      rgba(255, 255, 255, 0.03) 100%
-    );
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
   box-shadow:
     /* RGB channel shifts for chromatic aberration */
     inset 2px 0 4px rgba(255, 0, 0, 0.04),
