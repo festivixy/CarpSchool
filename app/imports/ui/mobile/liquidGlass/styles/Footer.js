@@ -124,14 +124,20 @@ export const FooterContent = styled.div`
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    padding: 32px 16px;
+    gap: 24px;
+    padding: 24px 16px;
   }
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 20px;
+    padding: 20px 12px;
     text-align: center;
+  }
+
+  @media (max-width: 360px) {
+    gap: 16px;
+    padding: 16px 8px;
   }
 `;
 
@@ -159,8 +165,8 @@ export const SectionContent = styled.div`
 
 export const FooterLink = styled.a`
   font-size: 14px;
-  color: #555;
-  text-decoration: none;
+  color: #000;
+  text-decoration: underline;
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 4px 0;
@@ -170,6 +176,7 @@ export const FooterLink = styled.a`
     color: #333;
     transform: translateX(4px);
     text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+    text-decoration: underline;
   }
 
   &:active {
@@ -339,9 +346,18 @@ export const FooterBottom = styled.div`
 
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     text-align: center;
-    padding: 24px 16px;
+    padding: 20px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px 12px;
+    gap: 10px;
+  }
+
+  @media (max-width: 360px) {
+    padding: 12px 8px;
   }
 `;
 
@@ -368,8 +384,8 @@ export const LegalLinks = styled.div`
 
 export const LegalLink = styled.a`
   font-size: 14px;
-  color: #666;
-  text-decoration: none;
+  color: #000;
+  text-decoration: underline;
   cursor: pointer;
   transition: all 0.2s ease;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
@@ -377,5 +393,6 @@ export const LegalLink = styled.a`
   &:hover {
     color: #333;
     text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+    text-decoration: underline;
   }
 `;

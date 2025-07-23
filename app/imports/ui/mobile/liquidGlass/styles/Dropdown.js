@@ -144,7 +144,7 @@ export const TriggerContent = styled.div`
 
 export const TriggerText = styled.div`
   flex: 1;
-  color: #333;
+  color: #000;
   font-weight: 500;
   font-size: 14px;
   font-family:
@@ -162,7 +162,7 @@ export const TriggerText = styled.div`
   ${(props) =>
     !props.hasValue &&
     `
-    color: #666;
+    color: #333;
     font-weight: 400;
   `}
 `;
@@ -489,7 +489,7 @@ export const MenuItemIcon = styled.span`
 
 export const MenuItemText = styled.span`
   flex: 1;
-  color: #333;
+  color: #000;
   font-weight: 500;
   font-size: 14px;
   font-family:

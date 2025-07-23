@@ -103,7 +103,7 @@ function LiquidGlassFooter({
             <CompanyName>{companyName}</CompanyName>
           </CompanyLogo>
           <CompanyDescription>{description}</CompanyDescription>
-          
+
           <SocialLinks>
             {socialLinks.map((social) => (
               <SocialIcon
@@ -210,8 +210,8 @@ function LiquidGlassFooter({
           <LegalLink onClick={() => handleLinkClick("terms")}>
             Terms of Service
           </LegalLink>
-          <LegalLink onClick={() => handleLinkClick("cookies")}>
-            Cookie Policy
+          <LegalLink onClick={() => handleLinkClick("credits")}>
+            Credits
           </LegalLink>
         </LegalLinks>
       </FooterBottom>
