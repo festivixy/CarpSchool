@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import LiquidGlassButton from "./Button";
+import LiquidGlassTextInput from "./TextInput";
 import {
   FooterContainer,
   FooterBackground,
@@ -24,7 +25,6 @@ import {
   ContactInfo,
   ContactItem,
   NewsletterSection,
-  NewsletterInput,
   NewsletterButton,
 } from "../styles/Footer";
 
@@ -183,10 +183,12 @@ function LiquidGlassFooter({
 
             <NewsletterSection>
               <form onSubmit={handleNewsletterSubmit}>
-                <NewsletterInput
+                <LiquidGlassTextInput
                   type="email"
                   name="email"
                   placeholder="Enter your email"
+                  icon="📧"
+                  iconPosition="left"
                   required
                 />
                 <NewsletterButton type="submit">

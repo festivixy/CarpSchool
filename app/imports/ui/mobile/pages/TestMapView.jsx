@@ -5,6 +5,8 @@ import LiquidGlassButton from "../liquidGlass/components/Button";
 import LiquidGlassNavbar from "../liquidGlass/components/Navbar";
 import LiquidGlassDropdown from "../liquidGlass/components/Dropdown";
 import LiquidGlassFooter from "../liquidGlass/components/Footer";
+import LiquidGlassTextInput from "../liquidGlass/components/TextInput";
+import LiquidGlassIconButton from "../liquidGlass/components/IconButton";
 import {
   Container,
   Header,
@@ -126,7 +128,7 @@ const MobileTestMapView = () => {
 
   // Dropdown options
   const cityOptions = [
-    { value: "vancouver", label: "Vancouver", icon: "🏙️" },
+    { value: "vancouver", label: "Vancouver", icon: "🏙���" },
     { value: "toronto", label: "Toronto", icon: "🌆" },
     { value: "montreal", label: "Montreal", icon: "🏛️" },
     { value: "calgary", label: "Calgary", icon: "🏔️" },
@@ -232,22 +234,18 @@ const MobileTestMapView = () => {
           <SectionContent>
             <ControlsGrid>
               <ControlItem>
-                <Label htmlFor="newPointLat">Add Point - Latitude</Label>
-                <Input
-                  id="newPointLat"
+                <LiquidGlassTextInput
+                  label="Add Point - Latitude"
                   type="number"
-                  step="0.000001"
                   value={newPointLat}
                   onChange={(e) => setNewPointLat(e.target.value)}
                   placeholder="Enter latitude"
                 />
               </ControlItem>
               <ControlItem>
-                <Label htmlFor="newPointLng">Add Point - Longitude</Label>
-                <Input
-                  id="newPointLng"
+                <LiquidGlassTextInput
+                  label="Add Point - Longitude"
                   type="number"
-                  step="0.000001"
                   value={newPointLng}
                   onChange={(e) => setNewPointLng(e.target.value)}
                   placeholder="Enter longitude"
@@ -257,11 +255,8 @@ const MobileTestMapView = () => {
 
             <ControlsGrid>
               <ControlItem>
-                <Label htmlFor="newPointLabel">
-                  Add Point - Label (optional)
-                </Label>
-                <Input
-                  id="newPointLabel"
+                <LiquidGlassTextInput
+                  label="Add Point - Label (optional)"
                   type="text"
                   value={newPointLabel}
                   onChange={(e) => setNewPointLabel(e.target.value)}
@@ -284,11 +279,8 @@ const MobileTestMapView = () => {
             </ControlsGrid>
 
             <ControlItem>
-              <Label htmlFor="tileServer">
-                Self-hosted Tile Server URL (optional)
-              </Label>
-              <Input
-                id="tileServer"
+              <LiquidGlassTextInput
+                label="Self-hosted Tile Server URL (optional)"
                 type="text"
                 value={tileServerUrl}
                 onChange={(e) => setTileServerUrl(e.target.value)}
@@ -731,13 +723,157 @@ const MobileTestMapView = () => {
         </Section>
 
         <Section>
+          <SectionTitle>📝 LiquidGlass TextInput & IconButton Test</SectionTitle>
+          <SectionContent>
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>Component Test</InfoLabel>
+                <InfoValue>
+                  Testing the LiquidGlassTextInput and LiquidGlassIconButton components with glass morphism effects
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+
+            <ControlsGrid>
+              <ControlItem>
+                <LiquidGlassTextInput
+                  label="Text Input Test"
+                  type="text"
+                  placeholder="Type something..."
+                  helperText="This is a LiquidGlass TextInput with glass morphism effect"
+                  icon="📝"
+                  iconPosition="left"
+                />
+              </ControlItem>
+              <ControlItem>
+                <LiquidGlassTextInput
+                  label="Email Input Test"
+                  type="email"
+                  placeholder="your@email.com"
+                  helperText="Email input with validation"
+                  icon="📧"
+                  iconPosition="left"
+                />
+              </ControlItem>
+            </ControlsGrid>
+
+            <ControlsGrid>
+              <ControlItem>
+                <LiquidGlassTextInput
+                  label="Password Input"
+                  type="password"
+                  placeholder="Enter password"
+                  icon="🔒"
+                  iconPosition="left"
+                />
+              </ControlItem>
+              <ControlItem>
+                <LiquidGlassTextInput
+                  label="Search Input"
+                  type="search"
+                  placeholder="Search..."
+                  icon="🔍"
+                  iconPosition="right"
+                />
+              </ControlItem>
+            </ControlsGrid>
+
+            <ControlItem>
+              <Label>IconButton Examples</Label>
+              <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                <LiquidGlassIconButton
+                  icon="❤️"
+                  title="Like"
+                  onClick={() => alert("Liked!")}
+                />
+                <LiquidGlassIconButton
+                  icon="⭐"
+                  title="Star"
+                  size="large"
+                  onClick={() => alert("Starred!")}
+                />
+                <LiquidGlassIconButton
+                  icon="🔔"
+                  title="Notifications"
+                  badge={3}
+                  onClick={() => alert("3 notifications")}
+                />
+                <LiquidGlassIconButton
+                  icon="+"
+                  title="Add"
+                  size="small"
+                  color="primary"
+                  onClick={() => alert("Add clicked!")}
+                />
+                <LiquidGlassIconButton
+                  icon="⚙️"
+                  title="Settings"
+                  color="secondary"
+                  onClick={() => alert("Settings")}
+                />
+                <LiquidGlassIconButton
+                  icon="🗑️"
+                  title="Delete"
+                  color="danger"
+                  onClick={() => alert("Delete")}
+                />
+                <LiquidGlassIconButton
+                  icon="💾"
+                  title="Save"
+                  color="success"
+                  onClick={() => alert("Saved!")}
+                />
+              </div>
+            </ControlItem>
+
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>🧪 LiquidGlass TextInput Features</InfoLabel>
+                <InfoValue>
+                  • Glass morphism effect with blur and transparency
+                  <br />
+                  • Multiple input types (text, email, password, search, etc.)
+                  <br />
+                  • Icon support (left or right positioning)
+                  <br />
+                  • Label animations and floating labels
+                  <br />
+                  • Error states and helper text
+                  <br />
+                  • Character counting and validation
+                  <br />
+                  • Responsive design and accessibility
+                </InfoValue>
+              </InfoItem>
+              <InfoItem>
+                <InfoLabel>🧪 LiquidGlass IconButton Features</InfoLabel>
+                <InfoValue>
+                  • Circular glass morphism design
+                  <br />
+                  • Support for emojis and single characters
+                  <br />
+                  • Multiple sizes (small, medium, large, xlarge)
+                  <br />
+                  • Color variants (default, primary, secondary, success, warning, danger)
+                  <br />
+                  • Badge support for notifications
+                  <br />
+                  • Hover and active state animations
+                  <br />
+                  • Accessible with proper ARIA labels
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+          </SectionContent>
+        </Section>
+
+        <Section>
           <SectionTitle>🎯 Interactive Map Picker</SectionTitle>
           <SectionContent>
             <ControlsGrid>
               <ControlItem>
-                <Label htmlFor="mapHeight">Map Height</Label>
-                <Input
-                  id="mapHeight"
+                <LiquidGlassTextInput
+                  label="Map Height"
                   type="text"
                   value={mapPickerHeight}
                   onChange={(e) => setMapPickerHeight(e.target.value)}
