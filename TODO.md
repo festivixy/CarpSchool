@@ -17,7 +17,7 @@ fixed with mongodb collection and session IDs. [319bfb6]
 - [x] Finish Modern look [???????]
 - [x] Move Publications to their own files [f231132]
 - [x] Move Methods to their own files [f231132]
-- [ ] Make captcha its own component
+- [x] Make captcha its own component [8756649]
 - [x] OpenTilesMap server  [???????]
 - [ ] OpenTilesMap data auto download
 - [x] Upload opentilesmap bundle to github release [0.0.1]
@@ -38,5 +38,13 @@ fixed with mongodb collection and session IDs. [319bfb6]
 - [x] Create LiquidGlass IconButton component (circle button for 1 char/emoji) [422600a]
 - [x] Change Footer link colors to black with underline (gray not visible enough) [854e897]
 - [x] Change Dropdown text color to black [854e897]
+
+## Recent TODO Completions
+
+- [x] Debug performance issues in LiquidGlass components (Firefox lag) [2b9837b]
+- [x] Create non-LiquidGlass FooterVerbose component [7e61bc1]
+- [x] Create LiquidGlass login page at /_test/liquidglass/login [1cee28d]
+- [x] Show place creator in PlaceManager.jsx [ed7d0ba]
+- [x] Make captcha its own centralized component [8756649]
 
 # end # builder.io section
