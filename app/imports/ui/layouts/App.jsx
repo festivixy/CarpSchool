@@ -105,11 +105,11 @@ class App extends React.Component {
                 path="/testImageUpload"
                 component={MobileTestImageUpload}
               />
-              <ProtectedRoutes path="/_test" component={MobileTestMapView} />
-              <ProtectedRouteRequireNotLoggedIn
+              <ProtectedRoutes
                 path="/_test/liquidglass/login"
                 component={LiquidGlassSignIn}
               />
+              <ProtectedRoutes path="/_test" component={MobileTestMapView} />
               <ProtectedRoute path="/signout" component={MobileSignout} />
 
               {/* Public pages */}
