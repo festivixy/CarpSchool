@@ -12,6 +12,7 @@ import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import MobileTestMapView from "../mobile/pages/TestMapView";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../mobile/pages/SignIn";
+import LiquidGlassSignIn from "../mobile/liquidGlass/pages/SignIn";
 import MobileSignup from "../mobile/pages/Signup";
 import MobileForgotPassword from "../mobile/pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
@@ -105,6 +106,10 @@ class App extends React.Component {
                 component={MobileTestImageUpload}
               />
               <ProtectedRoutes path="/_test" component={MobileTestMapView} />
+              <ProtectedRouteRequireNotLoggedIn
+                path="/_test/liquidglass/login"
+                component={LiquidGlassSignIn}
+              />
               <ProtectedRoute path="/signout" component={MobileSignout} />
 
               {/* Public pages */}
