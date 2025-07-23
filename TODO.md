@@ -29,14 +29,14 @@ fixed with mongodb collection and session IDs. [319bfb6]
 
 ## LiquidGlass Component Improvements
 
-- [ ] Remove dots (nano texture) from LiquidGlass Footer and Navbar - causing lag
-- [ ] Make LiquidGlass Footer more mobile-friendly
-- [ ] Remove "Carpool Test" text from LiquidGlass Navbar and Footer
-- [ ] Update Footer links: Privacy Policy, Terms of Service to actual pages, replace "Cookie Policy" with "Credits"
-- [ ] Create LiquidGlass TextInput component
-- [ ] Use LiquidGlass TextInput in all LiquidGlass pages and components
-- [ ] Create LiquidGlass IconButton component (circle button for 1 char/emoji)
-- [ ] Change Footer link colors to black with underline (gray not visible enough)
-- [ ] Change Dropdown text color to black
+- [x] Remove dots (nano texture) from LiquidGlass Footer and Navbar - causing lag [cc92558]
+- [x] Make LiquidGlass Footer more mobile-friendly [854e897]
+- [x] Remove "Carpool Test" text from LiquidGlass Navbar and Footer [854e897]
+- [x] Update Footer links: Privacy Policy, Terms of Service to actual pages, replace "Cookie Policy" with "Credits" [854e897]
+- [x] Create LiquidGlass TextInput component [422600a]
+- [x] Use LiquidGlass TextInput in all LiquidGlass pages and components [f8d645d]
+- [x] Create LiquidGlass IconButton component (circle button for 1 char/emoji) [422600a]
+- [x] Change Footer link colors to black with underline (gray not visible enough) [854e897]
+- [x] Change Dropdown text color to black [854e897]
 
 # end # builder.io section
