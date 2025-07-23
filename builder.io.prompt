@@ -25,7 +25,7 @@ LiquidGlass Component Library Location:
 - always check git status before committing.
 - one commit, per type of change ex: one commit per style change, one commit per component...
 - use Bash command tool to run git commands.
-- commit after each change.
+- commit after each change. ## IMPORTANt ##
 
 ## docker
 
@@ -109,3 +109,42 @@ The LiquidGlass component library now includes these fully implemented component
 - Track progress with ../TODO.md in "builder.io section"
 - All LiquidGlass improvement tasks have been completed
 - New tasks should be added to TODO.md as needed
+
+
+## your todo:
+
+### TODO 1
+
+i have done a chrome performance recording, and the trace is at ../Trace-20250724T013306.json and ../Trace-20250724T014012.json. do not read the file. use grep. its 30MB. too big for you to open.
+and console logs is at ../console.log
+
+chrome performance recording of the _test page.
+
+LiquidGlassFooter lag seems to be only be in firefox. chrome have no problem loading the page.
+
+when the components test link is clicked, the site hanged for 6 seconds.
+
+debug the problem, and try to fix the performance issue.
+
+make commits between changes, so you can revert the change if it didnt work.
+
+### TODO 2
+
+make a non LiquidGlass version of the footer. its better than the one we are using right now. at app/imports/ui/mobile/components/FooterVerbose
+
+### TODO 3
+
+create a login page, working, in app/imports/ui/mobile/liquidGlass/pages, thats fully LiquidGlass. basicly LiquidGlass version of app/imports/ui/mobile/pages/SignIn.jsx
+
+make the page avalable to ProtectedRouteRequireNotLoggedIn at /_test/liquidglass/login.
+
+app router at app/imports/ui/layouts/App.jsx.
+
+### TODO 4
+
+in app/imports/ui/mobile/pages/PlaceManager.jsx, not LiquidGlass, show who created the place.
+
+### TODO 5
+
+Make captcha its own component and make the entire site use that component instead of having its own in every part.
+
