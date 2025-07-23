@@ -1,7 +1,7 @@
 services:
   app:
     image: zodern/meteor
-    container_name: carpool-app
+    container_name: app
     ports:
       - "3000:3000"
     environment:
@@ -20,7 +20,7 @@ services:
 
   mongo:
     image: mongo:4.4
-    container_name: carpool-mongo
+    container_name: mongo
     volumes:
       - ./mongo_data:/data/db
     restart: unless-stopped
@@ -29,7 +29,7 @@ services:
 
   mongo-express:
     image: mongo-express
-    container_name: carpool-mongo-express
+    container_name: mongo-express
     ports:
       - "8081:8081"
     environment:
@@ -47,7 +47,7 @@ services:
 
   tileserver-gl:
     image: "maptiler/tileserver-gl:latest"
-    container_name: carpool-tileserver-gl
+    container_name: tileserver-gl
     command:
       - --port
       - "8080"
@@ -81,7 +81,7 @@ services:
       - carpool_network
 
   nominatim:
-    container_name: carpool-nominatim
+    container_name: nominatim
     image: mediagis/nominatim:5.1
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
