@@ -157,7 +157,6 @@ function LiquidGlassNavbar({
                   ) : (
                     <span>{user.name?.charAt(0)?.toUpperCase() || "U"}</span>
                   )}
-                  {notifications > 0 && <Badge>{notifications}</Badge>}
                 </UserAvatar>
                 <UserName>{user.name}</UserName>
 

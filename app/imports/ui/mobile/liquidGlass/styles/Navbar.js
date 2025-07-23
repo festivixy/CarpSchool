@@ -483,8 +483,8 @@ export const DropdownItem = styled.div`
 
 export const Badge = styled.span`
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: -6px;
+  right: 8px;
   background: linear-gradient(135deg, #ff6b6b, #ee5a24);
   color: white;
   font-size: 10px;
@@ -498,6 +498,7 @@ export const Badge = styled.span`
   justify-content: center;
   box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
   animation: pulse 2s infinite;
+  z-index: 10;
 
   @keyframes pulse {
     0% {
