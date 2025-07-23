@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import MapView from "../components/MapView";
 import InteractiveMapPicker from "../components/InteractiveMapPicker";
+import LiquidGlassButton from "../components/LiquidGlassButton";
 import {
   Container,
   Header,
@@ -128,32 +129,14 @@ const MobileTestMapView = () => {
               <ControlItem>
                 <Label>Actions</Label>
                 <div style={{ display: "flex", gap: "8px" }}>
-                  <button
+                  <LiquidGlassButton
+                    label="Add Point"
                     onClick={handleAddPoint}
-                    style={{
-                      padding: "8px 16px",
-                      backgroundColor: "#007bff",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Add Point
-                  </button>
-                  <button
+                  />
+                  <LiquidGlassButton
+                    label="Clear All"
                     onClick={handleClearPoints}
-                    style={{
-                      padding: "8px 16px",
-                      backgroundColor: "#dc3545",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Clear All
-                  </button>
+                  />
                 </div>
               </ControlItem>
             </ControlsGrid>
@@ -240,6 +223,83 @@ const MobileTestMapView = () => {
         </Section>
 
         <Section>
+          <SectionTitle>✨ LiquidGlassButton Test</SectionTitle>
+          <SectionContent>
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>Component Test</InfoLabel>
+                <InfoValue>
+                  Testing the LiquidGlassButton component with different labels
+                  and actions
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+
+            <ControlsGrid>
+              <ControlItem>
+                <Label>Sample Buttons</Label>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "12px",
+                    flexWrap: "wrap",
+                    padding: "40px 20px",
+                    background: `linear-gradient(45deg,
+                    transparent 45%,
+                    #007bff 47%,
+                    #007bff 53%,
+                    transparent 55%),
+                    linear-gradient(-45deg,
+                    transparent 45%,
+                    #28a745 47%,
+                    #28a745 53%,
+                    transparent 55%),
+                    linear-gradient(0deg,
+                    #f8f9fa 0%,
+                    #e9ecef 100%)`,
+                    backgroundSize: "30px 30px, 30px 30px, 100% 100%",
+                    borderRadius: "8px",
+                    position: "relative",
+                  }}
+                >
+                  <LiquidGlassButton
+                    label="Sample Action"
+                    onClick={() => alert("LiquidGlassButton clicked!")}
+                  />
+                  <LiquidGlassButton
+                    label="Test Button"
+                    onClick={() => console.log("Test button pressed")}
+                  />
+                  <LiquidGlassButton
+                    label="Glass Effect"
+                    onClick={() => alert("Glass effect working!")}
+                  />
+                </div>
+              </ControlItem>
+            </ControlsGrid>
+
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>🧪 LiquidGlassButton Features</InfoLabel>
+                <InfoValue>
+                  1. Liquid glass visual effect with multiple layers
+                  <br />
+                  2. Blur effects and glass-like transparency
+                  <br />
+                  3. Interactive hover and click states
+                  <br />
+                  4. Customizable label text
+                  <br />
+                  5. Smooth animations and transitions
+                  <br />
+                  6. Modern design with glass morphism style
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+          </SectionContent>
+        </Section>
+
+        <Section>
           <SectionTitle>🎯 Interactive Map Picker</SectionTitle>
           <SectionContent>
             <ControlsGrid>
@@ -255,20 +315,12 @@ const MobileTestMapView = () => {
               </ControlItem>
               <ControlItem>
                 <Label>Reset to Default Location</Label>
-                <button
+                <LiquidGlassButton
+                  label="Reset to Vancouver"
                   onClick={() =>
                     setSelectedLocation({ lat: 49.345196, lng: -123.149805 })
                   }
-                  style={{
-                    padding: "8px 16px",
-                    backgroundColor: "#f0f0f0",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Reset to Vancouver
-                </button>
+                />
               </ControlItem>
             </ControlsGrid>
 
