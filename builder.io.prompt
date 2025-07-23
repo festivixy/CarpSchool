@@ -110,10 +110,17 @@ The LiquidGlass component library now includes these fully implemented component
 - All LiquidGlass improvement tasks have been completed
 - New tasks should be added to TODO.md as needed
 
-
-
+# IMPORTANT all components, and pages use styled-components. and have all the styled-components in separate file at ../styles/name.js
 
 ## NEW TODOS
+
+### TODO 0.
+
+i have moved app/imports/ui/components and app/imports/ui/pages to app/imports/ui/legacy.
+
+grep the codebase and see if there is any imports referencing them, and dont make changes. write all the files, and lines to ../TODO.md. ill edit them manually.
+
+also update the prompt. to match the change.
 
 ### TODO 1. Update all pages to use centralized component instead of individual implementations
 
@@ -126,3 +133,4 @@ remember,
 - pages: app/imports/ui/mobile/pages
 
 app/imports/ui/components and app/imports/ui/pages is legacy and not updated anymore
+
