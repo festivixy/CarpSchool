@@ -7,7 +7,6 @@ You are working on a Meteor.js rideshare application with multi-rider carpooling
 
 ### file locations
 
-- docker compose: docker-compose.yml
 - normal components: app/imports/ui/mobile/components
 - normal styles app/imports/ui/mobile/styles
 - pages: app/imports/ui/mobile/pages
@@ -25,3 +24,9 @@ LiquidGlass Component Library Location:
 - you are allowed to make multiple commits when i tell you to.
 - always check git status before committing.
 - one commit, per type of change ex: one commit per style change, one commit per component...
+- use Bash command tool to run git commands.
+
+## docker
+
+- docker compose: docker-compose.yml
+- use docker compose instead of docker-compose

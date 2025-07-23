@@ -209,7 +209,7 @@ export const DropdownMenu = styled.div`
   background: transparent;
   border-radius: 16px;
   overflow: hidden;
-  z-index: 1000;
+  z-index: 1001;
   transform: translateY(
     ${(props) =>
       props.isOpen ? "0" : props.position === "top" ? "10px" : "-10px"}

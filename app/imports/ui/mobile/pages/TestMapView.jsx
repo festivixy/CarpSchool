@@ -191,7 +191,6 @@ const MobileTestMapView = () => {
           top: "60px", // Position a little lower under the old navbar
           marginBottom: "20px",
           borderRadius: "0 0 12px 12px", // Only bottom edges rounded
-          overflow: "hidden",
           boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
           zIndex: 999,
         }}
