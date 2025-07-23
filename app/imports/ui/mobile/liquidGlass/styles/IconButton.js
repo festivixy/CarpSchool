@@ -35,7 +35,7 @@ const getSizeConfig = (size) => {
 
 const getColorConfig = (color) => {
   const colors = {
-    default: "#333",
+    default: "#000",
     primary: "#007bff",
     secondary: "#6c757d",
     success: "#28a745",
@@ -275,7 +275,7 @@ export const LabelText = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   /* Ensure single character/emoji is properly centered */
   & > * {
     display: block;

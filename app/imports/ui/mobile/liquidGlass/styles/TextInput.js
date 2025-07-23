@@ -203,9 +203,9 @@ export const StyledInput = styled.input`
   height: 100%;
   padding: ${(props) => {
     const verticalPadding = props.size === "small" ? "8px" : props.size === "large" ? "16px" : "12px";
-    const leftPadding = props.hasIcon && props.iconPosition === "left" ? 
+    const leftPadding = props.hasIcon && props.iconPosition === "left" ?
       (props.size === "small" ? "36px" : props.size === "large" ? "52px" : "44px") : "24px";
-    const rightPadding = props.hasIcon && props.iconPosition === "right" ? 
+    const rightPadding = props.hasIcon && props.iconPosition === "right" ?
       (props.size === "small" ? "36px" : props.size === "large" ? "52px" : "44px") : "24px";
     return `${verticalPadding} ${rightPadding} ${verticalPadding} ${leftPadding}`;
   }};
@@ -223,7 +223,7 @@ export const StyledInput = styled.input`
     }
   }};
   font-weight: 500;
-  color: #333;
+  color: #000;
   font-family: inherit;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   z-index: 10;
@@ -263,7 +263,7 @@ export const StyledInput = styled.input`
 
   &[type="number"] {
     -moz-appearance: textfield;
-    
+
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;
