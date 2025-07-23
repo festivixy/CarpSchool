@@ -153,7 +153,7 @@ const InteractiveMapPicker = ({
     setSearchResults([]);
 
     try {
-      // Use local Nominatim proxy first
+      // Use local Nominatim proxy
       const response = await fetch(
         `/nominatim/search?q=${encodeURIComponent(
           searchQuery,
@@ -177,42 +177,7 @@ const InteractiveMapPicker = ({
       setSearchResults(formattedResults);
     } catch (error) {
       console.error("Nominatim search error:", error);
-
-      // Fallback to tileserver-gl search if Nominatim fails
-      try {
-        console.log("Falling back to tileserver-gl search...");
-        const response = await fetch(
-          `/tileserver/search/${encodeURIComponent(searchQuery)}.json?limit=5`,
-        );
-
-        if (!response.ok) {
-          throw new Error(`Tileserver search returned ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // TileServer GL search response format
-        const results = data.features || [];
-        const formattedResults = results.map((result, index) => ({
-          id: result.id || `search_${index}`,
-          display_name:
-            result.place_name ||
-            result.properties?.name ||
-            result.text ||
-            "Unknown location",
-          lat: parseFloat(
-            result.center ? result.center[1] : result.geometry.coordinates[1],
-          ),
-          lng: parseFloat(
-            result.center ? result.center[0] : result.geometry.coordinates[0],
-          ),
-        }));
-
-        setSearchResults(formattedResults);
-      } catch (fallbackError) {
-        console.error("Fallback search error:", fallbackError);
-        alert("Search failed. Please try again.");
-      }
+      alert("Search failed. Please try again.");
     } finally {
       setIsSearching(false);
     }
