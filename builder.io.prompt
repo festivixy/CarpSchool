@@ -19,3 +19,9 @@ LiquidGlass Component Library Location:
 # DO NOT USE app/imports/ui/components and app/imports/ui/pages! legacy.
 
 # commit to git, after each changes.
+
+## COMMIT INSTRUCTIONS
+
+- you are allowed to make multiple commits when i tell you to.
+- always check git status before committing.
+- one commit, per type of change ex: one commit per style change, one commit per component...

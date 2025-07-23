@@ -113,14 +113,9 @@ function LiquidGlassNavbar({
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             {user && (
               <>
-                <LiquidGlassDropdown
-                  options={[
-                    { value: "all-rides", label: "All Rides", icon: "🚗" },
-                    { value: "my-rides", label: "My Rides", icon: "👤" },
-                  ]}
-                  placeholder="My Rides"
-                  onChange={(value) => handleNavClick(value)}
-                  width="120px"
+                <LiquidGlassButton
+                  label="My Rides"
+                  onClick={() => handleNavClick("my-rides")}
                 />
 
                 <LiquidGlassButton

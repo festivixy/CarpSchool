@@ -10,6 +10,7 @@ export const NavbarContainer = styled.nav`
   transition: all 0.3s ease;
   backdrop-filter: blur(${(props) => (props.isScrolled ? "15px" : "10px")});
   transform: translateY(0);
+  overflow: visible;
 
   ${(props) =>
     props.isScrolled &&
@@ -24,7 +25,6 @@ export const NavbarBackground = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  overflow: hidden;
   border-radius: 0;
 `;
 
