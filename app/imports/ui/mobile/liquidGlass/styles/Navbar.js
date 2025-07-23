@@ -35,8 +35,8 @@ export const BlurLayer = styled.div`
   right: 0;
   bottom: 0;
   backdrop-filter: blur(15px);
-  background: rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.045);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.135);
 `;
 
 export const GlassLayer = styled.div`
@@ -47,13 +47,13 @@ export const GlassLayer = styled.div`
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.15) 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0.1) 100%
+    rgba(255, 255, 255, 0.108) 0%,
+    rgba(255, 255, 255, 0.045) 50%,
+    rgba(255, 255, 255, 0.09) 100%
   );
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.3),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
+    inset 0 1px 2px rgba(255, 255, 255, 0.225),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.045);
 `;
 
 export const NavbarContent = styled.div`
@@ -94,6 +94,7 @@ export const LogoSection = styled.div`
 export const LogoImage = styled.img`
   height: 36px;
   width: auto;
+  border-radius: 8px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 `;
 
