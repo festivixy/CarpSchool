@@ -16,3 +16,4 @@ pgdataNominatimInternal/
 mongo_data/
 console.log
 Trace-*.json
+profiling-data.*.json
