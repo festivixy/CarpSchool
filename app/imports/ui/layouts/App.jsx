@@ -101,11 +101,11 @@ class App extends React.Component {
               />
 
               {/* Test routes */}
-              <ProtectedRoute
+              <ProtectedRouteRequireAdmin
                 path="/testImageUpload"
                 component={MobileTestImageUpload}
               />
-              <ProtectedRoutes
+              <ProtectedRouteRequireAdmin
                 path="/_test/liquidglass/login"
                 component={LiquidGlassSignIn}
               />
