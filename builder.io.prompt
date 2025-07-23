@@ -25,8 +25,29 @@ LiquidGlass Component Library Location:
 - always check git status before committing.
 - one commit, per type of change ex: one commit per style change, one commit per component...
 - use Bash command tool to run git commands.
+- commit after each change.
 
 ## docker
 
 - docker compose: docker-compose.yml
 - use docker compose instead of docker-compose
+
+---
+
+# TODO
+
+### IMPORTANT commit after each change
+
+- remove the dots (nano texture) in LiquidGlass footer and LiquidGlass navbar. way too much lag 
+- make the LiquidGlass footer more mobile friendly.
+- remove the "Carpool Test" text in LiquidGlass navbar, and remove "Carpool Test" in LiquidGlass footer.
+- make the links in LiquidGlass footer "Privacy Policy, Terms of Service" link to the actual pages, and replace "Cookie Policy" with "credits"
+- Create LiquidGlass TextInput.
+- Use LiquidGlass TextInput in all LiquidGlass pages and components.
+- Create LiquidGlass IconButton. basically a circle button that allows only 1 char, or emoji
+- in LiquidGlass footer, change all link color to just black with underline. gray is not visible enough
+- in LiquidGlass Dropdown, change text color to black too
+
+- track your progress with ../TODO.md. in "builder.io section"
+- if some of these arnt in TODO.md, add it.
+- some of the items in TODO is not finished. ignore them. finish these.
