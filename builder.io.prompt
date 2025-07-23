@@ -1,6 +1,6 @@
 You are working on a Meteor.js rideshare application with multi-rider carpooling, interactive map-based place selection using tileserver proxy, UUID-based place references, modern mobile UI with styled-components, and comprehensive test data generation - the codebase follows imports/api/{collection}/{Methods,Publications}.js for backend, imports/ui/mobile/{components,pages}/ for frontend, with places/rides relational data structure and backward compatibility for legacy schemas.
 
-### Package Manager: 
+### Package Manager:
 - Uses `meteor` commands (not npm/yarn/pnpm)
 
 ## IMPORTANT
@@ -56,6 +56,9 @@ The LiquidGlass component library now includes these fully implemented component
 - ✅ Footer links properly configured (Privacy Policy, Terms of Service, Credits)
 - ✅ TextInput integrated in LiquidGlass components (Footer newsletter, TestMapView)
 - ✅ Comprehensive testing page available at TestMapView.jsx
+- ✅ **Visual consistency**: IconButton and TextInput now match Button styling exactly
+- ✅ **Light bending edges**: All components have identical chromatic aberration effects
+- ✅ **Black text color**: Consistent pure black (#000) text across all components
 
 ### Usage Examples
 - See `imports/ui/mobile/pages/TestMapView.jsx` for comprehensive component demos
@@ -73,7 +76,7 @@ The LiquidGlass component library now includes these fully implemented component
 - Multiple sizes and responsive design
 - Glass morphism effects with blur
 
-### LiquidGlassIconButton  
+### LiquidGlassIconButton
 - Circular design for single chars/emojis
 - Multiple sizes (small, medium, large, xlarge)
 - Color variants (default, primary, secondary, success, warning, danger)
@@ -81,20 +84,25 @@ The LiquidGlass component library now includes these fully implemented component
 - Hover animations and accessibility
 
 ### All Components Share
-- Consistent glass morphism design language
-- Chromatic aberration effects (subtle color shifts)
-- Responsive design principles
-- Accessibility features (ARIA labels, focus states)
-- Smooth animations and transitions
+- **Identical glass morphism design language** - exact same blur, light bending, and layering
+- **Chromatic aberration effects** - precise color channel shifts with hue-rotate(±8deg)
+- **Light bending edges** - inset box-shadows for RGB separation effects
+- **Pure black text color** (#000) for maximum visibility and consistency
+- **Rounded pill shapes** (1000px border-radius) or perfect circles (50% for IconButton)
+- **Responsive design principles** with mobile-first approach
+- **Accessibility features** (ARIA labels, focus states, keyboard navigation)
+- **Smooth animations** - translateY(-1px) on hover, consistent box-shadow transitions
 
 ## Development Notes
 
-- All components follow the same glass morphism pattern
-- Performance optimized (removed heavy texture patterns)
-- Mobile-first responsive design
-- Consistent naming conventions and PropTypes
-- Well-documented with comprehensive examples
-- Git history properly maintained with descriptive commits
+- **Exact styling consistency**: All components use identical Background → BlurContainer → BlurEffect → FillLayer → GlassEffectLayer structure
+- **Light bending implementation**: ChromaticAberration with hue-rotate(8deg/-8deg), mix-blend-mode (color-dodge/soft-light)
+- **Performance optimized**: Removed heavy texture patterns, efficient blur and effect stacking
+- **Mobile-first responsive design** with consistent breakpoints and scaling
+- **Black text standard**: Pure black (#000) for optimal readability across all components
+- **Consistent naming conventions** and comprehensive PropTypes validation
+- **Well-documented** with comprehensive examples and interactive testing in TestMapView.jsx
+- **Git history properly maintained** with descriptive commits tracking each improvement
 
 ## TODO tracking
 
