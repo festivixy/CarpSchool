@@ -240,7 +240,7 @@ export const MenuBlur = styled.div`
   right: 0;
   bottom: 0;
   backdrop-filter: blur(4px);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 16px;
   overflow: hidden;
 
@@ -255,7 +255,7 @@ export const MenuBlur = styled.div`
     border-radius: 16px;
     backdrop-filter: hue-rotate(6deg) saturate(1.1);
     mix-blend-mode: color-dodge;
-    opacity: 0.25;
+    opacity: 0.4;
     pointer-events: none;
   }
 
@@ -269,7 +269,7 @@ export const MenuBlur = styled.div`
     border-radius: 16px;
     backdrop-filter: hue-rotate(-6deg) saturate(1.15) contrast(1.03);
     mix-blend-mode: soft-light;
-    opacity: 0.2;
+    opacity: 0.35;
     pointer-events: none;
   }
 
