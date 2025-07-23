@@ -3,6 +3,7 @@ import { Accounts } from "meteor/accounts-base";
 import { check } from "meteor/check";
 import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
 import { isEmailVerified } from "./Accounts";
+import { Profiles } from "../profile/Profile";
 
 Meteor.methods({
   async "accounts.email.send.verification"(captchaSessionId) {
@@ -135,5 +136,20 @@ Meteor.methods({
     } else if (action === "remove") {
       await Meteor.users.updateAsync(userId, { $pull: { roles: "admin" } });
     }
+  },
+
+  async "users.getUsername"(userId) {
+    check(userId, String);
+
+    // Only logged-in users can fetch usernames
+    if (!Meteor.userId()) {
+      throw new Meteor.Error("not-logged-in", "Please login first");
+    }
+
+    const user = await Meteor.users.findOneAsync(userId, {
+      fields: { username: 1 }
+    });
+
+    return user?.username || null;
   },
 });

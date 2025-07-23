@@ -64,8 +64,41 @@ class PlaceManager extends React.Component {
       loading: false,
       showMapPicker: false,
       selectedCoordinates: null,
+      creatorNames: {}, // Cache for creator usernames
     };
   }
+
+  componentDidMount() {
+    this.fetchCreatorNames();
+  }
+
+  componentDidUpdate(prevProps) {
+    // Fetch creator names when places change
+    if (prevProps.places !== this.props.places) {
+      this.fetchCreatorNames();
+    }
+  }
+
+  fetchCreatorNames = () => {
+    const { places } = this.props;
+    const creatorIds = [...new Set(places.map(place => place.createdBy).filter(Boolean))];
+
+    creatorIds.forEach(creatorId => {
+      if (!this.state.creatorNames[creatorId]) {
+        // Call method to get username
+        Meteor.call('users.getUsername', creatorId, (error, username) => {
+          if (!error && username) {
+            this.setState(prevState => ({
+              creatorNames: {
+                ...prevState.creatorNames,
+                [creatorId]: username
+              }
+            }));
+          }
+        });
+      }
+    });
+  };
 
   openAddModal = () => {
     this.setState({
@@ -283,6 +316,11 @@ class PlaceManager extends React.Component {
                       <PlaceDate>
                         Created:{" "}
                         {new Date(place.createdAt).toLocaleDateString()}
+                        {place.createdBy && (
+                          <span style={{ marginLeft: "8px", color: "#666" }}>
+                            by {place.createdBy === Meteor.userId() ? "You" : (this.state.creatorNames[place.createdBy] || "Loading...")}
+                          </span>
+                        )}
                       </PlaceDate>
                     </PlaceInfo>
                     <ActionButtons>
@@ -398,6 +436,7 @@ PlaceManager.propTypes = {
 
 export default withTracker(() => {
   const subscription = Meteor.subscribe("places.mine");
+
   return {
     places: Places.find({}, { sort: { text: 1 } }).fetch(),
     ready: subscription.ready(),
