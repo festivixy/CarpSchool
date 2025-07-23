@@ -14,3 +14,5 @@ openmaptilesdata/*
 pgdata/
 pgdataNominatimInternal/
 mongo_data/
+console.log
+Trace-*.json
