@@ -13,7 +13,7 @@ console or modified JavaScript, enabling automated attacks without solving CAPTC
 fixed with mongodb collection and session IDs. [319bfb6]
 
 - [x] Implement the `accounts.email.send.verification` method in `AccountsMethods.js`. [0cbe7a43]
-- [ ] Add school regions 
+- [ ] Add school regions
 - [x] Finish Modern look [???????]
 - [x] Move Publications to their own files [f231132]
 - [x] Move Methods to their own files [f231132]
@@ -26,5 +26,17 @@ fixed with mongodb collection and session IDs. [319bfb6]
 ---
 
 # builder.io section
+
+## LiquidGlass Component Improvements
+
+- [ ] Remove dots (nano texture) from LiquidGlass Footer and Navbar - causing lag
+- [ ] Make LiquidGlass Footer more mobile-friendly
+- [ ] Remove "Carpool Test" text from LiquidGlass Navbar and Footer
+- [ ] Update Footer links: Privacy Policy, Terms of Service to actual pages, replace "Cookie Policy" with "Credits"
+- [ ] Create LiquidGlass TextInput component
+- [ ] Use LiquidGlass TextInput in all LiquidGlass pages and components
+- [ ] Create LiquidGlass IconButton component (circle button for 1 char/emoji)
+- [ ] Change Footer link colors to black with underline (gray not visible enough)
+- [ ] Change Dropdown text color to black
 
 # end # builder.io section
