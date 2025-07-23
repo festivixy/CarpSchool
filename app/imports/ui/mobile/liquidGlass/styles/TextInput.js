@@ -35,11 +35,11 @@ export const InputWrapper = styled.div`
   border-radius: ${(props) => {
     switch (props.size) {
       case "small":
-        return "8px";
+        return "1000px";
       case "large":
-        return "16px";
+        return "1000px";
       default:
-        return "12px";
+        return "1000px";
     }
   }};
   height: ${(props) => {
@@ -55,45 +55,65 @@ export const InputWrapper = styled.div`
   overflow: hidden;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
   opacity: ${(props) => (props.disabled ? "0.6" : "1")};
-  transition: all 0.2s ease;
-  transform: translateY(0px);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  transform: translateY(0px) translateX(0px);
   box-shadow: ${(props) => {
-    if (props.hasError) return "0 0 0 2px rgba(255, 68, 68, 0.3)";
-    if (props.isFocused) return "0 0 0 2px rgba(0, 123, 255, 0.3)";
+    if (props.hasError) return "0 0 0 2px rgba(255, 68, 68, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03)";
+    if (props.isFocused) return "0 0 0 2px rgba(0, 123, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03)";
     return "0 1px 3px rgba(0, 0, 0, 0.03)";
   }};
 
   &:hover {
-    transform: ${(props) => (props.disabled ? "translateY(0px)" : "translateY(-1px)")};
+    transform: ${(props) => (props.disabled ? "translateY(0px) translateX(0px)" : "translateY(-1px) translateX(0px)")};
     box-shadow: ${(props) => {
       if (props.disabled) return "0 1px 3px rgba(0, 0, 0, 0.03)";
-      if (props.hasError) return "0 0 0 2px rgba(255, 68, 68, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1)";
-      if (props.isFocused) return "0 0 0 2px rgba(0, 123, 255, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1)";
-      return "0 4px 12px rgba(0, 0, 0, 0.1)";
+      if (props.hasError) return "0 0 0 2px rgba(255, 68, 68, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)";
+      if (props.isFocused) return "0 0 0 2px rgba(0, 123, 255, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)";
+      return "0 6px 16px rgba(0, 0, 0, 0.15)";
     }};
   }
 `;
 
-export const InputBackground = styled.div`
+export const Background = styled.div`
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: inherit;
+  border-radius: 1000px;
   overflow: hidden;
 `;
 
-export const InputBlur = styled.div`
+export const BlurContainer = styled.div`
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: inherit;
+  border-radius: 1000px;
+  backdrop-filter: blur(4px);
+`;
+
+export const MaskContainer = styled.div`
+  display: none;
+`;
+
+export const MaskShape = styled.div`
+  display: none;
+`;
+
+export const BlurEffect = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 1000px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
 
   /* Chromatic aberration color-bending effect */
   &::before {
@@ -103,10 +123,10 @@ export const InputBlur = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    border-radius: inherit;
-    backdrop-filter: hue-rotate(6deg) saturate(1.1);
+    border-radius: 1000px;
+    backdrop-filter: hue-rotate(8deg) saturate(1.15);
     mix-blend-mode: color-dodge;
-    opacity: 0.25;
+    opacity: 0.3;
     pointer-events: none;
   }
 
@@ -117,48 +137,63 @@ export const InputBlur = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    border-radius: inherit;
-    backdrop-filter: hue-rotate(-6deg) saturate(1.15) contrast(1.03);
+    border-radius: 1000px;
+    backdrop-filter: hue-rotate(-8deg) saturate(1.2) contrast(1.05);
     mix-blend-mode: soft-light;
-    opacity: 0.2;
+    opacity: 0.25;
     pointer-events: none;
   }
 
-  /* Color shift box shadows */
+  /* Additional color shift layers */
   box-shadow:
     /* Red channel shift */
-    inset 1px 0 3px rgba(255, 0, 0, 0.06),
-    inset -1px 0 3px rgba(0, 255, 255, 0.06),
-    /* Green channel shift */
-    inset 0 1px 3px rgba(0, 255, 0, 0.05),
-    inset 0 -1px 3px rgba(255, 0, 255, 0.05),
-    /* Blue channel shift */
-    inset 1px 1px 3px rgba(0, 0, 255, 0.06),
-    inset -1px -1px 3px rgba(255, 255, 0, 0.06);
+    inset 2px 0 4px rgba(255, 0, 0, 0.08),
+    inset -1px 0 4px rgba(0, 255, 255, 0.08),
+    /* Green channel shift */ inset 0 2px 4px rgba(0, 255, 0, 0.06),
+    inset 0 -1px 4px rgba(255, 0, 255, 0.06),
+    /* Blue channel shift */ inset 1px 1px 4px rgba(0, 0, 255, 0.08),
+    inset -2px -2px 4px rgba(255, 255, 0, 0.08);
 `;
 
-export const InputGlass = styled.div`
+export const FillLayer = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 1000px;
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: inherit;
   background:
     radial-gradient(
       ellipse at center,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.12) 70%,
-      rgba(255, 255, 255, 0.2) 100%
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.08) 70%,
+      rgba(255, 255, 255, 0.15) 100%
     ),
     linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(255, 255, 255, 0.08) 100%
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.05) 100%
     );
   box-shadow:
-    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
-    inset -1px -1px 2px rgba(0, 0, 0, 0.05);
+    inset 2px 2px 4px rgba(255, 255, 255, 0.25),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+`;
+
+export const GlassEffectLayer = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 1000px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  pointer-events: none;
 `;
 
 export const StyledInput = styled.input`
@@ -169,9 +204,9 @@ export const StyledInput = styled.input`
   padding: ${(props) => {
     const verticalPadding = props.size === "small" ? "8px" : props.size === "large" ? "16px" : "12px";
     const leftPadding = props.hasIcon && props.iconPosition === "left" ? 
-      (props.size === "small" ? "36px" : props.size === "large" ? "52px" : "44px") : "16px";
+      (props.size === "small" ? "36px" : props.size === "large" ? "52px" : "44px") : "24px";
     const rightPadding = props.hasIcon && props.iconPosition === "right" ? 
-      (props.size === "small" ? "36px" : props.size === "large" ? "52px" : "44px") : "16px";
+      (props.size === "small" ? "36px" : props.size === "large" ? "52px" : "44px") : "24px";
     return `${verticalPadding} ${rightPadding} ${verticalPadding} ${leftPadding}`;
   }};
   border: none;
@@ -188,12 +223,15 @@ export const StyledInput = styled.input`
     }
   }};
   font-weight: 500;
-  color: #000;
+  color: #333;
   font-family: inherit;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   z-index: 10;
   transition: all 0.2s ease;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
+  transform: translateX(0px);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 
   &::placeholder {
     color: #666;
@@ -232,11 +270,36 @@ export const StyledInput = styled.input`
       margin: 0;
     }
   }
+
+  @media (max-width: 991px) {
+    font-size: ${(props) => {
+      switch (props.size) {
+        case "small":
+          return "12px";
+        case "large":
+          return "15px";
+        default:
+          return "13px";
+      }
+    }};
+  }
+  @media (max-width: 640px) {
+    font-size: ${(props) => {
+      switch (props.size) {
+        case "small":
+          return "11px";
+        case "large":
+          return "14px";
+        default:
+          return "12px";
+      }
+    }};
+  }
 `;
 
 export const InputIcon = styled.div`
   position: absolute;
-  ${(props) => (props.position === "right" ? "right: 12px;" : "left: 12px;")}
+  ${(props) => (props.position === "right" ? "right: 16px;" : "left: 16px;")}
   top: 50%;
   transform: translateY(-50%);
   display: flex;

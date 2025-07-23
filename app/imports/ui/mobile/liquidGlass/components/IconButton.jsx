@@ -2,11 +2,16 @@ import React from "react";
 import PropTypes from "prop-types";
 import {
   IconButtonContainer,
-  IconButtonBackground,
-  IconButtonBlur,
-  IconButtonGlass,
-  IconButtonContent,
-  IconButtonIcon,
+  Background,
+  BlurContainer,
+  MaskContainer,
+  MaskShape,
+  BlurEffect,
+  FillLayer,
+  GlassEffectLayer,
+  LabelContainer,
+  LabelSymbol,
+  LabelText,
   IconButtonBadge,
 } from "../styles/IconButton";
 
@@ -77,26 +82,34 @@ function LiquidGlassIconButton({
       aria-label={ariaLabel || title}
       {...props}
     >
-      <IconButtonBackground>
-        <IconButtonBlur />
-        <IconButtonGlass />
-      </IconButtonBackground>
-
-      <IconButtonContent size={size}>
-        {loading ? (
-          <div className="spinner"></div>
-        ) : (
-          <IconButtonIcon size={size} color={color}>
-            {icon}
-          </IconButtonIcon>
-        )}
+      <Background>
+        <BlurContainer>
+          <MaskContainer>
+            <MaskShape />
+          </MaskContainer>
+          <BlurEffect />
+        </BlurContainer>
+        <FillLayer />
+        <GlassEffectLayer />
+      </Background>
+      
+      <LabelContainer size={size}>
+        <LabelSymbol>
+          {loading ? (
+            <div className="spinner"></div>
+          ) : (
+            <LabelText size={size} color={color}>
+              {icon}
+            </LabelText>
+          )}
+        </LabelSymbol>
 
         {badge && !loading && (
           <IconButtonBadge>
             {typeof badge === "number" && badge > 99 ? "99+" : badge}
           </IconButtonBadge>
         )}
-      </IconButtonContent>
+      </LabelContainer>
     </IconButtonContainer>
   );
 }

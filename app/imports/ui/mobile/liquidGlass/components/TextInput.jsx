@@ -3,9 +3,13 @@ import PropTypes from "prop-types";
 import {
   InputContainer,
   InputWrapper,
-  InputBackground,
-  InputBlur,
-  InputGlass,
+  Background,
+  BlurContainer,
+  MaskContainer,
+  MaskShape,
+  BlurEffect,
+  FillLayer,
+  GlassEffectLayer,
   StyledInput,
   InputLabel,
   InputIcon,
@@ -122,10 +126,16 @@ function LiquidGlassTextInput({
         size={size}
         variant={variant}
       >
-        <InputBackground>
-          <InputBlur />
-          <InputGlass />
-        </InputBackground>
+        <Background>
+          <BlurContainer>
+            <MaskContainer>
+              <MaskShape />
+            </MaskContainer>
+            <BlurEffect />
+          </BlurContainer>
+          <FillLayer />
+          <GlassEffectLayer />
+        </Background>
 
         {icon && iconPosition === "left" && (
           <InputIcon position="left" size={size}>

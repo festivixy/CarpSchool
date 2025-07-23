@@ -33,72 +33,38 @@ const getSizeConfig = (size) => {
   }
 };
 
-const getColorConfig = (color, variant) => {
+const getColorConfig = (color) => {
   const colors = {
-    default: {
-      text: "#333",
-      background: "rgba(255, 255, 255, 0.08)",
-      border: "rgba(255, 255, 255, 0.15)",
-      hoverBackground: "rgba(255, 255, 255, 0.12)",
-      activeBackground: "rgba(255, 255, 255, 0.18)",
-    },
-    primary: {
-      text: "#007bff",
-      background: "rgba(0, 123, 255, 0.1)",
-      border: "rgba(0, 123, 255, 0.2)",
-      hoverBackground: "rgba(0, 123, 255, 0.15)",
-      activeBackground: "rgba(0, 123, 255, 0.25)",
-    },
-    secondary: {
-      text: "#6c757d",
-      background: "rgba(108, 117, 125, 0.1)",
-      border: "rgba(108, 117, 125, 0.2)",
-      hoverBackground: "rgba(108, 117, 125, 0.15)",
-      activeBackground: "rgba(108, 117, 125, 0.25)",
-    },
-    success: {
-      text: "#28a745",
-      background: "rgba(40, 167, 69, 0.1)",
-      border: "rgba(40, 167, 69, 0.2)",
-      hoverBackground: "rgba(40, 167, 69, 0.15)",
-      activeBackground: "rgba(40, 167, 69, 0.25)",
-    },
-    warning: {
-      text: "#ffc107",
-      background: "rgba(255, 193, 7, 0.1)",
-      border: "rgba(255, 193, 7, 0.2)",
-      hoverBackground: "rgba(255, 193, 7, 0.15)",
-      activeBackground: "rgba(255, 193, 7, 0.25)",
-    },
-    danger: {
-      text: "#dc3545",
-      background: "rgba(220, 53, 69, 0.1)",
-      border: "rgba(220, 53, 69, 0.2)",
-      hoverBackground: "rgba(220, 53, 69, 0.15)",
-      activeBackground: "rgba(220, 53, 69, 0.25)",
-    },
+    default: "#333",
+    primary: "#007bff",
+    secondary: "#6c757d",
+    success: "#28a745",
+    warning: "#ffc107",
+    danger: "#dc3545",
   };
-
   return colors[color] || colors.default;
 };
 
 export const IconButtonContainer = styled.button`
-  position: relative;
   display: inline-flex;
-  align-items: center;
+  padding: 0;
   justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  position: relative;
   width: ${(props) => getSizeConfig(props.size).width};
   height: ${(props) => getSizeConfig(props.size).height};
-  border-radius: 50%;
   border: none;
   outline: none;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   opacity: ${(props) => (props.disabled ? "0.6" : "1")};
-  transition: all 0.2s ease;
-  transform: translateY(0px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  transform: translateY(0px) translateX(0px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   background: transparent;
+  overflow: hidden;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
@@ -107,53 +73,71 @@ export const IconButtonContainer = styled.button`
   ${(props) =>
     props.active &&
     `
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03);
   `}
 
   &:hover {
-    transform: ${(props) => (props.disabled ? "translateY(0px)" : "translateY(-2px)")};
+    transform: ${(props) => (props.disabled ? "translateY(0px) translateX(0px)" : "translateY(-1px) translateX(0px)")};
     box-shadow: ${(props) =>
       props.disabled
-        ? "0 2px 8px rgba(0, 0, 0, 0.08)"
+        ? "0 1px 3px rgba(0, 0, 0, 0.03)"
         : props.active
-          ? "0 0 0 2px rgba(0, 123, 255, 0.4), 0 6px 20px rgba(0, 0, 0, 0.15)"
-          : "0 6px 20px rgba(0, 0, 0, 0.15)"};
+          ? "0 0 0 2px rgba(0, 123, 255, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)"
+          : "0 6px 16px rgba(0, 0, 0, 0.15)"};
   }
 
   &:active {
-    transform: ${(props) => (props.disabled ? "translateY(0px)" : "translateY(-1px)")};
+    transform: ${(props) => (props.disabled ? "translateY(0px) translateX(0px)" : "translateY(0px) translateX(0px)")};
     box-shadow: ${(props) =>
       props.disabled
-        ? "0 2px 8px rgba(0, 0, 0, 0.08)"
-        : "0 3px 12px rgba(0, 0, 0, 0.12)"};
+        ? "0 1px 3px rgba(0, 0, 0, 0.03)"
+        : "0 2px 8px rgba(0, 0, 0, 0.1)"};
   }
 
   /* Focus styles for accessibility */
   &:focus-visible {
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4), 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4), 0 1px 3px rgba(0, 0, 0, 0.03);
   }
 `;
 
-export const IconButtonBackground = styled.div`
+export const Background = styled.div`
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
   border-radius: 50%;
   overflow: hidden;
 `;
 
-export const IconButtonBlur = styled.div`
+export const BlurContainer = styled.div`
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  backdrop-filter: blur(8px);
-  background: ${(props) => getColorConfig(props.color, props.variant).background};
-  border: 1px solid ${(props) => getColorConfig(props.color, props.variant).border};
   border-radius: 50%;
+  backdrop-filter: blur(4px);
+`;
+
+export const MaskContainer = styled.div`
+  display: none;
+`;
+
+export const MaskShape = styled.div`
+  display: none;
+`;
+
+export const BlurEffect = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
 
   /* Chromatic aberration color-bending effect */
   &::before {
@@ -164,9 +148,9 @@ export const IconButtonBlur = styled.div`
     right: 0;
     bottom: 0;
     border-radius: 50%;
-    backdrop-filter: hue-rotate(6deg) saturate(1.1);
+    backdrop-filter: hue-rotate(8deg) saturate(1.15);
     mix-blend-mode: color-dodge;
-    opacity: 0.25;
+    opacity: 0.3;
     pointer-events: none;
   }
 
@@ -178,63 +162,74 @@ export const IconButtonBlur = styled.div`
     right: 0;
     bottom: 0;
     border-radius: 50%;
-    backdrop-filter: hue-rotate(-6deg) saturate(1.15) contrast(1.03);
+    backdrop-filter: hue-rotate(-8deg) saturate(1.2) contrast(1.05);
     mix-blend-mode: soft-light;
-    opacity: 0.2;
+    opacity: 0.25;
     pointer-events: none;
   }
 
-  /* Color shift box shadows */
+  /* Additional color shift layers */
   box-shadow:
     /* Red channel shift */
-    inset 1px 0 3px rgba(255, 0, 0, 0.06),
-    inset -1px 0 3px rgba(0, 255, 255, 0.06),
-    /* Green channel shift */
-    inset 0 1px 3px rgba(0, 255, 0, 0.05),
-    inset 0 -1px 3px rgba(255, 0, 255, 0.05),
-    /* Blue channel shift */
-    inset 1px 1px 3px rgba(0, 0, 255, 0.06),
-    inset -1px -1px 3px rgba(255, 255, 0, 0.06);
+    inset 2px 0 4px rgba(255, 0, 0, 0.08),
+    inset -1px 0 4px rgba(0, 255, 255, 0.08),
+    /* Green channel shift */ inset 0 2px 4px rgba(0, 255, 0, 0.06),
+    inset 0 -1px 4px rgba(255, 0, 255, 0.06),
+    /* Blue channel shift */ inset 1px 1px 4px rgba(0, 0, 255, 0.08),
+    inset -2px -2px 4px rgba(255, 255, 0, 0.08);
 `;
 
-export const IconButtonGlass = styled.div`
+export const FillLayer = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 50%;
   background:
     radial-gradient(
-      circle at 30% 30%,
-      rgba(255, 255, 255, 0.3) 0%,
-      rgba(255, 255, 255, 0.1) 40%,
-      transparent 70%
-    ),
-    radial-gradient(
       ellipse at center,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.12) 70%,
-      rgba(255, 255, 255, 0.2) 100%
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.08) 70%,
+      rgba(255, 255, 255, 0.15) 100%
     ),
     linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(255, 255, 255, 0.08) 100%
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.05) 100%
     );
   box-shadow:
-    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
-    inset -1px -1px 2px rgba(0, 0, 0, 0.05);
+    inset 2px 2px 4px rgba(255, 255, 255, 0.25),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
-export const IconButtonContent = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+export const GlassEffectLayer = styled.div`
   width: 100%;
   height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  pointer-events: none;
+`;
+
+export const LabelContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  position: relative;
   z-index: 10;
+  pointer-events: none;
+  transform: translateX(0px);
 
   .spinner {
     width: ${(props) => getSizeConfig(props.size).iconSize};
@@ -255,26 +250,49 @@ export const IconButtonContent = styled.div`
   }
 `;
 
-export const IconButtonIcon = styled.div`
+export const LabelSymbol = styled.div`
+  width: 100%;
+  text-align: center;
+  position: relative;
+`;
+
+export const LabelText = styled.div`
+  color: ${(props) => getColorConfig(props.color)};
+  font-weight: 500;
+  font-size: ${(props) => getSizeConfig(props.size).fontSize};
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  transform: translateX(0px);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1;
+  text-align: center;
+
+  /* Handle emoji and text centering */
   display: flex;
   align-items: center;
   justify-content: center;
-  width: ${(props) => getSizeConfig(props.size).iconSize};
-  height: ${(props) => getSizeConfig(props.size).iconSize};
-  font-size: ${(props) => getSizeConfig(props.size).fontSize};
-  color: ${(props) => getColorConfig(props.color, props.variant).text};
-  font-weight: 500;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-  line-height: 1;
-  transition: all 0.2s ease;
-
-  /* Handle emoji and text centering */
-  text-align: center;
   
   /* Ensure single character/emoji is properly centered */
   & > * {
     display: block;
     line-height: 1;
+  }
+
+  @media (max-width: 991px) {
+    font-size: ${(props) => {
+      const baseSize = parseInt(getSizeConfig(props.size).fontSize);
+      return `${baseSize - 1}px`;
+    }};
+  }
+  @media (max-width: 640px) {
+    font-size: ${(props) => {
+      const baseSize = parseInt(getSizeConfig(props.size).fontSize);
+      return `${baseSize - 2}px`;
+    }};
   }
 `;
 
