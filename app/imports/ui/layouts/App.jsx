@@ -104,10 +104,7 @@ class App extends React.Component {
                 path="/testImageUpload"
                 component={MobileTestImageUpload}
               />
-              <ProtectedRoutes
-                path="/_test/MapView"
-                component={MobileTestMapView}
-              />
+              <ProtectedRoutes path="/_test" component={MobileTestMapView} />
               <ProtectedRoute path="/signout" component={MobileSignout} />
 
               {/* Public pages */}

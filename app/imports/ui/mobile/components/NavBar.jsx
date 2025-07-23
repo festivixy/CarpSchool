@@ -170,11 +170,8 @@ class MobileNavBar extends React.Component {
                       >
                         Test Image Upload
                       </DropdownItem>
-                      <DropdownItem
-                        to="/_test/MapView"
-                        onClick={this.closeAllMenus}
-                      >
-                        Test Map Components
+                      <DropdownItem to="/_test" onClick={this.closeAllMenus}>
+                        Components Test
                       </DropdownItem>
                     </DropdownMenu>
                   )}
@@ -275,11 +272,8 @@ class MobileNavBar extends React.Component {
                       >
                         Test Image Upload
                       </MobileItem>
-                      <MobileItem
-                        to="/_test/MapView"
-                        onClick={this.closeAllMenus}
-                      >
-                        Test Map Components
+                      <MobileItem to="/_test" onClick={this.closeAllMenus}>
+                        Components Test
                       </MobileItem>
                     </MobileSection>
                   )}

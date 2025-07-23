@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import LiquidGlassButton from "./Button";
+import LiquidGlassDropdown from "./Dropdown";
 import {
   NavbarContainer,
   NavbarContent,
@@ -10,18 +12,12 @@ import {
   LogoImage,
   LogoText,
   NavSection,
-  NavList,
-  NavItem,
-  NavLink,
   UserSection,
   UserAvatar,
   UserName,
   MobileMenuButton,
   MobileMenu,
   MobileNavItem,
-  DropdownContainer,
-  DropdownMenu,
-  DropdownItem,
   Badge,
 } from "../styles/Navbar";
 
@@ -114,86 +110,52 @@ function LiquidGlassNavbar({
 
         {/* Desktop Navigation */}
         <NavSection>
-          <NavList>
-            {user &&
-              navigationItems.map((item) => (
-                <NavItem key={item.key}>
-                  {item.hasDropdown ? (
-                    <DropdownContainer>
-                      <NavLink
-                        onClick={(e) => toggleDropdown("rides", e)}
-                        isActive={activeDropdown === "rides"}
-                      >
-                        {item.icon && (
-                          <span className="nav-icon">{item.icon}</span>
-                        )}
-                        {item.label}
-                        <span className="dropdown-arrow">▾</span>
-                      </NavLink>
-                      <DropdownMenu isOpen={activeDropdown === "rides"}>
-                        <DropdownItem
-                          onClick={(e) => handleNavClick("all-rides", e)}
-                        >
-                          All Rides
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={(e) => handleNavClick("my-rides", e)}
-                        >
-                          My Rides
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </DropdownContainer>
-                  ) : (
-                    <NavLink onClick={(e) => handleNavClick(item.key, e)}>
-                      {item.icon && (
-                        <span className="nav-icon">{item.icon}</span>
-                      )}
-                      {item.label}
-                    </NavLink>
-                  )}
-                </NavItem>
-              ))}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {user && (
+              <>
+                <LiquidGlassDropdown
+                  options={[
+                    { value: "all-rides", label: "All Rides", icon: "🚗" },
+                    { value: "my-rides", label: "My Rides", icon: "👤" },
+                  ]}
+                  placeholder="My Rides"
+                  onChange={(value) => handleNavClick(value)}
+                  width="120px"
+                />
+
+                <LiquidGlassButton
+                  label="Create Ride"
+                  onClick={() => handleNavClick("create")}
+                />
+
+                <LiquidGlassButton
+                  label="Join Ride"
+                  onClick={() => handleNavClick("join")}
+                />
+              </>
+            )}
 
             {/* Admin Menu */}
             {isAdmin && (
-              <NavItem>
-                <DropdownContainer>
-                  <NavLink
-                    onClick={(e) => toggleDropdown("admin", e)}
-                    isActive={activeDropdown === "admin"}
-                  >
-                    <span className="nav-icon">⚙️</span>
-                    Admin
-                    <span className="dropdown-arrow">▾</span>
-                  </NavLink>
-                  <DropdownMenu isOpen={activeDropdown === "admin"}>
-                    {adminItems.map((adminItem) => (
-                      <DropdownItem
-                        key={adminItem.key}
-                        onClick={(e) => handleNavClick(adminItem.key, e)}
-                      >
-                        {adminItem.label}
-                      </DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </DropdownContainer>
-              </NavItem>
+              <LiquidGlassDropdown
+                options={adminItems.map((item) => ({
+                  value: item.key,
+                  label: item.label,
+                  icon: "⚙️",
+                }))}
+                placeholder="Admin"
+                onChange={(value) => handleNavClick(value)}
+                width="140px"
+              />
             )}
-          </NavList>
+          </div>
         </NavSection>
 
         {/* User Section */}
         <UserSection>
-          {user ? (
-            <DropdownContainer>
-              <div
-                onClick={(e) => toggleDropdown("user", e)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                }}
-              >
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {user ? (
+              <>
                 <UserAvatar>
                   {user.avatar ? (
                     <img src={user.avatar} alt={user.name} />
@@ -203,47 +165,41 @@ function LiquidGlassNavbar({
                   {notifications > 0 && <Badge>{notifications}</Badge>}
                 </UserAvatar>
                 <UserName>{user.name}</UserName>
-                <span className="dropdown-arrow">▾</span>
-              </div>
-              <DropdownMenu isOpen={activeDropdown === "user"} align="right">
-                <DropdownItem onClick={(e) => handleNavClick("profile", e)}>
-                  👤 Profile
-                </DropdownItem>
-                <DropdownItem onClick={(e) => handleNavClick("settings", e)}>
-                  ⚙️ Settings
-                </DropdownItem>
-                <DropdownItem
-                  onClick={(e) => handleNavClick("notifications", e)}
-                >
-                  🔔 Notifications
-                  {notifications > 0 && <Badge>{notifications}</Badge>}
-                </DropdownItem>
-                <hr
-                  style={{
-                    margin: "8px 0",
-                    border: "none",
-                    borderTop: "1px solid rgba(255,255,255,0.1)",
+
+                <LiquidGlassDropdown
+                  options={[
+                    { value: "profile", label: "Profile", icon: "👤" },
+                    { value: "settings", label: "Settings", icon: "⚙️" },
+                    {
+                      value: "notifications",
+                      label: `Notifications ${notifications > 0 ? `(${notifications})` : ""}`,
+                      icon: "🔔",
+                    },
+                    { value: "signout", label: "Sign Out", icon: "🚪" },
+                  ]}
+                  placeholder="Menu"
+                  onChange={(value) => {
+                    if (value === "signout") {
+                      onSignOut?.();
+                    } else {
+                      handleNavClick(value);
+                    }
                   }}
+                  width="100px"
                 />
-                <DropdownItem onClick={onSignOut}>🚪 Sign Out</DropdownItem>
-              </DropdownMenu>
-            </DropdownContainer>
-          ) : (
-            <DropdownContainer>
-              <NavLink onClick={(e) => toggleDropdown("auth", e)}>
-                Login
-                <span className="dropdown-arrow">▾</span>
-              </NavLink>
-              <DropdownMenu isOpen={activeDropdown === "auth"} align="right">
-                <DropdownItem onClick={(e) => handleNavClick("signin", e)}>
-                  🔑 Sign In
-                </DropdownItem>
-                <DropdownItem onClick={(e) => handleNavClick("signup", e)}>
-                  ✨ Sign Up
-                </DropdownItem>
-              </DropdownMenu>
-            </DropdownContainer>
-          )}
+              </>
+            ) : (
+              <LiquidGlassDropdown
+                options={[
+                  { value: "signin", label: "Sign In", icon: "🔑" },
+                  { value: "signup", label: "Sign Up", icon: "✨" },
+                ]}
+                placeholder="Login"
+                onChange={(value) => handleNavClick(value)}
+                width="100px"
+              />
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <MobileMenuButton
@@ -259,69 +215,104 @@ function LiquidGlassNavbar({
 
       {/* Mobile Menu */}
       <MobileMenu isOpen={isMobileMenuOpen}>
-        {user &&
-          navigationItems.map((item) => (
-            <MobileNavItem
-              key={item.key}
-              onClick={(e) => handleNavClick(item.key, e)}
-            >
-              {item.icon && <span className="nav-icon">{item.icon}</span>}
-              {item.label}
-            </MobileNavItem>
-          ))}
+        <div
+          style={{
+            padding: "20px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+          }}
+        >
+          {user && (
+            <>
+              <LiquidGlassButton
+                label="📱 All Rides"
+                onClick={() => handleNavClick("all-rides")}
+                style={{ width: "100%" }}
+              />
+              <LiquidGlassButton
+                label="👤 My Rides"
+                onClick={() => handleNavClick("my-rides")}
+                style={{ width: "100%" }}
+              />
+              <LiquidGlassButton
+                label="➕ Create Ride"
+                onClick={() => handleNavClick("create")}
+                style={{ width: "100%" }}
+              />
+              <LiquidGlassButton
+                label="⚡ Join Ride"
+                onClick={() => handleNavClick("join")}
+                style={{ width: "100%" }}
+              />
+            </>
+          )}
 
-        {isAdmin && (
-          <>
-            <div
-              style={{
-                padding: "8px 20px",
-                fontSize: "12px",
-                color: "#999",
-                textTransform: "uppercase",
-              }}
-            >
-              Admin
-            </div>
-            {adminItems.map((adminItem) => (
-              <MobileNavItem
-                key={adminItem.key}
-                onClick={(e) => handleNavClick(adminItem.key, e)}
+          {isAdmin && (
+            <>
+              <div
+                style={{
+                  padding: "8px 0",
+                  fontSize: "12px",
+                  color: "#999",
+                  textTransform: "uppercase",
+                }}
               >
-                {adminItem.label}
-              </MobileNavItem>
-            ))}
-          </>
-        )}
+                Admin
+              </div>
+              {adminItems.map((adminItem) => (
+                <LiquidGlassButton
+                  key={adminItem.key}
+                  label={`⚙️ ${adminItem.label}`}
+                  onClick={() => handleNavClick(adminItem.key)}
+                  style={{ width: "100%" }}
+                />
+              ))}
+            </>
+          )}
 
-        {user && (
-          <>
-            <hr
-              style={{
-                margin: "16px 20px",
-                border: "none",
-                borderTop: "1px solid rgba(255,255,255,0.1)",
-              }}
-            />
-            <MobileNavItem onClick={(e) => handleNavClick("profile", e)}>
-              👤 Profile
-            </MobileNavItem>
-            <MobileNavItem onClick={(e) => handleNavClick("settings", e)}>
-              ⚙️ Settings
-            </MobileNavItem>
-            <MobileNavItem onClick={onSignOut}>🚪 Sign Out</MobileNavItem>
-          </>
-        )}
+          {user && (
+            <>
+              <hr
+                style={{
+                  margin: "16px 0",
+                  border: "none",
+                  borderTop: "1px solid rgba(255,255,255,0.1)",
+                }}
+              />
+              <LiquidGlassButton
+                label="👤 Profile"
+                onClick={() => handleNavClick("profile")}
+                style={{ width: "100%" }}
+              />
+              <LiquidGlassButton
+                label="⚙️ Settings"
+                onClick={() => handleNavClick("settings")}
+                style={{ width: "100%" }}
+              />
+              <LiquidGlassButton
+                label="🚪 Sign Out"
+                onClick={onSignOut}
+                style={{ width: "100%" }}
+              />
+            </>
+          )}
 
-        {!user && (
-          <>
-            <MobileNavItem onClick={(e) => handleNavClick("signin", e)}>
-              🔑 Sign In
-            </MobileNavItem>
-            <MobileNavItem onClick={(e) => handleNavClick("signup", e)}>
-              ✨ Sign Up
-            </MobileNavItem>
-          </>
-        )}
+          {!user && (
+            <>
+              <LiquidGlassButton
+                label="🔑 Sign In"
+                onClick={() => handleNavClick("signin")}
+                style={{ width: "100%" }}
+              />
+              <LiquidGlassButton
+                label="✨ Sign Up"
+                onClick={() => handleNavClick("signup")}
+                style={{ width: "100%" }}
+              />
+            </>
+          )}
+        </div>
       </MobileMenu>
     </NavbarContainer>
   );

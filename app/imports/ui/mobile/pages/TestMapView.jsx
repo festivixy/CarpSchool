@@ -181,7 +181,7 @@ const MobileTestMapView = () => {
   return (
     <Container>
       <Header>
-        <AppName>MapView Test</AppName>
+        <AppName>Components Test</AppName>
       </Header>
 
       {/* Demo LiquidGlass Navbar */}
@@ -225,9 +225,9 @@ const MobileTestMapView = () => {
 
       <Content>
         <Copy>
-          <Title>Test MapView Component</Title>
+          <Title>Components Test</Title>
           <Subtitle>
-            Interactive testing page for the MapView component with Leaflet.js
+            Interactive testing page for LiquidGlass components and MapView
             integration
           </Subtitle>
         </Copy>

@@ -303,10 +303,11 @@ export const MenuItem = styled.div`
     right: 0;
     bottom: 0;
     backdrop-filter: blur(6px);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 1000px;
     z-index: 1;
+    transition: all 0.2s ease;
   }
 
   &::after {
@@ -320,19 +321,20 @@ export const MenuItem = styled.div`
     background:
       radial-gradient(
         ellipse at center,
-        rgba(255, 255, 255, 0.03) 0%,
-        rgba(255, 255, 255, 0.06) 70%,
-        rgba(255, 255, 255, 0.12) 100%
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.12) 70%,
+        rgba(255, 255, 255, 0.2) 100%
       ),
       linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.03) 100%
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.08) 100%
       );
     box-shadow:
-      inset 1px 1px 2px rgba(255, 255, 255, 0.2),
-      inset -1px -1px 1px rgba(0, 0, 0, 0.02);
+      inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+      inset -1px -1px 2px rgba(0, 0, 0, 0.08);
     z-index: 2;
+    transition: all 0.2s ease;
   }
 
   &:hover {
@@ -343,8 +345,14 @@ export const MenuItem = styled.div`
         : "0 4px 12px rgba(0, 0, 0, 0.1)"};
 
     &::before {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    &::after {
+      box-shadow:
+        inset 2px 2px 4px rgba(255, 255, 255, 0.35),
+        inset -1px -1px 2px rgba(0, 0, 0, 0.1);
     }
   }
 
