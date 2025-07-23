@@ -12,4 +12,5 @@ config/settings.prod.json
 openmaptiles/
 openmaptilesdata/*
 pgdata/
+pgdataNominatimInternal/
 mongo_data/

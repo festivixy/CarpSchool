@@ -96,6 +96,7 @@ services:
       - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
+      - ./pgdataNominatimInternal:/var/lib/postgresql/16/main
     restart: unless-stopped
     depends_on:
       postgis:
@@ -118,6 +119,7 @@ services:
       - NOMINATIM_DATABASE_DSN=pgsql:dbname=nominatim;host=postgis;user=nominatim
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
+      - ./pgdataNominatimInternal:/var/lib/postgresql/16/main
     restart: unless-stopped
     depends_on:
       postgis:
