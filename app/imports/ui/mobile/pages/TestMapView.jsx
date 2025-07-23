@@ -29,6 +29,8 @@ import {
   InfoValue,
 } from "../styles/TestMapView";
 
+import FooterVerbose from "../components/FooterVerbose"
+
 /**
  * Test page for MapView component - Admin only
  */
@@ -997,6 +999,21 @@ const MobileTestMapView = () => {
 
       {/* Demo LiquidGlass Footer */}
       <LiquidGlassFooter
+        companyName=""
+        description="Testing the LiquidGlass footer component with glass morphism effects and responsive design."
+        email="test@carpool.app"
+        phone="+1 (555) 123-TEST"
+        address="123 Test Street, Component City, CC 12345"
+        onNewsletterSubmit={(email) => {
+          console.log("Newsletter signup:", email);
+          alert(`Newsletter signup: ${email}`);
+        }}
+        onLinkClick={(link) => {
+          console.log("Footer link clicked:", link);
+          alert(`Footer link clicked: ${link}`);
+        }}
+      />
+      <FooterVerbose
         companyName=""
         description="Testing the LiquidGlass footer component with glass morphism effects and responsive design."
         email="test@carpool.app"
