@@ -67,6 +67,45 @@ export const BlurEffect = styled.div`
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(255, 255, 255, 0.15);
   overflow: hidden;
+
+  /* Chromatic aberration color-bending effect */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 1000px;
+    backdrop-filter: hue-rotate(8deg) saturate(1.15);
+    mix-blend-mode: color-dodge;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 1000px;
+    backdrop-filter: hue-rotate(-8deg) saturate(1.2) contrast(1.05);
+    mix-blend-mode: soft-light;
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  /* Additional color shift layers */
+  box-shadow:
+    /* Red channel shift */
+    inset 2px 0 4px rgba(255, 0, 0, 0.08),
+    inset -1px 0 4px rgba(0, 255, 255, 0.08),
+    /* Green channel shift */ inset 0 2px 4px rgba(0, 255, 0, 0.06),
+    inset 0 -1px 4px rgba(255, 0, 255, 0.06),
+    /* Blue channel shift */ inset 1px 1px 4px rgba(0, 0, 255, 0.08),
+    inset -2px -2px 4px rgba(255, 255, 0, 0.08);
 `;
 
 export const FillLayer = styled.div`

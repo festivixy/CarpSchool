@@ -34,9 +34,36 @@ export const BlurLayer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  backdrop-filter: blur(15px);
-  background: rgba(255, 255, 255, 0.045);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.135);
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background-image:
+    radial-gradient(
+      circle at 1px 1px,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 0
+    ),
+    linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.01) 30%,
+      rgba(255, 255, 255, 0.01) 70%,
+      transparent 70%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.01) 30%,
+      rgba(255, 255, 255, 0.01) 70%,
+      transparent 70%
+    );
+  background-size:
+    2px 2px,
+    4px 4px,
+    4px 4px;
+  background-position:
+    0 0,
+    0 0,
+    2px 2px;
 `;
 
 export const GlassLayer = styled.div`
@@ -45,15 +72,69 @@ export const GlassLayer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.108) 0%,
-    rgba(255, 255, 255, 0.045) 50%,
-    rgba(255, 255, 255, 0.09) 100%
-  );
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 0.5px,
+      rgba(255, 255, 255, 0.005) 0.5px,
+      rgba(255, 255, 255, 0.005) 1px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 0.5px,
+      rgba(255, 255, 255, 0.005) 0.5px,
+      rgba(255, 255, 255, 0.005) 1px
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.02) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.225),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.045);
+    /* Smooth prismatic light-bending edges */
+    inset 5px 0 6px -1px rgba(255, 100, 150, 0.15),
+    inset -5px 0 6px -1px rgba(100, 150, 255, 0.15),
+    inset 0 5px 6px -1px rgba(150, 255, 100, 0.12),
+    inset 0 -5px 6px -1px rgba(255, 200, 100, 0.15),
+    /* Gradual mid-transitions */ inset 3px 0 8px -2px rgba(255, 100, 150, 0.08),
+    inset -3px 0 8px -2px rgba(100, 150, 255, 0.08),
+    inset 0 3px 8px -2px rgba(150, 255, 100, 0.06),
+    inset 0 -3px 8px -2px rgba(255, 200, 100, 0.08),
+    /* Soft inner glow */ inset 1px 0 10px -3px rgba(255, 100, 150, 0.04),
+    inset -1px 0 10px -3px rgba(100, 150, 255, 0.04),
+    inset 0 1px 10px -3px rgba(150, 255, 100, 0.03),
+    inset 0 -1px 10px -3px rgba(255, 200, 100, 0.04),
+    /* Corner light dispersions */ 5px 0 8px rgba(255, 100, 150, 0.1),
+    -5px 0 8px rgba(100, 150, 255, 0.1),
+    0 -5px 8px rgba(150, 255, 100, 0.08),
+    0 5px 8px rgba(255, 200, 100, 0.1),
+    /* Subtle refraction highlights */ inset 0 0.5px 1px
+      rgba(255, 255, 255, 0.06),
+    inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.01);
+  filter: contrast(1.05) brightness(1.01);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 100, 150, 0.08) 0%,
+      rgba(100, 150, 255, 0.08) 25%,
+      rgba(150, 255, 100, 0.06) 50%,
+      rgba(255, 200, 100, 0.08) 75%,
+      rgba(255, 100, 150, 0.08) 100%
+    );
+    border-radius: 0 0 16px 16px;
+    filter: blur(2px);
+    z-index: -1;
+  }
 `;
 
 export const NavbarContent = styled.div`

@@ -64,6 +64,20 @@ export const TriggerBlur = styled.div`
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 1000px;
+  box-shadow:
+    /* Smooth prismatic light-bending edges */
+    inset 3px 0 4px -1px rgba(255, 100, 150, 0.12),
+    inset -3px 0 4px -1px rgba(100, 150, 255, 0.12),
+    inset 0 3px 4px -1px rgba(150, 255, 100, 0.1),
+    inset 0 -3px 4px -1px rgba(255, 200, 100, 0.12),
+    /* Gradual mid-transitions */ inset 2px 0 6px -2px rgba(255, 100, 150, 0.06),
+    inset -2px 0 6px -2px rgba(100, 150, 255, 0.06),
+    inset 0 2px 6px -2px rgba(150, 255, 100, 0.05),
+    inset 0 -2px 6px -2px rgba(255, 200, 100, 0.06),
+    /* Soft inner glow */ inset 1px 0 8px -3px rgba(255, 100, 150, 0.03),
+    inset -1px 0 8px -3px rgba(100, 150, 255, 0.03),
+    inset 0 1px 8px -3px rgba(150, 255, 100, 0.025),
+    inset 0 -1px 8px -3px rgba(255, 200, 100, 0.03);
 `;
 
 export const TriggerGlass = styled.div`
@@ -201,6 +215,20 @@ export const MenuBlur = styled.div`
   background: rgba(255, 255, 255, 0.08);
   border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
+  box-shadow:
+    /* Smooth prismatic light-bending edges */
+    inset 4px 0 5px -1px rgba(255, 100, 150, 0.1),
+    inset -4px 0 5px -1px rgba(100, 150, 255, 0.1),
+    inset 0 4px 5px -1px rgba(150, 255, 100, 0.08),
+    inset 0 -4px 5px -1px rgba(255, 200, 100, 0.1),
+    /* Gradual mid-transitions */ inset 2px 0 7px -2px rgba(255, 100, 150, 0.05),
+    inset -2px 0 7px -2px rgba(100, 150, 255, 0.05),
+    inset 0 2px 7px -2px rgba(150, 255, 100, 0.04),
+    inset 0 -2px 7px -2px rgba(255, 200, 100, 0.05),
+    /* Soft inner glow */ inset 1px 0 9px -3px rgba(255, 100, 150, 0.025),
+    inset -1px 0 9px -3px rgba(100, 150, 255, 0.025),
+    inset 0 1px 9px -3px rgba(150, 255, 100, 0.02),
+    inset 0 -1px 9px -3px rgba(255, 200, 100, 0.025);
 `;
 
 export const MenuGlass = styled.div`
