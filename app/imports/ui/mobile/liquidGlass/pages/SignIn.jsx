@@ -6,6 +6,7 @@ import { Accounts } from "meteor/accounts-base";
 import styled from "styled-components";
 import LiquidGlassButton from "../components/Button";
 import LiquidGlassTextInput from "../components/TextInput";
+import LiquidGlassCaptcha from "../components/Captcha";
 
 // Styled Components for LiquidGlass SignIn
 const Container = styled.div`
@@ -24,7 +25,7 @@ const Container = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
+    background:
       radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
       radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
       radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
@@ -74,7 +75,7 @@ const FormContainer = styled.div`
   backdrop-filter: blur(20px);
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 
+  box-shadow:
     0 25px 50px rgba(0, 0, 0, 0.15),
     inset 0 1px 2px rgba(255, 255, 255, 0.3);
   overflow: hidden;
@@ -145,89 +146,7 @@ const InputSection = styled.div`
   gap: 20px;
 `;
 
-const CaptchaSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
 
-const CaptchaLabel = styled.label`
-  font-size: 14px;
-  font-weight: 600;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-`;
-
-const CaptchaContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-`;
-
-const CaptchaDisplay = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 8px;
-  padding: 8px;
-  min-height: 50px;
-
-  svg {
-    max-width: 100%;
-    height: auto;
-  }
-`;
-
-const CaptchaLoading = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 16px;
-  color: white;
-  font-size: 14px;
-  min-height: 50px;
-`;
-
-const CaptchaRefreshButton = styled.button`
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-
-  &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  img {
-    width: 20px;
-    height: 20px;
-    filter: invert(1);
-  }
-`;
 
 const ErrorMessage = styled.div`
   background: rgba(255, 59, 48, 0.9);
@@ -316,61 +235,17 @@ export default class LiquidGlassSignIn extends React.Component {
     this.state = {
       email: "",
       password: "",
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
       error: "",
       redirectToReferer: false,
-      isLoadingCaptcha: false,
     };
-  }
 
-  componentDidMount() {
-    this.generateNewCaptcha();
+    // Create ref for captcha component
+    this.captchaRef = React.createRef();
   }
 
   handleChange = (e) => {
     const { name, value } = e.target;
     this.setState({ [name]: value });
-  };
-
-  generateNewCaptcha = () => {
-    this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
-        });
-      } else {
-        this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
-          error: "",
-        });
-      }
-    });
-  };
-
-  generateNewCaptchaKeepError = () => {
-    this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
-        });
-      } else {
-        this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
-        });
-      }
-    });
   };
 
   handleSubmit = (e) => {
@@ -379,24 +254,23 @@ export default class LiquidGlassSignIn extends React.Component {
   };
 
   submit = () => {
-    const { email, password, captchaInput, captchaSessionId } = this.state;
+    const { email, password } = this.state;
 
-    // First verify CAPTCHA
-    Meteor.call(
-      "captcha.verify",
-      captchaSessionId,
-      captchaInput,
-      (captchaError, isValidCaptcha) => {
+    // First verify CAPTCHA using the captcha component
+    if (this.captchaRef.current) {
+      this.captchaRef.current.verify((captchaError, isValidCaptcha) => {
         if (captchaError || !isValidCaptcha) {
-          this.setState({ error: "Invalid security code. Please try again." });
-          this.generateNewCaptchaKeepError();
+          this.setState({ error: captchaError || "Invalid security code. Please try again." });
           return;
         }
 
+        // Get captcha data for the login method
+        const captchaData = this.captchaRef.current.getCaptchaData();
+
         const methodArguments = Accounts._hashPassword(password);
-        methodArguments.captchaSessionId = this.state.captchaSessionId;
+        methodArguments.captchaSessionId = captchaData.sessionId;
         methodArguments.proofOfWorkResult = "";
-        
+
         Accounts.callLoginMethod({
           methodArguments: [
             {
@@ -407,14 +281,16 @@ export default class LiquidGlassSignIn extends React.Component {
           userCallback: (error, _result) => {
             if (error) {
               this.setState({ error: error.reason });
-              this.generateNewCaptchaKeepError();
+              // Captcha component will auto-regenerate on verification failure
             } else {
               this.setState({ error: "", redirectToReferer: true });
             }
           },
         });
-      },
-    );
+      });
+    } else {
+      this.setState({ error: "Please complete the security verification." });
+    }
   };
 
   handleLinkClick = (path) => {
@@ -470,39 +346,10 @@ export default class LiquidGlassSignIn extends React.Component {
                   required
                 />
 
-                <CaptchaSection>
-                  <CaptchaLabel>Security Verification</CaptchaLabel>
-                  <CaptchaContainer>
-                    {this.state.isLoadingCaptcha ? (
-                      <CaptchaLoading>Loading CAPTCHA...</CaptchaLoading>
-                    ) : (
-                      <CaptchaDisplay
-                        dangerouslySetInnerHTML={{
-                          __html: this.state.captchaSvg,
-                        }}
-                      />
-                    )}
-                    <CaptchaRefreshButton
-                      type="button"
-                      onClick={this.generateNewCaptcha}
-                      disabled={this.state.isLoadingCaptcha}
-                      title="Refresh CAPTCHA"
-                    >
-                      <img src="/svg/refresh.svg" alt="Refresh" />
-                    </CaptchaRefreshButton>
-                  </CaptchaContainer>
-                </CaptchaSection>
-
-                <LiquidGlassTextInput
-                  type="text"
-                  name="captchaInput"
-                  label="Security Code"
-                  placeholder="Enter the characters shown above"
-                  value={this.state.captchaInput}
-                  onChange={this.handleChange}
-                  icon="🔒"
-                  iconPosition="left"
-                  required
+                <LiquidGlassCaptcha
+                  ref={this.captchaRef}
+                  label="Security Verification"
+                  inputPlaceholder="Enter the characters shown above"
                 />
 
                 <LiquidGlassButton
