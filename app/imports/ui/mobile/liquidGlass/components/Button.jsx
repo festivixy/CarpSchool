@@ -12,7 +12,7 @@ import {
   LabelContainer,
   LabelSymbol,
   LabelText,
-} from "../styles/LiquidGlassButton";
+} from "../styles/Button";
 
 /**
  * ButtonLiquidGlassText component with liquid glass effect
