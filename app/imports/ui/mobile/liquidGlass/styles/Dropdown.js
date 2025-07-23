@@ -203,17 +203,20 @@ export const DropdownMenu = styled.div`
     props.position === "top"
       ? "bottom: calc(100% + 12px);"
       : "top: calc(100% + 12px);"}
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%)
+    translateY(
+      ${(props) =>
+        props.isOpen ? "0" : props.position === "top" ? "10px" : "-10px"}
+    );
+  width: 160%;
+  min-width: 200px;
+  max-width: calc(100vw - 40px);
   max-height: ${(props) => props.maxHeight || "300px"};
   background: transparent;
   border-radius: 16px;
   overflow: hidden;
   z-index: 1001;
-  transform: translateY(
-    ${(props) =>
-      props.isOpen ? "0" : props.position === "top" ? "10px" : "-10px"}
-  );
   opacity: ${(props) => (props.isOpen ? "1" : "0")};
   visibility: ${(props) => (props.isOpen ? "visible" : "hidden")};
   transition: all 0.2s ease;
