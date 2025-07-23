@@ -66,12 +66,12 @@ function LiquidGlassIconButton({
   return (
     <IconButtonContainer
       className={className}
-      size={size}
-      variant={variant}
-      disabled={disabled}
-      loading={loading}
-      active={active}
-      color={color}
+      $size={size}
+      $variant={variant}
+      $disabled={disabled}
+      $loading={loading}
+      $active={active}
+      $color={color}
       onClick={handleClick}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
@@ -92,13 +92,13 @@ function LiquidGlassIconButton({
         <FillLayer />
         <GlassEffectLayer />
       </Background>
-      
-      <LabelContainer size={size}>
+
+      <LabelContainer $size={size}>
         <LabelSymbol>
           {loading ? (
             <div className="spinner"></div>
           ) : (
-            <LabelText size={size} color={color}>
+            <LabelText $size={size} $color={color}>
               {icon}
             </LabelText>
           )}

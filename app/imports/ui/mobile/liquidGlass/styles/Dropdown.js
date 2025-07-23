@@ -19,8 +19,8 @@ export const DropdownTrigger = styled.div`
   position: relative;
   width: 100%;
   height: 48px;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  opacity: ${(props) => (props.disabled ? "0.6" : "1")};
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.$disabled ? "0.6" : "1")};
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -29,11 +29,11 @@ export const DropdownTrigger = styled.div`
 
   &:hover {
     transform: ${(props) =>
-      props.disabled
+      props.$disabled
         ? "translateY(0px) translateX(0px)"
         : "translateY(-1px) translateX(0px)"};
     box-shadow: ${(props) =>
-      props.disabled
+      props.$disabled
         ? "0 1px 3px rgba(0, 0, 0, 0.03)"
         : "0 6px 16px rgba(0, 0, 0, 0.15)"};
   }
@@ -160,7 +160,7 @@ export const TriggerText = styled.div`
   text-overflow: ellipsis;
 
   ${(props) =>
-    !props.hasValue &&
+    !props.$hasValue &&
     `
     color: #333;
     font-weight: 400;
@@ -176,19 +176,19 @@ export const TriggerIcon = styled.span`
   font-size: 12px;
   color: #666;
   transition: all 0.2s ease;
-  cursor: ${(props) => (props.type === "clear" ? "pointer" : "inherit")};
+  cursor: ${(props) => (props.$type === "clear" ? "pointer" : "inherit")};
   border-radius: 50%;
-  pointer-events: ${(props) => (props.type === "clear" ? "all" : "none")};
+  pointer-events: ${(props) => (props.$type === "clear" ? "all" : "none")};
   flex-shrink: 0;
 
   ${(props) =>
-    props.type === "chevron" &&
+    props.$type === "chevron" &&
     `
-    transform: rotate(${props.isOpen ? "180deg" : "0deg"});
+    transform: rotate(${props.$isOpen ? "180deg" : "0deg"});
   `}
 
   ${(props) =>
-    props.type === "clear" &&
+    props.$type === "clear" &&
     `
     &:hover {
       background: rgba(255, 255, 255, 0.2);
@@ -200,25 +200,25 @@ export const TriggerIcon = styled.span`
 export const DropdownMenu = styled.div`
   position: absolute;
   ${(props) =>
-    props.position === "top"
+    props.$position === "top"
       ? "bottom: calc(100% + 12px);"
       : "top: calc(100% + 12px);"}
   left: 50%;
   transform: translateX(-50%)
     translateY(
       ${(props) =>
-        props.isOpen ? "0" : props.position === "top" ? "10px" : "-10px"}
+        props.$isOpen ? "0" : props.$position === "top" ? "10px" : "-10px"}
     );
   width: 160%;
   min-width: 200px;
   max-width: calc(100vw - 40px);
-  max-height: ${(props) => props.maxHeight || "300px"};
+  max-height: ${(props) => props.$maxHeight || "300px"};
   background: transparent;
   border-radius: 16px;
   overflow: hidden;
   z-index: 1001;
-  opacity: ${(props) => (props.isOpen ? "1" : "0")};
-  visibility: ${(props) => (props.isOpen ? "visible" : "hidden")};
+  opacity: ${(props) => (props.$isOpen ? "1" : "0")};
+  visibility: ${(props) => (props.$isOpen ? "visible" : "hidden")};
   transition: all 0.2s ease;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 `;
@@ -340,7 +340,7 @@ export const SearchInput = styled.input`
 
 export const MenuList = styled.div`
   position: relative;
-  max-height: ${(props) => props.maxHeight || "250px"};
+  max-height: ${(props) => props.$maxHeight || "250px"};
   overflow-y: auto;
   z-index: 10;
 
@@ -367,8 +367,8 @@ export const MenuItem = styled.div`
   position: relative;
   margin: 6px 8px;
   border-radius: 1000px;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  opacity: ${(props) => (props.disabled ? "0.5" : "1")};
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.$disabled ? "0.5" : "1")};
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -428,9 +428,9 @@ export const MenuItem = styled.div`
   }
 
   &:hover {
-    transform: ${(props) => (props.disabled ? "none" : "translateY(-1px)")};
+    transform: ${(props) => (props.$disabled ? "none" : "translateY(-1px)")};
     box-shadow: ${(props) =>
-      props.disabled
+      props.$disabled
         ? "0 1px 3px rgba(0, 0, 0, 0.03)"
         : "0 4px 12px rgba(0, 0, 0, 0.1)"};
 
@@ -447,12 +447,12 @@ export const MenuItem = styled.div`
   }
 
   &:active {
-    transform: ${(props) => (props.disabled ? "none" : "translateY(0)")};
+    transform: ${(props) => (props.$disabled ? "none" : "translateY(0)")};
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   }
 
   ${(props) =>
-    props.isSelected &&
+    props.$isSelected &&
     `
     &::before {
       background: rgba(0, 123, 255, 0.1);
@@ -461,7 +461,7 @@ export const MenuItem = styled.div`
   `}
 
   ${(props) =>
-    props.isFocused &&
+    props.$isFocused &&
     `
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03);
   `}
@@ -513,8 +513,8 @@ export const MenuItemCheck = styled.span`
   font-size: 11px;
   font-weight: 600;
   color: #007bff;
-  opacity: ${(props) => (props.isVisible ? "1" : "0")};
-  transform: scale(${(props) => (props.isVisible ? "1" : "0.8")});
+  opacity: ${(props) => (props.$isVisible ? "1" : "0")};
+  transform: scale(${(props) => (props.$isVisible ? "1" : "0.8")});
   transition: all 0.2s ease;
   flex-shrink: 0;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);

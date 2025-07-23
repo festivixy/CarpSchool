@@ -4,7 +4,7 @@ export const InputContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  width: ${(props) => props.width || "100%"};
+  width: ${(props) => props.$width || "100%"};
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
@@ -12,20 +12,20 @@ export const InputContainer = styled.div`
 
 export const InputLabel = styled.label`
   font-size: ${(props) => {
-    if (props.isFocused || props.hasValue) return "12px";
+    if (props.$isFocused || props.$hasValue) return "12px";
     return "14px";
   }};
   font-weight: 500;
   color: ${(props) => {
-    if (props.hasError) return "#ff4444";
-    if (props.isFocused) return "#000";
+    if (props.$hasError) return "#ff4444";
+    if (props.$isFocused) return "#000";
     return "#333";
   }};
   margin-bottom: 6px;
   transition: all 0.2s ease;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   transform: ${(props) =>
-    props.isFocused || props.hasValue ? "translateY(0)" : "translateY(2px)"};
+    props.$isFocused || props.$hasValue ? "translateY(0)" : "translateY(2px)"};
 `;
 
 export const InputWrapper = styled.div`
@@ -33,7 +33,7 @@ export const InputWrapper = styled.div`
   display: flex;
   align-items: center;
   border-radius: ${(props) => {
-    switch (props.size) {
+    switch (props.$size) {
       case "small":
         return "1000px";
       case "large":
@@ -43,7 +43,7 @@ export const InputWrapper = styled.div`
     }
   }};
   height: ${(props) => {
-    switch (props.size) {
+    switch (props.$size) {
       case "small":
         return "36px";
       case "large":
@@ -53,24 +53,24 @@ export const InputWrapper = styled.div`
     }
   }};
   overflow: hidden;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
-  opacity: ${(props) => (props.disabled ? "0.6" : "1")};
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "text")};
+  opacity: ${(props) => (props.$disabled ? "0.6" : "1")};
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
   transform: translateY(0px) translateX(0px);
   box-shadow: ${(props) => {
-    if (props.hasError) return "0 0 0 2px rgba(255, 68, 68, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03)";
-    if (props.isFocused) return "0 0 0 2px rgba(0, 123, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03)";
+    if (props.$hasError) return "0 0 0 2px rgba(255, 68, 68, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03)";
+    if (props.$isFocused) return "0 0 0 2px rgba(0, 123, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03)";
     return "0 1px 3px rgba(0, 0, 0, 0.03)";
   }};
 
   &:hover {
-    transform: ${(props) => (props.disabled ? "translateY(0px) translateX(0px)" : "translateY(-1px) translateX(0px)")};
+    transform: ${(props) => (props.$disabled ? "translateY(0px) translateX(0px)" : "translateY(-1px) translateX(0px)")};
     box-shadow: ${(props) => {
-      if (props.disabled) return "0 1px 3px rgba(0, 0, 0, 0.03)";
-      if (props.hasError) return "0 0 0 2px rgba(255, 68, 68, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)";
-      if (props.isFocused) return "0 0 0 2px rgba(0, 123, 255, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)";
+      if (props.$disabled) return "0 1px 3px rgba(0, 0, 0, 0.03)";
+      if (props.$hasError) return "0 0 0 2px rgba(255, 68, 68, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)";
+      if (props.$isFocused) return "0 0 0 2px rgba(0, 123, 255, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)";
       return "0 6px 16px rgba(0, 0, 0, 0.15)";
     }};
   }
@@ -202,18 +202,18 @@ export const StyledInput = styled.input`
   width: 100%;
   height: 100%;
   padding: ${(props) => {
-    const verticalPadding = props.size === "small" ? "8px" : props.size === "large" ? "16px" : "12px";
-    const leftPadding = props.hasIcon && props.iconPosition === "left" ?
-      (props.size === "small" ? "36px" : props.size === "large" ? "52px" : "44px") : "24px";
-    const rightPadding = props.hasIcon && props.iconPosition === "right" ?
-      (props.size === "small" ? "36px" : props.size === "large" ? "52px" : "44px") : "24px";
+    const verticalPadding = props.$size === "small" ? "8px" : props.$size === "large" ? "16px" : "12px";
+    const leftPadding = props.$hasIcon && props.$iconPosition === "left" ?
+      (props.$size === "small" ? "36px" : props.$size === "large" ? "52px" : "44px") : "24px";
+    const rightPadding = props.$hasIcon && props.$iconPosition === "right" ?
+      (props.$size === "small" ? "36px" : props.$size === "large" ? "52px" : "44px") : "24px";
     return `${verticalPadding} ${rightPadding} ${verticalPadding} ${leftPadding}`;
   }};
   border: none;
   outline: none;
   background: transparent;
   font-size: ${(props) => {
-    switch (props.size) {
+    switch (props.$size) {
       case "small":
         return "13px";
       case "large":
@@ -228,7 +228,7 @@ export const StyledInput = styled.input`
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   z-index: 10;
   transition: all 0.2s ease;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "text")};
   transform: translateX(0px);
   backface-visibility: hidden;
   -webkit-font-smoothing: antialiased;
@@ -273,7 +273,7 @@ export const StyledInput = styled.input`
 
   @media (max-width: 991px) {
     font-size: ${(props) => {
-      switch (props.size) {
+      switch (props.$size) {
         case "small":
           return "12px";
         case "large":
@@ -285,7 +285,7 @@ export const StyledInput = styled.input`
   }
   @media (max-width: 640px) {
     font-size: ${(props) => {
-      switch (props.size) {
+      switch (props.$size) {
         case "small":
           return "11px";
         case "large":
@@ -299,14 +299,14 @@ export const StyledInput = styled.input`
 
 export const InputIcon = styled.div`
   position: absolute;
-  ${(props) => (props.position === "right" ? "right: 16px;" : "left: 16px;")}
+  ${(props) => (props.$position === "right" ? "right: 16px;" : "left: 16px;")}
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
   width: ${(props) => {
-    switch (props.size) {
+    switch (props.$size) {
       case "small":
         return "16px";
       case "large":
@@ -316,7 +316,7 @@ export const InputIcon = styled.div`
     }
   }};
   height: ${(props) => {
-    switch (props.size) {
+    switch (props.$size) {
       case "small":
         return "16px";
       case "large":
@@ -326,7 +326,7 @@ export const InputIcon = styled.div`
     }
   }};
   font-size: ${(props) => {
-    switch (props.size) {
+    switch (props.$size) {
       case "small":
         return "14px";
       case "large":
@@ -361,7 +361,7 @@ export const HelperText = styled.div`
 export const CharacterCount = styled.div`
   font-size: 11px;
   font-weight: 500;
-  color: ${(props) => (props.isOverLimit ? "#ff4444" : "#999")};
+  color: ${(props) => (props.$isOverLimit ? "#ff4444" : "#999")};
   margin-top: 4px;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   white-space: nowrap;

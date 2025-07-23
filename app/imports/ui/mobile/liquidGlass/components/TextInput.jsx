@@ -101,17 +101,17 @@ function LiquidGlassTextInput({
   return (
     <InputContainer
       className={className}
-      width={width}
-      size={size}
-      hasError={!!error}
+      $width={width}
+      $size={size}
+      $hasError={!!error}
       {...props}
     >
       {label && (
         <InputLabel
-          isFocused={isFocused}
-          hasValue={hasValue}
-          hasError={!!error}
-          required={required}
+          $isFocused={isFocused}
+          $hasValue={hasValue}
+          $hasError={!!error}
+          $required={required}
         >
           {label}
           {required && <span style={{ color: "#ff4444" }}>*</span>}
@@ -119,12 +119,12 @@ function LiquidGlassTextInput({
       )}
 
       <InputWrapper
-        isFocused={isFocused}
-        hasValue={hasValue}
-        hasError={!!error}
-        disabled={disabled}
-        size={size}
-        variant={variant}
+        $isFocused={isFocused}
+        $hasValue={hasValue}
+        $hasError={!!error}
+        $disabled={disabled}
+        $size={size}
+        $variant={variant}
       >
         <Background>
           <BlurContainer>
@@ -138,7 +138,7 @@ function LiquidGlassTextInput({
         </Background>
 
         {icon && iconPosition === "left" && (
-          <InputIcon position="left" size={size}>
+          <InputIcon $position="left" $size={size}>
             {icon}
           </InputIcon>
         )}
@@ -157,9 +157,9 @@ function LiquidGlassTextInput({
           pattern={pattern}
           autoComplete={autoComplete}
           spellCheck={spellCheck}
-          hasIcon={!!icon}
-          iconPosition={iconPosition}
-          size={size}
+          $hasIcon={!!icon}
+          $iconPosition={iconPosition}
+          $size={size}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
@@ -169,7 +169,7 @@ function LiquidGlassTextInput({
         />
 
         {icon && iconPosition === "right" && (
-          <InputIcon position="right" size={size}>
+          <InputIcon $position="right" $size={size}>
             {icon}
           </InputIcon>
         )}
@@ -191,7 +191,7 @@ function LiquidGlassTextInput({
           </div>
 
           {showCharacterCount && maxLength && (
-            <CharacterCount isOverLimit={isOverLimit}>
+            <CharacterCount $isOverLimit={isOverLimit}>
               {characterCount}/{maxLength}
             </CharacterCount>
           )}

@@ -52,12 +52,12 @@ export const IconButtonContainer = styled.button`
   align-items: center;
   border-radius: 50%;
   position: relative;
-  width: ${(props) => getSizeConfig(props.size).width};
-  height: ${(props) => getSizeConfig(props.size).height};
+  width: ${(props) => getSizeConfig(props.$size).width};
+  height: ${(props) => getSizeConfig(props.$size).height};
   border: none;
   outline: none;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  opacity: ${(props) => (props.disabled ? "0.6" : "1")};
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.$disabled ? "0.6" : "1")};
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -71,25 +71,25 @@ export const IconButtonContainer = styled.button`
 
   /* Active state styles */
   ${(props) =>
-    props.active &&
+    props.$active &&
     `
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03);
   `}
 
   &:hover {
-    transform: ${(props) => (props.disabled ? "translateY(0px) translateX(0px)" : "translateY(-1px) translateX(0px)")};
+    transform: ${(props) => (props.$disabled ? "translateY(0px) translateX(0px)" : "translateY(-1px) translateX(0px)")};
     box-shadow: ${(props) =>
-      props.disabled
+      props.$disabled
         ? "0 1px 3px rgba(0, 0, 0, 0.03)"
-        : props.active
+        : props.$active
           ? "0 0 0 2px rgba(0, 123, 255, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)"
           : "0 6px 16px rgba(0, 0, 0, 0.15)"};
   }
 
   &:active {
-    transform: ${(props) => (props.disabled ? "translateY(0px) translateX(0px)" : "translateY(0px) translateX(0px)")};
+    transform: ${(props) => (props.$disabled ? "translateY(0px) translateX(0px)" : "translateY(0px) translateX(0px)")};
     box-shadow: ${(props) =>
-      props.disabled
+      props.$disabled
         ? "0 1px 3px rgba(0, 0, 0, 0.03)"
         : "0 2px 8px rgba(0, 0, 0, 0.1)"};
   }
@@ -232,8 +232,8 @@ export const LabelContainer = styled.div`
   transform: translateX(0px);
 
   .spinner {
-    width: ${(props) => getSizeConfig(props.size).iconSize};
-    height: ${(props) => getSizeConfig(props.size).iconSize};
+    width: ${(props) => getSizeConfig(props.$size).iconSize};
+    height: ${(props) => getSizeConfig(props.$size).iconSize};
     border: 2px solid rgba(102, 102, 102, 0.2);
     border-top: 2px solid #666;
     border-radius: 50%;
@@ -257,9 +257,9 @@ export const LabelSymbol = styled.div`
 `;
 
 export const LabelText = styled.div`
-  color: ${(props) => getColorConfig(props.color)};
+  color: ${(props) => getColorConfig(props.$color)};
   font-weight: 500;
-  font-size: ${(props) => getSizeConfig(props.size).fontSize};
+  font-size: ${(props) => getSizeConfig(props.$size).fontSize};
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
@@ -284,13 +284,13 @@ export const LabelText = styled.div`
 
   @media (max-width: 991px) {
     font-size: ${(props) => {
-      const baseSize = parseInt(getSizeConfig(props.size).fontSize);
+      const baseSize = parseInt(getSizeConfig(props.$size).fontSize);
       return `${baseSize - 1}px`;
     }};
   }
   @media (max-width: 640px) {
     font-size: ${(props) => {
-      const baseSize = parseInt(getSizeConfig(props.size).fontSize);
+      const baseSize = parseInt(getSizeConfig(props.$size).fontSize);
       return `${baseSize - 2}px`;
     }};
   }

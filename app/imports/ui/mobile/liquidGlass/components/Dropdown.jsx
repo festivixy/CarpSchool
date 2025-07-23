@@ -229,9 +229,9 @@ function LiquidGlassDropdown({
     >
       <DropdownTrigger
         onClick={handleToggle}
-        disabled={disabled}
-        isOpen={isOpen}
-        hasValue={hasValue}
+        $disabled={disabled}
+        $isOpen={isOpen}
+        $hasValue={hasValue}
       >
         <TriggerBackground>
           <TriggerBlur />
@@ -239,15 +239,15 @@ function LiquidGlassDropdown({
         </TriggerBackground>
 
         <TriggerContent>
-          <TriggerText hasValue={hasValue}>{getDisplayText()}</TriggerText>
+          <TriggerText $hasValue={hasValue}>{getDisplayText()}</TriggerText>
 
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
             {clearable && hasValue && (
-              <TriggerIcon onClick={handleClear} type="clear">
+              <TriggerIcon onClick={handleClear} $type="clear">
                 ✕
               </TriggerIcon>
             )}
-            <TriggerIcon isOpen={isOpen} type="chevron">
+            <TriggerIcon $isOpen={isOpen} $type="chevron">
               ▼
             </TriggerIcon>
           </div>
@@ -256,9 +256,9 @@ function LiquidGlassDropdown({
 
       <DropdownMenu
         ref={menuRef}
-        isOpen={isOpen}
-        position={position}
-        maxHeight={maxHeight}
+        $isOpen={isOpen}
+        $position={position}
+        $maxHeight={maxHeight}
       >
         <MenuBackground>
           <MenuBlur />
@@ -293,15 +293,15 @@ function LiquidGlassDropdown({
               <MenuItem
                 key={option.value || index}
                 onClick={() => handleOptionSelect(option)}
-                disabled={option.disabled}
-                isSelected={isSelected(option)}
-                isFocused={index === focusedIndex}
+                $disabled={option.disabled}
+                $isSelected={isSelected(option)}
+                $isFocused={index === focusedIndex}
               >
                 <MenuItemContent>
                   {option.icon && <MenuItemIcon>{option.icon}</MenuItemIcon>}
                   <MenuItemText>{option.label || option.value}</MenuItemText>
                   {(multiple || isSelected(option)) && (
-                    <MenuItemCheck isVisible={isSelected(option)}>
+                    <MenuItemCheck $isVisible={isSelected(option)}>
                       ✓
                     </MenuItemCheck>
                   )}

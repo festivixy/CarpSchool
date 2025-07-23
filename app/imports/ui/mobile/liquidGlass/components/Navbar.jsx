@@ -95,7 +95,7 @@ function LiquidGlassNavbar({
   ];
 
   return (
-    <NavbarContainer className={className} isScrolled={isScrolled} {...props}>
+    <NavbarContainer className={className} $isScrolled={isScrolled} {...props}>
       <NavbarBackground>
         <BlurLayer />
         <GlassLayer />
