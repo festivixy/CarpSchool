@@ -141,7 +141,7 @@ case $yn in
     mkdir -p openmaptilesdata/tarballs/chunks
     mv openmaptilesdata.tar.gz openmaptilesdata/tarballs/openmaptilesdata.tar.gz
     split -b 256M openmaptilesdata/tarballs/openmaptilesdata.tar.gz openmaptilesdata/tarballs/chunks/openmaptilesdata.tar.gz. --additional-suffix=.part -a 3 --numeric-suffixes
-
+    find openmaptilesdata/tarballs/chunks -maxdepth 1 -type f ! -name 'chunks.txt' -exec basename {} \; > openmaptilesdata/tarballs/chunks/chunks.txt
     ;;
   * )
     echo -e "\033[1;34m[INFO]\033[0m Skipping tarball creation"
