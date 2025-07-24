@@ -147,3 +147,45 @@ case $yn in
     echo -e "\033[1;34m[INFO]\033[0m Skipping tarball creation"
     ;;
 esac
+
+read -p $'\033[1;33m[STEP]\033[0m Do you want to create a tarball chunks of the built data? (y/n): ' yn
+case $yn in
+  [Yy]* )
+    docker compose up nominatim-dev -d
+    echo -e "to see build logs, run 'docker compose logs -f nominatim-dev'"
+    # Wait for Nominatim to finish starting up
+    while true; do
+      if docker compose logs nominatim-dev --no-color --no-log-prefix | grep -q "Application startup complete."; then
+        echo -e "\033[1;32m[SUCCESS]\033[0m Nominatim application startup complete!"
+        break
+      else
+        echo -e "\033[1;33m[WAIT]\033[0m Waiting for Nominatim to start (database prep/build)... (retrying in 10s)"
+        sleep 10
+      fi
+    done
+    echo -e "\033[1;34m[INFO]\033[0m stopping Nominatim."
+    docker compose stop nominatim-dev
+    echo -e "\033[1;34m[INFO]\033[0m Nominatim stopped."
+    echo -e "\033[1;34m[INFO]\033[0m Creating tarball of the built data"
+    tar -czf pgdataNominatimInternal.tar.gz pgdataNominatimInternal
+    mv pgdataNominatimInternal.tar.gz ".\openmaptilesdata\tarballs"
+    echo -e "\033[1;32m[COMPLETE]\033[0m Tarball created: pgdataNominatimInternal.tar.gz"
+
+    read -p $'\033[1;33m[STEP]\033[0m Do you want to split (chunk) the tarball? (y/n): ' chunk_yn
+    case $chunk_yn in
+      [Yy]* )
+        echo -e "\033[1;34m[INFO]\033[0m Splitting tarball into 256MB chunks"
+        mkdir -p openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks
+        split -b 256M openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks/pgdataNominatimInternal.tar.gz. --additional-suffix=.part -a 3 --numeric-suffixes
+        find openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks -maxdepth 1 -type f ! -name 'chunks.txt' -exec basename {} \; > openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks/chunks.txt
+        echo -e "\033[1;32m[COMPLETE]\033[0m Chunking complete."
+        ;;
+      * )
+        echo -e "\033[1;34m[INFO]\033[0m Skipping chunking"
+        ;;
+    esac
+    ;;
+  * )
+    echo -e "\033[1;34m[INFO]\033[0m Skipping building nominatim"
+    ;;
+esac

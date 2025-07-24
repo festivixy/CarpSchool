@@ -32,7 +32,7 @@ if [ ! -d "openmaptilesdata/data" ]; then
   echo -e "${YELLOW}You need map data before continuing.${NC}"
   echo ""
   echo "Please choose an option:"
-  echo "1) Build - Run './build-openmaptiles.sh' to generate map data"
+  echo "1) Build - Run './build-openmaptiles.sh' to generate map data WARN: takes around 5 to 20 hours depends on your hardware."
   echo "2) Download - Run './download-openmaptiles-data.sh' to download pre-built data"
   echo ""
   read -p "Enter your choice (1-2): " choice
