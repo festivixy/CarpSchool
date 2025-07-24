@@ -42,4 +42,21 @@ fixed with mongodb collection and session IDs. [319bfb6]
 - [x] Show place creator in PlaceManager.jsx [ed7d0ba]
 - [x] Make captcha its own centralized component [8756649]
 
+## Legacy Import References to Fix
+
+The following files contain imports referencing the old paths that should be updated to use legacy paths:
+
+**Files with imports from "/imports/ui/components":**
+- `imports/ui/legacy/pages/ActiveRides.jsx` - Line 6: `import Ride from "/imports/ui/components/Ride";`
+- `imports/ui/legacy/pages/ListRides.jsx` - Line 6: `import Ride from "/imports/ui/components/Ride";`
+- `imports/ui/legacy/pages/UserDrive.jsx` - Line 6: `import Ride from "/imports/ui/components/Ride";`
+- `imports/ui/legacy/pages/UserRide.jsx` - Line 7: `import Ride from "/imports/ui/components/Ride";`
+- `imports/ui/legacy/pages/UserRide.jsx` - Line 8: `import JoinRideModal from "/imports/ui/components/JoinRideModal";`
+
+These should be updated to:
+- `"/imports/ui/components/Ride"` → `"/imports/ui/legacy/components/Ride"`
+- `"/imports/ui/components/JoinRideModal"` → `"/imports/ui/legacy/components/JoinRideModal"`
+
+No references to "/imports/ui/pages" were found.
+
 # end # builder.io section

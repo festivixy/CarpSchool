@@ -15,7 +15,11 @@ LiquidGlass Component Library Location:
 - **Components**: `app/imports/ui/mobile/liquidGlass/components/`
 - **Styles**: `app/imports/ui/mobile/liquidGlass/styles/`
 
-# DO NOT USE app/imports/ui/components and app/imports/ui/pages! legacy.
+# DO NOT USE app/imports/ui/legacy/components and app/imports/ui/legacy/pages! Those are legacy paths that have been moved.
+
+## Legacy Path Update
+- `app/imports/ui/components` → moved to `app/imports/ui/legacy/components`
+- `app/imports/ui/pages` → moved to `app/imports/ui/legacy/pages`
 
 # commit to git, after each changes.
 
@@ -133,4 +137,3 @@ remember,
 - pages: app/imports/ui/mobile/pages
 
 app/imports/ui/components and app/imports/ui/pages is legacy and not updated anymore
-
