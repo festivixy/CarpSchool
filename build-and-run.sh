@@ -29,12 +29,27 @@ cd ..
 
 if [ ! -d "openmaptilesdata/data" ]; then
   echo -e "${RED}⚠️  openmaptilesdata/data directory not found!${NC}"
-  echo -e "${YELLOW}You need to build map data before continuing.${NC}"
-  echo -e "${YELLOW}Run './build-openmaptiles.sh' to generate map data, or quit if you do not need it.${NC}"
-  read -p "Do you want to quit now? (y/n): " yn
-  case $yn in
-    [Yy]* ) echo "Exiting..."; exit 1;;
-    * ) echo "Continuing run...";;
+  echo -e "${YELLOW}You need map data before continuing.${NC}"
+  echo ""
+  echo "Please choose an option:"
+  echo "1) Build - Run './build-openmaptiles.sh' to generate map data"
+  echo "2) Download - Run './download-openmaptiles-data.sh' to download pre-built data"
+  echo ""
+  read -p "Enter your choice (1-2): " choice
+  case $choice in
+    1 )
+      echo "Starting map data build process..."
+      ./build-openmaptiles.sh
+      ;;
+    2 )
+      echo "Starting map data download process..."
+      ./download-openmaptiles-data.sh
+      ;;
+    * )
+      echo "Invalid choice. Exiting..."
+      echo "Please run the script again and choose 1 or 2."
+      exit 1
+      ;;
   esac
 fi
 
