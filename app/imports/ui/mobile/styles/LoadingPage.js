@@ -25,13 +25,17 @@ export const LoadingContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 50vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   padding: 40px 20px;
   text-align: center;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  z-index: 9999;
   
   @media (max-width: 768px) {
-    min-height: 40vh;
     padding: 30px 15px;
   }
 `;
