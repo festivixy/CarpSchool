@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { AsyncTileLayer } from '../utils/AsyncTileLayer';
 import {
   MapContainer,
   MapWrapper,
@@ -31,7 +32,7 @@ L.Icon.Default.mergeOptions({
 
 /**
  * Interactive map picker component that allows users to click on a map to select coordinates
- * Uses the tileserver proxy for map tiles
+ * Uses AsyncTileLayer with the tileserver proxy for non-blocking tile loading
  */
 const InteractiveMapPicker = ({
   initialLat = 49.345196,
@@ -61,12 +62,13 @@ const InteractiveMapPicker = ({
       zoomControl: true,
     });
 
-    // Add custom tile layer using our tileserver proxy
-    L.tileLayer("/tileserver/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png", {
+    // Add async tile layer using our tileserver proxy for better performance
+    const asyncTileLayer = new AsyncTileLayer("/tileserver/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
       maxZoom: 18,
       tileSize: 256,
-    }).addTo(map);
+    });
+    asyncTileLayer.addTo(map);
 
     // Add initial marker
     const marker = L.marker([currentLocation.lat, currentLocation.lng], {

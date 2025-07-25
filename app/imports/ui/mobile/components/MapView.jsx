@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import { Map, TileLayer, Marker, Popup } from "react-leaflet";
+import { Map, Marker, Popup } from "react-leaflet";
 import { MapContainer } from "../styles/MapView";
+import { AsyncTileLayer } from '../utils/AsyncTileLayer';
 
 /**
  * MapView component that displays an interactive Leaflet map with coordinate points
+ * Uses AsyncTileLayer for non-blocking tile loading to improve performance
  * Takes coordinates array as input to display multiple points on the map
  * Optional tileServerUrl prop for self-hosted OpenMapTiles server
  */
@@ -55,14 +57,34 @@ export default function MapView({ coordinates, tileServerUrl }) {
     return `${effectiveTileServerUrl}/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png`;
   };
 
-  // Fit map bounds to show all coordinates
+  // Add async tile layer to map and fit bounds
   useEffect(() => {
-    if (mapRef.current && coordinates && coordinates.length > 1) {
+    if (mapRef.current) {
       const map = mapRef.current.leafletElement;
-      const bounds = coordinates.map((coord) => [coord.lat, coord.lng]);
-      map.fitBounds(bounds, { padding: [20, 20] });
+      
+      // Create and add async tile layer
+      const asyncTileLayer = new AsyncTileLayer(getTileUrl(), {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+        tileSize: 256,
+      });
+      
+      asyncTileLayer.addTo(map);
+      
+      // Fit bounds to show all coordinates
+      if (coordinates && coordinates.length > 1) {
+        const bounds = coordinates.map((coord) => [coord.lat, coord.lng]);
+        map.fitBounds(bounds, { padding: [20, 20] });
+      }
+      
+      // Cleanup on unmount
+      return () => {
+        if (map.hasLayer(asyncTileLayer)) {
+          map.removeLayer(asyncTileLayer);
+        }
+      };
     }
-  }, [coordinates]);
+  }, [coordinates, tileServerUrl]);
 
   return (
     <MapContainer>
@@ -74,11 +96,8 @@ export default function MapView({ coordinates, tileServerUrl }) {
         zoomControl={true}
         scrollWheelZoom={true}
       >
-        <TileLayer
-          url={getTileUrl()}
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-
+        {/* AsyncTileLayer is added programmatically in useEffect */}
+        
         {coordinates &&
           coordinates.map((coord, index) => (
             <Marker key={index} position={[coord.lat, coord.lng]}>
