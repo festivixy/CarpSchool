@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { Container, Header, Loader, Card, Input } from "semantic-ui-react";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
-import Ride from "/imports/ui/components/Ride";
+import Ride from "/imports/ui/legacy/components/Ride";
 import { Rides } from "../../api/ride/Rides";
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */

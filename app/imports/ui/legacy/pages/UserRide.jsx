@@ -4,8 +4,8 @@ import { Container, Header, Loader, Card } from "semantic-ui-react";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
-import Ride from "/imports/ui/components/Ride";
-import JoinRideModal from "/imports/ui/components/JoinRideModal";
+import Ride from "/imports/ui/legacy/components/Ride";
+import JoinRideModal from "/imports/ui/legacy/components/JoinRideModal";
 import { Rides } from "../../api/ride/Rides";
 
 /** Renders a table containing all of the Stuff documents. Use <StuffItem> to render each row. */
