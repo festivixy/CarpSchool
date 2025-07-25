@@ -135,6 +135,15 @@ remember,
 
 app/imports/ui/components and app/imports/ui/pages is legacy and not updated anymore
 
-### TODO 2
+### ✅ TODO 2 - COMPLETED
 
-the map components is trying to load the image tiles, on the main thread. make the maps load images in a async way.
+~~the map components is trying to load the image tiles, on the main thread. make the maps load images in a async way.
+the tiles are being loaded with a tileserver-gl proxy in app/imports/startup/server/ServerRoutes.js.~~
+
+**COMPLETED** [61841db, ce756eb] - Implemented async tile loading system:
+- Created AsyncTileLoader with Web Worker support and IndexedDB caching
+- Created AsyncTileLayer extending Leaflet TileLayer for non-blocking tile loading
+- Updated MapView and InteractiveMapPicker to use AsyncTileLayer
+- Features include progressive loading, preloading, error handling, and fallbacks
+- Prevents main thread blocking when loading map tiles from tileserver proxy
+- Improves map rendering performance and user experience significantly
