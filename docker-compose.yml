@@ -50,43 +50,20 @@ services:
     container_name: tileserver-gl
     command:
       - --port
-      - "8082"
+      - "8080"
       - --config
       - "/style/config.json"
-    ports:
-      - "8082:8082"
     volumes:
       - ./openmaptilesdata/data:/data
       - ./openmaptilesdata/style:/style
       - ./openmaptilesdata/build:/build
     restart: unless-stopped
-    networks:
-      - carpool_network
-
-  tileserver-gl-dev:
-    image: "maptiler/tileserver-gl:latest"
-    container_name: tileserver-gl-dev
-    command:
-      - --port
-      - "8082"
-      - --config
-      - "/style/config.json"
-    ports:
-      - "8082:8082"
-    volumes:
-      - ./openmaptilesdata/data:/data
-      - ./openmaptilesdata/style:/style
-      - ./openmaptilesdata/build:/build
-    restart: unless-stopped
-    profiles: ["manual"]
     networks:
       - carpool_network
 
   nominatim:
     container_name: nominatim
     image: mediagis/nominatim:5.1
-    ports:
-      - "8080:8080"
     environment:
       - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
     volumes:
@@ -96,18 +73,18 @@ services:
     networks:
       - carpool_network
 
-  nominatim-dev:
-    container_name: nominatim-dev
-    image: mediagis/nominatim:5.1
+  service-proxy:
+    image: nginx:alpine
+    container_name: service-proxy
     ports:
-      - "8083:8080"
-    environment:
-      - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
+      - "8080:8080"  # Nominatim
+      - "8082:8082"  # Tileserver
     volumes:
-      - ./openmaptilesdata/data:/nominatim/data
-      - ./pgdataNominatimInternal:/var/lib/postgresql/16/main
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - tileserver-gl
+      - nominatim
     restart: unless-stopped
-    profiles: ["manual"]
     networks:
       - carpool_network
 

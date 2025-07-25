@@ -66,12 +66,12 @@ WebApp.connectHandlers.use("/tileserver", (req, res, _next) => {
     const options = {
       hostname: "tileserver-gl",
       // hostname: "localhost", // Use localhost for local development
-      port: 8082,
+      port: 8080,
       path: targetPath,
       method: req.method,
       headers: {
         ...req.headers,
-        host: "tileserver-gl:8082", // Update host header for the target
+        host: "tileserver-gl:8080", // Update host header for the target
       },
     };
 
