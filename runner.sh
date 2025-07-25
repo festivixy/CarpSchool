@@ -8,26 +8,20 @@
 
 set -e  # Exit on any error
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Source utility modules
+source "./tools/meteor-utils.sh"
+source "./tools/ui-utils.sh"
 
 # Function to display usage
 show_usage() {
-    echo -e "${BLUE}🚀 Carpool Runner Script${NC}"
-    echo ""
-    echo "Usage: ./runner.sh [command]"
-    echo ""
-    echo "Available commands:"
-    echo -e "  ${GREEN}dev${NC}    - Run the app in development mode"
-    echo -e "  ${GREEN}prod${NC}   - Build and run the app in production mode"
-    echo ""
-    echo "Examples:"
-    echo "  ./runner.sh dev"
-    echo "  ./runner.sh prod"
+    local commands="  ${GREEN}dev${NC}    - Run the app in development mode
+  ${GREEN}prod${NC}   - Build and run the app in production mode
+
+Examples:
+  ./runner.sh dev
+  ./runner.sh prod"
+
+    ui_show_usage "runner.sh" "$commands"
 }
 
 # Get the command (default to dev if no args provided)
@@ -40,21 +34,18 @@ fi
 case $COMMAND in
     "dev")
         echo -e "${YELLOW}🚀 Starting development server...${NC}"
-        cd app
-        meteor --no-release-check --settings ../config/settings.development.json --port 3001
+        meteor_run_dev "../config/settings.development.json" "3001"
         ;;
     "prod")
         echo -e "${YELLOW}🚀 Running production build and run...${NC}"
         ./build-and-run.sh
-        echo -e "${GREEN}✅ Production build and run completed successfully!${NC}"
+        ui_show_completion "Production build and run"
         ;;
     "help" | "-h" | "--help")
         show_usage
         ;;
     *)
-        echo -e "${RED}❌ Error: Unknown command '${COMMAND}'${NC}"
-        echo ""
+        ui_error_exit "Unknown command '${COMMAND}'" 1
         show_usage
-        exit 1
         ;;
 esac

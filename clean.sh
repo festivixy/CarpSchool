@@ -5,101 +5,45 @@
 
 set -e  # Exit on any error
 
+# Source utility modules
+source "./tools/docker-utils.sh"
+source "./tools/meteor-utils.sh"
+source "./tools/fs-utils.sh"
+source "./tools/ui-utils.sh"
+
 echo "🧹 Cleaning Carpool Docker deployment..."
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
 # Step 1: Stop and remove Docker containers
-echo -e "${YELLOW}🛑 Stopping Docker containers...${NC}"
-docker compose down
+docker_stop_containers
 
 # Step 2: Remove database folders
-echo -e "${YELLOW}Do you want to remove database folders (mongo_data/)? (Y/n): ${NC}"
-read -p $'' yn
-case $yn in
-  [Nn]* )
-    echo -e "${YELLOW}Skipping removal of database folders.${NC}"
-    ;;
-  * )
-    echo -e "${YELLOW}🗑️  Removing database folders...${NC}"
-    rm -rf mongo_data
-    # rm -rf pgdata
-    echo -e "${GREEN}   Removed mongo_data/ directories${NC}"
-    ;;
-esac
+fs_clean_databases
 
 # Step 3: Clean build artifacts
-echo -e "${YELLOW}🗂️  Cleaning build artifacts...${NC}"
-rm -rf build
+fs_clean_build "build"
 
-echo -e "${YELLOW}Do you want to remove the entire Meteor local directory (app/.meteor/local)? (Y/n): ${NC}"
-read -p $'' yn
-case $yn in
-  [Nn]* )
-    echo -e "${YELLOW}Do you want to remove just the Meteor database (app/.meteor/local/db)? (Y/n): ${NC}"
-    read -p $'' yn2
-    case $yn2 in
-      [Nn]* )
+# Step 4: Handle Meteor local directory cleanup
+if ui_ask_yes_no "Do you want to remove the entire Meteor local directory (app/.meteor/local)?"; then
+    meteor_clean_local "app" "all"
+else
+    if ui_ask_yes_no "Do you want to remove just the Meteor database (app/.meteor/local/db)?"; then
+        meteor_clean_local "app" "db"
+    else
         echo -e "${YELLOW}Skipping removal of Meteor local artifacts.${NC}"
-        ;;
-      * )
-        echo -e "${YELLOW}🗑️  Removing Meteor local database...${NC}"
-        rm -rf app/.meteor/local/db
-        echo -e "${GREEN}   Removed app/.meteor/local/db${NC}"
-        ;;
-    esac
-    ;;
-  * )
-    echo -e "${YELLOW}🗑️  Removing entire Meteor local directory...${NC}"
-    rm -rf app/.meteor/local
-    echo -e "${GREEN}   Removed app/.meteor/local${NC}"
-    ;;
-esac
+    fi
+fi
 
-echo -e "${YELLOW}Do you want to remove the openmaptiles directory? (Y/n): ${NC}"
-read -p $'' yn
-case $yn in
-  [Nn]* )
-    echo -e "${YELLOW}Skipping removal of openmaptiles directory.${NC}"
-    ;;
-  * )
-    echo -e "${YELLOW}  Removing openmaptiles directory...${NC}"
-    rm -rf openmaptiles/*
-    ;;
-esac
+# Step 5: Clean openmaptiles directory
+fs_clean_openmaptiles
 
-echo -e "${YELLOW}Do you want to remove the pgdataNominatimInternal directory? (Y/n): ${NC}"
-read -p $'' yn
-case $yn in
-  [Nn]* )
-    echo -e "${YELLOW}Skipping removal of pgdataNominatimInternal directory.${NC}"
-    ;;
-  * )
-    echo -e "${YELLOW}🗑️  Removing pgdataNominatimInternal directory...${NC}"
-    rm -rf pgdataNominatimInternal
-    echo -e "${GREEN}   Removed pgdataNominatimInternal${NC}"
-    ;;
-esac
+# Step 6: Clean PostgreSQL data
+fs_clean_postgres
 
-echo -e "${YELLOW}Do you want to remove Node.js dependencies (package-lock.json and node_modules)? (Y/n): ${NC}"
-read -p $'' yn
-case $yn in
-  [Nn]* )
+# Step 7: Clean Node.js dependencies
+if ui_ask_yes_no "Do you want to remove Node.js dependencies (package-lock.json and node_modules)?"; then
+    meteor_clean_dependencies "app"
+else
     echo -e "${YELLOW}Skipping removal of Node.js dependencies.${NC}"
-    ;;
-  * )
-    echo -e "${YELLOW}🗑️  Removing Node.js dependencies...${NC}"
-    rm -f app/package-lock.json
-    rm -rf app/node_modules
-    echo -e "${GREEN}   Removed package-lock.json and node_modules${NC}"
-    ;;
-esac
+fi
 
-echo -e "${GREEN}✅ Cleanup completed!${NC}"
-echo ""
-echo "📝 To rebuild and run:"
-echo "  ./build-and-run.sh"
+ui_show_completion "Cleanup" "To rebuild and run: ./build-and-run.sh"

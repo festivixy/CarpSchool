@@ -5,10 +5,12 @@
 
 set -e
 
-echo "============================================"
-echo "OpenMapTiles Data Download Script"
-echo "============================================"
-echo ""
+# Source utility modules
+source "./tools/map-utils.sh"
+source "./tools/ui-utils.sh"
+
+ui_show_header "OpenMapTiles Data Download Script" "Downloads chunks.txt for OpenMapTiles data releases"
+
 echo "Please select the data release you want to download:"
 echo ""
 echo "1) omt.ca.bc - OpenMapTiles Canada BC data"
@@ -16,28 +18,8 @@ echo "2) omt.ca - OpenMapTiles Canada (entire country) data"
 echo "3) custom - Enter custom release name"
 echo ""
 
-# Function to validate user input
-validate_choice() {
-    case $1 in
-        1|2|3)
-            return 0
-            ;;
-        *)
-            return 1
-            ;;
-    esac
-}
-
-# Get user choice
-while true; do
-    read -p "Enter your choice (1-3): " choice
-
-    if validate_choice "$choice"; then
-        break
-    else
-        echo "Invalid choice. Please enter 1, 2, or 3."
-    fi
-done
+# Get user choice with validation
+choice=$(ui_prompt_with_validation "Enter your choice (1-3): " "1 2 3" "Invalid choice. Please enter 1, 2, or 3.")
 
 # Set RELEASE variable based on choice
 case $choice in
