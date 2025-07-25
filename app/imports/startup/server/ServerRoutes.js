@@ -66,12 +66,12 @@ WebApp.connectHandlers.use("/tileserver", (req, res, _next) => {
     const options = {
       hostname: "tileserver-gl",
       // hostname: "localhost", // Use localhost for local development
-      port: 8080,
+      port: 8082,
       path: targetPath,
       method: req.method,
       headers: {
         ...req.headers,
-        host: "tileserver-gl:8080", // Update host header for the target
+        host: "tileserver-gl:8082", // Update host header for the target
       },
     };
 
@@ -111,7 +111,7 @@ WebApp.connectHandlers.use("/nominatim", (req, res, _next) => {
     const options = {
       hostname: "nominatim",
       // hostname: "localhost", // Use localhost for local development
-      port: 8082, // Nominatim runs on port 8082 according to docker-compose.yml
+      port: 8080, // Nominatim runs on port 8080 internally
       path: targetPath,
       method: req.method,
       headers: {
