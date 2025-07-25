@@ -8,7 +8,7 @@ export const NavbarContainer = styled.nav`
   height: 70px;
   z-index: 1000;
   transition: all 0.3s ease;
-  backdrop-filter: blur(${(props) => (props.$isScrolled ? "15px" : "10px")});
+  backdrop-filter: blur(${(props) => (props.$isScrolled ? "8px" : "5px")});
   transform: translateY(0);
   overflow: visible;
 
@@ -67,50 +67,15 @@ export const GlassLayer = styled.div`
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.06) 0%,
     rgba(255, 255, 255, 0.02) 50%,
-    rgba(255, 255, 255, 0.03) 100%
+    rgba(255, 255, 255, 0.04) 100%
   );
+  
+  /* Simplified glass effect without expensive backdrop-filters */
   box-shadow:
-    /* RGB channel shifts for chromatic aberration */
-    inset 2px 0 4px rgba(255, 0, 0, 0.04),
-    inset -1px 0 4px rgba(0, 255, 255, 0.04),
-    inset 0 2px 4px rgba(0, 255, 0, 0.03),
-    inset 0 -1px 4px rgba(255, 0, 255, 0.03),
-    inset 1px 1px 4px rgba(0, 0, 255, 0.04),
-    inset -2px -2px 4px rgba(255, 255, 0, 0.04),
-    /* Subtle refraction highlights */ inset 0 0.5px 1px
-      rgba(255, 255, 255, 0.06),
-    inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.01);
-  filter: contrast(1.05) brightness(1.01);
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    backdrop-filter: hue-rotate(3deg) saturate(1.05);
-    mix-blend-mode: color-dodge;
-    opacity: 0.15;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    backdrop-filter: hue-rotate(-3deg) saturate(1.1) contrast(1.01);
-    mix-blend-mode: soft-light;
-    opacity: 0.1;
-    pointer-events: none;
-    z-index: 1;
-  }
+    inset 0 1px 2px rgba(255, 255, 255, 0.1),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.02);
 `;
 
 export const NavbarContent = styled.div`
@@ -261,7 +226,7 @@ export const UserAvatar = styled.div`
     rgba(255, 255, 255, 0.2),
     rgba(255, 255, 255, 0.1)
   );
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
