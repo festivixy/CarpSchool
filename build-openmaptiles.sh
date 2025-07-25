@@ -1,191 +1,51 @@
 #!/bin/bash
+
+# Build OpenMapTiles data and tiles
+# This script builds OpenMapTiles data using the openmaptiles/openmaptiles repository
+
 set -o errexit
 set -o pipefail
 set -o nounset
 
-if [ -d "openmaptiles" ]; then
-  read -p $'\033[1;33m[STEP]\033[0m The openmaptiles repo already exists. Do you want to re-clone it? (y/n): ' yn
-  case $yn in
-    [Yy]* )
-      echo -e "\033[1;34m[INFO]\033[0m Re-cloning openmaptiles"
-      rm -rf openmaptiles
-      git clone https://github.com/openmaptiles/openmaptiles.git
-      ;;
-    * )
-      echo -e "\033[1;34m[INFO]\033[0m Using existing openmaptiles repo"
-      ;;
-  esac
-else
-  echo -e "\033[1;34m[INFO]\033[0m cloning openmaptiles"
-  git clone https://github.com/openmaptiles/openmaptiles.git
-fi
+# Source utility modules
+source "./tools/ui-utils.sh"
+source "./tools/openmaptiles-utils.sh"
 
-area="north-america/canada/british-columbia"
-MAX_ZOOM=18
-MIN_ZOOM=1
-MBTILES_FILE=tiles.mbtiles
-export area="north-america/canada/british-columbia"
-export MAX_ZOOM=14
-export MIN_ZOOM=1
-export MBTILES_FILE=tiles.mbtiles
+# Configuration
+AREA="north-america/canada/british-columbia"
+MAX_ZOOM="14"
+MIN_ZOOM="1"
+MBTILES_FILE="tiles.mbtiles"
 
-echo -e "using MBTILES_FILE: $MBTILES_FILE"
-echo -e "using area: $area"
-echo -e "using MAX_ZOOM: $MAX_ZOOM"
-echo -e "using MIN_ZOOM: $MIN_ZOOM"
+# Step 1: Handle repository setup
+omt_handle_repository
 
-echo -e "\033[1;34m[INFO]\033[0m entering openmaptiles directory"
-cd openmaptiles
+# Step 2: Set build configuration
+omt_set_configuration "$AREA" "$MAX_ZOOM" "$MIN_ZOOM" "$MBTILES_FILE"
 
-echo -e "\033[1;34m[INFO]\033[0m pulling docker images"
+# Step 3: Prepare build environment
+omt_prepare_environment
 
-docker compose pull
+# Step 4: Download and import data
+omt_import_data "$MBTILES_FILE" "$AREA"
 
-make init-dirs
+# Step 5: Backup wikidata
+omt_backup_wikidata
 
-echo -e "\033[1;34m[INFO]\033[0m Cleaning previous build files"
-make clean
+# Step 6: Generate bounding box
+omt_generate_bbox "$AREA" "$MIN_ZOOM" "$MAX_ZOOM"
 
-echo -e "\033[1;34m[INFO]\033[0m Generating new build files"
-make
+# Step 7: Generate tiles and build styles
+omt_generate_tiles_and_styles
 
-echo -e "\033[1;34m[INFO]\033[0m Starting database"
-make start-db
+# Step 8: Cleanup environment
+omt_cleanup_environment
 
+# Step 9: Copy outputs
+omt_copy_outputs
 
-rm -f "./data/$MBTILES_FILE"
-echo -e "\033[1;32m[DATA]\033[0m Downloading area: north-america/canada/british-columbia"
-make download
-echo -e "\033[1;34m[INFO]\033[0m Importing data"
-make import-data
-echo -e "\033[1;34m[INFO]\033[0m Importing OSM"
-make import-osm
-echo -e "\033[1;34m[INFO]\033[0m Importing SQL"
-make import-sql
-echo -e "\033[1;34m[INFO]\033[0m Importing wikidata"
-make import-wikidata
-echo -e "\033[1;34m[INFO]\033[0m Backing up wikidata cache"
-# Create backup directory for wikidata files
-mkdir -p ./data/wikidata-backup
-# Copy the wikidata cache file if it exists
-if [ -f "./cache/wikidata-cache.json" ]; then
-  cp "./cache/wikidata-cache.json" "./data/wikidata-backup/"
-  echo -e "\033[1;32m[BACKUP]\033[0m Saved wikidata-cache.json"
-fi
-# Also download Nominatim-compatible wikidata importance rankings
-if [ ! -f "./data/wikidata-backup/wikimedia-importance.sql.gz" ]; then
-  echo -e "\033[1;36m[DOWNLOAD]\033[0m Downloading Nominatim-compatible wikidata importance rankings"
-  wget -q --show-progress -O "./data/wikidata-backup/wikimedia-importance.sql.gz" \
-    "https://www.nominatim.org/data/wikimedia-importance.sql.gz" || echo -e "\033[1;31m[WARNING]\033[0m Failed to download wikimedia-importance.sql.gz"
-fi
-# echo -e "\033[1;34m[INFO]\033[0m Analyzing database"
-# make analyze-db
-# echo -e "\033[1;34m[INFO]\033[0m Testing performance (null)"
-# make test-perf-null
+# Step 10: Create tarball and chunks
+omt_create_tarball
 
-if [[ "$(source .env ; echo -e "$BBOX")" = "-180.0,-85.0511,180.0,85.0511" ]]; then
-  if [[ "$area" != "planet" ]]; then
-    echo -e "\033[1;36m[ZOOM]\033[0m Compute bounding box for tile generation"
-    make generate-bbox-file ${MIN_ZOOM:+MIN_ZOOM="${MIN_ZOOM}"} ${MAX_ZOOM:+MAX_ZOOM="${MAX_ZOOM}"}
-  else
-    echo -e "\033[1;36m[ZOOM]\033[0m Skipping bbox calculation when generating the entire planet"
-  fi
-
-else
-  echo -e "\033[1;36m[ZOOM]\033[0m Bounding box is set in .env file"
-fi
-
-echo -e "\033[1;34m[INFO]\033[0m Generating tiles from PostGIS"
-make generate-tiles-pg
-
-echo -e "\033[1;34m[INFO]\033[0m Downloading map fonts"
-make download-fonts
-echo -e "\033[1;34m[INFO]\033[0m Building map styles"
-make build-style
-
-echo -e "\033[1;34m[INFO]\033[0m Stopping database"
-make stop-db
-read -p $'\033[1;33m[STEP]\033[0m Do you want to remove Docker images? (y/n): ' yn
-case $yn in
-  [Yy]* )
-    echo -e "\033[1;34m[INFO]\033[0m Shutting down docker compose"
-    docker compose down -v
-    echo -e "\033[1;34m[INFO]\033[0m Removing docker images"
-    make remove-docker-images
-    ;;
-  * )
-    echo -e "\033[1;34m[INFO]\033[0m Skipping removal of docker images"
-    ;;
-esac
-
-echo -e "\033[1;34m[INFO]\033[0m Creating output directories"
-mkdir -p ../openmaptilesdata/data
-mkdir -p ../openmaptilesdata/style
-mkdir -p ../openmaptilesdata/build
-
-echo -e "\033[1;34m[INFO]\033[0m Copying data, style, and build outputs"
-cp -r ./data ../openmaptilesdata
-cp -r ./style ../openmaptilesdata
-cp -r ./build ../openmaptilesdata
-echo -e "\033[1;32m[WIKIDATA]\033[0m Wikidata files available in: ../openmaptilesdata/data/wikidata-backup/"
-echo -e "\033[1;32m[COMPLETE]\033[0m OpenMapTiles build completed successfully! "
-
-read -p $'\033[1;33m[STEP]\033[0m Do you want to create a tarball chunks of the built data? (y/n): ' yn
-case $yn in
-  [Yy]* )
-    echo -e "\033[1;34m[INFO]\033[0m Creating tarball of the built data"
-    cd ..
-    tar -czf openmaptilesdata.tar.gz openmaptilesdata
-    echo -e "\033[1;32m[COMPLETE]\033[0m Tarball created: openmaptilesdata.tar.gz"
-    echo -e "\033[1;34m[INFO]\033[0m Creating chunks directory and moving tarball"
-    mkdir -p openmaptilesdata/tarballs/chunks
-    mv openmaptilesdata.tar.gz openmaptilesdata/tarballs/openmaptilesdata.tar.gz
-    split -b 256M openmaptilesdata/tarballs/openmaptilesdata.tar.gz openmaptilesdata/tarballs/chunks/openmaptilesdata.tar.gz. --additional-suffix=.part -a 3 --numeric-suffixes
-    find openmaptilesdata/tarballs/chunks -maxdepth 1 -type f ! -name 'chunks.txt' -exec basename {} \; > openmaptilesdata/tarballs/chunks/chunks.txt
-    ;;
-  * )
-    echo -e "\033[1;34m[INFO]\033[0m Skipping tarball creation"
-    ;;
-esac
-
-read -p $'\033[1;33m[STEP]\033[0m Do you want to create a tarball chunks of the built data? (y/n): ' yn
-case $yn in
-  [Yy]* )
-    docker compose up nominatim-dev -d
-    echo -e "to see build logs, run 'docker compose logs -f nominatim-dev'"
-    # Wait for Nominatim to finish starting up
-    while true; do
-      if docker compose logs nominatim-dev --no-color --no-log-prefix | grep -q "Application startup complete."; then
-        echo -e "\033[1;32m[SUCCESS]\033[0m Nominatim application startup complete!"
-        break
-      else
-        echo -e "\033[1;33m[WAIT]\033[0m Waiting for Nominatim to start (database prep/build)... (retrying in 10s)"
-        sleep 10
-      fi
-    done
-    echo -e "\033[1;34m[INFO]\033[0m stopping Nominatim."
-    docker compose stop nominatim-dev
-    echo -e "\033[1;34m[INFO]\033[0m Nominatim stopped."
-    echo -e "\033[1;34m[INFO]\033[0m Creating tarball of the built data"
-    tar -czf pgdataNominatimInternal.tar.gz pgdataNominatimInternal
-    mv pgdataNominatimInternal.tar.gz ".\openmaptilesdata\tarballs"
-    echo -e "\033[1;32m[COMPLETE]\033[0m Tarball created: pgdataNominatimInternal.tar.gz"
-
-    read -p $'\033[1;33m[STEP]\033[0m Do you want to split (chunk) the tarball? (y/n): ' chunk_yn
-    case $chunk_yn in
-      [Yy]* )
-        echo -e "\033[1;34m[INFO]\033[0m Splitting tarball into 256MB chunks"
-        mkdir -p openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks
-        split -b 256M openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks/pgdataNominatimInternal.tar.gz. --additional-suffix=.part -a 3 --numeric-suffixes
-        find openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks -maxdepth 1 -type f ! -name 'chunks.txt' -exec basename {} \; > openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks/chunks.txt
-        echo -e "\033[1;32m[COMPLETE]\033[0m Chunking complete."
-        ;;
-      * )
-        echo -e "\033[1;34m[INFO]\033[0m Skipping chunking"
-        ;;
-    esac
-    ;;
-  * )
-    echo -e "\033[1;34m[INFO]\033[0m Skipping building nominatim"
-    ;;
-esac
+# Step 11: Build Nominatim database
+omt_build_nominatim
