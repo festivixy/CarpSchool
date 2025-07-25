@@ -18,7 +18,7 @@ echo -e "${YELLOW}🛑 Stopping Docker containers...${NC}"
 docker compose down
 
 # Step 2: Remove database folders
-echo -e "${YELLOW}Do you want to remove database folders (mongo_data/ and pgdata/)? (Y/n): ${NC}"
+echo -e "${YELLOW}Do you want to remove database folders (mongo_data/)? (Y/n): ${NC}"
 read -p $'' yn
 case $yn in
   [Nn]* )
@@ -27,8 +27,8 @@ case $yn in
   * )
     echo -e "${YELLOW}🗑️  Removing database folders...${NC}"
     rm -rf mongo_data
-    rm -rf pgdata
-    echo -e "${GREEN}   Removed mongo_data/ and pgdata/ directories${NC}"
+    # rm -rf pgdata
+    echo -e "${GREEN}   Removed mongo_data/ directories${NC}"
     ;;
 esac
 
@@ -68,7 +68,20 @@ case $yn in
     ;;
   * )
     echo -e "${YELLOW}  Removing openmaptiles directory...${NC}"
-    rm -rf openmaptiles
+    rm -rf openmaptiles/*
+    ;;
+esac
+
+echo -e "${YELLOW}Do you want to remove the pgdataNominatimInternal directory? (Y/n): ${NC}"
+read -p $'' yn
+case $yn in
+  [Nn]* )
+    echo -e "${YELLOW}Skipping removal of pgdataNominatimInternal directory.${NC}"
+    ;;
+  * )
+    echo -e "${YELLOW}🗑️  Removing pgdataNominatimInternal directory...${NC}"
+    rm -rf pgdataNominatimInternal
+    echo -e "${GREEN}   Removed pgdataNominatimInternal${NC}"
     ;;
 esac
 

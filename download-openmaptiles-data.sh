@@ -347,3 +347,68 @@ else
     echo "✗ Error: Download completed but file not found at expected location."
     exit 1
 fi
+
+# Ask if user wants to download Nominatim database
+echo ""
+echo "Do you want to download a Nominatim database backup? (y/N)"
+read -p "Download Nominatim database? (y/N): " download_nominatim
+case "${download_nominatim,,}" in
+  y|yes)
+    echo "Which Nominatim database do you want to download?"
+    echo "1) nominatim.pgsql.ca.bc (British Columbia)"
+    echo "2) nominatim.pgsql.ca (Canada)"
+    while true; do
+      read -p "Enter your choice (1-2): " nominatim_choice
+      if [[ "$nominatim_choice" == "1" ]]; then
+        NOMINATIM_RELEASE="nominatim.pgsql.ca.bc"
+        break
+      elif [[ "$nominatim_choice" == "2" ]]; then
+        NOMINATIM_RELEASE="nominatim.pgsql.ca"
+        break
+      else
+        echo "Invalid choice. Please enter 1 or 2."
+      fi
+    done
+
+    NOMINATIM_DIR="openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks"
+    NOMINATIM_CHUNKS_URL="https://github.com/zlc1004/Carpool/releases/download/${NOMINATIM_RELEASE}/chunks.txt"
+    NOMINATIM_CHUNKS_FILE="$NOMINATIM_DIR/nominatim_chunks.txt"
+    echo "Downloading Nominatim chunks.txt from: $NOMINATIM_CHUNKS_URL"
+    mkdir -p "$NOMINATIM_DIR"
+    if command -v curl &> /dev/null; then
+      curl -L -f --progress-bar -o "$NOMINATIM_CHUNKS_FILE" "$NOMINATIM_CHUNKS_URL"
+    elif command -v wget &> /dev/null; then
+      wget --progress=bar:force -O "$NOMINATIM_CHUNKS_FILE" "$NOMINATIM_CHUNKS_URL"
+    else
+      echo "✗ Error: Neither curl nor wget is available."
+      exit 1
+    fi
+    echo "Reading nominatim_chunks.txt and downloading tarball chunks..."
+    total_chunks=$(wc -l < "$NOMINATIM_CHUNKS_FILE")
+    current_chunk=0
+    for chunk_filename in $(cat "$NOMINATIM_CHUNKS_FILE"); do
+      current_chunk=$((current_chunk + 1))
+      echo "[$current_chunk/$total_chunks] Downloading: $chunk_filename"
+      chunk_url="https://github.com/zlc1004/Carpool/releases/download/${NOMINATIM_RELEASE}/${chunk_filename}"
+      chunk_target="$NOMINATIM_DIR/$chunk_filename"
+      if command -v curl &> /dev/null; then
+        curl -L -f --progress-bar -o "$chunk_target" "$chunk_url"
+      elif command -v wget &> /dev/null; then
+        wget --progress=bar:force -O "$chunk_target" "$chunk_url"
+      fi
+    done
+    echo "Combining Nominatim database chunks..."
+    NOMINATIM_TARBALL="openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz"
+    cat $NOMINATIM_DIR/pgdataNominatimInternal.tar.gz.*.part > "$NOMINATIM_TARBALL"
+    echo "Extracting Nominatim database to pgdataNominatimInternal..."
+    mkdir -p pgdataNominatimInternal
+    tar -xzf "$NOMINATIM_TARBALL" -C pgdataNominatimInternal --strip-components=1
+    echo "Fixing permissions in the container..."
+    docker compose run --rm nominatim-dev chown -R postgres:postgres /var/lib/postgresql/16/main
+    docker compose run --rm nominatim-dev chmod 0700 /var/lib/postgresql/16/main
+    echo "Nominatim database is ready."
+    ;;
+  *)
+    echo "Skipping Nominatim database download."
+    ;;
+esac
