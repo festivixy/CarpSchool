@@ -19,7 +19,7 @@ fixed with mongodb collection and session IDs. [319bfb6]
 - [x] Move Methods to their own files [f231132]
 - [x] Make captcha its own component [8756649]
 - [x] OpenTilesMap server  [???????]
-- [ ] OpenTilesMap data auto download
+- [x] OpenTilesMap data auto download [9c7dcea]
 - [x] Upload opentilesmap bundle to github release [0.0.1]
 
 
