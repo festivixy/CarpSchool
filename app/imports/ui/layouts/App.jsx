@@ -11,6 +11,7 @@ import MobileAdminUsers from "../mobile/pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 // Lazy load TestMapView to improve initial load performance
 const TestMapView = React.lazy(() => import("../mobile/pages/TestMapView"));
+import LoadingPage from "../mobile/components/LoadingPage";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../mobile/pages/SignIn";
 import LiquidGlassSignIn from "../mobile/liquidGlass/pages/SignIn";
@@ -113,7 +114,13 @@ class App extends React.Component {
               <ProtectedRoutes 
                 path="/_test" 
                 component={() => (
-                  <React.Suspense fallback={<div style={{padding: '20px', textAlign: 'center'}}>Loading Admin Components Test...</div>}>
+                  <React.Suspense fallback={
+                    <LoadingPage 
+                      message="Loading Admin Components Test" 
+                      subMessage="Initializing LiquidGlass components and map utilities..."
+                      size="large"
+                    />
+                  }>
                     <TestMapView />
                   </React.Suspense>
                 )}
