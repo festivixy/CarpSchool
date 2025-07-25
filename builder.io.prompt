@@ -118,9 +118,14 @@ The LiquidGlass component library now includes these fully implemented component
 
 ## NEW TODOS
 
-### TODO 1. Update all pages to use centralized component instead of individual implementations
+### ✅ TODO 1. Update all pages to use centralized component instead of individual implementations
 
-8756649 did not completely finish that.
+~~8756649 did not completely finish that.~~
+
+**COMPLETED** [b29c8d0] - Fixed all legacy import references:
+- Updated 5 files to use correct legacy component paths
+- All pages now properly reference `/imports/ui/legacy/components/` instead of `/imports/ui/components/`
+- Centralized component usage task is now complete
 
 remember,
 
@@ -129,3 +134,4 @@ remember,
 - pages: app/imports/ui/mobile/pages
 
 app/imports/ui/components and app/imports/ui/pages is legacy and not updated anymore
+
