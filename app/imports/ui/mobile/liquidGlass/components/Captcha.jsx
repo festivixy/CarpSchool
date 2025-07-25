@@ -138,7 +138,7 @@ const CaptchaRefreshButton = styled.button`
   img {
     width: 20px;
     height: 20px;
-    filter: invert(1);
+    // filter: invert(1);
   }
 `;
 
