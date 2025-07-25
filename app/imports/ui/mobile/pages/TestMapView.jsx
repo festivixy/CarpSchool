@@ -380,12 +380,9 @@ const MobileTestMapView = () => {
                     CAPTCHA, form validation, and glass morphism effects.
                   </div>
                   <LiquidGlassButton
+                    label="🚀 Open LiquidGlass Login Test"
                     onClick={() => window.open('/_test/liquidglass/login', '_blank')}
-                    size="medium"
-                    variant="primary"
-                  >
-                    🚀 Open LiquidGlass Login Test
-                  </LiquidGlassButton>
+                  />
                 </InfoValue>
               </InfoItem>
             </InfoCard>
