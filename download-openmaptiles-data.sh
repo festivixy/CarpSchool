@@ -219,7 +219,7 @@ if [[ -f "$TARGET_FILE" ]]; then
         echo -n "Processing chunks "
 
         # Concatenate all .part files in order
-        if cat openmaptilesdata/tarballs/chunks/openmaptilesdata.tar.gz.*.part > "$final_archive" 2>/dev/null &
+        cat openmaptilesdata/tarballs/chunks/openmaptilesdata.tar.gz.*.part > "$final_archive" 2>/dev/null &
         cat_pid=$!
 
         # Show spinner while concatenating
@@ -255,7 +255,7 @@ if [[ -f "$TARGET_FILE" ]]; then
 
                     # Extract the archive with progress indication
                     echo -n "Extracting "
-                    if tar -xzf "$final_archive" -C openmaptilesdata/ &
+                    tar -xzf "$final_archive" -C openmaptilesdata/ &
                     tar_pid=$!
 
                     # Show spinner while extracting
