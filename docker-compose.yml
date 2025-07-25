@@ -11,9 +11,10 @@ services:
     volumes:
       - ./build/app.tar.gz:/bundle/bundle.tar.gz
     depends_on:
-      - mongo
-      - tileserver-gl
-      - nominatim
+      mongo:
+        condition: service_healthy
+      service-proxy:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - carpool_network
@@ -26,6 +27,12 @@ services:
     restart: unless-stopped
     networks:
       - carpool_network
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   mongo-express:
     image: mongo-express
@@ -39,7 +46,8 @@ services:
       - ME_CONFIG_BASICAUTH_USERNAME=admin
       - ME_CONFIG_BASICAUTH_PASSWORD=carpool
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     restart: unless-stopped
     profiles: ["manual"]
     networks:
@@ -60,6 +68,12 @@ services:
     restart: unless-stopped
     networks:
       - carpool_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   nominatim:
     container_name: nominatim
@@ -72,6 +86,12 @@ services:
     restart: unless-stopped
     networks:
       - carpool_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   service-proxy:
     image: nginx:alpine
@@ -82,11 +102,19 @@ services:
     volumes:
       - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - tileserver-gl
-      - nominatim
+      tileserver-gl:
+        condition: service_healthy
+      nominatim:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - carpool_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
 networks:
   carpool_network:
