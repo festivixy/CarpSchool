@@ -9,7 +9,8 @@ import {
 import MobileAdminRides from "../mobile/pages/AdminRides";
 import MobileAdminUsers from "../mobile/pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
-import MobileTestMapView from "../mobile/pages/TestMapView";
+// Lazy load TestMapView to improve initial load performance
+const TestMapView = React.lazy(() => import("../mobile/pages/TestMapView"));
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../mobile/pages/SignIn";
 import LiquidGlassSignIn from "../mobile/liquidGlass/pages/SignIn";
@@ -109,7 +110,14 @@ class App extends React.Component {
                 path="/_test/liquidglass/login"
                 component={LiquidGlassSignIn}
               />
-              <ProtectedRoutes path="/_test" component={MobileTestMapView} />
+              <ProtectedRoutes 
+                path="/_test" 
+                component={() => (
+                  <React.Suspense fallback={<div style={{padding: '20px', textAlign: 'center'}}>Loading Admin Components Test...</div>}>
+                    <TestMapView />
+                  </React.Suspense>
+                )}
+              />
               <ProtectedRoute path="/signout" component={MobileSignout} />
 
               {/* Public pages */}
