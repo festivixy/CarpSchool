@@ -321,7 +321,7 @@ export const MobileMenuButton = styled.button`
     border-radius: 1px;
 
     ${(props) =>
-      props.isOpen &&
+      props.$isOpen &&
       `
       &:nth-child(1) {
         transform: rotate(45deg) translate(5px, 5px);
@@ -353,9 +353,9 @@ export const MobileMenu = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  transform: translateY(${(props) => (props.isOpen ? "0" : "-100%")});
-  opacity: ${(props) => (props.isOpen ? "1" : "0")};
-  visibility: ${(props) => (props.isOpen ? "visible" : "hidden")};
+  transform: translateY(${(props) => (props.$isOpen ? "0" : "-100%")});
+  opacity: ${(props) => (props.$isOpen ? "1" : "0")};
+  visibility: ${(props) => (props.$isOpen ? "visible" : "hidden")};
   transition: all 0.3s ease;
   max-height: 70vh;
   overflow-y: auto;

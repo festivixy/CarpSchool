@@ -199,7 +199,7 @@ function LiquidGlassNavbar({
           {/* Mobile Menu Button */}
           <MobileMenuButton
             onClick={toggleMobileMenu}
-            isOpen={isMobileMenuOpen}
+            $isOpen={isMobileMenuOpen}
           >
             <span></span>
             <span></span>
@@ -209,7 +209,7 @@ function LiquidGlassNavbar({
       </NavbarContent>
 
       {/* Mobile Menu */}
-      <MobileMenu isOpen={isMobileMenuOpen}>
+      <MobileMenu $isOpen={isMobileMenuOpen}>
         <div
           style={{
             padding: "20px",
