@@ -12,7 +12,7 @@ NC='\033[0m' # No Color
 # Function to check if map data exists
 map_check_data() {
     local data_dir=${1:-"openmaptilesdata/data"}
-    
+
     if [ ! -d "$data_dir" ]; then
         echo -e "${RED}⚠️  $data_dir directory not found!${NC}"
         echo -e "${YELLOW}You need map data before continuing.${NC}"
@@ -29,7 +29,7 @@ map_prompt_data_action() {
     echo "2) Download - Run './download-openmaptiles-data.sh' to download pre-built data"
     echo ""
     read -p "Enter your choice (1-2): " choice
-    
+
     case $choice in
         1 )
             echo "Starting map data build process..."
@@ -52,7 +52,7 @@ map_prompt_data_action() {
 # Function to handle map data requirements
 map_ensure_data() {
     local data_dir=${1:-"openmaptilesdata/data"}
-    
+
     if ! map_check_data "$data_dir"; then
         if ! map_prompt_data_action; then
             exit 1
@@ -88,6 +88,83 @@ map_get_release_name() {
             ;;
         *)
             echo ""
+            return 1
+            ;;
+    esac
+}
+
+# Function to prompt for custom release name
+map_prompt_custom_release() {
+    while true; do
+        read -p "Enter custom release name: " custom_release
+        if [[ -n "$custom_release" && "$custom_release" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "$custom_release"
+            return 0
+        else
+            echo "Invalid release name. Please use only alphanumeric characters, dots, hyphens, and underscores."
+        fi
+    done
+}
+
+# Function to create directory structure
+map_create_target_dir() {
+    local target_dir="$1"
+    echo "Creating directory structure: $target_dir"
+    mkdir -p "$target_dir"
+}
+
+# Function to check download tool availability
+map_check_download_tool() {
+    if command -v curl &> /dev/null; then
+        echo "curl"
+        return 0
+    elif command -v wget &> /dev/null; then
+        echo "wget"
+        return 0
+    else
+        echo "✗ Error: Neither curl nor wget is available."
+        echo "Please install curl or wget to download files."
+        return 1
+    fi
+}
+
+# Function to download file with error handling
+map_download_file() {
+    local url="$1"
+    local target_file="$2"
+    local tool="$3"
+
+    echo "Downloading from: $url"
+    echo "Saving to: $target_file"
+    echo ""
+
+    case "$tool" in
+        "curl")
+            echo "Using curl to download..."
+            if curl -L -f --progress-bar -o "$target_file" "$url"; then
+                echo "✓ Download completed successfully!"
+                return 0
+            else
+                echo "✗ Download failed. Please check:"
+                echo "  - Internet connection"
+                echo "  - URL: $url"
+                return 1
+            fi
+            ;;
+        "wget")
+            echo "Using wget to download..."
+            if wget --progress=bar:force -O "$target_file" "$url"; then
+                echo "✓ Download completed successfully!"
+                return 0
+            else
+                echo "✗ Download failed. Please check:"
+                echo "  - Internet connection"
+                echo "  - URL: $url"
+                return 1
+            fi
+            ;;
+        *)
+            echo "✗ Error: Invalid download tool specified"
             return 1
             ;;
     esac
