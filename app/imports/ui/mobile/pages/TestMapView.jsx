@@ -359,14 +359,33 @@ const MobileTestMapView = () => {
         </Section>
 
         <Section>
-          <SectionTitle>🌐 LiquidGlass Navbar Test</SectionTitle>
+          <SectionTitle>🌐 LiquidGlass Component Tests</SectionTitle>
           <SectionContent>
             <InfoCard>
               <InfoItem>
-                <InfoLabel>Component Demo</InfoLabel>
+                <InfoLabel>Navigation Bar Demo</InfoLabel>
                 <InfoValue>
                   The navbar above is a live demo of the LiquidGlassNavbar
                   component with glass morphism effects
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>🔐 LiquidGlass Login Test</InfoLabel>
+                <InfoValue>
+                  <div style={{ marginBottom: "12px" }}>
+                    Test the LiquidGlass SignIn page with full functionality including
+                    CAPTCHA, form validation, and glass morphism effects.
+                  </div>
+                  <LiquidGlassButton
+                    onClick={() => window.open('/_test/liquidglass/login', '_blank')}
+                    size="medium"
+                    variant="primary"
+                  >
+                    🚀 Open LiquidGlass Login Test
+                  </LiquidGlassButton>
                 </InfoValue>
               </InfoItem>
             </InfoCard>
