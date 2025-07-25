@@ -45,30 +45,15 @@ export const BlurContainer = styled.div`
   top: 0;
   left: 0;
   border-radius: 1000px;
-  backdrop-filter: blur(6px);
-  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(3px);
+  background: rgba(255, 255, 255, 0.12);
   will-change: transform;
   transform: translateZ(0);
-
-  /* Single subtle chromatic aberration effect */
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 1000px;
-    background: linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      transparent 50%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-    mix-blend-mode: overlay;
-    opacity: 0.4;
-    pointer-events: none;
-  }
+  
+  /* Simplified single glass effect - no pseudo-elements */
+  box-shadow: 
+    inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.05);
 `;
 
 export const MaskContainer = styled.div`

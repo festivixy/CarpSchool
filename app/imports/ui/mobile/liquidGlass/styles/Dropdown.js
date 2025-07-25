@@ -338,58 +338,20 @@ export const MenuItem = styled.div`
     box-shadow 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   overflow: hidden;
-
-  /* Liquid glass background layers with chromatic aberration */
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    backdrop-filter: blur(6px) hue-rotate(4deg) saturate(1.05);
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 1000px;
-    z-index: 1;
-    transition: all 0.2s ease;
-    mix-blend-mode: color-dodge;
-    opacity: 0.8;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 1000px;
-    backdrop-filter: hue-rotate(-4deg) saturate(1.1) contrast(1.02);
-    background:
-      radial-gradient(
-        ellipse at center,
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.12) 70%,
-        rgba(255, 255, 255, 0.2) 100%
-      ),
-      linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(255, 255, 255, 0.08) 100%
-      );
-    box-shadow:
-      /* Chromatic color shifts */
-      inset 1px 0 3px rgba(255, 0, 0, 0.04),
-      inset -1px 0 3px rgba(0, 255, 255, 0.04),
-      inset 0 1px 3px rgba(0, 255, 0, 0.03),
-      inset 0 -1px 3px rgba(255, 0, 255, 0.03),
-      /* Original glass shadows */ inset 2px 2px 4px rgba(255, 255, 255, 0.3),
-      inset -1px -1px 2px rgba(0, 0, 0, 0.08);
-    z-index: 2;
-    transition: all 0.2s ease;
-    mix-blend-mode: soft-light;
-    opacity: 0.9;
-  }
+  
+  /* Simplified glass effect without backdrop-filter pseudo-elements */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* Single subtle inset shadow for glass effect */
+  box-shadow:
+    inset 1px 1px 2px rgba(255, 255, 255, 0.2),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.03);
 
   &:hover {
     transform: ${(props) => (props.$disabled ? "none" : "translateY(-1px)")};
