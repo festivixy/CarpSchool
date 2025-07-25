@@ -5,11 +5,7 @@ import {
   InputWrapper,
   Background,
   BlurContainer,
-  MaskContainer,
-  MaskShape,
-  BlurEffect,
   FillLayer,
-  GlassEffectLayer,
   StyledInput,
   InputLabel,
   InputIcon,
@@ -127,14 +123,8 @@ function LiquidGlassTextInput({
         $variant={variant}
       >
         <Background>
-          <BlurContainer>
-            <MaskContainer>
-              <MaskShape />
-            </MaskContainer>
-            <BlurEffect />
-          </BlurContainer>
+          <BlurContainer />
           <FillLayer />
-          <GlassEffectLayer />
         </Background>
 
         {icon && iconPosition === "left" && (

@@ -4,11 +4,7 @@ import {
   ButtonContainer,
   Background,
   BlurContainer,
-  MaskContainer,
-  MaskShape,
-  BlurEffect,
   FillLayer,
-  GlassEffectLayer,
   LabelContainer,
   LabelSymbol,
   LabelText,
@@ -21,14 +17,8 @@ function LiquidGlassButton({ label = "Label", onClick, ...props }) {
   return (
     <ButtonContainer onClick={onClick} {...props}>
       <Background>
-        <BlurContainer>
-          <MaskContainer>
-            <MaskShape />
-          </MaskContainer>
-          <BlurEffect />
-        </BlurContainer>
+        <BlurContainer />
         <FillLayer />
-        <GlassEffectLayer />
       </Background>
       <LabelContainer>
         <LabelSymbol>

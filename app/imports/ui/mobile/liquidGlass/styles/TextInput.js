@@ -93,7 +93,30 @@ export const BlurContainer = styled.div`
   top: 0;
   left: 0;
   border-radius: 1000px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.08);
+  will-change: transform;
+  transform: translateZ(0);
+
+  /* Single subtle chromatic aberration effect */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 1000px;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    mix-blend-mode: overlay;
+    opacity: 0.4;
+    pointer-events: none;
+  }
 `;
 
 export const MaskContainer = styled.div`
@@ -105,54 +128,7 @@ export const MaskShape = styled.div`
 `;
 
 export const BlurEffect = styled.div`
-  width: 100%;
-  height: 100%;
-  border-radius: 1000px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  backdrop-filter: blur(6px);
-  background: rgba(255, 255, 255, 0.05);
-  overflow: hidden;
-
-  /* Chromatic aberration color-bending effect */
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 1000px;
-    backdrop-filter: hue-rotate(8deg) saturate(1.15);
-    mix-blend-mode: color-dodge;
-    opacity: 0.3;
-    pointer-events: none;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 1000px;
-    backdrop-filter: hue-rotate(-8deg) saturate(1.2) contrast(1.05);
-    mix-blend-mode: soft-light;
-    opacity: 0.25;
-    pointer-events: none;
-  }
-
-  /* Additional color shift layers */
-  box-shadow:
-    /* Red channel shift */
-    inset 2px 0 4px rgba(255, 0, 0, 0.08),
-    inset -1px 0 4px rgba(0, 255, 255, 0.08),
-    /* Green channel shift */ inset 0 2px 4px rgba(0, 255, 0, 0.06),
-    inset 0 -1px 4px rgba(255, 0, 255, 0.06),
-    /* Blue channel shift */ inset 1px 1px 4px rgba(0, 0, 255, 0.08),
-    inset -2px -2px 4px rgba(255, 255, 0, 0.08);
+  display: none;
 `;
 
 export const FillLayer = styled.div`
@@ -162,38 +138,20 @@ export const FillLayer = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 255, 255, 0.05) 0%,
-      rgba(255, 255, 255, 0.08) 70%,
-      rgba(255, 255, 255, 0.15) 100%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
   box-shadow:
-    inset 2px 2px 4px rgba(255, 255, 255, 0.25),
-    inset -1px -1px 2px rgba(0, 0, 0, 0.05),
-    0 4px 12px rgba(0, 0, 0, 0.1);
+    inset 1px 1px 2px rgba(255, 255, 255, 0.2),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.05);
+  will-change: transform;
+  transform: translateZ(0);
 `;
 
 export const GlassEffectLayer = styled.div`
-  width: 100%;
-  height: 100%;
-  border-radius: 1000px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.15) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  pointer-events: none;
+  display: none;
 `;
 
 export const StyledInput = styled.input`

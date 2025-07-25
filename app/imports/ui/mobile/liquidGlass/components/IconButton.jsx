@@ -4,11 +4,7 @@ import {
   IconButtonContainer,
   Background,
   BlurContainer,
-  MaskContainer,
-  MaskShape,
-  BlurEffect,
   FillLayer,
-  GlassEffectLayer,
   LabelContainer,
   LabelSymbol,
   LabelText,
@@ -83,14 +79,8 @@ function LiquidGlassIconButton({
       {...props}
     >
       <Background>
-        <BlurContainer>
-          <MaskContainer>
-            <MaskShape />
-          </MaskContainer>
-          <BlurEffect />
-        </BlurContainer>
+        <BlurContainer />
         <FillLayer />
-        <GlassEffectLayer />
       </Background>
 
       <LabelContainer $size={size}>

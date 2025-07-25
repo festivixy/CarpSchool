@@ -25,7 +25,7 @@ export const BlurLayer = styled.div`
   background: rgba(255, 255, 255, 0.08);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 
-  /* Chromatic aberration color-bending effect */
+  /* Single subtle glass effect */
   &::before {
     content: "";
     position: absolute;
@@ -33,22 +33,14 @@ export const BlurLayer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    backdrop-filter: hue-rotate(3deg) saturate(1.08);
-    mix-blend-mode: color-dodge;
-    opacity: 0.15;
-    pointer-events: none;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    backdrop-filter: hue-rotate(-3deg) saturate(1.12) contrast(1.02);
-    mix-blend-mode: soft-light;
-    opacity: 0.12;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
+    mix-blend-mode: overlay;
+    opacity: 0.3;
     pointer-events: none;
   }
 `;

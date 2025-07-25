@@ -61,11 +61,12 @@ export const TriggerBlur = styled.div`
   top: 0;
   left: 0;
   backdrop-filter: blur(6px);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 1000px;
-  overflow: hidden;
+  will-change: transform;
+  transform: translateZ(0);
 
-  /* Chromatic aberration color-bending effect */
+  /* Single subtle glass effect */
   &::before {
     content: "";
     position: absolute;
@@ -74,35 +75,16 @@ export const TriggerBlur = styled.div`
     right: 0;
     bottom: 0;
     border-radius: 1000px;
-    backdrop-filter: hue-rotate(8deg) saturate(1.15);
-    mix-blend-mode: color-dodge;
-    opacity: 0.3;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    mix-blend-mode: overlay;
+    opacity: 0.4;
     pointer-events: none;
   }
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 1000px;
-    backdrop-filter: hue-rotate(-8deg) saturate(1.2) contrast(1.05);
-    mix-blend-mode: soft-light;
-    opacity: 0.25;
-    pointer-events: none;
-  }
-
-  /* Additional color shift layers */
-  box-shadow:
-    /* Red channel shift */
-    inset 2px 0 4px rgba(255, 0, 0, 0.08),
-    inset -1px 0 4px rgba(0, 255, 255, 0.08),
-    /* Green channel shift */ inset 0 2px 4px rgba(0, 255, 0, 0.06),
-    inset 0 -1px 4px rgba(255, 0, 255, 0.06),
-    /* Blue channel shift */ inset 1px 1px 4px rgba(0, 0, 255, 0.08),
-    inset -2px -2px 4px rgba(255, 255, 0, 0.08);
 `;
 
 export const TriggerGlass = styled.div`
@@ -239,12 +221,13 @@ export const MenuBlur = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  backdrop-filter: blur(4px);
-  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.18);
   border-radius: 16px;
-  overflow: hidden;
+  will-change: transform;
+  transform: translateZ(0);
 
-  /* Chromatic aberration color-bending effect */
+  /* Single subtle glass effect */
   &::before {
     content: "";
     position: absolute;
@@ -253,35 +236,16 @@ export const MenuBlur = styled.div`
     right: 0;
     bottom: 0;
     border-radius: 16px;
-    backdrop-filter: hue-rotate(6deg) saturate(1.1);
-    mix-blend-mode: color-dodge;
-    opacity: 0.4;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.12) 0%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.06) 100%
+    );
+    mix-blend-mode: overlay;
+    opacity: 0.5;
     pointer-events: none;
   }
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 16px;
-    backdrop-filter: hue-rotate(-6deg) saturate(1.15) contrast(1.03);
-    mix-blend-mode: soft-light;
-    opacity: 0.35;
-    pointer-events: none;
-  }
-
-  /* Additional color shift layers */
-  box-shadow:
-    /* Red channel shift */
-    inset 3px 0 5px rgba(255, 0, 0, 0.06),
-    inset -2px 0 5px rgba(0, 255, 255, 0.06),
-    /* Green channel shift */ inset 0 3px 5px rgba(0, 255, 0, 0.05),
-    inset 0 -2px 5px rgba(255, 0, 255, 0.05),
-    /* Blue channel shift */ inset 2px 2px 5px rgba(0, 0, 255, 0.06),
-    inset -3px -3px 5px rgba(255, 255, 0, 0.06);
 `;
 
 export const MenuGlass = styled.div`
