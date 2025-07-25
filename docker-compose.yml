@@ -50,7 +50,7 @@ services:
     container_name: tileserver-gl
     command:
       - --port
-      - "8080"
+      - "8082"
       - --config
       - "/style/config.json"
     volumes:
