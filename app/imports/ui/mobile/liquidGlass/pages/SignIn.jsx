@@ -198,13 +198,10 @@ export default class LiquidGlassSignIn extends React.Component {
               />
 
               <LiquidGlassButton
+                label="Sign In"
                 type="submit"
-                size="large"
-                variant="primary"
                 style={{ marginTop: "8px" }}
-              >
-                Sign In
-              </LiquidGlassButton>
+              />
             </InputSection>
           </Form>
 
