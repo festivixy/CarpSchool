@@ -135,3 +135,6 @@ remember,
 
 app/imports/ui/components and app/imports/ui/pages is legacy and not updated anymore
 
+### TODO 2
+
+the map components is trying to load the image tiles, on the main thread. make the maps load images in a async way.
