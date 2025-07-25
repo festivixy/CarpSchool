@@ -5,13 +5,10 @@
 
 set -e  # Exit on any error
 
-echo "📦 Installing Carpool app dependencies..."
+# Source utility modules
+source "./tools/ui-utils.sh"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+echo "📦 Installing Carpool app dependencies..."
 
 # Step 1: Navigate to app directory and install dependencies
 echo -e "${YELLOW}📁 Changing to app directory...${NC}"
@@ -20,5 +17,4 @@ cd app
 echo -e "${YELLOW}⬇️  Installing npm dependencies...${NC}"
 meteor npm install --save
 
-echo -e "${GREEN}✅ Dependencies installed successfully!${NC}"
-echo -e "${GREEN}🚀 You can now run './runner.sh' to start the development server${NC}"
+ui_show_completion "Dependencies installed" "You can now run './runner.sh' to start the development server"
