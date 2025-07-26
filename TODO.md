@@ -48,5 +48,9 @@ fixed with mongodb collection and session IDs. [319bfb6]
   - ✅ Updated `imports/ui/legacy/pages/UserDrive.jsx` - Line 6: `import Ride from "/imports/ui/legacy/components/Ride";`
   - ✅ Updated `imports/ui/legacy/pages/UserRide.jsx` - Line 7: `import Ride from "/imports/ui/legacy/components/Ride";`
   - ✅ Updated `imports/ui/legacy/pages/UserRide.jsx` - Line 8: `import JoinRideModal from "/imports/ui/legacy/components/JoinRideModal";`
+- [x] **Fixed LiquidGlass SignIn button styling** [75a7c6d]
+  - ✅ Added width: 100% to LiquidGlassButton in SignIn form for proper full-width layout
+  - ✅ Button now matches regular SignIn button behavior with proper centering
+  - ✅ LiquidGlass SignIn complete with proper component usage and styling
 
 # end # builder.io section
