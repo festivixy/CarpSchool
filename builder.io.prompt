@@ -196,10 +196,25 @@ the tiles are being loaded with a tileserver-gl proxy in app/imports/startup/ser
 - Button now stretches across full width and is properly centered
 - LiquidGlass SignIn now matches regular SignIn functionality with proper LiquidGlass components
 
-### TODO 7
+### ✅ TODO 7 - COMPLETED
 
-remove old legacy componetns in chat. after the change, no more dms is allowed.
-so remove "contact {rider}" button in ride component
-and remove "create chat" and "join chat" in the chat page
-also add a chat link/button under the user menu in the navbar
-for desktop and mobile.
+~~remove old legacy componetns in chat. after the change, no more dms is allowed.~~
+~~so remove "contact {rider}" button in ride component~~
+~~and remove "create chat" and "join chat" in the chat page~~
+~~also add a chat link/button under the user menu in the navbar~~
+~~for desktop and mobile.~~
+
+**COMPLETED** [4a74dd9] - Removed legacy chat components and added Messages navigation:
+- Removed "Contact rider" buttons from ride components
+- Removed "create chat" and "join chat" functionality from chat page
+- Added Messages link to user menus in both desktop and mobile navbar
+- No more direct messaging allowed - only ride-specific chats
+- Complete removal of legacy chat functionality
+
+### TODO 8
+
+in test mobile/components, add a component, 
+thats similar to app/imports/ui/mobile/components/MapView.jsx, 
+but takes 2 input cords and use nominatim proxy server to 
+try to find a path, from point 1 to point 2, 
+and desplays it. add this in maptest page.
