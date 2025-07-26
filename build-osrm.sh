@@ -15,7 +15,8 @@ source "./tools/download-utils.sh"
 ui_show_header "OSRM Build Script" "Builds OSRM routing data from OpenMapTiles PBF files"
 
 # Configuration
-OSRM_DATA_DIR="orsmdata"
+OSRM_DATA_DIR="orsmdata/data"
+OSRM_BASE_DIR="orsmdata"
 DEFAULT_PBF_PATH="openmaptilesdata/data/north-america/canada/british-columbia.osm.pbf"
 DEFAULT_REGION="british-columbia"
 
@@ -180,6 +181,138 @@ osrm_show_summary() {
     echo ""
 }
 
+# Function to create tarball of OSRM data
+osrm_create_tarball() {
+    local region="$1"
+    local tarball_dir="$OSRM_BASE_DIR/tarballs"
+    local tarball_file="$tarball_dir/orsmdata-$region.tar.gz"
+
+    echo ""
+    echo -e "${YELLOW}📦 Creating OSRM data tarball...${NC}"
+
+    # Create tarballs directory
+    mkdir -p "$tarball_dir"
+
+    # Create tarball with progress indication
+    echo -n "Creating tarball "
+    (cd "$OSRM_BASE_DIR" && tar -czf "tarballs/orsmdata-$region.tar.gz" data/) &
+    local tar_pid=$!
+
+    # Show spinner while creating tarball
+    download_show_spinner $tar_pid "Creating tarball"
+    wait $tar_pid
+    local tar_result=$?
+
+    if [[ $tar_result -eq 0 ]]; then
+        local tarball_size=$(du -h "$tarball_file" | cut -f1)
+        echo -e "${GREEN}✓ Tarball created successfully:${NC}"
+        echo "  Location: $tarball_file"
+        echo "  Size: $tarball_size"
+        echo "$tarball_file"  # Return tarball path
+        return 0
+    else
+        echo -e "${RED}❌ Failed to create tarball${NC}"
+        return 1
+    fi
+}
+
+# Function to chunk the tarball
+osrm_chunk_tarball() {
+    local tarball_file="$1"
+    local region="$2"
+    local chunks_dir="$OSRM_BASE_DIR/tarballs/chunks"
+    local chunk_size="50M"  # 50MB chunks
+
+    echo ""
+    echo -e "${YELLOW}🔄 Chunking tarball into $chunk_size pieces...${NC}"
+
+    # Create chunks directory
+    mkdir -p "$chunks_dir"
+
+    # Split tarball into chunks
+    echo -n "Splitting tarball "
+    (cd "$chunks_dir" && split -b "$chunk_size" -d "../../tarballs/orsmdata-$region.tar.gz" "orsmdata-$region.tar.gz.") &
+    local split_pid=$!
+
+    # Show spinner while splitting
+    download_show_spinner $split_pid "Splitting into chunks"
+    wait $split_pid
+    local split_result=$?
+
+    if [[ $split_result -eq 0 ]]; then
+        # Rename chunks to have .part extension
+        for chunk in "$chunks_dir"/orsmdata-$region.tar.gz.*; do
+            if [[ -f "$chunk" ]]; then
+                mv "$chunk" "$chunk.part"
+            fi
+        done
+
+        # Create chunks.txt file
+        local chunks_txt="$chunks_dir/chunks.txt"
+        ls "$chunks_dir"/orsmdata-$region.tar.gz.*.part | sed 's|.*/||' > "$chunks_txt"
+
+        local chunk_count=$(wc -l < "$chunks_txt")
+        echo -e "${GREEN}✓ Tarball chunked successfully:${NC}"
+        echo "  Chunks: $chunk_count pieces"
+        echo "  Location: $chunks_dir/"
+        echo "  Chunks list: $chunks_txt"
+
+        echo ""
+        echo "Generated chunks:"
+        cat "$chunks_txt" | head -5
+        if [[ $chunk_count -gt 5 ]]; then
+            echo "  ... and $((chunk_count - 5)) more chunks"
+        fi
+
+        return 0
+    else
+        echo -e "${RED}❌ Failed to chunk tarball${NC}"
+        return 1
+    fi
+}
+
+# Function to prompt for tarball creation
+osrm_prompt_tarball() {
+    local region="$1"
+
+    echo ""
+    echo "Tarball and chunking options:"
+    echo ""
+    echo "1) Create tarball only"
+    echo "2) Create tarball and chunk it"
+    echo "3) Skip tarball creation"
+    echo ""
+
+    choice=$(ui_prompt_with_validation "Enter your choice (1-3): " "1 2 3" "Invalid choice. Please enter 1, 2, or 3.")
+
+    case $choice in
+        1)
+            if tarball_file=$(osrm_create_tarball "$region"); then
+                echo ""
+                echo -e "${GREEN}✓ Tarball creation completed${NC}"
+            fi
+            ;;
+        2)
+            if tarball_file=$(osrm_create_tarball "$region"); then
+                if osrm_chunk_tarball "$tarball_file" "$region"; then
+                    echo ""
+                    echo -e "${GREEN}✓ Tarball and chunking completed${NC}"
+
+                    # Ask about cleanup
+                    echo ""
+                    if ui_ask_yes_no "Do you want to delete the original tarball (keeping only chunks)?" "Y"; then
+                        rm -f "$tarball_file"
+                        echo -e "${GREEN}✓ Original tarball deleted${NC}"
+                    fi
+                fi
+            fi
+            ;;
+        3)
+            echo -e "${YELLOW}Skipping tarball creation${NC}"
+            ;;
+    esac
+}
+
 # Function to show integration information
 osrm_show_integration_info() {
     local region="$1"
@@ -228,7 +361,7 @@ osrm_show_manual_command() {
     ports:
       - "5000:5000"
     volumes:
-      - ./orsmdata:/data
+      - ./orsmdata/data:/data
     restart: unless-stopped
 EOF
     echo ""
@@ -272,6 +405,9 @@ main() {
 
     # Show build summary
     osrm_show_summary "$region"
+
+    # Ask about tarball creation
+    osrm_prompt_tarball "$region"
 
     # Show integration information
     osrm_show_integration_info "$region"
