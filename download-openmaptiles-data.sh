@@ -44,9 +44,6 @@ if ui_ask_yes_no "Download OpenMapTiles data?" "N"; then
     # Get user choice with validation
     choice=$(ui_prompt_with_validation "Enter your choice (1-3): " "1 2 3" "Invalid choice. Please enter 1, 2, or 3.")
 
-    # Debug: Show what choice was captured
-    echo "Debug: Choice captured = '$choice'"
-
     # Set RELEASE variable based on choice
     case $choice in
         1)
@@ -65,18 +62,10 @@ if ui_ask_yes_no "Download OpenMapTiles data?" "N"; then
                 exit 1
             fi
             ;;
-        *)
-            echo "Debug: Unmatched choice = '$choice' (length: ${#choice})"
-            echo "Debug: Choice in hex:"
-            echo -n "$choice" | xxd
-            echo "No valid choice matched. Exiting."
-            exit 1
-            ;;
     esac
 
     echo ""
     echo "Release set to: $RELEASE"
-    echo "Debug: RELEASE variable = '$RELEASE'"
     echo ""
 
     # Create target directory structure

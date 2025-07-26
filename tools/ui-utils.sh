@@ -159,7 +159,7 @@ ui_prompt_with_validation() {
     local choice
 
     while [ $attempts -lt $max_attempts ]; do
-        echo -n "$prompt"
+        echo -n "$prompt" >&2
 
         # Read input directly without variable passing to avoid scope issues
         if read -r choice; then
@@ -167,7 +167,7 @@ ui_prompt_with_validation() {
                 echo "$choice"
                 return 0
             else
-                echo "$error_msg"
+                echo "$error_msg" >&2
                 attempts=$((attempts + 1))
             fi
         else
