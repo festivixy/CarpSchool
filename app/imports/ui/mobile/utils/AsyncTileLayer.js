@@ -1,6 +1,6 @@
 /**
  * AsyncTileLayer - Custom Leaflet TileLayer with async tile loading
- * 
+ *
  * This custom tile layer integrates with the AsyncTileLoader to provide
  * non-blocking tile loading for better performance.
  */
@@ -17,12 +17,12 @@ export const AsyncTileLayer = L.TileLayer.extend({
 
   createTile: function (coords, done) {
     const tile = document.createElement('img');
-    
+
     // Set up tile properties
     tile.setAttribute('role', 'presentation');
     tile.style.opacity = '0';
     tile.style.transition = 'opacity 0.3s ease';
-    
+
     // Add loading class for placeholder styling
     L.DomUtil.addClass(tile, 'async-tile-loading');
 
@@ -34,32 +34,32 @@ export const AsyncTileLayer = L.TileLayer.extend({
 
   _loadTileAsync: async function (coords, tile, done) {
     const { x, y, z } = coords;
-    
+
     try {
       // Load tile using async loader
       const imageUrl = await this.asyncLoader.loadTile(z, x, y);
-      
+
       if (imageUrl) {
         // Set up load handler
         const onLoad = () => {
           tile.removeEventListener('load', onLoad);
           tile.removeEventListener('error', onError);
-          
+
           // Remove loading state and fade in
           L.DomUtil.removeClass(tile, 'async-tile-loading');
           L.DomUtil.addClass(tile, 'async-tile-loaded');
           tile.style.opacity = '1';
-          
+
           done(null, tile);
         };
 
         const onError = () => {
           tile.removeEventListener('load', onLoad);
           tile.removeEventListener('error', onError);
-          
+
           L.DomUtil.removeClass(tile, 'async-tile-loading');
           L.DomUtil.addClass(tile, 'async-tile-error');
-          
+
           done(new Error('Tile failed to load'), tile);
         };
 
@@ -79,25 +79,25 @@ export const AsyncTileLayer = L.TileLayer.extend({
   _loadTileFallback: function (coords, tile, done) {
     // Fall back to standard tile loading
     const url = this.getTileUrl(coords);
-    
+
     const onLoad = () => {
       tile.removeEventListener('load', onLoad);
       tile.removeEventListener('error', onError);
-      
+
       L.DomUtil.removeClass(tile, 'async-tile-loading');
       L.DomUtil.addClass(tile, 'async-tile-loaded');
       tile.style.opacity = '1';
-      
+
       done(null, tile);
     };
 
     const onError = () => {
       tile.removeEventListener('load', onLoad);
       tile.removeEventListener('error', onError);
-      
+
       L.DomUtil.removeClass(tile, 'async-tile-loading');
       L.DomUtil.addClass(tile, 'async-tile-error');
-      
+
       done(new Error('Tile failed to load'), tile);
     };
 
@@ -108,7 +108,7 @@ export const AsyncTileLayer = L.TileLayer.extend({
 
   onAdd: function (map) {
     L.TileLayer.prototype.onAdd.call(this, map);
-    
+
     // Add CSS for tile loading states
     if (!document.getElementById('async-tile-styles')) {
       const style = document.createElement('style');
@@ -123,19 +123,19 @@ export const AsyncTileLayer = L.TileLayer.extend({
           background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
           animation: async-tile-loading 1s linear infinite;
         }
-        
+
         @keyframes async-tile-loading {
           0% { background-position: 0 0, 0 10px, 10px -10px, -10px 0px; }
           100% { background-position: 20px 20px, 20px 30px, 30px 10px, 10px 20px; }
         }
-        
+
         .async-tile-error {
           background: #ffebee;
           display: flex;
           align-items: center;
           justify-content: center;
         }
-        
+
         .async-tile-error::after {
           content: '⚠️';
           font-size: 24px;
@@ -159,11 +159,11 @@ export const AsyncTileLayer = L.TileLayer.extend({
 
     const bounds = this._map.getBounds();
     const zoom = this._map.getZoom();
-    
+
     // Preload tiles for current view + 1 tile buffer
     const tileBounds = {
       north: bounds.getNorth(),
-      south: bounds.getSouth(), 
+      south: bounds.getSouth(),
       east: bounds.getEast(),
       west: bounds.getWest()
     };
@@ -174,7 +174,7 @@ export const AsyncTileLayer = L.TileLayer.extend({
     };
 
     if (window.requestIdleCallback) {
-      window.requestIdleCallback(preload, { timeout: 2000 });
+      window.requestIdleCallback(preload);
     } else {
       setTimeout(preload, 100);
     }

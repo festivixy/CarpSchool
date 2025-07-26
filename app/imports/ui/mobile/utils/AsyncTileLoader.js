@@ -1,6 +1,6 @@
 /**
  * Async Tile Loading Utility
- * 
+ *
  * This utility provides asynchronous tile loading for map components,
  * preventing main thread blocking when loading map tiles from the tileserver.
  * Features:
@@ -30,16 +30,16 @@ class AsyncTileLoader {
       const workerScript = `
         self.onmessage = async function(e) {
           const { tileUrl, tileId } = e.data;
-          
+
           try {
             const response = await fetch(tileUrl);
             if (!response.ok) {
               throw new Error(\`HTTP \${response.status}\`);
             }
-            
+
             const blob = await response.blob();
             const arrayBuffer = await blob.arrayBuffer();
-            
+
             self.postMessage({
               success: true,
               tileId,
@@ -58,7 +58,7 @@ class AsyncTileLoader {
 
       const blob = new Blob([workerScript], { type: 'application/javascript' });
       this.worker = new Worker(URL.createObjectURL(blob));
-      
+
       this.worker.onmessage = (e) => {
         // Worker messages are handled directly in fetchTileWithWorker
         // This is just for error handling
@@ -82,10 +82,10 @@ class AsyncTileLoader {
     try {
       this.db = await new Promise((resolve, reject) => {
         const request = indexedDB.open('MapTileCache', 1);
-        
+
         request.onerror = () => reject(request.error);
         request.onsuccess = () => resolve(request.result);
-        
+
         request.onupgradeneeded = (e) => {
           const db = e.target.result;
           if (!db.objectStoreNames.contains('tiles')) {
@@ -119,7 +119,7 @@ class AsyncTileLoader {
    */
   async loadTile(z, x, y) {
     const tileId = this.getTileId(z, x, y);
-    
+
     // Check memory cache first
     if (this.cache.has(tileId)) {
       const cached = this.cache.get(tileId);
@@ -177,15 +177,10 @@ class AsyncTileLoader {
    */
   async fetchTileWithWorker(tileUrl, tileId) {
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('Tile loading timeout'));
-      }, 10000);
-
       const messageHandler = (e) => {
         if (e.data.tileId === tileId) {
-          clearTimeout(timeout);
           this.worker.removeEventListener('message', messageHandler);
-          
+
           if (e.data.success) {
             const imageUrl = URL.createObjectURL(new Blob([e.data.data], { type: e.data.contentType }));
             this.cacheInMemory(tileId, imageUrl);
@@ -218,10 +213,10 @@ class AsyncTileLoader {
           const blob = await response.blob();
           const imageUrl = URL.createObjectURL(blob);
           const arrayBuffer = await blob.arrayBuffer();
-          
+
           this.cacheInMemory(tileId, imageUrl);
           this.cacheTile(tileId, arrayBuffer, blob.type);
-          
+
           resolve(imageUrl);
         } catch (error) {
           reject(error);
@@ -230,7 +225,7 @@ class AsyncTileLoader {
 
       // Use requestIdleCallback if available, otherwise setTimeout
       if (window.requestIdleCallback) {
-        window.requestIdleCallback(loadTile, { timeout: 1000 });
+        window.requestIdleCallback(loadTile);
       } else {
         setTimeout(loadTile, 0);
       }
@@ -281,7 +276,7 @@ class AsyncTileLoader {
     try {
       const transaction = this.db.transaction(['tiles'], 'readwrite');
       const store = transaction.objectStore('tiles');
-      
+
       await store.put({
         id: tileId,
         data,
@@ -304,7 +299,7 @@ class AsyncTileLoader {
       const transaction = this.db.transaction(['tiles'], 'readonly');
       const store = transaction.objectStore('tiles');
       const request = store.get(tileId);
-      
+
       return new Promise((resolve, reject) => {
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
@@ -321,27 +316,27 @@ class AsyncTileLoader {
   async preloadTiles(bounds, zoom) {
     const { north, south, east, west } = bounds;
     const tiles = this.getTilesInBounds(north, south, east, west, zoom);
-    
+
     // Load tiles with priority (center first)
     const centerX = Math.floor((tiles.minX + tiles.maxX) / 2);
     const centerY = Math.floor((tiles.minY + tiles.maxY) / 2);
-    
+
     const loadPromises = [];
-    
+
     // Load center tiles first
     for (let x = centerX; x <= tiles.maxX; x++) {
       for (let y = centerY; y <= tiles.maxY; y++) {
         loadPromises.push(this.loadTile(zoom, x, y));
       }
     }
-    
+
     // Load remaining tiles
     for (let x = tiles.minX; x < centerX; x++) {
       for (let y = tiles.minY; y <= tiles.maxY; y++) {
         loadPromises.push(this.loadTile(zoom, x, y));
       }
     }
-    
+
     // Don't wait for all tiles, just start loading
     Promise.allSettled(loadPromises).catch(() => {});
   }
@@ -354,7 +349,7 @@ class AsyncTileLoader {
     const maxX = Math.floor(this.lon2tile(east, zoom));
     const minY = Math.floor(this.lat2tile(north, zoom));
     const maxY = Math.floor(this.lat2tile(south, zoom));
-    
+
     return { minX, maxX, minY, maxY };
   }
 
