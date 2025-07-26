@@ -42,13 +42,13 @@ osrm_check_pbf_file() {
 
 # Function to prompt for PBF file selection
 osrm_prompt_pbf_selection() {
-    echo ""
-    echo "Please choose the PBF file source:"
-    echo ""
-    echo "1) Use default BC data: $DEFAULT_PBF_PATH"
-    echo "2) Enter custom PBF file path"
-    echo "3) Browse available PBF files in openmaptilesdata/"
-    echo ""
+    echo "" >&2
+    echo "Please choose the PBF file source:" >&2
+    echo "" >&2
+    echo "1) Use default BC data: $DEFAULT_PBF_PATH" >&2
+    echo "2) Enter custom PBF file path" >&2
+    echo "3) Browse available PBF files in openmaptilesdata/" >&2
+    echo "" >&2
 
     choice=$(ui_prompt_with_validation "Enter your choice (1-3): " "1 2 3" "Invalid choice. Please enter 1, 2, or 3.")
 
@@ -58,19 +58,19 @@ osrm_prompt_pbf_selection() {
             echo "$DEFAULT_REGION"
             ;;
         2)
-            echo ""
-            read -p "Enter full path to PBF file: " custom_pbf
+            echo "" >&2
+            read -p "Enter full path to PBF file: " custom_pbf >&2
             # Extract region name from filename
             local region=$(basename "$custom_pbf" .osm.pbf)
             echo "$custom_pbf"
             echo "$region"
             ;;
         3)
-            echo ""
-            echo "Available PBF files:"
-            find openmaptilesdata/ -name "*.osm.pbf" -type f 2>/dev/null || echo "No PBF files found in openmaptilesdata/"
-            echo ""
-            read -p "Enter path to selected PBF file: " selected_pbf
+            echo "" >&2
+            echo "Available PBF files:" >&2
+            find openmaptilesdata/ -name "*.osm.pbf" -type f 2>/dev/null >&2 || echo "No PBF files found in openmaptilesdata/" >&2
+            echo "" >&2
+            read -p "Enter path to selected PBF file: " selected_pbf >&2
             local region=$(basename "$selected_pbf" .osm.pbf)
             echo "$selected_pbf"
             echo "$region"
