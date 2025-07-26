@@ -115,20 +115,30 @@ osrm_setup_data_dir() {
     echo ""
     echo -e "${YELLOW}📁 Setting up OSRM data directory...${NC}"
 
-    # Create OSRM data directory
-    mkdir -p "$OSRM_DATA_DIR"
-    echo -e "${GREEN}✓ Created directory: $OSRM_DATA_DIR${NC}"
+    # Create OSRM data directory with -p flag
+    if mkdir -p "$OSRM_DATA_DIR"; then
+        echo -e "${GREEN}✓ Created directory: $OSRM_DATA_DIR${NC}"
+    else
+        echo -e "${RED}❌ Failed to create directory: $OSRM_DATA_DIR${NC}"
+        return 1
+    fi
+
+    # Verify source file exists
+    if [[ ! -f "$pbf_path" ]]; then
+        echo -e "${RED}❌ Source PBF file not found: $pbf_path${NC}"
+        return 1
+    fi
 
     # Copy PBF file to OSRM data directory
     local target_pbf="$OSRM_DATA_DIR/$region.osm.pbf"
     echo -e "${BLUE}Copying PBF file: $pbf_path → $target_pbf${NC}"
 
-    cp "$pbf_path" "$target_pbf"
-    if [[ $? -eq 0 ]]; then
+    if cp "$pbf_path" "$target_pbf"; then
         echo -e "${GREEN}✓ PBF file copied successfully${NC}"
         echo "$region"  # Return region name
     else
-        echo -e "${RED}❌ Failed to copy PBF file${NC}"
+        echo -e "${RED}❌ Failed to copy PBF file from $pbf_path to $target_pbf${NC}"
+        echo -e "${RED}   Check file permissions and disk space${NC}"
         return 1
     fi
 }
