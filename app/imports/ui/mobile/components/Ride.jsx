@@ -26,8 +26,10 @@ import {
   Actions,
   ShareButton,
   JoinButton,
+  ChatButton,
   ShareIcon,
   JoinIcon,
+  ChatIcon,
   Spinner,
   ModalOverlay,
   Modal,
@@ -181,6 +183,25 @@ class MobileRide extends React.Component {
     return !this.isCurrentUserDriver() && rider === "TBD";
   };
 
+  canAccessChat = () => {
+    const { riders, rider } = this.props.ride;
+    const currentUser = Meteor.user();
+    if (!currentUser) return false;
+
+    // Driver can always access chat
+    if (this.isCurrentUserDriver()) {
+      return true;
+    }
+
+    // Handle new schema - check if user is a rider
+    if (riders !== undefined) {
+      return riders.includes(currentUser.username);
+    }
+
+    // Handle legacy schema - check if user is the rider
+    return rider === currentUser.username;
+  };
+
   handleJoinRide = () => {
     const { ride } = this.props;
 
@@ -204,6 +225,11 @@ class MobileRide extends React.Component {
         swal("Success!", "You have successfully joined the ride!", "success");
       }
     });
+  };
+
+  handleOpenChat = () => {
+    // Navigate to chat page with ride ID
+    this.props.history.push(`/chat?rideId=${this.props.ride._id}`);
   };
 
   formatDate = (date) =>
@@ -307,7 +333,7 @@ class MobileRide extends React.Component {
             </Notes>
           )}
 
-          {(this.canShareRide() || this.canJoinRide()) && (
+          {(this.canShareRide() || this.canJoinRide() || this.canAccessChat()) && (
             <Actions>
               {this.canShareRide() && (
                 <ShareButton
@@ -346,6 +372,14 @@ class MobileRide extends React.Component {
                     </>
                   )}
                 </JoinButton>
+              )}
+              {this.canAccessChat() && (
+                <ChatButton
+                  onClick={this.handleOpenChat}
+                >
+                  <ChatIcon>💬</ChatIcon>
+                  Open Chat
+                </ChatButton>
               )}
             </Actions>
           )}

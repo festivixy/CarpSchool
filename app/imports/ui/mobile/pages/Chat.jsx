@@ -90,10 +90,24 @@ class MobileChat extends React.Component {
   }
 
   componentDidMount() {
+    // Check for URL parameters
+    const urlParams = new URLSearchParams(this.props.location.search);
+    const searchEmail = urlParams.get("email");
+    const rideId = urlParams.get("rideId");
+
+    // Handle ride-specific chat
+    if (rideId) {
+      this.createOrJoinRideChat(rideId);
+      return;
+    }
+
     // Check if a specific chat was passed via navigation state
     const locationState = this.props.location?.state;
     if (locationState?.selectedChatId) {
       this.setState({ selectedChatId: locationState.selectedChatId });
+    } else if (searchEmail && this.props.chats && this.props.chats.length > 0) {
+      // If searching by email, auto-select first matching chat
+      this.setState({ selectedChatId: this.props.chats[0]._id });
     } else if (this.props.chats && this.props.chats.length > 0) {
       // Auto-select first chat if available and no specific chat requested
       this.setState({ selectedChatId: this.props.chats[0]._id });
@@ -153,6 +167,21 @@ class MobileChat extends React.Component {
       });
     } finally {
       this.isSubmitting = false;
+    }
+  };
+
+  createOrJoinRideChat = async (rideId) => {
+    try {
+      const chatId = await Meteor.callAsync("chats.createForRide", rideId);
+      this.setState({
+        selectedChatId: chatId,
+        success: "Joined ride chat successfully!",
+      });
+      setTimeout(() => this.setState({ success: "" }), 3000);
+    } catch (error) {
+      this.setState({
+        error: error.reason || error.message,
+      });
     }
   };
 
@@ -335,6 +364,16 @@ class MobileChat extends React.Component {
 
   getChatDisplayName = (chat) => {
     const currentUser = this.getCurrentUser();
+
+    // For ride-specific chats, show ride info
+    if (chat.rideId) {
+      const otherParticipants = chat.Participants.filter(
+        (p) => p !== currentUser,
+      );
+      return `Ride Chat (${chat.Participants.length} members)`;
+    }
+
+    // For general chats, show other participant
     const otherParticipants = chat.Participants.filter(
       (p) => p !== currentUser,
     );
@@ -707,13 +746,29 @@ MobileChat.propTypes = {
 };
 
 export default withRouter(
-  withTracker(() => {
-    const subscription = Meteor.subscribe("chats");
+  withTracker((props) => {
+    // Check for URL parameters
+    const urlParams = new URLSearchParams(props.location.search);
+    const searchEmail = urlParams.get("email");
+    const rideId = urlParams.get("rideId");
+
+    // Subscribe to appropriate publication based on search parameters
+    let subscription;
+    if (rideId) {
+      subscription = Meteor.subscribe("chats.forRide", rideId);
+    } else if (searchEmail) {
+      subscription = Meteor.subscribe("chats.withEmail", searchEmail);
+    } else {
+      subscription = Meteor.subscribe("chats");
+    }
+
     const ready = subscription.ready();
 
     return {
       chats: ready ? Chats.find({}).fetch() : [],
       ready: ready,
+      searchEmail: searchEmail,
+      rideId: rideId,
     };
   })(MobileChat),
 );
