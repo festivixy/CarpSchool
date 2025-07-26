@@ -41,7 +41,7 @@ ui_safe_read() {
     if [ "${CARPOOL_NONINTERACTIVE}" = "1" ]; then
         echo -e "${BLUE}[NON-INTERACTIVE MODE]${NC} Using default value: $default_value" >&2
         if [ -n "$var_name" ]; then
-            declare -g "$var_name"="$default_value"
+            eval "$var_name=\"\$default_value\""
         else
             echo "$default_value"
         fi
@@ -53,7 +53,7 @@ ui_safe_read() {
         echo -e "${RED}Warning: stdin is not available for input${NC}" >&2
         if [ -n "$default_value" ]; then
             if [ -n "$var_name" ]; then
-                declare -g "$var_name"="$default_value"
+                eval "$var_name=\"\$default_value\""
             else
                 echo "$default_value"
             fi
@@ -67,7 +67,7 @@ ui_safe_read() {
     if read -r input; then
         # Successful read
         if [ -n "$var_name" ]; then
-            declare -g "$var_name"="$input"
+            eval "$var_name=\"\$input\""
         else
             echo "$input"
         fi
@@ -79,7 +79,7 @@ ui_safe_read() {
             echo -e "${RED}Warning: Input timeout or I/O error occurred${NC}" >&2
             if [ -n "$default_value" ]; then
                 if [ -n "$var_name" ]; then
-                    declare -g "$var_name"="$default_value"
+                    eval "$var_name=\"\$default_value\""
                 else
                     echo "$default_value"
                 fi
