@@ -164,5 +164,124 @@ else
     fi
 fi
 
+# Handle OSRM data download
+echo ""
+if ui_ask_yes_no "Do you want to download OSRM routing data?" "N"; then
+    echo ""
+    echo "Please select the OSRM data release you want to download:"
+    echo ""
+    echo "1) osrm.ca.bc - OSRM Canada BC routing data"
+    echo "2) osrm.ca - OSRM Canada (entire country) routing data"
+    echo ""
+
+    # Get user choice with validation
+    osrm_choice=$(ui_prompt_with_validation "Enter your choice (1-2): " "1 2" "Invalid choice. Please enter 1 or 2.")
+
+    # Set OSRM_RELEASE variable based on choice
+    case $osrm_choice in
+        1)
+            OSRM_RELEASE="osrm.ca.bc"
+            echo "Selected: OSRM Canada BC routing data"
+            ;;
+        2)
+            OSRM_RELEASE="osrm.ca"
+            echo "Selected: OSRM Canada (entire country) routing data"
+            ;;
+    esac
+
+    echo ""
+    echo "OSRM Release set to: $OSRM_RELEASE"
+    echo ""
+
+    # Create target directory structure for OSRM
+    OSRM_TARGET_DIR="osrmdata/tarballs/chunks"
+    map_create_target_dir "$OSRM_TARGET_DIR"
+
+    # Check download tool availability
+    if ! map_check_download_tool; then
+        exit 1
+    fi
+
+    # Download OSRM chunks.txt file
+    OSRM_DOWNLOAD_URL="https://github.com/zlc1004/Carpool/releases/download/${OSRM_RELEASE}/chunks.txt"
+    OSRM_TARGET_FILE="$OSRM_TARGET_DIR/chunks.txt"
+
+    if ! map_download_file "$OSRM_DOWNLOAD_URL" "$OSRM_TARGET_FILE" "$DOWNLOAD_TOOL"; then
+        echo "  - OSRM Release name '$OSRM_RELEASE' exists"
+        exit 1
+    fi
+
+    # Display file information and download OSRM chunks
+    if download_show_file_info "$OSRM_TARGET_FILE"; then
+        # Download all chunks listed in the file
+        download_chunks_from_file "$OSRM_TARGET_FILE" "$OSRM_RELEASE" "$OSRM_TARGET_DIR" "$DOWNLOAD_TOOL"
+        osrm_failed_downloads=$?
+
+        # Concatenate chunk parts into final tar.gz file
+        if [[ $osrm_failed_downloads -eq 0 ]]; then
+            osrm_final_archive="osrmdata/tarballs/osrmdata.tar.gz"
+
+            if download_concatenate_chunks "$OSRM_TARGET_DIR" "$osrm_final_archive" "osrmdata.tar.gz.*.part"; then
+
+                # Ask user if they want to extract the OSRM archive
+                if ui_ask_yes_no "Do you want to extract the OSRM archive now?" "Y"; then
+                    if download_extract_archive "$osrm_final_archive" "osrmdata" "1"; then
+                        echo ""
+                        echo "OSRM routing data is now ready for use in: osrmdata/"
+                    fi
+                else
+                    echo ""
+                    echo "OSRM archive not extracted. You can extract it later with:"
+                    echo "  mkdir -p osrmdata"
+                    echo "  tar -xzf $osrm_final_archive -C osrmdata/ --strip-components=1"
+                fi
+
+                echo ""
+                echo "OSRM cleanup options:"
+                echo ""
+
+                # Ask if user wants to delete the OSRM tarballs directory
+                echo "This will remove the final OSRM archive and all downloaded chunks."
+                if ui_ask_yes_no "Do you want to delete the OSRM tarballs directory (osrmdata/tarballs)?" "N"; then
+                    echo ""
+                    echo "Deleting osrmdata/tarballs/..."
+                    if rm -rf osrmdata/tarballs/; then
+                        echo "✓ OSRM tarballs directory deleted successfully"
+                    else
+                        echo "✗ Failed to delete OSRM tarballs directory"
+                    fi
+                else
+                    # If not deleting tarballs, ask about chunks only
+                    echo ""
+                    echo "This will keep the final OSRM archive but remove the individual chunk files."
+                    if ui_ask_yes_no "Do you want to delete just the OSRM chunks directory (osrmdata/tarballs/chunks)?" "N"; then
+                        echo ""
+                        echo "Deleting osrmdata/tarballs/chunks/..."
+                        if rm -rf osrmdata/tarballs/chunks/; then
+                            echo "✓ OSRM chunks directory deleted successfully"
+                            echo "Final OSRM archive preserved at: $osrm_final_archive"
+                        else
+                            echo "✗ Failed to delete OSRM chunks directory"
+                        fi
+                    else
+                        echo ""
+                        echo "No OSRM cleanup performed. All files preserved:"
+                        echo "  - Final OSRM archive: $osrm_final_archive"
+                        echo "  - Individual chunks: osrmdata/tarballs/chunks/"
+                    fi
+                fi
+            fi
+        fi
+
+        echo ""
+        echo "You can now use this OSRM routing data with the build-osrm.sh script."
+    else
+        exit 1
+    fi
+else
+    echo ""
+    echo "Skipping OSRM data download."
+fi
+
 # Handle Nominatim database download
 nominatim_setup "$DOWNLOAD_TOOL"
