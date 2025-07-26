@@ -211,10 +211,19 @@ the tiles are being loaded with a tileserver-gl proxy in app/imports/startup/ser
 - No more direct messaging allowed - only ride-specific chats
 - Complete removal of legacy chat functionality
 
-### TODO 8
+### ✅ TODO 8 - COMPLETED
 
-in test mobile/components, add a component, 
-thats similar to app/imports/ui/mobile/components/MapView.jsx, 
-but takes 2 input cords and use nominatim proxy server to 
-try to find a path, from point 1 to point 2, 
-and desplays it. add this in maptest page.
+~~in test mobile/components, add a component,~~
+~~thats similar to app/imports/ui/mobile/components/MapView.jsx,~~
+~~but takes 2 input cords and use nominatim proxy server to~~
+~~try to find a path, from point 1 to point 2,~~
+~~and desplays it. add this in maptest page.~~
+
+**COMPLETED** - Created PathMapView component for route finding:
+- Added PathMapView.jsx component with OSRM routing integration
+- Takes start and end coordinates, finds route between points
+- Uses OSRM API with straight-line fallback for reliability
+- Custom markers for start (A) and end (B) points
+- Displays route distance, duration, and visual path
+- Added to TestMapView page with complete testing interface
+- Includes responsive design and error handling
