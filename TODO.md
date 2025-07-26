@@ -61,7 +61,7 @@ fixed with mongodb collection and session IDs. [319bfb6]
   - ✅ Chat system now exclusively uses ride-specific chats, no more direct messaging
   - ✅ Updated empty chat state to indicate ride-based system
 
-- [x] **TODO 8: Create PathMapView component for route finding** [PathMapView implementation]
+- [x] **TODO 8: Create PathMapView component for route finding** [9db9e49]
   - ✅ Created PathMapView.jsx component with OSRM routing integration
   - ✅ Takes start and end coordinates, finds route between two points
   - ✅ Uses OSRM API with reliable straight-line fallback system
