@@ -140,6 +140,13 @@ class NavBar extends React.Component {
               >
                 <Dropdown.Menu>
                   <Dropdown.Item
+                    icon="chat"
+                    text="Messages"
+                    as={NavLink}
+                    exact
+                    to="/chat"
+                  />
+                  <Dropdown.Item
                     icon="address card"
                     text="Profile"
                     as={NavLink}

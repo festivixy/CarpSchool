@@ -205,6 +205,12 @@ class MobileNavBar extends React.Component {
                   {this.state.userMenuOpen && (
                     <DropdownMenu className="right">
                       <DropdownItem
+                        to="/chat"
+                        onClick={this.closeAllMenus}
+                      >
+                        💬 Messages
+                      </DropdownItem>
+                      <DropdownItem
                         to="/editProfile"
                         onClick={this.closeAllMenus}
                       >
@@ -280,6 +286,9 @@ class MobileNavBar extends React.Component {
 
                   <MobileSection>
                     <MobileSectionTitle>Account</MobileSectionTitle>
+                    <MobileItem to="/chat" onClick={this.closeAllMenus}>
+                      💬 Messages
+                    </MobileItem>
                     <MobileItem to="/editProfile" onClick={this.closeAllMenus}>
                       📋 Edit Profile
                     </MobileItem>

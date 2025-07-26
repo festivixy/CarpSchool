@@ -195,3 +195,11 @@ the tiles are being loaded with a tileserver-gl proxy in app/imports/startup/ser
 - Added width: 100% style to LiquidGlassButton in SignIn form
 - Button now stretches across full width and is properly centered
 - LiquidGlass SignIn now matches regular SignIn functionality with proper LiquidGlass components
+
+### TODO 7
+
+remove old legacy componetns in chat. after the change, no more dms is allowed.
+so remove "contact {rider}" button in ride component
+and remove "create chat" and "join chat" in the chat page
+also add a chat link/button under the user menu in the navbar
+for desktop and mobile.
