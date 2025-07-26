@@ -191,3 +191,9 @@ WebApp.connectHandlers.use("/osrm", (req, res, _next) => {
     }
   }
 });
+
+// Health check endpoint
+WebApp.connectHandlers.use('/health', (req, res, _next) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('OK');
+});
