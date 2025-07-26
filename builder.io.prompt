@@ -147,3 +147,21 @@ the tiles are being loaded with a tileserver-gl proxy in app/imports/startup/ser
 - Features include progressive loading, preloading, error handling, and fallbacks
 - Prevents main thread blocking when loading map tiles from tileserver proxy
 - Improves map rendering performance and user experience significantly
+
+### TODO 3
+
+make the chat page, take ? url args. arg1: email
+
+search the chat and show that chat.
+
+### TODO 4
+
+since that multiple riders are allowed into the same ride, make the chat, ride specific, instead of user.
+
+and make each ride, have its own separate chat, with its shared id.
+
+and change the chat args to match this change.
+
+### TODO 5
+
+integrate todo 4's change to the ride component.
