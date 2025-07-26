@@ -76,7 +76,7 @@ if download_show_file_info "$TARGET_FILE"; then
 
             # Ask user if they want to extract the archive
             if ui_ask_yes_no "Do you want to extract the archive now?" "N"; then
-                if download_extract_archive "$final_archive" "openmaptilesdata" ""; then
+                if download_extract_archive "$final_archive" "openmaptilesdata" "1"; then
                     echo ""
                     echo "OpenMapTiles data is now ready for use in: openmaptilesdata/"
                 fi
@@ -84,7 +84,7 @@ if download_show_file_info "$TARGET_FILE"; then
                 echo ""
                 echo "Archive not extracted. You can extract it later with:"
                 echo "  mkdir -p openmaptilesdata"
-                echo "  tar -xzf $final_archive -C openmaptilesdata/"
+                echo "  tar -xzf $final_archive -C openmaptilesdata/ --strip-components=1"
             fi
 
             echo ""
