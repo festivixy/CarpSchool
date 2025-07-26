@@ -3,12 +3,17 @@
 # OpenMapTiles Data Download Script
 # Downloads chunks.txt for OpenMapTiles data releases with robust input handling
 #
+# Command Line Options:
+#   --base-gh-url URL      - Set custom GitHub base URL (default: https://github.com/zlc1004/Carpool)
+#   -h, --help            - Show help message
+#
 # Environment Variables:
 #   READ_TIMEOUT           - Input timeout in seconds (default: 10s)
 #   CARPOOL_NONINTERACTIVE - Set to '1' for non-interactive mode
 #
 # Features:
 #   - Interactive selection of OpenMapTiles data releases
+#   - Configurable GitHub base URL for custom repositories
 #   - Configurable input timeout (default: 10 seconds)
 #   - Non-interactive mode support for automated setups
 #   - Maximum 3 retry attempts for invalid user input
@@ -16,11 +21,70 @@
 #   - Support for custom release names
 #
 # Examples:
-#   ./download-openmaptiles-data.sh                    # Interactive mode
+#   ./download-openmaptiles-data.sh                    # Interactive mode with default GitHub URL
+#   ./download-openmaptiles-data.sh --base-gh-url https://github.com/user/repo  # Custom repository
 #   READ_TIMEOUT=30 ./download-openmaptiles-data.sh    # 30 second timeout
 #   CARPOOL_NONINTERACTIVE=1 ./download-openmaptiles-data.sh  # Automated mode
 
 set -e
+
+# Default configuration
+DEFAULT_GITHUB_BASE_URL="https://github.com/zlc1004/Carpool"
+GITHUB_BASE_URL="$DEFAULT_GITHUB_BASE_URL"
+
+# Function to show usage
+show_usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --base-gh-url URL    Set custom GitHub base URL (default: $DEFAULT_GITHUB_BASE_URL)"
+    echo "  -h, --help          Show this help message"
+    echo ""
+    echo "Environment Variables:"
+    echo "  READ_TIMEOUT           - Input timeout in seconds (default: 10s)"
+    echo "  CARPOOL_NONINTERACTIVE - Set to '1' for non-interactive mode"
+    echo ""
+    echo "Examples:"
+    echo "  $0                                    # Interactive mode with default GitHub URL"
+    echo "  $0 --base-gh-url https://github.com/user/repo  # Custom GitHub repository"
+    echo "  READ_TIMEOUT=30 $0                    # 30 second timeout"
+    echo "  CARPOOL_NONINTERACTIVE=1 $0          # Automated mode"
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --base-gh-url)
+            if [[ -n "$2" && ! "$2" =~ ^-- ]]; then
+                GITHUB_BASE_URL="$2"
+                shift 2
+            else
+                echo "Error: --base-gh-url requires a URL argument"
+                show_usage
+                exit 1
+            fi
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        *)
+            echo "Error: Unknown option '$1'"
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Validate GitHub base URL format
+if [[ ! "$GITHUB_BASE_URL" =~ ^https?:// ]]; then
+    echo "Error: GitHub base URL must start with http:// or https://"
+    echo "Provided: $GITHUB_BASE_URL"
+    exit 1
+fi
+
+# Remove trailing slash if present
+GITHUB_BASE_URL="${GITHUB_BASE_URL%/}"
 
 # Source utility modules
 source "./tools/map-utils.sh"
@@ -29,6 +93,11 @@ source "./tools/download-utils.sh"
 source "./tools/nominatim-utils.sh"
 
 ui_show_header "OpenMapTiles Data Download Script" "Downloads chunks.txt for OpenMapTiles data releases"
+
+# Show configuration
+echo "Configuration:"
+echo "  GitHub Base URL: $GITHUB_BASE_URL"
+echo ""
 
 # Ask if user wants to download OpenMapTiles data
 echo "Do you want to download OpenMapTiles data? (y/N)"
@@ -78,7 +147,7 @@ if ui_ask_yes_no "Download OpenMapTiles data?" "N"; then
     fi
 
     # Download chunks.txt file
-    DOWNLOAD_URL="https://github.com/zlc1004/Carpool/releases/download/${RELEASE}/chunks.txt"
+    DOWNLOAD_URL="${GITHUB_BASE_URL}/releases/download/${RELEASE}/chunks.txt"
     TARGET_FILE="$TARGET_DIR/chunks.txt"
 
     if ! map_download_file "$DOWNLOAD_URL" "$TARGET_FILE" "$DOWNLOAD_TOOL"; then
@@ -89,7 +158,7 @@ if ui_ask_yes_no "Download OpenMapTiles data?" "N"; then
     # Display file information and download chunks
     if download_show_file_info "$TARGET_FILE"; then
         # Download all chunks listed in the file
-        download_chunks_from_file "$TARGET_FILE" "$RELEASE" "$TARGET_DIR" "$DOWNLOAD_TOOL"
+        download_chunks_from_file "$TARGET_FILE" "$RELEASE" "$TARGET_DIR" "$DOWNLOAD_TOOL" "$GITHUB_BASE_URL"
         failed_downloads=$?
 
         # Concatenate chunk parts into final tar.gz file
@@ -203,7 +272,7 @@ if ui_ask_yes_no "Do you want to download OSRM routing data?" "N"; then
     fi
 
     # Download OSRM chunks.txt file
-    OSRM_DOWNLOAD_URL="https://github.com/zlc1004/Carpool/releases/download/${OSRM_RELEASE}/chunks.txt"
+    OSRM_DOWNLOAD_URL="${GITHUB_BASE_URL}/releases/download/${OSRM_RELEASE}/chunks.txt"
     OSRM_TARGET_FILE="$OSRM_TARGET_DIR/chunks.txt"
 
     if ! map_download_file "$OSRM_DOWNLOAD_URL" "$OSRM_TARGET_FILE" "$DOWNLOAD_TOOL"; then
@@ -214,7 +283,7 @@ if ui_ask_yes_no "Do you want to download OSRM routing data?" "N"; then
     # Display file information and download OSRM chunks
     if download_show_file_info "$OSRM_TARGET_FILE"; then
         # Download all chunks listed in the file
-        download_chunks_from_file "$OSRM_TARGET_FILE" "$OSRM_RELEASE" "$OSRM_TARGET_DIR" "$DOWNLOAD_TOOL"
+        download_chunks_from_file "$OSRM_TARGET_FILE" "$OSRM_RELEASE" "$OSRM_TARGET_DIR" "$DOWNLOAD_TOOL" "$GITHUB_BASE_URL"
         osrm_failed_downloads=$?
 
         # Concatenate chunk parts into final tar.gz file
@@ -284,4 +353,4 @@ else
 fi
 
 # Handle Nominatim database download
-nominatim_setup "$DOWNLOAD_TOOL"
+nominatim_setup "$DOWNLOAD_TOOL" "$GITHUB_BASE_URL"

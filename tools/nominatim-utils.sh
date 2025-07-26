@@ -73,9 +73,10 @@ nominatim_prompt_database_choice() {
 nominatim_download_chunks() {
     local release="$1"
     local download_tool="$2"
+    local github_base_url="${3:-https://github.com/zlc1004/Carpool}"
 
     local nominatim_dir="openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks"
-    local nominatim_chunks_url="https://github.com/zlc1004/Carpool/releases/download/${release}/chunks.txt"
+    local nominatim_chunks_url="${github_base_url}/releases/download/${release}/chunks.txt"
     local nominatim_chunks_file="$nominatim_dir/nominatim_chunks.txt"
 
     echo "Downloading Nominatim chunks.txt from: $nominatim_chunks_url"
@@ -104,7 +105,7 @@ nominatim_download_chunks() {
         current_chunk=$((current_chunk + 1))
         echo "[$current_chunk/$total_chunks] Downloading: $chunk_filename"
 
-        local chunk_url="https://github.com/zlc1004/Carpool/releases/download/${release}/${chunk_filename}"
+        local chunk_url="${github_base_url}/releases/download/${release}/${chunk_filename}"
         local chunk_target="$nominatim_dir/$chunk_filename"
 
         case "$download_tool" in
@@ -145,10 +146,11 @@ nominatim_fix_permissions() {
 # Function to handle complete Nominatim setup
 nominatim_setup() {
     local download_tool="$1"
+    local github_base_url="${2:-https://github.com/zlc1004/Carpool}"
 
     if nominatim_prompt_download; then
         if nominatim_prompt_database_choice; then
-            if nominatim_download_chunks "$NOMINATIM_RELEASE" "$download_tool"; then
+            if nominatim_download_chunks "$NOMINATIM_RELEASE" "$download_tool" "$github_base_url"; then
                 nominatim_combine_and_extract "$NOMINATIM_CHUNKS_DIR"
                 nominatim_fix_permissions
             else

@@ -27,7 +27,7 @@ download_draw_progress_bar() {
 # Function to display file information
 download_show_file_info() {
     local file_path="$1"
-    
+
     if [[ -f "$file_path" ]]; then
         local file_size=$(du -h "$file_path" | cut -f1)
         echo ""
@@ -48,7 +48,8 @@ download_chunks_from_file() {
     local release="$2"
     local target_dir="$3"
     local download_tool="$4"
-    
+    local github_base_url="${5:-https://github.com/zlc1004/Carpool}"
+
     echo "Reading chunks.txt and downloading tarball chunks..."
     echo ""
 
@@ -74,7 +75,7 @@ download_chunks_from_file() {
         echo "Downloading: $chunk_filename"
 
         # Build download URL and target path
-        local chunk_url="https://github.com/zlc1004/Carpool/releases/download/${release}/${chunk_filename}"
+        local chunk_url="${github_base_url}/releases/download/${release}/${chunk_filename}"
         local chunk_target="$target_dir/$chunk_filename"
 
         # Download the chunk
@@ -97,7 +98,7 @@ download_single_chunk() {
     local url="$1"
     local target="$2"
     local tool="$3"
-    
+
     case "$tool" in
         "curl")
             curl -L -f --progress-bar -o "$target" "$url"
@@ -117,7 +118,7 @@ download_show_summary() {
     local successful="$2"
     local failed="$3"
     local release="$4"
-    
+
     echo ""
     echo "============================================"
     echo "Download Summary:"
@@ -144,7 +145,7 @@ download_show_spinner() {
     local pid="$1"
     local message="$2"
     local spin_chars="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
-    
+
     while kill -0 $pid 2>/dev/null; do
         for (( i=0; i<${#spin_chars}; i++ )); do
             echo -ne "\r${spin_chars:$i:1} $message... "
@@ -159,12 +160,12 @@ download_concatenate_chunks() {
     local chunks_dir="$1"
     local final_archive="$2"
     local pattern="$3"
-    
+
     echo ""
     echo "============================================"
     echo "Concatenating chunk parts into final archive..."
     echo "============================================"
-    
+
     # Create target directory for final archive
     mkdir -p "$(dirname "$final_archive")"
 
@@ -201,7 +202,7 @@ download_extract_archive() {
     local archive_path="$1"
     local extract_dir="$2"
     local strip_components="$3"
-    
+
     echo ""
     echo "Extracting archive to $extract_dir..."
 
