@@ -432,7 +432,7 @@ osrm_prompt_operation() {
         echo ""
         echo -n "Enter your choice (1-4): "
 
-        if ui_safe_read "" choice; then
+        if read -r choice; then
             case $choice in
                 1|2|3|4)
                     OPERATION_CHOICE="$choice"
