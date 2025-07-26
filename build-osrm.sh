@@ -58,8 +58,7 @@ osrm_prompt_pbf_selection() {
 
         case $choice in
             1)
-                echo "$DEFAULT_PBF_PATH"
-                echo "$DEFAULT_REGION"
+                echo "$DEFAULT_PBF_PATH $DEFAULT_REGION"
                 return 0
                 ;;
             2)
@@ -68,8 +67,7 @@ osrm_prompt_pbf_selection() {
                 read custom_pbf >&2
                 # Extract region name from filename
                 local region=$(basename "$custom_pbf" .osm.pbf)
-                echo "$custom_pbf"
-                echo "$region"
+                echo "$custom_pbf $region"
                 return 0
                 ;;
             3)
@@ -80,8 +78,7 @@ osrm_prompt_pbf_selection() {
                 echo -n "Enter path to selected PBF file: " >&2
                 read selected_pbf >&2
                 local region=$(basename "$selected_pbf" .osm.pbf)
-                echo "$selected_pbf"
-                echo "$region"
+                echo "$selected_pbf $region"
                 return 0
                 ;;
             *)
@@ -392,6 +389,12 @@ main() {
     echo ""
     read pbf_path region < <(osrm_prompt_pbf_selection)
 
+    # Debug: Ensure region is not empty
+    if [[ -z "$region" ]]; then
+        echo -e "${YELLOW}⚠️  Region name is empty, using default: $DEFAULT_REGION${NC}"
+        region="$DEFAULT_REGION"
+    fi
+
     # Validate PBF file exists
     if ! osrm_check_pbf_file "$pbf_path"; then
         exit 1
@@ -405,9 +408,11 @@ main() {
     fi
 
     # Setup OSRM data directory and copy PBF file
-    if ! region=$(osrm_setup_data_dir "$pbf_path" "$region"); then
+    if ! setup_region=$(osrm_setup_data_dir "$pbf_path" "$region"); then
         exit 1
     fi
+    # Use the region returned from setup (in case it was modified)
+    region="$setup_region"
 
     # Run OSRM processing pipeline
     if ! osrm_run_pipeline "$region"; then
