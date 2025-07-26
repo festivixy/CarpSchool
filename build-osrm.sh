@@ -135,7 +135,7 @@ osrm_setup_data_dir() {
 
     if cp "$pbf_path" "$target_pbf"; then
         echo -e "${GREEN}✓ PBF file copied successfully${NC}"
-        echo "$region"  # Return region name
+        return 0
     else
         echo -e "${RED}❌ Failed to copy PBF file from $pbf_path to $target_pbf${NC}"
         echo -e "${RED}   Check file permissions and disk space${NC}"
@@ -418,13 +418,21 @@ main() {
     fi
 
     # Setup OSRM data directory and copy PBF file
-    if ! setup_region=$(osrm_setup_data_dir "$pbf_path" "$region"); then
+    if osrm_setup_data_dir "$pbf_path" "$region"; then
+        echo -e "${GREEN}✓ OSRM data directory setup completed${NC}"
+    else
+        echo -e "${RED}❌ Failed to setup OSRM data directory${NC}"
         exit 1
     fi
-    # Use the region returned from setup (in case it was modified)
-    region="$setup_region"
+
+    # Debug: Ensure region is still valid before pipeline
+    if [[ -z "$region" ]]; then
+        echo -e "${RED}❌ Region variable is empty before pipeline${NC}"
+        exit 1
+    fi
 
     # Run OSRM processing pipeline
+    echo -e "${BLUE}Debug: Running pipeline for region: '$region'${NC}"
     if ! osrm_run_pipeline "$region"; then
         echo ""
         echo -e "${RED}❌ OSRM build failed${NC}"
