@@ -36,7 +36,7 @@ ui_safe_read() {
     local default_value="$1"
     local var_name="$2"
     local timeout="${READ_TIMEOUT:-10}"
-    
+
     # Check for non-interactive mode first
     if [ "${CARPOOL_NONINTERACTIVE}" = "1" ]; then
         echo -e "${BLUE}[NON-INTERACTIVE MODE]${NC} Using default value: $default_value" >&2
@@ -47,7 +47,7 @@ ui_safe_read() {
         fi
         return 0
     fi
-    
+
     # Verify stdin is attached and readable
     if ! [ -t 0 ] && ! [ -p /dev/stdin ]; then
         echo -e "${RED}Warning: stdin is not available for input${NC}" >&2
@@ -61,7 +61,7 @@ ui_safe_read() {
         fi
         return 1
     fi
-    
+
     # Attempt to read with timeout
     local input
     if read -r -t "$timeout" input; then
@@ -94,7 +94,7 @@ ui_safe_read() {
 ui_show_header() {
     local title="$1"
     local description="$2"
-    
+
     echo "============================================"
     echo "$title"
     echo "============================================"
@@ -109,7 +109,7 @@ ui_show_header() {
 ui_show_usage() {
     local script_name="$1"
     local commands="$2"
-    
+
     echo -e "${BLUE}🚀 $script_name${NC}"
     echo ""
     echo "Usage: ./$script_name [command]"
@@ -123,7 +123,7 @@ ui_show_usage() {
 ui_validate_choice() {
     local choice="$1"
     local valid_choices="$2"
-    
+
     for valid in $valid_choices; do
         if [ "$choice" = "$valid" ]; then
             return 0
@@ -139,7 +139,7 @@ ui_prompt_with_validation() {
     local error_msg="$3"
     local fallback="$4"  # Optional fallback value
     local max_attempts=${5:-3}  # Default to 3 attempts
-    
+
     # Check for non-interactive mode first
     if [ "${CARPOOL_NONINTERACTIVE}" = "1" ]; then
         if [ -n "$fallback" ]; then
@@ -154,15 +154,16 @@ ui_prompt_with_validation() {
             return 0
         fi
     fi
-    
+
     local attempts=0
     local choice
-    
+
     while [ $attempts -lt $max_attempts ]; do
         echo -n "$prompt"
-        
-        # Use ui_safe_read instead of raw read
-        if ui_safe_read "" choice; then
+
+        # Read input directly without variable passing to avoid scope issues
+        local timeout="${READ_TIMEOUT:-10}"
+        if read -r -t "$timeout" choice; then
             if ui_validate_choice "$choice" "$valid_choices"; then
                 echo "$choice"
                 return 0
@@ -171,12 +172,16 @@ ui_prompt_with_validation() {
                 attempts=$((attempts + 1))
             fi
         else
-            # ui_safe_read failed (timeout, I/O error, etc.)
+            local exit_status=$?
+            # Handle timeout (exit status 142) or EIO
             echo -e "${RED}Failed to read input (attempt $((attempts + 1))/$max_attempts)${NC}" >&2
+            if [ $exit_status -eq 142 ]; then
+                echo -e "${YELLOW}Input timeout after ${timeout}s${NC}" >&2
+            fi
             attempts=$((attempts + 1))
         fi
     done
-    
+
     # Maximum attempts reached - handle failure
     if [ -n "$fallback" ]; then
         ui_show_completion "Input validation failed after $max_attempts attempts" "Using fallback value: $fallback"
@@ -191,7 +196,7 @@ ui_prompt_with_validation() {
 ui_show_completion() {
     local operation="$1"
     local next_steps="$2"
-    
+
     echo -e "${GREEN}✅ $operation completed!${NC}"
     if [ -n "$next_steps" ]; then
         echo ""
@@ -203,7 +208,7 @@ ui_show_completion() {
 ui_error_exit() {
     local error_msg="$1"
     local exit_code=${2:-1}
-    
+
     echo -e "${RED}❌ Error: $error_msg${NC}"
     exit "$exit_code"
 }
@@ -213,9 +218,9 @@ ui_ask_yes_no() {
     local question="$1"
     local default=${2:-"Y"}  # Default to Yes
     local yn
-    
+
     echo -e "${YELLOW}$question (Y/n): ${NC}"
-    
+
     # Use ui_safe_read with default answer - if it fails, return the default
     if ui_safe_read "$default" yn; then
         # Input was successfully read or default was used

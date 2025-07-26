@@ -13,16 +13,24 @@ NC='\033[0m' # No Color
 nominatim_prompt_download() {
     echo ""
     echo "Do you want to download a Nominatim database backup? (y/N)"
-    read -p "Download Nominatim database? (y/N): " download_nominatim
-    case "${download_nominatim,,}" in
-        y|yes)
-            return 0
-            ;;
-        *)
-            echo "Skipping Nominatim database download."
-            return 1
-            ;;
-    esac
+    local download_nominatim
+    local timeout="${READ_TIMEOUT:-10}"
+    echo -n "Download Nominatim database? (y/N): "
+
+    if read -r -t "$timeout" download_nominatim; then
+        case "${download_nominatim,,}" in
+            y|yes)
+                return 0
+                ;;
+            *)
+                echo "Skipping Nominatim database download."
+                return 1
+                ;;
+        esac
+    else
+        echo "Input timeout, skipping Nominatim database download."
+        return 1
+    fi
 }
 
 # Function to prompt for Nominatim database choice
@@ -31,22 +39,35 @@ nominatim_prompt_database_choice() {
     echo "1) nominatim.pgsql.ca.bc (British Columbia)"
     echo "2) nominatim.pgsql.ca (Canada)"
 
-    while true; do
-        read -p "Enter your choice (1-2): " nominatim_choice
-        case "$nominatim_choice" in
-            1)
-                NOMINATIM_RELEASE="nominatim.pgsql.ca.bc"
-                return 0
-            ;;
-            2)
-                NOMINATIM_RELEASE="nominatim.pgsql.ca"
-                return 0
-            ;;
-            *)
-                echo "Invalid choice. Please enter 1 or 2."
-            ;;
-        esac
+    local max_attempts=3
+    local attempts=0
+    local nominatim_choice
+
+    while [ $attempts -lt $max_attempts ]; do
+        echo -n "Enter your choice (1-2): "
+        if ui_safe_read "" nominatim_choice; then
+            case "$nominatim_choice" in
+                1)
+                    NOMINATIM_RELEASE="nominatim.pgsql.ca.bc"
+                    return 0
+                ;;
+                2)
+                    NOMINATIM_RELEASE="nominatim.pgsql.ca"
+                    return 0
+                ;;
+                *)
+                    echo "Invalid choice. Please enter 1 or 2."
+                    attempts=$((attempts + 1))
+                ;;
+            esac
+        else
+            echo "Failed to read input (attempt $((attempts + 1))/$max_attempts)"
+            attempts=$((attempts + 1))
+        fi
     done
+
+    echo "Failed to get valid choice after $max_attempts attempts"
+    return 1
 }
 
 # Function to download Nominatim chunks

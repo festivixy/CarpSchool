@@ -43,8 +43,11 @@ osrm_check_pbf_file() {
 # Function to prompt for PBF file selection
 osrm_prompt_pbf_selection() {
     local choice
+    local timeout="${READ_TIMEOUT:-10}"
+    local max_attempts=3
+    local attempts=0
 
-    while true; do
+    while [ $attempts -lt $max_attempts ]; do
         echo "" >&2
         echo "Please choose the PBF file source:" >&2
         echo "" >&2
@@ -54,38 +57,56 @@ osrm_prompt_pbf_selection() {
         echo "" >&2
         echo -n "Enter your choice (1-3): " >&2
 
-        read choice >&2
-
-        case $choice in
-            1)
-                echo "$DEFAULT_PBF_PATH $DEFAULT_REGION"
-                return 0
-                ;;
-            2)
-                echo "" >&2
-                echo -n "Enter full path to PBF file: " >&2
-                read custom_pbf >&2
-                # Extract region name from filename
-                local region=$(basename "$custom_pbf" .osm.pbf)
-                echo "$custom_pbf $region"
-                return 0
-                ;;
-            3)
-                echo "" >&2
-                echo "Available PBF files:" >&2
-                find openmaptilesdata/ -name "*.osm.pbf" -type f 2>/dev/null >&2 || echo "No PBF files found in openmaptilesdata/" >&2
-                echo "" >&2
-                echo -n "Enter path to selected PBF file: " >&2
-                read selected_pbf >&2
-                local region=$(basename "$selected_pbf" .osm.pbf)
-                echo "$selected_pbf $region"
-                return 0
-                ;;
-            *)
-                echo "Invalid choice. Please enter 1, 2, or 3." >&2
-                ;;
-        esac
+        if read -r -t "$timeout" choice; then
+            case $choice in
+                1)
+                    PBF_PATH="$DEFAULT_PBF_PATH"
+                    REGION="$DEFAULT_REGION"
+                    return 0
+                    ;;
+                2)
+                    echo "" >&2
+                    echo -n "Enter full path to PBF file: " >&2
+                    local custom_pbf
+                    if read -r -t "$timeout" custom_pbf; then
+                        # Extract region name from filename
+                        PBF_PATH="$custom_pbf"
+                        REGION=$(basename "$custom_pbf" .osm.pbf)
+                        return 0
+                    else
+                        echo "Input timeout for PBF file path" >&2
+                        attempts=$((attempts + 1))
+                    fi
+                    ;;
+                3)
+                    echo "" >&2
+                    echo "Available PBF files:" >&2
+                    find openmaptilesdata/ -name "*.osm.pbf" -type f 2>/dev/null >&2 || echo "No PBF files found in openmaptilesdata/" >&2
+                    echo "" >&2
+                    echo -n "Enter path to selected PBF file: " >&2
+                    local selected_pbf
+                    if read -r -t "$timeout" selected_pbf; then
+                        PBF_PATH="$selected_pbf"
+                        REGION=$(basename "$selected_pbf" .osm.pbf)
+                        return 0
+                    else
+                        echo "Input timeout for PBF file path" >&2
+                        attempts=$((attempts + 1))
+                    fi
+                    ;;
+                *)
+                    echo "Invalid choice. Please enter 1, 2, or 3." >&2
+                    attempts=$((attempts + 1))
+                    ;;
+            esac
+        else
+            echo "Input timeout for choice selection (attempt $((attempts + 1))/$max_attempts)" >&2
+            attempts=$((attempts + 1))
+        fi
     done
+
+    echo "Failed to get PBF selection after $max_attempts attempts" >&2
+    return 1
 }
 
 # Function to run OSRM Docker command with error handling
@@ -412,17 +433,19 @@ osrm_prompt_operation() {
         echo ""
         echo -n "Enter your choice (1-4): "
 
-        read choice
-
-        case $choice in
-            1|2|3|4)
-                OPERATION_CHOICE="$choice"
-                return 0
-                ;;
-            *)
-                echo "Invalid choice. Please enter 1, 2, 3, or 4."
-                ;;
-        esac
+        if ui_safe_read "" choice; then
+            case $choice in
+                1|2|3|4)
+                    OPERATION_CHOICE="$choice"
+                    return 0
+                    ;;
+                *)
+                    echo "Invalid choice. Please enter 1, 2, 3, or 4."
+                    ;;
+            esac
+        else
+            echo "Failed to read input. Please try again."
+        fi
     done
 }
 
@@ -475,28 +498,31 @@ main() {
     # Continue with normal flow for options 1-3
     # Get PBF file and region info
     echo ""
-    read pbf_path region < <(osrm_prompt_pbf_selection)
+    if ! osrm_prompt_pbf_selection; then
+        echo "Failed to get PBF file selection"
+        exit 1
+    fi
 
     # Debug: Ensure region is not empty
-    if [[ -z "$region" ]]; then
+    if [[ -z "$REGION" ]]; then
         echo -e "${YELLOW}⚠️  Region name is empty, using default: $DEFAULT_REGION${NC}"
-        region="$DEFAULT_REGION"
+        REGION="$DEFAULT_REGION"
     fi
 
     # Validate PBF file exists
-    if ! osrm_check_pbf_file "$pbf_path"; then
+    if ! osrm_check_pbf_file "$PBF_PATH"; then
         exit 1
     fi
 
     # Ask user if they want to proceed
     echo ""
-    if ! ui_ask_yes_no "Proceed with OSRM build for region '$region'?" "Y"; then
+    if ! ui_ask_yes_no "Proceed with OSRM build for region '$REGION'?" "Y"; then
         echo "Build cancelled by user."
         exit 0
     fi
 
     # Setup OSRM data directory and copy PBF file
-    if osrm_setup_data_dir "$pbf_path" "$region"; then
+    if osrm_setup_data_dir "$PBF_PATH" "$REGION"; then
         echo -e "${GREEN}✓ OSRM data directory setup completed${NC}"
     else
         echo -e "${RED}❌ Failed to setup OSRM data directory${NC}"
@@ -504,14 +530,14 @@ main() {
     fi
 
     # Debug: Ensure region is still valid before pipeline
-    if [[ -z "$region" ]]; then
+    if [[ -z "$REGION" ]]; then
         echo -e "${RED}❌ Region variable is empty before pipeline${NC}"
         exit 1
     fi
 
     # Run OSRM processing pipeline
-    echo -e "${BLUE}Debug: Running pipeline for region: '$region'${NC}"
-    if ! osrm_run_pipeline "$region"; then
+    echo -e "${BLUE}Debug: Running pipeline for region: '$REGION'${NC}"
+    if ! osrm_run_pipeline "$REGION"; then
         echo ""
         echo -e "${RED}❌ OSRM build failed${NC}"
         echo "Check the error messages above for troubleshooting."
@@ -519,7 +545,7 @@ main() {
     fi
 
     # Show build summary
-    osrm_show_summary "$region"
+    osrm_show_summary "$REGION"
 
     # Handle tarball creation based on operation choice
     case $OPERATION_CHOICE in
@@ -527,14 +553,14 @@ main() {
             echo -e "${YELLOW}Skipping tarball creation (option 1 selected)${NC}"
             ;;
         2)
-            if osrm_create_tarball "$region"; then
+            if osrm_create_tarball "$REGION"; then
                 echo ""
                 echo -e "${GREEN}✓ Tarball creation completed${NC}"
             fi
             ;;
         3)
-            if osrm_create_tarball "$region"; then
-                if osrm_chunk_tarball "$TARBALL_PATH" "$region"; then
+            if osrm_create_tarball "$REGION"; then
+                if osrm_chunk_tarball "$TARBALL_PATH" "$REGION"; then
                     echo ""
                     echo -e "${GREEN}✓ Tarball and chunking completed${NC}"
 
@@ -550,7 +576,7 @@ main() {
     esac
 
     # Show integration information
-    osrm_show_integration_info "$region"
+    osrm_show_integration_info "$REGION"
 
     echo ""
     echo -e "${GREEN}🎉 OSRM build process completed successfully!${NC}"

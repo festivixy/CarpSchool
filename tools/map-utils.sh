@@ -28,25 +28,33 @@ map_prompt_data_action() {
     echo "1) Build - Run './build-openmaptiles.sh' to generate map data WARN: takes around 5 to 20 hours depends on your hardware."
     echo "2) Download - Run './download-openmaptiles-data.sh' to download pre-built data"
     echo ""
-    read -p "Enter your choice (1-2): " choice
+    local choice
+    local timeout="${READ_TIMEOUT:-10}"
+    echo -n "Enter your choice (1-2): "
 
-    case $choice in
-        1 )
-            echo "Starting map data build process..."
-            ./build-openmaptiles.sh
-            return 0
-            ;;
-        2 )
-            echo "Starting map data download process..."
-            ./download-openmaptiles-data.sh
-            return 0
-            ;;
-        * )
-            echo "Invalid choice. Exiting..."
-            echo "Please run the script again and choose 1 or 2."
-            return 1
-            ;;
-    esac
+    if read -r -t "$timeout" choice; then
+        case $choice in
+            1 )
+                echo "Starting map data build process..."
+                ./build-openmaptiles.sh
+                return 0
+                ;;
+            2 )
+                echo "Starting map data download process..."
+                ./download-openmaptiles-data.sh
+                return 0
+                ;;
+            * )
+                echo "Invalid choice. Exiting..."
+                echo "Please run the script again and choose 1 or 2."
+                return 1
+                ;;
+        esac
+    else
+        echo "Input timeout. Exiting..."
+        echo "Please run the script again and choose 1 or 2."
+        return 1
+    fi
 }
 
 # Function to handle map data requirements
@@ -97,15 +105,28 @@ map_get_release_name() {
 
 # Function to prompt for custom release name
 map_prompt_custom_release() {
-    while true; do
-        read -p "Enter custom release name: " custom_release
-        if [[ -n "$custom_release" && "$custom_release" =~ ^[a-zA-Z0-9._-]+$ ]]; then
-            RELEASE="$custom_release"
-            return 0
+    local max_attempts=3
+    local attempts=0
+    local custom_release
+
+    while [ $attempts -lt $max_attempts ]; do
+        echo -n "Enter custom release name: "
+        if ui_safe_read "" custom_release; then
+            if [[ -n "$custom_release" && "$custom_release" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+                RELEASE="$custom_release"
+                return 0
+            else
+                echo "Invalid release name. Please use only alphanumeric characters, dots, hyphens, and underscores."
+                attempts=$((attempts + 1))
+            fi
         else
-            echo "Invalid release name. Please use only alphanumeric characters, dots, hyphens, and underscores."
+            echo "Failed to read input (attempt $((attempts + 1))/$max_attempts)"
+            attempts=$((attempts + 1))
         fi
     done
+
+    echo "Failed to get valid custom release name after $max_attempts attempts"
+    return 1
 }
 
 # Function to create directory structure
