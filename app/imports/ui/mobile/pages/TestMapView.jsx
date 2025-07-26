@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import MapView from "../components/MapView";
 import InteractiveMapPicker from "../components/InteractiveMapPicker";
+import PathMapView from "../components/PathMapView";
 import LiquidGlassButton from "../liquidGlass/components/Button";
 import LiquidGlassNavbar from "../liquidGlass/components/Navbar";
 import LiquidGlassDropdown from "../liquidGlass/components/Dropdown";
@@ -55,6 +56,22 @@ const MobileTestMapView = () => {
   const [dropdownValue, setDropdownValue] = useState(null);
   const [multiDropdownValue, setMultiDropdownValue] = useState([]);
   const [searchDropdownValue, setSearchDropdownValue] = useState(null);
+
+  // PathMapView state
+  const [pathStartCoord, setPathStartCoord] = useState({
+    lat: 49.345196,
+    lng: -123.149805,
+  });
+  const [pathEndCoord, setPathEndCoord] = useState({
+    lat: 49.35,
+    lng: -123.155,
+  });
+  const [pathStartLat, setPathStartLat] = useState("49.345196");
+  const [pathStartLng, setPathStartLng] = useState("-123.149805");
+  const [pathEndLat, setPathEndLat] = useState("49.35");
+  const [pathEndLng, setPathEndLng] = useState("-123.155");
+  const [pathMapHeight, setPathMapHeight] = useState("450px");
+  const [routingService, setRoutingService] = useState("osrm");
 
   const handleAddPoint = () => {
     const lat = parseFloat(newPointLat);
@@ -181,6 +198,46 @@ const MobileTestMapView = () => {
   const handleSignOut = () => {
     console.log("Sign out clicked");
     alert("Sign out clicked");
+  };
+
+  // PathMapView handlers
+  const updatePathStartCoord = () => {
+    const lat = parseFloat(pathStartLat);
+    const lng = parseFloat(pathStartLng);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      setPathStartCoord({ lat, lng });
+    }
+  };
+
+  const updatePathEndCoord = () => {
+    const lat = parseFloat(pathEndLat);
+    const lng = parseFloat(pathEndLng);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      setPathEndCoord({ lat, lng });
+    }
+  };
+
+  const resetPathToVancouver = () => {
+    setPathStartCoord({ lat: 49.345196, lng: -123.149805 });
+    setPathEndCoord({ lat: 49.35, lng: -123.155 });
+    setPathStartLat("49.345196");
+    setPathStartLng("-123.149805");
+    setPathEndLat("49.35");
+    setPathEndLng("-123.155");
+  };
+
+  const swapPathPoints = () => {
+    const tempCoord = pathStartCoord;
+    const tempLat = pathStartLat;
+    const tempLng = pathStartLng;
+
+    setPathStartCoord(pathEndCoord);
+    setPathStartLat(pathEndLat);
+    setPathStartLng(pathEndLng);
+
+    setPathEndCoord(tempCoord);
+    setPathEndLat(tempLat);
+    setPathEndLng(tempLng);
   };
 
   return (
@@ -352,6 +409,176 @@ const MobileTestMapView = () => {
                 <InfoLabel>Features</InfoLabel>
                 <InfoValue>
                   Interactive Leaflet map with markers and popups
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+          </SectionContent>
+        </Section>
+
+        <Section>
+          <SectionTitle>🛣️ Path Finding Map</SectionTitle>
+          <SectionContent>
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>Component Test</InfoLabel>
+                <InfoValue>
+                  Testing the PathMapView component that finds routes between two coordinate points using OSRM routing service
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+
+            <ControlsGrid>
+              <ControlItem>
+                <LiquidGlassTextInput
+                  label="Start Point - Latitude"
+                  type="number"
+                  value={pathStartLat}
+                  onChange={(e) => setPathStartLat(e.target.value)}
+                  placeholder="Enter start latitude"
+                  step="0.000001"
+                />
+              </ControlItem>
+              <ControlItem>
+                <LiquidGlassTextInput
+                  label="Start Point - Longitude"
+                  type="number"
+                  value={pathStartLng}
+                  onChange={(e) => setPathStartLng(e.target.value)}
+                  placeholder="Enter start longitude"
+                  step="0.000001"
+                />
+              </ControlItem>
+            </ControlsGrid>
+
+            <ControlsGrid>
+              <ControlItem>
+                <LiquidGlassTextInput
+                  label="End Point - Latitude"
+                  type="number"
+                  value={pathEndLat}
+                  onChange={(e) => setPathEndLat(e.target.value)}
+                  placeholder="Enter end latitude"
+                  step="0.000001"
+                />
+              </ControlItem>
+              <ControlItem>
+                <LiquidGlassTextInput
+                  label="End Point - Longitude"
+                  type="number"
+                  value={pathEndLng}
+                  onChange={(e) => setPathEndLng(e.target.value)}
+                  placeholder="Enter end longitude"
+                  step="0.000001"
+                />
+              </ControlItem>
+            </ControlsGrid>
+
+            <ControlsGrid>
+              <ControlItem>
+                <Label>Map Height</Label>
+                <LiquidGlassTextInput
+                  type="text"
+                  value={pathMapHeight}
+                  onChange={(e) => setPathMapHeight(e.target.value)}
+                  placeholder="e.g., 450px, 60vh"
+                />
+              </ControlItem>
+              <ControlItem>
+                <Label>Routing Service</Label>
+                <LiquidGlassDropdown
+                  options={[
+                    { value: "osrm", label: "OSRM (Recommended)" },
+                    { value: "straight-line", label: "Straight Line (Fallback)" }
+                  ]}
+                  value={routingService}
+                  onChange={(value) => setRoutingService(value)}
+                  width="200px"
+                />
+              </ControlItem>
+            </ControlsGrid>
+
+            <ControlsGrid>
+              <ControlItem>
+                <Label>Quick Actions</Label>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <LiquidGlassButton
+                    label="Update Points"
+                    onClick={() => {
+                      updatePathStartCoord();
+                      updatePathEndCoord();
+                    }}
+                  />
+                  <LiquidGlassButton
+                    label="Swap A ↔ B"
+                    onClick={swapPathPoints}
+                  />
+                  <LiquidGlassButton
+                    label="Reset Vancouver"
+                    onClick={resetPathToVancouver}
+                  />
+                </div>
+              </ControlItem>
+              <ControlItem>
+                <Label>Current Points</Label>
+                <div style={{ fontSize: "12px", color: "#666" }}>
+                  A: {pathStartCoord.lat.toFixed(6)}, {pathStartCoord.lng.toFixed(6)}<br/>
+                  B: {pathEndCoord.lat.toFixed(6)}, {pathEndCoord.lng.toFixed(6)}
+                </div>
+              </ControlItem>
+            </ControlsGrid>
+
+            <ComponentContainer>
+              <PathMapView
+                startCoord={pathStartCoord}
+                endCoord={pathEndCoord}
+                tileServerUrl={tileServerUrl || undefined}
+                height={pathMapHeight}
+                routingService={routingService}
+              />
+            </ComponentContainer>
+
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>🧪 PathMapView Features</InfoLabel>
+                <InfoValue>
+                  1. Route finding between two coordinate points
+                  <br />
+                  2. OSRM routing service with straight-line fallback
+                  <br />
+                  3. Custom start (A) and end (B) markers
+                  <br />
+                  4. Route visualization with distance and duration
+                  <br />
+                  5. Interactive controls for route management
+                  <br />
+                  6. Automatic map centering and zoom fitting
+                  <br />
+                  7. Error handling and loading states
+                  <br />
+                  8. Responsive design for mobile and desktop
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>📱 Testing Instructions</InfoLabel>
+                <InfoValue>
+                  1. Enter coordinates for start and end points
+                  <br />
+                  2. Click "Update Points" to apply coordinate changes
+                  <br />
+                  3. Use "Find Route" button (🗺️) on the map to calculate path
+                  <br />
+                  4. Try "Swap A ↔ B" to reverse the route direction
+                  <br />
+                  5. Use "Reset Vancouver" for quick test coordinates
+                  <br />
+                  6. Toggle between OSRM and straight-line routing
+                  <br />
+                  7. Adjust map height to see responsive behavior
+                  <br />
+                  8. Check route distance and duration information
                 </InfoValue>
               </InfoItem>
             </InfoCard>
