@@ -10,10 +10,11 @@ build/
 config/settings.prod.json
 .env
 openmaptiles/
-openmaptilesdata/*
+openmaptilesdata/
 pgdata/
 pgdataNominatimInternal/
 mongo_data/
 console.log
 Trace-*.json
 profiling-data.*.json
+orsmdata/

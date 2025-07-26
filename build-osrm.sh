@@ -221,7 +221,7 @@ osrm_chunk_tarball() {
     local tarball_file="$1"
     local region="$2"
     local chunks_dir="$OSRM_BASE_DIR/tarballs/chunks"
-    local chunk_size="50M"  # 50MB chunks
+    local chunk_size="256M"  # 256MB chunks
 
     echo ""
     echo -e "${YELLOW}🔄 Chunking tarball into $chunk_size pieces...${NC}"
@@ -231,7 +231,7 @@ osrm_chunk_tarball() {
 
     # Split tarball into chunks
     echo -n "Splitting tarball "
-    (cd "$chunks_dir" && split -b "$chunk_size" -d "../../tarballs/orsmdata-$region.tar.gz" "orsmdata-$region.tar.gz.") &
+    (cd "$chunks_dir" && split -b "$chunk_size" -d "../../tarballs/orsmdata-$region.tar.gz" "orsmdata-$region.tar.gz." --additional-suffix=.part -a 3 --numeric-suffixes) &
     local split_pid=$!
 
     # Show spinner while splitting
@@ -263,7 +263,8 @@ osrm_chunk_tarball() {
         if [[ $chunk_count -gt 5 ]]; then
             echo "  ... and $((chunk_count - 5)) more chunks"
         fi
-
+        find "$chunks_dir" -maxdepth 1 -type f ! -name 'chunks.txt' -exec basename {} \; \
+                    > "$chunks_txt"
         return 0
     else
         echo -e "${RED}❌ Failed to chunk tarball${NC}"
