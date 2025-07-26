@@ -9,9 +9,6 @@ import {
   Container,
   Header,
   Title,
-  HeaderButtons,
-  CreateButton,
-  JoinButton,
   ErrorMessage,
   SuccessMessage,
   Content,
@@ -24,9 +21,6 @@ import {
   ChatListItemLast,
   ChatListItemCount,
   ChatListEmpty,
-  EmptyButtons,
-  CreateFirstButton,
-  JoinFirstButton,
   Main,
   ConversationHeader,
   ConversationInfo,
@@ -52,16 +46,11 @@ import {
   ModalHeader,
   ModalClose,
   ModalTitle,
-  ModalSubtitle,
   ModalContent,
-  FormGroup,
   FormHint,
   ShareCodeDisplay,
   CodeContainer,
   Code,
-  CodeInputs,
-  CodeInput,
-  Dash,
   ModalActions,
   ButtonSecondary,
   ButtonPrimary,
@@ -76,16 +65,11 @@ class MobileChat extends React.Component {
     this.state = {
       selectedChatId: null,
       messageInput: "",
-      showJoinChatModal: false,
       showShareCodeModal: false,
-      showCreateChatModal: false,
-      codeInputs: ["", "", "", "", "", "", "", ""], // 8 separate inputs for join code
       selectedChatShareCode: "",
-      newChatShareCode: "",
       error: "",
       success: "",
     };
-    this.codeInputRefs = [];
     this.isSubmitting = false;
   }
 
@@ -185,91 +169,9 @@ class MobileChat extends React.Component {
     }
   };
 
-  handleCreateChat = async () => {
-    try {
-      const result = await Meteor.callAsync("chats.createWithCode");
-      this.setState({
-        showCreateChatModal: true,
-        newChatShareCode: result.shareCode,
-        selectedChatId: result.chatId,
-        success: "Chat created successfully!",
-      });
-      setTimeout(() => this.setState({ success: "" }), 3000);
-    } catch (error) {
-      this.setState({ error: error.reason || error.message });
-    }
-  };
 
-  handleCodeInputChange = (index, e) => {
-    const value = e.target.value.toUpperCase();
 
-    if (value.length <= 1) {
-      const newInputs = [...this.state.codeInputs];
-      newInputs[index] = value;
-      this.setState({ codeInputs: newInputs, error: "" });
 
-      // Auto-advance to next input
-      if (value.length === 1 && index < 7) {
-        const nextInput = this.codeInputRefs[index + 1];
-        if (nextInput) {
-          nextInput.focus();
-        }
-      }
-    }
-  };
-
-  handleCodeKeyDown = (index, e) => {
-    // Handle backspace to go to previous input
-    if (
-      e.key === "Backspace" &&
-      this.state.codeInputs[index] === "" &&
-      index > 0
-    ) {
-      const prevInput = this.codeInputRefs[index - 1];
-      if (prevInput) {
-        prevInput.focus();
-      }
-    }
-  };
-
-  handleCodePaste = (e) => {
-    e.preventDefault();
-    const paste = e.clipboardData.getData("text").toUpperCase();
-    const cleanPaste = paste.replace(/[^A-Z0-9]/g, "");
-
-    if (cleanPaste.length <= 8) {
-      const newInputs = [...this.state.codeInputs];
-      for (let i = 0; i < 8; i++) {
-        newInputs[i] = cleanPaste[i] || "";
-      }
-      this.setState({ codeInputs: newInputs, error: "" });
-    }
-  };
-
-  handleJoinChat = async () => {
-    const shareCode = this.state.codeInputs.join("");
-
-    if (shareCode.length !== 8) {
-      this.setState({ error: "Please enter a complete 8-character code" });
-      return;
-    }
-
-    // Format code with dash for API call
-    const formattedCode = `${shareCode.slice(0, 4)}-${shareCode.slice(4)}`;
-
-    try {
-      const chatId = await Meteor.callAsync("chats.joinChat", formattedCode);
-      this.setState({
-        showJoinChatModal: false,
-        codeInputs: ["", "", "", "", "", "", "", ""],
-        selectedChatId: chatId,
-        success: "Joined chat successfully!",
-      });
-      setTimeout(() => this.setState({ success: "" }), 3000);
-    } catch (error) {
-      this.setState({ error: error.reason || error.message });
-    }
-  };
 
   handleShowShareCode = async (chatId) => {
     try {
@@ -306,25 +208,7 @@ class MobileChat extends React.Component {
     }
   };
 
-  copyNewChatCode = () => {
-    const { newChatShareCode } = this.state;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(newChatShareCode).then(() => {
-        this.setState({ success: "Chat code copied to clipboard!" });
-        setTimeout(() => this.setState({ success: "" }), 3000);
-      });
-    } else {
-      // Fallback for older browsers
-      const textArea = document.createElement("textarea");
-      textArea.value = newChatShareCode;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      this.setState({ success: "Chat code copied to clipboard!" });
-      setTimeout(() => this.setState({ success: "" }), 3000);
-    }
-  };
+
 
   scrollToBottom = () => {
     const messagesContainer = document.querySelector(".mobile-chat-messages");
@@ -401,11 +285,8 @@ class MobileChat extends React.Component {
     const {
       selectedChatId,
       messageInput,
-      showJoinChatModal,
       showShareCodeModal,
-      showCreateChatModal,
       selectedChatShareCode,
-      newChatShareCode,
       error,
       success,
     } = this.state;
@@ -419,16 +300,6 @@ class MobileChat extends React.Component {
           {/* Header */}
           <Header>
             <Title>Messages</Title>
-            <HeaderButtons>
-              <CreateButton onClick={this.handleCreateChat}>
-                Create Chat
-              </CreateButton>
-              <JoinButton
-                onClick={() => this.setState({ showJoinChatModal: true })}
-              >
-                Join Chat
-              </JoinButton>
-            </HeaderButtons>
           </Header>
 
           {/* Error/Success Messages */}
@@ -467,18 +338,10 @@ class MobileChat extends React.Component {
                   ))
                 ) : (
                   <ChatListEmpty>
-                    <p>No chats yet</p>
-                    <EmptyButtons>
-                      <CreateFirstButton onClick={this.handleCreateChat}>
-                        Create Chat
-                      </CreateFirstButton>
-                      <JoinFirstButton
-                        onClick={() => this.setState({ showJoinChatModal: true })
-                        }
-                      >
-                        Join Chat
-                      </JoinFirstButton>
-                    </EmptyButtons>
+                    <p>No ride chats available</p>
+                    <p style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
+                      Join a ride to start chatting with other members
+                    </p>
                   </ChatListEmpty>
                 )}
               </ChatList>
@@ -579,83 +442,7 @@ class MobileChat extends React.Component {
           </Content>
         </Container>
 
-        {/* Join Chat Modal */}
-        {showJoinChatModal && (
-          <ModalOverlay
-            onClick={() => this.setState({
-                showJoinChatModal: false,
-                error: "",
-                codeInputs: ["", "", "", "", "", "", "", ""],
-              })
-            }
-          >
-            <Modal onClick={(e) => e.stopPropagation()}>
-              <ModalHeader>
-                <ModalClose
-                  onClick={() => this.setState({
-                      showJoinChatModal: false,
-                      error: "",
-                      codeInputs: ["", "", "", "", "", "", "", ""],
-                    })
-                  }
-                  aria-label="Close"
-                >
-                  ✕
-                </ModalClose>
-                <ModalTitle>Join Chat</ModalTitle>
-                <ModalSubtitle>
-                  Enter the 8-character code shared with you
-                </ModalSubtitle>
-              </ModalHeader>
-              <ModalContent>
-                <FormGroup>
-                  <CodeInputs>
-                    {this.state.codeInputs.map((value, index) => (
-                      <React.Fragment key={index}>
-                        <CodeInput
-                          ref={(ref) => {
-                            this.codeInputRefs[index] = ref;
-                          }}
-                          value={value}
-                          onChange={(e) => this.handleCodeInputChange(index, e)}
-                          onKeyDown={(e) => this.handleCodeKeyDown(index, e)}
-                          onPaste={
-                            index === 0 ? this.handleCodePaste : undefined
-                          }
-                          maxLength={1}
-                          type="text"
-                          inputMode="alphanumeric"
-                          autoCapitalize="characters"
-                          autoComplete="off"
-                          spellCheck="false"
-                        />
-                        {index === 3 && <Dash>-</Dash>}
-                      </React.Fragment>
-                    ))}
-                  </CodeInputs>
-                </FormGroup>
-              </ModalContent>
-              <ModalActions>
-                <ButtonSecondary
-                  onClick={() => this.setState({
-                      showJoinChatModal: false,
-                      error: "",
-                      codeInputs: ["", "", "", "", "", "", "", ""],
-                    })
-                  }
-                >
-                  Cancel
-                </ButtonSecondary>
-                <ButtonPrimary
-                  onClick={this.handleJoinChat}
-                  disabled={this.state.codeInputs.some((input) => input === "")}
-                >
-                  Join Chat
-                </ButtonPrimary>
-              </ModalActions>
-            </Modal>
-          </ModalOverlay>
-        )}
+
 
         {/* Share Code Modal */}
         {showShareCodeModal && (
@@ -696,44 +483,7 @@ class MobileChat extends React.Component {
           </ModalOverlay>
         )}
 
-        {/* Create Chat Success Modal */}
-        {showCreateChatModal && (
-          <ModalOverlay
-            onClick={() => this.setState({ showCreateChatModal: false })}
-          >
-            <Modal onClick={(e) => e.stopPropagation()}>
-              <ModalHeader>
-                <ModalTitle>Chat Created!</ModalTitle>
-                <ModalClose
-                  onClick={() => this.setState({ showCreateChatModal: false })}
-                >
-                  ✕
-                </ModalClose>
-              </ModalHeader>
-              <ModalContent>
-                <ShareCodeDisplay>
-                  <label>Your chat code is ready! Share it with someone:</label>
-                  <CodeContainer>
-                    <Code>{newChatShareCode}</Code>
-                  </CodeContainer>
-                  <FormHint>
-                    Send this code to someone so they can join your chat
-                  </FormHint>
-                </ShareCodeDisplay>
-              </ModalContent>
-              <ModalActions>
-                <ButtonPrimary onClick={this.copyNewChatCode}>
-                  📋 Copy Code
-                </ButtonPrimary>
-                <ButtonSecondary
-                  onClick={() => this.setState({ showCreateChatModal: false })}
-                >
-                  Done
-                </ButtonSecondary>
-              </ModalActions>
-            </Modal>
-          </ModalOverlay>
-        )}
+
       </>
     );
   }
