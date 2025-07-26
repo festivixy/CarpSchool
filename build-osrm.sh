@@ -213,6 +213,13 @@ osrm_create_tarball() {
     # Create tarballs directory
     mkdir -p "$tarball_dir"
 
+    # Remove british-columbia.osm.pbf before creating tarball
+    if [[ -f "$OSRM_BASE_DIR/data/british-columbia.osm.pbf" ]]; then
+        echo -e "${BLUE}Removing british-columbia.osm.pbf before creating tarball...${NC}"
+        rm -f "$OSRM_BASE_DIR/data/british-columbia.osm.pbf"
+        echo -e "${GREEN}✓ british-columbia.osm.pbf removed${NC}"
+    fi
+
     # Create tarball with progress indication
     echo -n "Creating tarball "
     (cd "$OSRM_BASE_DIR" && tar -czf "tarballs/osrmdata-$region.tar.gz" data/) &
