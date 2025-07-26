@@ -1,10 +1,21 @@
 #!/bin/bash
 
 # Runner script for Carpool app
+# Provides unified interface for development and production modes
+#
 # Usage: ./runner.sh [command]
 # Commands:
 #   dev   - Run the app in development mode
 #   prod  - Build and run the app in production mode
+#
+# Environment Variables:
+#   READ_TIMEOUT           - Input timeout in seconds (default: 10s)
+#   CARPOOL_NONINTERACTIVE - Set to '1' for non-interactive mode
+#
+# Examples:
+#   ./runner.sh dev                                    # Interactive development mode
+#   READ_TIMEOUT=30 ./runner.sh dev                   # Development with 30s timeout
+#   CARPOOL_NONINTERACTIVE=1 ./runner.sh prod         # Non-interactive production build
 
 set -e  # Exit on any error
 

@@ -2,6 +2,24 @@
 
 # Build and run Carpool app with Docker using zodern/meteor bundle approach
 # This script builds the Meteor app as a bundle and runs it using Docker Compose
+#
+# Environment Variables:
+#   READ_TIMEOUT           - Input timeout in seconds (default: 10s)
+#   CARPOOL_NONINTERACTIVE - Set to '1' for non-interactive mode
+#
+# Features:
+#   - Automatic cleanup of previous builds
+#   - Meteor app bundle creation for production
+#   - Map data validation and setup
+#   - Docker container orchestration
+#   - Configurable input timeouts (default: 10 seconds)
+#   - Non-interactive mode for CI/CD pipelines
+#   - Maximum 3 retry attempts for user input validation
+#
+# Examples:
+#   ./build-and-run.sh                                 # Interactive mode
+#   READ_TIMEOUT=30 ./build-and-run.sh                # 30 second input timeout
+#   CARPOOL_NONINTERACTIVE=1 ./build-and-run.sh       # Automated/CI mode
 
 set -e  # Exit on any error
 

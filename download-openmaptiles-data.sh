@@ -1,7 +1,24 @@
 #!/bin/bash
 
 # OpenMapTiles Data Download Script
-# Downloads chunks.txt for OpenMapTiles data releases
+# Downloads chunks.txt for OpenMapTiles data releases with robust input handling
+#
+# Environment Variables:
+#   READ_TIMEOUT           - Input timeout in seconds (default: 10s)
+#   CARPOOL_NONINTERACTIVE - Set to '1' for non-interactive mode
+#
+# Features:
+#   - Interactive selection of OpenMapTiles data releases
+#   - Configurable input timeout (default: 10 seconds)
+#   - Non-interactive mode support for automated setups
+#   - Maximum 3 retry attempts for invalid user input
+#   - Automatic fallback to defaults when stdin unavailable
+#   - Support for custom release names
+#
+# Examples:
+#   ./download-openmaptiles-data.sh                    # Interactive mode
+#   READ_TIMEOUT=30 ./download-openmaptiles-data.sh    # 30 second timeout
+#   CARPOOL_NONINTERACTIVE=1 ./download-openmaptiles-data.sh  # Automated mode
 
 set -e
 

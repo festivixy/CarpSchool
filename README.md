@@ -68,6 +68,31 @@ npm start prod
 
 This will build, setup, and run the application in production mode with docker.
 
+### Environment Configuration
+
+The application scripts support several environment variables for customizing behavior:
+
+#### Input Timeout Configuration
+- **`READ_TIMEOUT`** - Sets the timeout for user input prompts (default: 10 seconds)
+  ```bash
+  export READ_TIMEOUT=30  # 30 second timeout
+  ./runner.sh dev
+  ```
+
+#### Non-Interactive Mode
+- **`CARPOOL_NONINTERACTIVE`** - Enables non-interactive mode for automated deployments
+  ```bash
+  export CARPOOL_NONINTERACTIVE=1
+  ./build-and-run.sh  # Will use defaults for all prompts
+  ```
+
+#### Default Behaviors
+- **Interactive mode (default)**: Scripts prompt for user input with configurable timeout
+- **Non-interactive mode**: Scripts automatically use default values or first valid choices
+- **Timeout handling**: Falls back to default values when input timeout is reached
+- **Error resilience**: Maximum 3 retry attempts for invalid input before using fallbacks
+- **CI/CD friendly**: Automatically detects when stdin is unavailable and uses defaults
+
 ## Code Quality & Linting
 
 This project maintains high code quality standards using ESLint.
