@@ -102,7 +102,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./orsmdata/data:/data
+      - ./osrmdata/data:/data
     restart: unless-stopped
     networks:
       - carpool_network

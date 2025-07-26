@@ -15,8 +15,8 @@ source "./tools/download-utils.sh"
 ui_show_header "OSRM Build Script" "Builds OSRM routing data from OpenMapTiles PBF files"
 
 # Configuration
-OSRM_DATA_DIR="orsmdata/data"
-OSRM_BASE_DIR="orsmdata"
+OSRM_DATA_DIR="osrmdata/data"
+OSRM_BASE_DIR="osrmdata"
 DEFAULT_PBF_PATH="openmaptilesdata/data/north-america/canada/british-columbia.osm.pbf"
 DEFAULT_REGION="british-columbia"
 
@@ -205,7 +205,7 @@ osrm_show_summary() {
 osrm_create_tarball() {
     local region="$1"
     local tarball_dir="$OSRM_BASE_DIR/tarballs"
-    local tarball_file="$tarball_dir/orsmdata-$region.tar.gz"
+    local tarball_file="$tarball_dir/osrmdata-$region.tar.gz"
 
     echo ""
     echo -e "${YELLOW}📦 Creating OSRM data tarball...${NC}"
@@ -215,7 +215,7 @@ osrm_create_tarball() {
 
     # Create tarball with progress indication
     echo -n "Creating tarball "
-    (cd "$OSRM_BASE_DIR" && tar -czf "tarballs/orsmdata-$region.tar.gz" data/) &
+    (cd "$OSRM_BASE_DIR" && tar -czf "tarballs/osrmdata-$region.tar.gz" data/) &
     local tar_pid=$!
 
     # Show spinner while creating tarball
@@ -251,7 +251,7 @@ osrm_chunk_tarball() {
 
     # Split tarball into chunks
     echo -n "Splitting tarball "
-    (cd "$chunks_dir" && split -b "$chunk_size" -d "../../tarballs/orsmdata-$region.tar.gz" "orsmdata-$region.tar.gz." --additional-suffix=.part -a 3 --numeric-suffixes) &
+    (cd "$chunks_dir" && split -b "$chunk_size" -d "../../tarballs/osrmdata-$region.tar.gz" "osrmdata-$region.tar.gz." --additional-suffix=.part -a 3 --numeric-suffixes) &
     local split_pid=$!
 
     # Show spinner while splitting
@@ -261,7 +261,7 @@ osrm_chunk_tarball() {
 
     if [[ $split_result -eq 0 ]]; then
         # Rename chunks to have .part extension
-        for chunk in "$chunks_dir"/orsmdata-$region.tar.gz.*; do
+        for chunk in "$chunks_dir"/osrmdata-$region.tar.gz.*; do
             if [[ -f "$chunk" ]]; then
                 mv "$chunk" "$chunk.part"
             fi
@@ -269,7 +269,7 @@ osrm_chunk_tarball() {
 
         # Create chunks.txt file
         local chunks_txt="$chunks_dir/chunks.txt"
-        ls "$chunks_dir"/orsmdata-$region.tar.gz.*.part | sed 's|.*/||' > "$chunks_txt"
+        ls "$chunks_dir"/osrmdata-$region.tar.gz.*.part | sed 's|.*/||' > "$chunks_txt"
 
         local chunk_count=$(wc -l < "$chunks_txt")
         echo -e "${GREEN}✓ Tarball chunked successfully:${NC}"
@@ -382,7 +382,7 @@ osrm_show_manual_command() {
     ports:
       - "5000:5000"
     volumes:
-      - ./orsmdata/data:/data
+      - ./osrmdata/data:/data
     restart: unless-stopped
 EOF
     echo ""
