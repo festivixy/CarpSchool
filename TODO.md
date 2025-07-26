@@ -53,4 +53,12 @@ fixed with mongodb collection and session IDs. [319bfb6]
   - ✅ Button now matches regular SignIn button behavior with proper centering
   - ✅ LiquidGlass SignIn complete with proper component usage and styling
 
+- [x] **TODO 7: Remove legacy chat functionality and direct messaging** [8493fdf, 0e1e7cc]
+  - ✅ Removed "Create Chat" and "Join Chat" buttons from Chat page
+  - ✅ Removed related modals and methods for standalone chat creation
+  - ✅ Removed "Contact {rider}" buttons from ImDriving and MyRides pages
+  - ✅ Added "Messages" link to user menus in both mobile and legacy navbars
+  - ✅ Chat system now exclusively uses ride-specific chats, no more direct messaging
+  - ✅ Updated empty chat state to indicate ride-based system
+
 # end # builder.io section
