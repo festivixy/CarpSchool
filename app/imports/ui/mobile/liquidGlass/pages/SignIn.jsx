@@ -200,7 +200,7 @@ export default class LiquidGlassSignIn extends React.Component {
               <LiquidGlassButton
                 label="Sign In"
                 type="submit"
-                style={{ marginTop: "8px" }}
+                style={{ marginTop: "8px", width: "100%" }}
               />
             </InputSection>
           </Form>
