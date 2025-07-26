@@ -134,6 +134,11 @@ services:
       - carpool_network
     profiles: ["manual"]
 
+# to use the dev proxy, add these into your /etc/hosts file:
+# 127.0.0.1 nominatim
+# 127.0.0.1 tileserver-gl
+# 127.0.0.1 osrm
+
 networks:
   carpool_network:
     driver: bridge
