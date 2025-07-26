@@ -78,16 +78,18 @@ map_get_release_name() {
     local choice="$1"
     case $choice in
         1)
-            echo "omt.ca.bc"
+            RELEASE="omt.ca.bc"
+            return 0
             ;;
         2)
-            echo "omt.ca"
+            RELEASE="omt.ca"
+            return 0
             ;;
         3)
-            echo "custom"
+            RELEASE="custom"
+            return 0
             ;;
         *)
-            echo ""
             return 1
             ;;
     esac
@@ -98,7 +100,7 @@ map_prompt_custom_release() {
     while true; do
         read -p "Enter custom release name: " custom_release
         if [[ -n "$custom_release" && "$custom_release" =~ ^[a-zA-Z0-9._-]+$ ]]; then
-            echo "$custom_release"
+            RELEASE="$custom_release"
             return 0
         else
             echo "Invalid release name. Please use only alphanumeric characters, dots, hyphens, and underscores."
@@ -116,10 +118,10 @@ map_create_target_dir() {
 # Function to check download tool availability
 map_check_download_tool() {
     if command -v curl &> /dev/null; then
-        echo "curl"
+        DOWNLOAD_TOOL="curl"
         return 0
     elif command -v wget &> /dev/null; then
-        echo "wget"
+        DOWNLOAD_TOOL="wget"
         return 0
     else
         echo "✗ Error: Neither curl nor wget is available."

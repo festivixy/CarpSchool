@@ -55,8 +55,12 @@ if ui_ask_yes_no "Download OpenMapTiles data?" "N"; then
             echo "Selected: OpenMapTiles Canada (entire country) data"
             ;;
         3)
-            RELEASE=$(map_prompt_custom_release)
-            echo "Selected: Custom release '$RELEASE'"
+            if map_prompt_custom_release; then
+                echo "Selected: Custom release '$RELEASE'"
+            else
+                echo "Failed to get custom release name"
+                exit 1
+            fi
             ;;
     esac
 
@@ -69,8 +73,7 @@ if ui_ask_yes_no "Download OpenMapTiles data?" "N"; then
     map_create_target_dir "$TARGET_DIR"
 
     # Check download tool availability
-    DOWNLOAD_TOOL=$(map_check_download_tool)
-    if [ $? -ne 0 ]; then
+    if ! map_check_download_tool; then
         exit 1
     fi
 
@@ -156,8 +159,7 @@ else
     echo ""
 
     # Still need download tool for potential Nominatim setup
-    DOWNLOAD_TOOL=$(map_check_download_tool)
-    if [ $? -ne 0 ]; then
+    if ! map_check_download_tool; then
         echo "Note: Download tool needed for optional Nominatim setup"
     fi
 fi

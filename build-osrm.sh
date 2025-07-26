@@ -235,7 +235,7 @@ osrm_create_tarball() {
         echo -e "${GREEN}✓ Tarball created successfully:${NC}"
         echo "  Location: $tarball_file"
         echo "  Size: $tarball_size"
-        echo "$tarball_file"  # Return tarball path
+        TARBALL_PATH="$tarball_file"
         return 0
     else
         echo -e "${RED}❌ Failed to create tarball${NC}"
@@ -315,21 +315,21 @@ osrm_prompt_tarball() {
 
     case $choice in
         1)
-            if tarball_file=$(osrm_create_tarball "$region"); then
+            if osrm_create_tarball "$region"; then
                 echo ""
                 echo -e "${GREEN}✓ Tarball creation completed${NC}"
             fi
             ;;
         2)
-            if tarball_file=$(osrm_create_tarball "$region"); then
-                if osrm_chunk_tarball "$tarball_file" "$region"; then
+            if osrm_create_tarball "$region"; then
+                if osrm_chunk_tarball "$TARBALL_PATH" "$region"; then
                     echo ""
                     echo -e "${GREEN}✓ Tarball and chunking completed${NC}"
 
                     # Ask about cleanup
                     echo ""
                     if ui_ask_yes_no "Do you want to delete the original tarball (keeping only chunks)?" "Y"; then
-                        rm -f "$tarball_file"
+                        rm -f "$TARBALL_PATH"
                         echo -e "${GREEN}✓ Original tarball deleted${NC}"
                     fi
                 fi
@@ -416,7 +416,7 @@ osrm_prompt_operation() {
 
         case $choice in
             1|2|3|4)
-                echo "$choice"
+                OPERATION_CHOICE="$choice"
                 return 0
                 ;;
             *)
@@ -432,10 +432,16 @@ main() {
     docker_check_running
 
     # Get operation choice
-    operation=$(osrm_prompt_operation)
+    if ! osrm_prompt_operation; then
+        echo "Failed to get operation choice"
+        exit 1
+    fi
+
+    # Debug: Ensure operation choice is valid
+    echo -e "${BLUE}Debug: Operation choice selected: '$OPERATION_CHOICE'${NC}"
 
     # Handle tar only option
-    if [[ "$operation" == "4" ]]; then
+    if [[ "$OPERATION_CHOICE" == "4" ]]; then
         echo ""
         echo -e "${CYAN}🗃️  Tar Only Mode - Creating tarball from existing OSRM data${NC}"
 
@@ -516,26 +522,26 @@ main() {
     osrm_show_summary "$region"
 
     # Handle tarball creation based on operation choice
-    case $operation in
+    case $OPERATION_CHOICE in
         1)
             echo -e "${YELLOW}Skipping tarball creation (option 1 selected)${NC}"
             ;;
         2)
-            if tarball_file=$(osrm_create_tarball "$region"); then
+            if osrm_create_tarball "$region"; then
                 echo ""
                 echo -e "${GREEN}✓ Tarball creation completed${NC}"
             fi
             ;;
         3)
-            if tarball_file=$(osrm_create_tarball "$region"); then
-                if osrm_chunk_tarball "$tarball_file" "$region"; then
+            if osrm_create_tarball "$region"; then
+                if osrm_chunk_tarball "$TARBALL_PATH" "$region"; then
                     echo ""
                     echo -e "${GREEN}✓ Tarball and chunking completed${NC}"
 
                     # Ask about cleanup
                     echo ""
                     if ui_ask_yes_no "Do you want to delete the original tarball (keeping only chunks)?" "Y"; then
-                        rm -f "$tarball_file"
+                        rm -f "$TARBALL_PATH"
                         echo -e "${GREEN}✓ Original tarball deleted${NC}"
                     fi
                 fi

@@ -30,21 +30,21 @@ nominatim_prompt_database_choice() {
     echo "Which Nominatim database do you want to download?"
     echo "1) nominatim.pgsql.ca.bc (British Columbia)"
     echo "2) nominatim.pgsql.ca (Canada)"
-    
+
     while true; do
         read -p "Enter your choice (1-2): " nominatim_choice
         case "$nominatim_choice" in
             1)
-                echo "nominatim.pgsql.ca.bc"
+                NOMINATIM_RELEASE="nominatim.pgsql.ca.bc"
                 return 0
-                ;;
+            ;;
             2)
-                echo "nominatim.pgsql.ca"
+                NOMINATIM_RELEASE="nominatim.pgsql.ca"
                 return 0
-                ;;
+            ;;
             *)
                 echo "Invalid choice. Please enter 1 or 2."
-                ;;
+            ;;
         esac
     done
 }
@@ -53,14 +53,14 @@ nominatim_prompt_database_choice() {
 nominatim_download_chunks() {
     local release="$1"
     local download_tool="$2"
-    
+
     local nominatim_dir="openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz.chunks"
     local nominatim_chunks_url="https://github.com/zlc1004/Carpool/releases/download/${release}/chunks.txt"
     local nominatim_chunks_file="$nominatim_dir/nominatim_chunks.txt"
-    
+
     echo "Downloading Nominatim chunks.txt from: $nominatim_chunks_url"
     mkdir -p "$nominatim_dir"
-    
+
     # Download chunks.txt
     case "$download_tool" in
         "curl")
@@ -74,19 +74,19 @@ nominatim_download_chunks() {
             return 1
             ;;
     esac
-    
+
     # Download individual chunks
     echo "Reading nominatim_chunks.txt and downloading tarball chunks..."
     local total_chunks=$(wc -l < "$nominatim_chunks_file")
     local current_chunk=0
-    
+
     for chunk_filename in $(cat "$nominatim_chunks_file"); do
         current_chunk=$((current_chunk + 1))
         echo "[$current_chunk/$total_chunks] Downloading: $chunk_filename"
-        
+
         local chunk_url="https://github.com/zlc1004/Carpool/releases/download/${release}/${chunk_filename}"
         local chunk_target="$nominatim_dir/$chunk_filename"
-        
+
         case "$download_tool" in
             "curl")
                 curl -L -f --progress-bar -o "$chunk_target" "$chunk_url"
@@ -96,18 +96,19 @@ nominatim_download_chunks() {
                 ;;
         esac
     done
-    
-    echo "$nominatim_dir"
+
+    NOMINATIM_CHUNKS_DIR="$nominatim_dir"
+    return 0
 }
 
 # Function to combine and extract Nominatim database
 nominatim_combine_and_extract() {
     local chunks_dir="$1"
-    
+
     echo "Combining Nominatim database chunks..."
     local nominatim_tarball="openmaptilesdata/tarballs/pgdataNominatimInternal.tar.gz"
     cat "$chunks_dir"/pgdataNominatimInternal.tar.gz.*.part > "$nominatim_tarball"
-    
+
     echo "Extracting Nominatim database to pgdataNominatimInternal..."
     mkdir -p pgdataNominatimInternal
     tar -xzf "$nominatim_tarball" -C pgdataNominatimInternal --strip-components=1
@@ -124,11 +125,19 @@ nominatim_fix_permissions() {
 # Function to handle complete Nominatim setup
 nominatim_setup() {
     local download_tool="$1"
-    
+
     if nominatim_prompt_download; then
-        local release=$(nominatim_prompt_database_choice)
-        local chunks_dir=$(nominatim_download_chunks "$release" "$download_tool")
-        nominatim_combine_and_extract "$chunks_dir"
-        nominatim_fix_permissions
+        if nominatim_prompt_database_choice; then
+            if nominatim_download_chunks "$NOMINATIM_RELEASE" "$download_tool"; then
+                nominatim_combine_and_extract "$NOMINATIM_CHUNKS_DIR"
+                nominatim_fix_permissions
+            else
+                echo "Failed to download Nominatim chunks"
+                return 1
+            fi
+        else
+            echo "Failed to get Nominatim database choice"
+            return 1
+        fi
     fi
 }
