@@ -150,18 +150,18 @@ WebApp.connectHandlers.use("/nominatim", (req, res, _next) => {
 // Create proxy endpoint to forward requests to OSRM: /osrm/*
 WebApp.connectHandlers.use("/osrm", (req, res, _next) => {
   try {
-    // Remove /osrm from the path and forward to osrm:5000
+    // Remove /osrm from the path and forward to osrm:8083
     const targetPath = req.url;
 
     const options = {
       hostname: "osrm",
       // hostname: "localhost", // Use localhost for local development
-      port: 5000, // OSRM runs on port 5000 internally
+      port: 8083, // OSRM runs on port 8083 internally
       path: targetPath,
       method: req.method,
       headers: {
         ...req.headers,
-        host: "osrm:5000", // Update host header for the target
+        host: "osrm:8083", // Update host header for the target
       },
     };
 

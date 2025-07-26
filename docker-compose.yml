@@ -72,11 +72,11 @@ services:
     restart: unless-stopped
     networks:
       - carpool_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
 
   nominatim:
     container_name: nominatim
@@ -89,26 +89,26 @@ services:
     restart: unless-stopped
     networks:
       - carpool_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    # healthcheck:
+      # test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      # interval: 30s
+      # timeout: 10s
+      # retries: 3
 
   osrm:
     container_name: osrm
     image: ghcr.io/project-osrm/osrm-backend
-    command: osrm-routed --algorithm mld /data/british-columbia.osrm
+    command: osrm-routed --algorithm mld /data/british-columbia.osrm --port 8083
     volumes:
       - ./osrmdata/data:/data
     restart: unless-stopped
     networks:
       - carpool_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
 
   service-proxy:
     image: nginx:alpine
@@ -116,16 +116,19 @@ services:
     ports:
       - "8080:8080"  # Nominatim
       - "8082:8082"  # Tileserver
-      - "5000:5000"  # OSRM
+      - "8083:8083"  # OSRM
     volumes:
       - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      tileserver-gl:
-        condition: service_healthy
-      nominatim:
-        condition: service_healthy
-      osrm:
-        condition: service_healthy
+      # tileserver-gl:
+      #   condition: service_healthy
+      # nominatim:
+      #   condition: service_healthy
+      # osrm:
+      #   condition: service_healthy
+      - tileserver-gl
+      - nominatim
+      - osrm
     restart: unless-stopped
     networks:
       - carpool_network
