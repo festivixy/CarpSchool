@@ -17,6 +17,8 @@ services:
         condition: service_healthy
       nominatim:
         condition: service_healthy
+      osrm:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - carpool_network
@@ -119,12 +121,15 @@ services:
     ports:
       - "8080:8080"  # Nominatim
       - "8082:8082"  # Tileserver
+      - "5000:5000"  # OSRM
     volumes:
       - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       tileserver-gl:
         condition: service_healthy
       nominatim:
+        condition: service_healthy
+      osrm:
         condition: service_healthy
     restart: unless-stopped
     networks:
