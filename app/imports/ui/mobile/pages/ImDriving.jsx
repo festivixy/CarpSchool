@@ -97,18 +97,7 @@ class MobileImDriving extends React.Component {
     }
   };
 
-  handleContactRider = async (rider) => {
-    try {
-      // Create or find existing chat with the rider (chats.create returns existing chat if one exists)
-      const chatId = await Meteor.callAsync("chats.create", [rider]);
 
-      // Navigate to chat page with the specific chat ID
-      this.props.history.push("/chat", { selectedChatId: chatId });
-    } catch (error) {
-      console.error("Error creating/opening chat:", error);
-      alert("Unable to open chat. Please try again.");
-    }
-  };
 
   handleRemoveRider = (rideId, riderUsername) => {
     swal({
@@ -227,11 +216,6 @@ class MobileImDriving extends React.Component {
                           }}
                         >
                           <ContactButton
-                            onClick={() => this.handleContactRider(rider)}
-                          >
-                            Contact {rider}
-                          </ContactButton>
-                          <ContactButton
                             onClick={() =>
                               this.handleRemoveRider(ride._id, rider)
                             }
@@ -252,11 +236,6 @@ class MobileImDriving extends React.Component {
                         marginBottom: "8px",
                       }}
                     >
-                      <ContactButton
-                        onClick={() => this.handleContactRider(ride.rider)}
-                      >
-                        Contact {ride.rider}
-                      </ContactButton>
                     </div>
                   )}
                   <CancelButton onClick={() => this.handleCancelRide(ride._id)}>
