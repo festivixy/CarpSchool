@@ -73,10 +73,11 @@ services:
     networks:
       - carpool_network
     healthcheck:
-      test: ["CMD", "wget", "http://127.0.0.1:8082/health"]
+      test: ["CMD", "wget", "--spider", "-S", "http://127.0.0.1:8082/health || [ $? -eq 1 ]"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
 
   nominatim:
     container_name: nominatim
@@ -90,10 +91,11 @@ services:
     networks:
       - carpool_network
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-S", "http://localhost:8080/ || [ $? -eq 1 ]"]
+      test: ["CMD", "wget", "--spider", "-S", "http://127.0.0.1:8080/ || [ $? -eq 1 ]"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
 
   osrm:
     container_name: osrm
@@ -105,10 +107,11 @@ services:
     networks:
       - carpool_network
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-S", "http://localhost:8083/ || [ $? -eq 1 ]"]
+      test: ["CMD", "wget", "--spider", "-S", "http://127.0.0.1:8083/ || [ $? -eq 1 ]"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
 
   service-proxy:
     image: nginx:alpine
