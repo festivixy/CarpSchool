@@ -146,3 +146,48 @@ WebApp.connectHandlers.use("/nominatim", (req, res, _next) => {
     }
   }
 });
+
+// Create proxy endpoint to forward requests to OSRM: /osrm/*
+WebApp.connectHandlers.use("/osrm", (req, res, _next) => {
+  try {
+    // Remove /osrm from the path and forward to osrm:5000
+    const targetPath = req.url;
+
+    const options = {
+      hostname: "osrm",
+      // hostname: "localhost", // Use localhost for local development
+      port: 5000, // OSRM runs on port 5000 internally
+      path: targetPath,
+      method: req.method,
+      headers: {
+        ...req.headers,
+        host: "osrm:5000", // Update host header for the target
+      },
+    };
+
+    const proxyReq = http.request(options, (proxyRes) => {
+      // Forward status code and headers
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+
+      // Pipe the response data
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on("error", (error) => {
+      console.error("OSRM proxy error:", error);
+      if (!res.headersSent) {
+        res.writeHead(502, { "Content-Type": "text/plain" });
+        res.end("Bad Gateway: OSRM unavailable");
+      }
+    });
+
+    // Forward request body if present
+    req.pipe(proxyReq);
+  } catch (error) {
+    console.error("OSRM proxy setup error:", error);
+    if (!res.headersSent) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end("Internal Server Error");
+    }
+  }
+});

@@ -52,7 +52,7 @@ const PathMapView = ({
     if (!startCoord || !endCoord) {
       return [49.345196, -123.149805]; // Default to Vancouver
     }
-    
+
     const centerLat = (startCoord.lat + endCoord.lat) / 2;
     const centerLng = (startCoord.lng + endCoord.lng) / 2;
     return [centerLat, centerLng];
@@ -107,9 +107,9 @@ const PathMapView = ({
   // Find route using OSRM (Open Source Routing Machine)
   const findRouteOSRM = async (start, end) => {
     try {
-      // Use OSRM demo server (for production, use your own OSRM instance)
+      // Use local OSRM proxy endpoint
       const response = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`
+        `/osrm/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`
       );
 
       if (!response.ok) {
@@ -117,14 +117,14 @@ const PathMapView = ({
       }
 
       const data = await response.json();
-      
+
       if (data.routes && data.routes.length > 0) {
         const route = data.routes[0];
         return {
           geometry: route.geometry,
           distance: route.distance, // meters
           duration: route.duration, // seconds
-          service: 'OSRM'
+          service: 'OSRM (Local)'
         };
       } else {
         throw new Error('No route found');
@@ -157,7 +157,7 @@ const PathMapView = ({
     const R = 6371; // Earth's radius in kilometers
     const dLat = (end.lat - start.lat) * Math.PI / 180;
     const dLng = (end.lng - start.lng) * Math.PI / 180;
-    const a = 
+    const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(start.lat * Math.PI / 180) * Math.cos(end.lat * Math.PI / 180) *
       Math.sin(dLng / 2) * Math.sin(dLng / 2);
@@ -178,7 +178,7 @@ const PathMapView = ({
   const formatDuration = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     } else {
@@ -198,7 +198,7 @@ const PathMapView = ({
 
     try {
       let route;
-      
+
       if (routingService === 'osrm') {
         try {
           route = await findRouteOSRM(startCoord, endCoord);
@@ -338,17 +338,17 @@ const PathMapView = ({
     <MapContainer>
       <MapWrapper style={{ height }}>
         <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
-        
+
         <ControlsContainer>
-          <ControlButton 
-            onClick={findRoute} 
+          <ControlButton
+            onClick={findRoute}
             disabled={!startCoord || !endCoord || isLoading}
             title="Find route between points"
           >
             {isLoading ? "🔄" : "🗺️"}
           </ControlButton>
-          <ControlButton 
-            onClick={clearRoute} 
+          <ControlButton
+            onClick={clearRoute}
             disabled={!routeData}
             title="Clear route"
           >
@@ -373,7 +373,7 @@ const PathMapView = ({
         <RouteInfo>
           <RouteLabel>Route found ({routeData.service}):</RouteLabel>
           <RouteValue>
-            Distance: {formatDistance(routeData.distance)} | 
+            Distance: {formatDistance(routeData.distance)} |
             Duration: {formatDuration(routeData.duration)}
           </RouteValue>
           {routeData.service === 'Straight Line' && (
