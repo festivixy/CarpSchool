@@ -73,7 +73,8 @@ services:
     networks:
       - carpool_network
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-S", "http://127.0.0.1:8082/health || [ $? -eq 1 ]"]
+      test:
+        ["CMD", "node", "-e", "require('net').connect({host: '127.0.0.1', port: 8082}).on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -91,7 +92,7 @@ services:
     networks:
       - carpool_network
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-S", "http://127.0.0.1:8080/ || [ $? -eq 1 ]"]
+      test: ["CMD", "curl", "--silent", "--show-error", "--output", "/dev/null", "http://127.0.0.1:8080/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -107,7 +108,7 @@ services:
     networks:
       - carpool_network
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-S", "http://127.0.0.1:8083/ || [ $? -eq 1 ]"]
+      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 8083"]
       interval: 30s
       timeout: 10s
       retries: 3
