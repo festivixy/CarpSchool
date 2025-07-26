@@ -43,7 +43,6 @@ fs_remove_with_confirmation() {
         echo -e "${YELLOW}Failed to read input, skipping removal of ${dir_name}.${NC}"
         return 1
     fi
-    esac
 }
 
 # Function to remove database directories
