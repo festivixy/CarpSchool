@@ -44,7 +44,7 @@ nominatim_prompt_database_choice() {
 
     while [ $attempts -lt $max_attempts ]; do
         echo -n "Enter your choice (1-2): "
-        if ui_safe_read "" nominatim_choice; then
+        if read -r nominatim_choice; then
             case "$nominatim_choice" in
                 1)
                     NOMINATIM_RELEASE="nominatim.pgsql.ca.bc"

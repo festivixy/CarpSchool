@@ -110,7 +110,7 @@ map_prompt_custom_release() {
 
     while [ $attempts -lt $max_attempts ]; do
         echo -n "Enter custom release name: "
-        if ui_safe_read "" custom_release; then
+        if read -r custom_release; then
             if [[ -n "$custom_release" && "$custom_release" =~ ^[a-zA-Z0-9._-]+$ ]]; then
                 RELEASE="$custom_release"
                 return 0
