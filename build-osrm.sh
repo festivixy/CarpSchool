@@ -397,11 +397,76 @@ EOF
     echo ""
 }
 
+# Function to prompt for operation type
+osrm_prompt_operation() {
+    local choice
+
+    while true; do
+        echo ""
+        echo "Please choose the operation to perform:"
+        echo ""
+        echo "1) Full OSRM build (extract, partition, customize)"
+        echo "2) Full OSRM build + create tarball"
+        echo "3) Full OSRM build + create tarball + chunk it"
+        echo "4) Tar only (create tarball from existing OSRM data)"
+        echo ""
+        echo -n "Enter your choice (1-4): "
+
+        read choice
+
+        case $choice in
+            1|2|3|4)
+                echo "$choice"
+                return 0
+                ;;
+            *)
+                echo "Invalid choice. Please enter 1, 2, 3, or 4."
+                ;;
+        esac
+    done
+}
+
 # Main execution flow
 main() {
     # Check if Docker is running
     docker_check_running
 
+    # Get operation choice
+    operation=$(osrm_prompt_operation)
+
+    # Handle tar only option
+    if [[ "$operation" == "4" ]]; then
+        echo ""
+        echo -e "${CYAN}🗃️  Tar Only Mode - Creating tarball from existing OSRM data${NC}"
+
+        # Check if OSRM data directory exists
+        if [[ ! -d "$OSRM_DATA_DIR" ]]; then
+            echo -e "${RED}❌ OSRM data directory not found: $OSRM_DATA_DIR${NC}"
+            echo "You need to run the full OSRM build first to generate data."
+            exit 1
+        fi
+
+        # Find existing region data
+        local region_files=$(find "$OSRM_DATA_DIR" -name "*.osrm" -type f | head -1)
+        if [[ -z "$region_files" ]]; then
+            echo -e "${RED}❌ No OSRM data files (.osrm) found in $OSRM_DATA_DIR${NC}"
+            echo "You need to run the full OSRM build first to generate data."
+            exit 1
+        fi
+
+        # Extract region name from existing .osrm file
+        local region=$(basename "$region_files" .osrm)
+        echo -e "${GREEN}✓ Found existing OSRM data for region: $region${NC}"
+
+        # Ask about tarball creation
+        osrm_prompt_tarball "$region"
+
+        echo ""
+        echo -e "${GREEN}🎉 Tar only operation completed successfully!${NC}"
+        exit 0
+    fi
+
+    # Continue with normal flow for options 1-3
     # Get PBF file and region info
     echo ""
     read pbf_path region < <(osrm_prompt_pbf_selection)
@@ -450,8 +515,33 @@ main() {
     # Show build summary
     osrm_show_summary "$region"
 
-    # Ask about tarball creation
-    osrm_prompt_tarball "$region"
+    # Handle tarball creation based on operation choice
+    case $operation in
+        1)
+            echo -e "${YELLOW}Skipping tarball creation (option 1 selected)${NC}"
+            ;;
+        2)
+            if tarball_file=$(osrm_create_tarball "$region"); then
+                echo ""
+                echo -e "${GREEN}✓ Tarball creation completed${NC}"
+            fi
+            ;;
+        3)
+            if tarball_file=$(osrm_create_tarball "$region"); then
+                if osrm_chunk_tarball "$tarball_file" "$region"; then
+                    echo ""
+                    echo -e "${GREEN}✓ Tarball and chunking completed${NC}"
+
+                    # Ask about cleanup
+                    echo ""
+                    if ui_ask_yes_no "Do you want to delete the original tarball (keeping only chunks)?" "Y"; then
+                        rm -f "$tarball_file"
+                        echo -e "${GREEN}✓ Original tarball deleted${NC}"
+                    fi
+                fi
+            fi
+            ;;
+    esac
 
     # Show integration information
     osrm_show_integration_info "$region"
