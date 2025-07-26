@@ -26,8 +26,7 @@ fs_remove_with_confirmation() {
 
     echo -e "${YELLOW}${prompt_msg} (Y/n): ${NC}"
     local yn
-    local timeout="${READ_TIMEOUT:-10}"
-    if read -r -t "$timeout" yn; then
+    if read -r yn; then
         case $yn in
             [Nn]* )
                 echo -e "${YELLOW}Skipping removal of ${dir_name}.${NC}"
@@ -41,7 +40,7 @@ fs_remove_with_confirmation() {
                 ;;
         esac
     else
-        echo -e "${YELLOW}Input timeout, skipping removal of ${dir_name}.${NC}"
+        echo -e "${YELLOW}Failed to read input, skipping removal of ${dir_name}.${NC}"
         return 1
     fi
     esac

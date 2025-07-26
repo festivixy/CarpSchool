@@ -62,9 +62,9 @@ ui_safe_read() {
         return 1
     fi
 
-    # Attempt to read with timeout
+    # Attempt to read input
     local input
-    if read -r -t "$timeout" input; then
+    if read -r input; then
         # Successful read
         if [ -n "$var_name" ]; then
             declare -g "$var_name"="$input"
@@ -162,8 +162,7 @@ ui_prompt_with_validation() {
         echo -n "$prompt"
 
         # Read input directly without variable passing to avoid scope issues
-        local timeout="${READ_TIMEOUT:-10}"
-        if read -r -t "$timeout" choice; then
+        if read -r choice; then
             if ui_validate_choice "$choice" "$valid_choices"; then
                 echo "$choice"
                 return 0
@@ -173,11 +172,8 @@ ui_prompt_with_validation() {
             fi
         else
             local exit_status=$?
-            # Handle timeout (exit status 142) or EIO
+            # Handle I/O errors
             echo -e "${RED}Failed to read input (attempt $((attempts + 1))/$max_attempts)${NC}" >&2
-            if [ $exit_status -eq 142 ]; then
-                echo -e "${YELLOW}Input timeout after ${timeout}s${NC}" >&2
-            fi
             attempts=$((attempts + 1))
         fi
     done

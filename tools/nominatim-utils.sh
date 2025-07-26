@@ -14,10 +14,9 @@ nominatim_prompt_download() {
     echo ""
     echo "Do you want to download a Nominatim database backup? (y/N)"
     local download_nominatim
-    local timeout="${READ_TIMEOUT:-10}"
     echo -n "Download Nominatim database? (y/N): "
 
-    if read -r -t "$timeout" download_nominatim; then
+    if read -r download_nominatim; then
         case "${download_nominatim,,}" in
             y|yes)
                 return 0
@@ -28,7 +27,7 @@ nominatim_prompt_download() {
                 ;;
         esac
     else
-        echo "Input timeout, skipping Nominatim database download."
+        echo "Failed to read input, skipping Nominatim database download."
         return 1
     fi
 }

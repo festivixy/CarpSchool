@@ -43,7 +43,6 @@ osrm_check_pbf_file() {
 # Function to prompt for PBF file selection
 osrm_prompt_pbf_selection() {
     local choice
-    local timeout="${READ_TIMEOUT:-10}"
     local max_attempts=3
     local attempts=0
 
@@ -57,7 +56,7 @@ osrm_prompt_pbf_selection() {
         echo "" >&2
         echo -n "Enter your choice (1-3): " >&2
 
-        if read -r -t "$timeout" choice; then
+        if read -r choice; then
             case $choice in
                 1)
                     PBF_PATH="$DEFAULT_PBF_PATH"
@@ -68,13 +67,13 @@ osrm_prompt_pbf_selection() {
                     echo "" >&2
                     echo -n "Enter full path to PBF file: " >&2
                     local custom_pbf
-                    if read -r -t "$timeout" custom_pbf; then
+                    if read -r custom_pbf; then
                         # Extract region name from filename
                         PBF_PATH="$custom_pbf"
                         REGION=$(basename "$custom_pbf" .osm.pbf)
                         return 0
                     else
-                        echo "Input timeout for PBF file path" >&2
+                        echo "Failed to read PBF file path" >&2
                         attempts=$((attempts + 1))
                     fi
                     ;;
@@ -85,12 +84,12 @@ osrm_prompt_pbf_selection() {
                     echo "" >&2
                     echo -n "Enter path to selected PBF file: " >&2
                     local selected_pbf
-                    if read -r -t "$timeout" selected_pbf; then
+                    if read -r selected_pbf; then
                         PBF_PATH="$selected_pbf"
                         REGION=$(basename "$selected_pbf" .osm.pbf)
                         return 0
                     else
-                        echo "Input timeout for PBF file path" >&2
+                        echo "Failed to read PBF file path" >&2
                         attempts=$((attempts + 1))
                     fi
                     ;;
@@ -100,7 +99,7 @@ osrm_prompt_pbf_selection() {
                     ;;
             esac
         else
-            echo "Input timeout for choice selection (attempt $((attempts + 1))/$max_attempts)" >&2
+            echo "Failed to read choice selection (attempt $((attempts + 1))/$max_attempts)" >&2
             attempts=$((attempts + 1))
         fi
     done

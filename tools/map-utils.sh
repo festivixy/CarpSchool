@@ -29,10 +29,9 @@ map_prompt_data_action() {
     echo "2) Download - Run './download-openmaptiles-data.sh' to download pre-built data"
     echo ""
     local choice
-    local timeout="${READ_TIMEOUT:-10}"
     echo -n "Enter your choice (1-2): "
 
-    if read -r -t "$timeout" choice; then
+    if read -r choice; then
         case $choice in
             1 )
                 echo "Starting map data build process..."
@@ -51,7 +50,7 @@ map_prompt_data_action() {
                 ;;
         esac
     else
-        echo "Input timeout. Exiting..."
+        echo "Failed to read input. Exiting..."
         echo "Please run the script again and choose 1 or 2."
         return 1
     fi
