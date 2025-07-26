@@ -72,11 +72,11 @@ services:
     restart: unless-stopped
     networks:
       - carpool_network
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD", "wget", "http://127.0.0.1:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nominatim:
     container_name: nominatim
@@ -89,11 +89,11 @@ services:
     restart: unless-stopped
     networks:
       - carpool_network
-    # healthcheck:
-      # test: ["CMD", "curl", "-f", "http://localhost:8080/"]
-      # interval: 30s
-      # timeout: 10s
-      # retries: 3
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-S", "http://localhost:8080/ || [ $? -eq 1 ]"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   osrm:
     container_name: osrm
@@ -104,11 +104,11 @@ services:
     restart: unless-stopped
     networks:
       - carpool_network
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-S", "http://localhost:8083/ || [ $? -eq 1 ]"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   service-proxy:
     image: nginx:alpine
@@ -120,15 +120,12 @@ services:
     volumes:
       - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      # tileserver-gl:
-      #   condition: service_healthy
-      # nominatim:
-      #   condition: service_healthy
-      # osrm:
-      #   condition: service_healthy
-      - tileserver-gl
-      - nominatim
-      - osrm
+      tileserver-gl:
+        condition: service_healthy
+      nominatim:
+        condition: service_healthy
+      osrm:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - carpool_network
