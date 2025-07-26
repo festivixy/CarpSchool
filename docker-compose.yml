@@ -95,6 +95,24 @@ services:
       retries: 3
       start_period: 60s
 
+  osrm:
+    container_name: osrm
+    image: ghcr.io/project-osrm/osrm-backend
+    command: osrm-routed --algorithm mld /data/british-columbia.osrm
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./orsmdata:/data
+    restart: unless-stopped
+    networks:
+      - carpool_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   service-proxy:
     image: nginx:alpine
     container_name: service-proxy
