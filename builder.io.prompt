@@ -277,24 +277,52 @@ the tiles are being loaded with a tileserver-gl proxy in app/imports/startup/ser
 - Fix race condition in useCaptcha with atomic update operation
 - Prevents CAPTCHA session enumeration through timing analysis
 
-### TODO 13
+### ✅ TODO 13 - COMPLETED
 
-V013: Missing File Type Validation in Image Upload
+~~V013: Missing File Type Validation in Image Upload~~
 
-### TODO 14
+**COMPLETED** [Latest commit] - Added comprehensive file type validation for image uploads:
+- Install file-type package for server-side file signature detection
+- Add validation using magic bytes/file signatures, not just MIME types
+- Validate client-provided MIME type matches detected file type
+- Add file extension validation from filename
+- Prevent malicious file uploads disguised as images
+- Support only JPEG, PNG, GIF, and WebP image formats
 
-V015: Captcha Brute Force Vulnerability
+### ✅ TODO 14 - COMPLETED
 
-fix this by making the captcha used when the incorrect code is entered.
+~~V015: Captcha Brute Force Vulnerability~~
 
-solved: false
-used: true
+~~fix this by making the captcha used when the incorrect code is entered.~~
 
-### TODO 15
+~~solved: false~~
+~~used: true~~
 
-mark V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints
-as intentional.
+**COMPLETED** [Latest commit] - Fixed CAPTCHA brute force vulnerability:
+- Mark CAPTCHA session as used when incorrect code is entered
+- Prevents unlimited guessing attempts on same CAPTCHA session
+- Forces users to generate new CAPTCHA after failed attempt
+- Addresses medium-severity brute force vulnerability while preserving user experience
 
-### TODO 16
+### ✅ TODO 15 - COMPLETED
 
-fix V018: Missing Input Sanitization in Chat Messages
+~~mark V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints~~
+~~as intentional.~~
+
+**COMPLETED** [Latest commit] - Marked V016 SSRF in proxy endpoints as intentional:
+- Add security documentation for all proxy endpoints (tileserver, nominatim, osrm)
+- Explicitly mark SSRF exposure as intentionally accepted risk
+- Document that proxy functionality is required for application features
+- Risk mitigation: Proxies only forward to known internal services with fixed hostnames
+
+### ✅ TODO 16 - COMPLETED
+
+~~fix V018: Missing Input Sanitization in Chat Messages~~
+
+**COMPLETED** [Latest commit] - Fixed missing input sanitization in chat messages:
+- Install jsdom for server-side DOM manipulation with DOMPurify
+- Add sanitizeChatContent function to prevent XSS in chat messages
+- Remove all HTML tags from chat content while preserving text
+- Add content length validation (max 1000 characters)
+- Validate sanitized content is not empty before storing
+- Prevents stored XSS attacks via malicious chat messages
