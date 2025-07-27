@@ -67,18 +67,7 @@ const FooterLink = styled(Link)`
   }
 `;
 
-const FooterLinkExternal = styled.a`
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  display: inline-block;
-
-  &:hover {
-    color: #4a90e2;
-    transform: translateX(4px);
-  }
-`;
+// FooterLinkExternal removed as it was unused
 
 const CompanyInfo = styled.div`
   display: flex;
@@ -294,7 +283,8 @@ const LegalLinkExternal = styled.a`
 function FooterVerbose({
   logo = "/staticimages/Carpool.png",
   companyName = "Carpool",
-  description = "Making transportation easier, greener, and more connected for everyone. Join thousands of users who are already carpooling to save money and reduce their environmental impact.",
+  description = "Making transportation easier, greener, and more connected for everyone. " +
+    "Join thousands of users who are already carpooling to save money and reduce their environmental impact.",
   email = "hello@carpool.com",
   phone = "+1 (555) 123-4567",
   address = "123 Green Street, Eco City, EC 12345",

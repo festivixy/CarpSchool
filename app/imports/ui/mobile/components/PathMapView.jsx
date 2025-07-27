@@ -88,14 +88,20 @@ const PathMapView = ({
   // Create custom markers for start and end points
   const createStartIcon = () => L.divIcon({
       className: "custom-start-marker",
-      html: "<div style=\"background-color: #28a745; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; font-size: 14px;\">A</div>",
+      html: "<div style=\"background-color: #28a745; color: white; border-radius: 50%; " +
+        "width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; " +
+        "border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; " +
+        "font-size: 14px;\">A</div>",
       iconSize: [30, 30],
       iconAnchor: [15, 15],
     });
 
   const createEndIcon = () => L.divIcon({
       className: "custom-end-marker",
-      html: "<div style=\"background-color: #dc3545; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; font-size: 14px;\">B</div>",
+      html: "<div style=\"background-color: #dc3545; color: white; border-radius: 50%; " +
+        "width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; " +
+        "border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; " +
+        "font-size: 14px;\">B</div>",
       iconSize: [30, 30],
       iconAnchor: [15, 15],
     });
@@ -125,10 +131,23 @@ const PathMapView = ({
       }
         throw new Error("No route found");
 
-    } catch (error) {
-      console.error("OSRM routing error:", error);
-      throw error;
+    } catch (routingError) {
+      console.error("OSRM routing error:", routingError);
+      throw routingError;
     }
+  };
+
+  // Calculate straight-line distance between two points (Haversine formula)
+  const calculateDistance = (start, end) => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = ((end.lat - start.lat) * Math.PI) / 180;
+    const dLng = ((end.lng - start.lng) * Math.PI) / 180;
+    const a =
+      (Math.sin(dLat / 2) * Math.sin(dLat / 2)) +
+      (Math.cos((start.lat * Math.PI) / 180) * Math.cos((end.lat * Math.PI) / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2));
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   };
 
   // Fallback: create straight line route
@@ -146,19 +165,6 @@ const PathMapView = ({
       duration: (distance / 50) * 3600, // assume 50 km/h average speed
       service: "Straight Line",
     };
-  };
-
-  // Calculate straight-line distance between two points (Haversine formula)
-  const calculateDistance = (start, end) => {
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = ((end.lat - start.lat) * Math.PI) / 180;
-    const dLng = ((end.lng - start.lng) * Math.PI) / 180;
-    const a =
-      (Math.sin(dLat / 2) * Math.sin(dLat / 2)) +
-      (Math.cos((start.lat * Math.PI) / 180) * Math.cos((end.lat * Math.PI) / 180) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2));
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
   };
 
   // Format distance for display
@@ -227,16 +233,16 @@ const PathMapView = ({
         routeLayerRef.current = routeLayer;
 
         // Fit map to show entire route
-        const group = new L.featureGroup([
+        const group = new L.FeatureGroup([
           startMarkerRef.current,
           endMarkerRef.current,
           routeLayer,
         ]);
         mapInstanceRef.current.fitBounds(group.getBounds(), { padding: [20, 20] });
       }
-    } catch (error) {
-      console.error("Route finding error:", error);
-      setError(`Route finding failed: ${error.message}`);
+    } catch (routeError) {
+      console.error("Route finding error:", routeError);
+      setError(`Route finding failed: ${routeError.message}`);
     } finally {
       setIsLoading(false);
     }

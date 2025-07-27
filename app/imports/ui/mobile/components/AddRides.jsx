@@ -98,16 +98,7 @@ class MobileAddRidesModal extends React.Component {
     }
   }
 
-  componentDidMount() {
-    // Set minimum date to today
-    const today = new Date();
-    const minDate = today.toISOString().split("T")[0];
-    this.setState({ minDate });
-
-    // Add event listener for escape key
-    document.addEventListener("keydown", this.handleEscapeKey);
-    document.addEventListener("click", this.handleOutsideClick);
-  }
+  // Duplicate componentDidMount removed
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleEscapeKey);

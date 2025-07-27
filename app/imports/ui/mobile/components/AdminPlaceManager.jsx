@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import swal from "sweetalert";
-import { Places } from "../../../api/places/Places";
+import { Places } from "../../../api/places/Places.js";
 import InteractiveMapPicker from "./InteractiveMapPicker";
 import {
   Container,
@@ -49,9 +49,6 @@ import {
   Label,
   Input,
   ErrorText,
-  InfoBox,
-  InfoTitle,
-  InfoText,
   Button,
   LoadingButton,
 } from "../styles/AdminPlaceManager";
@@ -122,9 +119,7 @@ class AdminPlaceManager extends React.Component {
       if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
         coordinates = { lat, lng };
       }
-    }
-    // If manual input has valid coordinates, parse them
-    else if (
+    } else if (
       formData.value &&
       /^-?\d+\.?\d*,-?\d+\.?\d*$/.test(formData.value.trim())
     ) {

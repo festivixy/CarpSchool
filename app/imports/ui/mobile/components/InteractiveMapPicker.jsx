@@ -83,7 +83,9 @@ const InteractiveMapPicker = ({
         lng: parseFloat(position.lng.toFixed(6)),
       };
       setCurrentLocation(newLocation);
-      onLocationSelect?.(newLocation);
+      if (onLocationSelect) {
+        onLocationSelect(newLocation);
+      }
     });
 
     // Handle map clicks
@@ -94,7 +96,9 @@ const InteractiveMapPicker = ({
       };
       marker.setLatLng([newLocation.lat, newLocation.lng]);
       setCurrentLocation(newLocation);
-      onLocationSelect?.(newLocation);
+      if (onLocationSelect) {
+        onLocationSelect(newLocation);
+      }
     });
 
     mapInstanceRef.current = map;
@@ -135,7 +139,9 @@ const InteractiveMapPicker = ({
           );
           markerRef.current.setLatLng([newLocation.lat, newLocation.lng]);
           setCurrentLocation(newLocation);
-          onLocationSelect?.(newLocation);
+          if (onLocationSelect) {
+            onLocationSelect(newLocation);
+          }
         },
         (error) => {
           console.warn("Geolocation error:", error);
@@ -196,7 +202,9 @@ const InteractiveMapPicker = ({
       mapInstanceRef.current.setView([result.lat, result.lng], 15);
       markerRef.current.setLatLng([result.lat, result.lng]);
       setCurrentLocation(newLocation);
-      onLocationSelect?.(newLocation);
+      if (onLocationSelect) {
+        onLocationSelect(newLocation);
+      }
     }
 
     setSearchResults([]);
@@ -205,11 +213,15 @@ const InteractiveMapPicker = ({
 
   // Zoom controls
   const zoomIn = () => {
-    mapInstanceRef.current?.zoomIn();
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.zoomIn();
+    }
   };
 
   const zoomOut = () => {
-    mapInstanceRef.current?.zoomOut();
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.zoomOut();
+    }
   };
 
   return (

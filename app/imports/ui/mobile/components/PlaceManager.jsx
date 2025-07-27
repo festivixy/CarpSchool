@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import swal from "sweetalert";
-import { Places } from "../../../api/places/Places";
+import { Places } from "../../../api/places/Places.js";
 import InteractiveMapPicker from "./InteractiveMapPicker";
 import {
   Container,
@@ -40,9 +40,6 @@ import {
   Label,
   Input,
   ErrorText,
-  InfoBox,
-  InfoTitle,
-  InfoText,
   Button,
   LoadingButton,
 } from "../styles/PlaceManager";
@@ -145,9 +142,7 @@ class PlaceManager extends React.Component {
       if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
         coordinates = { lat, lng };
       }
-    }
-    // If manual input has valid coordinates, parse them
-    else if (
+    } else if (
       formData.value &&
       /^-?\d+\.?\d*,-?\d+\.?\d*$/.test(formData.value.trim())
     ) {
@@ -318,7 +313,9 @@ class PlaceManager extends React.Component {
                         {new Date(place.createdAt).toLocaleDateString()}
                         {place.createdBy && (
                           <span style={{ marginLeft: "8px", color: "#666" }}>
-                            by {place.createdBy === Meteor.userId() ? "You" : (this.state.creatorNames[place.createdBy] || "Loading...")}
+                            by {place.createdBy === Meteor.userId()
+                              ? "You"
+                              : (this.state.creatorNames[place.createdBy] || "Loading...")}
                           </span>
                         )}
                       </PlaceDate>

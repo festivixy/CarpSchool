@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
-import { Places } from "../../../api/places/Places";
+import { Places } from "../../../api/places/Places.js";
 import {
   RideCard,
   Header,
