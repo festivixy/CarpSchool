@@ -55,11 +55,20 @@ Meteor.methods({
     const isValid = session.text === userInput.trim();
 
     if (isValid) {
+      // Mark as solved on correct answer
       await Captcha.updateAsync(session, {
         text: session.text,
         timestamp: session.timestamp,
         solved: true,
         used: session.used,
+      });
+    } else {
+      // Mark as used on incorrect answer to prevent brute force attacks
+      await Captcha.updateAsync(session, {
+        text: session.text,
+        timestamp: session.timestamp,
+        solved: false,
+        used: true,
       });
     }
 
