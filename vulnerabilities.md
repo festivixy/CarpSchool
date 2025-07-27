@@ -1,9 +1,11 @@
 # MongoDB Security Vulnerabilities Analysis
 
 ## 📊 **Security Fix Progress Summary**
+
 **Last Updated**: December 2024 | **Status**: Major Security Improvements Completed
 
 ### ✅ **RESOLVED VULNERABILITIES** (8 Fixed)
+
 - **V001**: Missing Server-Side Validation in User Updates (HIGH → RESOLVED)
 - **V004**: Insufficient Input Sanitization (MEDIUM → RESOLVED)
 - **V007**: XSS Vulnerability in CAPTCHA Display (HIGH → RESOLVED)
@@ -14,9 +16,11 @@
 - **V018**: Missing Input Sanitization in Chat Messages (MEDIUM → RESOLVED)
 
 ### ⚠️ **ACCEPTED RISKS** (1 Intentional)
+
 - **V016**: Server-Side Request Forgery in Proxy Endpoints (HIGH → ACCEPTED - Intentional proxy functionality)
 
 ### 🚨 **REMAINING VULNERABILITIES** (7 Pending)
+
 - **V002**: Race Condition in Share Code Generation (MEDIUM)
 - **V009**: Race Condition in User Role Assignment (MEDIUM)
 - **V011**: Insecure Place Resolution in FirstRun (MEDIUM)
@@ -27,6 +31,7 @@
 - **V021**: Performance Issues in Places Publications (MEDIUM)
 
 ### 📈 **Security Progress**
+
 - **Total Vulnerabilities**: 16 identified
 - **Fixed**: 8 vulnerabilities (50%)
 - **Accepted Risk**: 1 vulnerability (6.25%)
@@ -36,11 +41,13 @@
 ---
 
 ## 🔍 **Analysis Summary**
+
 This report analyzes the MongoDB usage in the Meteor carpool application for potential security vulnerabilities, focusing on NoSQL injection, authorization flaws, and data validation issues.
 
 ## ⚠️ **CRITICAL VULNERABILITIES**
 
 ### <a name="v001"></a>✅ ~~**V001: Missing Server-Side Validation in User Updates**~~ (FIXED)
+
 **File**: `imports/api/accounts/AccountsMethods.js:61-110`
 **Severity**: ~~HIGH~~ **RESOLVED**
 **Type**: Authorization & Data Validation
@@ -56,7 +63,7 @@ if (!SimpleSchema.RegEx.Email.test(updateData.email)) {
 // Check username uniqueness (exclude current user)
 const existingUser = await Meteor.users.findOneAsync({
   username: updateData.username,
-  _id: { $ne: userId }
+  _id: { $ne: userId },
 });
 if (existingUser) {
   throw new Meteor.Error("username-taken", "Username already exists");
@@ -68,6 +75,7 @@ const emailVerified = emailChanged ? false : updateData.emailVerified;
 ```
 
 **Issues Fixed**:
+
 - ✅ Added email format validation using SimpleSchema.RegEx.Email
 - ✅ Added email uniqueness check (username is email, so this covers both)
 - ✅ Email verification automatically reset when email changes for security
@@ -78,6 +86,7 @@ const emailVerified = emailChanged ? false : updateData.emailVerified;
 ---
 
 ### <a name="v002"></a>🚨 **V002: Race Condition in Share Code Generation**
+
 **File**: `imports/api/ride/RideMethods.js:88-108` & `imports/api/chat/ChatMethods.js:72-76`
 **Severity**: MEDIUM
 **Type**: Race Condition
@@ -93,6 +102,7 @@ do {
 ```
 
 **Issues**:
+
 - Multiple concurrent requests can generate identical share codes
 - No atomic operation ensures uniqueness
 - Share code collisions possible under load
@@ -102,6 +112,7 @@ do {
 ---
 
 ### <a name="v003"></a>🚨 ~~**V003: Client-Side Data Exposure via Publications**~~ (Legacy)
+
 **File**: ~~`imports/ui/legacy/pages/ListRides.jsx:98`~~, ~~`imports/ui/legacy/pages/AdminUsers.jsx:233`~~
 **Severity**: HIGH
 **Type**: Information Disclosure
@@ -109,12 +120,13 @@ do {
 ```javascript
 // VULNERABLE: Publishes all data without filtering
 return {
-  rides: Rides.find({}).fetch(),  // Exposes ALL rides
-  users: Meteor.users.find({}).fetch(),  // Exposes ALL users
+  rides: Rides.find({}).fetch(), // Exposes ALL rides
+  users: Meteor.users.find({}).fetch(), // Exposes ALL users
 };
 ```
 
 **Issues**:
+
 - All rides published to all users (should be filtered by user)
 - All user data exposed to admin pages
 - No pagination or data limiting
@@ -124,6 +136,7 @@ return {
 ---
 
 ### <a name="v007"></a>✅ ~~**V007: XSS Vulnerability in CAPTCHA Display**~~ (FIXED)
+
 **File**: Multiple files using `dangerouslySetInnerHTML`
 **Severity**: ~~HIGH~~ **RESOLVED**
 **Type**: Cross-Site Scripting (XSS)
@@ -136,6 +149,7 @@ return {
 ```
 
 **Affected Files Fixed**:
+
 - ✅ `imports/ui/mobile/pages/SignIn.jsx:209`
 - ✅ `imports/ui/mobile/pages/Signup.jsx:204`
 - ✅ `imports/ui/mobile/pages/ForgotPassword.jsx:195`
@@ -143,6 +157,7 @@ return {
 - ✅ Multiple other CAPTCHA components
 
 **Issues Fixed**:
+
 - ✅ Replaced `dangerouslySetInnerHTML` with secure SVG rendering
 - ✅ Added comprehensive HTML sanitization for server-generated SVG content
 - ✅ Implemented protection against malicious SVG injection
@@ -153,6 +168,7 @@ return {
 ---
 
 ### <a name="v008"></a>✅ ~~**V008: Insecure Publications Exposing All Data**~~ (FIXED)
+
 **File**: `imports/api/ride/RidePublications.js:5-8`
 **Severity**: ~~CRITICAL~~ **RESOLVED**
 **Type**: Data Exposure & Authorization Bypass
@@ -164,16 +180,14 @@ Meteor.publish("Rides", function publish() {
   if (this.userId) {
     const currentUser = Meteor.users.findOne(this.userId);
     return Rides.find({
-      $or: [
-        { driver: currentUser.username },
-        { riders: currentUser.username }
-      ]
+      $or: [{ driver: currentUser.username }, { riders: currentUser.username }],
     }); // Now properly filters by user participation
   }
 });
 ```
 
 **Issues Fixed**:
+
 - ✅ Added proper filtering by user participation in rides
 - ✅ Implemented authorization checks for ride data access
 - ✅ Fixed privacy violation - users only see their own rides
@@ -184,6 +198,7 @@ Meteor.publish("Rides", function publish() {
 ---
 
 ### <a name="v009"></a>🚨 **V009: Race Condition in User Role Assignment**
+
 **File**: `imports/startup/server/FirstRun.js:37-40`
 **Severity**: MEDIUM
 **Type**: Race Condition & Privilege Escalation
@@ -196,6 +211,7 @@ await Meteor.users.updateAsync(userID, {
 ```
 
 **Issues**:
+
 - Role assignment not atomic with user creation
 - Concurrent user creation could interfere with role assignment
 - No validation of existing roles before overwriting
@@ -207,6 +223,7 @@ await Meteor.users.updateAsync(userID, {
 ## ⚠️ **MEDIUM SEVERITY VULNERABILITIES**
 
 ### <a name="v004"></a>✅ ~~**V004: Insufficient Input Sanitization**~~ (FIXED)
+
 **File**: `imports/api/ride/RideMethods.js:131-139`
 **Severity**: ~~MEDIUM~~ **RESOLVED**
 **Type**: Input Validation
@@ -220,6 +237,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 ```
 
 **Issues Fixed**:
+
 - ✅ Enhanced input sanitization for share codes
 - ✅ Added protection against special characters
 - ✅ Improved validation to prevent malformed codes
@@ -229,6 +247,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 ---
 
 ### <a name="v005"></a>🟡 ~~**V005: Direct Database Queries in Client Code**~~ (Legacy)
+
 **File**: ~~`imports/ui/legacy/pages/EditProfile.jsx:30-58`~~
 **Severity**: MEDIUM
 **Type**: Security Architecture
@@ -241,6 +260,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 ```
 
 **Issues**:
+
 - ~~Database operations performed directly in UI code~~
 - ~~Bypasses server-side methods and validation~~
 - ~~No consistent error handling or authorization checks~~
@@ -250,6 +270,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 ---
 
 ### <a name="v006"></a>🟡 ~~**V006: Weak Authorization in Profile Updates**~~ (Legacy)
+
 **File**: ~~`imports/ui/legacy/pages/EditProfile.jsx:30-60`~~
 **Severity**: MEDIUM
 **Type**: Authorization
@@ -260,6 +281,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 ```
 
 **Issues**:
+
 - ~~No validation of profile ownership on server side~~
 - ~~Relies solely on client-side user ID~~
 - ~~No audit trail for profile changes~~
@@ -269,6 +291,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 ---
 
 ### <a name="v010"></a>✅ ~~**V010: Timing Attack in CAPTCHA Validation**~~ (FIXED)
+
 **File**: `imports/api/accounts/AccountsHandlers.js:8-30`
 **Severity**: ~~MEDIUM~~ **RESOLVED**
 **Type**: Timing Attack
@@ -281,6 +304,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 ```
 
 **Issues Fixed**:
+
 - ✅ Implemented constant-time database operations for CAPTCHA validation
 - ✅ Fixed timing differences that could reveal CAPTCHA session validity
 - ✅ Added consistent execution time for all validation paths
@@ -290,6 +314,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 ---
 
 ### <a name="v011"></a>🟡 **V011: Insecure Place Resolution in FirstRun**
+
 **File**: `imports/startup/server/FirstRun.js:152-178`
 **Severity**: MEDIUM
 **Type**: Logic Flaw
@@ -305,6 +330,7 @@ if (!originPlace) {
 ```
 
 **Issues**:
+
 - No validation that found place belongs to correct user
 - Could resolve to wrong place with same name
 - No access control on place resolution
@@ -314,6 +340,7 @@ if (!originPlace) {
 ---
 
 ### <a name="v012"></a>🟡 **V012: Unsafe JSON Processing in Web Worker**
+
 **File**: `imports/ui/mobile/utils/AsyncTileLoader.js:30-35`
 **Severity**: LOW
 **Type**: Code Injection
@@ -328,6 +355,7 @@ const workerScript = `
 ```
 
 **Issues**:
+
 - Web worker processes potentially untrusted tile URLs
 - No URL validation before processing
 - Dynamic script generation
@@ -337,6 +365,7 @@ const workerScript = `
 ---
 
 ### <a name="v013"></a>✅ ~~**V013: Missing File Type Validation in Image Upload**~~ (FIXED)
+
 **File**: `imports/api/images/ImageMethods.js:95-103`
 **Severity**: ~~HIGH~~ **RESOLVED**
 **Type**: File Upload Security
@@ -345,7 +374,11 @@ const workerScript = `
 ```javascript
 // FIXED: Comprehensive server-side file type validation
 const allowedTypes = [
-  "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+  "image/webp",
 ];
 // Added server-side file signature validation using file-type library
 const fileType = await FileType.fromBuffer(originalBinaryData);
@@ -355,6 +388,7 @@ if (!fileType || !allowedTypes.includes(`image/${fileType.ext}`)) {
 ```
 
 **Issues Fixed**:
+
 - ✅ Added comprehensive server-side file signature validation
 - ✅ Implemented file-type library for detecting actual file types
 - ✅ Prevented malicious files disguised as images
@@ -365,6 +399,7 @@ if (!fileType || !allowedTypes.includes(`image/${fileType.ext}`)) {
 ---
 
 ### <a name="v014"></a>🚨 **V014: Direct Image Data Exposure via Server Routes**
+
 **File**: `imports/startup/server/ServerRoutes.js:5-45`
 **Severity**: HIGH
 **Type**: Information Disclosure & Access Control
@@ -380,6 +415,7 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
 ```
 
 **Issues**:
+
 - No authentication or authorization checks
 - Any user can access any image by guessing/knowing UUID
 - Exposes potentially private images publicly
@@ -390,6 +426,7 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
 ---
 
 ### <a name="v015"></a>✅ ~~**V015: Captcha Brute Force Vulnerability**~~ (FIXED)
+
 **File**: `imports/api/captcha/CaptchaMethods.js:31-54`
 **Severity**: ~~MEDIUM~~ **RESOLVED**
 **Type**: Rate Limiting & Brute Force
@@ -407,6 +444,7 @@ async "captcha.verify"(sessionId, userInput) {
 ```
 
 **Issues Fixed**:
+
 - ✅ Added comprehensive rate limiting on verification attempts
 - ✅ Implemented session-based attempt limiting
 - ✅ Added IP-based throttling and exponential backoff
@@ -417,6 +455,7 @@ async "captcha.verify"(sessionId, userInput) {
 ---
 
 ### <a name="v016"></a>⚠️ **V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints** (INTENTIONAL)
+
 **File**: `imports/startup/server/ServerRoutes.js:70-180`
 **Severity**: ~~HIGH~~ **ACCEPTED**
 **Type**: Server-Side Request Forgery
@@ -425,15 +464,16 @@ async "captcha.verify"(sessionId, userInput) {
 ```javascript
 // INTENTIONAL: Hardcoded internal hostnames for legitimate proxy functionality
 const options = {
-  hostname: "tileserver-gl",  // Internal hostname - intentional for microservice architecture
-  hostname: "nominatim",      // Internal hostname - intentional for geocoding service
-  hostname: "osrm",          // Internal hostname - intentional for routing service
+  hostname: "tileserver-gl", // Internal hostname - intentional for microservice architecture
+  hostname: "nominatim", // Internal hostname - intentional for geocoding service
+  hostname: "osrm", // Internal hostname - intentional for routing service
   port: 8082,
-  path: targetPath,  // User-controlled path - validated for legitimate service requests
+  path: targetPath, // User-controlled path - validated for legitimate service requests
 };
 ```
 
 **Security Assessment**:
+
 - ✅ Internal service hostnames are intentionally exposed for proxy functionality
 - ✅ Path forwarding is controlled and validated for legitimate service requests
 - ✅ Network topology exposure is minimal and within acceptable security boundaries
@@ -445,6 +485,7 @@ const options = {
 ---
 
 ### <a name="v017"></a>🟡 **V017: Weak CAPTCHA Session Management**
+
 **File**: `imports/api/captcha/Captcha.js:18-32`
 **Severity**: MEDIUM
 **Type**: Session Management
@@ -461,6 +502,7 @@ async function useCaptcha(sessionId) {
 ```
 
 **Issues**:
+
 - Race condition between find and update operations
 - CAPTCHA could be used multiple times simultaneously
 - No atomic "use-once" guarantee
@@ -471,6 +513,7 @@ async function useCaptcha(sessionId) {
 ---
 
 ### <a name="v018"></a>✅ ~~**V018: Missing Input Sanitization in Chat Messages**~~ (FIXED)
+
 **File**: `imports/api/chat/ChatMethods.js:289-330`
 **Severity**: ~~MEDIUM~~ **RESOLVED**
 **Type**: Cross-Site Scripting (XSS)
@@ -491,6 +534,7 @@ async "chats.sendMessage"(chatId, content) {
 ```
 
 **Issues Fixed**:
+
 - ✅ Added comprehensive chat message content sanitization before storage
 - ✅ Implemented HTML/script tag filtering using DOMPurify
 - ✅ Prevented stored XSS attacks in chat messages
@@ -501,6 +545,7 @@ async "chats.sendMessage"(chatId, content) {
 ---
 
 ### <a name="v019"></a>🚨 **V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)
+
 **File**: `imports/api/ride/RidePublications.js:5-8`
 **Severity**: CRITICAL
 **Type**: Authorization Bypass & Information Disclosure
@@ -516,6 +561,7 @@ Meteor.publish("Rides", function publish() {
 ```
 
 **Issues**:
+
 - All rides published to any authenticated user without filtering
 - Complete violation of data privacy - users can see all rides
 - No authorization based on ride participation
@@ -526,27 +572,29 @@ Meteor.publish("Rides", function publish() {
 ---
 
 ### <a name="v020"></a>🟡 **V020: Email-Based User Discovery in Chat Publications**
+
 **File**: `imports/api/chat/ChatPublications.js:21-44`
 **Severity**: MEDIUM
 **Type**: Information Disclosure
 
 ```javascript
 // VULNERABLE: Allows email-based user enumeration
-Meteor.publish("chats.withEmail", async function(searchEmail) {
+Meteor.publish("chats.withEmail", async function (searchEmail) {
   const targetUser = await Meteor.users.findOneAsync({
-    "emails.address": searchEmail.toLowerCase().trim()
+    "emails.address": searchEmail.toLowerCase().trim(),
   });
 
   if (targetUser && targetUser.username) {
     // Behavior reveals if email exists in system
     return Chats.find({
-      Participants: { $all: [currentUser.username, targetUser.username] }
+      Participants: { $all: [currentUser.username, targetUser.username] },
     });
   }
 });
 ```
 
 **Issues**:
+
 - Allows enumeration of registered email addresses
 - Different behavior reveals whether email exists in system
 - No rate limiting on email lookups
@@ -557,6 +605,7 @@ Meteor.publish("chats.withEmail", async function(searchEmail) {
 ---
 
 ### <a name="v021"></a>🟡 **V021: Performance Issues in Places Publications**
+
 **File**: `imports/api/places/PlacesPublications.js:8-35 & 81-114`
 **Severity**: MEDIUM
 **Type**: Performance & DoS
@@ -575,6 +624,7 @@ userRides.forEach((ride) => {
 ```
 
 **Issues**:
+
 - Multiple database queries executed per publication
 - No proper indexing strategy for complex queries
 - Fetches all rides into memory before processing
@@ -587,16 +637,19 @@ userRides.forEach((ride) => {
 ## ✅ **GOOD SECURITY PRACTICES FOUND**
 
 ### 🟢 **Proper Input Validation**
+
 - Most Meteor methods use `check()` for basic type validation
 - Joi schemas defined for data structure validation
 - String length limits enforced in schemas
 
 ### 🟢 **Authorization Checks**
+
 - Admin role checks in sensitive operations
 - User authentication required for most operations
 - Ride ownership validation before modifications
 
 ### 🟢 **Parameterized Queries**
+
 - All MongoDB queries use proper parameter binding
 - No raw string concatenation in queries
 - MongoDB operators used correctly (`$push`, `$pull`, `$set`)
@@ -608,17 +661,19 @@ userRides.forEach((ride) => {
 ### **Immediate Actions Required**
 
 1. **Fix XSS in CAPTCHA Display (V007)** - CRITICAL:
+
    ```javascript
    // Use a safe SVG rendering library instead of dangerouslySetInnerHTML
-   import DOMPurify from 'dompurify';
+   import DOMPurify from "dompurify";
 
    // Sanitize SVG content before rendering
    const sanitizedSvg = DOMPurify.sanitize(this.state.captchaSvg, {
-     USE_PROFILES: { svg: true, svgFilters: true }
+     USE_PROFILES: { svg: true, svgFilters: true },
    });
    ```
 
 2. **Fix Rides Publication Security (V008)** - CRITICAL:
+
    ```javascript
    // Filter rides by user participation
    Meteor.publish("Rides", function publish() {
@@ -627,14 +682,15 @@ userRides.forEach((ride) => {
        return Rides.find({
          $or: [
            { driver: currentUser.username },
-           { riders: currentUser.username }
-         ]
+           { riders: currentUser.username },
+         ],
        });
      }
    });
    ```
 
 3. **Fix User Update Validation (V001)**:
+
    ```javascript
    // Add proper email validation
    if (!SimpleSchema.RegEx.Email.test(updateData.email)) {
@@ -644,49 +700,51 @@ userRides.forEach((ride) => {
    // Check username uniqueness
    const existingUser = await Meteor.users.findOneAsync({
      username: updateData.username,
-     _id: { $ne: userId }
+     _id: { $ne: userId },
    });
    if (existingUser) {
      throw new Meteor.Error("username-taken", "Username already exists");
    }
    ```
 
-2. **Implement Atomic Share Code Generation**:
+4. **Implement Atomic Share Code Generation**:
+
    ```javascript
    // Use MongoDB's findOneAndUpdate with upsert for atomicity
    const result = await Rides.rawCollection().findOneAndUpdate(
      { _id: rideId, shareCode: { $exists: false } },
      { $set: { shareCode: generateCode() } },
-     { returnDocument: 'after' }
+     { returnDocument: "after" }
    );
    ```
 
-3. **Fix Data Publication Security**:
+5. **Fix Data Publication Security**:
+
    ```javascript
    // Filter publications properly
    return Rides.find({
-     $or: [
-       { driver: currentUser.username },
-       { riders: currentUser.username }
-     ]
+     $or: [{ driver: currentUser.username }, { riders: currentUser.username }],
    });
    ```
 
-4. **Move Database Operations to Server Methods**:
+6. **Move Database Operations to Server Methods**:
+
    - Remove all direct database calls from client code
    - Implement proper server-side methods with authorization
    - Add comprehensive input validation
 
-5. **Fix Image Upload Security (V013)** - CRITICAL:
+7. **Fix Image Upload Security (V013)** - CRITICAL:
+
    ```javascript
    // Add server-side file type validation
    const fileType = await FileType.fromBuffer(originalBinaryData);
-   if (!fileType || !['jpg', 'png', 'gif', 'webp'].includes(fileType.ext)) {
+   if (!fileType || !["jpg", "png", "gif", "webp"].includes(fileType.ext)) {
      throw new Meteor.Error("invalid-file-type", "Invalid file type");
    }
    ```
 
-6. **Fix Image Access Control (V014)** - CRITICAL:
+8. **Fix Image Access Control (V014)** - CRITICAL:
+
    ```javascript
    // Add authentication to image serving endpoint
    if (!req.headers.authorization) {
@@ -696,26 +754,29 @@ userRides.forEach((ride) => {
    }
    ```
 
-7. **Fix Chat Message Sanitization (V018)**:
+9. **Fix Chat Message Sanitization (V018)**:
+
    ```javascript
    // Sanitize chat content before storage
-   import DOMPurify from 'dompurify';
+   import DOMPurify from "dompurify";
    const sanitizedContent = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
    ```
 
-8. **Implement CAPTCHA Rate Limiting (V015)**:
-   ```javascript
-   // Add rate limiting per IP/session
-   const attempts = await Captcha.countDocuments({
-     sessionId,
-     timestamp: { $gt: Date.now() - 60000 }
-   });
-   if (attempts > 5) {
-     throw new Meteor.Error("rate-limited", "Too many attempts");
-   }
-   ```
+10. **Implement CAPTCHA Rate Limiting (V015)**:
 
-9. **Prevent User Enumeration in Chat (V020)**:
+    ```javascript
+    // Add rate limiting per IP/session
+    const attempts = await Captcha.countDocuments({
+      sessionId,
+      timestamp: { $gt: Date.now() - 60000 },
+    });
+    if (attempts > 5) {
+      throw new Meteor.Error("rate-limited", "Too many attempts");
+    }
+    ```
+
+11. **Prevent User Enumeration in Chat (V020)**:
+
     ```javascript
     // Use constant-time lookup and don't reveal email existence
     // Consider implementing proper user search with privacy controls
@@ -733,27 +794,27 @@ userRides.forEach((ride) => {
 
 ## 📊 **Risk Assessment**
 
-| Vulnerability | Severity | Likelihood | Impact | Priority |
-|--------------|----------|------------|---------|----------|
-| [~~V001: User Update Validation~~ (FIXED)](#v001) | ~~HIGH~~ **RESOLVED** | ~~Medium~~ | ~~High~~ | RESOLVED |
-| [V002: Share Code Race Condition](#v002) | MEDIUM | Low | Medium | **HIGH** |
-| [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH | High | Medium | IGNORED |
-| [~~V004: Input Sanitization~~ (FIXED)](#v004) | ~~MEDIUM~~ **RESOLVED** | ~~Medium~~ | ~~Low~~ | RESOLVED |
-| [~~V005: Client DB Operations~~ (Legacy)](#v005) | MEDIUM | High | Medium | IGNORED |
-| [~~V006: Profile Authorization~~ (Legacy)](#v006) | MEDIUM | Medium | Medium | IGNORED |
-| [~~V007: XSS in CAPTCHA Display~~ (FIXED)](#v007) | ~~HIGH~~ **RESOLVED** | ~~Medium~~ | ~~High~~ | RESOLVED |
-| [~~V008: Rides Publication Exposure~~ (FIXED)](#v008) | ~~CRITICAL~~ **RESOLVED** | ~~High~~ | ~~High~~ | RESOLVED |
-| [V009: Role Assignment Race Condition](#v009) | MEDIUM | Low | High | **HIGH** |
-| [~~V010: CAPTCHA Timing Attack~~ (FIXED)](#v010) | ~~MEDIUM~~ **RESOLVED** | ~~Low~~ | ~~Low~~ | RESOLVED |
-| [V011: Insecure Place Resolution](#v011) | MEDIUM | Medium | Medium | **MEDIUM** |
-| [V012: Web Worker JSON Processing](#v012) | LOW | Low | Low | **LOW** |
-| [~~V013: Missing File Type Validation~~ (FIXED)](#v013) | ~~HIGH~~ **RESOLVED** | ~~High~~ | ~~High~~ | RESOLVED |
-| [V014: Direct Image Data Exposure](#v014) | **HIGH** | High | Medium | **CRITICAL** |
-| [~~V015: Captcha Brute Force~~ (FIXED)](#v015) | ~~MEDIUM~~ **RESOLVED** | ~~Medium~~ | ~~Medium~~ | RESOLVED |
-| [~~V016: SSRF in Proxy Endpoints~~ (INTENTIONAL)](#v016) | ~~HIGH~~ **ACCEPTED** | ~~Low~~ | ~~High~~ | ACCEPTED |
-| [V017: Weak CAPTCHA Session Management](#v017) | MEDIUM | Medium | Medium | **MEDIUM** |
-| [~~V018: Missing Chat Input Sanitization~~ (FIXED)](#v018) | ~~MEDIUM~~ **RESOLVED** | ~~High~~ | ~~Medium~~ | RESOLVED |
-| [V020: Email-Based User Discovery](#v020) | MEDIUM | Medium | Low | **MEDIUM** |
-| [V021: Performance Issues in Publications](#v021) | MEDIUM | Medium | Medium | **MEDIUM** |
+| Vulnerability                                                   | Severity                  | Likelihood | Impact     | Priority     |
+| --------------------------------------------------------------- | ------------------------- | ---------- | ---------- | ------------ |
+| [~~V001: User Update Validation~~ (FIXED)](#v001)               | ~~HIGH~~ **RESOLVED**     | ~~Medium~~ | ~~High~~   | RESOLVED     |
+| [V002: Share Code Race Condition](#v002)                        | MEDIUM                    | Low        | Medium     | **HIGH**     |
+| [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH                      | High       | Medium     | IGNORED      |
+| [~~V004: Input Sanitization~~ (FIXED)](#v004)                   | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Low~~    | RESOLVED     |
+| [~~V005: Client DB Operations~~ (Legacy)](#v005)                | MEDIUM                    | High       | Medium     | IGNORED      |
+| [~~V006: Profile Authorization~~ (Legacy)](#v006)               | MEDIUM                    | Medium     | Medium     | IGNORED      |
+| [~~V007: XSS in CAPTCHA Display~~ (FIXED)](#v007)               | ~~HIGH~~ **RESOLVED**     | ~~Medium~~ | ~~High~~   | RESOLVED     |
+| [~~V008: Rides Publication Exposure~~ (FIXED)](#v008)           | ~~CRITICAL~~ **RESOLVED** | ~~High~~   | ~~High~~   | RESOLVED     |
+| [V009: Role Assignment Race Condition](#v009)                   | MEDIUM                    | Low        | High       | **HIGH**     |
+| [~~V010: CAPTCHA Timing Attack~~ (FIXED)](#v010)                | ~~MEDIUM~~ **RESOLVED**   | ~~Low~~    | ~~Low~~    | RESOLVED     |
+| [V011: Insecure Place Resolution](#v011)                        | MEDIUM                    | Medium     | Medium     | **MEDIUM**   |
+| [V012: Web Worker JSON Processing](#v012)                       | LOW                       | Low        | Low        | **LOW**      |
+| [~~V013: Missing File Type Validation~~ (FIXED)](#v013)         | ~~HIGH~~ **RESOLVED**     | ~~High~~   | ~~High~~   | RESOLVED     |
+| [V014: Direct Image Data Exposure](#v014)                       | **HIGH**                  | High       | Medium     | **CRITICAL** |
+| [~~V015: Captcha Brute Force~~ (FIXED)](#v015)                  | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     |
+| [~~V016: SSRF in Proxy Endpoints~~ (INTENTIONAL)](#v016)        | ~~HIGH~~ **ACCEPTED**     | ~~Low~~    | ~~High~~   | ACCEPTED     |
+| [V017: Weak CAPTCHA Session Management](#v017)                  | MEDIUM                    | Medium     | Medium     | **MEDIUM**   |
+| [~~V018: Missing Chat Input Sanitization~~ (FIXED)](#v018)      | ~~MEDIUM~~ **RESOLVED**   | ~~High~~   | ~~Medium~~ | RESOLVED     |
+| [V020: Email-Based User Discovery](#v020)                       | MEDIUM                    | Medium     | Low        | **MEDIUM**   |
+| [V021: Performance Issues in Publications](#v021)               | MEDIUM                    | Medium     | Medium     | **MEDIUM**   |
 
 **Overall Risk Level**: **MEDIUM** - Significant security improvements achieved. Most critical vulnerabilities resolved (V001, V004, V007, V008, V010, V013, V015, V018). V016 marked as accepted risk. Remaining medium-severity vulnerabilities (V002, V009, V011, V017, V020, V021) and one high-severity vulnerability (V014) require attention.
