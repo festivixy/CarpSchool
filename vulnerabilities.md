@@ -735,24 +735,24 @@ userRides.forEach((ride) => {
 
 | Vulnerability | Severity | Likelihood | Impact | Priority |
 |--------------|----------|------------|---------|----------|
-| [~~V001: User Update Validation~~ (FIXED)](#v001) | ~~HIGH~~ **RESOLVED** | ~~Medium~~ | ~~High~~ | **RESOLVED** |
+| [~~V001: User Update Validation~~ (FIXED)](#v001) | ~~HIGH~~ **RESOLVED** | ~~Medium~~ | ~~High~~ | RESOLVED |
 | [V002: Share Code Race Condition](#v002) | MEDIUM | Low | Medium | **HIGH** |
-| [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH | High | Medium | **IGNORED** |
-| [~~V004: Input Sanitization~~ (FIXED)](#v004) | ~~MEDIUM~~ **RESOLVED** | ~~Medium~~ | ~~Low~~ | **RESOLVED** |
-| [~~V005: Client DB Operations~~ (Legacy)](#v005) | MEDIUM | High | Medium | **IGNORED** |
-| [~~V006: Profile Authorization~~ (Legacy)](#v006) | MEDIUM | Medium | Medium | **IGNORED** |
-| [~~V007: XSS in CAPTCHA Display~~ (FIXED)](#v007) | ~~HIGH~~ **RESOLVED** | ~~Medium~~ | ~~High~~ | **RESOLVED** |
-| [~~V008: Rides Publication Exposure~~ (FIXED)](#v008) | ~~CRITICAL~~ **RESOLVED** | ~~High~~ | ~~High~~ | **RESOLVED** |
+| [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH | High | Medium | IGNORED |
+| [~~V004: Input Sanitization~~ (FIXED)](#v004) | ~~MEDIUM~~ **RESOLVED** | ~~Medium~~ | ~~Low~~ | RESOLVED |
+| [~~V005: Client DB Operations~~ (Legacy)](#v005) | MEDIUM | High | Medium | IGNORED |
+| [~~V006: Profile Authorization~~ (Legacy)](#v006) | MEDIUM | Medium | Medium | IGNORED |
+| [~~V007: XSS in CAPTCHA Display~~ (FIXED)](#v007) | ~~HIGH~~ **RESOLVED** | ~~Medium~~ | ~~High~~ | RESOLVED |
+| [~~V008: Rides Publication Exposure~~ (FIXED)](#v008) | ~~CRITICAL~~ **RESOLVED** | ~~High~~ | ~~High~~ | RESOLVED |
 | [V009: Role Assignment Race Condition](#v009) | MEDIUM | Low | High | **HIGH** |
-| [~~V010: CAPTCHA Timing Attack~~ (FIXED)](#v010) | ~~MEDIUM~~ **RESOLVED** | ~~Low~~ | ~~Low~~ | **RESOLVED** |
+| [~~V010: CAPTCHA Timing Attack~~ (FIXED)](#v010) | ~~MEDIUM~~ **RESOLVED** | ~~Low~~ | ~~Low~~ | RESOLVED |
 | [V011: Insecure Place Resolution](#v011) | MEDIUM | Medium | Medium | **MEDIUM** |
 | [V012: Web Worker JSON Processing](#v012) | LOW | Low | Low | **LOW** |
-| [~~V013: Missing File Type Validation~~ (FIXED)](#v013) | ~~HIGH~~ **RESOLVED** | ~~High~~ | ~~High~~ | **RESOLVED** |
+| [~~V013: Missing File Type Validation~~ (FIXED)](#v013) | ~~HIGH~~ **RESOLVED** | ~~High~~ | ~~High~~ | RESOLVED |
 | [V014: Direct Image Data Exposure](#v014) | **HIGH** | High | Medium | **CRITICAL** |
-| [~~V015: Captcha Brute Force~~ (FIXED)](#v015) | ~~MEDIUM~~ **RESOLVED** | ~~Medium~~ | ~~Medium~~ | **RESOLVED** |
-| [~~V016: SSRF in Proxy Endpoints~~ (INTENTIONAL)](#v016) | ~~HIGH~~ **ACCEPTED** | ~~Low~~ | ~~High~~ | **ACCEPTED** |
+| [~~V015: Captcha Brute Force~~ (FIXED)](#v015) | ~~MEDIUM~~ **RESOLVED** | ~~Medium~~ | ~~Medium~~ | RESOLVED |
+| [~~V016: SSRF in Proxy Endpoints~~ (INTENTIONAL)](#v016) | ~~HIGH~~ **ACCEPTED** | ~~Low~~ | ~~High~~ | ACCEPTED |
 | [V017: Weak CAPTCHA Session Management](#v017) | MEDIUM | Medium | Medium | **MEDIUM** |
-| [~~V018: Missing Chat Input Sanitization~~ (FIXED)](#v018) | ~~MEDIUM~~ **RESOLVED** | ~~High~~ | ~~Medium~~ | **RESOLVED** |
+| [~~V018: Missing Chat Input Sanitization~~ (FIXED)](#v018) | ~~MEDIUM~~ **RESOLVED** | ~~High~~ | ~~Medium~~ | RESOLVED |
 | [V020: Email-Based User Discovery](#v020) | MEDIUM | Medium | Low | **MEDIUM** |
 | [V021: Performance Issues in Publications](#v021) | MEDIUM | Medium | Medium | **MEDIUM** |
 
