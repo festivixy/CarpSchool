@@ -287,14 +287,7 @@ osrm_chunk_tarball() {
     local split_result=$?
 
     if [[ $split_result -eq 0 ]]; then
-        # Rename chunks to have .part extension
-        for chunk in "$chunks_dir"/osrmdata-$region.tar.gz.*; do
-            if [[ -f "$chunk" ]]; then
-                mv "$chunk" "$chunk.part"
-            fi
-        done
-
-        # Create chunks.txt file
+        # Create chunks.txt file (no need to rename - split already added .part suffix)
         local chunks_txt="$chunks_dir/chunks.txt"
         ls "$chunks_dir"/osrmdata-$region.tar.gz.*.part | sed 's|.*/||' > "$chunks_txt"
 
