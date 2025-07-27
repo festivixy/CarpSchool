@@ -171,9 +171,7 @@ class MobileAddRidesModal extends React.Component {
       field === "origin" ? "filteredOrigins" : "filteredDestinations";
 
     const places = this.props.places || [];
-    const filtered = places.filter((place) =>
-      place.text.toLowerCase().includes(searchValue.toLowerCase()),
-    );
+    const filtered = places.filter((place) => place.text.toLowerCase().includes(searchValue.toLowerCase()));
 
     this.setState({
       [searchField]: searchValue,
@@ -427,8 +425,7 @@ class MobileAddRidesModal extends React.Component {
                         <DropdownInput
                           type="text"
                           value={originSearch}
-                          onChange={(e) =>
-                            this.handlePlaceSearch("origin", e.target.value)
+                          onChange={(e) => this.handlePlaceSearch("origin", e.target.value)
                           }
                           placeholder="Search origin..."
                           autoComplete="off"
@@ -442,8 +439,7 @@ class MobileAddRidesModal extends React.Component {
                             filteredOrigins.map((place) => (
                               <DropdownItem
                                 key={place._id}
-                                onClick={() =>
-                                  this.handlePlaceSelect("origin", place)
+                                onClick={() => this.handlePlaceSelect("origin", place)
                                 }
                               >
                                 {place.text}
@@ -480,8 +476,7 @@ class MobileAddRidesModal extends React.Component {
                         <DropdownInput
                           type="text"
                           value={destinationSearch}
-                          onChange={(e) =>
-                            this.handlePlaceSearch(
+                          onChange={(e) => this.handlePlaceSearch(
                               "destination",
                               e.target.value,
                             )
@@ -498,8 +493,7 @@ class MobileAddRidesModal extends React.Component {
                             filteredDestinations.map((place) => (
                               <DropdownItem
                                 key={place._id}
-                                onClick={() =>
-                                  this.handlePlaceSelect("destination", place)
+                                onClick={() => this.handlePlaceSelect("destination", place)
                                 }
                               >
                                 {place.text}
@@ -527,8 +521,7 @@ class MobileAddRidesModal extends React.Component {
                         type="date"
                         value={date}
                         min={minDate}
-                        onChange={(e) =>
-                          this.handleInputChange("date", e.target.value)
+                        onChange={(e) => this.handleInputChange("date", e.target.value)
                         }
                         required
                       />
@@ -539,8 +532,7 @@ class MobileAddRidesModal extends React.Component {
                       <Input
                         type="time"
                         value={time}
-                        onChange={(e) =>
-                          this.handleInputChange("time", e.target.value)
+                        onChange={(e) => this.handleInputChange("time", e.target.value)
                         }
                         required
                       />
@@ -556,8 +548,7 @@ class MobileAddRidesModal extends React.Component {
                     <Label>Available Seats</Label>
                     <Select
                       value={seats}
-                      onChange={(e) =>
-                        this.handleInputChange("seats", e.target.value)
+                      onChange={(e) => this.handleInputChange("seats", e.target.value)
                       }
                     >
                       <option value="1">1 seat</option>
@@ -574,8 +565,7 @@ class MobileAddRidesModal extends React.Component {
                     <Label>Notes (Optional)</Label>
                     <Textarea
                       value={notes}
-                      onChange={(e) =>
-                        this.handleInputChange("notes", e.target.value)
+                      onChange={(e) => this.handleInputChange("notes", e.target.value)
                       }
                       placeholder="Additional details..."
                       rows="2"

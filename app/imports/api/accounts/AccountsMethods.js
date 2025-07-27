@@ -44,7 +44,7 @@ Meteor.methods({
     if (!user || !user.roles || !user.roles.includes("admin")) {
       throw new Meteor.Error(
         "access-denied",
-        "You must be an admin to delete users"
+        "You must be an admin to delete users",
       );
     }
 
@@ -52,7 +52,7 @@ Meteor.methods({
     if (userId === Meteor.userId()) {
       throw new Meteor.Error(
         "invalid-operation",
-        "You cannot delete your own account"
+        "You cannot delete your own account",
       );
     }
 
@@ -73,7 +73,7 @@ Meteor.methods({
     if (!user || !user.roles || !user.roles.includes("admin")) {
       throw new Meteor.Error(
         "access-denied",
-        "You must be an admin to edit users"
+        "You must be an admin to edit users",
       );
     }
 
@@ -85,7 +85,7 @@ Meteor.methods({
     // Check if email is already used by another user
     const existingEmailUser = await Meteor.users.findOneAsync({
       "emails.address": updateData.email.toLowerCase(),
-      _id: { $ne: userId }
+      _id: { $ne: userId },
     });
     if (existingEmailUser) {
       throw new Meteor.Error("email-taken", "Email already exists");
@@ -146,7 +146,7 @@ Meteor.methods({
     if (!user || !user.roles || !user.roles.includes("admin")) {
       throw new Meteor.Error(
         "access-denied",
-        "You must be an admin to modify user roles"
+        "You must be an admin to modify user roles",
       );
     }
 
@@ -154,7 +154,7 @@ Meteor.methods({
     if (userId === Meteor.userId() && action === "remove") {
       throw new Meteor.Error(
         "invalid-operation",
-        "You cannot remove admin role from yourself"
+        "You cannot remove admin role from yourself",
       );
     }
 
@@ -174,7 +174,7 @@ Meteor.methods({
     }
 
     const user = await Meteor.users.findOneAsync(userId, {
-      fields: { username: 1 }
+      fields: { username: 1 },
     });
 
     return user?.username || null;

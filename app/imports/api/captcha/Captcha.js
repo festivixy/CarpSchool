@@ -48,11 +48,11 @@ async function useCaptcha(sessionId) {
     {
       _id: sessionId,
       solved: true,
-      used: false
+      used: false,
     },
     {
-      $set: { used: true }
-    }
+      $set: { used: true },
+    },
   );
 
   // Return whether the update was successful (captcha was available to use)

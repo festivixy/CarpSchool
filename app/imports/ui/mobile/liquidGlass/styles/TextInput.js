@@ -24,8 +24,7 @@ export const InputLabel = styled.label`
   margin-bottom: 6px;
   transition: all 0.2s ease;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-  transform: ${(props) =>
-    props.$isFocused || props.$hasValue ? "translateY(0)" : "translateY(2px)"};
+  transform: ${(props) => (props.$isFocused || props.$hasValue ? "translateY(0)" : "translateY(2px)")};
 `;
 
 export const InputWrapper = styled.div`

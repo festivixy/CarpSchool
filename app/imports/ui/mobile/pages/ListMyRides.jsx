@@ -37,8 +37,7 @@ class MobileListMyRides extends React.Component {
     const currentUser = Meteor.user()?.username;
 
     let filteredRides = rides.filter(
-      (ride) =>
-        ride.driver !== currentUser &&
+      (ride) => ride.driver !== currentUser &&
         // Handle new schema
         ((ride.riders !== undefined &&
           ride.seats !== undefined &&
@@ -51,8 +50,7 @@ class MobileListMyRides extends React.Component {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredRides = filteredRides.filter(
-        (ride) =>
-          ride.origin.toLowerCase().includes(query) ||
+        (ride) => ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           ride.driver.toLowerCase().includes(query),
       );
@@ -65,16 +63,14 @@ class MobileListMyRides extends React.Component {
     this.setState({ searchQuery: e.target.value }, this.filterRides);
   };
 
-  formatDate = (date) =>
-    new Date(date).toLocaleDateString("en-US", {
+  formatDate = (date) => new Date(date).toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
       year: "numeric",
     });
 
-  formatTime = (date) =>
-    new Date(date).toLocaleTimeString("en-US", {
+  formatTime = (date) => new Date(date).toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
@@ -155,8 +151,7 @@ class MobileListMyRides extends React.Component {
                 </p>
                 {searchQuery && (
                   <button
-                    onClick={() =>
-                      this.setState({ searchQuery: "" }, this.filterRides)
+                    onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
                     }
                     className="mobile-listrides-clear-search"
                   >

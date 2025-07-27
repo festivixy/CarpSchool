@@ -26,7 +26,6 @@ import {
   LegalLink,
 } from "../../styles/SignIn";
 
-
 /**
  * LiquidGlass SignIn component using same structure as normal SignIn but with LiquidGlass components
  */
@@ -141,7 +140,6 @@ export default class LiquidGlassSignIn extends React.Component {
     );
   };
 
-
   /** Render the signin form. */
   render() {
     // if correct authentication, redirect to page instead of login screen
@@ -192,7 +190,7 @@ export default class LiquidGlassSignIn extends React.Component {
                 isLoading={this.state.isLoadingCaptcha}
                 onRefresh={this.generateNewCaptcha}
                 inputValue={this.state.captchaInput}
-                onInputChange={(e) => this.handleChange({ target: { name: 'captchaInput', value: e.target.value } })}
+                onInputChange={(e) => this.handleChange({ target: { name: "captchaInput", value: e.target.value } })}
                 label="Security Verification"
                 inputPlaceholder="Enter the characters shown above"
               />

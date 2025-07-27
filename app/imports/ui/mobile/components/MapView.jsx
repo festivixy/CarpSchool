@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { Map, Marker, Popup } from "react-leaflet";
 import { MapContainer } from "../styles/MapView";
-import { AsyncTileLayer } from '../utils/AsyncTileLayer';
+import { AsyncTileLayer } from "../utils/AsyncTileLayer";
 
 /**
  * MapView component that displays an interactive Leaflet map with coordinate points
@@ -61,22 +61,22 @@ export default function MapView({ coordinates, tileServerUrl }) {
   useEffect(() => {
     if (mapRef.current) {
       const map = mapRef.current.leafletElement;
-      
+
       // Create and add async tile layer
       const asyncTileLayer = new AsyncTileLayer(getTileUrl(), {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
         maxZoom: 18,
         tileSize: 256,
       });
-      
+
       asyncTileLayer.addTo(map);
-      
+
       // Fit bounds to show all coordinates
       if (coordinates && coordinates.length > 1) {
         const bounds = coordinates.map((coord) => [coord.lat, coord.lng]);
         map.fitBounds(bounds, { padding: [20, 20] });
       }
-      
+
       // Cleanup on unmount
       return () => {
         if (map.hasLayer(asyncTileLayer)) {
@@ -97,7 +97,7 @@ export default function MapView({ coordinates, tileServerUrl }) {
         scrollWheelZoom={true}
       >
         {/* AsyncTileLayer is added programmatically in useEffect */}
-        
+
         {coordinates &&
           coordinates.map((coord, index) => (
             <Marker key={index} position={[coord.lat, coord.lng]}>

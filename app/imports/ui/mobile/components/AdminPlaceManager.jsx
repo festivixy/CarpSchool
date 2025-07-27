@@ -266,8 +266,7 @@ class AdminPlaceManager extends React.Component {
 
     const query = searchQuery.toLowerCase();
     return places.filter(
-      (place) =>
-        place.text.toLowerCase().includes(query) ||
+      (place) => place.text.toLowerCase().includes(query) ||
         place.value.toLowerCase().includes(query) ||
         this.getCreatorName(place.createdBy).toLowerCase().includes(query),
     );
@@ -308,8 +307,7 @@ class AdminPlaceManager extends React.Component {
             <SearchInput
               placeholder="Search by location name, coordinates, or creator..."
               value={searchQuery}
-              onChange={(e) =>
-                this.handleSearchChange(e, { value: e.target.value })
+              onChange={(e) => this.handleSearchChange(e, { value: e.target.value })
               }
             />
           </SearchContainer>
@@ -398,8 +396,7 @@ class AdminPlaceManager extends React.Component {
                     <Input
                       name="text"
                       value={formData.text}
-                      onChange={(e) =>
-                        this.handleInputChange(e, {
+                      onChange={(e) => this.handleInputChange(e, {
                           name: e.target.name,
                           value: e.target.value,
                         })
@@ -414,8 +411,7 @@ class AdminPlaceManager extends React.Component {
                     <Input
                       name="value"
                       value={formData.value}
-                      onChange={(e) =>
-                        this.handleInputChange(e, {
+                      onChange={(e) => this.handleInputChange(e, {
                           name: e.target.name,
                           value: e.target.value,
                         })

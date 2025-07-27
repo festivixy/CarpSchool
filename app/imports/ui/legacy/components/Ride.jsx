@@ -119,8 +119,7 @@ class Ride extends React.Component {
     document.body.removeChild(textArea);
   };
 
-  isCurrentUserDriver = () =>
-    Meteor.user() && this.props.ride.driver === Meteor.user().username;
+  isCurrentUserDriver = () => Meteor.user() && this.props.ride.driver === Meteor.user().username;
 
   canShareRide = () => {
     const { riders, seats } = this.props.ride;

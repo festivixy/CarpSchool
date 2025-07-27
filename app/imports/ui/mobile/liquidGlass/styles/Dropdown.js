@@ -28,14 +28,12 @@ export const DropdownTrigger = styled.div`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 
   &:hover {
-    transform: ${(props) =>
-      props.$disabled
+    transform: ${(props) => (props.$disabled
         ? "translateY(0px) translateX(0px)"
-        : "translateY(-1px) translateX(0px)"};
-    box-shadow: ${(props) =>
-      props.$disabled
+        : "translateY(-1px) translateX(0px)")};
+    box-shadow: ${(props) => (props.$disabled
         ? "0 1px 3px rgba(0, 0, 0, 0.03)"
-        : "0 6px 16px rgba(0, 0, 0, 0.15)"};
+        : "0 6px 16px rgba(0, 0, 0, 0.15)")};
   }
 
   &:active {
@@ -141,8 +139,7 @@ export const TriggerText = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${(props) =>
-    !props.$hasValue &&
+  ${(props) => !props.$hasValue &&
     `
     color: #333;
     font-weight: 400;
@@ -163,14 +160,12 @@ export const TriggerIcon = styled.span`
   pointer-events: ${(props) => (props.$type === "clear" ? "all" : "none")};
   flex-shrink: 0;
 
-  ${(props) =>
-    props.$type === "chevron" &&
+  ${(props) => props.$type === "chevron" &&
     `
     transform: rotate(${props.$isOpen ? "180deg" : "0deg"});
   `}
 
-  ${(props) =>
-    props.$type === "clear" &&
+  ${(props) => props.$type === "clear" &&
     `
     &:hover {
       background: rgba(255, 255, 255, 0.2);
@@ -181,15 +176,13 @@ export const TriggerIcon = styled.span`
 
 export const DropdownMenu = styled.div`
   position: absolute;
-  ${(props) =>
-    props.$position === "top"
+  ${(props) => (props.$position === "top"
       ? "bottom: calc(100% + 12px);"
-      : "top: calc(100% + 12px);"}
+      : "top: calc(100% + 12px);")}
   left: 50%;
   transform: translateX(-50%)
     translateY(
-      ${(props) =>
-        props.$isOpen ? "0" : props.$position === "top" ? "10px" : "-10px"}
+      ${(props) => (props.$isOpen ? "0" : props.$position === "top" ? "10px" : "-10px")}
     );
   width: 160%;
   min-width: 200px;
@@ -355,10 +348,9 @@ export const MenuItem = styled.div`
 
   &:hover {
     transform: ${(props) => (props.$disabled ? "none" : "translateY(-1px)")};
-    box-shadow: ${(props) =>
-      props.$disabled
+    box-shadow: ${(props) => (props.$disabled
         ? "0 1px 3px rgba(0, 0, 0, 0.03)"
-        : "0 4px 12px rgba(0, 0, 0, 0.1)"};
+        : "0 4px 12px rgba(0, 0, 0, 0.1)")};
 
     &::before {
       background: rgba(255, 255, 255, 0.15);
@@ -377,8 +369,7 @@ export const MenuItem = styled.div`
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   }
 
-  ${(props) =>
-    props.$isSelected &&
+  ${(props) => props.$isSelected &&
     `
     &::before {
       background: rgba(0, 123, 255, 0.1);
@@ -386,8 +377,7 @@ export const MenuItem = styled.div`
     }
   `}
 
-  ${(props) =>
-    props.$isFocused &&
+  ${(props) => props.$isFocused &&
     `
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03);
   `}

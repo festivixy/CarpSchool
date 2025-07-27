@@ -173,7 +173,7 @@ function LiquidGlassFooter({
               </ContactItem>
               <ContactItem>
                 <span>📞</span>
-                <a href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
+                <a href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a>
               </ContactItem>
               <ContactItem>
                 <span>📍</span>

@@ -70,28 +70,25 @@ export const IconButtonContainer = styled.button`
     sans-serif;
 
   /* Active state styles */
-  ${(props) =>
-    props.$active &&
+  ${(props) => props.$active &&
     `
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.03);
   `}
 
   &:hover {
     transform: ${(props) => (props.$disabled ? "translateY(0px) translateX(0px)" : "translateY(-1px) translateX(0px)")};
-    box-shadow: ${(props) =>
-      props.$disabled
+    box-shadow: ${(props) => (props.$disabled
         ? "0 1px 3px rgba(0, 0, 0, 0.03)"
         : props.$active
           ? "0 0 0 2px rgba(0, 123, 255, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)"
-          : "0 6px 16px rgba(0, 0, 0, 0.15)"};
+          : "0 6px 16px rgba(0, 0, 0, 0.15)")};
   }
 
   &:active {
     transform: ${(props) => (props.$disabled ? "translateY(0px) translateX(0px)" : "translateY(0px) translateX(0px)")};
-    box-shadow: ${(props) =>
-      props.$disabled
+    box-shadow: ${(props) => (props.$disabled
         ? "0 1px 3px rgba(0, 0, 0, 0.03)"
-        : "0 2px 8px rgba(0, 0, 0, 0.1)"};
+        : "0 2px 8px rgba(0, 0, 0, 0.1)")};
   }
 
   /* Focus styles for accessibility */

@@ -5,8 +5,8 @@
  * non-blocking tile loading for better performance.
  */
 
-import L from 'leaflet';
-import asyncTileLoader from './AsyncTileLoader';
+import L from "leaflet";
+import asyncTileLoader from "./AsyncTileLoader";
 
 // Custom TileLayer that uses async loading
 export const AsyncTileLayer = L.TileLayer.extend({
@@ -16,15 +16,15 @@ export const AsyncTileLayer = L.TileLayer.extend({
   },
 
   createTile: function (coords, done) {
-    const tile = document.createElement('img');
+    const tile = document.createElement("img");
 
     // Set up tile properties
-    tile.setAttribute('role', 'presentation');
-    tile.style.opacity = '0';
-    tile.style.transition = 'opacity 0.3s ease';
+    tile.setAttribute("role", "presentation");
+    tile.style.opacity = "0";
+    tile.style.transition = "opacity 0.3s ease";
 
     // Add loading class for placeholder styling
-    L.DomUtil.addClass(tile, 'async-tile-loading');
+    L.DomUtil.addClass(tile, "async-tile-loading");
 
     // Load tile asynchronously
     this._loadTileAsync(coords, tile, done);
@@ -42,36 +42,36 @@ export const AsyncTileLayer = L.TileLayer.extend({
       if (imageUrl) {
         // Set up load handler
         const onLoad = () => {
-          tile.removeEventListener('load', onLoad);
-          tile.removeEventListener('error', onError);
+          tile.removeEventListener("load", onLoad);
+          tile.removeEventListener("error", onError);
 
           // Remove loading state and fade in
-          L.DomUtil.removeClass(tile, 'async-tile-loading');
-          L.DomUtil.addClass(tile, 'async-tile-loaded');
-          tile.style.opacity = '1';
+          L.DomUtil.removeClass(tile, "async-tile-loading");
+          L.DomUtil.addClass(tile, "async-tile-loaded");
+          tile.style.opacity = "1";
 
           done(null, tile);
         };
 
         const onError = () => {
-          tile.removeEventListener('load', onLoad);
-          tile.removeEventListener('error', onError);
+          tile.removeEventListener("load", onLoad);
+          tile.removeEventListener("error", onError);
 
-          L.DomUtil.removeClass(tile, 'async-tile-loading');
-          L.DomUtil.addClass(tile, 'async-tile-error');
+          L.DomUtil.removeClass(tile, "async-tile-loading");
+          L.DomUtil.addClass(tile, "async-tile-error");
 
-          done(new Error('Tile failed to load'), tile);
+          done(new Error("Tile failed to load"), tile);
         };
 
-        tile.addEventListener('load', onLoad);
-        tile.addEventListener('error', onError);
+        tile.addEventListener("load", onLoad);
+        tile.addEventListener("error", onError);
         tile.src = imageUrl;
       } else {
         // Fallback to original URL
         this._loadTileFallback(coords, tile, done);
       }
     } catch (error) {
-      console.warn('Async tile loading failed:', error);
+      console.warn("Async tile loading failed:", error);
       this._loadTileFallback(coords, tile, done);
     }
   },
@@ -81,28 +81,28 @@ export const AsyncTileLayer = L.TileLayer.extend({
     const url = this.getTileUrl(coords);
 
     const onLoad = () => {
-      tile.removeEventListener('load', onLoad);
-      tile.removeEventListener('error', onError);
+      tile.removeEventListener("load", onLoad);
+      tile.removeEventListener("error", onError);
 
-      L.DomUtil.removeClass(tile, 'async-tile-loading');
-      L.DomUtil.addClass(tile, 'async-tile-loaded');
-      tile.style.opacity = '1';
+      L.DomUtil.removeClass(tile, "async-tile-loading");
+      L.DomUtil.addClass(tile, "async-tile-loaded");
+      tile.style.opacity = "1";
 
       done(null, tile);
     };
 
     const onError = () => {
-      tile.removeEventListener('load', onLoad);
-      tile.removeEventListener('error', onError);
+      tile.removeEventListener("load", onLoad);
+      tile.removeEventListener("error", onError);
 
-      L.DomUtil.removeClass(tile, 'async-tile-loading');
-      L.DomUtil.addClass(tile, 'async-tile-error');
+      L.DomUtil.removeClass(tile, "async-tile-loading");
+      L.DomUtil.addClass(tile, "async-tile-error");
 
-      done(new Error('Tile failed to load'), tile);
+      done(new Error("Tile failed to load"), tile);
     };
 
-    tile.addEventListener('load', onLoad);
-    tile.addEventListener('error', onError);
+    tile.addEventListener("load", onLoad);
+    tile.addEventListener("error", onError);
     tile.src = url;
   },
 
@@ -110,9 +110,9 @@ export const AsyncTileLayer = L.TileLayer.extend({
     L.TileLayer.prototype.onAdd.call(this, map);
 
     // Add CSS for tile loading states
-    if (!document.getElementById('async-tile-styles')) {
-      const style = document.createElement('style');
-      style.id = 'async-tile-styles';
+    if (!document.getElementById("async-tile-styles")) {
+      const style = document.createElement("style");
+      style.id = "async-tile-styles";
       style.textContent = `
         .async-tile-loading {
           background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
@@ -146,11 +146,11 @@ export const AsyncTileLayer = L.TileLayer.extend({
     }
 
     // Preload tiles on map move
-    map.on('moveend zoomend', this._preloadVisibleTiles, this);
+    map.on("moveend zoomend", this._preloadVisibleTiles, this);
   },
 
   onRemove: function (map) {
-    map.off('moveend zoomend', this._preloadVisibleTiles, this);
+    map.off("moveend zoomend", this._preloadVisibleTiles, this);
     L.TileLayer.prototype.onRemove.call(this, map);
   },
 
@@ -165,7 +165,7 @@ export const AsyncTileLayer = L.TileLayer.extend({
       north: bounds.getNorth(),
       south: bounds.getSouth(),
       east: bounds.getEast(),
-      west: bounds.getWest()
+      west: bounds.getWest(),
     };
 
     // Use requestIdleCallback to avoid blocking
@@ -178,7 +178,7 @@ export const AsyncTileLayer = L.TileLayer.extend({
     } else {
       setTimeout(preload, 100);
     }
-  }
+  },
 });
 
 // Factory function

@@ -43,16 +43,16 @@ export const LoadingContainer = styled.div`
 export const LoadingSpinner = styled.div`
   width: ${props => {
     switch (props.size) {
-      case 'small': return '40px';
-      case 'large': return '80px';
-      default: return '60px';
+      case "small": return "40px";
+      case "large": return "80px";
+      default: return "60px";
     }
   }};
   height: ${props => {
     switch (props.size) {
-      case 'small': return '40px';
-      case 'large': return '80px';
-      default: return '60px';
+      case "small": return "40px";
+      case "large": return "80px";
+      default: return "60px";
     }
   }};
   margin-bottom: 24px;

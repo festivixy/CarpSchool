@@ -10,7 +10,7 @@ import { isEmailVerified } from "../accounts/Accounts";
 let createDOMPurify;
 if (Meteor.isServer) {
   const { JSDOM } = require("jsdom");
-  const window = new JSDOM('').window;
+  const window = new JSDOM("").window;
   createDOMPurify = DOMPurify(window);
 } else {
   // For client-side, use the default DOMPurify which works with the browser window
@@ -19,15 +19,15 @@ if (Meteor.isServer) {
 
 // Sanitize chat message content to prevent XSS
 function sanitizeChatContent(content) {
-  if (typeof content !== 'string') {
-    return '';
+  if (typeof content !== "string") {
+    return "";
   }
 
   // Sanitize content, allowing only safe text (no HTML tags)
   const sanitized = createDOMPurify.sanitize(content, {
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
-    KEEP_CONTENT: true
+    KEEP_CONTENT: true,
   });
 
   // Additional validation: limit length and remove excessive whitespace
@@ -114,7 +114,7 @@ Meteor.methods({
           Sender: "System",
           Content: `Ride chat created. Members: ${participants.join(", ")}`,
           Timestamp: new Date(),
-        }
+        },
       ],
       shareCode: shareCode,
     };

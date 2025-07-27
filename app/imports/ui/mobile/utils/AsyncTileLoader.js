@@ -12,7 +12,7 @@
  */
 
 class AsyncTileLoader {
-  constructor(tileServerUrl = '/tileserver') {
+  constructor(tileServerUrl = "/tileserver") {
     this.tileServerUrl = tileServerUrl;
     this.cache = new Map();
     this.loadingTiles = new Set();
@@ -56,7 +56,7 @@ class AsyncTileLoader {
         };
       `;
 
-      const blob = new Blob([workerScript], { type: 'application/javascript' });
+      const blob = new Blob([workerScript], { type: "application/javascript" });
       this.worker = new Worker(URL.createObjectURL(blob));
 
       this.worker.onmessage = (e) => {
@@ -65,12 +65,12 @@ class AsyncTileLoader {
       };
 
       this.worker.onerror = (error) => {
-        console.warn('Tile loader worker error:', error);
+        console.warn("Tile loader worker error:", error);
         // Fall back to main thread loading
         this.worker = null;
       };
     } catch (error) {
-      console.warn('Web Worker not available, using main thread:', error);
+      console.warn("Web Worker not available, using main thread:", error);
       this.worker = null;
     }
   }
@@ -81,21 +81,21 @@ class AsyncTileLoader {
   async initIndexedDB() {
     try {
       this.db = await new Promise((resolve, reject) => {
-        const request = indexedDB.open('MapTileCache', 1);
+        const request = indexedDB.open("MapTileCache", 1);
 
         request.onerror = () => reject(request.error);
         request.onsuccess = () => resolve(request.result);
 
         request.onupgradeneeded = (e) => {
           const db = e.target.result;
-          if (!db.objectStoreNames.contains('tiles')) {
-            const store = db.createObjectStore('tiles', { keyPath: 'id' });
-            store.createIndex('timestamp', 'timestamp', { unique: false });
+          if (!db.objectStoreNames.contains("tiles")) {
+            const store = db.createObjectStore("tiles", { keyPath: "id" });
+            store.createIndex("timestamp", "timestamp", { unique: false });
           }
         };
       });
     } catch (error) {
-      console.warn('IndexedDB not available for tile caching:', error);
+      console.warn("IndexedDB not available for tile caching:", error);
       this.db = null;
     }
   }
@@ -125,9 +125,9 @@ class AsyncTileLoader {
       const cached = this.cache.get(tileId);
       if (cached.expires > Date.now()) {
         return cached.imageUrl;
-      } else {
-        this.cache.delete(tileId);
       }
+        this.cache.delete(tileId);
+
     }
 
     // Check if already loading
@@ -167,9 +167,9 @@ class AsyncTileLoader {
 
     if (this.worker) {
       return this.fetchTileWithWorker(tileUrl, tileId);
-    } else {
-      return this.fetchTileMainThread(tileUrl, tileId);
     }
+      return this.fetchTileMainThread(tileUrl, tileId);
+
   }
 
   /**
@@ -179,7 +179,7 @@ class AsyncTileLoader {
     return new Promise((resolve, reject) => {
       const messageHandler = (e) => {
         if (e.data.tileId === tileId) {
-          this.worker.removeEventListener('message', messageHandler);
+          this.worker.removeEventListener("message", messageHandler);
 
           if (e.data.success) {
             const imageUrl = URL.createObjectURL(new Blob([e.data.data], { type: e.data.contentType }));
@@ -192,7 +192,7 @@ class AsyncTileLoader {
         }
       };
 
-      this.worker.addEventListener('message', messageHandler);
+      this.worker.addEventListener("message", messageHandler);
       this.worker.postMessage({ tileUrl, tileId });
     });
   }
@@ -274,18 +274,18 @@ class AsyncTileLoader {
     if (!this.db) return;
 
     try {
-      const transaction = this.db.transaction(['tiles'], 'readwrite');
-      const store = transaction.objectStore('tiles');
+      const transaction = this.db.transaction(["tiles"], "readwrite");
+      const store = transaction.objectStore("tiles");
 
       await store.put({
         id: tileId,
         data,
         contentType,
         timestamp: Date.now(),
-        expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
       });
     } catch (error) {
-      console.warn('Failed to cache tile in IndexedDB:', error);
+      console.warn("Failed to cache tile in IndexedDB:", error);
     }
   }
 
@@ -296,8 +296,8 @@ class AsyncTileLoader {
     if (!this.db) return null;
 
     try {
-      const transaction = this.db.transaction(['tiles'], 'readonly');
-      const store = transaction.objectStore('tiles');
+      const transaction = this.db.transaction(["tiles"], "readonly");
+      const store = transaction.objectStore("tiles");
       const request = store.get(tileId);
 
       return new Promise((resolve, reject) => {
@@ -305,7 +305,7 @@ class AsyncTileLoader {
         request.onerror = () => reject(request.error);
       });
     } catch (error) {
-      console.warn('Failed to get cached tile from IndexedDB:', error);
+      console.warn("Failed to get cached tile from IndexedDB:", error);
       return null;
     }
   }

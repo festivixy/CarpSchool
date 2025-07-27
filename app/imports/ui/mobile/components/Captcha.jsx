@@ -199,17 +199,15 @@ class Captcha extends Component {
           this.setState({ error: "" });
           if (callback) callback(null, true);
         }
-      }
+      },
     );
   };
 
   // Public method to get current captcha data
-  getCaptchaData = () => {
-    return {
+  getCaptchaData = () => ({
       sessionId: this.state.captchaSessionId,
       input: this.state.captchaInput,
-    };
-  };
+    });
 
   // Public method to reset captcha
   reset = () => {
@@ -246,9 +244,9 @@ class Captcha extends Component {
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(captchaSvg, {
                   USE_PROFILES: { svg: true, svgFilters: true },
-                  ALLOWED_TAGS: ['svg', 'g', 'path', 'text', 'rect', 'circle', 'line', 'polygon', 'polyline'],
-                  ALLOWED_ATTR: ['viewBox', 'width', 'height', 'd', 'fill', 'stroke', 'x', 'y', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'points', 'stroke-width', 'font-family', 'font-size', 'text-anchor']
-                })
+                  ALLOWED_TAGS: ["svg", "g", "path", "text", "rect", "circle", "line", "polygon", "polyline"],
+                  ALLOWED_ATTR: ["viewBox", "width", "height", "d", "fill", "stroke", "x", "y", "cx", "cy", "r", "x1", "y1", "x2", "y2", "points", "stroke-width", "font-family", "font-size", "text-anchor"],
+                }),
               }}
             />
           ) : (
@@ -297,8 +295,8 @@ Captcha.propTypes = {
 
   // Callbacks
   onGenerate: PropTypes.func, // Called when captcha is generated with sessionId
-  onChange: PropTypes.func,   // Called when input changes with (value, sessionId)
-  onError: PropTypes.func,    // Called when error occurs
+  onChange: PropTypes.func, // Called when input changes with (value, sessionId)
+  onError: PropTypes.func, // Called when error occurs
 };
 
 Captcha.defaultProps = {

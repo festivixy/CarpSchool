@@ -405,8 +405,7 @@ export const Navigation = styled.div.withConfig({
 })`
   display: flex;
   gap: 16px;
-  justify-content: ${(props) =>
-    props.hasBackButton ? "space-between" : "flex-end"};
+  justify-content: ${(props) => (props.hasBackButton ? "space-between" : "flex-end")};
   margin-top: 32px;
 
   @media (max-width: 480px) {

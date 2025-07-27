@@ -193,8 +193,7 @@ const NavBarContainer = withTracker(() =>
     isAdmin: Meteor.user()
       ? Meteor.user().roles && Meteor.user().roles.includes("admin")
       : false,
-  }),
-)(NavBar);
+  }))(NavBar);
 
 /** Enable ReactRouter for this component. https://reacttraining.com/react-router/web/api/withRouter */
 export default withRouter(NavBarContainer);

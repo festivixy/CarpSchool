@@ -31,13 +31,13 @@ Meteor.publish("chats.withEmail", async function publishChatsWithEmail(searchEma
   // If search email is provided, find user by email
   if (searchEmail) {
     const targetUser = await Meteor.users.findOneAsync({
-      "emails.address": searchEmail.toLowerCase().trim()
+      "emails.address": searchEmail.toLowerCase().trim(),
     });
 
     if (targetUser && targetUser.username) {
       // Return chats that include both current user and target user
       return Chats.find({
-        Participants: { $all: [currentUser.username, targetUser.username] }
+        Participants: { $all: [currentUser.username, targetUser.username] },
       });
     }
   }

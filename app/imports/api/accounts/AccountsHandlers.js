@@ -1,7 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { check } from "meteor/check";
-import { isCaptchaSolved, useCaptcha } from "../../api/captcha/Captcha";
+import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
 
 /* eslint-disable no-console */
 

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { AsyncTileLayer } from '../utils/AsyncTileLayer';
+import { AsyncTileLayer } from "../utils/AsyncTileLayer";
 import {
   MapContainer,
   MapWrapper,
@@ -36,7 +36,7 @@ const PathMapView = ({
   endCoord,
   tileServerUrl,
   height = "400px",
-  routingService = "osrm" // osrm, graphhopper, or straight-line
+  routingService = "osrm", // osrm, graphhopper, or straight-line
 }) => {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -86,30 +86,26 @@ const PathMapView = ({
   };
 
   // Create custom markers for start and end points
-  const createStartIcon = () => {
-    return L.divIcon({
-      className: 'custom-start-marker',
-      html: '<div style="background-color: #28a745; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; font-size: 14px;">A</div>',
+  const createStartIcon = () => L.divIcon({
+      className: "custom-start-marker",
+      html: "<div style=\"background-color: #28a745; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; font-size: 14px;\">A</div>",
       iconSize: [30, 30],
-      iconAnchor: [15, 15]
+      iconAnchor: [15, 15],
     });
-  };
 
-  const createEndIcon = () => {
-    return L.divIcon({
-      className: 'custom-end-marker',
-      html: '<div style="background-color: #dc3545; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; font-size: 14px;">B</div>',
+  const createEndIcon = () => L.divIcon({
+      className: "custom-end-marker",
+      html: "<div style=\"background-color: #dc3545; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; font-size: 14px;\">B</div>",
       iconSize: [30, 30],
-      iconAnchor: [15, 15]
+      iconAnchor: [15, 15],
     });
-  };
 
   // Find route using OSRM (Open Source Routing Machine)
   const findRouteOSRM = async (start, end) => {
     try {
       // Use local OSRM proxy endpoint
       const response = await fetch(
-        `/osrm/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`
+        `/osrm/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`,
       );
 
       if (!response.ok) {
@@ -124,13 +120,13 @@ const PathMapView = ({
           geometry: route.geometry,
           distance: route.distance, // meters
           duration: route.duration, // seconds
-          service: 'OSRM (Local)'
+          service: "OSRM (Local)",
         };
-      } else {
-        throw new Error('No route found');
       }
+        throw new Error("No route found");
+
     } catch (error) {
-      console.error('OSRM routing error:', error);
+      console.error("OSRM routing error:", error);
       throw error;
     }
   };
@@ -140,15 +136,15 @@ const PathMapView = ({
     const distance = calculateDistance(start, end);
     return {
       geometry: {
-        type: 'LineString',
+        type: "LineString",
         coordinates: [
           [start.lng, start.lat],
-          [end.lng, end.lat]
-        ]
+          [end.lng, end.lat],
+        ],
       },
       distance: distance * 1000, // convert km to meters
       duration: (distance / 50) * 3600, // assume 50 km/h average speed
-      service: 'Straight Line'
+      service: "Straight Line",
     };
   };
 
@@ -169,9 +165,9 @@ const PathMapView = ({
   const formatDistance = (meters) => {
     if (meters < 1000) {
       return `${Math.round(meters)} m`;
-    } else {
-      return `${(meters / 1000).toFixed(1)} km`;
     }
+      return `${(meters / 1000).toFixed(1)} km`;
+
   };
 
   // Format duration for display
@@ -181,9 +177,9 @@ const PathMapView = ({
 
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
-    } else {
-      return `${minutes}m`;
     }
+      return `${minutes}m`;
+
   };
 
   // Find and display route
@@ -199,11 +195,11 @@ const PathMapView = ({
     try {
       let route;
 
-      if (routingService === 'osrm') {
+      if (routingService === "osrm") {
         try {
           route = await findRouteOSRM(startCoord, endCoord);
         } catch (osrmError) {
-          console.warn('OSRM failed, falling back to straight line:', osrmError);
+          console.warn("OSRM failed, falling back to straight line:", osrmError);
           route = createStraightLineRoute(startCoord, endCoord);
         }
       } else {
@@ -221,11 +217,11 @@ const PathMapView = ({
       if (mapInstanceRef.current) {
         const routeLayer = L.geoJSON(route.geometry, {
           style: {
-            color: route.service === 'Straight Line' ? '#ffc107' : '#007bff',
+            color: route.service === "Straight Line" ? "#ffc107" : "#007bff",
             weight: 4,
             opacity: 0.8,
-            dashArray: route.service === 'Straight Line' ? '10, 5' : null
-          }
+            dashArray: route.service === "Straight Line" ? "10, 5" : null,
+          },
         }).addTo(mapInstanceRef.current);
 
         routeLayerRef.current = routeLayer;
@@ -234,12 +230,12 @@ const PathMapView = ({
         const group = new L.featureGroup([
           startMarkerRef.current,
           endMarkerRef.current,
-          routeLayer
+          routeLayer,
         ]);
         mapInstanceRef.current.fitBounds(group.getBounds(), { padding: [20, 20] });
       }
     } catch (error) {
-      console.error('Route finding error:', error);
+      console.error("Route finding error:", error);
       setError(`Route finding failed: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -259,7 +255,7 @@ const PathMapView = ({
 
     // Add async tile layer
     const asyncTileLayer = new AsyncTileLayer(getTileUrl(), {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
       maxZoom: 18,
       tileSize: 256,
     });
@@ -298,7 +294,7 @@ const PathMapView = ({
     // Add new markers if coordinates are provided
     if (startCoord) {
       const startMarker = L.marker([startCoord.lat, startCoord.lng], {
-        icon: createStartIcon()
+        icon: createStartIcon(),
       }).addTo(mapInstanceRef.current);
       startMarker.bindPopup(`Start: ${startCoord.lat.toFixed(6)}, ${startCoord.lng.toFixed(6)}`);
       startMarkerRef.current = startMarker;
@@ -306,7 +302,7 @@ const PathMapView = ({
 
     if (endCoord) {
       const endMarker = L.marker([endCoord.lat, endCoord.lng], {
-        icon: createEndIcon()
+        icon: createEndIcon(),
       }).addTo(mapInstanceRef.current);
       endMarker.bindPopup(`End: ${endCoord.lat.toFixed(6)}, ${endCoord.lng.toFixed(6)}`);
       endMarkerRef.current = endMarker;
@@ -376,8 +372,8 @@ const PathMapView = ({
             Distance: {formatDistance(routeData.distance)} |
             Duration: {formatDuration(routeData.duration)}
           </RouteValue>
-          {routeData.service === 'Straight Line' && (
-            <RouteValue style={{ fontSize: '12px', color: '#ffc107' }}>
+          {routeData.service === "Straight Line" && (
+            <RouteValue style={{ fontSize: "12px", color: "#ffc107" }}>
               ⚠️ Showing straight line - actual route may differ
             </RouteValue>
           )}
@@ -408,7 +404,7 @@ PathMapView.propTypes = {
   }),
   tileServerUrl: PropTypes.string,
   height: PropTypes.string,
-  routingService: PropTypes.oneOf(['osrm', 'graphhopper', 'straight-line']),
+  routingService: PropTypes.oneOf(["osrm", "graphhopper", "straight-line"]),
 };
 
 export default PathMapView;

@@ -110,8 +110,7 @@ class MobileMyRides extends React.Component {
 
       // Filter driving rides
       drivingRides = drivingRides.filter(
-        (ride) =>
-          ride.origin.toLowerCase().includes(query) ||
+        (ride) => ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           (ride.riders &&
             ride.riders.length > 0 &&
@@ -123,8 +122,7 @@ class MobileMyRides extends React.Component {
 
       // Filter riding rides
       ridingRides = ridingRides.filter(
-        (ride) =>
-          ride.origin.toLowerCase().includes(query) ||
+        (ride) => ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           ride.driver.toLowerCase().includes(query),
       );
@@ -177,8 +175,6 @@ class MobileMyRides extends React.Component {
       alert("Unable to open chat. Please try again.");
     }
   };
-
-
 
   handleRemoveRider = (rideId, riderUsername) => {
     swal({
@@ -244,8 +240,7 @@ class MobileMyRides extends React.Component {
               </EmptyMessage>
               {searchQuery && (
                 <ClearSearchButton
-                  onClick={() =>
-                    this.setState({ searchQuery: "" }, this.filterRides)
+                  onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
                   }
                 >
                   Clear Search
@@ -270,8 +265,7 @@ class MobileMyRides extends React.Component {
                           }}
                         >
                           <ContactButton
-                            onClick={() =>
-                              this.handleRemoveRider(ride._id, rider)
+                            onClick={() => this.handleRemoveRider(ride._id, rider)
                             }
                             style={{ backgroundColor: "#ff4757" }}
                           >
@@ -339,8 +333,7 @@ class MobileMyRides extends React.Component {
               </EmptyMessage>
               {searchQuery ? (
                 <ClearSearchButton
-                  onClick={() =>
-                    this.setState({ searchQuery: "" }, this.filterRides)
+                  onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
                   }
                 >
                   Clear Search

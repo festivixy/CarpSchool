@@ -29,15 +29,14 @@ export const PriceChip = styled.div`
   border-radius: 24px;
   position: absolute;
 
-  ${(props) =>
-    props.selected
+  ${(props) => (props.selected
       ? `
     background: rgba(0, 0, 0, 0.8999999761581421);
   `
       : `
     background: #FCFEFF;
     box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.08);
-  `}
+  `)}
 `;
 
 export const PriceText = styled.div`
@@ -54,12 +53,11 @@ export const PriceText = styled.div`
   line-height: 135%;
   position: relative;
 
-  ${(props) =>
-    props.selected
+  ${(props) => (props.selected
       ? `
     color: #FFF;
   `
       : `
     color: #1B2228;
-  `}
+  `)}
 `;

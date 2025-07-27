@@ -62,8 +62,7 @@ function LiquidGlassDropdown({
   const filteredOptions =
     searchable && searchTerm
       ? options.filter(
-          (option) =>
-            option.label?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (option) => option.label?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             option.value?.toLowerCase().includes(searchTerm.toLowerCase()),
         )
       : options;
@@ -97,15 +96,11 @@ function LiquidGlassDropdown({
           break;
         case "ArrowDown":
           event.preventDefault();
-          setFocusedIndex((prev) =>
-            prev < filteredOptions.length - 1 ? prev + 1 : 0,
-          );
+          setFocusedIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
           break;
         case "ArrowUp":
           event.preventDefault();
-          setFocusedIndex((prev) =>
-            prev > 0 ? prev - 1 : filteredOptions.length - 1,
-          );
+          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
           break;
         case "Enter":
           event.preventDefault();

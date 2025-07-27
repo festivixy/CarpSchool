@@ -30,7 +30,7 @@ import {
   InfoValue,
 } from "../styles/TestMapView";
 
-import FooterVerbose from "../components/FooterVerbose"
+import FooterVerbose from "../components/FooterVerbose";
 
 /**
  * Test page for MapView component - Admin only
@@ -488,7 +488,7 @@ const MobileTestMapView = () => {
                 <LiquidGlassDropdown
                   options={[
                     { value: "osrm", label: "OSRM (Recommended)" },
-                    { value: "straight-line", label: "Straight Line (Fallback)" }
+                    { value: "straight-line", label: "Straight Line (Fallback)" },
                   ]}
                   value={routingService}
                   onChange={(value) => setRoutingService(value)}
@@ -608,7 +608,7 @@ const MobileTestMapView = () => {
                   </div>
                   <LiquidGlassButton
                     label="🚀 Open LiquidGlass Login Test"
-                    onClick={() => window.open('/_test/liquidglass/login', '_blank')}
+                    onClick={() => window.open("/_test/liquidglass/login", "_blank")}
                   />
                 </InfoValue>
               </InfoItem>
@@ -1160,8 +1160,7 @@ const MobileTestMapView = () => {
                 <Label>Reset to Default Location</Label>
                 <LiquidGlassButton
                   label="Reset to Vancouver"
-                  onClick={() =>
-                    setSelectedLocation({ lat: 49.345196, lng: -123.149805 })
+                  onClick={() => setSelectedLocation({ lat: 49.345196, lng: -123.149805 })
                   }
                 />
               </ControlItem>

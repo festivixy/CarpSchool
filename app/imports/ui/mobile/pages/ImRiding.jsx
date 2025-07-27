@@ -90,8 +90,7 @@ class MobileImRiding extends React.Component {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredRides = filteredRides.filter(
-        (ride) =>
-          ride.origin.toLowerCase().includes(query) ||
+        (ride) => ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           ride.driver.toLowerCase().includes(query),
       );
@@ -200,8 +199,7 @@ class MobileImRiding extends React.Component {
                 </EmptyMessage>
                 {searchQuery ? (
                   <ClearSearchButton
-                    onClick={() =>
-                      this.setState({ searchQuery: "" }, this.filterRides)
+                    onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
                     }
                   >
                     Clear Search

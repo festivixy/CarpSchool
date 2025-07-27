@@ -9,8 +9,6 @@ import {
 import MobileAdminRides from "../mobile/pages/AdminRides";
 import MobileAdminUsers from "../mobile/pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
-// Lazy load TestMapView to improve initial load performance
-const TestMapView = React.lazy(() => import("../mobile/pages/TestMapView"));
 import LoadingPage from "../mobile/components/LoadingPage";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../mobile/pages/SignIn";
@@ -37,6 +35,8 @@ import ProtectedRoutes, {
   ProtectedRouteRequireAdmin,
   ProtectedRouteRequireNotEmailVerified,
 } from "./ProtectedRoutes";
+// Lazy load TestMapView to improve initial load performance
+const TestMapView = React.lazy(() => import("../mobile/pages/TestMapView"));
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -111,12 +111,12 @@ class App extends React.Component {
                 path="/_test/liquidglass/login"
                 component={LiquidGlassSignIn}
               />
-              <ProtectedRoutes 
-                path="/_test" 
+              <ProtectedRoutes
+                path="/_test"
                 component={() => (
                   <React.Suspense fallback={
-                    <LoadingPage 
-                      message="Loading Admin Components Test" 
+                    <LoadingPage
+                      message="Loading Admin Components Test"
                       subMessage="Initializing LiquidGlass components and map utilities..."
                       size="large"
                     />

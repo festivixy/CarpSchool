@@ -415,8 +415,8 @@ function FooterVerbose({
             <FooterLinksList>
               {navigationLinks.map((link) => (
                 <FooterLinkItem key={link.key}>
-                  <FooterLink 
-                    to={link.to} 
+                  <FooterLink
+                    to={link.to}
                     onClick={(e) => handleLinkClick(link.key, e)}
                   >
                     {link.label}
@@ -432,8 +432,8 @@ function FooterVerbose({
             <FooterLinksList>
               {supportLinks.map((link) => (
                 <FooterLinkItem key={link.key}>
-                  <FooterLink 
-                    to={link.to} 
+                  <FooterLink
+                    to={link.to}
                     onClick={(e) => handleLinkClick(link.key, e)}
                   >
                     {link.label}
@@ -449,8 +449,8 @@ function FooterVerbose({
             <FooterLinksList>
               {companyLinks.map((link) => (
                 <FooterLinkItem key={link.key}>
-                  <FooterLink 
-                    to={link.to} 
+                  <FooterLink
+                    to={link.to}
                     onClick={(e) => handleLinkClick(link.key, e)}
                   >
                     {link.label}
@@ -498,7 +498,7 @@ function FooterVerbose({
             <LegalLink to="/cookies" onClick={(e) => handleLinkClick("cookies", e)}>
               Cookie Policy
             </LegalLink>
-            <LegalLinkExternal 
+            <LegalLinkExternal
               href="mailto:legal@carpool.com"
               onClick={(e) => handleLinkClick("legal-contact", e)}
             >

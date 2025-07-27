@@ -149,8 +149,7 @@ class MobileRide extends React.Component {
     document.body.removeChild(textArea);
   };
 
-  isCurrentUserDriver = () =>
-    Meteor.user() && this.props.ride.driver === Meteor.user().username;
+  isCurrentUserDriver = () => Meteor.user() && this.props.ride.driver === Meteor.user().username;
 
   getPlaceName = (placeId) => {
     const place = this.props.places.find((p) => p._id === placeId);
@@ -232,16 +231,14 @@ class MobileRide extends React.Component {
     this.props.history.push(`/chat?rideId=${this.props.ride._id}`);
   };
 
-  formatDate = (date) =>
-    new Date(date).toLocaleDateString("en-US", {
+  formatDate = (date) => new Date(date).toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
       year: "numeric",
     });
 
-  formatTime = (date) =>
-    new Date(date).toLocaleTimeString("en-US", {
+  formatTime = (date) => new Date(date).toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,

@@ -1,6 +1,6 @@
 import { WebApp } from "meteor/webapp";
-import { Images } from "../../api/images/Images";
 import http from "http";
+import { Images } from "../../api/images/Images";
 
 // Create endpoint to serve images directly: /image/<uuid>
 WebApp.connectHandlers.use("/image", async (req, res, _next) => {
@@ -204,7 +204,7 @@ WebApp.connectHandlers.use("/osrm", (req, res, _next) => {
 });
 
 // Health check endpoint
-WebApp.connectHandlers.use('/health', (req, res, _next) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('OK');
+WebApp.connectHandlers.use("/health", (req, res, _next) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("OK");
 });

@@ -1,6 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
-import { Rides } from "../../api/ride/Rides";
+import { Rides } from "./Rides";
 
 Meteor.methods({
   async "rides.remove"(rideId) {
@@ -129,7 +129,7 @@ Meteor.methods({
     }
 
     // Comprehensive input sanitization for share codes
-    if (typeof shareCode !== 'string') {
+    if (typeof shareCode !== "string") {
       throw new Meteor.Error("invalid-input", "Share code must be a string");
     }
 

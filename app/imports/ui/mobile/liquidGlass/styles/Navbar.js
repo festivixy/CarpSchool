@@ -12,8 +12,7 @@ export const NavbarContainer = styled.nav`
   transform: translateY(0);
   overflow: visible;
 
-  ${(props) =>
-    props.$isScrolled &&
+  ${(props) => props.$isScrolled &&
     `
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   `}
@@ -168,8 +167,7 @@ export const NavLink = styled.a`
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) =>
-    props.isActive ? "rgba(255, 255, 255, 0.15)" : "transparent"};
+  background: ${(props) => (props.isActive ? "rgba(255, 255, 255, 0.15)" : "transparent")};
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   white-space: nowrap;
 
@@ -182,8 +180,7 @@ export const NavLink = styled.a`
     margin-left: 4px;
     font-size: 12px;
     transition: transform 0.2s ease;
-    transform: ${(props) =>
-      props.isActive ? "rotate(180deg)" : "rotate(0deg)"};
+    transform: ${(props) => (props.isActive ? "rotate(180deg)" : "rotate(0deg)")};
   }
 
   &:hover {
@@ -285,8 +282,7 @@ export const MobileMenuButton = styled.button`
     transition: all 0.3s ease;
     border-radius: 1px;
 
-    ${(props) =>
-      props.$isOpen &&
+    ${(props) => props.$isOpen &&
       `
       &:nth-child(1) {
         transform: rotate(45deg) translate(5px, 5px);

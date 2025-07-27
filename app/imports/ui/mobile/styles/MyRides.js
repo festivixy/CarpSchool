@@ -60,13 +60,11 @@ export const Tab = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: ${(props) =>
-    props.active ? "rgba(0, 123, 255, 1)" : "transparent"};
+  background-color: ${(props) => (props.active ? "rgba(0, 123, 255, 1)" : "transparent")};
   color: ${(props) => (props.active ? "white" : "rgba(100, 100, 100, 1)")};
 
   &:hover {
-    background-color: ${(props) =>
-      props.active ? "rgba(0, 123, 255, 0.9)" : "rgba(0, 123, 255, 0.1)"};
+    background-color: ${(props) => (props.active ? "rgba(0, 123, 255, 0.9)" : "rgba(0, 123, 255, 0.1)")};
   }
 
   @media (max-width: 480px) {

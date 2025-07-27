@@ -67,8 +67,7 @@ class MobileImDriving extends React.Component {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredRides = filteredRides.filter(
-        (ride) =>
-          ride.origin.toLowerCase().includes(query) ||
+        (ride) => ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           (ride.riders &&
             ride.riders.length > 0 &&
@@ -96,8 +95,6 @@ class MobileImDriving extends React.Component {
       });
     }
   };
-
-
 
   handleRemoveRider = (rideId, riderUsername) => {
     swal({
@@ -190,8 +187,7 @@ class MobileImDriving extends React.Component {
               </EmptyMessage>
               {searchQuery && (
                 <ClearSearchButton
-                  onClick={() =>
-                    this.setState({ searchQuery: "" }, this.filterRides)
+                  onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
                   }
                 >
                   Clear Search
@@ -216,8 +212,7 @@ class MobileImDriving extends React.Component {
                           }}
                         >
                           <ContactButton
-                            onClick={() =>
-                              this.handleRemoveRider(ride._id, rider)
+                            onClick={() => this.handleRemoveRider(ride._id, rider)
                             }
                             style={{ backgroundColor: "#ff4757" }}
                           >

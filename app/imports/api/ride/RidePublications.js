@@ -13,8 +13,8 @@ Meteor.publish("Rides", function publish() {
     return Rides.find({
       $or: [
         { driver: currentUser.username },
-        { riders: currentUser.username }
-      ]
+        { riders: currentUser.username },
+      ],
     });
   }
   return this.ready();

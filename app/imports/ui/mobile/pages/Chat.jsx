@@ -169,10 +169,6 @@ class MobileChat extends React.Component {
     }
   };
 
-
-
-
-
   handleShowShareCode = async (chatId) => {
     try {
       const shareCode = await Meteor.callAsync(
@@ -207,8 +203,6 @@ class MobileChat extends React.Component {
       setTimeout(() => this.setState({ success: "" }), 3000);
     }
   };
-
-
 
   scrollToBottom = () => {
     const messagesContainer = document.querySelector(".mobile-chat-messages");
@@ -339,7 +333,7 @@ class MobileChat extends React.Component {
                 ) : (
                   <ChatListEmpty>
                     <p>No ride chats available</p>
-                    <p style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
+                    <p style={{ fontSize: "14px", color: "#666", marginTop: "8px" }}>
                       Join a ride to start chatting with other members
                     </p>
                   </ChatListEmpty>
@@ -442,8 +436,6 @@ class MobileChat extends React.Component {
           </Content>
         </Container>
 
-
-
         {/* Share Code Modal */}
         {showShareCodeModal && (
           <ModalOverlay
@@ -482,7 +474,6 @@ class MobileChat extends React.Component {
             </Modal>
           </ModalOverlay>
         )}
-
 
       </>
     );

@@ -1,10 +1,10 @@
 import { Meteor } from "meteor/meteor";
-import { Rides } from "../../api/ride/Rides";
-import { Places } from "../../api/places/Places";
 import { Accounts } from "meteor/accounts-base";
-import { Captcha } from "../../api/captcha/Captcha";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
+import { Rides } from "../../api/ride/Rides";
+import { Places } from "../../api/places/Places";
+import { Captcha } from "../../api/captcha/Captcha";
 
 /* eslint-disable no-console */
 
@@ -69,7 +69,7 @@ async function addPlace(data) {
   if (!user) {
     console.error(`    Error: User not found for ${data.createdBy}`);
     console.log(
-      `    Available users:`,
+      "    Available users:",
       await Meteor.users
         .find({}, { fields: { emails: 1, username: 1 } })
         .fetchAsync(),
@@ -123,11 +123,11 @@ async function addRide(data) {
   console.log(`  Adding: Ride from ${data.driver} `);
 
   // Convert legacy ride format to new format if needed
-  let rideData = { ...data };
+  const rideData = { ...data };
 
   // If this is legacy format (has 'rider' field), convert to new format
   if (rideData.rider !== undefined && rideData.riders === undefined) {
-    console.log(`    Converting legacy ride format to new schema`);
+    console.log("    Converting legacy ride format to new schema");
     rideData.riders = rideData.rider === "TBD" ? [] : [rideData.rider];
     rideData.seats = rideData.seats || 1; // Default to 1 seat if not specified
     delete rideData.rider; // Remove legacy field

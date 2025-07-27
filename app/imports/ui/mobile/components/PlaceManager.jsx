@@ -86,13 +86,13 @@ class PlaceManager extends React.Component {
     creatorIds.forEach(creatorId => {
       if (!this.state.creatorNames[creatorId]) {
         // Call method to get username
-        Meteor.call('users.getUsername', creatorId, (error, username) => {
+        Meteor.call("users.getUsername", creatorId, (error, username) => {
           if (!error && username) {
             this.setState(prevState => ({
               creatorNames: {
                 ...prevState.creatorNames,
-                [creatorId]: username
-              }
+                [creatorId]: username,
+              },
             }));
           }
         });
@@ -362,8 +362,7 @@ class PlaceManager extends React.Component {
                     <Input
                       name="text"
                       value={formData.text}
-                      onChange={(e) =>
-                        this.handleInputChange(e, {
+                      onChange={(e) => this.handleInputChange(e, {
                           name: e.target.name,
                           value: e.target.value,
                         })
@@ -378,8 +377,7 @@ class PlaceManager extends React.Component {
                     <Input
                       name="value"
                       value={formData.value}
-                      onChange={(e) =>
-                        this.handleInputChange(e, {
+                      onChange={(e) => this.handleInputChange(e, {
                           name: e.target.name,
                           value: e.target.value,
                         })

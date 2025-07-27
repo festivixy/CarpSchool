@@ -118,7 +118,7 @@ Meteor.methods({
       "image/jpeg",
       "image/png",
       "image/gif",
-      "image/webp"
+      "image/webp",
     ];
     const allowedExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
 
@@ -126,7 +126,7 @@ Meteor.methods({
     if (!fileType || !allowedMimeTypes.includes(fileType.mime) || !allowedExtensions.includes(fileType.ext)) {
       throw new Meteor.Error(
         "invalid-file-type",
-        "File type not allowed. Only JPEG, PNG, GIF, and WebP images are supported."
+        "File type not allowed. Only JPEG, PNG, GIF, and WebP images are supported.",
       );
     }
 
@@ -134,16 +134,16 @@ Meteor.methods({
     if (imageData.mimeType !== fileType.mime && !(imageData.mimeType === "image/jpg" && fileType.mime === "image/jpeg")) {
       throw new Meteor.Error(
         "mime-type-mismatch",
-        "File type mismatch detected. Upload rejected for security."
+        "File type mismatch detected. Upload rejected for security.",
       );
     }
 
     // Validate file extension from filename
-    const fileExtension = imageData.fileName.split('.').pop()?.toLowerCase();
+    const fileExtension = imageData.fileName.split(".").pop()?.toLowerCase();
     if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
       throw new Meteor.Error(
         "invalid-file-extension",
-        "Invalid file extension. Only .jpg, .jpeg, .png, .gif, and .webp files are allowed."
+        "Invalid file extension. Only .jpg, .jpeg, .png, .gif, and .webp files are allowed.",
       );
     }
 

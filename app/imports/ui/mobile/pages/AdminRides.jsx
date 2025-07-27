@@ -4,8 +4,7 @@ import { Rides } from "/imports/api/ride/Rides";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
-import { placesOptions } from "../../../api/places/Places.mjs";
-import { Places } from "../../../api/places/Places";
+import { placesOptions, Places } from "../../../api/places/Places.mjs";
 import {
   Container,
   Header,
@@ -177,8 +176,7 @@ class MobileAdminRides extends React.Component {
 
     const query = searchQuery.toLowerCase();
     return rides.filter(
-      (ride) =>
-        (ride.driver && ride.driver.toLowerCase().includes(query)) ||
+      (ride) => (ride.driver && ride.driver.toLowerCase().includes(query)) ||
         (ride.rider && ride.rider.toLowerCase().includes(query)) ||
         (ride.origin && ride.origin.toLowerCase().includes(query)) ||
         (ride.destination && ride.destination.toLowerCase().includes(query)) ||

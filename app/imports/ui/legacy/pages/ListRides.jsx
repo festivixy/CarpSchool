@@ -42,8 +42,7 @@ class ListRides extends React.Component {
   renderPage() {
     let availRides = this.props.rides;
     availRides = availRides.filter(
-      (a) =>
-        (a.origin.toLowerCase().indexOf(this.state.search.toLowerCase()) !==
+      (a) => (a.origin.toLowerCase().indexOf(this.state.search.toLowerCase()) !==
           -1 ||
           a.destination
             .toLowerCase()

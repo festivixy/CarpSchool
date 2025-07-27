@@ -12,12 +12,11 @@ import {
  * Loading page component with animated spinner and customizable message
  * Used for lazy-loaded components and async operations
  */
-const LoadingPage = ({ 
-  message = "Loading...", 
+const LoadingPage = ({
+  message = "Loading...",
   subMessage = "",
-  size = "medium" 
-}) => {
-  return (
+  size = "medium",
+}) => (
     <LoadingContainer>
       <LoadingSpinner size={size}>
         <SpinnerCircle />
@@ -26,7 +25,6 @@ const LoadingPage = ({
       {subMessage && <LoadingSubMessage>{subMessage}</LoadingSubMessage>}
     </LoadingContainer>
   );
-};
 
 LoadingPage.propTypes = {
   message: PropTypes.string,
