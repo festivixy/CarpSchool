@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# OpenMapTiles Data Download Script
-# Downloads chunks.txt for OpenMapTiles data releases with robust input handling
+# Data Download Script
+# Downloads chunks.txt for OpenMapTiles and OSRM data releases with robust input handling
 #
 # Command Line Options:
 #   --base-gh-url URL      - Set custom GitHub base URL (default: https://github.com/zlc1004/Carpool)
@@ -21,10 +21,10 @@
 #   - Support for custom release names
 #
 # Examples:
-#   ./download-openmaptiles-data.sh                    # Interactive mode with default GitHub URL
-#   ./download-openmaptiles-data.sh --base-gh-url https://github.com/user/repo  # Custom repository
-#   READ_TIMEOUT=30 ./download-openmaptiles-data.sh    # 30 second timeout
-#   CARPOOL_NONINTERACTIVE=1 ./download-openmaptiles-data.sh  # Automated mode
+#   ./download-data.sh                    # Interactive mode with default GitHub URL
+#   ./download-data.sh --base-gh-url https://github.com/user/repo  # Custom repository
+#   READ_TIMEOUT=30 ./download-data.sh    # 30 second timeout
+#   CARPOOL_NONINTERACTIVE=1 ./download-data.sh  # Automated mode
 
 set -e
 
@@ -92,7 +92,7 @@ source "./tools/ui-utils.sh"
 source "./tools/download-utils.sh"
 source "./tools/nominatim-utils.sh"
 
-ui_show_header "OpenMapTiles Data Download Script" "Downloads chunks.txt for OpenMapTiles data releases"
+ui_show_header "Data Download Script" "Downloads chunks.txt for OpenMapTiles and OSRM data releases"
 
 # Show configuration
 echo "Configuration:"
