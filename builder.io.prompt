@@ -227,3 +227,48 @@ the tiles are being loaded with a tileserver-gl proxy in app/imports/startup/ser
 - Displays route distance, duration, and visual path
 - Added to TestMapView page with complete testing interface
 - Includes responsive design and error handling
+
+### TODO 9
+
+fix V007: XSS Vulnerability in CAPTCHA Display
+
+// Use a safe SVG rendering library instead of dangerouslySetInnerHTML
+import DOMPurify from 'dompurify';
+
+use meteor npm i --save for installing packages.
+
+### TODO 10
+
+fix V008: Insecure Publications Exposing All Data
+
+use "SECURITY RECOMMENDATIONS".
+
+### TODO 11
+
+fix V004: Insufficient Input Sanitization
+
+### TODO 12
+
+V010: Timing Attack in CAPTCHA Validation
+
+### TODO 13
+
+V013: Missing File Type Validation in Image Upload
+
+### TODO 14
+
+V015: Captcha Brute Force Vulnerability
+
+fix this by making the captcha used when the incorrect code is entered.
+
+solved: false
+used: true
+
+### TODO 15
+
+mark V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints
+as intentional.
+
+### TODO 16
+
+fix V018: Missing Input Sanitization in Chat Messages
