@@ -5,7 +5,7 @@ This report analyzes the MongoDB usage in the Meteor carpool application for pot
 
 ## ⚠️ **CRITICAL VULNERABILITIES**
 
-### 🚨 **V001: Missing Server-Side Validation in User Updates** {#v001}
+### <a name="v001"></a>🚨 **V001: Missing Server-Side Validation in User Updates**
 **File**: `imports/api/accounts/AccountsMethods.js:61-110`
 **Severity**: HIGH
 **Type**: Authorization & Data Validation
@@ -31,7 +31,7 @@ await Meteor.users.updateAsync(userId, {
 
 ---
 
-### 🚨 **V002: Race Condition in Share Code Generation** {#v002}
+### <a name="v002"></a>🚨 **V002: Race Condition in Share Code Generation**
 **File**: `imports/api/ride/RideMethods.js:88-108` & `imports/api/chat/ChatMethods.js:72-76`
 **Severity**: MEDIUM
 **Type**: Race Condition
@@ -55,7 +55,7 @@ do {
 
 ---
 
-### 🚨 ~~**V003: Client-Side Data Exposure via Publications**~~ (Legacy) {#v003}
+### <a name="v003"></a>🚨 ~~**V003: Client-Side Data Exposure via Publications**~~ (Legacy)
 **File**: ~~`imports/ui/legacy/pages/ListRides.jsx:98`~~, ~~`imports/ui/legacy/pages/AdminUsers.jsx:233`~~
 **Severity**: HIGH
 **Type**: Information Disclosure
@@ -77,7 +77,7 @@ return {
 
 ---
 
-### 🚨 **V007: XSS Vulnerability in CAPTCHA Display** {#v007}
+### <a name="v007"></a>🚨 **V007: XSS Vulnerability in CAPTCHA Display**
 **File**: Multiple files using `dangerouslySetInnerHTML`
 **Severity**: HIGH
 **Type**: Cross-Site Scripting (XSS)
@@ -106,7 +106,7 @@ return {
 
 ---
 
-### 🚨 **V008: Insecure Publications Exposing All Data** {#v008}
+### <a name="v008"></a>🚨 **V008: Insecure Publications Exposing All Data**
 **File**: `imports/api/ride/RidePublications.js:5-8`
 **Severity**: CRITICAL
 **Type**: Data Exposure & Authorization Bypass
@@ -130,7 +130,7 @@ Meteor.publish("Rides", function publish() {
 
 ---
 
-### 🚨 **V009: Race Condition in User Role Assignment** {#v009}
+### <a name="v009"></a>🚨 **V009: Race Condition in User Role Assignment**
 **File**: `imports/startup/server/FirstRun.js:37-40`
 **Severity**: MEDIUM
 **Type**: Race Condition & Privilege Escalation
@@ -153,7 +153,7 @@ await Meteor.users.updateAsync(userID, {
 
 ## ⚠️ **MEDIUM SEVERITY VULNERABILITIES**
 
-### 🟡 **V004: Insufficient Input Sanitization** {#v004}
+### <a name="v004"></a>🟡 **V004: Insufficient Input Sanitization**
 **File**: `imports/api/ride/RideMethods.js:131-139`
 **Severity**: MEDIUM
 **Type**: Input Validation
@@ -172,7 +172,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 
 ---
 
-### 🟡 ~~**V005: Direct Database Queries in Client Code**~~ (Legacy) {#v005}
+### <a name="v005"></a>🟡 ~~**V005: Direct Database Queries in Client Code**~~ (Legacy)
 **File**: ~~`imports/ui/legacy/pages/EditProfile.jsx:30-58`~~
 **Severity**: MEDIUM
 **Type**: Security Architecture
@@ -193,7 +193,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 
 ---
 
-### 🟡 ~~**V006: Weak Authorization in Profile Updates**~~ (Legacy) {#v006}
+### <a name="v006"></a>🟡 ~~**V006: Weak Authorization in Profile Updates**~~ (Legacy)
 **File**: ~~`imports/ui/legacy/pages/EditProfile.jsx:30-60`~~
 **Severity**: MEDIUM
 **Type**: Authorization
@@ -212,7 +212,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 
 ---
 
-### 🟡 **V010: Timing Attack in CAPTCHA Validation** {#v010}
+### <a name="v010"></a>🟡 **V010: Timing Attack in CAPTCHA Validation**
 **File**: `imports/api/accounts/AccountsHandlers.js:8-30`
 **Severity**: MEDIUM
 **Type**: Timing Attack
@@ -234,7 +234,7 @@ if (!captchaSolved) {
 
 ---
 
-### 🟡 **V011: Insecure Place Resolution in FirstRun** {#v011}
+### <a name="v011"></a>🟡 **V011: Insecure Place Resolution in FirstRun**
 **File**: `imports/startup/server/FirstRun.js:152-178`
 **Severity**: MEDIUM
 **Type**: Logic Flaw
@@ -258,7 +258,7 @@ if (!originPlace) {
 
 ---
 
-### 🟡 **V012: Unsafe JSON Processing in Web Worker** {#v012}
+### <a name="v012"></a>🟡 **V012: Unsafe JSON Processing in Web Worker**
 **File**: `imports/ui/mobile/utils/AsyncTileLoader.js:30-35`
 **Severity**: LOW
 **Type**: Code Injection
@@ -281,7 +281,7 @@ const workerScript = `
 
 ---
 
-### 🚨 **V013: Missing File Type Validation in Image Upload** {#v013}
+### <a name="v013"></a>🚨 **V013: Missing File Type Validation in Image Upload**
 **File**: `imports/api/images/ImageMethods.js:95-103`
 **Severity**: HIGH
 **Type**: File Upload Security
@@ -306,7 +306,7 @@ if (!allowedTypes.includes(imageData.mimeType)) {
 
 ---
 
-### 🚨 **V014: Direct Image Data Exposure via Server Routes** {#v014}
+### <a name="v014"></a>🚨 **V014: Direct Image Data Exposure via Server Routes**
 **File**: `imports/startup/server/ServerRoutes.js:5-45`
 **Severity**: HIGH
 **Type**: Information Disclosure & Access Control
@@ -331,7 +331,7 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
 
 ---
 
-### 🟡 **V015: Captcha Brute Force Vulnerability** {#v015}
+### <a name="v015"></a>🟡 **V015: Captcha Brute Force Vulnerability**
 **File**: `imports/api/captcha/CaptchaMethods.js:31-54`
 **Severity**: MEDIUM
 **Type**: Rate Limiting & Brute Force
@@ -355,7 +355,7 @@ async "captcha.verify"(sessionId, userInput) {
 
 ---
 
-### 🚨 **V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints** {#v016}
+### <a name="v016"></a>🚨 **V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints**
 **File**: `imports/startup/server/ServerRoutes.js:70-180`
 **Severity**: HIGH
 **Type**: Server-Side Request Forgery
@@ -381,7 +381,7 @@ const options = {
 
 ---
 
-### 🟡 **V017: Weak CAPTCHA Session Management** {#v017}
+### <a name="v017"></a>🟡 **V017: Weak CAPTCHA Session Management**
 **File**: `imports/api/captcha/Captcha.js:18-32`
 **Severity**: MEDIUM
 **Type**: Session Management
@@ -407,7 +407,7 @@ async function useCaptcha(sessionId) {
 
 ---
 
-### 🟡 **V018: Missing Input Sanitization in Chat Messages** {#v018}
+### <a name="v018"></a>🟡 **V018: Missing Input Sanitization in Chat Messages**
 **File**: `imports/api/chat/ChatMethods.js:289-330`
 **Severity**: MEDIUM
 **Type**: Cross-Site Scripting (XSS)
@@ -434,7 +434,7 @@ async "chats.sendMessage"(chatId, content) {
 
 ---
 
-### 🚨 **V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008) {#v019}
+### <a name="v019"></a>🚨 **V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)
 **File**: `imports/api/ride/RidePublications.js:5-8`
 **Severity**: CRITICAL
 **Type**: Authorization Bypass & Information Disclosure
@@ -459,7 +459,7 @@ Meteor.publish("Rides", function publish() {
 
 ---
 
-### 🟡 **V020: Email-Based User Discovery in Chat Publications** {#v020}
+### <a name="v020"></a>🟡 **V020: Email-Based User Discovery in Chat Publications**
 **File**: `imports/api/chat/ChatPublications.js:21-44`
 **Severity**: MEDIUM
 **Type**: Information Disclosure
@@ -490,7 +490,7 @@ Meteor.publish("chats.withEmail", async function(searchEmail) {
 
 ---
 
-### 🟡 **V021: Performance Issues in Places Publications** {#v021}
+### <a name="v021"></a>🟡 **V021: Performance Issues in Places Publications**
 **File**: `imports/api/places/PlacesPublications.js:8-35 & 81-114`
 **Severity**: MEDIUM
 **Type**: Performance & DoS
