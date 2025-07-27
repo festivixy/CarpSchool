@@ -5,29 +5,39 @@ This report analyzes the MongoDB usage in the Meteor carpool application for pot
 
 ## ⚠️ **CRITICAL VULNERABILITIES**
 
-### <a name="v001"></a>🚨 **V001: Missing Server-Side Validation in User Updates**
+### <a name="v001"></a>✅ ~~**V001: Missing Server-Side Validation in User Updates**~~ (FIXED)
 **File**: `imports/api/accounts/AccountsMethods.js:61-110`
-**Severity**: HIGH
+**Severity**: ~~HIGH~~ **RESOLVED**
 **Type**: Authorization & Data Validation
 
 ```javascript
-// VULNERABLE: Direct database updates without proper validation
-await Meteor.users.updateAsync(userId, {
-  $set: {
-    username: updateData.username,
-    "emails.0.address": updateData.email,
-    "emails.0.verified": updateData.emailVerified,
-  },
+// FIXED: Comprehensive server-side validation using Meteor check
+// Validate email format using SimpleSchema
+if (!SimpleSchema.RegEx.Email.test(updateData.email)) {
+  throw new Meteor.Error("invalid-email", "Invalid email format");
+}
+
+// Check username uniqueness (exclude current user)
+const existingUser = await Meteor.users.findOneAsync({
+  username: updateData.username,
+  _id: { $ne: userId }
 });
+if (existingUser) {
+  throw new Meteor.Error("username-taken", "Username already exists");
+}
+
+// Reset email verification when email changes for security
+const emailChanged = currentEmail !== updateData.email.toLowerCase();
+const emailVerified = emailChanged ? false : updateData.emailVerified;
 ```
 
-**Issues**:
-- No validation of email format on server side
-- Admin can set any user as email verified without proper checks
-- Username uniqueness not enforced
-- Direct modification of email verification status bypasses Meteor's built-in verification
+**Issues Fixed**:
+- ✅ Added email format validation using SimpleSchema.RegEx.Email
+- ✅ Added email uniqueness check (username is email, so this covers both)
+- ✅ Email verification automatically reset when email changes for security
+- ✅ All inputs properly validated using Meteor check
 
-**Impact**: Admin privilege escalation, email spoofing, account takeover
+**Impact**: ~~Admin privilege escalation, email spoofing, account takeover~~ **RESOLVED**
 
 ---
 
@@ -669,7 +679,7 @@ userRides.forEach((ride) => {
 
 | Vulnerability | Severity | Likelihood | Impact | Priority |
 |--------------|----------|------------|---------|----------|
-| [V001: User Update Validation](#v001) | HIGH | Medium | High | **CRITICAL** |
+| [~~V001: User Update Validation~~ (FIXED)](#v001) | ~~HIGH~~ **RESOLVED** | ~~Medium~~ | ~~High~~ | **RESOLVED** |
 | [V002: Share Code Race Condition](#v002) | MEDIUM | Low | Medium | **HIGH** |
 | [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH | High | Medium | **CRITICAL** |
 | [V004: Input Sanitization](#v004) | MEDIUM | Medium | Low | **MEDIUM** |

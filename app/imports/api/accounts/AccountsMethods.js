@@ -1,6 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { check } from "meteor/check";
+import SimpleSchema from "simpl-schema";
 import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
 import { isEmailVerified } from "./Accounts";
 import { Profiles } from "../profile/Profile";
@@ -76,12 +77,38 @@ Meteor.methods({
       );
     }
 
-    // Update user data including email and verification status
+    // Validate email format using Meteor's built-in email regex
+    if (!SimpleSchema.RegEx.Email.test(updateData.email)) {
+      throw new Meteor.Error("invalid-email", "Invalid email format");
+    }
+
+    // Check if email is already used by another user
+    const existingEmailUser = await Meteor.users.findOneAsync({
+      "emails.address": updateData.email.toLowerCase(),
+      _id: { $ne: userId }
+    });
+    if (existingEmailUser) {
+      throw new Meteor.Error("email-taken", "Email already exists");
+    }
+
+    // Get current user data to check if email is changing
+    const targetUser = await Meteor.users.findOneAsync(userId);
+    if (!targetUser) {
+      throw new Meteor.Error("user-not-found", "User not found");
+    }
+
+    const currentEmail = targetUser.emails?.[0]?.address;
+    const emailChanged = currentEmail !== updateData.email.toLowerCase();
+
+    // If email is changing, reset verification status for security
+    const emailVerified = emailChanged ? false : updateData.emailVerified;
+
+    // Update user data with proper security measures
     await Meteor.users.updateAsync(userId, {
       $set: {
         username: updateData.username,
-        "emails.0.address": updateData.email,
-        "emails.0.verified": updateData.emailVerified,
+        "emails.0.address": updateData.email.toLowerCase(),
+        "emails.0.verified": emailVerified,
       },
     });
 
