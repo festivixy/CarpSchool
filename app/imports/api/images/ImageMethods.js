@@ -3,6 +3,7 @@ import { check } from "meteor/check";
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
+import { fileTypeFromBuffer } from "file-type";
 import { Images, ImagesSchema } from "./Images.js";
 import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha.js";
 
@@ -108,24 +109,46 @@ Meteor.methods({
     // Use the captcha (invalidate it)
     await useCaptcha(captchaSessionId);
 
-    // Validate image type
-    const allowedTypes = [
+    // Get binary data for server-side validation
+    const originalBinaryData = Buffer.from(imageData.base64Data, "base64");
+
+    // Server-side file type validation using file signatures (magic bytes)
+    const fileType = await fileTypeFromBuffer(originalBinaryData);
+    const allowedMimeTypes = [
       "image/jpeg",
-      "image/jpg",
       "image/png",
       "image/gif",
-      "image/webp",
+      "image/webp"
     ];
-    if (!allowedTypes.includes(imageData.mimeType)) {
+    const allowedExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+
+    // Validate actual file type matches detected signature
+    if (!fileType || !allowedMimeTypes.includes(fileType.mime) || !allowedExtensions.includes(fileType.ext)) {
       throw new Meteor.Error(
         "invalid-file-type",
-        "Only image files are allowed",
+        "File type not allowed. Only JPEG, PNG, GIF, and WebP images are supported."
+      );
+    }
+
+    // Additional security: Validate client-provided MIME type matches detected type
+    if (imageData.mimeType !== fileType.mime && !(imageData.mimeType === "image/jpg" && fileType.mime === "image/jpeg")) {
+      throw new Meteor.Error(
+        "mime-type-mismatch",
+        "File type mismatch detected. Upload rejected for security."
+      );
+    }
+
+    // Validate file extension from filename
+    const fileExtension = imageData.fileName.split('.').pop()?.toLowerCase();
+    if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
+      throw new Meteor.Error(
+        "invalid-file-extension",
+        "Invalid file extension. Only .jpg, .jpeg, .png, .gif, and .webp files are allowed."
       );
     }
 
     // Validate file size (max 20MB for upload)
     const maxUploadSize = 20 * 1024 * 1024; // 20MB in bytes
-    const originalBinaryData = Buffer.from(imageData.base64Data, "base64");
     const originalFileSize = originalBinaryData.length;
     if (originalFileSize > maxUploadSize) {
       throw new Meteor.Error(
