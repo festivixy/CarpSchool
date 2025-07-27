@@ -1,9 +1,32 @@
 import { Meteor } from "meteor/meteor";
 import Joi, { object } from "joi";
 import { check } from "meteor/check";
+import DOMPurify from "dompurify";
+import { JSDOM } from "jsdom";
 import { Chats } from "./Chat";
 import { Rides } from "../ride/Rides";
 import { isEmailVerified } from "../accounts/Accounts";
+
+// Set up DOMPurify for server-side use
+const window = new JSDOM('').window;
+const createDOMPurify = DOMPurify(window);
+
+// Sanitize chat message content to prevent XSS
+function sanitizeChatContent(content) {
+  if (typeof content !== 'string') {
+    return '';
+  }
+
+  // Sanitize content, allowing only safe text (no HTML tags)
+  const sanitized = createDOMPurify.sanitize(content, {
+    ALLOWED_TAGS: [],
+    ALLOWED_ATTR: [],
+    KEEP_CONTENT: true
+  });
+
+  // Additional validation: limit length and remove excessive whitespace
+  return sanitized.trim().substring(0, 1000); // Max 1000 characters
+}
 
 // Generate a random 8-character code
 function generateChatCode() {
@@ -312,10 +335,18 @@ Meteor.methods({
       );
     }
 
+    // Sanitize message content to prevent XSS attacks
+    const sanitizedContent = sanitizeChatContent(content);
+
+    // Validate sanitized content is not empty
+    if (!sanitizedContent) {
+      throw new Meteor.Error("empty-message", "Message content cannot be empty.");
+    }
+
     // Add message to chat
     const message = {
       Sender: currentUser.username,
-      Content: content,
+      Content: sanitizedContent,
       Timestamp: new Date(),
     };
 
