@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { Places } from "./Places";
+import { Places } from "./Places.js";
 import { Rides } from "../ride/Rides";
 
 /**

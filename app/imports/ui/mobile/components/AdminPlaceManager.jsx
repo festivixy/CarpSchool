@@ -119,7 +119,7 @@ class AdminPlaceManager extends React.Component {
       const [lat, lng] = editingPlace.value
         .split(",")
         .map((coord) => parseFloat(coord.trim()));
-      if (!isNaN(lat) && !isNaN(lng)) {
+      if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
         coordinates = { lat, lng };
       }
     }
@@ -131,7 +131,7 @@ class AdminPlaceManager extends React.Component {
       const [lat, lng] = formData.value
         .split(",")
         .map((coord) => parseFloat(coord.trim()));
-      if (!isNaN(lat) && !isNaN(lng)) {
+      if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
         coordinates = { lat, lng };
       }
     }

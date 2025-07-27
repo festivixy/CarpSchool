@@ -357,14 +357,14 @@ class AsyncTileLoader {
    * Convert longitude to tile X coordinate
    */
   lon2tile(lon, zoom) {
-    return (lon + 180) / 360 * Math.pow(2, zoom);
+    return ((lon + 180) / 360) * (2 ** zoom);
   }
 
   /**
    * Convert latitude to tile Y coordinate
    */
   lat2tile(lat, zoom) {
-    return (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom);
+    return ((1 - (Math.log(Math.tan((lat * Math.PI) / 180) + (1 / Math.cos((lat * Math.PI) / 180))) / Math.PI)) / 2) * (2 ** zoom);
   }
 
   /**

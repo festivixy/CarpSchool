@@ -1,12 +1,14 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
-import { Places, PlacesSchema } from "./Places";
+import { Places, PlacesSchema } from "./Places.js";
 
 /**
  * Create a new place (user can only create places for themselves)
  */
 Meteor.methods({
   async "places.insert"(placeData) {
+    check(placeData, Object);
+
     if (!this.userId) {
       throw new Meteor.Error(
         "not-authorized",
@@ -38,11 +40,12 @@ Meteor.methods({
       );
     }
 
-    return await Places.insertAsync(value);
+    return await Places.insertAsync(value); // eslint-disable-line
   },
 
   async "places.update"(placeId, updateData) {
     check(placeId, String);
+    check(updateData, Object);
 
     if (!this.userId) {
       throw new Meteor.Error(

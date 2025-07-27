@@ -131,7 +131,10 @@ Meteor.methods({
     }
 
     // Additional security: Validate client-provided MIME type matches detected type
-    if (imageData.mimeType !== fileType.mime && !(imageData.mimeType === "image/jpg" && fileType.mime === "image/jpeg")) {
+    const mimeTypeMismatch = imageData.mimeType !== fileType.mime
+      && !(imageData.mimeType === "image/jpg" && fileType.mime === "image/jpeg");
+
+    if (mimeTypeMismatch) {
       throw new Meteor.Error(
         "mime-type-mismatch",
         "File type mismatch detected. Upload rejected for security.",

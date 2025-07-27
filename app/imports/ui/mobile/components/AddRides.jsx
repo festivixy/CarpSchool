@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Rides } from "../../../api/ride/Rides";
-import { Places } from "../../../api/places/Places";
+import { Places } from "../../../api/places/Places.js";
 import {
   ModalOverlay,
   Modal,
@@ -112,13 +112,6 @@ class MobileAddRidesModal extends React.Component {
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleEscapeKey);
     document.removeEventListener("click", this.handleOutsideClick);
-  }
-
-  componentDidUpdate(prevProps) {
-    // Reset form when modal opens
-    if (!prevProps.open && this.props.open) {
-      this.resetForm();
-    }
   }
 
   handleEscapeKey = (event) => {

@@ -46,7 +46,7 @@ Meteor.methods({
       origin: updateData.origin,
       destination: updateData.destination,
       date: new Date(updateData.date),
-      seats: parseInt(updateData.seats),
+      seats: parseInt(updateData.seats, 10),
       notes: updateData.notes,
     };
 

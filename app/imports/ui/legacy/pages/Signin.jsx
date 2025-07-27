@@ -138,8 +138,15 @@ export default class Signin extends React.Component {
                           <div dangerouslySetInnerHTML={{
                             __html: DOMPurify.sanitize(this.state.captchaSvg, {
                               USE_PROFILES: { svg: true, svgFilters: true },
-                              ALLOWED_TAGS: ["svg", "g", "path", "text", "rect", "circle", "line", "polygon", "polyline"],
-                              ALLOWED_ATTR: ["viewBox", "width", "height", "d", "fill", "stroke", "x", "y", "cx", "cy", "r", "x1", "y1", "x2", "y2", "points", "stroke-width", "font-family", "font-size", "text-anchor"],
+                              ALLOWED_TAGS: [
+                                "svg", "g", "path", "text", "rect", "circle",
+                                "line", "polygon", "polyline"
+                              ],
+                              ALLOWED_ATTR: [
+                                "viewBox", "width", "height", "d", "fill", "stroke",
+                                "x", "y", "cx", "cy", "r", "x1", "y1", "x2", "y2",
+                                "points", "stroke-width", "font-family", "font-size", "text-anchor"
+                              ],
                             }),
                           }} />
                         )}

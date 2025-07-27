@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import Joi, { object } from "joi";
+import Joi from "joi";
 import { check } from "meteor/check";
 import DOMPurify from "dompurify";
 import { Chats } from "./Chat";
@@ -9,6 +9,7 @@ import { isEmailVerified } from "../accounts/Accounts";
 // Set up DOMPurify for server-side use
 let createDOMPurify;
 if (Meteor.isServer) {
+  // eslint-disable-next-line global-require
   const { JSDOM } = require("jsdom");
   const window = new JSDOM("").window;
   createDOMPurify = DOMPurify(window);
@@ -265,11 +266,9 @@ Meteor.methods({
           "You must be part of the ride to join its chat.",
         );
       }
-    } else {
+    } else if (chat.Participants.length >= 2) {
       // For general chats, limit to 2 people (DM style)
-      if (chat.Participants.length >= 2) {
-        throw new Meteor.Error("chat-full", "This chat is full (DM only).");
-      }
+      throw new Meteor.Error("chat-full", "This chat is full (DM only).");
     }
 
     // Add user to chat

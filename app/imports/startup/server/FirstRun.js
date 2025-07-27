@@ -3,7 +3,7 @@ import { Accounts } from "meteor/accounts-base";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 import { Rides } from "../../api/ride/Rides";
-import { Places } from "../../api/places/Places";
+import { Places } from "../../api/places/Places.js";
 import { Captcha } from "../../api/captcha/Captcha";
 
 /* eslint-disable no-console */
@@ -17,7 +17,7 @@ async function createUser(email, firstName, lastName, password, role) {
   });
   console.log(`  Created dummy captcha session ID: ${captchaSessionId}`);
   console.log(`  Creating user ${email}.`);
-  const userID = await new Promise((resolve, reject) => {
+  const userID = await new Promise((resolve, _reject) => {
     const id = Accounts.createUser({
       username: email,
       profile: {
@@ -205,8 +205,7 @@ async function migrateLegacyRides() {
       `Migrating ${legacyRides.length} legacy rides to new schema...`,
     );
 
-    for (const ride of legacyRides) {
-      // eslint-disable-next-line no-await-in-loop
+    await Promise.all(legacyRides.map(async (ride) => {
       const updateData = {
         riders: ride.rider === "TBD" ? [] : [ride.rider],
         seats: ride.seats || 1,
@@ -214,12 +213,11 @@ async function migrateLegacyRides() {
         createdAt: ride.createdAt || new Date(),
       };
 
-      // eslint-disable-next-line no-await-in-loop
-      await Rides.updateAsync(ride._id, {
+      return Rides.updateAsync(ride._id, {
         $set: updateData,
         $unset: { rider: "" },
       });
-    }
+    }));
 
     console.log(`Successfully migrated ${legacyRides.length} legacy rides.`);
   }

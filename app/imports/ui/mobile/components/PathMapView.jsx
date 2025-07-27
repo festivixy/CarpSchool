@@ -151,12 +151,12 @@ const PathMapView = ({
   // Calculate straight-line distance between two points (Haversine formula)
   const calculateDistance = (start, end) => {
     const R = 6371; // Earth's radius in kilometers
-    const dLat = (end.lat - start.lat) * Math.PI / 180;
-    const dLng = (end.lng - start.lng) * Math.PI / 180;
+    const dLat = ((end.lat - start.lat) * Math.PI) / 180;
+    const dLng = ((end.lng - start.lng) * Math.PI) / 180;
     const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(start.lat * Math.PI / 180) * Math.cos(end.lat * Math.PI / 180) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      (Math.sin(dLat / 2) * Math.sin(dLat / 2)) +
+      (Math.cos((start.lat * Math.PI) / 180) * Math.cos((end.lat * Math.PI) / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2));
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };

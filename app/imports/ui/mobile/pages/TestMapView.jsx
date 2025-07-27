@@ -77,7 +77,7 @@ const MobileTestMapView = () => {
     const lat = parseFloat(newPointLat);
     const lng = parseFloat(newPointLng);
 
-    if (!isNaN(lat) && !isNaN(lng)) {
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
       setCoordinates([
         ...coordinates,
         {
@@ -204,7 +204,7 @@ const MobileTestMapView = () => {
   const updatePathStartCoord = () => {
     const lat = parseFloat(pathStartLat);
     const lng = parseFloat(pathStartLng);
-    if (!isNaN(lat) && !isNaN(lng)) {
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
       setPathStartCoord({ lat, lng });
     }
   };
@@ -212,7 +212,7 @@ const MobileTestMapView = () => {
   const updatePathEndCoord = () => {
     const lat = parseFloat(pathEndLat);
     const lng = parseFloat(pathEndLng);
-    if (!isNaN(lat) && !isNaN(lng)) {
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
       setPathEndCoord({ lat, lng });
     }
   };
@@ -566,13 +566,13 @@ const MobileTestMapView = () => {
                 <InfoValue>
                   1. Enter coordinates for start and end points
                   <br />
-                  2. Click "Update Points" to apply coordinate changes
+                  2. Click &quot;Update Points&quot; to apply coordinate changes
                   <br />
-                  3. Use "Find Route" button (🗺️) on the map to calculate path
+                  3. Use &quot;Find Route&quot; button (🗺️) on the map to calculate path
                   <br />
-                  4. Try "Swap A ↔ B" to reverse the route direction
+                  4. Try &quot;Swap A ↔ B&quot; to reverse the route direction
                   <br />
-                  5. Use "Reset Vancouver" for quick test coordinates
+                  5. Use &quot;Reset Vancouver&quot; for quick test coordinates
                   <br />
                   6. Toggle between OSRM and straight-line routing
                   <br />
@@ -847,7 +847,7 @@ const MobileTestMapView = () => {
                   <br />
                   4. Use keyboard navigation (arrow keys, enter, escape)
                   <br />
-                  5. Test clear functionality with the 'X' button
+                  5. Test clear functionality with the &#39;X&#39; button
                   <br />
                   6. Notice the glass effect blurring background elements
                   <br />
@@ -960,7 +960,7 @@ const MobileTestMapView = () => {
                   7. 🖱️ <strong>Drag the background</strong> to test
                   transparency effect
                   <br />
-                  8. Use "Reset Pattern" button to center the background
+                  8. Use &quot;Reset Pattern&quot; button to center the background
                 </InfoValue>
               </InfoItem>
             </InfoCard>
@@ -1219,7 +1219,7 @@ const MobileTestMapView = () => {
               <InfoItem>
                 <InfoLabel>🧪 Test Instructions</InfoLabel>
                 <InfoValue>
-                  1. Search for a location (e.g., "Central Park, New York")
+                  1. Search for a location (e.g., &quot;Central Park, New York&quot;)
                   <br />
                   2. Click anywhere on the map to select coordinates
                   <br />

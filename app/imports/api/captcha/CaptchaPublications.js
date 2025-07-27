@@ -1,2 +1,1 @@
-import { Meteor } from "meteor/meteor";
-import { Captcha } from "./Captcha";
+// Empty file - no publications needed

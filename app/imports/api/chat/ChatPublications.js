@@ -1,4 +1,5 @@
 import { Meteor } from "meteor/meteor";
+import { check } from "meteor/check";
 import { Chats } from "./Chat";
 import { Rides } from "../ride/Rides";
 
@@ -19,6 +20,8 @@ Meteor.publish("chats", async function publishChats() {
 
 /** Publish chats with email search functionality */
 Meteor.publish("chats.withEmail", async function publishChatsWithEmail(searchEmail) {
+  check(searchEmail, String);
+
   if (!this.userId) {
     return this.ready();
   }
@@ -48,6 +51,8 @@ Meteor.publish("chats.withEmail", async function publishChatsWithEmail(searchEma
 
 /** Publish ride-specific chat */
 Meteor.publish("chats.forRide", async function publishRideChat(rideId) {
+  check(rideId, String);
+
   if (!this.userId || !rideId) {
     return this.ready();
   }
