@@ -59,7 +59,7 @@ class AsyncTileLoader {
       const blob = new Blob([workerScript], { type: "application/javascript" });
       this.worker = new Worker(URL.createObjectURL(blob));
 
-      this.worker.onmessage = (e) => {
+      this.worker.onmessage = (_e) => {
         // Worker messages are handled directly in fetchTileWithWorker
         // This is just for error handling
       };
@@ -364,7 +364,9 @@ class AsyncTileLoader {
    * Convert latitude to tile Y coordinate
    */
   lat2tile(lat, zoom) {
-    return ((1 - (Math.log(Math.tan((lat * Math.PI) / 180) + (1 / Math.cos((lat * Math.PI) / 180))) / Math.PI)) / 2) * (2 ** zoom);
+    const latRad = (lat * Math.PI) / 180;
+    const logValue = Math.log(Math.tan(latRad) + (1 / Math.cos(latRad)));
+    return ((1 - (logValue / Math.PI)) / 2) * (2 ** zoom);
   }
 
   /**

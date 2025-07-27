@@ -20,7 +20,6 @@ import {
   ControlsGrid,
   ControlItem,
   Label,
-  Input,
   InfoCard,
   InfoItem,
   InfoLabel,
@@ -187,7 +186,7 @@ const MobileTestMapView = () => {
     setSearchDropdownValue(value);
   };
 
-  const handleNavClick = (item, e) => {
+  const handleNavClick = (item, _e) => {
     console.log("Navigation clicked:", item);
     alert(`Navigation clicked: ${item}`);
   };
@@ -680,7 +679,8 @@ const MobileTestMapView = () => {
                 #f8f9fa 0%,
                 #e9ecef 100%)`,
               backgroundSize: "30px 30px, 30px 30px, 100% 100%",
-              backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px, ${backgroundPosition.x}px ${backgroundPosition.y}px, 0 0`,
+              backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px, ` +
+                `${backgroundPosition.x}px ${backgroundPosition.y}px, 0 0`,
               borderRadius: "8px",
               position: "relative",
               cursor: isDragging ? "grabbing" : "grab",
@@ -908,7 +908,8 @@ const MobileTestMapView = () => {
                       #f8f9fa 0%,
                       #e9ecef 100%)`,
                     backgroundSize: "30px 30px, 30px 30px, 100% 100%",
-                    backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px, ${backgroundPosition.x}px ${backgroundPosition.y}px, 0 0`,
+                    backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px, ` +
+                      `${backgroundPosition.x}px ${backgroundPosition.y}px, 0 0`,
                     borderRadius: "8px",
                     position: "relative",
                     cursor: isDragging ? "grabbing" : "grab",
@@ -983,7 +984,8 @@ const MobileTestMapView = () => {
                 #f8f9fa 0%,
                 #e9ecef 100%)`,
               backgroundSize: "30px 30px, 30px 30px, 100% 100%",
-              backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px, ${backgroundPosition.x}px ${backgroundPosition.y}px, 0 0`,
+              backgroundPosition: `${backgroundPosition.x}px ${backgroundPosition.y}px, ` +
+                `${backgroundPosition.x}px ${backgroundPosition.y}px, 0 0`,
               borderRadius: "8px",
               position: "relative",
               cursor: isDragging ? "grabbing" : "grab",
@@ -1108,7 +1110,7 @@ const MobileTestMapView = () => {
                   <br />
                   • Multiple input types (text, email, password, search, etc.)
                   <br />
-                  • Icon support (left or right positioning)
+                  ��� Icon support (left or right positioning)
                   <br />
                   • Label animations and floating labels
                   <br />
