@@ -128,14 +128,32 @@ Meteor.methods({
       );
     }
 
-    // Normalize the share code format (remove spaces, convert to uppercase, ensure proper dash placement)
-    let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
+    // Comprehensive input sanitization for share codes
+    if (typeof shareCode !== 'string') {
+      throw new Meteor.Error("invalid-input", "Share code must be a string");
+    }
+
+    // Remove all non-alphanumeric characters except hyphens, convert to uppercase
+    let normalizedCode = shareCode.toUpperCase().replace(/[^A-Z0-9-]/g, "");
+
+    // Additional validation: reject if code contains suspicious patterns
+    if (normalizedCode.length === 0 || normalizedCode.length > 10) {
+      throw new Meteor.Error("invalid-format", "Invalid share code format");
+    }
+
+    // Reject codes with multiple consecutive hyphens or invalid patterns
+    if (normalizedCode.includes("--") || normalizedCode.startsWith("-") || normalizedCode.endsWith("-")) {
+      throw new Meteor.Error("invalid-format", "Invalid share code format");
+    }
 
     // If code doesn't have a dash and is 8 characters, add the dash
     if (normalizedCode.length === 8 && !normalizedCode.includes("-")) {
-      normalizedCode = `${normalizedCode.slice(0, 4)}-${normalizedCode.slice(
-        4,
-      )}`;
+      normalizedCode = `${normalizedCode.slice(0, 4)}-${normalizedCode.slice(4)}`;
+    }
+
+    // Final validation: ensure code matches expected format (4-4 alphanumeric)
+    if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(normalizedCode)) {
+      throw new Meteor.Error("invalid-format", "Share code must be in format XXXX-XXXX");
     }
 
     // Find ride with this share code
