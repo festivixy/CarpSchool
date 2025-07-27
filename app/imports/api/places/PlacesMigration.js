@@ -67,10 +67,10 @@ const placeCoordinates = {
  * Migration function to convert static places to dynamic collection
  * This creates a system admin user and assigns all places to them
  */
-export function migratePlacesToCollection() {
+export async function migratePlacesToCollection() {
   if (Meteor.isServer) {
     // Check if migration has already been run
-    const existingPlaces = Places.find().count();
+    const existingPlaces = await Places.find().countAsync();
     if (existingPlaces > 0) {
       console.log("Places migration already completed. Skipping...");
       return;
@@ -79,11 +79,11 @@ export function migratePlacesToCollection() {
     console.log("Starting places migration...");
 
     // Find or create a system admin user for default places
-    let systemAdmin = Meteor.users.findOne({ username: "system" });
+    let systemAdmin = await Meteor.users.findOneAsync({ username: "system" });
 
     if (!systemAdmin) {
       console.log("Creating system admin user for default places...");
-      const systemUserId = Meteor.users.insert({
+      const systemUserId = await Meteor.users.insertAsync({
         username: "system",
         emails: [{ address: "system@rideshare.com", verified: true }],
         roles: ["admin"],
@@ -98,7 +98,7 @@ export function migratePlacesToCollection() {
 
     // Insert all static places as system admin places
     const migratedPlaces = [];
-    staticPlaces.forEach(placeName => {
+    await Promise.all(staticPlaces.map(async (placeName) => {
       const coordinates = placeCoordinates[placeName] || "21.3099,-157.8581"; // Default to Honolulu
 
       const placeData = {
@@ -109,13 +109,13 @@ export function migratePlacesToCollection() {
       };
 
       try {
-        const placeId = Places.insert(placeData);
+        const placeId = await Places.insertAsync(placeData);
         migratedPlaces.push(placeId);
         console.log(`Migrated place: ${placeName}`);
       } catch (error) {
         console.error(`Failed to migrate place ${placeName}:`, error.message);
       }
-    });
+    }));
 
     console.log(`Places migration completed. Migrated ${migratedPlaces.length} places.`);
   }

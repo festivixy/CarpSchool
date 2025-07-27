@@ -2,9 +2,9 @@ import { Meteor } from "meteor/meteor";
 import { Rides } from "./Rides";
 
 /** This subscription publishes only rides where user is participant (driver or rider). */
-Meteor.publish("Rides", function publish() {
+Meteor.publish("Rides", async function publish() {
   if (this.userId) {
-    const currentUser = Meteor.users.findOne(this.userId);
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
     if (!currentUser || !currentUser.username) {
       return this.ready();
     }
