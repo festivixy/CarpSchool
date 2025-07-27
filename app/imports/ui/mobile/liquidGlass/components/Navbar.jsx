@@ -17,8 +17,6 @@ import {
   UserName,
   MobileMenuButton,
   MobileMenu,
-  MobileNavItem,
-  Badge,
 } from "../styles/Navbar";
 
 /**
@@ -69,10 +67,7 @@ function LiquidGlassNavbar({
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const toggleDropdown = (dropdown, e) => {
-    e.stopPropagation();
-    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
-  };
+  // toggleDropdown removed as unused
 
   const handleNavClick = (item, e) => {
     if (onNavClick) {
@@ -82,11 +77,7 @@ function LiquidGlassNavbar({
     setActiveDropdown(null);
   };
 
-  const navigationItems = [
-    { label: "My Rides", key: "rides", hasDropdown: true },
-    { label: "Create Ride", key: "create", icon: "+" },
-    { label: "Join Ride", key: "join", icon: "⚡" },
-  ];
+  // navigationItems removed as unused
 
   const adminItems = [
     { label: "All Rides", key: "admin-rides" },

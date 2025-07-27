@@ -182,7 +182,10 @@ export const DropdownMenu = styled.div`
   left: 50%;
   transform: translateX(-50%)
     translateY(
-      ${(props) => (props.$isOpen ? "0" : props.$position === "top" ? "10px" : "-10px")}
+      ${(props) => {
+        if (props.$isOpen) return "0";
+        return props.$position === "top" ? "10px" : "-10px";
+      }}
     );
   width: 160%;
   min-width: 200px;
@@ -331,7 +334,7 @@ export const MenuItem = styled.div`
     box-shadow 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   overflow: hidden;
-  
+
   /* Simplified glass effect without backdrop-filter pseudo-elements */
   background: linear-gradient(
     135deg,
@@ -339,7 +342,7 @@ export const MenuItem = styled.div`
     rgba(255, 255, 255, 0.08) 100%
   );
   border: 1px solid rgba(255, 255, 255, 0.1);
-  
+
   /* Single subtle inset shadow for glass effect */
   box-shadow:
     inset 1px 1px 2px rgba(255, 255, 255, 0.2),

@@ -96,9 +96,9 @@ export const BlurContainer = styled.div`
   background: rgba(255, 255, 255, 0.12);
   will-change: transform;
   transform: translateZ(0);
-  
+
   /* Simplified single glass effect - no pseudo-elements */
-  box-shadow: 
+  box-shadow:
     inset 1px 1px 2px rgba(255, 255, 255, 0.3),
     inset -1px -1px 2px rgba(0, 0, 0, 0.05);
 `;
@@ -144,11 +144,27 @@ export const StyledInput = styled.input`
   width: 100%;
   height: 100%;
   padding: ${(props) => {
-    const verticalPadding = props.$size === "small" ? "8px" : props.$size === "large" ? "16px" : "12px";
-    const leftPadding = props.$hasIcon && props.$iconPosition === "left" ?
-      (props.$size === "small" ? "36px" : props.$size === "large" ? "52px" : "44px") : "24px";
-    const rightPadding = props.$hasIcon && props.$iconPosition === "right" ?
-      (props.$size === "small" ? "36px" : props.$size === "large" ? "52px" : "44px") : "24px";
+    let verticalPadding;
+    if (props.$size === "small") {
+      verticalPadding = "8px";
+    } else if (props.$size === "large") {
+      verticalPadding = "16px";
+    } else {
+      verticalPadding = "12px";
+    }
+
+    let iconPadding;
+    if (props.$size === "small") {
+      iconPadding = "36px";
+    } else if (props.$size === "large") {
+      iconPadding = "52px";
+    } else {
+      iconPadding = "44px";
+    }
+
+    const leftPadding = (props.$hasIcon && props.$iconPosition === "left") ? iconPadding : "24px";
+    const rightPadding = (props.$hasIcon && props.$iconPosition === "right") ? iconPadding : "24px";
+
     return `${verticalPadding} ${rightPadding} ${verticalPadding} ${leftPadding}`;
   }};
   border: none;

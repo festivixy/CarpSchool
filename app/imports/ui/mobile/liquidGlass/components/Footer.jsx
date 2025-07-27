@@ -45,9 +45,9 @@ function LiquidGlassFooter({
 }) {
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
-    const email = e.target.email.value;
+    const emailValue = e.target.email.value;
     if (onNewsletterSubmit) {
-      onNewsletterSubmit(email);
+      onNewsletterSubmit(emailValue);
     }
   };
 

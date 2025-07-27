@@ -10,11 +10,8 @@ import LiquidGlassTextInput from "../liquidGlass/components/TextInput";
 import LiquidGlassIconButton from "../liquidGlass/components/IconButton";
 import {
   Container,
-  Header,
-  AppName,
   Content,
   Copy,
-  Title,
   Subtitle,
   Section,
   SectionTitle,
@@ -422,7 +419,8 @@ const MobileTestMapView = () => {
               <InfoItem>
                 <InfoLabel>Component Test</InfoLabel>
                 <InfoValue>
-                  Testing the PathMapView component that finds routes between two coordinate points using OSRM routing service
+                  Testing the PathMapView component that finds routes between two coordinate points
+                  using OSRM routing service
                 </InfoValue>
               </InfoItem>
             </InfoCard>

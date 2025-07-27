@@ -239,13 +239,13 @@ export const LabelText = styled.div`
 
   @media (max-width: 991px) {
     font-size: ${(props) => {
-      const baseSize = parseInt(getSizeConfig(props.$size).fontSize);
+      const baseSize = parseInt(getSizeConfig(props.$size).fontSize, 10);
       return `${baseSize - 1}px`;
     }};
   }
   @media (max-width: 640px) {
     font-size: ${(props) => {
-      const baseSize = parseInt(getSizeConfig(props.$size).fontSize);
+      const baseSize = parseInt(getSizeConfig(props.$size).fontSize, 10);
       return `${baseSize - 2}px`;
     }};
   }

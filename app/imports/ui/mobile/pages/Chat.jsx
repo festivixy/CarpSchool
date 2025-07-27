@@ -245,9 +245,7 @@ class MobileChat extends React.Component {
 
     // For ride-specific chats, show ride info
     if (chat.rideId) {
-      const otherParticipants = chat.Participants.filter(
-        (p) => p !== currentUser,
-      );
+      // otherParticipants removed as unused
       return `Ride Chat (${chat.Participants.length} members)`;
     }
 
