@@ -434,6 +434,90 @@ async "chats.sendMessage"(chatId, content) {
 
 ---
 
+### 🚨 **V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)
+**File**: `imports/api/ride/RidePublications.js:5-8`
+**Severity**: CRITICAL
+**Type**: Authorization Bypass & Information Disclosure
+
+```javascript
+// VULNERABLE: Publishes ALL rides to ANY authenticated user
+Meteor.publish("Rides", function publish() {
+  if (this.userId) {
+    return Rides.find(); // No filtering - exposes everything!
+  }
+  return this.ready();
+});
+```
+
+**Issues**:
+- All rides published to any authenticated user without filtering
+- Complete violation of data privacy - users can see all rides
+- No authorization based on ride participation
+- Exposes sensitive data (destinations, times, driver/rider info)
+
+**Impact**: Complete privacy violation, GDPR compliance issues, data leakage
+
+---
+
+### 🟡 **V020: Email-Based User Discovery in Chat Publications**
+**File**: `imports/api/chat/ChatPublications.js:21-44`
+**Severity**: MEDIUM
+**Type**: Information Disclosure
+
+```javascript
+// VULNERABLE: Allows email-based user enumeration
+Meteor.publish("chats.withEmail", async function(searchEmail) {
+  const targetUser = await Meteor.users.findOneAsync({
+    "emails.address": searchEmail.toLowerCase().trim()
+  });
+
+  if (targetUser && targetUser.username) {
+    // Behavior reveals if email exists in system
+    return Chats.find({
+      Participants: { $all: [currentUser.username, targetUser.username] }
+    });
+  }
+});
+```
+
+**Issues**:
+- Allows enumeration of registered email addresses
+- Different behavior reveals whether email exists in system
+- No rate limiting on email lookups
+- Privacy violation for user email discovery
+
+**Impact**: User enumeration, privacy violation, reconnaissance for attacks
+
+---
+
+### 🟡 **V021: Performance Issues in Places Publications**
+**File**: `imports/api/places/PlacesPublications.js:8-35 & 81-114`
+**Severity**: MEDIUM
+**Type**: Performance & DoS
+
+```javascript
+// VULNERABLE: Inefficient database queries without proper indexing
+const userRides = await Rides.find({
+  $or: [{ driver: currentUser.username }, { riders: currentUser.username }],
+}).fetchAsync();
+
+// Multiple database queries per publication
+userRides.forEach((ride) => {
+  if (ride.origin) placeIds.add(ride.origin);
+  if (ride.destination) placeIds.add(ride.destination);
+});
+```
+
+**Issues**:
+- Multiple database queries executed per publication
+- No proper indexing strategy for complex queries
+- Fetches all rides into memory before processing
+- N+1 query pattern potential for large datasets
+
+**Impact**: Performance degradation, potential DoS, scalability issues
+
+---
+
 ## ✅ **GOOD SECURITY PRACTICES FOUND**
 
 ### 🟢 **Proper Input Validation**
@@ -565,6 +649,12 @@ async "chats.sendMessage"(chatId, content) {
    }
    ```
 
+9. **Prevent User Enumeration in Chat (V020)**:
+    ```javascript
+    // Use constant-time lookup and don't reveal email existence
+    // Consider implementing proper user search with privacy controls
+    ```
+
 ### **Architecture Improvements**
 
 1. **Implement Rate Limiting**: Add rate limiting to sensitive operations
@@ -597,5 +687,7 @@ async "chats.sendMessage"(chatId, content) {
 | V016: SSRF in Proxy Endpoints | **HIGH** | Low | High | **HIGH** |
 | V017: Weak CAPTCHA Session Management | MEDIUM | Medium | Medium | **MEDIUM** |
 | V018: Missing Chat Input Sanitization | MEDIUM | High | Medium | **HIGH** |
+| V020: Email-Based User Discovery | MEDIUM | Medium | Low | **MEDIUM** |
+| V021: Performance Issues in Publications | MEDIUM | Medium | Medium | **MEDIUM** |
 
 **Overall Risk Level**: **CRITICAL** - Multiple high-severity vulnerabilities require immediate remediation.
