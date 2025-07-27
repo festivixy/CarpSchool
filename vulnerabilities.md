@@ -737,10 +737,10 @@ userRides.forEach((ride) => {
 |--------------|----------|------------|---------|----------|
 | [~~V001: User Update Validation~~ (FIXED)](#v001) | ~~HIGH~~ **RESOLVED** | ~~Medium~~ | ~~High~~ | **RESOLVED** |
 | [V002: Share Code Race Condition](#v002) | MEDIUM | Low | Medium | **HIGH** |
-| [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH | High | Medium | **CRITICAL** |
+| [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH | High | Medium | **IGNORED** |
 | [~~V004: Input Sanitization~~ (FIXED)](#v004) | ~~MEDIUM~~ **RESOLVED** | ~~Medium~~ | ~~Low~~ | **RESOLVED** |
-| [~~V005: Client DB Operations~~ (Legacy)](#v005) | MEDIUM | High | Medium | **HIGH** |
-| [~~V006: Profile Authorization~~ (Legacy)](#v006) | MEDIUM | Medium | Medium | **MEDIUM** |
+| [~~V005: Client DB Operations~~ (Legacy)](#v005) | MEDIUM | High | Medium | **IGNORED** |
+| [~~V006: Profile Authorization~~ (Legacy)](#v006) | MEDIUM | Medium | Medium | **IGNORED** |
 | [~~V007: XSS in CAPTCHA Display~~ (FIXED)](#v007) | ~~HIGH~~ **RESOLVED** | ~~Medium~~ | ~~High~~ | **RESOLVED** |
 | [~~V008: Rides Publication Exposure~~ (FIXED)](#v008) | ~~CRITICAL~~ **RESOLVED** | ~~High~~ | ~~High~~ | **RESOLVED** |
 | [V009: Role Assignment Race Condition](#v009) | MEDIUM | Low | High | **HIGH** |
