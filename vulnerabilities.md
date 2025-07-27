@@ -281,6 +281,159 @@ const workerScript = `
 
 ---
 
+### 🚨 **V013: Missing File Type Validation in Image Upload**
+**File**: `imports/api/images/ImageMethods.js:95-103`
+**Severity**: HIGH
+**Type**: File Upload Security
+
+```javascript
+// VULNERABLE: Relying on client-provided MIME type only
+const allowedTypes = [
+  "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"
+];
+if (!allowedTypes.includes(imageData.mimeType)) {
+  throw new Meteor.Error("invalid-file-type", "Only image files are allowed");
+}
+```
+
+**Issues**:
+- Only validates client-provided MIME type, easily spoofed
+- No server-side file signature validation
+- Allows potentially malicious files disguised as images
+- No file extension validation
+
+**Impact**: Malicious file upload, potential RCE via disguised executables
+
+---
+
+### 🚨 **V014: Direct Image Data Exposure via Server Routes**
+**File**: `imports/startup/server/ServerRoutes.js:5-45`
+**Severity**: HIGH
+**Type**: Information Disclosure & Access Control
+
+```javascript
+// VULNERABLE: No access control on image serving endpoint
+WebApp.connectHandlers.use("/image", async (req, res, _next) => {
+  const uuid = req.url.substring(1);
+  const image = await Images.findOneAsync({ uuid: uuid });
+  // No authorization checks - anyone can access any image
+  res.end(imageBuffer);
+});
+```
+
+**Issues**:
+- No authentication or authorization checks
+- Any user can access any image by guessing/knowing UUID
+- Exposes potentially private images publicly
+- No rate limiting on image requests
+
+**Impact**: Privacy violation, unauthorized access to images, potential DoS
+
+---
+
+### 🟡 **V015: Captcha Brute Force Vulnerability**
+**File**: `imports/api/captcha/CaptchaMethods.js:31-54`
+**Severity**: MEDIUM
+**Type**: Rate Limiting & Brute Force
+
+```javascript
+// VULNERABLE: No rate limiting on captcha verification attempts
+async "captcha.verify"(sessionId, userInput) {
+  // No attempt limiting or exponential backoff
+  const isValid = session.text === userInput.trim();
+  return isValid;
+}
+```
+
+**Issues**:
+- No rate limiting on verification attempts
+- Allows unlimited guessing attempts per session
+- No account lockout or IP-based throttling
+- Session cleanup doesn't prevent brute force
+
+**Impact**: CAPTCHA bypass through brute force attacks
+
+---
+
+### 🚨 **V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints**
+**File**: `imports/startup/server/ServerRoutes.js:70-180`
+**Severity**: HIGH
+**Type**: Server-Side Request Forgery
+
+```javascript
+// VULNERABLE: Hardcoded internal hostnames expose internal network
+const options = {
+  hostname: "tileserver-gl",  // Internal hostname exposed
+  hostname: "nominatim",      // Internal hostname exposed
+  hostname: "osrm",          // Internal hostname exposed
+  port: 8082,
+  path: targetPath,  // User-controlled path forwarded directly
+};
+```
+
+**Issues**:
+- Exposes internal service hostnames and ports
+- User-controlled paths forwarded without validation
+- Could be used to map internal network topology
+- No request validation or sanitization
+
+**Impact**: Internal network reconnaissance, potential access to internal services
+
+---
+
+### 🟡 **V017: Weak CAPTCHA Session Management**
+**File**: `imports/api/captcha/Captcha.js:18-32`
+**Severity**: MEDIUM
+**Type**: Session Management
+
+```javascript
+// VULNERABLE: Non-atomic CAPTCHA session updates
+async function useCaptcha(sessionId) {
+  const session = await Captcha.findOneAsync({ _id: sessionId });
+  await Captcha.updateAsync(session, {
+    // Race condition possible between find and update
+    used: true,
+  });
+}
+```
+
+**Issues**:
+- Race condition between find and update operations
+- CAPTCHA could be used multiple times simultaneously
+- No atomic "use-once" guarantee
+- Session reuse possible under concurrent access
+
+**Impact**: CAPTCHA session reuse, bypassing single-use restrictions
+
+---
+
+### 🟡 **V018: Missing Input Sanitization in Chat Messages**
+**File**: `imports/api/chat/ChatMethods.js:289-330`
+**Severity**: MEDIUM
+**Type**: Cross-Site Scripting (XSS)
+
+```javascript
+// VULNERABLE: No content sanitization before storing/displaying
+async "chats.sendMessage"(chatId, content) {
+  const message = {
+    Sender: currentUser.username,
+    Content: content,  // Raw content stored without sanitization
+    Timestamp: new Date(),
+  };
+  await Chats.updateAsync(chatId, { $push: { Messages: message } });
+}
+```
+
+**Issues**:
+- Chat message content not sanitized before storage
+- No HTML/script tag filtering
+- Stored XSS possible when messages are displayed
+- No content length restrictions enforced
+
+**Impact**: Stored XSS attacks via chat messages, script injection
+
+---
+
 ## ✅ **GOOD SECURITY PRACTICES FOUND**
 
 ### 🟢 **Proper Input Validation**
@@ -374,6 +527,44 @@ const workerScript = `
    - Implement proper server-side methods with authorization
    - Add comprehensive input validation
 
+5. **Fix Image Upload Security (V013)** - CRITICAL:
+   ```javascript
+   // Add server-side file type validation
+   const fileType = await FileType.fromBuffer(originalBinaryData);
+   if (!fileType || !['jpg', 'png', 'gif', 'webp'].includes(fileType.ext)) {
+     throw new Meteor.Error("invalid-file-type", "Invalid file type");
+   }
+   ```
+
+6. **Fix Image Access Control (V014)** - CRITICAL:
+   ```javascript
+   // Add authentication to image serving endpoint
+   if (!req.headers.authorization) {
+     res.writeHead(401, { "Content-Type": "text/plain" });
+     res.end("Unauthorized");
+     return;
+   }
+   ```
+
+7. **Fix Chat Message Sanitization (V018)**:
+   ```javascript
+   // Sanitize chat content before storage
+   import DOMPurify from 'dompurify';
+   const sanitizedContent = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
+   ```
+
+8. **Implement CAPTCHA Rate Limiting (V015)**:
+   ```javascript
+   // Add rate limiting per IP/session
+   const attempts = await Captcha.countDocuments({
+     sessionId,
+     timestamp: { $gt: Date.now() - 60000 }
+   });
+   if (attempts > 5) {
+     throw new Meteor.Error("rate-limited", "Too many attempts");
+   }
+   ```
+
 ### **Architecture Improvements**
 
 1. **Implement Rate Limiting**: Add rate limiting to sensitive operations
@@ -400,5 +591,11 @@ const workerScript = `
 | V010: CAPTCHA Timing Attack | MEDIUM | Low | Low | **LOW** |
 | V011: Insecure Place Resolution | MEDIUM | Medium | Medium | **MEDIUM** |
 | V012: Web Worker JSON Processing | LOW | Low | Low | **LOW** |
+| V013: Missing File Type Validation | **HIGH** | High | High | **CRITICAL** |
+| V014: Direct Image Data Exposure | **HIGH** | High | Medium | **CRITICAL** |
+| V015: Captcha Brute Force | MEDIUM | Medium | Medium | **MEDIUM** |
+| V016: SSRF in Proxy Endpoints | **HIGH** | Low | High | **HIGH** |
+| V017: Weak CAPTCHA Session Management | MEDIUM | Medium | Medium | **MEDIUM** |
+| V018: Missing Chat Input Sanitization | MEDIUM | High | Medium | **HIGH** |
 
 **Overall Risk Level**: **CRITICAL** - Multiple high-severity vulnerabilities require immediate remediation.
