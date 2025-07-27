@@ -58,6 +58,11 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
 });
 
 // Create proxy endpoint to forward requests to tileserver: /tileserver/*
+// SECURITY NOTE V016: INTENTIONAL SSRF EXPOSURE
+// This proxy exposes internal service hostnames (tileserver-gl:8082) which could be used
+// for network reconnaissance. This is INTENTIONALLY ACCEPTED as the proxy is required
+// for the application's map functionality in a containerized environment.
+// Risk mitigation: Proxy only forwards to known internal services with fixed hostnames.
 WebApp.connectHandlers.use("/tileserver", (req, res, _next) => {
   try {
     // Remove /tileserver from the path and forward to tileserver-gl:8080
@@ -103,6 +108,9 @@ WebApp.connectHandlers.use("/tileserver", (req, res, _next) => {
 });
 
 // Create proxy endpoint to forward requests to nominatim: /nominatim/*
+// SECURITY NOTE V016: INTENTIONAL SSRF EXPOSURE
+// This proxy exposes internal service hostnames (nominatim:8080) for geocoding functionality.
+// Risk is INTENTIONALLY ACCEPTED as required for place search and address resolution.
 WebApp.connectHandlers.use("/nominatim", (req, res, _next) => {
   try {
     // Remove /nominatim from the path and forward to nominatim:8080
@@ -148,6 +156,9 @@ WebApp.connectHandlers.use("/nominatim", (req, res, _next) => {
 });
 
 // Create proxy endpoint to forward requests to OSRM: /osrm/*
+// SECURITY NOTE V016: INTENTIONAL SSRF EXPOSURE
+// This proxy exposes internal service hostnames (osrm:8083) for routing functionality.
+// Risk is INTENTIONALLY ACCEPTED as required for route calculation between locations.
 WebApp.connectHandlers.use("/osrm", (req, res, _next) => {
   try {
     // Remove /osrm from the path and forward to osrm:8083
