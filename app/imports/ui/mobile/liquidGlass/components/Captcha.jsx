@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import styled from "styled-components";
+import DOMPurify from "dompurify";
 
 // Styled Components for LiquidGlass Captcha
 const CaptchaSection = styled.div`
@@ -79,7 +80,7 @@ const CaptchaDisplay = styled.div`
   min-height: 50px;
   position: relative;
   z-index: 10;
-  box-shadow: 
+  box-shadow:
     inset 2px 2px 4px rgba(255, 255, 255, 0.3),
     inset -1px -1px 2px rgba(0, 0, 0, 0.1);
 
@@ -274,7 +275,7 @@ class LiquidGlassCaptcha extends Component {
 
   generateCaptcha = () => {
     this.setState({ isLoading: true, error: "" });
-    
+
     Meteor.call("captcha.generate", (error, result) => {
       if (error) {
         this.setState({
@@ -302,7 +303,7 @@ class LiquidGlassCaptcha extends Component {
   handleInputChange = (e) => {
     const value = e.target.value;
     this.setState({ captchaInput: value });
-    
+
     if (this.props.onChange) {
       this.props.onChange(value, this.state.captchaSessionId);
     }
@@ -310,7 +311,7 @@ class LiquidGlassCaptcha extends Component {
 
   verify = (callback) => {
     const { captchaSessionId, captchaInput } = this.state;
-    
+
     if (!captchaSessionId || !captchaInput.trim()) {
       const error = "Please complete the security verification.";
       this.setState({ error });
@@ -355,7 +356,7 @@ class LiquidGlassCaptcha extends Component {
   };
 
   render() {
-    const { 
+    const {
       label = "Security Verification",
       inputPlaceholder = "Enter the characters shown above",
       showLabel = true,
@@ -370,18 +371,24 @@ class LiquidGlassCaptcha extends Component {
     return (
       <CaptchaSection className={className} style={style}>
         {showLabel && <CaptchaLabel>{label}</CaptchaLabel>}
-        
+
         <CaptchaContainer>
           {isLoading ? (
             <CaptchaLoading>Loading CAPTCHA...</CaptchaLoading>
           ) : captchaSvg ? (
             <CaptchaDisplay
-              dangerouslySetInnerHTML={{ __html: captchaSvg }}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(captchaSvg, {
+                  USE_PROFILES: { svg: true, svgFilters: true },
+                  ALLOWED_TAGS: ['svg', 'g', 'path', 'text', 'rect', 'circle', 'line', 'polygon', 'polyline'],
+                  ALLOWED_ATTR: ['viewBox', 'width', 'height', 'd', 'fill', 'stroke', 'x', 'y', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'points', 'stroke-width', 'font-family', 'font-size', 'text-anchor']
+                })
+              }}
             />
           ) : (
             <CaptchaLoading>Click refresh to generate CAPTCHA</CaptchaLoading>
           )}
-          
+
           <CaptchaRefreshButton
             type="button"
             onClick={this.generateCaptcha}
@@ -419,11 +426,11 @@ LiquidGlassCaptcha.propTypes = {
   showInput: PropTypes.bool,
   autoGenerate: PropTypes.bool,
   disabled: PropTypes.bool,
-  
+
   // Styling
   className: PropTypes.string,
   style: PropTypes.object,
-  
+
   // Callbacks
   onGenerate: PropTypes.func, // Called when captcha is generated with sessionId
   onChange: PropTypes.func,   // Called when input changes with (value, sessionId)
