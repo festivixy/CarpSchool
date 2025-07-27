@@ -18,3 +18,4 @@ console.log
 Trace-*.json
 profiling-data.*.json
 osrmdata/
+builderkeyrefresh/
