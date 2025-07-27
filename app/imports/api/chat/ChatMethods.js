@@ -2,14 +2,20 @@ import { Meteor } from "meteor/meteor";
 import Joi, { object } from "joi";
 import { check } from "meteor/check";
 import DOMPurify from "dompurify";
-import { JSDOM } from "jsdom";
 import { Chats } from "./Chat";
 import { Rides } from "../ride/Rides";
 import { isEmailVerified } from "../accounts/Accounts";
 
 // Set up DOMPurify for server-side use
-const window = new JSDOM('').window;
-const createDOMPurify = DOMPurify(window);
+let createDOMPurify;
+if (Meteor.isServer) {
+  const { JSDOM } = require("jsdom");
+  const window = new JSDOM('').window;
+  createDOMPurify = DOMPurify(window);
+} else {
+  // For client-side, use the default DOMPurify which works with the browser window
+  createDOMPurify = DOMPurify;
+}
 
 // Sanitize chat message content to prevent XSS
 function sanitizeChatContent(content) {
