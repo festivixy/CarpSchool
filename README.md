@@ -5,12 +5,14 @@ A modern web application built with Meteor and React that facilitates ride shari
 ## Features
 
 ### Core Functionality
+
 - **Create Rides**: Drivers can post available rides with pickup/dropoff locations, dates, and times
 - **Join Rides**: Riders can search and join available rides using shareable invite codes
 - **Ride Management**: Users can view their active rides as both drivers and passengers
 - **Real-time Updates**: Dynamic ride status updates and availability
 
 ### Other Features
+
 - **CAPTCHA Verification**: SVG-based CAPTCHA for bot prevention during signup and signin
 
 ## Prerequisites
@@ -24,6 +26,7 @@ Before running this application, make sure you have the following installed:
 ## Installation & Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/zlc1004/Carpool.git
    # or
@@ -33,6 +36,7 @@ Before running this application, make sure you have the following installed:
    ```
 
 2. **Navigate to the app directory**
+
    ```bash
    cd app
    ```
@@ -52,6 +56,7 @@ npm start
 ```
 
 This will start the Meteor development server with:
+
 - Hot reloading enabled
 - Development settings loaded
 - MongoDB server
@@ -73,6 +78,7 @@ This will build, setup, and run the application in production mode with docker.
 The application scripts support several environment variables for customizing behavior:
 
 #### Input Timeout Configuration
+
 - **`READ_TIMEOUT`** - Sets the timeout for user input prompts (default: 10 seconds)
   ```bash
   export READ_TIMEOUT=30  # 30 second timeout
@@ -80,6 +86,7 @@ The application scripts support several environment variables for customizing be
   ```
 
 #### Non-Interactive Mode
+
 - **`CARPOOL_NONINTERACTIVE`** - Enables non-interactive mode for automated deployments
   ```bash
   export CARPOOL_NONINTERACTIVE=1
@@ -87,6 +94,7 @@ The application scripts support several environment variables for customizing be
   ```
 
 #### Default Behaviors
+
 - **Interactive mode (default)**: Scripts prompt for user input with configurable timeout
 - **Non-interactive mode**: Scripts automatically use default values or first valid choices
 - **Timeout handling**: Falls back to default values when input timeout is reached
@@ -98,6 +106,7 @@ The application scripts support several environment variables for customizing be
 This project maintains high code quality standards using ESLint.
 
 ### Checking and fixing lint errors:
+
 ```bash
 cd app
 npm run fixlint
@@ -108,12 +117,14 @@ npm run fixlint
 We welcome contributions to improve the Carpool application! Here's how you can contribute:
 
 ### Getting Started
+
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally
 3. **Create a feature branch**: `git checkout -b feature/your-feature-name`
 4. **Set up the development environment** following the installation steps above
 
 ### Development Guidelines
+
 1. **Follow the existing code style** and use the provided ESLint configuration
 2. **Write meaningful commit messages** describing your changes
 3. **Test your changes thoroughly** before submitting
@@ -121,6 +132,7 @@ We welcome contributions to improve the Carpool application! Here's how you can 
 5. **Keep commits focused** - one feature/fix per commit when possible
 
 ### Code Standards
+
 - **JavaScript/React**: Follow Airbnb ESLint configuration
 - **File Organization**: Place files in appropriate directories following the existing structure
 - **Component Structure**: Use functional components where possible, class components when state is needed
@@ -128,6 +140,7 @@ We welcome contributions to improve the Carpool application! Here's how you can 
 - **Comments**: Add JSDoc comments for complex functions and components
 
 ### Submitting Changes
+
 1. **Commit your changes**: `git commit -m "Add feature: description"`
 2. **Push to your fork**: `git push origin feature/your-feature-name`
 3. **Create a Pull Request** on GitHub with:
@@ -136,6 +149,7 @@ We welcome contributions to improve the Carpool application! Here's how you can 
    - Reference to any related issues
 
 ### Areas for Contribution
+
 - **New Features**: Additional ride sharing functionality
 - **UI/UX Improvements**: Enhanced user interface and experience (PLEASE)
 - **Documentation**: Improve or expand documentation
