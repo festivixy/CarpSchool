@@ -53,8 +53,8 @@ services:
       - ME_CONFIG_MONGODB_SERVER=mongo
       - ME_CONFIG_MONGODB_PORT=27017
       - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-      - ME_CONFIG_BASICAUTH_USERNAME=admin
-      - ME_CONFIG_BASICAUTH_PASSWORD=carpool
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_EXPRESS_USERNAME:-admin}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_EXPRESS_PASSWORD:-carpool}
     depends_on:
       mongo:
         condition: service_healthy
@@ -90,7 +90,7 @@ services:
     container_name: nominatim
     image: mediagis/nominatim:5.1
     environment:
-      - PBF_PATH=/nominatim/data/north-america/canada/british-columbia.osm.pbf
+      - PBF_PATH=/nominatim/data/north-america/canada/${REGION:-british-columbia}.osm.pbf
     volumes:
       - ./openmaptilesdata/data:/nominatim/data
       - ./pgdataNominatimInternal:/var/lib/postgresql/16/main
@@ -107,7 +107,7 @@ services:
   osrm:
     container_name: osrm
     image: ghcr.io/project-osrm/osrm-backend
-    command: osrm-routed --algorithm mld /data/british-columbia.osrm --port 8083
+    command: osrm-routed --algorithm mld /data/${REGION:-british-columbia}.osrm --port 8083
     volumes:
       - ./osrmdata/data:/data
     restart: unless-stopped
@@ -148,7 +148,16 @@ services:
       retries: 3
       start_period: 30s
 
-# to use the dev proxy, add these into your /etc/hosts file:
+# Environment Variables:
+# REGION - Sets the region name for data files (default: british-columbia)
+#          Should match your PBF and OSRM data filenames
+#          Example: REGION=alberta docker compose up
+#
+# MONGO_EXPRESS_USERNAME - Username for mongo-express (default: admin)
+# MONGO_EXPRESS_PASSWORD - Password for mongo-express (default: carpool)
+#                         CHANGE THIS IN PRODUCTION!
+#
+# To use the dev proxy, add these into your /etc/hosts file:
 # 127.0.0.1 nominatim
 # 127.0.0.1 tileserver-gl
 # 127.0.0.1 osrm
