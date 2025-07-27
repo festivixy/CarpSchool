@@ -5,7 +5,7 @@ This report analyzes the MongoDB usage in the Meteor carpool application for pot
 
 ## ⚠️ **CRITICAL VULNERABILITIES**
 
-### 🚨 **V001: Missing Server-Side Validation in User Updates**
+### 🚨 **V001: Missing Server-Side Validation in User Updates** {#v001}
 **File**: `imports/api/accounts/AccountsMethods.js:61-110`
 **Severity**: HIGH
 **Type**: Authorization & Data Validation
@@ -31,7 +31,7 @@ await Meteor.users.updateAsync(userId, {
 
 ---
 
-### 🚨 **V002: Race Condition in Share Code Generation**
+### 🚨 **V002: Race Condition in Share Code Generation** {#v002}
 **File**: `imports/api/ride/RideMethods.js:88-108` & `imports/api/chat/ChatMethods.js:72-76`
 **Severity**: MEDIUM
 **Type**: Race Condition
@@ -55,7 +55,7 @@ do {
 
 ---
 
-### 🚨 ~~**V003: Client-Side Data Exposure via Publications**~~ (Legacy)
+### 🚨 ~~**V003: Client-Side Data Exposure via Publications**~~ (Legacy) {#v003}
 **File**: ~~`imports/ui/legacy/pages/ListRides.jsx:98`~~, ~~`imports/ui/legacy/pages/AdminUsers.jsx:233`~~
 **Severity**: HIGH
 **Type**: Information Disclosure
@@ -77,7 +77,7 @@ return {
 
 ---
 
-### 🚨 **V007: XSS Vulnerability in CAPTCHA Display**
+### 🚨 **V007: XSS Vulnerability in CAPTCHA Display** {#v007}
 **File**: Multiple files using `dangerouslySetInnerHTML`
 **Severity**: HIGH
 **Type**: Cross-Site Scripting (XSS)
@@ -106,7 +106,7 @@ return {
 
 ---
 
-### 🚨 **V008: Insecure Publications Exposing All Data**
+### 🚨 **V008: Insecure Publications Exposing All Data** {#v008}
 **File**: `imports/api/ride/RidePublications.js:5-8`
 **Severity**: CRITICAL
 **Type**: Data Exposure & Authorization Bypass
@@ -130,7 +130,7 @@ Meteor.publish("Rides", function publish() {
 
 ---
 
-### 🚨 **V009: Race Condition in User Role Assignment**
+### 🚨 **V009: Race Condition in User Role Assignment** {#v009}
 **File**: `imports/startup/server/FirstRun.js:37-40`
 **Severity**: MEDIUM
 **Type**: Race Condition & Privilege Escalation
@@ -153,7 +153,7 @@ await Meteor.users.updateAsync(userID, {
 
 ## ⚠️ **MEDIUM SEVERITY VULNERABILITIES**
 
-### 🟡 **V004: Insufficient Input Sanitization**
+### 🟡 **V004: Insufficient Input Sanitization** {#v004}
 **File**: `imports/api/ride/RideMethods.js:131-139`
 **Severity**: MEDIUM
 **Type**: Input Validation
@@ -172,7 +172,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 
 ---
 
-### 🟡 ~~**V005: Direct Database Queries in Client Code**~~ (Legacy)
+### 🟡 ~~**V005: Direct Database Queries in Client Code**~~ (Legacy) {#v005}
 **File**: ~~`imports/ui/legacy/pages/EditProfile.jsx:30-58`~~
 **Severity**: MEDIUM
 **Type**: Security Architecture
@@ -193,7 +193,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 
 ---
 
-### 🟡 ~~**V006: Weak Authorization in Profile Updates**~~ (Legacy)
+### 🟡 ~~**V006: Weak Authorization in Profile Updates**~~ (Legacy) {#v006}
 **File**: ~~`imports/ui/legacy/pages/EditProfile.jsx:30-60`~~
 **Severity**: MEDIUM
 **Type**: Authorization
@@ -212,7 +212,7 @@ let normalizedCode = shareCode.toUpperCase().replace(/\s+/g, "");
 
 ---
 
-### 🟡 **V010: Timing Attack in CAPTCHA Validation**
+### 🟡 **V010: Timing Attack in CAPTCHA Validation** {#v010}
 **File**: `imports/api/accounts/AccountsHandlers.js:8-30`
 **Severity**: MEDIUM
 **Type**: Timing Attack
@@ -234,7 +234,7 @@ if (!captchaSolved) {
 
 ---
 
-### 🟡 **V011: Insecure Place Resolution in FirstRun**
+### 🟡 **V011: Insecure Place Resolution in FirstRun** {#v011}
 **File**: `imports/startup/server/FirstRun.js:152-178`
 **Severity**: MEDIUM
 **Type**: Logic Flaw
@@ -258,7 +258,7 @@ if (!originPlace) {
 
 ---
 
-### 🟡 **V012: Unsafe JSON Processing in Web Worker**
+### 🟡 **V012: Unsafe JSON Processing in Web Worker** {#v012}
 **File**: `imports/ui/mobile/utils/AsyncTileLoader.js:30-35`
 **Severity**: LOW
 **Type**: Code Injection
@@ -281,7 +281,7 @@ const workerScript = `
 
 ---
 
-### 🚨 **V013: Missing File Type Validation in Image Upload**
+### 🚨 **V013: Missing File Type Validation in Image Upload** {#v013}
 **File**: `imports/api/images/ImageMethods.js:95-103`
 **Severity**: HIGH
 **Type**: File Upload Security
@@ -306,7 +306,7 @@ if (!allowedTypes.includes(imageData.mimeType)) {
 
 ---
 
-### 🚨 **V014: Direct Image Data Exposure via Server Routes**
+### 🚨 **V014: Direct Image Data Exposure via Server Routes** {#v014}
 **File**: `imports/startup/server/ServerRoutes.js:5-45`
 **Severity**: HIGH
 **Type**: Information Disclosure & Access Control
@@ -331,7 +331,7 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
 
 ---
 
-### 🟡 **V015: Captcha Brute Force Vulnerability**
+### 🟡 **V015: Captcha Brute Force Vulnerability** {#v015}
 **File**: `imports/api/captcha/CaptchaMethods.js:31-54`
 **Severity**: MEDIUM
 **Type**: Rate Limiting & Brute Force
@@ -355,7 +355,7 @@ async "captcha.verify"(sessionId, userInput) {
 
 ---
 
-### 🚨 **V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints**
+### 🚨 **V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints** {#v016}
 **File**: `imports/startup/server/ServerRoutes.js:70-180`
 **Severity**: HIGH
 **Type**: Server-Side Request Forgery
@@ -381,7 +381,7 @@ const options = {
 
 ---
 
-### 🟡 **V017: Weak CAPTCHA Session Management**
+### 🟡 **V017: Weak CAPTCHA Session Management** {#v017}
 **File**: `imports/api/captcha/Captcha.js:18-32`
 **Severity**: MEDIUM
 **Type**: Session Management
@@ -407,7 +407,7 @@ async function useCaptcha(sessionId) {
 
 ---
 
-### 🟡 **V018: Missing Input Sanitization in Chat Messages**
+### 🟡 **V018: Missing Input Sanitization in Chat Messages** {#v018}
 **File**: `imports/api/chat/ChatMethods.js:289-330`
 **Severity**: MEDIUM
 **Type**: Cross-Site Scripting (XSS)
@@ -434,7 +434,7 @@ async "chats.sendMessage"(chatId, content) {
 
 ---
 
-### 🚨 **V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)
+### 🚨 **V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008) {#v019}
 **File**: `imports/api/ride/RidePublications.js:5-8`
 **Severity**: CRITICAL
 **Type**: Authorization Bypass & Information Disclosure
@@ -459,7 +459,7 @@ Meteor.publish("Rides", function publish() {
 
 ---
 
-### 🟡 **V020: Email-Based User Discovery in Chat Publications**
+### 🟡 **V020: Email-Based User Discovery in Chat Publications** {#v020}
 **File**: `imports/api/chat/ChatPublications.js:21-44`
 **Severity**: MEDIUM
 **Type**: Information Disclosure
@@ -490,7 +490,7 @@ Meteor.publish("chats.withEmail", async function(searchEmail) {
 
 ---
 
-### 🟡 **V021: Performance Issues in Places Publications**
+### 🟡 **V021: Performance Issues in Places Publications** {#v021}
 **File**: `imports/api/places/PlacesPublications.js:8-35 & 81-114`
 **Severity**: MEDIUM
 **Type**: Performance & DoS
@@ -669,25 +669,25 @@ userRides.forEach((ride) => {
 
 | Vulnerability | Severity | Likelihood | Impact | Priority |
 |--------------|----------|------------|---------|----------|
-| V001: User Update Validation | HIGH | Medium | High | **CRITICAL** |
-| V002: Share Code Race Condition | MEDIUM | Low | Medium | **HIGH** |
-| ~~V003: Data Exposure (Client Publications)~~ (Legacy) | HIGH | High | Medium | **CRITICAL** |
-| V004: Input Sanitization | MEDIUM | Medium | Low | **MEDIUM** |
-| ~~V005: Client DB Operations~~ (Legacy) | MEDIUM | High | Medium | **HIGH** |
-| ~~V006: Profile Authorization~~ (Legacy) | MEDIUM | Medium | Medium | **MEDIUM** |
-| V007: XSS in CAPTCHA Display | **HIGH** | Medium | High | **CRITICAL** |
-| V008: Rides Publication Exposure | **CRITICAL** | High | High | **CRITICAL** |
-| V009: Role Assignment Race Condition | MEDIUM | Low | High | **HIGH** |
-| V010: CAPTCHA Timing Attack | MEDIUM | Low | Low | **LOW** |
-| V011: Insecure Place Resolution | MEDIUM | Medium | Medium | **MEDIUM** |
-| V012: Web Worker JSON Processing | LOW | Low | Low | **LOW** |
-| V013: Missing File Type Validation | **HIGH** | High | High | **CRITICAL** |
-| V014: Direct Image Data Exposure | **HIGH** | High | Medium | **CRITICAL** |
-| V015: Captcha Brute Force | MEDIUM | Medium | Medium | **MEDIUM** |
-| V016: SSRF in Proxy Endpoints | **HIGH** | Low | High | **HIGH** |
-| V017: Weak CAPTCHA Session Management | MEDIUM | Medium | Medium | **MEDIUM** |
-| V018: Missing Chat Input Sanitization | MEDIUM | High | Medium | **HIGH** |
-| V020: Email-Based User Discovery | MEDIUM | Medium | Low | **MEDIUM** |
-| V021: Performance Issues in Publications | MEDIUM | Medium | Medium | **MEDIUM** |
+| [V001: User Update Validation](#v001) | HIGH | Medium | High | **CRITICAL** |
+| [V002: Share Code Race Condition](#v002) | MEDIUM | Low | Medium | **HIGH** |
+| [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH | High | Medium | **CRITICAL** |
+| [V004: Input Sanitization](#v004) | MEDIUM | Medium | Low | **MEDIUM** |
+| [~~V005: Client DB Operations~~ (Legacy)](#v005) | MEDIUM | High | Medium | **HIGH** |
+| [~~V006: Profile Authorization~~ (Legacy)](#v006) | MEDIUM | Medium | Medium | **MEDIUM** |
+| [V007: XSS in CAPTCHA Display](#v007) | **HIGH** | Medium | High | **CRITICAL** |
+| [V008: Rides Publication Exposure](#v008) | **CRITICAL** | High | High | **CRITICAL** |
+| [V009: Role Assignment Race Condition](#v009) | MEDIUM | Low | High | **HIGH** |
+| [V010: CAPTCHA Timing Attack](#v010) | MEDIUM | Low | Low | **LOW** |
+| [V011: Insecure Place Resolution](#v011) | MEDIUM | Medium | Medium | **MEDIUM** |
+| [V012: Web Worker JSON Processing](#v012) | LOW | Low | Low | **LOW** |
+| [V013: Missing File Type Validation](#v013) | **HIGH** | High | High | **CRITICAL** |
+| [V014: Direct Image Data Exposure](#v014) | **HIGH** | High | Medium | **CRITICAL** |
+| [V015: Captcha Brute Force](#v015) | MEDIUM | Medium | Medium | **MEDIUM** |
+| [V016: SSRF in Proxy Endpoints](#v016) | **HIGH** | Low | High | **HIGH** |
+| [V017: Weak CAPTCHA Session Management](#v017) | MEDIUM | Medium | Medium | **MEDIUM** |
+| [V018: Missing Chat Input Sanitization](#v018) | MEDIUM | High | Medium | **HIGH** |
+| [V020: Email-Based User Discovery](#v020) | MEDIUM | Medium | Low | **MEDIUM** |
+| [V021: Performance Issues in Publications](#v021) | MEDIUM | Medium | Medium | **MEDIUM** |
 
 **Overall Risk Level**: **CRITICAL** - Multiple high-severity vulnerabilities require immediate remediation.
