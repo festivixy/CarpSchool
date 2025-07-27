@@ -105,7 +105,7 @@ const InteractiveMapPicker = ({
     markerRef.current = marker;
 
     // Cleanup function
-    return () => {
+    return () => { // eslint-disable-line consistent-return
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;

@@ -83,6 +83,8 @@ function LiquidGlassDropdown({
         document.removeEventListener("touchstart", handleClickOutside);
       };
     }
+
+    return undefined; // No cleanup needed when not open
   }, [isOpen]);
 
   // Handle keyboard navigation
@@ -118,6 +120,8 @@ function LiquidGlassDropdown({
       document.addEventListener("keydown", handleKeyDown);
       return () => document.removeEventListener("keydown", handleKeyDown);
     }
+
+    return undefined; // No cleanup needed when not open
   }, [isOpen, focusedIndex, filteredOptions]);
 
   // Focus search input when opened

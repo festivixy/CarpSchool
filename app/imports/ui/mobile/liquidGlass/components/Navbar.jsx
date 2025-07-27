@@ -60,6 +60,8 @@ function LiquidGlassNavbar({
       document.addEventListener("click", handleClickOutside);
       return () => document.removeEventListener("click", handleClickOutside);
     }
+
+    return undefined; // No cleanup needed when menu is closed
   }, [isMobileMenuOpen, activeDropdown]);
 
   const toggleMobileMenu = (e) => {

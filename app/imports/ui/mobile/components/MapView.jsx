@@ -84,6 +84,8 @@ export default function MapView({ coordinates, tileServerUrl }) {
         }
       };
     }
+
+    return undefined; // No cleanup needed if mapRef.current is null
   }, [coordinates, tileServerUrl]);
 
   return (
