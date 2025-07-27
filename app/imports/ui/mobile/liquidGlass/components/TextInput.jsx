@@ -65,30 +65,30 @@ function LiquidGlassTextInput({
 
   const handleFocus = (e) => {
     setIsFocused(true);
-    onFocus?.(e);
+    onFocus?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const handleBlur = (e) => {
     setIsFocused(false);
-    onBlur?.(e);
+    onBlur?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const handleChange = (e) => {
     const newValue = e.target.value;
     setHasValue(!!newValue);
-    onChange?.(e);
+    onChange?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const handleKeyDown = (e) => {
-    onKeyDown?.(e);
+    onKeyDown?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const handleKeyPress = (e) => {
-    onKeyPress?.(e);
+    onKeyPress?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const handleKeyUp = (e) => {
-    onKeyUp?.(e);
+    onKeyUp?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const characterCount = value?.length || 0;

@@ -36,27 +36,27 @@ function LiquidGlassIconButton({
 }) {
   const handleClick = (e) => {
     if (disabled || loading) return;
-    onClick?.(e);
+    onClick?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const handleMouseDown = (e) => {
     if (disabled || loading) return;
-    onMouseDown?.(e);
+    onMouseDown?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const handleMouseUp = (e) => {
     if (disabled || loading) return;
-    onMouseUp?.(e);
+    onMouseUp?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const handleTouchStart = (e) => {
     if (disabled || loading) return;
-    onTouchStart?.(e);
+    onTouchStart?.(e); // eslint-disable-line no-unused-expressions
   };
 
   const handleTouchEnd = (e) => {
     if (disabled || loading) return;
-    onTouchEnd?.(e);
+    onTouchEnd?.(e); // eslint-disable-line no-unused-expressions
   };
 
   return (

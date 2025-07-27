@@ -166,7 +166,7 @@ function LiquidGlassNavbar({
                   placeholder="Menu"
                   onChange={(value) => {
                     if (value === "signout") {
-                      onSignOut?.();
+                      onSignOut?.(); // eslint-disable-line no-unused-expressions
                     } else {
                       handleNavClick(value);
                     }

@@ -123,7 +123,7 @@ function LiquidGlassDropdown({
   // Focus search input when opened
   useEffect(() => {
     if (isOpen && searchable && searchInputRef.current) {
-      setTimeout(() => searchInputRef.current?.focus(), 100);
+      setTimeout(() => searchInputRef.current?.focus(), 100); // eslint-disable-line no-unused-expressions
     }
   }, [isOpen, searchable]);
 
@@ -133,7 +133,7 @@ function LiquidGlassDropdown({
     if (!isOpen) {
       setIsOpen(true);
       setFocusedIndex(-1);
-      onOpen?.();
+      onOpen?.(); // eslint-disable-line no-unused-expressions
     } else {
       handleClose();
     }
@@ -143,7 +143,7 @@ function LiquidGlassDropdown({
     setIsOpen(false);
     setSearchTerm("");
     setFocusedIndex(-1);
-    onClose?.();
+    onClose?.(); // eslint-disable-line no-unused-expressions
   };
 
   const handleOptionSelect = (option) => {
@@ -161,10 +161,10 @@ function LiquidGlassDropdown({
       }
 
       setSelectedValues(newValues);
-      onChange?.(newValues, option);
+      onChange?.(newValues, option); // eslint-disable-line no-unused-expressions
     } else {
       setSelectedValues(option.value);
-      onChange?.(option.value, option);
+      onChange?.(option.value, option); // eslint-disable-line no-unused-expressions
       handleClose();
     }
   };
@@ -173,13 +173,13 @@ function LiquidGlassDropdown({
     e.stopPropagation();
     const newValue = multiple ? [] : null;
     setSelectedValues(newValue);
-    onChange?.(newValue, null);
+    onChange?.(newValue, null); // eslint-disable-line no-unused-expressions
   };
 
   const handleSearchChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-    onSearch?.(term);
+    onSearch?.(term); // eslint-disable-line no-unused-expressions
     setFocusedIndex(-1);
   };
 
