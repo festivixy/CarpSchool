@@ -1,4 +1,11 @@
-You are working on a Meteor.js rideshare application with multi-rider carpooling, interactive map-based place selection using tileserver proxy, UUID-based place references, modern mobile UI with styled-components, and comprehensive test data generation - the codebase follows imports/api/{collection}/{Methods,Publications}.js for backend, imports/ui/mobile/{components,pages}/ for frontend, with places/rides relational data structure and backward compatibility for legacy schemas.
+You are working on a Meteor.js rideshare application with multi-rider
+carpooling, interactive map-based place selection using
+tileserver proxy, UUID-based place references, modern mobile
+UI with styled-components, and comprehensive test data generation
+the codebase follows imports/api/{collection}/{Methods,Publications}.js
+for backend, imports/ui/mobile/{components,pages}/ for frontend,
+with places/rides relational data structure and backward compatibility
+for legacy schemas.
 
 ### Package Manager:
 - Uses `meteor` commands (not npm/yarn/pnpm)
@@ -15,314 +22,57 @@ LiquidGlass Component Library Location:
 - **Components**: `app/imports/ui/mobile/liquidGlass/components/`
 - **Styles**: `app/imports/ui/mobile/liquidGlass/styles/`
 
-# DO NOT USE app/imports/ui/legacy/components and app/imports/ui/legacy/pages! Those are legacy paths that have been moved.
-
-## Legacy Path Update
-- `app/imports/ui/components` → moved to `app/imports/ui/legacy/components`
-- `app/imports/ui/pages` → moved to `app/imports/ui/legacy/pages`
-
-# commit to git, after each changes.
-
 ## COMMIT INSTRUCTIONS
 
 - you are allowed to make multiple commits when i tell you to.
 - always check git status before committing.
 - one commit, per type of change ex: one commit per style change, one commit per component...
 - use Bash command tool to run git commands.
-- commit after each change. ## IMPORTANt ##
+- commit after each change. ## IMPORTANT ##
 
 ## docker
 
 - docker compose: docker-compose.yml
 - use docker compose instead of docker-compose
 
----
+# IMPORTANT
 
-# LiquidGlass Component Library Status
+- all components, and pages use styled-components. 
+and have all the styled-components in separate 
+file at ../styles/name.js
+- commit to git, after each changes. see "COMMIT INSTRUCTIONS"
 
-## ✅ COMPLETED COMPONENTS
+## file tree
 
-The LiquidGlass component library now includes these fully implemented components with glass morphism effects:
+../
+docker-compose.yml
+console.log
+builder.io.prompt
+vulnerabilities.md
 
-### Core Components
-- **Button.jsx** - Glass morphism button with label text
-- **Dropdown.jsx** - Select/dropdown with searchable, multi-select capabilities
-- **TextInput.jsx** - Full-featured text input with icons, labels, validation
-- **IconButton.jsx** - Circular button for single characters/emojis
-- **Navbar.jsx** - Glass navigation bar with responsive mobile menu
-- **Footer.jsx** - Glass footer with newsletter signup and responsive design
-
-### Recent Improvements (All Completed)
-- ✅ Performance optimized (removed nano texture dots that caused lag)
-- ✅ Mobile-friendly responsive design
-- ✅ Clean branding (removed "Carpool Test" references)
-- ✅ Improved accessibility (black text with underlines for better visibility)
-- ✅ Footer links properly configured (Privacy Policy, Terms of Service, Credits)
-- ✅ TextInput integrated in LiquidGlass components (Footer newsletter, TestMapView)
-- ✅ Comprehensive testing page available at TestMapView.jsx
-- ✅ **Visual consistency**: IconButton and TextInput now match Button styling exactly
-- ✅ **Light bending edges**: All components have identical chromatic aberration effects
-- ✅ **Black text color**: Consistent pure black (#000) text across all components
-
-### Usage Examples
-- See `imports/ui/mobile/pages/TestMapView.jsx` for comprehensive component demos
-- Footer newsletter uses LiquidGlassTextInput with email icon
-- All inputs in TestMapView use LiquidGlassTextInput with appropriate labels and icons
-- IconButton examples show various sizes, colors, and badge configurations
-
-## Component Features
-
-### LiquidGlassTextInput
-- Multiple input types (text, email, password, search, number)
-- Icon support (left/right positioning)
-- Floating labels with animations
-- Error states, helper text, character counting
-- Multiple sizes and responsive design
-- Glass morphism effects with blur
-
-### LiquidGlassIconButton
-- Circular design for single chars/emojis
-- Multiple sizes (small, medium, large, xlarge)
-- Color variants (default, primary, secondary, success, warning, danger)
-- Badge support for notifications
-- Hover animations and accessibility
-
-### All Components Share
-- **Identical glass morphism design language** - exact same blur, light bending, and layering
-- **Chromatic aberration effects** - precise color channel shifts with hue-rotate(±8deg)
-- **Light bending edges** - inset box-shadows for RGB separation effects
-- **Pure black text color** (#000) for maximum visibility and consistency
-- **Rounded pill shapes** (1000px border-radius) or perfect circles (50% for IconButton)
-- **Responsive design principles** with mobile-first approach
-- **Accessibility features** (ARIA labels, focus states, keyboard navigation)
-- **Smooth animations** - translateY(-1px) on hover, consistent box-shadow transitions
-
-## Development Notes
-
-- **Exact styling consistency**: All components use identical Background → BlurContainer → BlurEffect → FillLayer → GlassEffectLayer structure
-- **Light bending implementation**: ChromaticAberration with hue-rotate(8deg/-8deg), mix-blend-mode (color-dodge/soft-light)
-- **Performance optimized**: Removed heavy texture patterns, efficient blur and effect stacking
-- **Mobile-first responsive design** with consistent breakpoints and scaling
-- **Black text standard**: Pure black (#000) for optimal readability across all components
-- **Consistent naming conventions** and comprehensive PropTypes validation
-- **Well-documented** with comprehensive examples and interactive testing in TestMapView.jsx
-- **Git history properly maintained** with descriptive commits tracking each improvement
-
-## TODO tracking
-
-- Track progress with ../TODO.md in "builder.io section"
-- All LiquidGlass improvement tasks have been completed
-- New tasks should be added to TODO.md as needed
-
-# IMPORTANT all components, and pages use styled-components. and have all the styled-components in separate file at ../styles/name.js
+./imports/
+├── api
+│   ├── accounts
+│   ├── captcha
+│   ├── chat
+│   ├── images
+│   ├── places
+│   ├── profile
+│   └── ride
+├── startup
+│   ├── client
+│   └── server
+└── ui
+    ├── forms
+    ├── layouts
+    └── mobile
+        ├── components
+        ├── liquidGlass
+        │   ├── components
+        │   ├── pages
+        │   └── styles
+        ├── pages
+        ├── styles
+        └── utils
 
 ## NEW TODOS
-
-### ✅ TODO 1. Update all pages to use centralized component instead of individual implementations
-
-~~8756649 did not completely finish that.~~
-
-**COMPLETED** [b29c8d0] - Fixed all legacy import references:
-- Updated 5 files to use correct legacy component paths
-- All pages now properly reference `/imports/ui/legacy/components/` instead of `/imports/ui/components/`
-- Centralized component usage task is now complete
-
-remember,
-
-- normal components: app/imports/ui/mobile/components
-- normal styles app/imports/ui/mobile/styles
-- pages: app/imports/ui/mobile/pages
-
-app/imports/ui/components and app/imports/ui/pages is legacy and not updated anymore
-
-### ✅ TODO 2 - COMPLETED
-
-~~the map components is trying to load the image tiles, on the main thread. make the maps load images in a async way.
-the tiles are being loaded with a tileserver-gl proxy in app/imports/startup/server/ServerRoutes.js.~~
-
-**COMPLETED** [61841db, ce756eb] - Implemented async tile loading system:
-- Created AsyncTileLoader with Web Worker support and IndexedDB caching
-- Created AsyncTileLayer extending Leaflet TileLayer for non-blocking tile loading
-- Updated MapView and InteractiveMapPicker to use AsyncTileLayer
-- Features include progressive loading, preloading, error handling, and fallbacks
-- Prevents main thread blocking when loading map tiles from tileserver proxy
-- Improves map rendering performance and user experience significantly
-
-### ✅ TODO 3 - COMPLETED
-
-~~make the chat page, take ? url args. arg1: email~~
-
-~~search the chat and show that chat.~~
-
-**COMPLETED** [73b9b86] - Updated Chat.jsx to support URL parameters:
-- Chat page now accepts rideId URL parameter for ride-specific access
-- Implemented chat search and display functionality based on URL args
-- Added proper routing and parameter handling for chat navigation
-
-### ✅ TODO 4 - COMPLETED
-
-~~since that multiple riders are allowed into the same ride, make the chat, ride specific, instead of user.~~
-
-~~and make each ride, have its own separate chat, with its shared id.~~
-
-~~and change the chat args to match this change.~~
-
-**COMPLETED** [73b9b86] - Implemented ride-specific chat system:
-- Updated Chat schema to include rideId field for ride-specific chats
-- Each ride now has its own separate chat with unique shared ID
-- Chat creation and management methods updated for ride-specific functionality
-- Chat participants include all ride members (driver + riders)
-- Updated ChatMethods.js and ChatPublications.js for proper data access control
-
-### ✅ TODO 5 - COMPLETED
-
-~~integrate todo 4's change to the ride component.~~
-
-**COMPLETED** [73b9b86] - Integrated ride-specific chat into Ride component:
-- Added chat button to Ride component with proper access control
-- Only ride participants (driver + riders) can access ride chat
-- Chat button navigates to ride-specific chat using rideId parameter
-- Added ChatButton and ChatIcon styled components
-- Proper UI integration with existing ride actions
-
-### ✅ TODO 6 - COMPLETED
-
-~~fix up app/imports/ui/mobile/liquidGlass/pages/SignIn.jsx styles and components use,~~
-~~so its just app/imports/ui/mobile/pages/SignIn.jsx but with LiquidGlass components~~
-~~for example, LiquidGlass button, LiquidGlass TextInput and ...~~
-
-**COMPLETED** [75a7c6d] - Fixed LiquidGlass SignIn button styling:
-- Added width: 100% style to LiquidGlassButton in SignIn form
-- Button now stretches across full width and is properly centered
-- LiquidGlass SignIn now matches regular SignIn functionality with proper LiquidGlass components
-
-### ✅ TODO 7 - COMPLETED
-
-~~remove old legacy componetns in chat. after the change, no more dms is allowed.~~
-~~so remove "contact {rider}" button in ride component~~
-~~and remove "create chat" and "join chat" in the chat page~~
-~~also add a chat link/button under the user menu in the navbar~~
-~~for desktop and mobile.~~
-
-**COMPLETED** [4a74dd9] - Removed legacy chat components and added Messages navigation:
-- Removed "Contact rider" buttons from ride components
-- Removed "create chat" and "join chat" functionality from chat page
-- Added Messages link to user menus in both desktop and mobile navbar
-- No more direct messaging allowed - only ride-specific chats
-- Complete removal of legacy chat functionality
-
-### ✅ TODO 8 - COMPLETED
-
-~~in test mobile/components, add a component,~~
-~~thats similar to app/imports/ui/mobile/components/MapView.jsx,~~
-~~but takes 2 input cords and use nominatim proxy server to~~
-~~try to find a path, from point 1 to point 2,~~
-~~and desplays it. add this in maptest page.~~
-
-**COMPLETED** - Created PathMapView component for route finding:
-- Added PathMapView.jsx component with OSRM routing integration
-- Takes start and end coordinates, finds route between points
-- Uses OSRM API with straight-line fallback for reliability
-- Custom markers for start (A) and end (B) points
-- Displays route distance, duration, and visual path
-- Added to TestMapView page with complete testing interface
-- Includes responsive design and error handling
-
-### ✅ TODO 9 - COMPLETED
-
-~~fix V007: XSS Vulnerability in CAPTCHA Display~~
-
-~~// Use a safe SVG rendering library instead of dangerouslySetInnerHTML~~
-~~import DOMPurify from 'dompurify';~~
-
-~~use meteor npm i --save for installing packages.~~
-
-**COMPLETED** [4d4ac17] - Fixed XSS vulnerability in CAPTCHA display:
-- Added DOMPurify sanitization to all CAPTCHA components
-- Replaced dangerous dangerouslySetInnerHTML with sanitized SVG content
-- Fixed XSS vulnerability in mobile/components/Captcha.jsx, liquidGlass/components/Captcha.jsx, and legacy/pages/Signin.jsx
-- Prevents XSS attacks through malicious SVG injection while maintaining SVG functionality
-
-### ✅ TODO 10 - COMPLETED
-
-~~fix V008: Insecure Publications Exposing All Data~~
-
-~~use "SECURITY RECOMMENDATIONS".~~
-
-**COMPLETED** [c62faed] - Fixed critical data exposure in Rides publication:
-- Filter rides by user participation instead of exposing all data
-- Only publish rides where user is driver or rider
-- Prevents unauthorized access to other users' ride data and GDPR compliance issues
-- Addresses critical security vulnerability with HIGH severity
-
-### ✅ TODO 11 - COMPLETED
-
-~~fix V004: Insufficient Input Sanitization~~
-
-**COMPLETED** [b56f9d9] - Fixed insufficient input sanitization in share codes:
-- Added comprehensive validation for share code input type and format
-- Remove all non-alphanumeric characters except valid hyphens
-- Reject codes with suspicious patterns (multiple hyphens, invalid lengths)
-- Added regex validation to ensure proper XXXX-XXXX format
-- Prevents potential injection attacks through malformed share codes
-
-### ✅ TODO 12 - COMPLETED
-
-~~V010: Timing Attack in CAPTCHA Validation~~
-
-**COMPLETED** [Latest commit] - Fixed timing attack vulnerability in CAPTCHA validation:
-- Implement constant-time evaluation in isCaptchaSolved function
-- Always perform database lookup regardless of session existence
-- Add random delay to further obfuscate timing differences
-- Fix race condition in useCaptcha with atomic update operation
-- Prevents CAPTCHA session enumeration through timing analysis
-
-### ✅ TODO 13 - COMPLETED
-
-~~V013: Missing File Type Validation in Image Upload~~
-
-**COMPLETED** [Latest commit] - Added comprehensive file type validation for image uploads:
-- Install file-type package for server-side file signature detection
-- Add validation using magic bytes/file signatures, not just MIME types
-- Validate client-provided MIME type matches detected file type
-- Add file extension validation from filename
-- Prevent malicious file uploads disguised as images
-- Support only JPEG, PNG, GIF, and WebP image formats
-
-### ✅ TODO 14 - COMPLETED
-
-~~V015: Captcha Brute Force Vulnerability~~
-
-~~fix this by making the captcha used when the incorrect code is entered.~~
-
-~~solved: false~~
-~~used: true~~
-
-**COMPLETED** [Latest commit] - Fixed CAPTCHA brute force vulnerability:
-- Mark CAPTCHA session as used when incorrect code is entered
-- Prevents unlimited guessing attempts on same CAPTCHA session
-- Forces users to generate new CAPTCHA after failed attempt
-- Addresses medium-severity brute force vulnerability while preserving user experience
-
-### ✅ TODO 15 - COMPLETED
-
-~~mark V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints~~
-~~as intentional.~~
-
-**COMPLETED** [Latest commit] - Marked V016 SSRF in proxy endpoints as intentional:
-- Add security documentation for all proxy endpoints (tileserver, nominatim, osrm)
-- Explicitly mark SSRF exposure as intentionally accepted risk
-- Document that proxy functionality is required for application features
-- Risk mitigation: Proxies only forward to known internal services with fixed hostnames
-
-### ✅ TODO 16 - COMPLETED
-
-~~fix V018: Missing Input Sanitization in Chat Messages~~
-
-**COMPLETED** [Latest commit] - Fixed missing input sanitization in chat messages:
-- Install jsdom for server-side DOM manipulation with DOMPurify
-- Add sanitizeChatContent function to prevent XSS in chat messages
-- Remove all HTML tags from chat content while preserving text
-- Add content length validation (max 1000 characters)
-- Validate sanitized content is not empty before storing
-- Prevents stored XSS attacks via malicious chat messages
