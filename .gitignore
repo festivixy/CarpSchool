@@ -19,3 +19,4 @@ Trace-*.json
 profiling-data.*.json
 osrmdata/
 builderkeyrefresh/
+app/builder.config.json
