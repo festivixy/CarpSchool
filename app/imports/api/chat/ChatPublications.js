@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
+import { check, Match } from "meteor/check";
 import { Chats } from "./Chat";
 import { Rides } from "../ride/Rides";
 
@@ -20,7 +20,7 @@ Meteor.publish("chats", async function publishChats() {
 
 /** Publish chats with email search functionality */
 Meteor.publish("chats.withEmail", async function publishChatsWithEmail(searchEmail) {
-  check(searchEmail, String);
+  check(searchEmail, Match.Maybe(String));
 
   if (!this.userId) {
     return this.ready();
@@ -29,8 +29,7 @@ Meteor.publish("chats.withEmail", async function publishChatsWithEmail(searchEma
   // Rate limit email fetches to 500ms (every 0.5 seconds)
   const canProceed = await Meteor.callAsync("rateLimit.checkCall", "chats.withEmail", 500);
   if (!canProceed) {
-    console.log(`Rate limit exceeded for chats.withEmail by user ${this.userId}`);
-    return this.ready();
+    throw new Meteor.Error('rate-limited', 'Too many requests. Please wait before trying again.');
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
