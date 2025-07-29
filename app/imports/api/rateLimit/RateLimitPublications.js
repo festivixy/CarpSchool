@@ -266,8 +266,6 @@ async function loadPublicationCacheFromMongoDB() {
       publicationRateCache.set(key, record.lastCalled.getTime());
     }
 
-    console.log(`Loaded ${recentRecords.length} publication rate limit records from MongoDB`);
-
   } catch (error) {
     console.error("Error loading publication cache from MongoDB:", error);
   }
