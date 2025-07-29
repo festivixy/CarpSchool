@@ -15,12 +15,6 @@ import {
   InputSection,
   Field,
   Input,
-  CaptchaSection,
-  CaptchaLabel,
-  CaptchaContainer,
-  CaptchaLoading,
-  CaptchaDisplay,
-  CaptchaRefreshIcon,
   SubmitButton,
   ErrorMessage,
   Divider,
@@ -31,6 +25,7 @@ import {
   Legal,
   LegalLink,
 } from "../styles/SignIn";
+import Captcha from "../components/Captcha";
 
 /**
  * Mobile SignIn component with modern design and full functionality including CAPTCHA
@@ -42,17 +37,10 @@ export default class MobileSignIn extends React.Component {
     this.state = {
       email: "",
       password: "",
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
       error: "",
       redirectToReferer: false,
-      isLoadingCaptcha: false,
     };
-  }
-
-  componentDidMount() {
-    this.generateNewCaptcha();
+    this.captchaRef = React.createRef();
   }
 
   /** Update the form controls each time the user interacts with them. */
@@ -61,46 +49,7 @@ export default class MobileSignIn extends React.Component {
     this.setState({ [name]: value });
   };
 
-  /** Generate a new CAPTCHA */
-  generateNewCaptcha = () => {
-    this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
-        });
-      } else {
-        this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
-          error: "",
-        });
-      }
-    });
-  };
 
-  /** Generate a new CAPTCHA without clearing existing error messages */
-  generateNewCaptchaKeepError = () => {
-    this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
-        });
-      } else {
-        this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
-        });
-      }
-    });
-  };
 
   /** Handle form submission */
   handleSubmit = (e) => {
@@ -110,49 +59,43 @@ export default class MobileSignIn extends React.Component {
 
   /** Handle Signin submission using Meteor's account mechanism. */
   submit = () => {
-    const { email, password, captchaInput, captchaSessionId } = this.state;
+    const { email, password } = this.state;
 
-    // First verify CAPTCHA
-    Meteor.call(
-      "captcha.verify",
-      captchaSessionId,
-      captchaInput,
-      (captchaError, isValidCaptcha) => {
-        if (captchaError || !isValidCaptcha) {
-          this.setState({ error: "Invalid security code. Please try again." });
-          this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep any existing errors
-          return;
-        }
-        const methodArguments = Accounts._hashPassword(password);
-        methodArguments.captchaSessionId = this.state.captchaSessionId;
-        methodArguments.proofOfWorkResult = "";
-        Accounts.callLoginMethod({
-          methodArguments: [
-            {
-              user: { email: email },
-              password: methodArguments,
-            },
-          ],
-          userCallback: (error, _result) => {
-            if (error) {
-              this.setState({ error: error.reason });
-              this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message
-            } else {
-              this.setState({ error: "", redirectToReferer: true });
-            }
-          },
+    if (!this.captchaRef.current) {
+      this.setState({ error: "Captcha component not available." });
+      return;
+    }
+
+    // First verify CAPTCHA using centralized component
+    this.captchaRef.current.verify((captchaError, isValid) => {
+      if (captchaError || !isValid) {
+        this.setState({
+          error: captchaError || "Invalid security code. Please try again."
         });
-        // CAPTCHA is valid, proceed with login
-        // Meteor.loginWithPassword(email, password, (err) => {
-        //   if (err) {
-        //     this.setState({ error: err.reason });
-        //     this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message
-        //   } else {
-        //     this.setState({ error: "", redirectToReferer: true });
-        //   }
-        // });
-      },
-    );
+        return;
+      }
+
+      const captchaData = this.captchaRef.current.getCaptchaData();
+      const methodArguments = Accounts._hashPassword(password);
+      methodArguments.captchaSessionId = captchaData.sessionId;
+      methodArguments.proofOfWorkResult = "";
+
+      Accounts.callLoginMethod({
+        methodArguments: [
+          {
+            user: { email: email },
+            password: methodArguments,
+          },
+        ],
+        userCallback: (error, _result) => {
+          if (error) {
+            this.setState({ error: error.reason });
+          } else {
+            this.setState({ error: "", redirectToReferer: true });
+          }
+        },
+      });
+    });
   };
 
   /** Render the signin form. */
@@ -199,38 +142,8 @@ export default class MobileSignIn extends React.Component {
               </Field>
 
               {/* CAPTCHA Section */}
-              <CaptchaSection>
-                <CaptchaLabel>Security Verification</CaptchaLabel>
-                <CaptchaContainer>
-                  {this.state.isLoadingCaptcha ? (
-                    <CaptchaLoading>Loading CAPTCHA...</CaptchaLoading>
-                  ) : (
-                    <CaptchaDisplay
-                      dangerouslySetInnerHTML={{
-                        __html: this.state.captchaSvg,
-                      }}
-                    />
-                  )}
-                  <CaptchaRefreshIcon
-                    type="button"
-                    onClick={this.generateNewCaptcha}
-                    disabled={this.state.isLoadingCaptcha}
-                    title="Refresh CAPTCHA"
-                  >
-                    <img src="/svg/refresh.svg" alt="Refresh" />
-                  </CaptchaRefreshIcon>
-                </CaptchaContainer>
-              </CaptchaSection>
-
               <Field>
-                <Input
-                  type="text"
-                  name="captchaInput"
-                  placeholder="Enter the characters shown above"
-                  value={this.state.captchaInput}
-                  onChange={this.handleChange}
-                  required
-                />
+                <Captcha ref={this.captchaRef} autoGenerate={true} />
               </Field>
 
               <SubmitButton type="submit">Sign In</SubmitButton>

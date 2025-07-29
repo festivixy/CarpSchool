@@ -26,10 +26,6 @@ import {
   FileInfo,
   ImagePreview,
   PreviewImg,
-  CaptchaContainer,
-  CaptchaLoading,
-  CaptchaDisplay,
-  CaptchaRefreshIcon,
   UploadSection,
   UploadButton,
   Button,
@@ -38,6 +34,7 @@ import {
   Links,
   StyledLink,
 } from "../styles/EditProfile";
+import Captcha from "../components/Captcha";
 
 /**
  * Mobile EditProfile component with modern design, image upload, and CAPTCHA validation
@@ -46,6 +43,8 @@ class MobileEditProfile extends React.Component {
   constructor(props) {
     super(props);
     this._isMounted = false;
+    this.profileCaptchaRef = React.createRef();
+    this.rideCaptchaRef = React.createRef();
     this.state = {
       name: "",
       location: "",
@@ -65,17 +64,7 @@ class MobileEditProfile extends React.Component {
       rideImagePreview: null,
       isUploadingProfile: false,
       isUploadingRide: false,
-      // Profile image captcha states
-      profileCaptchaInput: "",
-      profileCaptchaSvg: "",
-      profileCaptchaSessionId: "",
-      isLoadingProfileCaptcha: false,
       showProfileUpload: false,
-      // Ride image captcha states
-      rideCaptchaInput: "",
-      rideCaptchaSvg: "",
-      rideCaptchaSessionId: "",
-      isLoadingRideCaptcha: false,
       showRideUpload: false,
     };
   }
@@ -115,49 +104,7 @@ class MobileEditProfile extends React.Component {
     this.setState({ [name]: value });
   };
 
-  generateProfileCaptcha = () => {
-    if (!this._isMounted) return;
-    this.setState({ isLoadingProfileCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (!this._isMounted) return;
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingProfileCaptcha: false,
-        });
-      } else {
-        this.setState({
-          profileCaptchaSvg: result.svg,
-          profileCaptchaSessionId: result.sessionId,
-          profileCaptchaInput: "",
-          isLoadingProfileCaptcha: false,
-          showProfileUpload: true,
-        });
-      }
-    });
-  };
 
-  generateRideCaptcha = () => {
-    if (!this._isMounted) return;
-    this.setState({ isLoadingRideCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (!this._isMounted) return;
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingRideCaptcha: false,
-        });
-      } else {
-        this.setState({
-          rideCaptchaSvg: result.svg,
-          rideCaptchaSessionId: result.sessionId,
-          rideCaptchaInput: "",
-          isLoadingRideCaptcha: false,
-          showRideUpload: true,
-        });
-      }
-    });
-  };
 
   // Convert file to base64
   fileToBase64 = (file) => new Promise((resolve, reject) => {
@@ -202,16 +149,14 @@ class MobileEditProfile extends React.Component {
         this.setState({
           selectedProfileImage: file,
           profileImagePreview: event.target.result,
+          showProfileUpload: true,
         });
-        // Generate captcha for profile image upload
-        this.generateProfileCaptcha();
       } else {
         this.setState({
           selectedRideImage: file,
           rideImagePreview: event.target.result,
+          showRideUpload: true,
         });
-        // Generate captcha for ride image upload
-        this.generateRideCaptcha();
       }
     };
     reader.readAsDataURL(file);
@@ -220,62 +165,59 @@ class MobileEditProfile extends React.Component {
   };
 
   uploadProfileImage = () => {
-    const {
-      selectedProfileImage,
-      profileCaptchaInput,
-      profileCaptchaSessionId,
-    } = this.state;
+    const { selectedProfileImage } = this.state;
 
-    if (!selectedProfileImage || !profileCaptchaInput.trim()) {
-      this.setState({ error: "Please enter the security code and try again." });
+    if (!selectedProfileImage) {
+      this.setState({ error: "Please select an image to upload." });
+      return;
+    }
+
+    if (!this.profileCaptchaRef.current) {
+      this.setState({ error: "Captcha component not available." });
       return;
     }
 
     this.setState({ isUploadingProfile: true, error: "" });
 
-    // First verify CAPTCHA
-    Meteor.call(
-      "captcha.verify",
-      profileCaptchaSessionId,
-      profileCaptchaInput,
-      (captchaError, isValidCaptcha) => {
-        if (!this._isMounted) return;
+    // First verify CAPTCHA using centralized component
+    this.profileCaptchaRef.current.verify((captchaError, isValid) => {
+      if (!this._isMounted) return;
 
-        if (captchaError || !isValidCaptcha) {
-          this.setState({
-            error: "Invalid security code. Please try again.",
-            isUploadingProfile: false,
-          });
-          this.generateProfileCaptcha();
-          return;
-        }
+      if (captchaError || !isValid) {
+        this.setState({
+          error: captchaError || "Invalid security code. Please try again.",
+          isUploadingProfile: false,
+        });
+        return;
+      }
 
-        // CAPTCHA is valid, proceed with upload
-        this.fileToBase64(selectedProfileImage)
-          .then((base64Data) => {
-            const imageData = {
-              fileName: selectedProfileImage.name,
-              mimeType: selectedProfileImage.type,
-              base64Data,
-            };
+      const captchaData = this.profileCaptchaRef.current.getCaptchaData();
 
-            Meteor.call(
-              "images.upload",
-              imageData,
-              profileCaptchaSessionId,
-              (err, result) => {
-                if (!this._isMounted) return;
+      // CAPTCHA is valid, proceed with upload
+      this.fileToBase64(selectedProfileImage)
+        .then((base64Data) => {
+          const imageData = {
+            fileName: selectedProfileImage.name,
+            mimeType: selectedProfileImage.type,
+            base64Data,
+          };
 
-                if (err) {
-                  this.setState({
-                    error:
-                      err.reason ||
-                      "Failed to upload profile image. Please try again.",
-                    isUploadingProfile: false,
-                  });
-                  this.generateProfileCaptcha();
-                } else {
-                  this.setState({
+          Meteor.call(
+            "images.upload",
+            imageData,
+            captchaData.sessionId,
+            (err, result) => {
+              if (!this._isMounted) return;
+
+              if (err) {
+                this.setState({
+                  error:
+                    err.reason ||
+                    "Failed to upload profile image. Please try again.",
+                  isUploadingProfile: false,
+                });
+              } else {
+                this.setState({
                     profileImage: result.uuid,
                     selectedProfileImage: null,
                     profileImagePreview: null,
@@ -283,6 +225,8 @@ class MobileEditProfile extends React.Component {
                     isUploadingProfile: false,
                     success: "Profile image uploaded successfully!",
                   });
+                  // Reset captcha
+                  this.profileCaptchaRef.current.reset();
                 }
               },
             );
@@ -299,69 +243,71 @@ class MobileEditProfile extends React.Component {
   };
 
   uploadRideImage = () => {
-    const { selectedRideImage, rideCaptchaInput, rideCaptchaSessionId } =
-      this.state;
+    const { selectedRideImage } = this.state;
 
-    if (!selectedRideImage || !rideCaptchaInput.trim()) {
-      this.setState({ error: "Please enter the security code and try again." });
+    if (!selectedRideImage) {
+      this.setState({ error: "Please select an image to upload." });
+      return;
+    }
+
+    if (!this.rideCaptchaRef.current) {
+      this.setState({ error: "Captcha component not available." });
       return;
     }
 
     this.setState({ isUploadingRide: true, error: "" });
 
-    // First verify CAPTCHA
-    Meteor.call(
-      "captcha.verify",
-      rideCaptchaSessionId,
-      rideCaptchaInput,
-      (captchaError, isValidCaptcha) => {
-        if (!this._isMounted) return;
+    // First verify CAPTCHA using centralized component
+    this.rideCaptchaRef.current.verify((captchaError, isValid) => {
+      if (!this._isMounted) return;
 
-        if (captchaError || !isValidCaptcha) {
-          this.setState({
-            error: "Invalid security code. Please try again.",
-            isUploadingRide: false,
-          });
-          this.generateRideCaptcha();
-          return;
-        }
+      if (captchaError || !isValid) {
+        this.setState({
+          error: captchaError || "Invalid security code. Please try again.",
+          isUploadingRide: false,
+        });
+        return;
+      }
 
-        // CAPTCHA is valid, proceed with upload
-        this.fileToBase64(selectedRideImage)
-          .then((base64Data) => {
-            const imageData = {
-              fileName: selectedRideImage.name,
-              mimeType: selectedRideImage.type,
-              base64Data,
+      const captchaData = this.rideCaptchaRef.current.getCaptchaData();
+
+      // CAPTCHA is valid, proceed with upload
+      this.fileToBase64(selectedRideImage)
+        .then((base64Data) => {
+          const imageData = {
+            fileName: selectedRideImage.name,
+            mimeType: selectedRideImage.type,
+            base64Data,
             };
 
-            Meteor.call(
-              "images.upload",
-              imageData,
-              rideCaptchaSessionId,
-              (err, result) => {
-                if (!this._isMounted) return;
+          Meteor.call(
+            "images.upload",
+            imageData,
+            captchaData.sessionId,
+            (err, result) => {
+              if (!this._isMounted) return;
 
-                if (err) {
-                  this.setState({
-                    error:
-                      err.reason ||
-                      "Failed to upload vehicle image. Please try again.",
-                    isUploadingRide: false,
-                  });
-                  this.generateRideCaptcha();
-                } else {
-                  this.setState({
-                    rideImage: result.uuid,
-                    selectedRideImage: null,
-                    rideImagePreview: null,
-                    showRideUpload: false,
-                    isUploadingRide: false,
-                    success: "Vehicle image uploaded successfully!",
-                  });
-                }
-              },
-            );
+              if (err) {
+                this.setState({
+                  error:
+                    err.reason ||
+                    "Failed to upload vehicle image. Please try again.",
+                  isUploadingRide: false,
+                });
+              } else {
+                this.setState({
+                  rideImage: result.uuid,
+                  selectedRideImage: null,
+                  rideImagePreview: null,
+                  showRideUpload: false,
+                  isUploadingRide: false,
+                  success: "Vehicle image uploaded successfully!",
+                });
+                // Reset captcha
+                this.rideCaptchaRef.current.reset();
+              }
+            },
+          );
           })
           .catch((_error) => {
             if (!this._isMounted) return;
@@ -574,49 +520,16 @@ class MobileEditProfile extends React.Component {
                 {/* Profile Image Upload with Captcha */}
                 {this.state.showProfileUpload && (
                   <UploadSection>
-                    <CaptchaContainer>
-                      {this.state.isLoadingProfileCaptcha ? (
-                        <CaptchaLoading>
-                          Loading security code...
-                        </CaptchaLoading>
-                      ) : (
-                        <CaptchaDisplay
-                          dangerouslySetInnerHTML={{
-                            __html: this.state.profileCaptchaSvg,
-                          }}
-                        />
-                      )}
-                      <CaptchaRefreshIcon
-                        type="button"
-                        onClick={this.generateProfileCaptcha}
-                        disabled={
-                          this.state.isLoadingProfileCaptcha ||
-                          this.state.isUploadingProfile
-                        }
-                        title="Refresh security code"
-                      >
-                        <img src="/svg/refresh.svg" alt="Refresh" />
-                      </CaptchaRefreshIcon>
-                    </CaptchaContainer>
-
-                    <Field>
-                      <Input
-                        type="text"
-                        name="profileCaptchaInput"
-                        placeholder="Enter the security code"
-                        value={this.state.profileCaptchaInput}
-                        onChange={this.handleChange}
-                        disabled={this.state.isUploadingProfile}
-                      />
-                    </Field>
+                    <Captcha
+                      ref={this.profileCaptchaRef}
+                      autoGenerate={true}
+                      disabled={this.state.isUploadingProfile}
+                    />
 
                     <UploadButton
                       type="button"
                       onClick={this.uploadProfileImage}
-                      disabled={
-                        this.state.isUploadingProfile ||
-                        !this.state.profileCaptchaInput.trim()
-                      }
+                      disabled={this.state.isUploadingProfile}
                     >
                       {this.state.isUploadingProfile
                         ? "Uploading..."
@@ -660,49 +573,16 @@ class MobileEditProfile extends React.Component {
                 {/* Ride Image Upload with Captcha */}
                 {this.state.showRideUpload && (
                   <UploadSection>
-                    <CaptchaContainer>
-                      {this.state.isLoadingRideCaptcha ? (
-                        <CaptchaLoading>
-                          Loading security code...
-                        </CaptchaLoading>
-                      ) : (
-                        <CaptchaDisplay
-                          dangerouslySetInnerHTML={{
-                            __html: this.state.rideCaptchaSvg,
-                          }}
-                        />
-                      )}
-                      <CaptchaRefreshIcon
-                        type="button"
-                        onClick={this.generateRideCaptcha}
-                        disabled={
-                          this.state.isLoadingRideCaptcha ||
-                          this.state.isUploadingRide
-                        }
-                        title="Refresh security code"
-                      >
-                        <img src="/svg/refresh.svg" alt="Refresh" />
-                      </CaptchaRefreshIcon>
-                    </CaptchaContainer>
-
-                    <Field>
-                      <Input
-                        type="text"
-                        name="rideCaptchaInput"
-                        placeholder="Enter the security code"
-                        value={this.state.rideCaptchaInput}
-                        onChange={this.handleChange}
-                        disabled={this.state.isUploadingRide}
-                      />
-                    </Field>
+                    <Captcha
+                      ref={this.rideCaptchaRef}
+                      autoGenerate={true}
+                      disabled={this.state.isUploadingRide}
+                    />
 
                     <UploadButton
                       type="button"
                       onClick={this.uploadRideImage}
-                      disabled={
-                        this.state.isUploadingRide ||
-                        !this.state.rideCaptchaInput.trim()
-                      }
+                      disabled={this.state.isUploadingRide}
                     >
                       {this.state.isUploadingRide
                         ? "Uploading..."

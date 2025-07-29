@@ -13,20 +13,13 @@ import {
   Actions,
   ActionLink,
   Help,
-  CaptchaSection,
-  CaptchaLabel,
-  CaptchaContainer,
-  CaptchaLoading,
-  CaptchaDisplay,
-  CaptchaRefreshIcon,
-  CaptchaInputWrapper,
-  Input,
   ResendButton,
   SuccessMessage,
   ErrorMessage,
   Legal,
   LegalLink,
 } from "../styles/VerifyEmail";
+import Captcha from "../components/Captcha";
 
 /**
  * Mobile VerifyEmail component with modern design
@@ -38,15 +31,8 @@ export default class MobileVerifyEmail extends React.Component {
       isResending: false,
       resendMessage: "",
       resendError: "",
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
-      isLoadingCaptcha: false,
     };
-  }
-
-  componentDidMount() {
-    this.generateNewCaptcha();
+    this.captchaRef = React.createRef();
   }
 
   /** Update the form controls each time the user interacts with them. */
@@ -55,74 +41,47 @@ export default class MobileVerifyEmail extends React.Component {
     this.setState({ [name]: value });
   };
 
-  /** Generate a new CAPTCHA */
-  generateNewCaptcha = () => {
-    this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (error) {
-        this.setState({
-          resendError: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
-        });
-      } else {
-        this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
-        });
-      }
-    });
-  };
-
   handleResendVerification = () => {
-    const { captchaInput, captchaSessionId } = this.state;
-
-    if (!captchaInput.trim()) {
-      this.setState({ resendError: "Please enter the security code." });
+    if (!this.captchaRef.current) {
+      this.setState({ resendError: "Captcha component not available." });
       return;
     }
 
     this.setState({ isResending: true, resendMessage: "", resendError: "" });
 
-    // First verify CAPTCHA
-    Meteor.call(
-      "captcha.verify",
-      captchaSessionId,
-      captchaInput,
-      (captchaError, isValidCaptcha) => {
-        if (captchaError || !isValidCaptcha) {
-          this.setState({
-            resendError: "Invalid security code. Please try again.",
-            isResending: false,
-          });
-          this.generateNewCaptcha();
-          return;
-        }
+    // First verify CAPTCHA using centralized component
+    this.captchaRef.current.verify((captchaError, isValid) => {
+      if (captchaError || !isValid) {
+        this.setState({
+          resendError: captchaError || "Invalid security code. Please try again.",
+          isResending: false,
+        });
+        return;
+      }
 
-        // CAPTCHA is valid, proceed with sending verification email
-        Meteor.call(
-          "accounts.email.send.verification",
-          captchaSessionId,
-          (error) => {
-            this.setState({ isResending: false });
-            if (error) {
-              this.setState({
-                resendError:
-                  "Failed to send verification email. Please try again.",
-              });
-              this.generateNewCaptcha();
-            } else {
-              this.setState({
-                resendMessage: "Verification email sent successfully!",
-                captchaInput: "",
-              });
-              this.generateNewCaptcha();
-            }
-          },
-        );
-      },
-    );
+      const captchaData = this.captchaRef.current.getCaptchaData();
+
+      // CAPTCHA is valid, proceed with sending verification email
+      Meteor.call(
+        "accounts.email.send.verification",
+        captchaData.sessionId,
+        (error) => {
+          this.setState({ isResending: false });
+          if (error) {
+            this.setState({
+              resendError:
+                "Failed to send verification email. Please try again.",
+            });
+          } else {
+            this.setState({
+              resendMessage: "Verification email sent successfully!",
+            });
+            // Reset captcha after success
+            this.captchaRef.current.reset();
+          }
+        },
+      );
+    });
   };
 
   render() {
@@ -157,45 +116,15 @@ export default class MobileVerifyEmail extends React.Component {
             </ul>
 
             {/* CAPTCHA Section */}
-            <CaptchaSection>
-              <CaptchaLabel>Security Verification</CaptchaLabel>
-              <CaptchaContainer>
-                {this.state.isLoadingCaptcha ? (
-                  <CaptchaLoading>Loading CAPTCHA...</CaptchaLoading>
-                ) : (
-                  <CaptchaDisplay
-                    dangerouslySetInnerHTML={{
-                      __html: this.state.captchaSvg,
-                    }}
-                  />
-                )}
-                <CaptchaRefreshIcon
-                  type="button"
-                  onClick={this.generateNewCaptcha}
-                  disabled={this.state.isLoadingCaptcha}
-                  title="Refresh CAPTCHA"
-                >
-                  <img src="/svg/refresh.svg" alt="Refresh" />
-                </CaptchaRefreshIcon>
-              </CaptchaContainer>
-            </CaptchaSection>
-
-            <CaptchaInputWrapper>
-              <Input
-                type="text"
-                name="captchaInput"
-                placeholder="Enter the characters shown above"
-                value={this.state.captchaInput}
-                onChange={this.handleChange}
-                required
-              />
-            </CaptchaInputWrapper>
+            <Captcha
+              ref={this.captchaRef}
+              autoGenerate={true}
+              disabled={this.state.isResending}
+            />
 
             <ResendButton
               onClick={this.handleResendVerification}
-              disabled={
-                this.state.isResending || !this.state.captchaInput.trim()
-              }
+              disabled={this.state.isResending}
             >
               {this.state.isResending
                 ? "Sending..."

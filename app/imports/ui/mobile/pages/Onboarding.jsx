@@ -34,10 +34,6 @@ import {
   FileInput,
   FileLabel,
   FileInfo,
-  CaptchaContainer,
-  CaptchaLoading,
-  CaptchaDisplay,
-  CaptchaRefresh,
   UploadSection,
   UploadButton,
   Summary,
@@ -48,6 +44,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../styles/Onboarding";
+import Captcha from "../components/Captcha";
 
 /**
  * Mobile Onboarding component - Interactive profile creation flow
@@ -56,6 +53,8 @@ class MobileOnboarding extends React.Component {
   constructor(props) {
     super(props);
     this._isMounted = false;
+    this.profileCaptchaRef = React.createRef();
+    this.rideCaptchaRef = React.createRef();
     this.state = {
       currentStep: 1,
       totalSteps: 4, // Reduced from 5 since we removed the captcha step
@@ -79,17 +78,7 @@ class MobileOnboarding extends React.Component {
       rideImagePreview: null,
       isUploadingProfile: false,
       isUploadingRide: false,
-      // Profile image captcha states
-      profileCaptchaInput: "",
-      profileCaptchaSvg: "",
-      profileCaptchaSessionId: "",
-      isLoadingProfileCaptcha: false,
       showProfileUpload: false,
-      // Ride image captcha states
-      rideCaptchaInput: "",
-      rideCaptchaSvg: "",
-      rideCaptchaSessionId: "",
-      isLoadingRideCaptcha: false,
       showRideUpload: false,
     };
   }
@@ -146,49 +135,7 @@ class MobileOnboarding extends React.Component {
     }
   };
 
-  generateProfileCaptcha = () => {
-    if (!this._isMounted) return;
-    this.setState({ isLoadingProfileCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (!this._isMounted) return;
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingProfileCaptcha: false,
-        });
-      } else {
-        this.setState({
-          profileCaptchaSvg: result.svg,
-          profileCaptchaSessionId: result.sessionId,
-          profileCaptchaInput: "",
-          isLoadingProfileCaptcha: false,
-          showProfileUpload: true,
-        });
-      }
-    });
-  };
 
-  generateRideCaptcha = () => {
-    if (!this._isMounted) return;
-    this.setState({ isLoadingRideCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (!this._isMounted) return;
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingRideCaptcha: false,
-        });
-      } else {
-        this.setState({
-          rideCaptchaSvg: result.svg,
-          rideCaptchaSessionId: result.sessionId,
-          rideCaptchaInput: "",
-          isLoadingRideCaptcha: false,
-          showRideUpload: true,
-        });
-      }
-    });
-  };
 
   // Convert file to base64
   fileToBase64 = (file) => new Promise((resolve, reject) => {
@@ -233,16 +180,14 @@ class MobileOnboarding extends React.Component {
         this.setState({
           selectedProfileImage: file,
           profileImagePreview: event.target.result,
+          showProfileUpload: true,
         });
-        // Generate captcha for profile image upload
-        this.generateProfileCaptcha();
       } else {
         this.setState({
           selectedRideImage: file,
           rideImagePreview: event.target.result,
+          showRideUpload: true,
         });
-        // Generate captcha for ride image upload
-        this.generateRideCaptcha();
       }
     };
     reader.readAsDataURL(file);
@@ -251,152 +196,151 @@ class MobileOnboarding extends React.Component {
   };
 
   uploadProfileImage = () => {
-    const {
-      selectedProfileImage,
-      profileCaptchaInput,
-      profileCaptchaSessionId,
-    } = this.state;
+    const { selectedProfileImage } = this.state;
 
-    if (!selectedProfileImage || !profileCaptchaInput.trim()) {
-      this.setState({ error: "Please enter the security code and try again." });
+    if (!selectedProfileImage) {
+      this.setState({ error: "Please select an image to upload." });
+      return;
+    }
+
+    if (!this.profileCaptchaRef.current) {
+      this.setState({ error: "Captcha component not available." });
       return;
     }
 
     this.setState({ isUploadingProfile: true, error: "" });
 
-    Meteor.call(
-      "captcha.verify",
-      profileCaptchaSessionId,
-      profileCaptchaInput,
-      (captchaError, isValidCaptcha) => {
-        if (!this._isMounted) return;
+    this.profileCaptchaRef.current.verify((captchaError, isValid) => {
+      if (!this._isMounted) return;
 
-        if (captchaError || !isValidCaptcha) {
+      if (captchaError || !isValid) {
+        this.setState({
+          error: captchaError || "Invalid security code. Please try again.",
+          isUploadingProfile: false,
+        });
+        return;
+      }
+
+      const captchaData = this.profileCaptchaRef.current.getCaptchaData();
+
+      this.fileToBase64(selectedProfileImage)
+        .then((base64Data) => {
+          const imageData = {
+            fileName: selectedProfileImage.name,
+            mimeType: selectedProfileImage.type,
+            base64Data,
+          };
+
+          Meteor.call(
+            "images.upload",
+            imageData,
+            captchaData.sessionId,
+            (err, result) => {
+              if (!this._isMounted) return;
+
+              if (err) {
+                this.setState({
+                  error:
+                    err.reason ||
+                    "Failed to upload profile image. Please try again.",
+                  isUploadingProfile: false,
+                });
+              } else {
+                this.setState({
+                  profileImage: result.uuid,
+                  selectedProfileImage: null,
+                  profileImagePreview: null,
+                  showProfileUpload: false,
+                  isUploadingProfile: false,
+                });
+                // Reset captcha
+                this.profileCaptchaRef.current.reset();
+              }
+            },
+          );
+        })
+        .catch((_error) => {
+          if (!this._isMounted) return;
           this.setState({
-            error: "Invalid security code. Please try again.",
+            error: "Failed to process profile image. Please try again.",
             isUploadingProfile: false,
           });
-          this.generateProfileCaptcha();
-          return;
-        }
-
-        this.fileToBase64(selectedProfileImage)
-          .then((base64Data) => {
-            const imageData = {
-              fileName: selectedProfileImage.name,
-              mimeType: selectedProfileImage.type,
-              base64Data,
-            };
-
-            Meteor.call(
-              "images.upload",
-              imageData,
-              profileCaptchaSessionId,
-              (err, result) => {
-                if (!this._isMounted) return;
-
-                if (err) {
-                  this.setState({
-                    error:
-                      err.reason ||
-                      "Failed to upload profile image. Please try again.",
-                    isUploadingProfile: false,
-                  });
-                  this.generateProfileCaptcha();
-                } else {
-                  this.setState({
-                    profileImage: result.uuid,
-                    selectedProfileImage: null,
-                    profileImagePreview: null,
-                    showProfileUpload: false,
-                    isUploadingProfile: false,
-                  });
-                }
-              },
-            );
-          })
-          .catch((_error) => {
-            if (!this._isMounted) return;
-            this.setState({
-              error: "Failed to process profile image. Please try again.",
-              isUploadingProfile: false,
-            });
-          });
-      },
-    );
+        });
+    });
   };
 
   uploadRideImage = () => {
-    const { selectedRideImage, rideCaptchaInput, rideCaptchaSessionId } =
-      this.state;
+    const { selectedRideImage } = this.state;
 
-    if (!selectedRideImage || !rideCaptchaInput.trim()) {
-      this.setState({ error: "Please enter the security code and try again." });
+    if (!selectedRideImage) {
+      this.setState({ error: "Please select an image to upload." });
+      return;
+    }
+
+    if (!this.rideCaptchaRef.current) {
+      this.setState({ error: "Captcha component not available." });
       return;
     }
 
     this.setState({ isUploadingRide: true, error: "" });
 
-    Meteor.call(
-      "captcha.verify",
-      rideCaptchaSessionId,
-      rideCaptchaInput,
-      (captchaError, isValidCaptcha) => {
-        if (!this._isMounted) return;
+    this.rideCaptchaRef.current.verify((captchaError, isValid) => {
+      if (!this._isMounted) return;
 
-        if (captchaError || !isValidCaptcha) {
+      if (captchaError || !isValid) {
+        this.setState({
+          error: captchaError || "Invalid security code. Please try again.",
+          isUploadingRide: false,
+        });
+        return;
+      }
+
+      const captchaData = this.rideCaptchaRef.current.getCaptchaData();
+
+      this.fileToBase64(selectedRideImage)
+        .then((base64Data) => {
+          const imageData = {
+            fileName: selectedRideImage.name,
+            mimeType: selectedRideImage.type,
+            base64Data,
+          };
+
+          Meteor.call(
+            "images.upload",
+            imageData,
+            captchaData.sessionId,
+            (err, result) => {
+              if (!this._isMounted) return;
+
+              if (err) {
+                this.setState({
+                  error:
+                    err.reason ||
+                    "Failed to upload vehicle image. Please try again.",
+                  isUploadingRide: false,
+                });
+              } else {
+                this.setState({
+                  rideImage: result.uuid,
+                  selectedRideImage: null,
+                  rideImagePreview: null,
+                  showRideUpload: false,
+                  isUploadingRide: false,
+                });
+                // Reset captcha
+                this.rideCaptchaRef.current.reset();
+              }
+            },
+          );
+        })
+        .catch((_error) => {
+          if (!this._isMounted) return;
           this.setState({
-            error: "Invalid security code. Please try again.",
+            error: "Failed to process vehicle image. Please try again.",
             isUploadingRide: false,
           });
-          this.generateRideCaptcha();
-          return;
-        }
-
-        this.fileToBase64(selectedRideImage)
-          .then((base64Data) => {
-            const imageData = {
-              fileName: selectedRideImage.name,
-              mimeType: selectedRideImage.type,
-              base64Data,
-            };
-
-            Meteor.call(
-              "images.upload",
-              imageData,
-              rideCaptchaSessionId,
-              (err, result) => {
-                if (!this._isMounted) return;
-
-                if (err) {
-                  this.setState({
-                    error:
-                      err.reason ||
-                      "Failed to upload vehicle image. Please try again.",
-                    isUploadingRide: false,
-                  });
-                  this.generateRideCaptcha();
-                } else {
-                  this.setState({
-                    rideImage: result.uuid,
-                    selectedRideImage: null,
-                    rideImagePreview: null,
-                    showRideUpload: false,
-                    isUploadingRide: false,
-                  });
-                }
-              },
-            );
-          })
-          .catch((_error) => {
-            if (!this._isMounted) return;
-            this.setState({
-              error: "Failed to process vehicle image. Please try again.",
-              isUploadingRide: false,
-            });
-          });
-      },
-    );
+        });
+    });
   };
 
   handleFinish = () => {
@@ -605,47 +549,16 @@ class MobileOnboarding extends React.Component {
           {/* Profile Image Upload with Captcha */}
           {this.state.showProfileUpload && (
             <UploadSection>
-              <CaptchaContainer>
-                {this.state.isLoadingProfileCaptcha ? (
-                  <CaptchaLoading>Loading...</CaptchaLoading>
-                ) : (
-                  <CaptchaDisplay
-                    dangerouslySetInnerHTML={{
-                      __html: this.state.profileCaptchaSvg,
-                    }}
-                  />
-                )}
-                <CaptchaRefresh
-                  type="button"
-                  onClick={this.generateProfileCaptcha}
-                  disabled={
-                    this.state.isLoadingProfileCaptcha ||
-                    this.state.isUploadingProfile
-                  }
-                  title="Generate new code"
-                >
-                  <img src="/svg/refresh.svg" alt="Refresh" />
-                </CaptchaRefresh>
-              </CaptchaContainer>
-
-              <InputGroup>
-                <Input
-                  type="text"
-                  name="profileCaptchaInput"
-                  placeholder="Enter security code"
-                  value={this.state.profileCaptchaInput}
-                  onChange={this.handleChange}
-                  disabled={this.state.isUploadingProfile}
-                />
-              </InputGroup>
+              <Captcha
+                ref={this.profileCaptchaRef}
+                autoGenerate={true}
+                disabled={this.state.isUploadingProfile}
+              />
 
               <UploadButton
                 type="button"
                 onClick={this.uploadProfileImage}
-                disabled={
-                  this.state.isUploadingProfile ||
-                  !this.state.profileCaptchaInput.trim()
-                }
+                disabled={this.state.isUploadingProfile}
               >
                 {this.state.isUploadingProfile
                   ? "Uploading..."
@@ -690,47 +603,16 @@ class MobileOnboarding extends React.Component {
             {/* Ride Image Upload with Captcha */}
             {this.state.showRideUpload && (
               <UploadSection>
-                <CaptchaContainer>
-                  {this.state.isLoadingRideCaptcha ? (
-                    <CaptchaLoading>Loading...</CaptchaLoading>
-                  ) : (
-                    <CaptchaDisplay
-                      dangerouslySetInnerHTML={{
-                        __html: this.state.rideCaptchaSvg,
-                      }}
-                    />
-                  )}
-                  <CaptchaRefresh
-                    type="button"
-                    onClick={this.generateRideCaptcha}
-                    disabled={
-                      this.state.isLoadingRideCaptcha ||
-                      this.state.isUploadingRide
-                    }
-                    title="Generate new code"
-                  >
-                    <img src="/svg/refresh.svg" alt="Refresh" />
-                  </CaptchaRefresh>
-                </CaptchaContainer>
-
-                <InputGroup>
-                  <Input
-                    type="text"
-                    name="rideCaptchaInput"
-                    placeholder="Enter security code"
-                    value={this.state.rideCaptchaInput}
-                    onChange={this.handleChange}
-                    disabled={this.state.isUploadingRide}
-                  />
-                </InputGroup>
+                <Captcha
+                  ref={this.rideCaptchaRef}
+                  autoGenerate={true}
+                  disabled={this.state.isUploadingRide}
+                />
 
                 <UploadButton
                   type="button"
                   onClick={this.uploadRideImage}
-                  disabled={
-                    this.state.isUploadingRide ||
-                    !this.state.rideCaptchaInput.trim()
-                  }
+                  disabled={this.state.isUploadingRide}
                 >
                   {this.state.isUploadingRide
                     ? "Uploading..."

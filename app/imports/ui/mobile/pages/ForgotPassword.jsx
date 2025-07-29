@@ -28,13 +28,8 @@ import {
   StyledLink,
   Legal,
   LegalLink,
-  CaptchaSection,
-  CaptchaLabel,
-  CaptchaContainer,
-  CaptchaLoading,
-  CaptchaDisplay,
-  CaptchaRefreshIcon,
 } from "../styles/ForgotPassword";
+import Captcha from "../components/Captcha";
 
 /**
  * Mobile ForgotPassword component with modern design and full functionality
@@ -45,18 +40,11 @@ export default class MobileForgotPassword extends React.Component {
     super(props);
     this.state = {
       email: "",
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
       error: "",
       success: false,
       isSubmitting: false,
-      isLoadingCaptcha: false,
     };
-  }
-
-  componentDidMount() {
-    this.generateNewCaptcha();
+    this.captchaRef = React.createRef();
   }
 
   /** Update the form controls each time the user interacts with them. */
@@ -65,46 +53,7 @@ export default class MobileForgotPassword extends React.Component {
     this.setState({ [name]: value });
   };
 
-  /** Generate a new CAPTCHA */
-  generateNewCaptcha = () => {
-    this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
-        });
-      } else {
-        this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
-          error: "",
-        });
-      }
-    });
-  };
 
-  /** Generate a new CAPTCHA without clearing existing error messages */
-  generateNewCaptchaKeepError = () => {
-    this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
-        });
-      } else {
-        this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
-        });
-      }
-    });
-  };
 
   /** Handle form submission */
   handleSubmit = (e) => {
@@ -114,43 +63,41 @@ export default class MobileForgotPassword extends React.Component {
 
   /** Handle password reset submission using Meteor's Accounts.forgotPassword(). */
   submit = () => {
-    const { email, captchaInput, captchaSessionId } = this.state;
+    const { email } = this.state;
+
+    if (!this.captchaRef.current) {
+      this.setState({ error: "Captcha component not available." });
+      return;
+    }
 
     this.setState({ isSubmitting: true, error: "", success: false });
 
-    // First verify CAPTCHA
-    Meteor.call(
-      "captcha.verify",
-      captchaSessionId,
-      captchaInput,
-      (captchaError, isValidCaptcha) => {
-        if (captchaError || !isValidCaptcha) {
-          this.setState({
-            error: "Invalid security code. Please try again.",
-            isSubmitting: false,
-          });
-          this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep any existing errors
-          return;
-        }
-
-        // CAPTCHA is valid, proceed with password reset
-        Accounts.forgotPassword({ email }, (error) => {
-          this.setState({ isSubmitting: false });
-
-          if (error) {
-            this.setState({ error: error.message });
-            this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message
-          } else {
-            this.setState({
-              success: true,
-              email: "", // Clear the email field after success
-              captchaInput: "", // Clear CAPTCHA input
-            });
-            this.generateNewCaptcha(); // Generate new CAPTCHA after success
-          }
+    // First verify CAPTCHA using centralized component
+    this.captchaRef.current.verify((captchaError, isValid) => {
+      if (captchaError || !isValid) {
+        this.setState({
+          error: captchaError || "Invalid security code. Please try again.",
+          isSubmitting: false,
         });
-      },
-    );
+        return;
+      }
+
+      // CAPTCHA is valid, proceed with password reset
+      Accounts.forgotPassword({ email }, (error) => {
+        this.setState({ isSubmitting: false });
+
+        if (error) {
+          this.setState({ error: error.message });
+        } else {
+          this.setState({
+            success: true,
+            email: "", // Clear the email field after success
+          });
+          // Reset captcha after success
+          this.captchaRef.current.reset();
+        }
+      });
+    });
   };
 
   /** Render the forgot password form. */
@@ -185,37 +132,11 @@ export default class MobileForgotPassword extends React.Component {
                 </Field>
 
                 {/* CAPTCHA Section */}
-                <CaptchaSection>
-                  <CaptchaLabel>Security Verification</CaptchaLabel>
-                  <CaptchaContainer>
-                    {this.state.isLoadingCaptcha ? (
-                      <CaptchaLoading>Loading CAPTCHA...</CaptchaLoading>
-                    ) : (
-                      <CaptchaDisplay
-                        dangerouslySetInnerHTML={{
-                          __html: this.state.captchaSvg,
-                        }}
-                      />
-                    )}
-                    <CaptchaRefreshIcon
-                      type="button"
-                      onClick={this.generateNewCaptcha}
-                      disabled={this.state.isLoadingCaptcha}
-                      title="Refresh CAPTCHA"
-                    >
-                      <img src="/svg/refresh.svg" alt="Refresh" />
-                    </CaptchaRefreshIcon>
-                  </CaptchaContainer>
-                </CaptchaSection>
-
                 <Field>
-                  <Input
-                    type="text"
-                    name="captchaInput"
-                    placeholder="Enter the characters shown above"
-                    value={this.state.captchaInput}
-                    onChange={this.handleChange}
-                    required
+                  <Captcha
+                    ref={this.captchaRef}
+                    autoGenerate={true}
+                    disabled={this.state.isSubmitting}
                   />
                 </Field>
 
