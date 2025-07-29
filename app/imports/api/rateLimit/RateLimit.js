@@ -1,6 +1,5 @@
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
-import JoiBridge from "../../ui/forms/JoiBridge";
 
 /**
  * The RateLimit collection for tracking API call rate limiting
@@ -22,11 +21,6 @@ export const RateLimitSchema = Joi.object({
   createdAt: Joi.date().default(new Date()).description("When this rate limit record was created"),
   updatedAt: Joi.date().default(new Date()).description("When this rate limit record was last updated"),
 }).meta({ className: "RateLimit" });
-
-/**
- * Attach the schema to the collection
- */
-RateLimit.attachSchema(new JoiBridge(RateLimitSchema));
 
 /**
  * Deny all client-side updates for security
