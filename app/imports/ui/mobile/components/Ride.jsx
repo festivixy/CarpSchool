@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
@@ -413,78 +414,82 @@ class MobileRide extends React.Component {
           )}
         </RideCard>
 
-        {/* Modern Share Code Modal */}
-        {shareModalOpen && (
-          <ModalOverlay onClick={this.closeShareModal}>
-            <Modal onClick={(e) => e.stopPropagation()}>
-              <ModalHeader>
-                <ModalTitle>
-                  <ModalIcon>🔗</ModalIcon>
-                  Share Your Ride
-                </ModalTitle>
-                <ModalClose onClick={this.closeShareModal}>✕</ModalClose>
-              </ModalHeader>
+        {/* Modern Share Code Modal - Rendered via Portal */}
+        {shareModalOpen &&
+          ReactDOM.createPortal(
+            <ModalOverlay onClick={this.closeShareModal}>
+              <Modal onClick={(e) => e.stopPropagation()}>
+                <ModalHeader>
+                  <ModalTitle>
+                    <ModalIcon>🔗</ModalIcon>
+                    Share Your Ride
+                  </ModalTitle>
+                  <ModalClose onClick={this.closeShareModal}>✕</ModalClose>
+                </ModalHeader>
 
-              <ModalContent>
-                <ModalText>
-                  {isExistingCode ? (
-                    <p>Here&apos;s your ride&apos;s existing share code:</p>
-                  ) : (
-                    <p>
-                      Share this code with someone who wants to join your ride:
-                    </p>
+                <ModalContent>
+                  <ModalText>
+                    {isExistingCode ? (
+                      <p>Here&apos;s your ride&apos;s existing share code:</p>
+                    ) : (
+                      <p>
+                        Share this code with someone who wants to join your ride:
+                      </p>
+                    )}
+                  </ModalText>
+
+                  {shareCode && (
+                    <ShareCodeContainer>
+                      <ShareCode>{shareCode}</ShareCode>
+                    </ShareCodeContainer>
                   )}
-                </ModalText>
 
-                {shareCode && (
-                  <ShareCodeContainer>
-                    <ShareCode>{shareCode}</ShareCode>
-                  </ShareCodeContainer>
-                )}
+                  <ModalNote>
+                    {isExistingCode
+                      ? "This code was generated earlier and is still active."
+                      : "This code is unique to your ride and will be removed once someone joins."}
+                  </ModalNote>
+                </ModalContent>
 
-                <ModalNote>
-                  {isExistingCode
-                    ? "This code was generated earlier and is still active."
-                    : "This code is unique to your ride and will be removed once someone joins."}
-                </ModalNote>
-              </ModalContent>
+                <ModalActions>
+                  <CopyButton onClick={this.generateInviteLink}>
+                    📋 Copy Invite Link
+                  </CopyButton>
+                  <DoneButton onClick={this.closeShareModal}>✓ Done</DoneButton>
+                </ModalActions>
+              </Modal>
+            </ModalOverlay>,
+            document.body
+          )}
 
-              <ModalActions>
-                <CopyButton onClick={this.generateInviteLink}>
-                  📋 Copy Invite Link
-                </CopyButton>
-                <DoneButton onClick={this.closeShareModal}>✓ Done</DoneButton>
-              </ModalActions>
-            </Modal>
-          </ModalOverlay>
-        )}
+        {/* Map Modal - Rendered via Portal */}
+        {this.state.mapModalOpen &&
+          ReactDOM.createPortal(
+            <ModalOverlay onClick={this.closeMapModal}>
+              <Modal onClick={(e) => e.stopPropagation()} style={{ maxWidth: "90vw", maxHeight: "90vh" }}>
+                <ModalHeader>
+                  <ModalTitle>
+                    <ModalIcon>🗺️</ModalIcon>
+                    Route Map
+                  </ModalTitle>
+                  <ModalClose onClick={this.closeMapModal}>✕</ModalClose>
+                </ModalHeader>
 
-        {/* Map Modal */}
-        {this.state.mapModalOpen && (
-          <ModalOverlay onClick={this.closeMapModal}>
-            <Modal onClick={(e) => e.stopPropagation()} style={{ maxWidth: "90vw", maxHeight: "90vh" }}>
-              <ModalHeader>
-                <ModalTitle>
-                  <ModalIcon>🗺️</ModalIcon>
-                  Route Map
-                </ModalTitle>
-                <ModalClose onClick={this.closeMapModal}>✕</ModalClose>
-              </ModalHeader>
+                <ModalContent style={{ padding: "0", height: "70vh", minHeight: "400px" }}>
+                  <RouteMapView
+                    startCoord={this.getPlaceCoordinates(ride.origin)}
+                    endCoord={this.getPlaceCoordinates(ride.destination)}
+                    height="100%"
+                  />
+                </ModalContent>
 
-              <ModalContent style={{ padding: "0", height: "70vh", minHeight: "400px" }}>
-                <RouteMapView
-                  startCoord={this.getPlaceCoordinates(ride.origin)}
-                  endCoord={this.getPlaceCoordinates(ride.destination)}
-                  height="100%"
-                />
-              </ModalContent>
-
-              <ModalActions>
-                <DoneButton onClick={this.closeMapModal}>✓ Close</DoneButton>
-              </ModalActions>
-            </Modal>
-          </ModalOverlay>
-        )}
+                <ModalActions>
+                  <DoneButton onClick={this.closeMapModal}>✓ Close</DoneButton>
+                </ModalActions>
+              </Modal>
+            </ModalOverlay>,
+            document.body
+          )}
       </>
     );
   }
