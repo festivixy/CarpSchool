@@ -23,7 +23,7 @@ const ProtectedRoutesComponent = ({
   // Create a functional component to use hooks
   const MainRouteWrapper = (props) => {
     // Determine if we should show the auth overlay
-    const showAuthOverlay = loggingIn && !userLoaded;
+    const showAuthOverlay = !loggedIn && !userLoaded;
 
     // Debug logging on state changes
     useEffect(() => {
@@ -102,7 +102,8 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
     const isLoggingIn = Meteor.loggingIn();
     const user = Meteor.user();
     const userLoaded = user !== undefined;
-    const showAuthOverlay = isLoggingIn && !userLoaded;
+    const isLogged = !!user;
+    const showAuthOverlay = !isLogged;
 
     // Debug logging on state changes
     useEffect(() => {
@@ -254,7 +255,7 @@ export const ProtectedRouteRequireAdmin = ({
     const userLoaded = user !== undefined;
 
     // Determine if we should show the auth overlay
-    const showAuthOverlay = userId && (!userLoaded || (isLoggingIn && !isAdmin));
+    const showAuthOverlay = !isLogged;
 
     // Debug logging on state changes
     useEffect(() => {
