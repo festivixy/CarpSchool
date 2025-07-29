@@ -26,6 +26,13 @@ Meteor.publish("chats.withEmail", async function publishChatsWithEmail(searchEma
     return this.ready();
   }
 
+  // Rate limit email fetches to 500ms (every 0.5 seconds)
+  const canProceed = await Meteor.callAsync("rateLimit.checkCall", "chats.withEmail", 500);
+  if (!canProceed) {
+    console.log(`Rate limit exceeded for chats.withEmail by user ${this.userId}`);
+    return this.ready();
+  }
+
   const currentUser = await Meteor.users.findOneAsync(this.userId);
   if (!currentUser || !currentUser.username) {
     return this.ready();
