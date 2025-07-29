@@ -5,7 +5,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
 import { Places } from "../../../api/places/Places.js";
-import PathMapView from "./PathMapView.jsx";
+import RouteMapView from "./RouteMapView.jsx";
 import {
   RideCard,
   Header,
@@ -472,11 +472,10 @@ class MobileRide extends React.Component {
               </ModalHeader>
 
               <ModalContent style={{ padding: "0", height: "70vh", minHeight: "400px" }}>
-                <PathMapView
+                <RouteMapView
                   startCoord={this.getPlaceCoordinates(ride.origin)}
                   endCoord={this.getPlaceCoordinates(ride.destination)}
                   height="100%"
-                  routingService="osrm"
                 />
               </ModalContent>
 
