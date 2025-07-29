@@ -267,6 +267,12 @@ class PlaceManager extends React.Component {
     const { places, ready } = this.props;
     const { modalOpen, editingPlace, formData, errors, loading } = this.state;
 
+    // Debug: Log place data structure
+    if (places && places.length > 0) {
+      console.log("DEBUG: First place data:", places[0]);
+      console.log("DEBUG: All place fields:", Object.keys(places[0]));
+    }
+
     if (!ready) {
       return (
         <Container>
@@ -285,7 +291,23 @@ class PlaceManager extends React.Component {
             <TitleIcon>📍</TitleIcon>
             My Places
           </Title>
-          <AddButton onClick={this.openAddModal}>➕ Add Place</AddButton>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <AddButton
+              onClick={() => {
+                Meteor.call("places.debug", (error, result) => {
+                  if (error) {
+                    console.error("Debug error:", error);
+                  } else {
+                    console.log("Debug result:", result);
+                  }
+                });
+              }}
+              style={{ backgroundColor: "#ff9800" }}
+            >
+              🐛 Debug
+            </AddButton>
+            <AddButton onClick={this.openAddModal}>➕ Add Place</AddButton>
+          </div>
         </Header>
 
         <Content>
