@@ -74,6 +74,25 @@ class AdminPlaceManager extends React.Component {
     };
   }
 
+  fixLegacyPlaces = () => {
+    swal({
+      title: "Fix Legacy Places?",
+      text: "This will add missing createdBy and createdAt fields to existing places. Continue?",
+      icon: "warning",
+      buttons: ["Cancel", "Fix Places"],
+    }).then((willFix) => {
+      if (willFix) {
+        Meteor.call("places.fixLegacyPlaces", (error, result) => {
+          if (error) {
+            swal("Error", error.message, "error");
+          } else {
+            swal("Success", result.message, "success");
+          }
+        });
+      }
+    });
+  };
+
   openAddModal = () => {
     this.setState({
       modalOpen: true,
@@ -293,7 +312,12 @@ class AdminPlaceManager extends React.Component {
             Manage All Places
             <AdminBadge>Admin</AdminBadge>
           </Title>
-          <AddButton onClick={this.openAddModal}>➕ Add Place</AddButton>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <AddButton onClick={this.fixLegacyPlaces} style={{ backgroundColor: "#ff9800" }}>
+              🔧 Fix Legacy Places
+            </AddButton>
+            <AddButton onClick={this.openAddModal}>➕ Add Place</AddButton>
+          </div>
         </Header>
 
         <Content>
