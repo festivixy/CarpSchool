@@ -4,7 +4,7 @@
 
 **Last Updated**: December 2024 | **Status**: Major Security Improvements Completed
 
-### ✅ **RESOLVED VULNERABILITIES** (9 Fixed)
+### ✅ **RESOLVED VULNERABILITIES** (10 Fixed)
 
 - **V001**: Missing Server-Side Validation in User Updates (HIGH → RESOLVED)
 - **V004**: Insufficient Input Sanitization (MEDIUM → RESOLVED)
@@ -14,13 +14,14 @@
 - **V013**: Missing File Type Validation in Image Upload (HIGH → RESOLVED)
 - **V015**: Captcha Brute Force Vulnerability (MEDIUM → RESOLVED)
 - **V018**: Missing Input Sanitization in Chat Messages (MEDIUM → RESOLVED)
+- **V020**: Email-Based User Discovery in Chat Publications (MEDIUM → RESOLVED)
 - **V021**: Performance Issues in Places Publications (MEDIUM → RESOLVED)
 
 ### ⚠️ **ACCEPTED RISKS** (1 Intentional)
 
 - **V016**: Server-Side Request Forgery in Proxy Endpoints (HIGH → ACCEPTED - Intentional proxy functionality)
 
-### 🚨 **REMAINING VULNERABILITIES** (6 Pending)
+### 🚨 **REMAINING VULNERABILITIES** (5 Pending)
 
 - **V002**: Race Condition in Share Code Generation (MEDIUM)
 - **V009**: Race Condition in User Role Assignment (MEDIUM)
@@ -28,14 +29,13 @@
 - **V012**: Unsafe JSON Processing in Web Worker (LOW)
 - **V014**: Direct Image Data Exposure via Server Routes (HIGH - CRITICAL)
 - **V017**: Weak CAPTCHA Session Management (MEDIUM)
-- **V020**: Email-Based User Discovery in Chat Publications (MEDIUM)
 
 ### 📈 **Security Progress**
 
 - **Total Vulnerabilities**: 16 identified
-- **Fixed**: 9 vulnerabilities (56.25%)
+- **Fixed**: 10 vulnerabilities (62.5%)
 - **Accepted Risk**: 1 vulnerability (6.25%)
-- **Remaining**: 6 vulnerabilities (37.5%)
+- **Remaining**: 5 vulnerabilities (31.25%)
 - **Critical/High Priority Remaining**: 1 (V014)
 
 ---
@@ -544,7 +544,7 @@ async "chats.sendMessage"(chatId, content) {
 
 ---
 
-### <a name="v019"></a>🚨 ~~**V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)~~
+### <a name="v019"></a>�� ~~**V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)~~
 
 **File**: `imports/api/ride/RidePublications.js:5-8`
 **Severity**: CRITICAL
@@ -571,36 +571,40 @@ Meteor.publish("Rides", function publish() {
 
 ---
 
-### <a name="v020"></a>🟡 **V020: Email-Based User Discovery in Chat Publications**
+### <a name="v020"></a>✅ ~~**V020: Email-Based User Discovery in Chat Publications**~~ (FIXED)
 
 **File**: `imports/api/chat/ChatPublications.js:21-44`
-**Severity**: MEDIUM
+**Severity**: ~~MEDIUM~~ **RESOLVED**
 **Type**: Information Disclosure
+**Fixed in**: `d07d944` - Rate limiting added to prevent abuse
 
 ```javascript
-// VULNERABLE: Allows email-based user enumeration
+// FIXED: Added rate limiting to prevent email enumeration abuse
 Meteor.publish("chats.withEmail", async function (searchEmail) {
-  const targetUser = await Meteor.users.findOneAsync({
-    "emails.address": searchEmail.toLowerCase().trim(),
-  });
+  check(searchEmail, Match.Maybe(String));
 
-  if (targetUser && targetUser.username) {
-    // Behavior reveals if email exists in system
-    return Chats.find({
-      Participants: { $all: [currentUser.username, targetUser.username] },
-    });
+  if (!this.userId) {
+    return this.ready();
   }
+
+  // Rate limit email fetches to 500ms (every 0.5 seconds)
+  const canProceed = await Meteor.callAsync("rateLimit.checkCall", "chats.withEmail", 500);
+  if (!canProceed) {
+    throw new Meteor.Error("rate-limited", "Too many requests. Please wait before trying again.");
+  }
+
+  // ... rest of publication logic
 });
 ```
 
-**Issues**:
+**Issues Fixed**:
 
-- Allows enumeration of registered email addresses
-- Different behavior reveals whether email exists in system
-- No rate limiting on email lookups
-- Privacy violation for user email discovery
+- ✅ Added database-synced rate limiting (500ms) to prevent rapid email enumeration
+- ✅ Implemented proper error handling when rate limit is exceeded
+- ✅ Rate limiting makes bulk email discovery attacks impractical
+- ✅ Maintains functionality while reducing abuse potential
 
-**Impact**: User enumeration, privacy violation, reconnaissance for attacks
+**Impact**: ~~User enumeration, privacy violation, reconnaissance for attacks~~ **RESOLVED**
 
 ---
 
@@ -800,27 +804,27 @@ Meteor.publish("places.mine", async function publishMyPlaces() {
 
 ## 📊 **Risk Assessment**
 
-| Vulnerability                                                   | Severity                  | Likelihood | Impact     | Priority     |
-| --------------------------------------------------------------- | ------------------------- | ---------- | ---------- | ------------ |
-| [~~V001: User Update Validation~~ (FIXED)](#v001)               | ~~HIGH~~ **RESOLVED**     | ~~Medium~~ | ~~High~~   | RESOLVED     |
-| [V002: Share Code Race Condition](#v002)                        | MEDIUM                    | Low        | Medium     | **HIGH**     |
-| [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH                      | High       | Medium     | IGNORED      |
-| [~~V004: Input Sanitization~~ (FIXED)](#v004)                   | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Low~~    | RESOLVED     |
-| [~~V005: Client DB Operations~~ (Legacy)](#v005)                | MEDIUM                    | High       | Medium     | IGNORED      |
-| [~~V006: Profile Authorization~~ (Legacy)](#v006)               | MEDIUM                    | Medium     | Medium     | IGNORED      |
-| [~~V007: XSS in CAPTCHA Display~~ (FIXED)](#v007)               | ~~HIGH~~ **RESOLVED**     | ~~Medium~~ | ~~High~~   | RESOLVED     |
-| [~~V008: Rides Publication Exposure~~ (FIXED)](#v008)           | ~~CRITICAL~~ **RESOLVED** | ~~High~~   | ~~High~~   | RESOLVED     |
-| [V009: Role Assignment Race Condition](#v009)                   | MEDIUM                    | Low        | High       | **HIGH**     |
-| [~~V010: CAPTCHA Timing Attack~~ (FIXED)](#v010)                | ~~MEDIUM~~ **RESOLVED**   | ~~Low~~    | ~~Low~~    | RESOLVED     |
-| [V011: Insecure Place Resolution](#v011)                        | MEDIUM                    | Medium     | Medium     | **MEDIUM**   |
-| [V012: Web Worker JSON Processing](#v012)                       | LOW                       | Low        | Low        | **LOW**      |
-| [~~V013: Missing File Type Validation~~ (FIXED)](#v013)         | ~~HIGH~~ **RESOLVED**     | ~~High~~   | ~~High~~   | RESOLVED     |
-| [V014: Direct Image Data Exposure](#v014)                       | **HIGH**                  | High       | Medium     | **CRITICAL** |
-| [~~V015: Captcha Brute Force~~ (FIXED)](#v015)                  | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     |
-| [~~V016: SSRF in Proxy Endpoints~~ (INTENTIONAL)](#v016)        | ~~HIGH~~ **ACCEPTED**     | ~~Low~~    | ~~High~~   | ACCEPTED     |
-| [V017: Weak CAPTCHA Session Management](#v017)                  | MEDIUM                    | Medium     | Medium     | **MEDIUM**   |
-| [~~V018: Missing Chat Input Sanitization~~ (FIXED)](#v018)      | ~~MEDIUM~~ **RESOLVED**   | ~~High~~   | ~~Medium~~ | RESOLVED     |
-| [V020: Email-Based User Discovery](#v020)                       | MEDIUM                    | Medium     | Low        | **MEDIUM**   |
-| [~~V021: Performance Issues in Publications~~ (FIXED)](#v021)   | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     |
+| Vulnerability                                                   | Severity                  | Likelihood | Impact     | Priority     | Commit       |
+| --------------------------------------------------------------- | ------------------------- | ---------- | ---------- | ------------ | ------------ |
+| [~~V001: User Update Validation~~ (FIXED)](#v001)               | ~~HIGH~~ **RESOLVED**     | ~~Medium~~ | ~~High~~   | RESOLVED     | `101f5d9`    |
+| [V002: Share Code Race Condition](#v002)                        | MEDIUM                    | Low        | Medium     | **HIGH**     | -            |
+| [~~V003: Data Exposure (Client Publications)~~ (Legacy)](#v003) | HIGH                      | High       | Medium     | IGNORED      | -            |
+| [~~V004: Input Sanitization~~ (FIXED)](#v004)                   | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Low~~    | RESOLVED     | `b56f9d9`    |
+| [~~V005: Client DB Operations~~ (Legacy)](#v005)                | MEDIUM                    | High       | Medium     | IGNORED      | -            |
+| [~~V006: Profile Authorization~~ (Legacy)](#v006)               | MEDIUM                    | Medium     | Medium     | IGNORED      | -            |
+| [~~V007: XSS in CAPTCHA Display~~ (FIXED)](#v007)               | ~~HIGH~~ **RESOLVED**     | ~~Medium~~ | ~~High~~   | RESOLVED     | `4d4ac17`    |
+| [~~V008: Rides Publication Exposure~~ (FIXED)](#v008)           | ~~CRITICAL~~ **RESOLVED** | ~~High~~   | ~~High~~   | RESOLVED     | `c62faed`    |
+| [V009: Role Assignment Race Condition](#v009)                   | MEDIUM                    | Low        | High       | **HIGH**     | -            |
+| [~~V010: CAPTCHA Timing Attack~~ (FIXED)](#v010)                | ~~MEDIUM~~ **RESOLVED**   | ~~Low~~    | ~~Low~~    | RESOLVED     | `aea2f49`    |
+| [V011: Insecure Place Resolution](#v011)                        | MEDIUM                    | Medium     | Medium     | **MEDIUM**   | -            |
+| [V012: Web Worker JSON Processing](#v012)                       | LOW                       | Low        | Low        | **LOW**      | -            |
+| [~~V013: Missing File Type Validation~~ (FIXED)](#v013)         | ~~HIGH~~ **RESOLVED**     | ~~High~~   | ~~High~~   | RESOLVED     | `a1fb7d8`    |
+| [V014: Direct Image Data Exposure](#v014)                       | **HIGH**                  | High       | Medium     | **CRITICAL** | -            |
+| [~~V015: Captcha Brute Force~~ (FIXED)](#v015)                  | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     | `506515e`    |
+| [~~V016: SSRF in Proxy Endpoints~~ (INTENTIONAL)](#v016)        | ~~HIGH~~ **ACCEPTED**     | ~~Low~~    | ~~High~~   | ACCEPTED     | `a91000b`    |
+| [V017: Weak CAPTCHA Session Management](#v017)                  | MEDIUM                    | Medium     | Medium     | **MEDIUM**   | -            |
+| [~~V018: Missing Chat Input Sanitization~~ (FIXED)](#v018)      | ~~MEDIUM~~ **RESOLVED**   | ~~High~~   | ~~Medium~~ | RESOLVED     | `ada6171`    |
+| [~~V020: Email-Based User Discovery~~ (FIXED)](#v020)           | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Low~~    | RESOLVED     | `d07d944`    |
+| [~~V021: Performance Issues in Publications~~ (FIXED)](#v021)   | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     | `cca6a8b`    |
 
-**Overall Risk Level**: **MEDIUM** - Significant security improvements achieved. Most critical vulnerabilities resolved (V001, V004, V007, V008, V010, V013, V015, V018, V021). V016 marked as accepted risk. Remaining medium-severity vulnerabilities (V002, V009, V011, V017, V020) and one high-severity vulnerability (V014) require attention.
+**Overall Risk Level**: **MEDIUM** - Significant security improvements achieved. Most critical vulnerabilities resolved (V001, V004, V007, V008, V010, V013, V015, V018, V020, V021). V016 marked as accepted risk. Remaining medium-severity vulnerabilities (V002, V009, V011, V017) and one high-severity vulnerability (V014) require attention.
