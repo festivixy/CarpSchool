@@ -4,10 +4,19 @@ import { Rides } from "../ride/Rides";
 
 /**
  * Publish places that the current user created or places used in their rides
+ * Rate limited to prevent performance issues and DoS attacks
  */
 Meteor.publish("places.mine", async function publishMyPlaces() {
   if (!this.userId) {
     return this.ready();
+  }
+
+  // Rate limit to 1 call per 3 seconds to prevent DoS attacks (fixes V021)
+  // Syncs to database for persistence across server restarts
+  const canProceed = await Meteor.callAsync("rateLimit.checkCall", "places.mine", 3000);
+  if (!canProceed) {
+    this.ready();
+    return;
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
