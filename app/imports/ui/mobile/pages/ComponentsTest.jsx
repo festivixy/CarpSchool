@@ -144,7 +144,7 @@ const MobileTestMapView = () => {
 
   // Dropdown options
   const cityOptions = [
-    { value: "vancouver", label: "Vancouver", icon: "🏙����" },
+    { value: "vancouver", label: "Vancouver", icon: "🏙" },
     { value: "toronto", label: "Toronto", icon: "🌆" },
     { value: "montreal", label: "Montreal", icon: "🏛️" },
     { value: "calgary", label: "Calgary", icon: "🏔️" },
@@ -1281,21 +1281,21 @@ const MobileTestMapView = () => {
 
             <InfoCard>
               <InfoItem>
-                <InfoLabel>📱 SVG Icons Required</InfoLabel>
+                <InfoLabel>📱 SVG Icons Included</InfoLabel>
                 <InfoValue>
-                  The component needs these SVG files in /public/svg/:
+                  The component uses inline SVG icons for optimal performance:
                   <br />
-                  • <strong>home.svg</strong> - House/home icon for My Rides/Home tab
+                  • <strong>Home icon</strong> - House outline for My Rides/Home tab
                   <br />
-                  • <strong>search.svg</strong> - Magnifying glass icon for Join Ride tab
+                  • <strong>Search icon</strong> - Magnifying glass for Join Ride tab
                   <br />
-                  • <strong>plus.svg</strong> - Plus/add icon for Create Ride tab
+                  • <strong>Plus icon</strong> - Add/create symbol for Create Ride tab
                   <br />
-                  • <strong>chat.svg</strong> - Chat bubble/message icon for Messages tab
+                  • <strong>Chat icon</strong> - Message bubble for Messages tab
                   <br />
-                  • <strong>user.svg</strong> - User/profile icon for Profile tab
+                  • <strong>User icon</strong> - Profile silhouette for Profile tab
                   <br />
-                  All icons should be 24x24px and optimized for mobile display.
+                  All icons are 24x24px with consistent stroke styling and hover animations.
                 </InfoValue>
               </InfoItem>
             </InfoCard>
