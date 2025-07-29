@@ -1,10 +1,14 @@
 {
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
     "ecmaVersion": 2017,
     "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
+    },
+    "requireConfigFile": false,
+    "babelOptions": {
+      "presets": ["@babel/preset-react"]
     }
   },
   "plugins": [
@@ -14,9 +18,9 @@
   "settings": {
     "react": {
       "createClass": "createReactClass",
-      "pragma": "React",  // Pragma to use, default to "React"
-      "version": "15.0", // React version, default to the latest React stable release
-      "flowVersion": "0.53" // Flow version
+      "pragma": "React",
+      "version": "16.14",
+      "flowVersion": "0.53"
     },
     "propWrapperFunctions": [ "forbidExtraProps" ]
   },
@@ -56,9 +60,9 @@
     "no-await-in-loop": "off",
     "no-undef": "off",
     "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": true, "argsIgnorePattern": "^_" }],
-    "react/no-unknown-property": ["error", { "ignore": ["jsx"] }],
+    "react/no-unknown-property": ["error", { "ignore": ["jsx"] }]
   },
   "globals": {
-    "Assets": true // Meteor disallows importing of Assets, see https://docs.meteor.com/api/assets.html
+    "Assets": true
   }
 }
