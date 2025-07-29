@@ -104,8 +104,6 @@ class MobileEditProfile extends React.Component {
     this.setState({ [name]: value });
   };
 
-
-
   // Convert file to base64
   fileToBase64 = (file) => new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -238,8 +236,7 @@ class MobileEditProfile extends React.Component {
               isUploadingProfile: false,
             });
           });
-      },
-    );
+      });
   };
 
   uploadRideImage = () => {
@@ -316,8 +313,7 @@ class MobileEditProfile extends React.Component {
               isUploadingRide: false,
             });
           });
-      },
-    );
+      });
   };
 
   handleSubmit = (e) => {

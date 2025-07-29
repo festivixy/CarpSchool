@@ -49,8 +49,6 @@ export default class MobileSignIn extends React.Component {
     this.setState({ [name]: value });
   };
 
-
-
   /** Handle form submission */
   handleSubmit = (e) => {
     e.preventDefault();
@@ -70,7 +68,7 @@ export default class MobileSignIn extends React.Component {
     this.captchaRef.current.verify((captchaError, isValid) => {
       if (captchaError || !isValid) {
         this.setState({
-          error: captchaError || "Invalid security code. Please try again."
+          error: captchaError || "Invalid security code. Please try again.",
         });
         return;
       }
