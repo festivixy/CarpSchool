@@ -1,8 +1,7 @@
 import styled from "styled-components";
 
 export const NavBarContainer = styled.div`
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
+  background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
   max-width: 480px;
   width: 100%;
@@ -18,8 +17,7 @@ export const NavBarContainer = styled.div`
 `;
 
 export const TabBarInner = styled.div`
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);
   width: 100%;
   position: relative;
@@ -65,15 +63,16 @@ export const TabBarItem = styled.div`
   transition: all 0.3s ease;
   border-radius: 12px;
   position: relative;
+  background: rgba(255, 255, 255, 0.9);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.8);
     transform: translateY(-2px);
   }
 
   &:active {
     transform: translateY(0);
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.7);
   }
 `;
 
@@ -94,15 +93,16 @@ export const TabWithBadge = styled.div`
   transition: all 0.3s ease;
   border-radius: 12px;
   position: relative;
+  background: rgba(255, 255, 255, 0.9);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.8);
     transform: translateY(-2px);
   }
 
   &:active {
     transform: translateY(0);
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.7);
   }
 `;
 
@@ -164,18 +164,17 @@ export const TabLabel = styled.span`
 export const DropdownContainer = styled.div`
   position: fixed;
   bottom: 80px;
-  right: calc(50vw - 240px + 38px);
+  right: calc(50vw - 240px + 10px);
   z-index: 1001;
   max-width: 300px;
 
   @media (max-width: 480px) {
-    right: 38px;
+    right: 10px;
   }
 `;
 
 export const DropdownMenu = styled.div`
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.9);
   border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
@@ -196,7 +195,7 @@ export const DropdownMenu = styled.div`
     height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-top: 10px solid rgba(255, 255, 255, 0.98);
+    border-top: 10px solid rgba(255, 255, 255, 0.9);
     z-index: 1002;
   }
 
@@ -224,15 +223,15 @@ export const DropdownItem = styled.div`
   color: #333;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.9);
 
   &:hover {
-    background: rgba(0, 123, 255, 0.1);
+    background: rgba(0, 123, 255, 0.8);
     color: #0056b3;
   }
 
   &:active {
-    background: rgba(0, 123, 255, 0.2);
+    background: rgba(0, 123, 255, 0.7);
   }
 
   &:not(:last-child) {

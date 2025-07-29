@@ -172,19 +172,8 @@ class LiquidGlassMobileNavBar extends React.Component {
 
         {/* User Dropdown Menu - OUTSIDE NavBarContainer to avoid clipping */}
         {this.state.userMenuOpen && (
-          <DropdownContainer style={{
-            backgroundColor: 'red',
-            border: '3px solid blue',
-            padding: '5px'
-          }}>
-            <DropdownMenu
-              $isOpen={this.state.userMenuOpen}
-              style={{
-                backgroundColor: 'white',
-                border: '2px solid black',
-                boxShadow: '0 0 20px rgba(0,0,0,0.5)'
-              }}
-            >
+          <DropdownContainer>
+            <DropdownMenu $isOpen={this.state.userMenuOpen}>
               {currentUser ? (
                 <>
                   <DropdownItem onClick={() => this.handleNavigation("/editProfile")}>
