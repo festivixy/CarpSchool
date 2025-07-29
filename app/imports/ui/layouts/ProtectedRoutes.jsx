@@ -23,28 +23,44 @@ const ProtectedRoutesComponent = ({
   <Route
     {...rest}
     render={(props) => {
+      // Debug logging
+      console.log('ProtectedRoutesComponent Debug:', {
+        loggingIn,
+        userLoaded,
+        loggedIn,
+        emailVerified,
+        ready,
+        profileData: profileData ? 'profile exists' : profileData,
+        path: props.location.pathname
+      });
+
       // Show loading while authentication state is being determined
       // Only show loading if we're actually logging in AND haven't loaded user data yet
       if (loggingIn && !userLoaded) {
+        console.log('Showing loading page for main protected route');
         return <LoadingPage message="Authenticating..." />;
       }
 
       // If not logged in, redirect to signin
       if (!loggedIn) {
+        console.log('User not logged in, redirecting to signin');
         return <Redirect to="/signin" />;
       }
 
       // If email not verified, redirect to verify email page
       if (!emailVerified) {
+        console.log('Email not verified, redirecting to verify-email');
         return <Redirect to="/verify-email" />;
       }
 
       // If logged in, email verified, but no profile, redirect to onboarding
       if (ready && !profileData) {
+        console.log('No profile data, redirecting to onboarding');
         return <Redirect to="/onboarding" />;
       }
 
       // If everything is good, render the component
+      console.log('All checks passed, rendering component');
       return <Component {...props} />;
     }}
   />
@@ -164,21 +180,50 @@ export const ProtectedRouteRequireAdmin = ({
     render={(props) => {
       const isLoggingIn = Meteor.loggingIn();
       const user = Meteor.user();
-      const isLogged = Meteor.userId() !== null;
+      const userId = Meteor.userId();
+      const isLogged = userId !== null;
       const isAdmin = user && user.roles && user.roles.includes("admin");
+      const userLoaded = user !== undefined;
+
+      // Debug logging
+      console.log('ProtectedRouteRequireAdmin Debug:', {
+        isLoggingIn,
+        user: user ? 'user object exists' : user,
+        userId,
+        isLogged,
+        isAdmin,
+        userLoaded,
+        userRoles: user ? user.roles : 'no user',
+        path: props.location.pathname
+      });
 
       // Show loading while authentication state is being determined
-      if (isLoggingIn) {
+      // Only show loading if we're logging in AND user data not loaded yet
+      if (isLoggingIn && !userLoaded) {
+        console.log('Showing loading page for admin route');
         return <LoadingPage message="Authenticating..." />;
       }
 
-      return isLogged && isAdmin ? (
-        <Component {...props} />
-      ) : (
-        <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
-        />
-      );
+      if (!isLogged) {
+        console.log('User not logged in, redirecting to signin');
+        return (
+          <Redirect
+            to={{ pathname: "/signin", state: { from: props.location } }}
+          />
+        );
+      }
+
+      if (!isAdmin) {
+        console.log('User not admin, redirecting to signin');
+        return (
+          <Redirect
+            to={{ pathname: "/signin", state: { from: props.location } }}
+          />
+        );
+      }
+
+      console.log('User is admin, rendering component');
+      return <Component {...props} />;
     }}
   />
 );
