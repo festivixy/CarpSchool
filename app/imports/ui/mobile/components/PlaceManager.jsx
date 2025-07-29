@@ -310,14 +310,16 @@ class PlaceManager extends React.Component {
                       <PlaceCoordinates>{place.value}</PlaceCoordinates>
                       <PlaceDate>
                         Created:{" "}
-                        {new Date(place.createdAt).toLocaleDateString()}
+                        {place.createdAt
+                          ? new Date(place.createdAt).toLocaleDateString()
+                          : "Legacy place"}
                       </PlaceDate>
                       <PlaceDate style={{ marginTop: "4px", fontWeight: "600", color: "#007bff" }}>
                         Creator: {place.createdBy ? (
                           place.createdBy === Meteor.userId()
                             ? "You"
                             : (this.state.creatorNames[place.createdBy] || "Loading...")
-                        ) : "Unknown"}
+                        ) : "Legacy user"}
                       </PlaceDate>
                     </PlaceInfo>
                     <ActionButtons>
