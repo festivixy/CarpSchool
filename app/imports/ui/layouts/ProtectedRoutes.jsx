@@ -4,6 +4,7 @@ import { Route, Redirect } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Profiles } from "../../api/profile/Profile";
+import LoadingPage from "../mobile/components/LoadingPage";
 
 /**
  * Main protected route with onboarding logic
@@ -48,8 +49,16 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => (
   <Route
     {...rest}
     render={(props) => {
-      if (Meteor.user()) {
-        if (Meteor.user().emails[0].verified) {
+      const isLoggingIn = Meteor.loggingIn();
+      const user = Meteor.user();
+
+      // Show loading while authentication state is being determined
+      if (isLoggingIn) {
+        return <LoadingPage message="Authenticating..." />;
+      }
+
+      if (user) {
+        if (user.emails[0].verified) {
           return <Component {...props} />;
         }
         return <Redirect to="/verify-email" />;
@@ -70,17 +79,27 @@ export const ProtectedRouteRequireNotEmailVerified = ({
   <Route
     {...rest}
     render={(props) => {
-      if (Meteor.user()) {
-        if (!Meteor.user().emails[0].verified) {
+      const isLoggingIn = Meteor.loggingIn();
+      const user = Meteor.user();
+
+      // Show loading while authentication state is being determined
+      if (isLoggingIn) {
+        return <LoadingPage message="Authenticating..." />;
+      }
+
+      if (user) {
+        if (!user.emails[0].verified) {
           return <Component {...props} />;
         }
-        <Redirect // eslint-disable-line
-          to={
-            props.location.state && props.location.state.from // eslint-disable-line
-              ? props.location.state.from.pathname
-              : "/"
-          }
-        />;
+        return (
+          <Redirect
+            to={
+              props.location.state && props.location.state.from
+                ? props.location.state.from.pathname
+                : "/"
+            }
+          />
+        );
       }
       return (
         <Redirect
@@ -101,7 +120,15 @@ export const ProtectedRouteRequireNotLoggedIn = ({
   <Route
     {...rest}
     render={(props) => {
-      if (!Meteor.user()) {
+      const isLoggingIn = Meteor.loggingIn();
+      const user = Meteor.user();
+
+      // Show loading while authentication state is being determined
+      if (isLoggingIn) {
+        return <LoadingPage message="Authenticating..." />;
+      }
+
+      if (!user) {
         return <Component {...props} />;
       }
       return (
@@ -127,9 +154,16 @@ export const ProtectedRouteRequireAdmin = ({
   <Route
     {...rest}
     render={(props) => {
-      const isLogged = Meteor.userId() !== null;
+      const isLoggingIn = Meteor.loggingIn();
       const user = Meteor.user();
+      const isLogged = Meteor.userId() !== null;
       const isAdmin = user && user.roles && user.roles.includes("admin");
+
+      // Show loading while authentication state is being determined
+      if (isLoggingIn) {
+        return <LoadingPage message="Authenticating..." />;
+      }
+
       return isLogged && isAdmin ? (
         <Component {...props} />
       ) : (
