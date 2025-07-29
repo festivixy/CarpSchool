@@ -35,6 +35,9 @@ export const RideCard = styled.div`
     sans-serif;
   max-width: 400px;
   margin: 0 auto;
+  /* Prevent creating stacking context that interferes with modals */
+  position: relative;
+  z-index: 1;
 
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
@@ -329,9 +332,11 @@ export const ModalOverlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   padding: 20px;
   box-sizing: border-box;
+  /* Ensure it's always on top */
+  isolation: isolate;
 `;
 
 export const Modal = styled.div`
