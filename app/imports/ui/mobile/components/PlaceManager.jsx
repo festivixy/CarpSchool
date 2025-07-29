@@ -267,10 +267,6 @@ class PlaceManager extends React.Component {
     const { places, ready } = this.props;
     const { modalOpen, editingPlace, formData, errors, loading } = this.state;
 
-    // Debug logging
-    console.log("PlaceManager places:", places);
-    console.log("CreatorNames state:", this.state.creatorNames);
-
     if (!ready) {
       return (
         <Container>
