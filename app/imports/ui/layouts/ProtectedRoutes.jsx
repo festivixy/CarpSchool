@@ -197,15 +197,16 @@ export const ProtectedRouteRequireAdmin = ({
         path: props.location.pathname
       });
 
-      // Show loading while authentication state is being determined
-      // Only show loading if we're logging in AND user data not loaded yet
-      if (isLoggingIn && !userLoaded) {
-        console.log('Showing loading page for admin route');
-        return <LoadingPage message="Authenticating..." />;
+      // Show loading only if we have a userId but no user object yet
+      // This means we're logged in but user data is still loading
+      if (userId && !userLoaded) {
+        console.log('User ID exists but user data not loaded, showing loading page');
+        return <LoadingPage message="Loading user data..." />;
       }
 
-      if (!isLogged) {
-        console.log('User not logged in, redirecting to signin');
+      // If we don't have a userId, we're definitely not logged in
+      if (!userId) {
+        console.log('No user ID, redirecting to signin');
         return (
           <Redirect
             to={{ pathname: "/signin", state: { from: props.location } }}
