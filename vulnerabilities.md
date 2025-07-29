@@ -544,7 +544,7 @@ async "chats.sendMessage"(chatId, content) {
 
 ---
 
-### <a name="v019"></a>🚨 **V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)
+### <a name="v019"></a>🚨 ~~**V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)~~
 
 **File**: `imports/api/ride/RidePublications.js:5-8`
 **Severity**: CRITICAL
@@ -562,12 +562,12 @@ Meteor.publish("Rides", function publish() {
 
 **Issues**:
 
-- All rides published to any authenticated user without filtering
-- Complete violation of data privacy - users can see all rides
-- No authorization based on ride participation
-- Exposes sensitive data (destinations, times, driver/rider info)
+- ~~All rides published to any authenticated user without filtering~~
+- ~~Complete violation of data privacy - users can see all rides~~
+- ~~No authorization based on ride participation~~
+- ~~Exposes sensitive data (destinations, times, driver/rider info)~~
 
-**Impact**: Complete privacy violation, GDPR compliance issues, data leakage
+**Impact**: ~~Complete privacy violation, GDPR compliance issues, data leakage~~
 
 ---
 
