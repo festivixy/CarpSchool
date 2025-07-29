@@ -6,14 +6,14 @@ A modern web application built with Meteor and React that facilitates ride shari
 
 ### Core Functionality
 
-- **Create Rides**: Drivers can post available rides with pickup/dropoff locations, dates, and times
+- **Create Rides**: Drivers can post available rides with pickup/dropoff locations, dates, and times (unfinished)
 - **Join Rides**: Riders can search and join available rides using shareable invite codes
 - **Ride Management**: Users can view their active rides as both drivers and passengers
-- **Real-time Updates**: Dynamic ride status updates and availability
+- **Real-time Updates**: Dynamic ride status updates and availability (soon)
 
 ### Other Features
 
-- **CAPTCHA Verification**: SVG-based CAPTCHA for bot prevention during signup and signin
+- **CAPTCHA Verification**: SVG-based CAPTCHA for bot prevention
 
 ## Prerequisites
 
@@ -42,6 +42,7 @@ Before running this application, make sure you have the following installed:
    ```
 
 3. **Install dependencies**
+
    ```bash
    meteor npm install
    ```
@@ -59,7 +60,7 @@ This will start the Meteor development server with:
 
 - Hot reloading enabled
 - Development settings loaded
-- MongoDB server
+- MongoDB server `mongodb://127.0.0.1:3002/meteor?directConnection=true&serverSelectionTimeoutMS=2000`
 - Application available at `http://localhost:3001`
 
 ### Production Mode
@@ -73,39 +74,11 @@ npm start prod
 
 This will build, setup, and run the application in production mode with docker.
 
-### Environment Configuration
-
-The application scripts support several environment variables for customizing behavior:
-
-#### Input Timeout Configuration
-
-- **`READ_TIMEOUT`** - Sets the timeout for user input prompts (default: 10 seconds)
-  ```bash
-  export READ_TIMEOUT=30  # 30 second timeout
-  ./runner.sh dev
-  ```
-
-#### Non-Interactive Mode
-
-- **`CARPOOL_NONINTERACTIVE`** - Enables non-interactive mode for automated deployments
-  ```bash
-  export CARPOOL_NONINTERACTIVE=1
-  ./build-and-run.sh  # Will use defaults for all prompts
-  ```
-
-#### Default Behaviors
-
-- **Interactive mode (default)**: Scripts prompt for user input with configurable timeout
-- **Non-interactive mode**: Scripts automatically use default values or first valid choices
-- **Timeout handling**: Falls back to default values when input timeout is reached
-- **Error resilience**: Maximum 3 retry attempts for invalid input before using fallbacks
-- **CI/CD friendly**: Automatically detects when stdin is unavailable and uses defaults
-
 ## Code Quality & Linting
 
 This project maintains high code quality standards using ESLint.
 
-### Checking and fixing lint errors:
+### Checking and fixing lint errors
 
 ```bash
 cd app
@@ -118,7 +91,7 @@ We welcome contributions to improve the Carpool application! Here's how you can 
 
 ### Getting Started
 
-1. **Fork the repository** on GitHub
+1. **Fork the repository** on GitHub (zlc1004/Carpool)
 2. **Clone your fork** locally
 3. **Create a feature branch**: `git checkout -b feature/your-feature-name`
 4. **Set up the development environment** following the installation steps above
@@ -131,18 +104,10 @@ We welcome contributions to improve the Carpool application! Here's how you can 
 4. **Ensure all lint checks pass**: `npm run lint`
 5. **Keep commits focused** - one feature/fix per commit when possible
 
-### Code Standards
-
-- **JavaScript/React**: Follow Airbnb ESLint configuration
-- **File Organization**: Place files in appropriate directories following the existing structure
-- **Component Structure**: Use functional components where possible, class components when state is needed
-- **Naming Conventions**: Use descriptive names for variables, functions, and components
-- **Comments**: Add JSDoc comments for complex functions and components
-
 ### Submitting Changes
 
-1. **Commit your changes**: `git commit -m "Add feature: description"`
-2. **Push to your fork**: `git push origin feature/your-feature-name`
+1. **Commit your changes**: `git commit -m "feat: description"`
+2. **Push to your fork**: `git push origin feature/your-feature-name` or `git push`
 3. **Create a Pull Request** on GitHub with:
    - Clear description of changes
    - Screenshots if UI changes are involved
@@ -150,7 +115,7 @@ We welcome contributions to improve the Carpool application! Here's how you can 
 
 ### Areas for Contribution
 
-- **New Features**: Additional ride sharing functionality
+- **New Features**: Additional ride sharing functionality or enhancements (ask first)
 - **UI/UX Improvements**: Enhanced user interface and experience (PLEASE)
 - **Documentation**: Improve or expand documentation
 - **Bug Fixes**: Address any issues found in the application
