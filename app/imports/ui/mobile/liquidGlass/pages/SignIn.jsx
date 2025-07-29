@@ -49,8 +49,6 @@ export default class LiquidGlassSignIn extends React.Component {
     this.setState({ [name]: value });
   };
 
-
-
   /** Handle form submission */
   handleSubmit = (e) => {
     e.preventDefault();
