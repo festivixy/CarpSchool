@@ -1,8 +1,11 @@
 {
-  "name": "meteor-application-template-react",
+  "name": "carpool",
   "private": true,
   "dependencies": {
-    "@babel/runtime": "^7.27.6",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/runtime": "^7.28.2",
+    "babel-loader": "^8.4.1",
+    "babel-preset-mobx": "^2.0.0",
     "canvas": "^3.1.2",
     "dompurify": "^3.2.6",
     "file-type": "^16.5.4",
@@ -28,8 +31,10 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
     "@babel/eslint-parser": "^7.28.0",
     "@babel/preset-react": "^7.27.1",
+    "@eslint/js": "^9.32.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-import": "^2.31.0",
@@ -37,7 +42,8 @@
     "eslint-plugin-meteor": "^7.3.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-utils": "^3.0.0"
+    "eslint-utils": "^3.0.0",
+    "globals": "^16.3.0"
   },
   "scripts": {
     "start": "cd .. && ./runner.sh",
