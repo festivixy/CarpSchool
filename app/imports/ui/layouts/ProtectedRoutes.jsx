@@ -197,13 +197,6 @@ export const ProtectedRouteRequireAdmin = ({
         path: props.location.pathname
       });
 
-      // Show loading only if we have a userId but no user object yet
-      // This means we're logged in but user data is still loading
-      if (userId && !userLoaded) {
-        console.log('User ID exists but user data not loaded, showing loading page');
-        return <LoadingPage message="Loading user data..." />;
-      }
-
       // If we don't have a userId, we're definitely not logged in
       if (!userId) {
         console.log('No user ID, redirecting to signin');
@@ -214,8 +207,25 @@ export const ProtectedRouteRequireAdmin = ({
         );
       }
 
-      if (!isAdmin) {
-        console.log('User not admin, redirecting to signin');
+      // If we have userId but no user object, show loading briefly
+      // But don't wait indefinitely - if loggingIn is false, proceed anyway
+      if (userId && !userLoaded && isLoggingIn) {
+        console.log('User ID exists, user data loading, showing loading page');
+        return <LoadingPage message="Loading user data..." />;
+      }
+
+      // At this point we have a userId, so proceed with admin check
+      // Even if user object is not fully loaded, we can make basic decisions
+
+      // If user object exists, check admin status normally
+      if (user && user.roles && user.roles.includes("admin")) {
+        console.log('User is admin, rendering component');
+        return <Component {...props} />;
+      }
+
+      // If user object exists but no admin role, redirect
+      if (user) {
+        console.log('User exists but not admin, redirecting to signin');
         return (
           <Redirect
             to={{ pathname: "/signin", state: { from: props.location } }}
@@ -223,8 +233,14 @@ export const ProtectedRouteRequireAdmin = ({
         );
       }
 
-      console.log('User is admin, rendering component');
-      return <Component {...props} />;
+      // If we have userId but user object is still null/undefined and not logging in
+      // This might be a permissions issue or user doesn't exist anymore
+      console.log('User ID exists but no user object available, redirecting to signin');
+      return (
+        <Redirect
+          to={{ pathname: "/signin", state: { from: props.location } }}
+        />
+      );
     }}
   />
 );
