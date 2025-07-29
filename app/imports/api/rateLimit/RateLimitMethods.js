@@ -41,7 +41,7 @@ Meteor.methods({
 
     // Check if enough time has passed since the last call
     const timeSinceLastCall = now.getTime() - existingRecord.lastCalled.getTime();
-    
+
     if (timeSinceLastCall >= limitMs) {
       // Enough time has passed, update the record and allow the call
       await RateLimit.updateAsync(existingRecord._id, {

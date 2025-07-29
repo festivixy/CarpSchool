@@ -69,7 +69,7 @@ Meteor.publish("rateLimit.own", function rateLimitOwn() {
         createdAt: 1,
         updatedAt: 1,
       },
-    }
+    },
   );
 });
 
@@ -105,7 +105,7 @@ Meteor.publish("rateLimit.byName", function rateLimitByName(name) {
         createdAt: 1,
         updatedAt: 1,
       },
-    }
+    },
   );
 });
 
@@ -202,7 +202,7 @@ async function syncPublicationCacheToMongoDB() {
     const now = new Date();
 
     for (const [key, timestamp] of publicationRateCache.entries()) {
-      const [userId, publicationName] = key.split(':', 2);
+      const [userId, publicationName] = key.split(":", 2);
 
       if (!userId || !publicationName) continue;
 
@@ -212,7 +212,7 @@ async function syncPublicationCacheToMongoDB() {
         updateOne: {
           filter: {
             userId,
-            name: `publication:${publicationName}`
+            name: `publication:${publicationName}`,
           },
           update: {
             $set: {
@@ -221,15 +221,15 @@ async function syncPublicationCacheToMongoDB() {
               limit: 0, // Publications don't have explicit limits like methods
             },
             $inc: {
-              callCount: countData.count
+              callCount: countData.count,
             },
             $setOnInsert: {
               createdAt: now,
               firstCall: new Date(countData.firstCall),
-            }
+            },
           },
-          upsert: true
-        }
+          upsert: true,
+        },
       });
     }
 
@@ -257,11 +257,11 @@ async function loadPublicationCacheFromMongoDB() {
 
     const recentRecords = await RateLimit.find({
       name: { $regex: /^publication:/ },
-      lastCalled: { $gte: oneHourAgo }
+      lastCalled: { $gte: oneHourAgo },
     }).fetchAsync();
 
     for (const record of recentRecords) {
-      const publicationName = record.name.replace(/^publication:/, '');
+      const publicationName = record.name.replace(/^publication:/, "");
       const key = `${record.userId}:${publicationName}`;
       publicationRateCache.set(key, record.lastCalled.getTime());
     }
