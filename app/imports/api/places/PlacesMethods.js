@@ -148,4 +148,51 @@ Meteor.methods({
     await Places.removeAsync(placeId);
     return placeId;
   },
+
+  /**
+   * Migration method to fix existing places without createdBy/createdAt fields
+   * This should be called by admins to update legacy places
+   */
+  async "places.fixLegacyPlaces"() {
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in");
+    }
+
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
+    const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes("admin");
+
+    if (!isAdmin) {
+      throw new Meteor.Error("access-denied", "Admin access required");
+    }
+
+    // Find places without createdBy or createdAt
+    const legacyPlaces = await Places.find({
+      $or: [
+        { createdBy: { $exists: false } },
+        { createdAt: { $exists: false } }
+      ]
+    }).fetchAsync();
+
+    let updatedCount = 0;
+    const now = new Date();
+
+    for (const place of legacyPlaces) {
+      const updateFields = {};
+
+      if (!place.createdBy) {
+        updateFields.createdBy = this.userId; // Assign to current admin
+      }
+
+      if (!place.createdAt) {
+        updateFields.createdAt = now;
+      }
+
+      if (Object.keys(updateFields).length > 0) {
+        await Places.updateAsync(place._id, { $set: updateFields });
+        updatedCount++;
+      }
+    }
+
+    return { message: `Updated ${updatedCount} legacy places`, count: updatedCount };
+  },
 });
