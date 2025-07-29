@@ -9,6 +9,7 @@ import "/imports/api/images/ImagePublications";
 import "/imports/api/ride/RidePublications";
 import "/imports/api/captcha/CaptchaPublications";
 import "/imports/api/places/PlacesPublications";
+import "/imports/api/rateLimit/RateLimitPublications";
 
 // Routes
 import "/imports/startup/server/ServerRoutes";
@@ -20,6 +21,7 @@ import "/imports/api/images/ImageMethods";
 import "/imports/api/chat/ChatMethods";
 import "/imports/api/ride/RideMethods";
 import "/imports/api/places/PlacesMethods";
+import "/imports/api/rateLimit/RateLimitMethods";
 
 // Accounts
 import "/imports/api/accounts/AccountsHandlers";
