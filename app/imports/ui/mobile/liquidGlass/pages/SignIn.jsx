@@ -36,17 +36,11 @@ export default class LiquidGlassSignIn extends React.Component {
     this.state = {
       email: "",
       password: "",
-      captchaInput: "",
-      captchaSvg: "",
-      captchaSessionId: "",
       error: "",
       redirectToReferer: false,
-      isLoadingCaptcha: false,
     };
-  }
-
-  componentDidMount() {
-    this.generateNewCaptcha();
+    // Create ref for centralized captcha component
+    this.captchaRef = React.createRef();
   }
 
   /** Update the form controls each time the user interacts with them. */
@@ -55,46 +49,7 @@ export default class LiquidGlassSignIn extends React.Component {
     this.setState({ [name]: value });
   };
 
-  /** Generate a new CAPTCHA */
-  generateNewCaptcha = () => {
-    this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
-        });
-      } else {
-        this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
-          error: "",
-        });
-      }
-    });
-  };
 
-  /** Generate a new CAPTCHA without clearing existing error messages */
-  generateNewCaptchaKeepError = () => {
-    this.setState({ isLoadingCaptcha: true });
-    Meteor.call("captcha.generate", (error, result) => {
-      if (error) {
-        this.setState({
-          error: "Failed to load CAPTCHA. Please try again.",
-          isLoadingCaptcha: false,
-        });
-      } else {
-        this.setState({
-          captchaSvg: result.svg,
-          captchaSessionId: result.sessionId,
-          captchaInput: "",
-          isLoadingCaptcha: false,
-        });
-      }
-    });
-  };
 
   /** Handle form submission */
   handleSubmit = (e) => {
@@ -104,40 +59,35 @@ export default class LiquidGlassSignIn extends React.Component {
 
   /** Handle Signin submission using Meteor's account mechanism. */
   submit = () => {
-    const { email, password, captchaInput, captchaSessionId } = this.state;
+    const { email, password } = this.state;
 
-    // First verify CAPTCHA
-    Meteor.call(
-      "captcha.verify",
-      captchaSessionId,
-      captchaInput,
-      (captchaError, isValidCaptcha) => {
-        if (captchaError || !isValidCaptcha) {
-          this.setState({ error: "Invalid security code. Please try again." });
-          this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep any existing errors
-          return;
-        }
-        const methodArguments = Accounts._hashPassword(password);
-        methodArguments.captchaSessionId = this.state.captchaSessionId;
-        methodArguments.proofOfWorkResult = "";
-        Accounts.callLoginMethod({
-          methodArguments: [
-            {
-              user: { email: email },
-              password: methodArguments,
-            },
-          ],
-          userCallback: (error, _result) => {
-            if (error) {
-              this.setState({ error: error.reason });
-              this.generateNewCaptchaKeepError(); // Generate new CAPTCHA but keep error message
-            } else {
-              this.setState({ error: "", redirectToReferer: true });
-            }
+    // First verify CAPTCHA using centralized component
+    this.captchaRef.current.verify((captchaError, isValid) => {
+      if (captchaError || !isValid) {
+        this.setState({ error: "Invalid security code. Please try again." });
+        return;
+      }
+
+      const captchaData = this.captchaRef.current.getCaptchaData();
+      const methodArguments = Accounts._hashPassword(password);
+      methodArguments.captchaSessionId = captchaData.sessionId;
+      methodArguments.proofOfWorkResult = "";
+      Accounts.callLoginMethod({
+        methodArguments: [
+          {
+            user: { email: email },
+            password: methodArguments,
           },
-        });
-      },
-    );
+        ],
+        userCallback: (error, _result) => {
+          if (error) {
+            this.setState({ error: error.reason });
+          } else {
+            this.setState({ error: "", redirectToReferer: true });
+          }
+        },
+      });
+    });
   };
 
   /** Render the signin form. */
@@ -186,11 +136,8 @@ export default class LiquidGlassSignIn extends React.Component {
               />
 
               <LiquidGlassCaptcha
-                captchaSvg={this.state.captchaSvg}
-                isLoading={this.state.isLoadingCaptcha}
-                onRefresh={this.generateNewCaptcha}
-                inputValue={this.state.captchaInput}
-                onInputChange={(e) => this.handleChange({ target: { name: "captchaInput", value: e.target.value } })}
+                ref={this.captchaRef}
+                autoGenerate={true}
                 label="Security Verification"
                 inputPlaceholder="Enter the characters shown above"
               />
