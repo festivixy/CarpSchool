@@ -23,6 +23,9 @@ const ProtectedRoutesComponent = ({
   <Route
     {...rest}
     render={(props) => {
+      // Determine if we should show the auth overlay
+      const showAuthOverlay = loggingIn && !userLoaded;
+
       // Debug logging
       console.log('ProtectedRoutesComponent Debug:', {
         loggingIn,
@@ -30,38 +33,54 @@ const ProtectedRoutesComponent = ({
         loggedIn,
         emailVerified,
         ready,
+        showAuthOverlay,
         profileData: profileData ? 'profile exists' : profileData,
         path: props.location.pathname
       });
 
-      // Show loading while authentication state is being determined
-      // Only show loading if we're actually logging in AND haven't loaded user data yet
-      if (loggingIn && !userLoaded) {
-        console.log('Showing loading page for main protected route');
-        return <LoadingPage message="Authenticating..." />;
-      }
-
       // If not logged in, redirect to signin
-      if (!loggedIn) {
+      if (!loggedIn && userLoaded) {
         console.log('User not logged in, redirecting to signin');
         return <Redirect to="/signin" />;
       }
 
       // If email not verified, redirect to verify email page
-      if (!emailVerified) {
+      if (loggedIn && userLoaded && !emailVerified) {
         console.log('Email not verified, redirecting to verify-email');
         return <Redirect to="/verify-email" />;
       }
 
       // If logged in, email verified, but no profile, redirect to onboarding
-      if (ready && !profileData) {
+      if (loggedIn && userLoaded && ready && !profileData) {
         console.log('No profile data, redirecting to onboarding');
         return <Redirect to="/onboarding" />;
       }
 
-      // If everything is good, render the component
-      console.log('All checks passed, rendering component');
-      return <Component {...props} />;
+      // Always render the component, but show overlay if still authenticating
+      console.log('Rendering component with overlay:', showAuthOverlay);
+      return (
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <Component {...props} />
+          {showAuthOverlay && (
+            <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+              }}
+            >
+              <LoadingPage message="Authenticating..." />
+            </div>
+          )}
+        </div>
+      );
     }}
   />
 );
@@ -75,22 +94,46 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => (
     render={(props) => {
       const isLoggingIn = Meteor.loggingIn();
       const user = Meteor.user();
+      const userLoaded = user !== undefined;
+      const showAuthOverlay = isLoggingIn && !userLoaded;
 
-      // Show loading while authentication state is being determined
-      if (isLoggingIn) {
-        return <LoadingPage message="Authenticating..." />;
+      // If no user and not logging in, redirect to signin
+      if (!user && !isLoggingIn) {
+        return (
+          <Redirect
+            to={{ pathname: "/signin", state: { from: props.location } }}
+          />
+        );
       }
 
-      if (user) {
-        if (user.emails[0].verified) {
-          return <Component {...props} />;
-        }
+      // If user exists but email not verified, redirect to verify email
+      if (user && !user.emails[0].verified) {
         return <Redirect to="/verify-email" />;
       }
+
+      // Always render the component, but show overlay if still authenticating
       return (
-        <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
-        />
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <Component {...props} />
+          {showAuthOverlay && (
+            <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+              }}
+            >
+              <LoadingPage message="Authenticating..." />
+            </div>
+          )}
+        </div>
       );
     }}
   />
@@ -185,6 +228,9 @@ export const ProtectedRouteRequireAdmin = ({
       const isAdmin = user && user.roles && user.roles.includes("admin");
       const userLoaded = user !== undefined;
 
+      // Determine if we should show the auth overlay
+      const showAuthOverlay = userId && (!userLoaded || (isLoggingIn && !isAdmin));
+
       // Debug logging
       console.log('ProtectedRouteRequireAdmin Debug:', {
         isLoggingIn,
@@ -193,6 +239,7 @@ export const ProtectedRouteRequireAdmin = ({
         isLogged,
         isAdmin,
         userLoaded,
+        showAuthOverlay,
         userRoles: user ? user.roles : 'no user',
         path: props.location.pathname
       });
@@ -207,24 +254,8 @@ export const ProtectedRouteRequireAdmin = ({
         );
       }
 
-      // If we have userId but no user object, show loading briefly
-      // But don't wait indefinitely - if loggingIn is false, proceed anyway
-      if (userId && !userLoaded && isLoggingIn) {
-        console.log('User ID exists, user data loading, showing loading page');
-        return <LoadingPage message="Loading user data..." />;
-      }
-
-      // At this point we have a userId, so proceed with admin check
-      // Even if user object is not fully loaded, we can make basic decisions
-
-      // If user object exists, check admin status normally
-      if (user && user.roles && user.roles.includes("admin")) {
-        console.log('User is admin, rendering component');
-        return <Component {...props} />;
-      }
-
       // If user object exists but no admin role, redirect
-      if (user) {
+      if (userLoaded && !isAdmin) {
         console.log('User exists but not admin, redirecting to signin');
         return (
           <Redirect
@@ -233,13 +264,30 @@ export const ProtectedRouteRequireAdmin = ({
         );
       }
 
-      // If we have userId but user object is still null/undefined and not logging in
-      // This might be a permissions issue or user doesn't exist anymore
-      console.log('User ID exists but no user object available, redirecting to signin');
+      // Always render the component, but show overlay if still authenticating
+      console.log('Rendering component with overlay:', showAuthOverlay);
       return (
-        <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
-        />
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <Component {...props} />
+          {showAuthOverlay && (
+            <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+              }}
+            >
+              <LoadingPage message="Verifying admin access..." />
+            </div>
+          )}
+        </div>
       );
     }}
   />
