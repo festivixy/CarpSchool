@@ -17,13 +17,15 @@ const ProtectedRoutesComponent = ({
   loggedIn,
   emailVerified,
   loggingIn,
+  userLoaded,
   ...rest
 }) => (
   <Route
     {...rest}
     render={(props) => {
       // Show loading while authentication state is being determined
-      if (loggingIn) {
+      // Only show loading if we're actually logging in AND haven't loaded user data yet
+      if (loggingIn && !userLoaded) {
         return <LoadingPage message="Authenticating..." />;
       }
 
@@ -188,6 +190,7 @@ ProtectedRoutesComponent.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
   emailVerified: PropTypes.bool.isRequired,
   loggingIn: PropTypes.bool.isRequired,
+  userLoaded: PropTypes.bool.isRequired,
 };
 
 ProtectedRoute.propTypes = {
@@ -224,6 +227,7 @@ const ProtectedRoutes = withTracker(() => {
       ? user.emails && user.emails[0] && user.emails[0].verified
       : false,
     loggingIn: Meteor.loggingIn(),
+    userLoaded: user !== undefined, // Check if user data is loaded (null means not logged in, undefined means loading)
   };
 })(ProtectedRoutesComponent);
 
