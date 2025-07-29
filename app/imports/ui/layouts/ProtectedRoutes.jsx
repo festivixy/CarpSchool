@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { Route, Redirect } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
@@ -19,15 +19,15 @@ const ProtectedRoutesComponent = ({
   loggingIn,
   userLoaded,
   ...rest
-}) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      // Determine if we should show the auth overlay
-      const showAuthOverlay = loggingIn && !userLoaded;
+}) => {
+  // Create a functional component to use hooks
+  const MainRouteWrapper = (props) => {
+    // Determine if we should show the auth overlay
+    const showAuthOverlay = loggingIn && !userLoaded;
 
-      // Debug logging
-      console.log('ProtectedRoutesComponent Debug:', {
+    // Debug logging on state changes
+    useEffect(() => {
+      console.log('ProtectedRoutesComponent State Change:', {
         loggingIn,
         userLoaded,
         loggedIn,
@@ -35,109 +35,135 @@ const ProtectedRoutesComponent = ({
         ready,
         showAuthOverlay,
         profileData: profileData ? 'profile exists' : profileData,
-        path: props.location.pathname
+        path: props.location.pathname,
+        timestamp: new Date().toISOString()
       });
+    }, [loggingIn, userLoaded, loggedIn, emailVerified, ready, showAuthOverlay, profileData, props.location.pathname]);
 
-      // If not logged in, redirect to signin
-      if (!loggedIn && userLoaded) {
-        console.log('User not logged in, redirecting to signin');
-        return <Redirect to="/signin" />;
-      }
+    // If not logged in, redirect to signin
+    if (!loggedIn && userLoaded) {
+      console.log('User not logged in, redirecting to signin');
+      return <Redirect to="/signin" />;
+    }
 
-      // If email not verified, redirect to verify email page
-      if (loggedIn && userLoaded && !emailVerified) {
-        console.log('Email not verified, redirecting to verify-email');
-        return <Redirect to="/verify-email" />;
-      }
+    // If email not verified, redirect to verify email page
+    if (loggedIn && userLoaded && !emailVerified) {
+      console.log('Email not verified, redirecting to verify-email');
+      return <Redirect to="/verify-email" />;
+    }
 
-      // If logged in, email verified, but no profile, redirect to onboarding
-      if (loggedIn && userLoaded && ready && !profileData) {
-        console.log('No profile data, redirecting to onboarding');
-        return <Redirect to="/onboarding" />;
-      }
+    // If logged in, email verified, but no profile, redirect to onboarding
+    if (loggedIn && userLoaded && ready && !profileData) {
+      console.log('No profile data, redirecting to onboarding');
+      return <Redirect to="/onboarding" />;
+    }
 
-      // Always render the component, but show overlay if still authenticating
-      console.log('Rendering component with overlay:', showAuthOverlay);
-      return (
-        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <Component {...props} />
-          {showAuthOverlay && (
-            <div
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 9999,
-              }}
-            >
-              <LoadingPage message="Authenticating..." />
-            </div>
-          )}
-        </div>
-      );
-    }}
-  />
-);
+    // Always render the component, but show overlay if still authenticating
+    console.log('Rendering component with overlay:', showAuthOverlay);
+    return (
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <Component {...props} />
+        {showAuthOverlay && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+            }}
+          >
+            <LoadingPage message="Authenticating..." />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <Route
+      {...rest}
+      render={(props) => <MainRouteWrapper {...props} />}
+    />
+  );
+};
 
 /**
  * Simple protected route with email verification
  */
-export const ProtectedRoute = ({ component: Component, ...rest }) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      const isLoggingIn = Meteor.loggingIn();
-      const user = Meteor.user();
-      const userLoaded = user !== undefined;
-      const showAuthOverlay = isLoggingIn && !userLoaded;
+export const ProtectedRoute = ({ component: Component, ...rest }) => {
+  // Create a functional component to use hooks
+  const SimpleRouteWrapper = (props) => {
+    const isLoggingIn = Meteor.loggingIn();
+    const user = Meteor.user();
+    const userLoaded = user !== undefined;
+    const showAuthOverlay = isLoggingIn && !userLoaded;
 
-      // If no user and not logging in, redirect to signin
-      if (!user && !isLoggingIn) {
-        return (
-          <Redirect
-            to={{ pathname: "/signin", state: { from: props.location } }}
-          />
-        );
-      }
+    // Debug logging on state changes
+    useEffect(() => {
+      console.log('ProtectedRoute State Change:', {
+        isLoggingIn,
+        user: user ? 'user object exists' : user,
+        userLoaded,
+        showAuthOverlay,
+        emailVerified: user ? user.emails[0].verified : 'no user',
+        path: props.location.pathname,
+        timestamp: new Date().toISOString()
+      });
+    }, [isLoggingIn, user, userLoaded, showAuthOverlay, props.location.pathname]);
 
-      // If user exists but email not verified, redirect to verify email
-      if (user && !user.emails[0].verified) {
-        return <Redirect to="/verify-email" />;
-      }
-
-      // Always render the component, but show overlay if still authenticating
+    // If no user and not logging in, redirect to signin
+    if (!user && !isLoggingIn) {
       return (
-        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <Component {...props} />
-          {showAuthOverlay && (
-            <div
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 9999,
-              }}
-            >
-              <LoadingPage message="Authenticating..." />
-            </div>
-          )}
-        </div>
+        <Redirect
+          to={{ pathname: "/signin", state: { from: props.location } }}
+        />
       );
-    }}
-  />
-);
+    }
+
+    // If user exists but email not verified, redirect to verify email
+    if (user && !user.emails[0].verified) {
+      return <Redirect to="/verify-email" />;
+    }
+
+    // Always render the component, but show overlay if still authenticating
+    return (
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <Component {...props} />
+        {showAuthOverlay && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+            }}
+          >
+            <LoadingPage message="Authenticating..." />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <Route
+      {...rest}
+      render={(props) => <SimpleRouteWrapper {...props} />}
+    />
+  );
+};
 
 export const ProtectedRouteRequireNotEmailVerified = ({
   component: Component,
@@ -217,22 +243,22 @@ export const ProtectedRouteRequireNotLoggedIn = ({
 export const ProtectedRouteRequireAdmin = ({
   component: Component,
   ...rest
-}) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      const isLoggingIn = Meteor.loggingIn();
-      const user = Meteor.user();
-      const userId = Meteor.userId();
-      const isLogged = userId !== null;
-      const isAdmin = user && user.roles && user.roles.includes("admin");
-      const userLoaded = user !== undefined;
+}) => {
+  // Create a functional component to use hooks
+  const AdminRouteWrapper = (props) => {
+    const isLoggingIn = Meteor.loggingIn();
+    const user = Meteor.user();
+    const userId = Meteor.userId();
+    const isLogged = userId !== null;
+    const isAdmin = user && user.roles && user.roles.includes("admin");
+    const userLoaded = user !== undefined;
 
-      // Determine if we should show the auth overlay
-      const showAuthOverlay = userId && (!userLoaded || (isLoggingIn && !isAdmin));
+    // Determine if we should show the auth overlay
+    const showAuthOverlay = userId && (!userLoaded || (isLoggingIn && !isAdmin));
 
-      // Debug logging
-      console.log('ProtectedRouteRequireAdmin Debug:', {
+    // Debug logging on state changes
+    useEffect(() => {
+      console.log('ProtectedRouteRequireAdmin State Change:', {
         isLoggingIn,
         user: user ? 'user object exists' : user,
         userId,
@@ -241,57 +267,65 @@ export const ProtectedRouteRequireAdmin = ({
         userLoaded,
         showAuthOverlay,
         userRoles: user ? user.roles : 'no user',
-        path: props.location.pathname
+        path: props.location.pathname,
+        timestamp: new Date().toISOString()
       });
+    }, [isLoggingIn, user, userId, isAdmin, userLoaded, showAuthOverlay, props.location.pathname]);
 
-      // If we don't have a userId, we're definitely not logged in
-      if (!userId) {
-        console.log('No user ID, redirecting to signin');
-        return (
-          <Redirect
-            to={{ pathname: "/signin", state: { from: props.location } }}
-          />
-        );
-      }
-
-      // If user object exists but no admin role, redirect
-      if (userLoaded && !isAdmin) {
-        console.log('User exists but not admin, redirecting to signin');
-        return (
-          <Redirect
-            to={{ pathname: "/signin", state: { from: props.location } }}
-          />
-        );
-      }
-
-      // Always render the component, but show overlay if still authenticating
-      console.log('Rendering component with overlay:', showAuthOverlay);
+    // If we don't have a userId, we're definitely not logged in
+    if (!userId) {
+      console.log('No user ID, redirecting to signin');
       return (
-        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <Component {...props} />
-          {showAuthOverlay && (
-            <div
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 9999,
-              }}
-            >
-              <LoadingPage message="Verifying admin access..." />
-            </div>
-          )}
-        </div>
+        <Redirect
+          to={{ pathname: "/signin", state: { from: props.location } }}
+        />
       );
-    }}
-  />
-);
+    }
+
+    // If user object exists but no admin role, redirect
+    if (userLoaded && !isAdmin) {
+      console.log('User exists but not admin, redirecting to signin');
+      return (
+        <Redirect
+          to={{ pathname: "/signin", state: { from: props.location } }}
+        />
+      );
+    }
+
+    // Always render the component, but show overlay if still authenticating
+    console.log('Rendering component with overlay:', showAuthOverlay);
+    return (
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <Component {...props} />
+        {showAuthOverlay && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+            }}
+          >
+            <LoadingPage message="Verifying admin access..." />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <Route
+      {...rest}
+      render={(props) => <AdminRouteWrapper {...props} />}
+    />
+  );
+};
 
 ProtectedRoutesComponent.propTypes = {
   component: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
