@@ -265,6 +265,34 @@ export const ChatButton = styled.button`
   }
 `;
 
+export const MapButton = styled.button`
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: rgba(156, 39, 176, 1);
+  color: rgba(255, 255, 255, 1);
+
+  &:hover:not(:disabled) {
+    background-color: rgba(123, 31, 162, 1);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+`;
+
 export const ShareIcon = styled.span`
   font-size: 16px;
 `;
@@ -274,6 +302,10 @@ export const JoinIcon = styled.span`
 `;
 
 export const ChatIcon = styled.span`
+  font-size: 16px;
+`;
+
+export const MapIcon = styled.span`
   font-size: 16px;
 `;
 
