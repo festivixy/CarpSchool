@@ -5,8 +5,15 @@ import { RateLimit } from "./RateLimit";
 /**
  * Publication rate limiting cache
  * Stores last publication times per user and publication name
+ * Synced to MongoDB every minute for persistence
  */
 const publicationRateCache = new Map();
+
+/**
+ * Track call counts for analytics
+ * Format: "userId:publicationName" -> { count, firstCall }
+ */
+const publicationCallCounts = new Map();
 
 /**
  * Helper function to check publication rate limiting
@@ -22,6 +29,13 @@ function checkPublicationRateLimit(userId, publicationName, limitMs) {
 
   if (!lastCall || (now - lastCall) >= limitMs) {
     publicationRateCache.set(key, now);
+
+    // Track call counts for analytics
+    const countKey = key;
+    const countData = publicationCallCounts.get(countKey) || { count: 0, firstCall: now };
+    countData.count++;
+    publicationCallCounts.set(countKey, countData);
+
     return true;
   }
 
@@ -78,7 +92,7 @@ Meteor.publish("rateLimit.byName", function rateLimitByName(name) {
   }
 
   return RateLimit.find(
-    { 
+    {
       userId: this.userId,
       name: name,
     },
@@ -154,14 +168,14 @@ Meteor.publish("rateLimit.stats", function rateLimitStats() {
   // Aggregate statistics (this is a simplified version)
   // In a real implementation, you might want to use MongoDB aggregation
   const self = this;
-  
+
   // Count total records
   const totalRecords = RateLimit.find().count();
-  
+
   // Count unique users
   const uniqueUsers = new Set();
   const uniqueEndpoints = new Set();
-  
+
   RateLimit.find({}, { fields: { userId: 1, name: 1 } }).forEach(doc => {
     uniqueUsers.add(doc.userId);
     uniqueEndpoints.add(doc.name);
@@ -179,13 +193,118 @@ Meteor.publish("rateLimit.stats", function rateLimitStats() {
 });
 
 /**
+ * Sync publication rate cache to MongoDB
+ * Runs every minute for persistence and analytics
+ */
+async function syncPublicationCacheToMongoDB() {
+  try {
+    const batch = [];
+    const now = new Date();
+
+    for (const [key, timestamp] of publicationRateCache.entries()) {
+      const [userId, publicationName] = key.split(':', 2);
+
+      if (!userId || !publicationName) continue;
+
+      const countData = publicationCallCounts.get(key) || { count: 1, firstCall: timestamp };
+
+      batch.push({
+        updateOne: {
+          filter: {
+            userId,
+            name: `publication:${publicationName}`
+          },
+          update: {
+            $set: {
+              lastCalled: new Date(timestamp),
+              updatedAt: now,
+              limit: 0, // Publications don't have explicit limits like methods
+            },
+            $inc: {
+              callCount: countData.count
+            },
+            $setOnInsert: {
+              createdAt: now,
+              firstCall: new Date(countData.firstCall),
+            }
+          },
+          upsert: true
+        }
+      });
+    }
+
+    if (batch.length > 0) {
+      await RateLimit.bulkWrite(batch);
+      console.log(`Synced ${batch.length} publication rate limit records to MongoDB`);
+    }
+
+    // Clear call counts after sync
+    publicationCallCounts.clear();
+
+  } catch (error) {
+    console.error("Error syncing publication cache to MongoDB:", error);
+  }
+}
+
+/**
+ * Load publication rate cache from MongoDB on startup
+ * Restores recent publication data after server restart
+ */
+async function loadPublicationCacheFromMongoDB() {
+  try {
+    const oneHourAgo = new Date();
+    oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+
+    const recentRecords = await RateLimit.find({
+      name: { $regex: /^publication:/ },
+      lastCalled: { $gte: oneHourAgo }
+    }).fetchAsync();
+
+    for (const record of recentRecords) {
+      const publicationName = record.name.replace(/^publication:/, '');
+      const key = `${record.userId}:${publicationName}`;
+      publicationRateCache.set(key, record.lastCalled.getTime());
+    }
+
+    console.log(`Loaded ${recentRecords.length} publication rate limit records from MongoDB`);
+
+  } catch (error) {
+    console.error("Error loading publication cache from MongoDB:", error);
+  }
+}
+
+/**
  * Clean up publication rate limiting cache periodically
+ * Also handles MongoDB sync
  */
 Meteor.setInterval(() => {
   const cutoff = Date.now() - (60 * 60 * 1000); // 1 hour ago
+
+  // Clean up old cache entries
   for (const [key, timestamp] of publicationRateCache.entries()) {
     if (timestamp < cutoff) {
       publicationRateCache.delete(key);
     }
   }
+
+  // Clean up old call count entries
+  for (const [key, data] of publicationCallCounts.entries()) {
+    if (data.firstCall < cutoff) {
+      publicationCallCounts.delete(key);
+    }
+  }
 }, 5 * 60 * 1000); // Run every 5 minutes
+
+/**
+ * Sync publication cache to MongoDB every minute
+ */
+Meteor.setInterval(async () => {
+  await syncPublicationCacheToMongoDB();
+}, 60 * 1000); // Run every minute
+
+/**
+ * Load publication cache from MongoDB on server startup
+ */
+Meteor.startup(async () => {
+  await loadPublicationCacheFromMongoDB();
+});
