@@ -5,6 +5,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
 import { Places } from "../../../api/places/Places.js";
+import PathMapView from "./PathMapView.jsx";
 import {
   RideCard,
   Header,
@@ -27,9 +28,11 @@ import {
   ShareButton,
   JoinButton,
   ChatButton,
+  MapButton,
   ShareIcon,
   JoinIcon,
   ChatIcon,
+  MapIcon,
   Spinner,
   ModalOverlay,
   Modal,
@@ -56,6 +59,7 @@ class MobileRide extends React.Component {
       shareCode: null,
       isGenerating: false,
       isExistingCode: false,
+      mapModalOpen: false,
     };
   }
 
@@ -231,6 +235,25 @@ class MobileRide extends React.Component {
     this.props.history.push(`/chat?rideId=${this.props.ride._id}`);
   };
 
+  handleOpenMap = () => {
+    this.setState({ mapModalOpen: true });
+  };
+
+  closeMapModal = () => {
+    this.setState({ mapModalOpen: false });
+  };
+
+  parseCoordinates = (coordinateString) => {
+    if (!coordinateString) return null;
+    const [lat, lng] = coordinateString.split(',').map(coord => parseFloat(coord.trim()));
+    return { lat, lng };
+  };
+
+  getPlaceCoordinates = (placeId) => {
+    const place = this.props.places.find((p) => p._id === placeId);
+    return place ? this.parseCoordinates(place.value) : null;
+  };
+
   formatDate = (date) => new Date(date).toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
@@ -245,7 +268,7 @@ class MobileRide extends React.Component {
     });
 
   render() {
-    const { shareModalOpen, shareCode, isGenerating, isExistingCode } =
+    const { shareModalOpen, shareCode, isGenerating, isExistingCode, mapModalOpen } =
       this.state;
     const { ride } = this.props;
 
@@ -330,7 +353,7 @@ class MobileRide extends React.Component {
             </Notes>
           )}
 
-          {(this.canShareRide() || this.canJoinRide() || this.canAccessChat()) && (
+          {(this.canShareRide() || this.canJoinRide() || this.canAccessChat() || (this.getPlaceCoordinates(ride.origin) && this.getPlaceCoordinates(ride.destination))) && (
             <Actions>
               {this.canShareRide() && (
                 <ShareButton
@@ -378,6 +401,14 @@ class MobileRide extends React.Component {
                   Open Chat
                 </ChatButton>
               )}
+              {this.getPlaceCoordinates(ride.origin) && this.getPlaceCoordinates(ride.destination) && (
+                <MapButton
+                  onClick={this.handleOpenMap}
+                >
+                  <MapIcon>🗺️</MapIcon>
+                  Open Map
+                </MapButton>
+              )}
             </Actions>
           )}
         </RideCard>
@@ -423,6 +454,34 @@ class MobileRide extends React.Component {
                   📋 Copy Invite Link
                 </CopyButton>
                 <DoneButton onClick={this.closeShareModal}>✓ Done</DoneButton>
+              </ModalActions>
+            </Modal>
+          </ModalOverlay>
+        )}
+
+        {/* Map Modal */}
+        {this.state.mapModalOpen && (
+          <ModalOverlay onClick={this.closeMapModal}>
+            <Modal onClick={(e) => e.stopPropagation()} style={{ maxWidth: "90vw", maxHeight: "90vh" }}>
+              <ModalHeader>
+                <ModalTitle>
+                  <ModalIcon>🗺️</ModalIcon>
+                  Route Map
+                </ModalTitle>
+                <ModalClose onClick={this.closeMapModal}>✕</ModalClose>
+              </ModalHeader>
+
+              <ModalContent style={{ padding: "0", height: "70vh", minHeight: "400px" }}>
+                <PathMapView
+                  startCoord={this.getPlaceCoordinates(ride.origin)}
+                  endCoord={this.getPlaceCoordinates(ride.destination)}
+                  height="100%"
+                  routingService="osrm"
+                />
+              </ModalContent>
+
+              <ModalActions>
+                <DoneButton onClick={this.closeMapModal}>✓ Close</DoneButton>
               </ModalActions>
             </Modal>
           </ModalOverlay>
