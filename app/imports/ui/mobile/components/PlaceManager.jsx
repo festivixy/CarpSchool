@@ -267,6 +267,10 @@ class PlaceManager extends React.Component {
     const { places, ready } = this.props;
     const { modalOpen, editingPlace, formData, errors, loading } = this.state;
 
+    // Debug logging
+    console.log("PlaceManager places:", places);
+    console.log("CreatorNames state:", this.state.creatorNames);
+
     if (!ready) {
       return (
         <Container>
@@ -312,13 +316,13 @@ class PlaceManager extends React.Component {
                         Created:{" "}
                         {new Date(place.createdAt).toLocaleDateString()}
                       </PlaceDate>
-                      {place.createdBy && (
-                        <PlaceDate style={{ marginTop: "4px", fontWeight: "600", color: "#007bff" }}>
-                          Creator: {place.createdBy === Meteor.userId()
+                      <PlaceDate style={{ marginTop: "4px", fontWeight: "600", color: "#007bff" }}>
+                        Creator: {place.createdBy ? (
+                          place.createdBy === Meteor.userId()
                             ? "You"
-                            : (this.state.creatorNames[place.createdBy] || "Loading...")}
-                        </PlaceDate>
-                      )}
+                            : (this.state.creatorNames[place.createdBy] || "Loading...")
+                        ) : "Unknown"}
+                      </PlaceDate>
                     </PlaceInfo>
                     <ActionButtons>
                       <ActionButton onClick={() => this.openEditModal(place)}>
