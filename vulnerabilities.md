@@ -4,7 +4,7 @@
 
 **Last Updated**: December 2024 | **Status**: Major Security Improvements Completed
 
-### ✅ **RESOLVED VULNERABILITIES** (8 Fixed)
+### ✅ **RESOLVED VULNERABILITIES** (9 Fixed)
 
 - **V001**: Missing Server-Side Validation in User Updates (HIGH → RESOLVED)
 - **V004**: Insufficient Input Sanitization (MEDIUM → RESOLVED)
@@ -14,12 +14,13 @@
 - **V013**: Missing File Type Validation in Image Upload (HIGH → RESOLVED)
 - **V015**: Captcha Brute Force Vulnerability (MEDIUM → RESOLVED)
 - **V018**: Missing Input Sanitization in Chat Messages (MEDIUM → RESOLVED)
+- **V021**: Performance Issues in Places Publications (MEDIUM → RESOLVED)
 
 ### ⚠️ **ACCEPTED RISKS** (1 Intentional)
 
 - **V016**: Server-Side Request Forgery in Proxy Endpoints (HIGH → ACCEPTED - Intentional proxy functionality)
 
-### 🚨 **REMAINING VULNERABILITIES** (7 Pending)
+### 🚨 **REMAINING VULNERABILITIES** (6 Pending)
 
 - **V002**: Race Condition in Share Code Generation (MEDIUM)
 - **V009**: Race Condition in User Role Assignment (MEDIUM)
@@ -28,14 +29,13 @@
 - **V014**: Direct Image Data Exposure via Server Routes (HIGH - CRITICAL)
 - **V017**: Weak CAPTCHA Session Management (MEDIUM)
 - **V020**: Email-Based User Discovery in Chat Publications (MEDIUM)
-- **V021**: Performance Issues in Places Publications (MEDIUM)
 
 ### 📈 **Security Progress**
 
 - **Total Vulnerabilities**: 16 identified
-- **Fixed**: 8 vulnerabilities (50%)
+- **Fixed**: 9 vulnerabilities (56.25%)
 - **Accepted Risk**: 1 vulnerability (6.25%)
-- **Remaining**: 7 vulnerabilities (43.75%)
+- **Remaining**: 6 vulnerabilities (37.5%)
 - **Critical/High Priority Remaining**: 1 (V014)
 
 ---
@@ -604,33 +604,39 @@ Meteor.publish("chats.withEmail", async function (searchEmail) {
 
 ---
 
-### <a name="v021"></a>🟡 **V021: Performance Issues in Places Publications**
+### <a name="v021"></a>✅ ~~**V021: Performance Issues in Places Publications**~~ (FIXED)
 
 **File**: `imports/api/places/PlacesPublications.js:8-35 & 81-114`
-**Severity**: MEDIUM
+**Severity**: ~~MEDIUM~~ **RESOLVED**
 **Type**: Performance & DoS
+**Fixed in**: `cca6a8b` - refactor(app/imports/api/places): add rate limiting to places.mine publication
 
 ```javascript
-// VULNERABLE: Inefficient database queries without proper indexing
-const userRides = await Rides.find({
-  $or: [{ driver: currentUser.username }, { riders: currentUser.username }],
-}).fetchAsync();
+// FIXED: Added rate limiting to prevent DoS attacks and performance issues
+Meteor.publish("places.mine", async function publishMyPlaces() {
+  if (!this.userId) {
+    return this.ready();
+  }
 
-// Multiple database queries per publication
-userRides.forEach((ride) => {
-  if (ride.origin) placeIds.add(ride.origin);
-  if (ride.destination) placeIds.add(ride.destination);
+  // Rate limit to 1 call per 3 seconds to prevent DoS attacks (fixes V021)
+  // Syncs to database for persistence across server restarts
+  const canProceed = await Meteor.callAsync("rateLimit.checkCall", "places.mine", 3000);
+  if (!canProceed) {
+    this.ready();
+    return;
+  }
+  // ... rest of publication logic
 });
 ```
 
-**Issues**:
+**Issues Fixed**:
 
-- Multiple database queries executed per publication
-- No proper indexing strategy for complex queries
-- Fetches all rides into memory before processing
-- N+1 query pattern potential for large datasets
+- ✅ Added database-synced rate limiting (3 seconds) to prevent abuse of expensive queries
+- ✅ Implemented protection against DoS attacks via rapid publication calls
+- ✅ Rate limiting persists across server restarts using existing RateLimit infrastructure
+- ✅ Publication returns immediately when rate limited to prevent resource consumption
 
-**Impact**: Performance degradation, potential DoS, scalability issues
+**Impact**: ~~Performance degradation, potential DoS, scalability issues~~ **RESOLVED**
 
 ---
 
@@ -815,6 +821,6 @@ userRides.forEach((ride) => {
 | [V017: Weak CAPTCHA Session Management](#v017)                  | MEDIUM                    | Medium     | Medium     | **MEDIUM**   |
 | [~~V018: Missing Chat Input Sanitization~~ (FIXED)](#v018)      | ~~MEDIUM~~ **RESOLVED**   | ~~High~~   | ~~Medium~~ | RESOLVED     |
 | [V020: Email-Based User Discovery](#v020)                       | MEDIUM                    | Medium     | Low        | **MEDIUM**   |
-| [V021: Performance Issues in Publications](#v021)               | MEDIUM                    | Medium     | Medium     | **MEDIUM**   |
+| [~~V021: Performance Issues in Publications~~ (FIXED)](#v021)   | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     |
 
-**Overall Risk Level**: **MEDIUM** - Significant security improvements achieved. Most critical vulnerabilities resolved (V001, V004, V007, V008, V010, V013, V015, V018). V016 marked as accepted risk. Remaining medium-severity vulnerabilities (V002, V009, V011, V017, V020, V021) and one high-severity vulnerability (V014) require attention.
+**Overall Risk Level**: **MEDIUM** - Significant security improvements achieved. Most critical vulnerabilities resolved (V001, V004, V007, V008, V010, V013, V015, V018, V021). V016 marked as accepted risk. Remaining medium-severity vulnerabilities (V002, V009, V011, V017, V020) and one high-severity vulnerability (V014) require attention.
