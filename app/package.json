@@ -24,8 +24,6 @@
     "svg-captcha": "^1.4.0",
     "sweetalert": "^2.1.2",
     "uniforms": "^4.0.0",
-    "uniforms-bridge-simple-schema-2": "^4.0.0",
-    "uniforms-semantic": "^4.0.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
