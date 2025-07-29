@@ -311,14 +311,14 @@ class PlaceManager extends React.Component {
                       <PlaceDate>
                         Created:{" "}
                         {new Date(place.createdAt).toLocaleDateString()}
-                        {place.createdBy && (
-                          <span style={{ marginLeft: "8px", color: "#666" }}>
-                            by {place.createdBy === Meteor.userId()
-                              ? "You"
-                              : (this.state.creatorNames[place.createdBy] || "Loading...")}
-                          </span>
-                        )}
                       </PlaceDate>
+                      {place.createdBy && (
+                        <PlaceDate style={{ marginTop: "4px", fontWeight: "600", color: "#007bff" }}>
+                          Creator: {place.createdBy === Meteor.userId()
+                            ? "You"
+                            : (this.state.creatorNames[place.createdBy] || "Loading...")}
+                        </PlaceDate>
+                      )}
                     </PlaceInfo>
                     <ActionButtons>
                       <ActionButton onClick={() => this.openEditModal(place)}>
