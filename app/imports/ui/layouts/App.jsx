@@ -36,7 +36,7 @@ import ProtectedRoutes, {
   ProtectedRouteRequireNotEmailVerified,
 } from "./ProtectedRoutes";
 // Lazy load TestMapView to improve initial load performance
-const TestMapView = React.lazy(() => import("../mobile/pages/TestMapView"));
+const TestMapView = React.lazy(() => import("../mobile/pages/ComponentsTest"));
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {

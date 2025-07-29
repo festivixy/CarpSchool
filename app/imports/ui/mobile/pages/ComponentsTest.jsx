@@ -8,6 +8,7 @@ import LiquidGlassDropdown from "../liquidGlass/components/Dropdown";
 import LiquidGlassFooter from "../liquidGlass/components/Footer";
 import LiquidGlassTextInput from "../liquidGlass/components/TextInput";
 import LiquidGlassIconButton from "../liquidGlass/components/IconButton";
+import LiquidGlassMobileNavBar from "../liquidGlass/components/LiquidGlassMobileNavBar";
 import {
   Container,
   Content,
@@ -24,7 +25,7 @@ import {
   InfoItem,
   InfoLabel,
   InfoValue,
-} from "../styles/TestMapView";
+} from "../styles/ComponentsTest";
 
 import FooterVerbose from "../components/FooterVerbose";
 
@@ -143,7 +144,7 @@ const MobileTestMapView = () => {
 
   // Dropdown options
   const cityOptions = [
-    { value: "vancouver", label: "Vancouver", icon: "🏙���" },
+    { value: "vancouver", label: "Vancouver", icon: "🏙����" },
     { value: "toronto", label: "Toronto", icon: "🌆" },
     { value: "montreal", label: "Montreal", icon: "🏛️" },
     { value: "calgary", label: "Calgary", icon: "🏔️" },
@@ -1237,7 +1238,96 @@ const MobileTestMapView = () => {
             </InfoCard>
           </SectionContent>
         </Section>
+
+        <Section>
+          <SectionTitle>📱 LiquidGlass Mobile NavBar Test</SectionTitle>
+          <SectionContent>
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>Component Demo</InfoLabel>
+                <InfoValue>
+                  Testing the LiquidGlassMobileNavBar component - a bottom tab bar with glass morphism effects.
+                  The navbar is positioned fixed at the bottom of the screen.
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>🧪 LiquidGlass Mobile NavBar Features</InfoLabel>
+                <InfoValue>
+                  • Fixed bottom navigation with glass morphism effect
+                  <br />
+                  • 5 navigation tabs: Home/My Rides, Join Ride, Create Ride, Messages, Profile
+                  <br />
+                  • Notification badge on Messages tab
+                  <br />
+                  • Upward-opening dropdown menus
+                  <br />
+                  • User authentication integration
+                  <br />
+                  • Admin role support with special menu items
+                  <br />
+                  • Modal integration for Join/Create ride functionality
+                  <br />
+                  • SVG icon support with hover animations
+                  <br />
+                  • Responsive design with touch-friendly interactions
+                  <br />
+                  • Glass effect with backdrop blur and transparency
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>📱 SVG Icons Required</InfoLabel>
+                <InfoValue>
+                  The component needs these SVG files in /public/svg/:
+                  <br />
+                  • <strong>home.svg</strong> - House/home icon for My Rides/Home tab
+                  <br />
+                  • <strong>search.svg</strong> - Magnifying glass icon for Join Ride tab
+                  <br />
+                  • <strong>plus.svg</strong> - Plus/add icon for Create Ride tab
+                  <br />
+                  • <strong>chat.svg</strong> - Chat bubble/message icon for Messages tab
+                  <br />
+                  • <strong>user.svg</strong> - User/profile icon for Profile tab
+                  <br />
+                  All icons should be 24x24px and optimized for mobile display.
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>📱 Testing Instructions</InfoLabel>
+                <InfoValue>
+                  1. Scroll to the bottom of the page to see the fixed navbar
+                  <br />
+                  2. Click each tab to test navigation functionality
+                  <br />
+                  3. Click the Profile tab to see the upward dropdown menu
+                  <br />
+                  4. Notice the notification badge (5) on the Messages tab
+                  <br />
+                  5. Test Join Ride and Create Ride modals by clicking their tabs
+                  <br />
+                  6. Try signing in/out to see different menu options
+                  <br />
+                  7. Admin users will see additional options in the Profile dropdown
+                  <br />
+                  8. Observe the glass morphism effects and hover animations
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+          </SectionContent>
+        </Section>
       </Content>
+
+      {/* Demo LiquidGlass Mobile NavBar - Fixed at bottom */}
+      <LiquidGlassMobileNavBar />
 
       {/* Demo LiquidGlass Footer */}
       <LiquidGlassFooter
