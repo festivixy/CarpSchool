@@ -201,6 +201,7 @@ async function syncPublicationCacheToMongoDB() {
     const batch = [];
     const now = new Date();
 
+    // eslint-disable-next-line no-restricted-syntax
     for (const [key, timestamp] of publicationRateCache.entries()) {
       const [userId, publicationName] = key.split(":", 2);
 
@@ -260,6 +261,7 @@ async function loadPublicationCacheFromMongoDB() {
       lastCalled: { $gte: oneHourAgo },
     }).fetchAsync();
 
+    // eslint-disable-next-line no-restricted-syntax
     for (const record of recentRecords) {
       const publicationName = record.name.replace(/^publication:/, "");
       const key = `${record.userId}:${publicationName}`;
@@ -279,6 +281,7 @@ Meteor.setInterval(() => {
   const cutoff = Date.now() - (60 * 60 * 1000); // 1 hour ago
 
   // Clean up old cache entries
+  // eslint-disable-next-line no-restricted-syntax
   for (const [key, timestamp] of publicationRateCache.entries()) {
     if (timestamp < cutoff) {
       publicationRateCache.delete(key);
@@ -286,6 +289,7 @@ Meteor.setInterval(() => {
   }
 
   // Clean up old call count entries
+  // eslint-disable-next-line no-restricted-syntax
   for (const [key, data] of publicationCallCounts.entries()) {
     if (data.firstCall < cutoff) {
       publicationCallCounts.delete(key);
