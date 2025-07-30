@@ -35,7 +35,9 @@ async function isCaptchaSolved(sessionId) {
 
   // Add small random delay to further obfuscate timing
   const delay = Math.floor(Math.random() * 5) + 1; // 1-5ms
-  await new Promise(resolve => setTimeout(resolve, delay));
+  await new Promise(resolve => {
+    setTimeout(resolve, delay);
+  });
 
   return isValid;
 }
