@@ -137,19 +137,3 @@ vulnerabilities.md
         ├── pages
         ├── styles
         └── utils
-
-## NEW TODOS
-
-- todo 1
-    add rate limiting API
-    in app/imports/api/rateLimit
-    that contains a schema, methods, and publications
-    for rate limiting API calls data, allow name, userid, limit(ms),
-    and last called.
-    in methods, add rate limiting logic
-    in publications, add rate limiting logic
-    in schema, add rate limiting schema
-    import methods and publications in startup/server/index.js
-
-    for now, dont implement the rate limiting functionality in 
-    the app yet. later
