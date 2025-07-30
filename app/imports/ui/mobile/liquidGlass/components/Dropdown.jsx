@@ -58,6 +58,37 @@ function LiquidGlassDropdown({
   const searchInputRef = useRef(null);
   const menuRef = useRef(null);
 
+  // Define functions before they are used in useEffect hooks
+  const handleClose = () => {
+    setIsOpen(false);
+    setSearchTerm("");
+    setFocusedIndex(-1);
+    onClose?.(); // eslint-disable-line no-unused-expressions
+  };
+
+  const handleOptionSelect = (option) => {
+    if (option.disabled) return;
+
+    if (multiple) {
+      const currentValues = Array.isArray(selectedValues) ? selectedValues : [];
+      const isSelected = currentValues.some((v) => v === option.value);
+
+      let newValues;
+      if (isSelected) {
+        newValues = currentValues.filter((v) => v !== option.value);
+      } else {
+        newValues = [...currentValues, option.value];
+      }
+
+      setSelectedValues(newValues);
+      onChange?.(newValues, option); // eslint-disable-line no-unused-expressions
+    } else {
+      setSelectedValues(option.value);
+      onChange?.(option.value, option); // eslint-disable-line no-unused-expressions
+      handleClose();
+    }
+  };
+
   // Filter options based on search term
   const filteredOptions =
     searchable && searchTerm
@@ -113,6 +144,8 @@ function LiquidGlassDropdown({
         case "Tab":
           handleClose();
           break;
+        default:
+          break;
       }
     };
 
@@ -139,36 +172,6 @@ function LiquidGlassDropdown({
       setFocusedIndex(-1);
       onOpen?.(); // eslint-disable-line no-unused-expressions
     } else {
-      handleClose();
-    }
-  };
-
-  const handleClose = () => {
-    setIsOpen(false);
-    setSearchTerm("");
-    setFocusedIndex(-1);
-    onClose?.(); // eslint-disable-line no-unused-expressions
-  };
-
-  const handleOptionSelect = (option) => {
-    if (option.disabled) return;
-
-    if (multiple) {
-      const currentValues = Array.isArray(selectedValues) ? selectedValues : [];
-      const isSelected = currentValues.some((v) => v === option.value);
-
-      let newValues;
-      if (isSelected) {
-        newValues = currentValues.filter((v) => v !== option.value);
-      } else {
-        newValues = [...currentValues, option.value];
-      }
-
-      setSelectedValues(newValues);
-      onChange?.(newValues, option); // eslint-disable-line no-unused-expressions
-    } else {
-      setSelectedValues(option.value);
-      onChange?.(option.value, option); // eslint-disable-line no-unused-expressions
       handleClose();
     }
   };
