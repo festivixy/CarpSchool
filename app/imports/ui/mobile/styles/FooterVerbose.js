@@ -121,27 +121,7 @@ export const SocialLinks = styled.div`
   margin-top: 20px;
 `;
 
-export const SocialIcon = styled.a`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  color: white;
-  text-decoration: none;
-  font-size: 18px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
 
-  &:hover {
-    background: #4a90e2;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-  }
-`;
 
 export const FooterBottom = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.1);

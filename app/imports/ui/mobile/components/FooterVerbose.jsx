@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import LiquidGlassIconButton from "../liquidGlass/components/IconButton";
 import {
   FooterContainer,
   FooterContent,
@@ -18,7 +19,6 @@ import {
   ContactItem,
   ContactIcon,
   SocialLinks,
-  SocialIcon,
   FooterBottom,
   Copyright,
   LegalLinks,
@@ -114,15 +114,14 @@ function FooterVerbose({
               </ContactInfo>
               <SocialLinks>
                 {socialLinks.map((social) => (
-                  <SocialIcon
+                  <LiquidGlassIconButton
                     key={social.platform}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    icon={social.icon}
                     title={social.platform}
-                  >
-                    {social.icon}
-                  </SocialIcon>
+                    onClick={() => window.open(social.url, "_blank", "noopener,noreferrer")}
+                    size="medium"
+                    variant="default"
+                  />
                 ))}
               </SocialLinks>
             </CompanyInfo>
