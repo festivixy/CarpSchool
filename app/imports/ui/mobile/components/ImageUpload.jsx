@@ -7,6 +7,7 @@ import {
   Segment,
   Header,
   Image,
+  Input
 } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import Captcha from "./Captcha";

@@ -269,7 +269,7 @@ class MobileRide extends React.Component {
     });
 
   render() {
-    const { shareModalOpen, shareCode, isGenerating, isExistingCode, mapModalOpen } =
+    const { shareModalOpen, shareCode, isGenerating, isExistingCode, _mapModalOpen } =
       this.state;
     const { ride } = this.props;
 
@@ -298,7 +298,7 @@ class MobileRide extends React.Component {
             ) && (
               <Status>
                 {/* Handle new schema */}
-                {ride.riders !== undefined && ride.seats !== undefined ? (
+                {ride.riders !== undefined && ride.seats !== undefined ? ( // eslint-disable-line no-nested-ternary
                   ride.riders.length < ride.seats ? (
                     <StatusLooking>
                       {ride.seats - ride.riders.length} seat
@@ -335,7 +335,7 @@ class MobileRide extends React.Component {
               <DetailIcon>👥</DetailIcon>
               <DetailText>
                 {/* Handle new schema */}
-                {ride.riders !== undefined && ride.seats !== undefined
+                {ride.riders !== undefined && ride.seats !== undefined // eslint-disable-line no-nested-ternary
                   ? ride.riders.length > 0
                     ? `${ride.riders.length}/${ride.seats} riders: ${ride.riders.join(", ")}`
                     : `0/${ride.seats} riders - None yet`

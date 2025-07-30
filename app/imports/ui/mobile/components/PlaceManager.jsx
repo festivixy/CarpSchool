@@ -315,7 +315,7 @@ class PlaceManager extends React.Component {
                           : "Legacy place"}
                       </PlaceDate>
                       <PlaceDate style={{ marginTop: "4px", fontWeight: "600", color: "#007bff" }}>
-                        Creator: {place.createdBy ? (
+                        Creator: {place.createdBy ? ( // eslint-disable-line no-nested-ternary
                           place.createdBy === Meteor.userId()
                             ? "You"
                             : (this.state.creatorNames[place.createdBy] || "Loading...")

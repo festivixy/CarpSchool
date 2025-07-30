@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Route, Redirect } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
@@ -82,7 +82,6 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
   const SimpleRouteWrapper = (props) => {
     const isLoggingIn = Meteor.loggingIn();
     const user = Meteor.user();
-    const userLoaded = user !== undefined;
     const isLogged = !!user;
     const showAuthOverlay = !isLogged;
 
@@ -215,7 +214,6 @@ export const ProtectedRouteRequireAdmin = ({
 }) => {
   // Create a functional component to use hooks
   const AdminRouteWrapper = (props) => {
-    const isLoggingIn = Meteor.loggingIn();
     const user = Meteor.user();
     const userId = Meteor.userId();
     const isLogged = userId !== null;

@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { check, Match } from "meteor/check";
+import { check } from "meteor/check";
 import { Chats } from "./Chat";
 import { Rides } from "../ride/Rides";
 

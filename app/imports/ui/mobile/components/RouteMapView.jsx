@@ -86,6 +86,14 @@ const RouteMapView = ({
       iconAnchor: [15, 15],
     });
 
+  // Create straight line geometry as fallback
+  const createStraightLineGeometry = (start, end) => ({
+      type: "LineString",
+      coordinates: [
+        [start.lng, start.lat],
+        [end.lng, end.lat],
+      ],
+    });
   // Find route using OSRM with fallback to straight line
   const findRouteOSRM = async (start, end) => {
     try {
@@ -109,14 +117,6 @@ const RouteMapView = ({
     }
   };
 
-  // Create straight line geometry as fallback
-  const createStraightLineGeometry = (start, end) => ({
-      type: "LineString",
-      coordinates: [
-        [start.lng, start.lat],
-        [end.lng, end.lat],
-      ],
-    });
 
   // Find and display route
   const findAndDisplayRoute = async (showRefreshAnimation = false) => {
