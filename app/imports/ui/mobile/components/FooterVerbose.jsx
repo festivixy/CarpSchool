@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -147,83 +147,6 @@ const SocialIcon = styled.a`
   }
 `;
 
-const NewsletterSection = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  padding: 20px;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const NewsletterTitle = styled.h4`
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #ffffff;
-`;
-
-const NewsletterDescription = styled.p`
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 16px;
-  line-height: 1.5;
-`;
-
-const NewsletterForm = styled.form`
-  display: flex;
-  gap: 8px;
-  flex-direction: column;
-
-  @media (min-width: 480px) {
-    flex-direction: row;
-  }
-`;
-
-const NewsletterInput = styled.input`
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s ease;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  &:focus {
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-  }
-`;
-
-const NewsletterButton = styled.button`
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #4a90e2, #357abd);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-
-  &:hover {
-    background: linear-gradient(135deg, #357abd, #2968a3);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
 
 const FooterBottom = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -288,32 +211,11 @@ function FooterVerbose({
   email = "hello@carpool.com",
   phone = "+1 (555) 123-4567",
   address = "123 Green Street, Eco City, EC 12345",
-  onNewsletterSubmit,
   onLinkClick,
   className,
   ...props
 }) {
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleNewsletterSubmit = async (e) => {
-    e.preventDefault();
-    if (!newsletterEmail.trim()) return;
-
-    setIsSubmitting(true);
-    try {
-      if (onNewsletterSubmit) {
-        await onNewsletterSubmit(newsletterEmail);
-      }
-      setNewsletterEmail("");
-      // Could show success message here
-    } catch (error) {
-      console.error("Newsletter submission failed:", error);
-      // Could show error message here
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleLinkClick = (link, e) => {
     if (onLinkClick) {
@@ -450,28 +352,7 @@ function FooterVerbose({
             </FooterLinksList>
           </FooterSection>
 
-          {/* Newsletter Section */}
-          <FooterSection>
-            <NewsletterSection>
-              <NewsletterTitle>Stay Updated</NewsletterTitle>
-              <NewsletterDescription>
-                Get the latest updates on new features, safety tips, and community news.
-              </NewsletterDescription>
-              <NewsletterForm onSubmit={handleNewsletterSubmit}>
-                <NewsletterInput
-                  type="email"
-                  placeholder="Enter your email"
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                />
-                <NewsletterButton type="submit" disabled={isSubmitting || !newsletterEmail.trim()}>
-                  {isSubmitting ? "Subscribing..." : "Subscribe"}
-                </NewsletterButton>
-              </NewsletterForm>
-            </NewsletterSection>
-          </FooterSection>
+
         </FooterGrid>
 
         <FooterBottom>
@@ -508,7 +389,6 @@ FooterVerbose.propTypes = {
   email: PropTypes.string,
   phone: PropTypes.string,
   address: PropTypes.string,
-  onNewsletterSubmit: PropTypes.func,
   onLinkClick: PropTypes.func,
   className: PropTypes.string,
 };
