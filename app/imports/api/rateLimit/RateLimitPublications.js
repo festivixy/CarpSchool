@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { RateLimit } from "./RateLimit";
@@ -77,7 +78,7 @@ Meteor.publish("rateLimit.own", function rateLimitOwn() {
  * Publish rate limit records for a specific API endpoint (user's own only)
  * Rate limited to prevent abuse
  */
-Meteor.publish("rateLimit.byName", function rateLimitByName(name) {
+Meteor.publish("rateLimit.byName", function rateLimitByName(name) { // eslint-disable-line consistent-return
   check(name, String);
 
   // Rate limit this publication to 1 call per 2 seconds
@@ -113,7 +114,7 @@ Meteor.publish("rateLimit.byName", function rateLimitByName(name) {
  * Admin publication: all rate limit records
  * Rate limited to prevent abuse, admin only
  */
-Meteor.publish("rateLimit.admin", function rateLimitAdmin() {
+Meteor.publish("rateLimit.admin", function rateLimitAdmin() { // eslint-disable-line consistent-return
   // Rate limit this publication to 1 call per 10 seconds
   if (!checkPublicationRateLimit(this.userId, "rateLimit.admin", 10000)) {
     this.ready();
