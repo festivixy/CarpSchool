@@ -311,7 +311,7 @@ class MobileAdminRides extends React.Component {
                             : "Rider"}
                         </DetailLabel>
                         <DetailValue>
-                          {ride.riders !== undefined && ride.seats !== undefined
+                          {ride.riders !== undefined && ride.seats !== undefined // eslint-disable-line no-nested-ternary
                             ? ride.riders.length > 0
                               ? ride.riders.join(", ")
                               : "None yet"
