@@ -298,27 +298,6 @@ export const NewsletterSection = styled.div`
   }
 `;
 
-export const NewsletterInput = styled.input`
-  padding: 12px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  font-size: 14px;
-  color: #333;
-  outline: none;
-  transition: all 0.2s ease;
-
-  &::placeholder {
-    color: #666;
-  }
-
-  &:focus {
-    border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-  }
-`;
 
 export const NewsletterButton = styled.div`
   display: flex;
