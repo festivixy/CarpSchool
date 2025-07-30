@@ -77,7 +77,7 @@ export const IconButtonContainer = styled.button`
 
   &:hover {
     transform: ${(props) => (props.$disabled ? "translateY(0px) translateX(0px)" : "translateY(-1px) translateX(0px)")};
-    box-shadow: ${(props) => (props.$disabled
+    box-shadow: ${(props) => (props.$disabled // eslint-disable-line no-nested-ternary
         ? "0 1px 3px rgba(0, 0, 0, 0.03)"
         : props.$active
           ? "0 0 0 2px rgba(0, 123, 255, 0.4), 0 6px 16px rgba(0, 0, 0, 0.15)"
