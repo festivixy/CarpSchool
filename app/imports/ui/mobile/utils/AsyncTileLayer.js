@@ -40,19 +40,10 @@ export const AsyncTileLayer = L.TileLayer.extend({
       const imageUrl = await this.asyncLoader.loadTile(z, x, y);
 
       if (imageUrl) {
-        // Set up load handler
-        const onLoad = () => {
-          tile.removeEventListener("load", onLoad);
-          tile.removeEventListener("error", onError);
+        // Declare handler functions
+        let onLoad;
 
-          // Remove loading state and fade in
-          L.DomUtil.removeClass(tile, "async-tile-loading");
-          L.DomUtil.addClass(tile, "async-tile-loaded");
-          tile.style.opacity = "1";
-
-          done(null, tile);
-        };
-
+        // Define error handler
         const onError = () => {
           tile.removeEventListener("load", onLoad);
           tile.removeEventListener("error", onError);
@@ -63,9 +54,22 @@ export const AsyncTileLayer = L.TileLayer.extend({
           done(new Error("Tile failed to load"), tile);
         };
 
+        // Define load handler
+        onLoad = () => {
+          tile.removeEventListener("load", onLoad);
+          tile.removeEventListener("error", onError);
+
+          // Remove loading state and fade in
+          L.DomUtil.removeClass(tile, "async-tile-loading");
+          L.DomUtil.addClass(tile, "async-tile-loaded");
+          tile.style.opacity = "1"; // eslint-disable-line no-param-reassign
+
+          done(null, tile);
+        };
+
         tile.addEventListener("load", onLoad);
         tile.addEventListener("error", onError);
-        tile.src = imageUrl;
+        tile.src = imageUrl; // eslint-disable-line no-param-reassign
       } else {
         // Fallback to original URL
         this._loadTileFallback(coords, tile, done);
@@ -80,17 +84,10 @@ export const AsyncTileLayer = L.TileLayer.extend({
     // Fall back to standard tile loading
     const url = this.getTileUrl(coords);
 
-    const onLoad = () => {
-      tile.removeEventListener("load", onLoad);
-      tile.removeEventListener("error", onError);
+    // Declare handler functions
+    let onLoad;
 
-      L.DomUtil.removeClass(tile, "async-tile-loading");
-      L.DomUtil.addClass(tile, "async-tile-loaded");
-      tile.style.opacity = "1";
-
-      done(null, tile);
-    };
-
+    // Define error handler
     const onError = () => {
       tile.removeEventListener("load", onLoad);
       tile.removeEventListener("error", onError);
@@ -101,9 +98,21 @@ export const AsyncTileLayer = L.TileLayer.extend({
       done(new Error("Tile failed to load"), tile);
     };
 
+    // Define load handler
+    onLoad = () => {
+      tile.removeEventListener("load", onLoad);
+      tile.removeEventListener("error", onError);
+
+      L.DomUtil.removeClass(tile, "async-tile-loading");
+      L.DomUtil.addClass(tile, "async-tile-loaded");
+      tile.style.opacity = "1"; // eslint-disable-line no-param-reassign
+
+      done(null, tile);
+    };
+
     tile.addEventListener("load", onLoad);
     tile.addEventListener("error", onError);
-    tile.src = url;
+    tile.src = url; // eslint-disable-line no-param-reassign
   },
 
   onAdd: function (map) {
