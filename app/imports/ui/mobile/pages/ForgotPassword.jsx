@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Accounts } from "meteor/accounts-base";
-import { Meteor } from "meteor/meteor";
 import {
   Container,
   Header,

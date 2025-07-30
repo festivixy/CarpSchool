@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Redirect } from "react-router-dom";
-import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import LiquidGlassButton from "../components/Button";
 import LiquidGlassTextInput from "../components/TextInput";
