@@ -107,9 +107,22 @@ const InteractiveMapPicker = ({
     // Cleanup function
     return () => { // eslint-disable-line consistent-return
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-        markerRef.current = null;
+        try {
+          // Remove marker first if it exists
+          if (markerRef.current) {
+            mapInstanceRef.current.removeLayer(markerRef.current);
+            markerRef.current = null;
+          }
+
+          // Then remove the map
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+        } catch (error) {
+          console.warn("Error during map cleanup:", error);
+          // Force cleanup of references even if removal fails
+          mapInstanceRef.current = null;
+          markerRef.current = null;
+        }
       }
     };
   }, []);
@@ -117,30 +130,41 @@ const InteractiveMapPicker = ({
   // Update marker position when selectedLocation prop changes
   useEffect(() => {
     if (selectedLocation && markerRef.current && mapInstanceRef.current) {
-      const newPos = [selectedLocation.lat, selectedLocation.lng];
-      markerRef.current.setLatLng(newPos);
-      mapInstanceRef.current.setView(newPos);
-      setCurrentLocation(selectedLocation);
+      try {
+        const newPos = [selectedLocation.lat, selectedLocation.lng];
+        markerRef.current.setLatLng(newPos);
+        mapInstanceRef.current.setView(newPos);
+        setCurrentLocation(selectedLocation);
+      } catch (error) {
+        console.warn("Error updating marker position:", error);
+      }
     }
   }, [selectedLocation]);
 
   // Center map on current location
   const centerOnLocation = () => {
-    if (navigator.geolocation && mapInstanceRef.current) {
+    if (navigator.geolocation && mapInstanceRef.current && markerRef.current) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const newLocation = {
-            lat: parseFloat(position.coords.latitude.toFixed(6)),
-            lng: parseFloat(position.coords.longitude.toFixed(6)),
-          };
-          mapInstanceRef.current.setView(
-            [newLocation.lat, newLocation.lng],
-            15,
-          );
-          markerRef.current.setLatLng([newLocation.lat, newLocation.lng]);
-          setCurrentLocation(newLocation);
-          if (onLocationSelect) {
-            onLocationSelect(newLocation);
+          try {
+            const newLocation = {
+              lat: parseFloat(position.coords.latitude.toFixed(6)),
+              lng: parseFloat(position.coords.longitude.toFixed(6)),
+            };
+
+            if (mapInstanceRef.current && markerRef.current) {
+              mapInstanceRef.current.setView(
+                [newLocation.lat, newLocation.lng],
+                15,
+              );
+              markerRef.current.setLatLng([newLocation.lat, newLocation.lng]);
+              setCurrentLocation(newLocation);
+              if (onLocationSelect) {
+                onLocationSelect(newLocation);
+              }
+            }
+          } catch (error) {
+            console.warn("Error setting location:", error);
           }
         },
         (error) => {
@@ -199,11 +223,15 @@ const InteractiveMapPicker = ({
     };
 
     if (mapInstanceRef.current && markerRef.current) {
-      mapInstanceRef.current.setView([result.lat, result.lng], 15);
-      markerRef.current.setLatLng([result.lat, result.lng]);
-      setCurrentLocation(newLocation);
-      if (onLocationSelect) {
-        onLocationSelect(newLocation);
+      try {
+        mapInstanceRef.current.setView([result.lat, result.lng], 15);
+        markerRef.current.setLatLng([result.lat, result.lng]);
+        setCurrentLocation(newLocation);
+        if (onLocationSelect) {
+          onLocationSelect(newLocation);
+        }
+      } catch (error) {
+        console.warn("Error selecting search result:", error);
       }
     }
 
@@ -214,13 +242,21 @@ const InteractiveMapPicker = ({
   // Zoom controls
   const zoomIn = () => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.zoomIn();
+      try {
+        mapInstanceRef.current.zoomIn();
+      } catch (error) {
+        console.warn("Error zooming in:", error);
+      }
     }
   };
 
   const zoomOut = () => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.zoomOut();
+      try {
+        mapInstanceRef.current.zoomOut();
+      } catch (error) {
+        console.warn("Error zooming out:", error);
+      }
     }
   };
 
