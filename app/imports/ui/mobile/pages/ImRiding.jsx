@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import JoinRideModal from "../components/JoinRideModal";
 import MobileRide from "../components/Ride";
+import ConfirmFunction from "../components/ConfirmFunction";
 import "../../../api/chat/ChatMethods";
 import {
   Container,
@@ -43,6 +44,8 @@ class MobileImRiding extends React.Component {
       filteredRides: [],
       joinRideModalOpen: false,
       prefillCode: "",
+      showConfirmModal: false,
+      pendingRideId: null,
     };
   }
 
@@ -104,14 +107,32 @@ class MobileImRiding extends React.Component {
   };
 
   handleLeaveRide = (rideId) => {
-    if (confirm("Are you sure you want to leave this ride?")) {
-      // eslint-disable-line
-      Meteor.call("rides.leaveRide", rideId, (error) => {
+    this.setState({
+      showConfirmModal: true,
+      pendingRideId: rideId,
+    });
+  };
+
+  handleConfirmLeaveRide = async () => {
+    const { pendingRideId } = this.state;
+
+    return new Promise((resolve) => {
+      Meteor.call("rides.leaveRide", pendingRideId, (error) => {
         if (error) {
           alert(`Error leaving ride: ${error.reason}`);
+          resolve(false);
+        } else {
+          resolve(true);
         }
       });
-    }
+    });
+  };
+
+  handleConfirmModalResult = (success) => {
+    this.setState({
+      showConfirmModal: false,
+      pendingRideId: null,
+    });
   };
 
   handleContactDriver = async (driver) => {
@@ -235,6 +256,19 @@ class MobileImRiding extends React.Component {
           onClose={this.handleJoinRideClose}
           prefillCode={prefillCode}
         />
+
+        {this.state.showConfirmModal && (
+          <ConfirmFunction
+            title="Leave Ride"
+            subtitle="Are you sure you want to leave this ride? The driver will be notified."
+            confirmText="Leave Ride"
+            cancelText="Stay in Ride"
+            isDestructive={true}
+            asyncFunction={this.handleConfirmLeaveRide}
+            onResult={this.handleConfirmModalResult}
+            onClose={this.handleConfirmModalResult}
+          />
+        )}
       </>
     );
   }

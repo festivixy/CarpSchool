@@ -5,6 +5,7 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import MobileRide from "../components/Ride";
+import ConfirmFunction from "../components/ConfirmFunction";
 import "../../../api/chat/ChatMethods";
 import {
   Container,
@@ -39,6 +40,8 @@ class MobileImDriving extends React.Component {
     this.state = {
       searchQuery: "",
       filteredRides: [],
+      showConfirmModal: false,
+      pendingRideId: null,
     };
   }
 
@@ -86,14 +89,32 @@ class MobileImDriving extends React.Component {
   };
 
   handleCancelRide = (rideId) => {
-    if (confirm("Are you sure you want to cancel this ride?")) {
-      // eslint-disable-line
-      Meteor.call("rides.remove", rideId, (error) => {
+    this.setState({
+      showConfirmModal: true,
+      pendingRideId: rideId,
+    });
+  };
+
+  handleConfirmCancelRide = async () => {
+    const { pendingRideId } = this.state;
+
+    return new Promise((resolve) => {
+      Meteor.call("rides.remove", pendingRideId, (error) => {
         if (error) {
           alert(`Error canceling ride: ${error.reason}`);
+          resolve(false);
+        } else {
+          resolve(true);
         }
       });
-    }
+    });
+  };
+
+  handleConfirmModalResult = (success) => {
+    this.setState({
+      showConfirmModal: false,
+      pendingRideId: null,
+    });
   };
 
   handleRemoveRider = (rideId, riderUsername) => {
@@ -241,6 +262,19 @@ class MobileImDriving extends React.Component {
             ))
           )}
         </RidesContainer>
+
+        {this.state.showConfirmModal && (
+          <ConfirmFunction
+            title="Cancel Ride"
+            subtitle="Are you sure you want to cancel this ride? This action cannot be undone and will notify all riders."
+            confirmText="Cancel Ride"
+            cancelText="Keep Ride"
+            isDestructive={true}
+            asyncFunction={this.handleConfirmCancelRide}
+            onResult={this.handleConfirmModalResult}
+            onClose={this.handleConfirmModalResult}
+          />
+        )}
       </Container>
     );
   }

@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import JoinRideModal from "../components/JoinRideModal";
 import MobileRide from "../components/Ride";
+import ConfirmFunction from "../components/ConfirmFunction";
 import "../../../api/chat/ChatMethods";
 import {
   Container,
@@ -49,6 +50,9 @@ class MobileMyRides extends React.Component {
       filteredRidingRides: [],
       joinRideModalOpen: false,
       prefillCode: "",
+      showConfirmModal: false,
+      confirmAction: null, // 'cancel' or 'leave'
+      pendingRideId: null,
     };
   }
 
@@ -143,25 +147,55 @@ class MobileMyRides extends React.Component {
   };
 
   handleCancelRide = (rideId) => {
-    if (confirm("Are you sure you want to cancel this ride?")) {
-      // eslint-disable-line
-      Meteor.call("rides.remove", rideId, (error) => {
-        if (error) {
-          alert(`Error canceling ride: ${error.reason}`);
-        }
-      });
-    }
+    this.setState({
+      showConfirmModal: true,
+      confirmAction: 'cancel',
+      pendingRideId: rideId,
+    });
   };
 
   handleLeaveRide = (rideId) => {
-    if (confirm("Are you sure you want to leave this ride?")) {
-      // eslint-disable-line
-      Meteor.call("rides.leaveRide", rideId, (error) => {
-        if (error) {
-          alert(`Error leaving ride: ${error.reason}`);
-        }
-      });
-    }
+    this.setState({
+      showConfirmModal: true,
+      confirmAction: 'leave',
+      pendingRideId: rideId,
+    });
+  };
+
+  handleConfirmAction = async () => {
+    const { confirmAction, pendingRideId } = this.state;
+
+    return new Promise((resolve) => {
+      if (confirmAction === 'cancel') {
+        Meteor.call("rides.remove", pendingRideId, (error) => {
+          if (error) {
+            alert(`Error canceling ride: ${error.reason}`);
+            resolve(false);
+          } else {
+            resolve(true);
+          }
+        });
+      } else if (confirmAction === 'leave') {
+        Meteor.call("rides.leaveRide", pendingRideId, (error) => {
+          if (error) {
+            alert(`Error leaving ride: ${error.reason}`);
+            resolve(false);
+          } else {
+            resolve(true);
+          }
+        });
+      } else {
+        resolve(false);
+      }
+    });
+  };
+
+  handleConfirmModalResult = (success) => {
+    this.setState({
+      showConfirmModal: false,
+      confirmAction: null,
+      pendingRideId: null,
+    });
   };
 
   handleContactDriver = async (driver) => {
@@ -435,6 +469,23 @@ class MobileMyRides extends React.Component {
           onClose={this.handleJoinRideClose}
           prefillCode={prefillCode}
         />
+
+        {this.state.showConfirmModal && (
+          <ConfirmFunction
+            title={this.state.confirmAction === 'cancel' ? 'Cancel Ride' : 'Leave Ride'}
+            subtitle={
+              this.state.confirmAction === 'cancel'
+                ? 'Are you sure you want to cancel this ride? This action cannot be undone and will notify all riders.'
+                : 'Are you sure you want to leave this ride? The driver will be notified.'
+            }
+            confirmText={this.state.confirmAction === 'cancel' ? 'Cancel Ride' : 'Leave Ride'}
+            cancelText={this.state.confirmAction === 'cancel' ? 'Keep Ride' : 'Stay in Ride'}
+            isDestructive={true}
+            asyncFunction={this.handleConfirmAction}
+            onResult={this.handleConfirmModalResult}
+            onClose={this.handleConfirmModalResult}
+          />
+        )}
       </>
     );
   }
