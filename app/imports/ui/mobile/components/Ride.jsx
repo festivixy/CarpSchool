@@ -269,7 +269,7 @@ class MobileRide extends React.Component {
     });
 
   render() {
-    const { shareModalOpen, shareCode, isGenerating, isExistingCode, _mapModalOpen } =
+    const { shareModalOpen, shareCode, isGenerating, isExistingCode } =
       this.state;
     const { ride } = this.props;
 
