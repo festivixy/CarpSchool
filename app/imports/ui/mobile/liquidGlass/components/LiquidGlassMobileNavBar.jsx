@@ -124,7 +124,7 @@ class LiquidGlassMobileNavBar extends React.Component {
                   style={{
                     width: "24px",
                     height: "24px",
-                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))"
+                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
                   }}
                 />
                 <TabLabel>{currentUser ? "My Rides" : "Home"}</TabLabel>
@@ -138,7 +138,7 @@ class LiquidGlassMobileNavBar extends React.Component {
                   style={{
                     width: "24px",
                     height: "24px",
-                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))"
+                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
                   }}
                 />
                 <TabLabel>Join Ride</TabLabel>
@@ -152,7 +152,7 @@ class LiquidGlassMobileNavBar extends React.Component {
                   style={{
                     width: "24px",
                     height: "24px",
-                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))"
+                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
                   }}
                 />
                 <TabLabel>Create</TabLabel>
@@ -166,7 +166,7 @@ class LiquidGlassMobileNavBar extends React.Component {
                   style={{
                     width: "24px",
                     height: "24px",
-                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))"
+                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
                   }}
                 />
                 <TabLabel>Messages</TabLabel>
@@ -192,7 +192,7 @@ class LiquidGlassMobileNavBar extends React.Component {
                     width: "24px",
                     height: "24px",
                     filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
-                    borderRadius: "50%"
+                    borderRadius: "50%",
                   }}
                 />
                 <TabLabel>Profile</TabLabel>

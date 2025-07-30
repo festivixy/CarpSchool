@@ -149,7 +149,7 @@ class MobileMyRides extends React.Component {
   handleCancelRide = (rideId) => {
     this.setState({
       showConfirmModal: true,
-      confirmAction: 'cancel',
+      confirmAction: "cancel",
       pendingRideId: rideId,
     });
   };
@@ -157,7 +157,7 @@ class MobileMyRides extends React.Component {
   handleLeaveRide = (rideId) => {
     this.setState({
       showConfirmModal: true,
-      confirmAction: 'leave',
+      confirmAction: "leave",
       pendingRideId: rideId,
     });
   };
@@ -166,7 +166,7 @@ class MobileMyRides extends React.Component {
     const { confirmAction, pendingRideId } = this.state;
 
     return new Promise((resolve) => {
-      if (confirmAction === 'cancel') {
+      if (confirmAction === "cancel") {
         Meteor.call("rides.remove", pendingRideId, (error) => {
           if (error) {
             alert(`Error canceling ride: ${error.reason}`);
@@ -175,7 +175,7 @@ class MobileMyRides extends React.Component {
             resolve(true);
           }
         });
-      } else if (confirmAction === 'leave') {
+      } else if (confirmAction === "leave") {
         Meteor.call("rides.leaveRide", pendingRideId, (error) => {
           if (error) {
             alert(`Error leaving ride: ${error.reason}`);
@@ -472,14 +472,14 @@ class MobileMyRides extends React.Component {
 
         {this.state.showConfirmModal && (
           <ConfirmFunction
-            title={this.state.confirmAction === 'cancel' ? 'Cancel Ride' : 'Leave Ride'}
+            title={this.state.confirmAction === "cancel" ? "Cancel Ride" : "Leave Ride"}
             subtitle={
-              this.state.confirmAction === 'cancel'
-                ? 'Are you sure you want to cancel this ride? This action cannot be undone and will notify all riders.'
-                : 'Are you sure you want to leave this ride? The driver will be notified.'
+              this.state.confirmAction === "cancel"
+                ? "Are you sure you want to cancel this ride? This action cannot be undone and will notify all riders."
+                : "Are you sure you want to leave this ride? The driver will be notified."
             }
-            confirmText={this.state.confirmAction === 'cancel' ? 'Cancel Ride' : 'Leave Ride'}
-            cancelText={this.state.confirmAction === 'cancel' ? 'Keep Ride' : 'Stay in Ride'}
+            confirmText={this.state.confirmAction === "cancel" ? "Cancel Ride" : "Leave Ride"}
+            cancelText={this.state.confirmAction === "cancel" ? "Keep Ride" : "Stay in Ride"}
             isDestructive={true}
             asyncFunction={this.handleConfirmAction}
             onResult={this.handleConfirmModalResult}
