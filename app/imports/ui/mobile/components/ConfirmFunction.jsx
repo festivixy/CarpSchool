@@ -17,7 +17,7 @@ import {
 
 /**
  * ConfirmFunction - A reusable confirmation modal component
- * 
+ *
  * Displays a modal overlay with customizable title and subtitle,
  * executes an async function when confirmed, and returns boolean result.
  */
@@ -51,12 +51,12 @@ class ConfirmFunction extends React.Component {
 
   handleCancel = () => {
     const { onResult, onClose } = this.props;
-    
+
     // Return false when cancelled
     if (onResult) {
       onResult(false);
     }
-    
+
     if (onClose) {
       onClose();
     }
@@ -81,24 +81,24 @@ class ConfirmFunction extends React.Component {
     try {
       // Execute the async function
       const result = await asyncFunction();
-      
+
       // Return the boolean result (ensure it's always a boolean)
       const booleanResult = Boolean(result);
-      
+
       if (onResult) {
         onResult(booleanResult);
       }
-      
+
       if (onClose) {
         onClose();
       }
     } catch (error) {
       // Handle error case
-      this.setState({ 
+      this.setState({
         error: error.message || error.reason || "An error occurred",
-        isExecuting: false 
+        isExecuting: false,
       });
-      
+
       // Don't close modal on error, let user retry or cancel
       console.error("ConfirmFunction async execution failed:", error);
     }
@@ -119,7 +119,7 @@ class ConfirmFunction extends React.Component {
       <ModalOverlay onClick={this.handleOverlayClick}>
         <Modal onClick={(e) => e.stopPropagation()}>
           <Header>
-            <CloseButton 
+            <CloseButton
               onClick={this.handleCancel}
               disabled={isExecuting}
               aria-label="Close"
@@ -139,14 +139,14 @@ class ConfirmFunction extends React.Component {
           </Content>
 
           <Actions>
-            <ButtonSecondary 
+            <ButtonSecondary
               onClick={this.handleCancel}
               disabled={isExecuting}
             >
               {cancelText || "Cancel"}
             </ButtonSecondary>
-            
-            <ButtonPrimary 
+
+            <ButtonPrimary
               onClick={this.handleConfirm}
               disabled={isExecuting}
               destructive={isDestructive}

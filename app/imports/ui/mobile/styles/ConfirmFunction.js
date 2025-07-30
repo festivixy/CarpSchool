@@ -196,7 +196,7 @@ export const ButtonSecondary = styled.button`
 
 export const ButtonPrimary = styled.button`
   flex: 1;
-  background-color: ${props => props.destructive ? 'rgba(220, 38, 38, 1)' : 'rgba(0, 0, 0, 1)'};
+  background-color: ${props => (props.destructive ? "rgba(220, 38, 38, 1)" : "rgba(0, 0, 0, 1)")};
   color: rgba(255, 255, 255, 1);
   border: none;
   border-radius: 8px;
@@ -211,7 +211,7 @@ export const ButtonPrimary = styled.button`
   gap: 8px;
 
   &:hover:not(:disabled) {
-    background-color: ${props => props.destructive ? 'rgba(185, 28, 28, 1)' : 'rgba(30, 30, 30, 1)'};
+    background-color: ${props => (props.destructive ? "rgba(185, 28, 28, 1)" : "rgba(30, 30, 30, 1)")};
   }
 
   &:active:not(:disabled) {

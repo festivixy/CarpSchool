@@ -117,7 +117,6 @@ const RouteMapView = ({
     }
   };
 
-
   // Find and display route
   const findAndDisplayRoute = async (showRefreshAnimation = false) => {
     if (!startCoord || !endCoord || !mapInstanceRef.current) {
