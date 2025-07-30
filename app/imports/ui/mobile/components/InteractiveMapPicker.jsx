@@ -143,38 +143,73 @@ const InteractiveMapPicker = ({
 
   // Center map on current location
   const centerOnLocation = () => {
-    if (navigator.geolocation && mapInstanceRef.current && markerRef.current) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          try {
-            const newLocation = {
-              lat: parseFloat(position.coords.latitude.toFixed(6)),
-              lng: parseFloat(position.coords.longitude.toFixed(6)),
-            };
-
-            if (mapInstanceRef.current && markerRef.current) {
-              mapInstanceRef.current.setView(
-                [newLocation.lat, newLocation.lng],
-                15,
-              );
-              markerRef.current.setLatLng([newLocation.lat, newLocation.lng]);
-              setCurrentLocation(newLocation);
-              if (onLocationSelect) {
-                onLocationSelect(newLocation);
-              }
-            }
-          } catch (error) {
-            console.warn("Error setting location:", error);
-          }
-        },
-        (error) => {
-          console.warn("Geolocation error:", error);
-          alert(
-            "Could not get your current location. Please check your browser permissions.",
-          );
-        },
-      );
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by this browser.");
+      return;
     }
+
+    if (!mapInstanceRef.current || !markerRef.current) {
+      alert("Map is not ready. Please try again in a moment.");
+      return;
+    }
+
+    // Check if we're on HTTPS or localhost (required for geolocation)
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      alert("Location services require a secure connection (HTTPS) to work.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        try {
+          const newLocation = {
+            lat: parseFloat(position.coords.latitude.toFixed(6)),
+            lng: parseFloat(position.coords.longitude.toFixed(6)),
+          };
+
+          if (mapInstanceRef.current && markerRef.current) {
+            mapInstanceRef.current.setView(
+              [newLocation.lat, newLocation.lng],
+              15,
+            );
+            markerRef.current.setLatLng([newLocation.lat, newLocation.lng]);
+            setCurrentLocation(newLocation);
+            if (onLocationSelect) {
+              onLocationSelect(newLocation);
+            }
+          }
+        } catch (error) {
+          console.warn("Error setting location:", error);
+          alert("Error processing your location. Please try again.");
+        }
+      },
+      (error) => {
+        console.warn("Geolocation error:", error);
+
+        let errorMessage;
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Location access was denied. Please enable location permissions in your browser settings and try again.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information is unavailable. Please check your device's location settings.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out. Please try again.";
+            break;
+          default:
+            errorMessage = "An unknown error occurred while retrieving your location. Please try again.";
+            break;
+        }
+
+        alert(errorMessage);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000 // 5 minutes
+      }
+    );
   };
 
   // Search for locations using local Nominatim proxy
