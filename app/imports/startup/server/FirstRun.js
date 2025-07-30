@@ -236,7 +236,9 @@ Meteor.startup(async () => {
         await createUser(email, firstName, lastName, password, role);
       }
       // Wait a moment for all users to be fully indexed
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
     } else {
       console.log(
         "Cannot initialize the database!  Please invoke meteor with a settings file.",
