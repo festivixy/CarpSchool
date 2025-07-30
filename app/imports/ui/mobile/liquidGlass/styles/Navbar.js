@@ -70,7 +70,7 @@ export const GlassLayer = styled.div`
     rgba(255, 255, 255, 0.02) 50%,
     rgba(255, 255, 255, 0.04) 100%
   );
-  
+
   /* Simplified glass effect without expensive backdrop-filters */
   box-shadow:
     inset 0 1px 2px rgba(255, 255, 255, 0.1),
@@ -141,58 +141,7 @@ export const NavSection = styled.div`
   }
 `;
 
-export const NavList = styled.ul`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-`;
 
-export const NavItem = styled.li`
-  position: relative;
-  margin: 0;
-`;
-
-export const NavLink = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: ${(props) => (props.isActive ? "rgba(255, 255, 255, 0.15)" : "transparent")};
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-  white-space: nowrap;
-
-  .nav-icon {
-    font-size: 16px;
-    line-height: 1;
-  }
-
-  .dropdown-arrow {
-    margin-left: 4px;
-    font-size: 12px;
-    transition: transform 0.2s ease;
-    transform: ${(props) => (props.isActive ? "rotate(180deg)" : "rotate(0deg)")};
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
 
 export const UserSection = styled.div`
   display: flex;
@@ -324,113 +273,5 @@ export const MobileMenu = styled.div`
 
   @media (min-width: 769px) {
     display: none;
-  }
-`;
-
-export const MobileNavItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-  font-size: 16px;
-  font-weight: 500;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-  .nav-icon {
-    font-size: 18px;
-    line-height: 1;
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  &:active {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-export const DropdownContainer = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
-export const DropdownMenu = styled.div`
-  position: absolute;
-  top: calc(100% + 8px);
-  ${(props) => (props.align === "right" ? "right: 0;" : "left: 0;")}
-  min-width: 200px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  transform: translateY(${(props) => (props.isOpen ? "0" : "-10px")});
-  opacity: ${(props) => (props.isOpen ? "1" : "0")};
-  visibility: ${(props) => (props.isOpen ? "visible" : "hidden")};
-  transition: all 0.2s ease;
-  z-index: 1000;
-  overflow: hidden;
-`;
-
-export const DropdownItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  font-size: 14px;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  &:active {
-    background: rgba(255, 255, 255, 0.4);
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-`;
-
-export const Badge = styled.span`
-  position: absolute;
-  top: -6px;
-  right: 8px;
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-  color: white;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 10px;
-  min-width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
-  animation: pulse 2s infinite;
-  z-index: 10;
-
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-    100% {
-      transform: scale(1);
-    }
   }
 `;
