@@ -450,6 +450,7 @@ class MobileAdminRides extends React.Component {
 MobileAdminRides.propTypes = {
   rides: PropTypes.array.isRequired,
   users: PropTypes.array.isRequired,
+  places: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
 };
 
