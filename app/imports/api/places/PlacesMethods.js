@@ -198,5 +198,4 @@ Meteor.methods({
     return { message: `Updated ${updatedCount} legacy places`, count: updatedCount };
   },
 
-
 });

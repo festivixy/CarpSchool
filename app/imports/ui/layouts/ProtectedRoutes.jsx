@@ -25,8 +25,6 @@ const ProtectedRoutesComponent = ({
     // Determine if we should show the auth overlay
     const showAuthOverlay = !loggedIn && !userLoaded;
 
-
-
     // If not logged in, redirect to signin
     if (!loggedIn && userLoaded) {
       return <Redirect to="/signin" />;
@@ -44,20 +42,20 @@ const ProtectedRoutesComponent = ({
 
     // Always render the component, but show overlay if still authenticating
     return (
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
         <Component {...props} />
         {showAuthOverlay && (
           <div
             style={{
-              position: 'fixed',
+              position: "fixed",
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               zIndex: 9999,
             }}
           >
@@ -88,8 +86,6 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
     const isLogged = !!user;
     const showAuthOverlay = !isLogged;
 
-
-
     // If no user and not logging in, redirect to signin
     if (!user && !isLoggingIn) {
       return (
@@ -106,20 +102,20 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
 
     // Always render the component, but show overlay if still authenticating
     return (
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
         <Component {...props} />
         {showAuthOverlay && (
           <div
             style={{
-              position: 'fixed',
+              position: "fixed",
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               zIndex: 9999,
             }}
           >
@@ -229,8 +225,6 @@ export const ProtectedRouteRequireAdmin = ({
     // Determine if we should show the auth overlay
     const showAuthOverlay = !isLogged;
 
-
-
     // If we don't have a userId, we're definitely not logged in
     if (!userId) {
       return (
@@ -251,20 +245,20 @@ export const ProtectedRouteRequireAdmin = ({
 
     // Always render the component, but show overlay if still authenticating
     return (
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
         <Component {...props} />
         {showAuthOverlay && (
           <div
             style={{
-              position: 'fixed',
+              position: "fixed",
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               zIndex: 9999,
             }}
           >

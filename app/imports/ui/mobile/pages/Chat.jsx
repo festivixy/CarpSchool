@@ -149,8 +149,6 @@ class MobileChat extends React.Component {
     }
   };
 
-
-
   scrollToBottom = () => {
     const messagesContainer = document.querySelector(".mobile-chat-messages");
     if (messagesContainer) {
@@ -369,8 +367,6 @@ class MobileChat extends React.Component {
             </Main>
           </Content>
         </Container>
-
-
 
       </>
     );

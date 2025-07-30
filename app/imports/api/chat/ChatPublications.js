@@ -18,7 +18,6 @@ Meteor.publish("chats", async function publishChats() {
   return Chats.find({ Participants: currentUser.username });
 });
 
-
 /** Publish ride-specific chat */
 Meteor.publish("chats.forRide", async function publishRideChat(rideId) {
   check(rideId, String);

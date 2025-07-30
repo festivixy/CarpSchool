@@ -246,7 +246,7 @@ class MobileRide extends React.Component {
 
   parseCoordinates = (coordinateString) => {
     if (!coordinateString) return null;
-    const [lat, lng] = coordinateString.split(',').map(coord => parseFloat(coord.trim()));
+    const [lat, lng] = coordinateString.split(",").map(coord => parseFloat(coord.trim()));
     return { lat, lng };
   };
 
@@ -459,7 +459,7 @@ class MobileRide extends React.Component {
                 </ModalActions>
               </Modal>
             </ModalOverlay>,
-            document.body
+            document.body,
           )}
 
         {/* Map Modal - Rendered via Portal */}
@@ -488,7 +488,7 @@ class MobileRide extends React.Component {
                 </ModalActions>
               </Modal>
             </ModalOverlay>,
-            document.body
+            document.body,
           )}
       </>
     );

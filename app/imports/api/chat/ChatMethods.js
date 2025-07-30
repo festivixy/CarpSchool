@@ -35,8 +35,6 @@ function sanitizeChatContent(content) {
   return sanitized.trim().substring(0, 1000); // Max 1000 characters
 }
 
-
-
 Meteor.methods({
   /**
    * Create or get a ride-specific chat
@@ -103,8 +101,6 @@ Meteor.methods({
     const chatId = await Chats.insertAsync(chatData);
     return chatId;
   },
-
-
 
   /**
    * Send a message to a chat

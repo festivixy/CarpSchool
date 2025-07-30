@@ -239,7 +239,7 @@ const RouteMapView = ({
       const center = getMapCenter();
       const zoom = getZoomLevel();
       mapInstanceRef.current.setView(center, zoom);
-      
+
       // Automatically find and display route
       findAndDisplayRoute();
     }
@@ -249,7 +249,7 @@ const RouteMapView = ({
     <RouteMapContainer>
       <RouteMapWrapper style={{ height }}>
         <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
-        
+
         <RefreshButton
           onClick={handleRefresh}
           disabled={!startCoord || !endCoord || isRefreshing}

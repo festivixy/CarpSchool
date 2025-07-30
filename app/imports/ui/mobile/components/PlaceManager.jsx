@@ -267,8 +267,6 @@ class PlaceManager extends React.Component {
     const { places, ready } = this.props;
     const { modalOpen, editingPlace, formData, errors, loading } = this.state;
 
-
-
     if (!ready) {
       return (
         <Container>

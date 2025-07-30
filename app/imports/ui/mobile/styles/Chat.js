@@ -261,8 +261,6 @@ export const ConversationParticipants = styled.p`
   color: rgba(100, 100, 100, 1);
 `;
 
-
-
 export const Messages = styled.div`
   flex: 1;
   overflow-y: auto;
