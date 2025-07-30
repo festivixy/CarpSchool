@@ -298,7 +298,6 @@ export const NewsletterSection = styled.div`
   }
 `;
 
-
 export const NewsletterButton = styled.div`
   display: flex;
   justify-content: center;

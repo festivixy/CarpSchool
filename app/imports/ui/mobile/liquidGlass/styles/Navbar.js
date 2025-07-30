@@ -141,8 +141,6 @@ export const NavSection = styled.div`
   }
 `;
 
-
-
 export const UserSection = styled.div`
   display: flex;
   align-items: center;
