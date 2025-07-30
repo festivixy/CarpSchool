@@ -479,7 +479,7 @@ class MobileRide extends React.Component {
                   <ModalClose onClick={this.closeMapModal}>✕</ModalClose>
                 </ModalHeader>
 
-                <ModalContent style={{ padding: "0", height: "70vh", minHeight: "400px" }}>
+                <ModalContent style={{ padding: "0", height: "calc(90vh - 140px)", minHeight: "500px" }}>
                   <RouteMapView
                     startCoord={this.getPlaceCoordinates(ride.origin)}
                     endCoord={this.getPlaceCoordinates(ride.destination)}
