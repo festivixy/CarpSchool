@@ -119,7 +119,7 @@ function FooterVerbose({
                     icon={social.icon}
                     title={social.platform}
                     onClick={() => window.open(social.url, "_blank", "noopener,noreferrer")}
-                    size="medium"
+                    size="small"
                     variant="default"
                   />
                 ))}
