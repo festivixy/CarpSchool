@@ -19,14 +19,37 @@ export default function MapView({ coordinates, tileServerUrl }) {
       return [49.345196, -123.149805]; // Default to Vancouver
     }
 
-    if (coordinates.length === 1) {
-      return [coordinates[0].lat, coordinates[0].lng];
-    }
+    try {
+      // Filter out invalid coordinates
+      const validCoords = coordinates.filter(coord =>
+        coord && !isNaN(coord.lat) && !isNaN(coord.lng) &&
+        coord.lat >= -90 && coord.lat <= 90 &&
+        coord.lng >= -180 && coord.lng <= 180
+      );
 
-    // Calculate center of all coordinates
-    const latSum = coordinates.reduce((sum, coord) => sum + coord.lat, 0);
-    const lngSum = coordinates.reduce((sum, coord) => sum + coord.lng, 0);
-    return [latSum / coordinates.length, lngSum / coordinates.length];
+      if (validCoords.length === 0) {
+        return [49.345196, -123.149805]; // Default to Vancouver
+      }
+
+      if (validCoords.length === 1) {
+        return [validCoords[0].lat, validCoords[0].lng];
+      }
+
+      // Calculate center of all valid coordinates
+      const latSum = validCoords.reduce((sum, coord) => sum + coord.lat, 0);
+      const lngSum = validCoords.reduce((sum, coord) => sum + coord.lng, 0);
+      const centerLat = latSum / validCoords.length;
+      const centerLng = lngSum / validCoords.length;
+
+      if (isNaN(centerLat) || isNaN(centerLng)) {
+        return [49.345196, -123.149805]; // Default to Vancouver
+      }
+
+      return [centerLat, centerLng];
+    } catch (error) {
+      console.warn("Error calculating map center:", error);
+      return [49.345196, -123.149805]; // Default to Vancouver
+    }
   };
 
   // Calculate appropriate zoom level based on coordinate spread
@@ -35,16 +58,27 @@ export default function MapView({ coordinates, tileServerUrl }) {
       return 13;
     }
 
-    const lats = coordinates.map((coord) => coord.lat);
-    const lngs = coordinates.map((coord) => coord.lng);
-    const latSpread = Math.max(...lats) - Math.min(...lats);
-    const lngSpread = Math.max(...lngs) - Math.min(...lngs);
-    const maxSpread = Math.max(latSpread, lngSpread);
+    try {
+      const lats = coordinates.map((coord) => coord.lat).filter(lat => !isNaN(lat));
+      const lngs = coordinates.map((coord) => coord.lng).filter(lng => !isNaN(lng));
 
-    if (maxSpread > 0.1) return 10;
-    if (maxSpread > 0.05) return 11;
-    if (maxSpread > 0.01) return 12;
-    return 13;
+      if (lats.length === 0 || lngs.length === 0) {
+        return 13;
+      }
+
+      const latSpread = Math.max(...lats) - Math.min(...lats);
+      const lngSpread = Math.max(...lngs) - Math.min(...lngs);
+      const maxSpread = Math.max(latSpread, lngSpread);
+
+      if (isNaN(maxSpread)) return 13;
+      if (maxSpread > 0.1) return 10;
+      if (maxSpread > 0.05) return 11;
+      if (maxSpread > 0.01) return 12;
+      return 13;
+    } catch (error) {
+      console.warn("Error calculating zoom level:", error);
+      return 13;
+    }
   };
 
   // Get tile server URL
@@ -60,29 +94,50 @@ export default function MapView({ coordinates, tileServerUrl }) {
   // Add async tile layer to map and fit bounds
   useEffect(() => {
     if (mapRef.current) {
-      const map = mapRef.current.leafletElement;
+      try {
+        const map = mapRef.current.leafletElement;
 
-      // Create and add async tile layer
-      const asyncTileLayer = new AsyncTileLayer(getTileUrl(), {
-        attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
-        maxZoom: 18,
-        tileSize: 256,
-      });
+        // Create and add async tile layer
+        const asyncTileLayer = new AsyncTileLayer(getTileUrl(), {
+          attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
+          maxZoom: 18,
+          tileSize: 256,
+        });
 
-      asyncTileLayer.addTo(map);
+        asyncTileLayer.addTo(map);
 
-      // Fit bounds to show all coordinates
-      if (coordinates && coordinates.length > 1) {
-        const bounds = coordinates.map((coord) => [coord.lat, coord.lng]);
-        map.fitBounds(bounds, { padding: [20, 20] });
-      }
+        // Fit bounds to show all coordinates
+        if (coordinates && coordinates.length > 1) {
+          // Filter out invalid coordinates
+          const validCoords = coordinates.filter(coord =>
+            coord && !isNaN(coord.lat) && !isNaN(coord.lng) &&
+            coord.lat >= -90 && coord.lat <= 90 &&
+            coord.lng >= -180 && coord.lng <= 180
+          );
 
-      // Cleanup on unmount
-      return () => {
-        if (map.hasLayer(asyncTileLayer)) {
-          map.removeLayer(asyncTileLayer);
+          if (validCoords.length > 1) {
+            const bounds = validCoords.map((coord) => [coord.lat, coord.lng]);
+            try {
+              map.fitBounds(bounds, { padding: [20, 20] });
+            } catch (boundsError) {
+              console.warn("Error fitting bounds:", boundsError);
+            }
+          }
         }
-      };
+
+        // Cleanup on unmount
+        return () => {
+          try {
+            if (map && map.hasLayer && map.hasLayer(asyncTileLayer)) {
+              map.removeLayer(asyncTileLayer);
+            }
+          } catch (cleanupError) {
+            console.warn("Error during map cleanup:", cleanupError);
+          }
+        };
+      } catch (error) {
+        console.warn("Error in map useEffect:", error);
+      }
     }
 
     return undefined; // No cleanup needed if mapRef.current is null
