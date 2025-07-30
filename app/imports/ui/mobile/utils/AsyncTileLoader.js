@@ -258,6 +258,7 @@ class AsyncTileLoader {
     // Cleanup old entries if cache gets too large
     if (this.cache.size > 1000) {
       const now = Date.now();
+      // eslint-disable-next-line no-restricted-syntax
       for (const [id, data] of this.cache.entries()) {
         if (data.expires < now) {
           URL.revokeObjectURL(data.imageUrl);
@@ -379,6 +380,7 @@ class AsyncTileLoader {
     }
 
     // Clean up object URLs
+    // eslint-disable-next-line no-restricted-syntax
     for (const [, data] of this.cache.entries()) {
       URL.revokeObjectURL(data.imageUrl);
     }
