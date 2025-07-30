@@ -29,6 +29,8 @@ LiquidGlass Component Library Location:
 - one commit, per type of change ex: one commit per style change, one commit per component...
 - use Bash command tool to run git commands.
 - commit after each change. ## IMPORTANT ##
+- `git add .` or `git add -A` is NOT ALLOWED.
+- use `git add <file>` to add specific files.
 
 ### COMMIT MESSAGE FORMAT
 
