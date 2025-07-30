@@ -11,6 +11,7 @@ const spin = keyframes`
 
 export const RouteMapContainer = styled.div`
   width: 100%;
+  height: 100%;
   background: #fafcff;
   position: relative;
   overflow: hidden;
