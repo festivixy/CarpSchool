@@ -165,14 +165,6 @@ Meteor.methods({
       throw new Meteor.Error("access-denied", "Admin access required");
     }
 
-    // First, get all places to debug what's in the database
-    const allPlaces = await Places.find({}).fetchAsync();
-    console.log("DEBUG: Total places in database:", allPlaces.length);
-    if (allPlaces.length > 0) {
-      console.log("DEBUG: Sample place data:", allPlaces[0]);
-      console.log("DEBUG: Sample place fields:", Object.keys(allPlaces[0]));
-    }
-
     // Find places without createdBy or createdAt, including null values
     const legacyPlaces = await Places.find({
       $or: [
@@ -182,8 +174,6 @@ Meteor.methods({
         { createdAt: null },
       ],
     }).fetchAsync();
-
-    console.log("DEBUG: Found legacy places:", legacyPlaces.length);
 
     let updatedCount = 0;
     const now = new Date();
@@ -200,7 +190,6 @@ Meteor.methods({
       }
 
       if (Object.keys(updateFields).length > 0) {
-        console.log("DEBUG: Updating place", place._id, "with fields:", updateFields);
         await Places.updateAsync(place._id, { $set: updateFields });
         updatedCount += 1;
       }
@@ -209,39 +198,5 @@ Meteor.methods({
     return { message: `Updated ${updatedCount} legacy places`, count: updatedCount };
   },
 
-  /**
-   * Debug method to check what's in the places database
-   */
-  async "places.debug"() {
-    if (!this.userId) {
-      throw new Meteor.Error("not-authorized", "You must be logged in");
-    }
 
-    const allPlaces = await Places.find({}).fetchAsync();
-    console.log("=== PLACES DEBUG ===");
-    console.log("Total places:", allPlaces.length);
-
-    allPlaces.forEach((place, index) => {
-      console.log(`Place ${index + 1}:`, {
-        _id: place._id,
-        text: place.text,
-        value: place.value,
-        createdBy: place.createdBy,
-        createdAt: place.createdAt,
-        updatedAt: place.updatedAt,
-      });
-    });
-
-    return {
-      totalPlaces: allPlaces.length,
-      places: allPlaces.map((p) => ({
-        _id: p._id,
-        text: p.text,
-        hasCreatedBy: !!p.createdBy,
-        hasCreatedAt: !!p.createdAt,
-        createdBy: p.createdBy,
-        createdAt: p.createdAt,
-      })),
-    };
-  },
 });
