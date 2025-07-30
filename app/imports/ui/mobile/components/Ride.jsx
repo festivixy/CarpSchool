@@ -354,7 +354,11 @@ class MobileRide extends React.Component {
             </Notes>
           )}
 
-          {(this.canShareRide() || this.canJoinRide() || this.canAccessChat() || (this.getPlaceCoordinates(ride.origin) && this.getPlaceCoordinates(ride.destination))) && (
+          {(this.canShareRide() ||
+            this.canJoinRide() ||
+            this.canAccessChat() ||
+            (this.getPlaceCoordinates(ride.origin) &&
+             this.getPlaceCoordinates(ride.destination))) && (
             <Actions>
               {this.canShareRide() && (
                 <ShareButton

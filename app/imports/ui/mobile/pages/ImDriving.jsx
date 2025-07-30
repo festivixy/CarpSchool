@@ -266,7 +266,10 @@ class MobileImDriving extends React.Component {
         {this.state.showConfirmModal && (
           <ConfirmFunction
             title="Cancel Ride"
-            subtitle="Are you sure you want to cancel this ride? This action cannot be undone and will notify all riders."
+            subtitle={
+              "Are you sure you want to cancel this ride? " +
+              "This action cannot be undone and will notify all riders."
+            }
             confirmText="Cancel Ride"
             cancelText="Keep Ride"
             isDestructive={true}
