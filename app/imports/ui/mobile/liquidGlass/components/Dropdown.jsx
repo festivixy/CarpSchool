@@ -51,7 +51,7 @@ function LiquidGlassDropdown({
   const [searchTerm, setSearchTerm] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [selectedValues, setSelectedValues] = useState(
-    multiple ? (Array.isArray(value) ? value : []) : value,
+    multiple ? (Array.isArray(value) ? value : []) : value, // eslint-disable-line no-nested-ternary
   );
 
   const dropdownRef = useRef(null);
@@ -278,7 +278,7 @@ function LiquidGlassDropdown({
         )}
 
         <MenuList>
-          {loading ? (
+          {loading ? ( // eslint-disable-line no-nested-ternary
             <LoadingState>
               <div className="spinner"></div>
               Loading options...
