@@ -502,6 +502,7 @@ class MobileRide extends React.Component {
 MobileRide.propTypes = {
   ride: PropTypes.object.isRequired,
   places: PropTypes.array.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
 export default withRouter(
