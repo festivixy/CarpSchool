@@ -128,7 +128,7 @@ class MobileImRiding extends React.Component {
     });
   };
 
-  handleConfirmModalResult = (success) => {
+  handleConfirmModalResult = (_success) => {
     this.setState({
       showConfirmModal: false,
       pendingRideId: null,

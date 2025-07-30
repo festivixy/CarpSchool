@@ -190,7 +190,7 @@ class MobileMyRides extends React.Component {
     });
   };
 
-  handleConfirmModalResult = (success) => {
+  handleConfirmModalResult = (_success) => {
     this.setState({
       showConfirmModal: false,
       confirmAction: null,
