@@ -43,9 +43,9 @@ Meteor.publish("places.mine", async function publishMyPlaces() {
       _id: 1,
       text: 1,
       value: 1,
+      createdBy: 1,
       createdAt: 1,
       updatedAt: 1,
-      createdBy: 1,
     },
   });
 });
@@ -123,6 +123,9 @@ Meteor.publish("places.options", async function publishPlaceOptions() {
       _id: 1,
       text: 1,
       value: 1,
+      createdBy: 1,
+      createdAt: 1,
+      updatedAt: 1,
     },
     sort: { text: 1 },
   });
