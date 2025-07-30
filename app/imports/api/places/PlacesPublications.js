@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { Meteor } from "meteor/meteor";
 import { Places } from "./Places.js";
 import { Rides } from "../ride/Rides";
@@ -8,7 +9,8 @@ import { Rides } from "../ride/Rides";
  */
 Meteor.publish("places.mine", async function publishMyPlaces() {
   if (!this.userId) {
-    return this.ready();
+    this.ready();
+    return;
   }
 
   // Rate limit to 1 call per 3 seconds to prevent DoS attacks (fixes V021)
