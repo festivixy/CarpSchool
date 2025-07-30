@@ -206,7 +206,9 @@ async function syncPublicationCacheToMongoDB() {
     for (const [key, timestamp] of publicationRateCache.entries()) {
       const [userId, publicationName] = key.split(":", 2);
 
-      if (!userId || !publicationName) continue;
+      if (!userId || !publicationName) {
+        continue; // eslint-disable-line no-continue
+      }
 
       const countData = publicationCallCounts.get(key) || { count: 1, firstCall: timestamp };
 
