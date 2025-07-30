@@ -18,42 +18,6 @@ Meteor.publish("chats", async function publishChats() {
   return Chats.find({ Participants: currentUser.username });
 });
 
-/** Publish chats with email search functionality */
-Meteor.publish("chats.withEmail", async function publishChatsWithEmail(searchEmail) {
-  check(searchEmail, Match.Maybe(String));
-
-  if (!this.userId) {
-    return this.ready();
-  }
-
-  // Rate limit email fetches to 500ms (every 0.5 seconds)
-  const canProceed = await Meteor.callAsync("rateLimit.checkCall", "chats.withEmail", 500);
-  if (!canProceed) {
-    throw new Meteor.Error("rate-limited", "Too many requests. Please wait before trying again.");
-  }
-
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser || !currentUser.username) {
-    return this.ready();
-  }
-
-  // If search email is provided, find user by email
-  if (searchEmail) {
-    const targetUser = await Meteor.users.findOneAsync({
-      "emails.address": searchEmail.toLowerCase().trim(),
-    });
-
-    if (targetUser && targetUser.username) {
-      // Return chats that include both current user and target user
-      return Chats.find({
-        Participants: { $all: [currentUser.username, targetUser.username] },
-      });
-    }
-  }
-
-  // If no email or user not found, return regular chats
-  return Chats.find({ Participants: currentUser.username });
-});
 
 /** Publish ride-specific chat */
 Meteor.publish("chats.forRide", async function publishRideChat(rideId) {
