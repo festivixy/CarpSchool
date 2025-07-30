@@ -26,7 +26,6 @@ import {
   ConversationInfo,
   ConversationName,
   ConversationParticipants,
-  ShareButton,
   Messages,
   DateSeparator,
   Message,
@@ -41,19 +40,6 @@ import {
   NoSelectionIcon,
   Loading,
   LoadingSpinner,
-  ModalOverlay,
-  Modal,
-  ModalHeader,
-  ModalClose,
-  ModalTitle,
-  ModalContent,
-  FormHint,
-  ShareCodeDisplay,
-  CodeContainer,
-  Code,
-  ModalActions,
-  ButtonSecondary,
-  ButtonPrimary,
 } from "../styles/Chat";
 
 /**
@@ -65,8 +51,6 @@ class MobileChat extends React.Component {
     this.state = {
       selectedChatId: null,
       messageInput: "",
-      showShareCodeModal: false,
-      selectedChatShareCode: "",
       error: "",
       success: "",
     };
@@ -76,7 +60,6 @@ class MobileChat extends React.Component {
   componentDidMount() {
     // Check for URL parameters
     const urlParams = new URLSearchParams(this.props.location.search);
-    const searchEmail = urlParams.get("email");
     const rideId = urlParams.get("rideId");
 
     // Handle ride-specific chat
@@ -89,9 +72,6 @@ class MobileChat extends React.Component {
     const locationState = this.props.location?.state;
     if (locationState?.selectedChatId) {
       this.setState({ selectedChatId: locationState.selectedChatId });
-    } else if (searchEmail && this.props.chats && this.props.chats.length > 0) {
-      // If searching by email, auto-select first matching chat
-      this.setState({ selectedChatId: this.props.chats[0]._id });
     } else if (this.props.chats && this.props.chats.length > 0) {
       // Auto-select first chat if available and no specific chat requested
       this.setState({ selectedChatId: this.props.chats[0]._id });
@@ -169,40 +149,7 @@ class MobileChat extends React.Component {
     }
   };
 
-  handleShowShareCode = async (chatId) => {
-    try {
-      const shareCode = await Meteor.callAsync(
-        "chats.generateShareCode",
-        chatId,
-      );
-      this.setState({
-        showShareCodeModal: true,
-        selectedChatShareCode: shareCode,
-      });
-    } catch (error) {
-      this.setState({ error: error.reason || error.message });
-    }
-  };
 
-  copyShareCode = () => {
-    const { selectedChatShareCode } = this.state;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(selectedChatShareCode).then(() => {
-        this.setState({ success: "Share code copied to clipboard!" });
-        setTimeout(() => this.setState({ success: "" }), 3000);
-      });
-    } else {
-      // Fallback for older browsers
-      const textArea = document.createElement("textarea");
-      textArea.value = selectedChatShareCode;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      this.setState({ success: "Share code copied to clipboard!" });
-      setTimeout(() => this.setState({ success: "" }), 3000);
-    }
-  };
 
   scrollToBottom = () => {
     const messagesContainer = document.querySelector(".mobile-chat-messages");
@@ -243,19 +190,18 @@ class MobileChat extends React.Component {
   getChatDisplayName = (chat) => {
     const currentUser = this.getCurrentUser();
 
-    // For ride-specific chats, show ride info
+    // All chats are now ride-specific, show ride info
     if (chat.rideId) {
-      // otherParticipants removed as unused
       return `Ride Chat (${chat.Participants.length} members)`;
     }
 
-    // For general chats, show other participant
+    // Fallback for any legacy data
     const otherParticipants = chat.Participants.filter(
       (p) => p !== currentUser,
     );
 
     if (otherParticipants.length === 0) {
-      return chat.shareCode ? "Waiting for someone to join..." : "Empty Chat";
+      return "Empty Chat";
     }
     return otherParticipants[0];
   };
@@ -277,8 +223,6 @@ class MobileChat extends React.Component {
     const {
       selectedChatId,
       messageInput,
-      showShareCodeModal,
-      selectedChatShareCode,
       error,
       success,
     } = this.state;
@@ -353,14 +297,6 @@ class MobileChat extends React.Component {
                         {selectedChat.Participants.join(", ")}
                       </ConversationParticipants>
                     </ConversationInfo>
-                    {selectedChat.Participants.length === 1 && (
-                      <ShareButton
-                        onClick={() => this.handleShowShareCode(selectedChat._id)
-                        }
-                      >
-                        Share Code
-                      </ShareButton>
-                    )}
                   </ConversationHeader>
 
                   {/* Messages */}
@@ -434,44 +370,7 @@ class MobileChat extends React.Component {
           </Content>
         </Container>
 
-        {/* Share Code Modal */}
-        {showShareCodeModal && (
-          <ModalOverlay
-            onClick={() => this.setState({ showShareCodeModal: false })}
-          >
-            <Modal onClick={(e) => e.stopPropagation()}>
-              <ModalHeader>
-                <ModalTitle>Share Chat Code</ModalTitle>
-                <ModalClose
-                  onClick={() => this.setState({ showShareCodeModal: false })}
-                >
-                  ✕
-                </ModalClose>
-              </ModalHeader>
-              <ModalContent>
-                <ShareCodeDisplay>
-                  <label>Share this code with someone to join your chat:</label>
-                  <CodeContainer>
-                    <Code>{selectedChatShareCode}</Code>
-                  </CodeContainer>
-                  <FormHint>
-                    This code will be removed once someone joins the chat
-                  </FormHint>
-                </ShareCodeDisplay>
-              </ModalContent>
-              <ModalActions>
-                <ButtonPrimary onClick={this.copyShareCode}>
-                  📋 Copy Code
-                </ButtonPrimary>
-                <ButtonSecondary
-                  onClick={() => this.setState({ showShareCodeModal: false })}
-                >
-                  Done
-                </ButtonSecondary>
-              </ModalActions>
-            </Modal>
-          </ModalOverlay>
-        )}
+
 
       </>
     );
@@ -488,15 +387,12 @@ export default withRouter(
   withTracker((props) => {
     // Check for URL parameters
     const urlParams = new URLSearchParams(props.location.search);
-    const searchEmail = urlParams.get("email");
     const rideId = urlParams.get("rideId");
 
     // Subscribe to appropriate publication based on search parameters
     let subscription;
     if (rideId) {
       subscription = Meteor.subscribe("chats.forRide", rideId);
-    } else if (searchEmail) {
-      subscription = Meteor.subscribe("chats.withEmail", searchEmail);
     } else {
       subscription = Meteor.subscribe("chats");
     }
@@ -506,7 +402,6 @@ export default withRouter(
     return {
       chats: ready ? Chats.find({}).fetch() : [],
       ready: ready,
-      searchEmail: searchEmail,
       rideId: rideId,
     };
   })(MobileChat),

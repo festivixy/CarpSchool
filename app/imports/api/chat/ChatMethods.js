@@ -35,15 +35,7 @@ function sanitizeChatContent(content) {
   return sanitized.trim().substring(0, 1000); // Max 1000 characters
 }
 
-// Generate a random 8-character code
-function generateChatCode() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "";
-  for (let i = 0; i < 8; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return `${result.slice(0, 4)}-${result.slice(4)}`;
-}
+
 
 Meteor.methods({
   /**
@@ -95,17 +87,6 @@ Meteor.methods({
       participants.push(...ride.riders);
     }
 
-    // Generate unique share code
-    let shareCode;
-    let isUnique = false;
-    while (!isUnique) {
-      shareCode = generateChatCode();
-      const existingCode = await Chats.findOneAsync({ shareCode: shareCode });
-      if (!existingCode) {
-        isUnique = true;
-      }
-    }
-
     // Create new ride-specific chat
     const chatData = {
       rideId: rideId,
@@ -117,7 +98,6 @@ Meteor.methods({
           Timestamp: new Date(),
         },
       ],
-      shareCode: shareCode,
     };
 
     const chatId = await Chats.insertAsync(chatData);

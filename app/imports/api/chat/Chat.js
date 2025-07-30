@@ -18,7 +18,6 @@ const ChatSchema = Joi.object({
       }),
     )
     .required(),
-  shareCode: Joi.string().optional(), // Optional share code for the chat
 });
 
 /** Make the collection and schema available to other code. */

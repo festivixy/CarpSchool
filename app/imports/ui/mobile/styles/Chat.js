@@ -261,16 +261,7 @@ export const ConversationParticipants = styled.p`
   color: rgba(100, 100, 100, 1);
 `;
 
-export const ShareButton = styled.button`
-  background-color: rgba(0, 0, 0, 1);
-  color: rgba(255, 255, 255, 1);
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-`;
+
 
 export const Messages = styled.div`
   flex: 1;
@@ -564,101 +555,4 @@ export const FormHint = styled.p`
   color: rgba(100, 100, 100, 1);
   margin-top: 8px;
   line-height: 1.4;
-`;
-
-export const ShareCodeDisplay = styled.div`
-  text-align: center;
-`;
-
-export const CodeContainer = styled.div`
-  background-color: rgba(248, 249, 250, 1);
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  border-radius: 12px !important;
-  padding: 24px !important;
-  margin: 16px 0 !important;
-`;
-
-export const Code = styled.div`
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-  font-size: 28px !important;
-  font-weight: 700 !important;
-  color: rgba(0, 0, 0, 1) !important;
-  letter-spacing: 2px !important;
-  text-align: center !important;
-`;
-
-export const CodeInputs = styled.div`
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  gap: 8px !important;
-  margin-bottom: 16px !important;
-`;
-
-export const CodeInput = styled.input`
-  width: 32px !important;
-  height: 48px !important;
-  border: 2px solid rgba(224, 224, 224, 1) !important;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 18px;
-  font-weight: 600;
-  font-family: "SF Mono", "Monaco", "Consolas", monospace;
-  background-color: rgba(255, 255, 255, 1);
-  transition: all 0.2s ease;
-  outline: none;
-  color: rgba(0, 0, 0, 1);
-  overflow: hidden;
-
-  &:focus {
-    border-color: rgba(0, 0, 0, 1);
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
-  }
-
-  &:not(:placeholder-shown) {
-    border-color: rgba(0, 150, 0, 1) !important;
-    background-color: rgba(240, 255, 240, 1);
-  }
-`;
-
-export const Dash = styled.span`
-  font-size: 20px;
-  font-weight: 600;
-  color: rgba(150, 150, 150, 1);
-  margin: 0 4px;
-  font-family: "SF Mono", "Monaco", "Consolas", monospace;
-`;
-
-export const ModalActions = styled.div`
-  display: flex;
-  gap: 12px;
-  padding: 20px;
-  border-top: 1px solid rgba(240, 240, 240, 1);
-`;
-
-export const ButtonSecondary = styled.button`
-  flex: 1;
-  background-color: rgba(248, 249, 250, 1);
-  color: rgba(0, 0, 0, 0.87);
-  border: 1px solid rgba(224, 224, 224, 1);
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 14px;
-  cursor: pointer;
-`;
-
-export const ButtonPrimary = styled.button`
-  flex: 1;
-  background-color: rgba(0, 0, 0, 1);
-  color: rgba(255, 255, 255, 1);
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 14px;
-  cursor: pointer;
-
-  &:disabled {
-    background-color: rgba(200, 200, 200, 1);
-    cursor: not-allowed;
-  }
 `;
