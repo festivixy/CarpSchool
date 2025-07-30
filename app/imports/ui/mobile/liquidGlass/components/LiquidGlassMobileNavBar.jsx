@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
@@ -105,7 +105,7 @@ class LiquidGlassMobileNavBar extends React.Component {
   };
 
   render() {
-    const { currentUser, isLoggedInAndEmailVerified, isAdmin } = this.props;
+    const { currentUser, isAdmin } = this.props;
     const homeLink = currentUser ? "/myRides" : "/";
 
     // Calculate total notifications (placeholder for now)
