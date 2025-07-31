@@ -112,7 +112,7 @@ class LiquidGlassMobileNavBar extends React.Component {
     const totalNotifications = 5; // This would come from real notification system
 
     return (
-      <>
+      <div style={{ position: "relative" }}>
         <NavBarContainer className="liquid-glass-mobile-navbar">
           <TabBarInner>
             <TabsContainer>
@@ -199,10 +199,9 @@ class LiquidGlassMobileNavBar extends React.Component {
               </TabBarItem>
             </TabsContainer>
           </TabBarInner>
-        </NavBarContainer>
 
-        {/* User Dropdown Menu - OUTSIDE NavBarContainer to avoid clipping */}
-        {this.state.userMenuOpen && (
+          {/* User Dropdown Menu - Inside NavBarContainer for proper positioning */}
+          {this.state.userMenuOpen && (
           <DropdownContainer>
             <DropdownMenu $isOpen={this.state.userMenuOpen}>
               {currentUser ? (
@@ -245,7 +244,8 @@ class LiquidGlassMobileNavBar extends React.Component {
               )}
             </DropdownMenu>
           </DropdownContainer>
-        )}
+          )}
+        </NavBarContainer>
 
         <MobileJoinRideModal
           open={this.state.joinRideModalOpen}
@@ -257,7 +257,7 @@ class LiquidGlassMobileNavBar extends React.Component {
           open={this.state.addRidesModalOpen}
           onClose={this.handleAddRidesClose}
         />
-      </>
+      </div>
     );
   }
 }
