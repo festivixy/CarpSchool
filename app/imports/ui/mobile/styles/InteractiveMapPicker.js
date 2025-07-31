@@ -186,3 +186,56 @@ export const HelpText = styled.div`
   border: 1px solid rgba(191, 219, 254, 1);
   border-radius: 8px;
 `;
+
+export const ErrorMessage = styled.div`
+  background-color: rgba(244, 67, 54, 0.1);
+  color: rgba(244, 67, 54, 1);
+  padding: 12px 20px;
+  border-left: 4px solid rgba(244, 67, 54, 1);
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background-color: rgba(244, 67, 54, 0.15);
+  }
+
+  &::after {
+    content: "✕";
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 16px;
+    opacity: 0.7;
+  }
+`;
+
+export const SuccessMessage = styled.div`
+  background-color: rgba(76, 175, 80, 0.1);
+  color: rgba(56, 142, 60, 1);
+  padding: 12px 20px;
+  border-left: 4px solid rgba(76, 175, 80, 1);
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background-color: rgba(76, 175, 80, 0.15);
+  }
+
+  &::after {
+    content: "✕";
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 16px;
+    opacity: 0.7;
+  }
+`;

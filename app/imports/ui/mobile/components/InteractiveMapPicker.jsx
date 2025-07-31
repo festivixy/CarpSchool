@@ -17,6 +17,8 @@ import {
   SearchResults,
   SearchResult,
   HelpText,
+  ErrorMessage,
+  SuccessMessage,
 } from "../styles/InteractiveMapPicker";
 
 // Fix for default markers in Leaflet
@@ -51,6 +53,30 @@ const InteractiveMapPicker = ({
     lat: selectedLocation?.lat || initialLat,
     lng: selectedLocation?.lng || initialLng,
   });
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // Clear messages
+  const clearMessages = () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+  };
+
+  // Show error message
+  const showError = (message) => {
+    setErrorMessage(message);
+    setSuccessMessage("");
+  };
+
+  // Show success message
+  const showSuccess = (message) => {
+    setSuccessMessage(message);
+    setErrorMessage("");
+    // Auto-dismiss success messages after 5 seconds
+    setTimeout(() => {
+      setSuccessMessage("");
+    }, 5000);
+  };
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -165,7 +191,7 @@ const InteractiveMapPicker = ({
 
           // Show success message
           setTimeout(() => {
-            alert(`Located you in ${data.city || 'your area'} using network location. This is less precise than GPS - you may want to refine the marker position manually.`);
+            showSuccess(`Located you in ${data.city || 'your area'} using network location. This is less precise than GPS - you may want to refine the marker position manually.`);
           }, 500);
         }
       }
@@ -177,19 +203,21 @@ const InteractiveMapPicker = ({
 
   // Center map on current location
   const centerOnLocation = () => {
+    clearMessages(); // Clear any existing messages
+
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by this browser.");
+      showError("Geolocation is not supported by this browser.");
       return;
     }
 
     if (!mapInstanceRef.current || !markerRef.current) {
-      alert("Map is not ready. Please try again in a moment.");
+      showError("Map is not ready. Please try again in a moment.");
       return;
     }
 
     // Check if we're on HTTPS or localhost (required for geolocation)
     if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-      alert("Location services require a secure connection (HTTPS) to work.");
+      showError("Location services require a secure connection (HTTPS) to work.");
       return;
     }
 
@@ -217,7 +245,7 @@ const InteractiveMapPicker = ({
           }
         } catch (error) {
           console.warn("Error setting location:", error);
-          alert("Error processing your location. Please try again.");
+          showError("Error processing your location. Please try again.");
         }
       },
       (error) => {
@@ -251,7 +279,7 @@ const InteractiveMapPicker = ({
             break;
         }
 
-        alert(errorMessage);
+        showError(errorMessage);
 
         // For Firefox, try fallback IP-based location as last resort
         if (isFirefox && error.code === error.POSITION_UNAVAILABLE) {
@@ -298,7 +326,7 @@ const InteractiveMapPicker = ({
       setSearchResults(formattedResults);
     } catch (error) {
       console.error("Nominatim search error:", error);
-      alert("Search failed. Please try again.");
+      showError("Search failed. Please try again.");
     } finally {
       setIsSearching(false);
     }
@@ -351,6 +379,9 @@ const InteractiveMapPicker = ({
 
   return (
     <MapContainer>
+      {errorMessage && <ErrorMessage onClick={clearMessages}>{errorMessage}</ErrorMessage>}
+      {successMessage && <SuccessMessage onClick={clearMessages}>{successMessage}</SuccessMessage>}
+
       <SearchContainer>
         <SearchInput
           type="text"
