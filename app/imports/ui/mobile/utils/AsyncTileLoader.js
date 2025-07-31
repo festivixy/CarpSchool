@@ -111,7 +111,7 @@ class AsyncTileLoader {
    * Get tile URL for given coordinates
    */
   getTileUrl(z, x, y) {
-    return `${this.tileServerUrl}/styles/${encodeURIComponent('OSM OpenMapTiles')}/${z}/${x}/${y}.png`;
+    return `${this.tileServerUrl}/styles/OSM%20OpenMapTiles/${z}/${x}/${y}.png`;
   }
 
   /**
