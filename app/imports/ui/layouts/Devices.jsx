@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
@@ -8,7 +8,7 @@ const MOBILE_BREAKPOINT = 768;
 // Styled components for CSS-only solution (more performant)
 const MobileOnlyWrapper = styled.div`
   display: block;
-  
+
   @media (min-width: ${MOBILE_BREAKPOINT}px) {
     display: none;
   }
@@ -16,29 +16,23 @@ const MobileOnlyWrapper = styled.div`
 
 const DesktopOnlyWrapper = styled.div`
   display: none;
-  
+
   @media (min-width: ${MOBILE_BREAKPOINT}px) {
     display: block;
   }
 `;
 
-// Hook for JavaScript-based detection (fallback)
-const useMediaQuery = (query) => {
-  const [matches, setMatches] = useState(false);
+// User agent detection for JavaScript fallback
+const isMobileUserAgent = () => {
+  if (typeof navigator === 'undefined') return false;
 
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    if (media.matches !== matches) {
-      setMatches(media.matches);
-    }
-    
-    const listener = () => setMatches(media.matches);
-    media.addEventListener("change", listener);
-    
-    return () => media.removeEventListener("change", listener);
-  }, [matches, query]);
+  const userAgent = navigator.userAgent.toLowerCase();
+  const mobileKeywords = [
+    'android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry',
+    'windows phone', 'mobile', 'opera mini', 'iemobile'
+  ];
 
-  return matches;
+  return mobileKeywords.some(keyword => userAgent.includes(keyword));
 };
 
 /**
@@ -46,13 +40,11 @@ const useMediaQuery = (query) => {
  * Uses CSS media queries for optimal performance
  */
 const MobileOnly = ({ children, fallbackToJS = false }) => {
-  const isMobile = useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-  
-  // Use JavaScript detection if fallback is enabled
+  // Use user agent detection if fallback is enabled
   if (fallbackToJS) {
-    return isMobile ? children : null;
+    return isMobileUserAgent() ? children : null;
   }
-  
+
   // Use CSS-only solution for better performance
   return <MobileOnlyWrapper>{children}</MobileOnlyWrapper>;
 };
@@ -62,13 +54,11 @@ const MobileOnly = ({ children, fallbackToJS = false }) => {
  * Uses CSS media queries for optimal performance
  */
 const DesktopOnly = ({ children, fallbackToJS = false }) => {
-  const isDesktop = useMediaQuery(`(min-width: ${MOBILE_BREAKPOINT}px)`);
-  
-  // Use JavaScript detection if fallback is enabled
+  // Use user agent detection if fallback is enabled
   if (fallbackToJS) {
-    return isDesktop ? children : null;
+    return !isMobileUserAgent() ? children : null;
   }
-  
+
   // Use CSS-only solution for better performance
   return <DesktopOnlyWrapper>{children}</DesktopOnlyWrapper>;
 };
@@ -84,4 +74,4 @@ DesktopOnly.propTypes = {
   fallbackToJS: PropTypes.bool,
 };
 
-export { MobileOnly, DesktopOnly, useMediaQuery, MOBILE_BREAKPOINT };
+export { MobileOnly, DesktopOnly, isMobileUserAgent, MOBILE_BREAKPOINT };
