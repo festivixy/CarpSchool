@@ -554,3 +554,108 @@ export const FormHint = styled.p`
   margin-top: 8px;
   line-height: 1.4;
 `;
+
+// Mobile-specific components
+export const ChatOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  font-family:
+    Inter,
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+`;
+
+export const OverlayHeader = styled.div`
+  background-color: rgba(255, 255, 255, 1);
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(240, 240, 240, 1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+`;
+
+export const OverlayBackButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.87);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(240, 240, 240, 1);
+  }
+`;
+
+export const OverlayTitle = styled.h2`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+  text-align: center;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const OverlayCloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: rgba(100, 100, 100, 1);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(240, 240, 240, 1);
+    color: rgba(0, 0, 0, 1);
+  }
+`;
+
+export const MobileChatList = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  background-color: rgba(255, 255, 255, 1);
+`;
+
+export const MobileChatListItem = styled.div`
+  padding: 16px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(245, 245, 245, 1);
+  transition: background-color 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:hover {
+    background-color: rgba(245, 245, 245, 1);
+  }
+
+  &:active {
+    background-color: rgba(230, 230, 230, 1);
+  }
+`;
