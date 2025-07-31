@@ -18,7 +18,6 @@ import MobileForgotPassword from "../mobile/pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
 import MobileNavBar from "../mobile/components/NavBar";
-import MobileFooter from "../mobile/components/Footer";
 import MobileChat from "../mobile/pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
 import MobileVerifyEmail from "../mobile/pages/VerifyEmail";
@@ -35,6 +34,9 @@ import ProtectedRoutes, {
   ProtectedRouteRequireAdmin,
   ProtectedRouteRequireNotEmailVerified,
 } from "./ProtectedRoutes";
+import { DesktopOnly, MobileOnly } from "./Devices";
+import FooterVerbose from "../mobile/components/FooterVerbose";
+import LiquidGlassMobileNavBar from "../mobile/liquidGlass/components/LiquidGlassMobileNavBar";
 // Lazy load TestMapView to improve initial load performance
 const TestMapView = React.lazy(() => import("../mobile/pages/ComponentsTest"));
 
@@ -54,7 +56,12 @@ class App extends React.Component {
     return (
       <Router>
         <div style={appStyle}>
-          <MobileNavBar />
+          <DesktopOnly>
+            <MobileNavBar />
+          </DesktopOnly>
+          <MobileOnly>
+            <LiquidGlassMobileNavBar />
+          </MobileOnly>
           <main style={mainContentStyle}>
             <Switch>
               <Route exact path="/" component={MobileLanding} />
@@ -136,7 +143,10 @@ class App extends React.Component {
               <Redirect to="/404" />
             </Switch>
           </main>
-          <MobileFooter />
+          {/* <MobileFooter /> */}
+          <DesktopOnly>
+            <FooterVerbose />
+          </DesktopOnly>
         </div>
       </Router>
     );
