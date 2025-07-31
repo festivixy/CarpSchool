@@ -5,6 +5,7 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Chats } from "../../../api/chat/Chat";
 import "../../../api/chat/ChatMethods";
+import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
 import {
   Container,
   Header,
@@ -40,6 +41,13 @@ import {
   NoSelectionIcon,
   Loading,
   LoadingSpinner,
+  ChatOverlay,
+  OverlayHeader,
+  OverlayBackButton,
+  OverlayTitle,
+  OverlayCloseButton,
+  MobileChatList,
+  MobileChatListItem,
 } from "../styles/Chat";
 
 /**
@@ -53,6 +61,7 @@ class MobileChat extends React.Component {
       messageInput: "",
       error: "",
       success: "",
+      showChatOverlay: false,
     };
     this.isSubmitting = false;
   }
@@ -206,6 +215,19 @@ class MobileChat extends React.Component {
 
   getChatStatus = (chat) => (chat.Participants.length === 1 ? "Waiting for participant" : "Active");
 
+  handleMobileChatSelect = (chatId) => {
+    this.setState({
+      selectedChatId: chatId,
+      showChatOverlay: true,
+    });
+  };
+
+  handleCloseChatOverlay = () => {
+    this.setState({
+      showChatOverlay: false,
+    });
+  };
+
   render() {
     if (!this.props.ready) {
       return (
@@ -223,6 +245,7 @@ class MobileChat extends React.Component {
       messageInput,
       error,
       success,
+      showChatOverlay,
     } = this.state;
 
     const selectedChat = this.getSelectedChat();
@@ -240,134 +263,244 @@ class MobileChat extends React.Component {
           {error && <ErrorMessage>{error}</ErrorMessage>}
           {success && <SuccessMessage>{success}</SuccessMessage>}
 
-          <Content>
-            {/* Chat List Sidebar */}
-            <Sidebar>
-              <SidebarHeader>
-                <h3>Chats</h3>
-              </SidebarHeader>
-              <ChatList>
-                {this.props.chats && this.props.chats.length > 0 ? (
-                  this.props.chats.map((chat) => (
-                    <ChatListItem
-                      key={chat._id}
-                      active={selectedChatId === chat._id}
-                      onClick={() => this.setState({ selectedChatId: chat._id })
-                      }
-                    >
-                      <ChatListItemContent>
-                        <ChatListItemName>
-                          {this.getChatDisplayName(chat)}
-                        </ChatListItemName>
-                        <ChatListItemLast>
-                          {chat.Messages.length > 0
-                            ? chat.Messages[chat.Messages.length - 1].Content
-                            : "No messages yet"}
-                        </ChatListItemLast>
-                      </ChatListItemContent>
-                      <ChatListItemCount>
-                        {chat.Participants.length}
-                      </ChatListItemCount>
-                    </ChatListItem>
-                  ))
-                ) : (
-                  <ChatListEmpty>
-                    <p>No ride chats available</p>
-                    <p style={{ fontSize: "14px", color: "#666", marginTop: "8px" }}>
-                      Join a ride to start chatting with other members
-                    </p>
-                  </ChatListEmpty>
-                )}
-              </ChatList>
-            </Sidebar>
+          {/* Desktop Layout */}
+          <DesktopOnly>
+            <Content>
+              {/* Chat List Sidebar */}
+              <Sidebar>
+                <SidebarHeader>
+                  <h3>Chats</h3>
+                </SidebarHeader>
+                <ChatList>
+                  {this.props.chats && this.props.chats.length > 0 ? (
+                    this.props.chats.map((chat) => (
+                      <ChatListItem
+                        key={chat._id}
+                        active={selectedChatId === chat._id}
+                        onClick={() => this.setState({ selectedChatId: chat._id })
+                        }
+                      >
+                        <ChatListItemContent>
+                          <ChatListItemName>
+                            {this.getChatDisplayName(chat)}
+                          </ChatListItemName>
+                          <ChatListItemLast>
+                            {chat.Messages.length > 0
+                              ? chat.Messages[chat.Messages.length - 1].Content
+                              : "No messages yet"}
+                          </ChatListItemLast>
+                        </ChatListItemContent>
+                        <ChatListItemCount>
+                          {chat.Participants.length}
+                        </ChatListItemCount>
+                      </ChatListItem>
+                    ))
+                  ) : (
+                    <ChatListEmpty>
+                      <p>No ride chats available</p>
+                      <p style={{ fontSize: "14px", color: "#666", marginTop: "8px" }}>
+                        Join a ride to start chatting with other members
+                      </p>
+                    </ChatListEmpty>
+                  )}
+                </ChatList>
+              </Sidebar>
 
-            {/* Chat Messages */}
-            <Main>
-              {selectedChat ? (
-                <>
-                  {/* Chat Header */}
-                  <ConversationHeader>
-                    <ConversationInfo>
-                      <ConversationName>
-                        {this.getChatDisplayName(selectedChat)}
-                      </ConversationName>
-                      <ConversationParticipants>
-                        {selectedChat.Participants.join(", ")}
-                      </ConversationParticipants>
-                    </ConversationInfo>
-                  </ConversationHeader>
+              {/* Chat Messages */}
+              <Main>
+                {selectedChat ? (
+                  <>
+                    {/* Chat Header */}
+                    <ConversationHeader>
+                      <ConversationInfo>
+                        <ConversationName>
+                          {this.getChatDisplayName(selectedChat)}
+                        </ConversationName>
+                        <ConversationParticipants>
+                          {selectedChat.Participants.join(", ")}
+                        </ConversationParticipants>
+                      </ConversationInfo>
+                    </ConversationHeader>
 
-                  {/* Messages */}
-                  <Messages>
-                    {selectedChat.Messages.map((message, index) => {
-                      const isCurrentUser = message.Sender === currentUser;
-                      const isSystem = message.Sender === "System";
-                      const showDateSeparator =
-                        index === 0 ||
-                        this.formatDate(message.Timestamp) !==
-                          this.formatDate(
-                            selectedChat.Messages[index - 1].Timestamp,
-                          );
+                    {/* Messages */}
+                    <Messages className="mobile-chat-messages">
+                      {selectedChat.Messages.map((message, index) => {
+                        const isCurrentUser = message.Sender === currentUser;
+                        const isSystem = message.Sender === "System";
+                        const showDateSeparator =
+                          index === 0 ||
+                          this.formatDate(message.Timestamp) !==
+                            this.formatDate(
+                              selectedChat.Messages[index - 1].Timestamp,
+                            );
 
-                      return (
-                        <React.Fragment
-                          key={`${
-                            message.Timestamp?.getTime() || Date.now()
-                          }-${index}`}
-                        >
-                          {showDateSeparator && (
-                            <DateSeparator>
-                              {this.formatDate(message.Timestamp)}
-                            </DateSeparator>
-                          )}
-                          <Message own={isCurrentUser} system={isSystem}>
-                            {!isCurrentUser && !isSystem && (
-                              <MessageSender>{message.Sender}</MessageSender>
+                        return (
+                          <React.Fragment
+                            key={`${
+                              message.Timestamp?.getTime() || Date.now()
+                            }-${index}`}
+                          >
+                            {showDateSeparator && (
+                              <DateSeparator>
+                                {this.formatDate(message.Timestamp)}
+                              </DateSeparator>
                             )}
-                            <MessageContent
-                              own={isCurrentUser}
-                              system={isSystem}
-                            >
-                              {message.Content}
-                            </MessageContent>
-                            <MessageTime>
-                              {this.formatTime(message.Timestamp)}
-                            </MessageTime>
-                          </Message>
-                        </React.Fragment>
-                      );
-                    })}
-                  </Messages>
+                            <Message own={isCurrentUser} system={isSystem}>
+                              {!isCurrentUser && !isSystem && (
+                                <MessageSender>{message.Sender}</MessageSender>
+                              )}
+                              <MessageContent
+                                own={isCurrentUser}
+                                system={isSystem}
+                              >
+                                {message.Content}
+                              </MessageContent>
+                              <MessageTime>
+                                {this.formatTime(message.Timestamp)}
+                              </MessageTime>
+                            </Message>
+                          </React.Fragment>
+                        );
+                      })}
+                    </Messages>
 
-                  {/* Message Input */}
-                  <InputForm onSubmit={this.handleSendMessage}>
-                    <Input
-                      type="text"
-                      placeholder="Type a message..."
-                      value={messageInput}
-                      onChange={(e) => this.setState({ messageInput: e.target.value })
-                      }
-                    />
-                    <SendButton type="submit" disabled={!messageInput.trim()}>
-                      Send
-                    </SendButton>
-                  </InputForm>
-                </>
+                    {/* Message Input */}
+                    <InputForm onSubmit={this.handleSendMessage}>
+                      <Input
+                        type="text"
+                        placeholder="Type a message..."
+                        value={messageInput}
+                        onChange={(e) => this.setState({ messageInput: e.target.value })
+                        }
+                      />
+                      <SendButton type="submit" disabled={!messageInput.trim()}>
+                        Send
+                      </SendButton>
+                    </InputForm>
+                  </>
+                ) : (
+                  <NoSelection>
+                    <NoSelectionContent>
+                      <NoSelectionIcon>💬</NoSelectionIcon>
+                      <h3>Select a chat to start messaging</h3>
+                      <p>
+                        Choose a conversation from the list or create a new one
+                      </p>
+                    </NoSelectionContent>
+                  </NoSelection>
+                )}
+              </Main>
+            </Content>
+          </DesktopOnly>
+
+          {/* Mobile Layout */}
+          <MobileOnly>
+            <MobileChatList>
+              {this.props.chats && this.props.chats.length > 0 ? (
+                this.props.chats.map((chat) => (
+                  <MobileChatListItem
+                    key={chat._id}
+                    onClick={() => this.handleMobileChatSelect(chat._id)}
+                  >
+                    <ChatListItemContent>
+                      <ChatListItemName>
+                        {this.getChatDisplayName(chat)}
+                      </ChatListItemName>
+                      <ChatListItemLast>
+                        {chat.Messages.length > 0
+                          ? chat.Messages[chat.Messages.length - 1].Content
+                          : "No messages yet"}
+                      </ChatListItemLast>
+                    </ChatListItemContent>
+                    <ChatListItemCount>
+                      {chat.Participants.length}
+                    </ChatListItemCount>
+                  </MobileChatListItem>
+                ))
               ) : (
-                <NoSelection>
-                  <NoSelectionContent>
-                    <NoSelectionIcon>💬</NoSelectionIcon>
-                    <h3>Select a chat to start messaging</h3>
-                    <p>
-                      Choose a conversation from the list or create a new one
-                    </p>
-                  </NoSelectionContent>
-                </NoSelection>
+                <ChatListEmpty>
+                  <p>No ride chats available</p>
+                  <p style={{ fontSize: "14px", color: "#666", marginTop: "8px" }}>
+                    Join a ride to start chatting with other members
+                  </p>
+                </ChatListEmpty>
               )}
-            </Main>
-          </Content>
+            </MobileChatList>
+          </MobileOnly>
         </Container>
 
+        {/* Mobile Chat Overlay */}
+        {showChatOverlay && selectedChat && (
+          <ChatOverlay>
+            <OverlayHeader>
+              <OverlayBackButton onClick={this.handleCloseChatOverlay}>
+                ←
+              </OverlayBackButton>
+              <OverlayTitle>
+                {this.getChatDisplayName(selectedChat)}
+              </OverlayTitle>
+              <OverlayCloseButton onClick={this.handleCloseChatOverlay}>
+                ✕
+              </OverlayCloseButton>
+            </OverlayHeader>
+
+            {/* Messages */}
+            <Messages className="mobile-chat-messages">
+              {selectedChat.Messages.map((message, index) => {
+                const isCurrentUser = message.Sender === currentUser;
+                const isSystem = message.Sender === "System";
+                const showDateSeparator =
+                  index === 0 ||
+                  this.formatDate(message.Timestamp) !==
+                    this.formatDate(
+                      selectedChat.Messages[index - 1].Timestamp,
+                    );
+
+                return (
+                  <React.Fragment
+                    key={`${
+                      message.Timestamp?.getTime() || Date.now()
+                    }-${index}`}
+                  >
+                    {showDateSeparator && (
+                      <DateSeparator>
+                        {this.formatDate(message.Timestamp)}
+                      </DateSeparator>
+                    )}
+                    <Message own={isCurrentUser} system={isSystem}>
+                      {!isCurrentUser && !isSystem && (
+                        <MessageSender>{message.Sender}</MessageSender>
+                      )}
+                      <MessageContent
+                        own={isCurrentUser}
+                        system={isSystem}
+                      >
+                        {message.Content}
+                      </MessageContent>
+                      <MessageTime>
+                        {this.formatTime(message.Timestamp)}
+                      </MessageTime>
+                    </Message>
+                  </React.Fragment>
+                );
+              })}
+            </Messages>
+
+            {/* Message Input */}
+            <InputForm onSubmit={this.handleSendMessage}>
+              <Input
+                type="text"
+                placeholder="Type a message..."
+                value={messageInput}
+                onChange={(e) => this.setState({ messageInput: e.target.value })
+                }
+              />
+              <SendButton type="submit" disabled={!messageInput.trim()}>
+                Send
+              </SendButton>
+            </InputForm>
+          </ChatOverlay>
+        )}
       </>
     );
   }
