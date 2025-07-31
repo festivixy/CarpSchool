@@ -193,6 +193,9 @@ const InteractiveMapPicker = ({
       return;
     }
 
+    // Detect Firefox browser
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         try {
@@ -221,7 +224,6 @@ const InteractiveMapPicker = ({
         console.warn("Geolocation error:", error);
 
         let errorMessage;
-        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
 
         switch (error.code) {
           case error.PERMISSION_DENIED:
