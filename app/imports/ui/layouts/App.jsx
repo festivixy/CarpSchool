@@ -51,7 +51,6 @@ class App extends React.Component {
 
     const mainContentStyle = {
       flex: "1",
-      paddingBottom: "85px", // Add padding to prevent navbar overlap on mobile
     };
 
     return (
@@ -60,7 +59,7 @@ class App extends React.Component {
           <DesktopOnly>
             <MobileNavBar />
           </DesktopOnly>
-          <main style={mainContentStyle}>
+          <main style={mainContentStyle} className="main-content-mobile">
             <Switch>
               <Route exact path="/" component={MobileLanding} />
               <Route exact path="/404" component={MobileNotFound} />
