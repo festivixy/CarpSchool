@@ -143,14 +143,14 @@ class App extends React.Component {
               {/* Catch-all route for 404 */}
               <Redirect to="/404" />
             </Switch>
+            <DesktopOnly>
+              <FooterVerbose />
+            </DesktopOnly>
           </main>
           {/* <MobileFooter /> */}
           <MobileOnly>
             <LiquidGlassMobileNavBar />
           </MobileOnly>
-          <DesktopOnly>
-            <FooterVerbose />
-          </DesktopOnly>
         </div>
       </Router>
     );
