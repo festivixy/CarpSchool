@@ -141,6 +141,40 @@ const InteractiveMapPicker = ({
     }
   }, [selectedLocation]);
 
+  // Fallback IP-based location detection
+  const tryIpBasedLocation = async () => {
+    try {
+      // Use a simple IP geolocation service
+      const response = await fetch('https://ipapi.co/json/');
+      if (!response.ok) throw new Error('IP location service unavailable');
+
+      const data = await response.json();
+      if (data.latitude && data.longitude) {
+        const newLocation = {
+          lat: parseFloat(data.latitude.toFixed(6)),
+          lng: parseFloat(data.longitude.toFixed(6)),
+        };
+
+        if (mapInstanceRef.current && markerRef.current) {
+          mapInstanceRef.current.setView([newLocation.lat, newLocation.lng], 10); // Lower zoom for IP location
+          markerRef.current.setLatLng([newLocation.lat, newLocation.lng]);
+          setCurrentLocation(newLocation);
+          if (onLocationSelect) {
+            onLocationSelect(newLocation);
+          }
+
+          // Show success message
+          setTimeout(() => {
+            alert(`Located you in ${data.city || 'your area'} using network location. This is less precise than GPS - you may want to refine the marker position manually.`);
+          }, 500);
+        }
+      }
+    } catch (ipError) {
+      console.warn("IP-based location failed:", ipError);
+      // Silent fallback failure - user already got the main error message
+    }
+  };
+
   // Center map on current location
   const centerOnLocation = () => {
     if (!navigator.geolocation) {
@@ -187,27 +221,45 @@ const InteractiveMapPicker = ({
         console.warn("Geolocation error:", error);
 
         let errorMessage;
+        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+
         switch (error.code) {
           case error.PERMISSION_DENIED:
             errorMessage = "Location access was denied. Please enable location permissions in your browser settings and try again.";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = "Location information is unavailable. Please check your device's location settings.";
+            if (isFirefox) {
+              errorMessage = "Firefox couldn't determine your location. This might be due to:\n\n" +
+                "• macOS Location Services not enabled for Firefox\n" +
+                "• Firefox privacy settings blocking location\n" +
+                "• Network connectivity issues\n\n" +
+                "Try:\n" +
+                "1. System Preferences → Security & Privacy → Location Services → Enable for Firefox\n" +
+                "2. Firefox Settings → Privacy & Security → Permissions → Location → Allow\n" +
+                "3. Or manually click on the map to set your location";
+            } else {
+              errorMessage = "Location information is unavailable. Please check your device's location settings.";
+            }
             break;
           case error.TIMEOUT:
-            errorMessage = "Location request timed out. Please try again.";
+            errorMessage = "Location request timed out. Please try again or click on the map to manually set your location.";
             break;
           default:
-            errorMessage = "An unknown error occurred while retrieving your location. Please try again.";
+            errorMessage = `An unknown error occurred while retrieving your location (Error: ${error.message}). Please click on the map to manually set your location.`;
             break;
         }
 
         alert(errorMessage);
+
+        // For Firefox, try fallback IP-based location as last resort
+        if (isFirefox && error.code === error.POSITION_UNAVAILABLE) {
+          tryIpBasedLocation();
+        }
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000 // 5 minutes
+        enableHighAccuracy: isFirefox ? false : true, // Firefox often fails with high accuracy on macOS
+        timeout: isFirefox ? 15000 : 10000, // Longer timeout for Firefox
+        maximumAge: isFirefox ? 600000 : 300000 // 10 minutes cache for Firefox, 5 for others
       }
     );
   };
