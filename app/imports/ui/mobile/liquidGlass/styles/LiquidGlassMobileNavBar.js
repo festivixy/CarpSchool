@@ -8,12 +8,11 @@ export const NavBarContainer = styled.div`
   overflow: hidden;
   margin: 0 auto;
   border-radius: 20px 20px 0 0;
-  position: fixed;
+  position: sticky;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
   z-index: 1000;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: auto;
 `;
 
 export const TabBarInner = styled.div`
@@ -162,15 +161,11 @@ export const TabLabel = styled.span`
 
 // Dropdown styles for upward-opening menus
 export const DropdownContainer = styled.div`
-  position: fixed;
+  position: absolute;
   bottom: 80px;
-  right: calc(50vw - 240px + 10px);
+  right: 10px;
   z-index: 1001;
   max-width: 300px;
-
-  @media (max-width: 480px) {
-    right: 10px;
-  }
 `;
 
 export const DropdownMenu = styled.div`
