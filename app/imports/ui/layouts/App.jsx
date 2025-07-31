@@ -51,9 +51,10 @@ class App extends React.Component {
 
     const mainContentStyle = {
       flex: "1",
-      overflow: "hidden", // Prevent main container scroll, let individual pages handle their own scrolling
+      overflow: "auto", // Allow scrolling when content exceeds available space
       display: "flex",
       flexDirection: "column",
+      minHeight: 0, // Important: allows flex item to shrink below content size
     };
 
     return (
