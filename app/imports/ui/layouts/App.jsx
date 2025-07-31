@@ -59,9 +59,6 @@ class App extends React.Component {
           <DesktopOnly>
             <MobileNavBar />
           </DesktopOnly>
-          <MobileOnly>
-            <LiquidGlassMobileNavBar />
-          </MobileOnly>
           <main style={mainContentStyle}>
             <Switch>
               <Route exact path="/" component={MobileLanding} />
@@ -144,6 +141,9 @@ class App extends React.Component {
             </Switch>
           </main>
           {/* <MobileFooter /> */}
+          <MobileOnly>
+            <LiquidGlassMobileNavBar />
+          </MobileOnly>
           <DesktopOnly>
             <FooterVerbose />
           </DesktopOnly>
