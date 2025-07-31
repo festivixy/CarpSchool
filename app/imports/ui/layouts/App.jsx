@@ -59,7 +59,7 @@ class App extends React.Component {
           <DesktopOnly>
             <MobileNavBar />
           </DesktopOnly>
-          <main style={mainContentStyle} className="main-content-mobile">
+          <main style={mainContentStyle}>
             <Switch>
               <Route exact path="/" component={MobileLanding} />
               <Route exact path="/404" component={MobileNotFound} />

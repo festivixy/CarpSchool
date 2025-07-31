@@ -8,10 +8,3 @@ body {
 #root {
   height: 100%;
 }
-
-/* Mobile navigation bar spacing */
-.main-content-mobile {
-  @media (max-width: 767px) {
-    padding-bottom: 85px; /* Prevent LiquidGlassMobileNavBar overlap on mobile */
-  }
-}
