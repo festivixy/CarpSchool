@@ -3,11 +3,9 @@ import styled from "styled-components";
 export const NavBarContainer = styled.div`
   background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-  max-width: 480px;
   width: 100%;
   overflow: hidden;
-  margin: 0 auto;
-  border-radius: 20px 20px 0 0;
+  border-radius: 0 0 20px 20px;
   position: sticky;
   bottom: 0;
   z-index: 1000;
