@@ -51,6 +51,7 @@ class App extends React.Component {
 
     const mainContentStyle = {
       flex: "1",
+      paddingBottom: "85px", // Add padding to prevent navbar overlap on mobile
     };
 
     return (
