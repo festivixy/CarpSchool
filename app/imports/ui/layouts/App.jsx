@@ -46,11 +46,14 @@ class App extends React.Component {
     const appStyle = {
       display: "flex",
       flexDirection: "column",
-      minHeight: "100vh",
+      height: "100vh", // Use full viewport height
     };
 
     const mainContentStyle = {
       flex: "1",
+      overflow: "hidden", // Prevent main container scroll, let individual pages handle their own scrolling
+      display: "flex",
+      flexDirection: "column",
     };
 
     return (
