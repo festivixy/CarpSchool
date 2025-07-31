@@ -89,8 +89,7 @@ const InteractiveMapPicker = ({
     });
 
     // Add async tile layer using our tileserver proxy for better performance
-    // The AsyncTileLoader will handle the URL construction internally
-    const asyncTileLayer = new AsyncTileLayer("/tileserver", {
+    const asyncTileLayer = new AsyncTileLayer("/tileserver/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
       maxZoom: 18,
       tileSize: 256,
