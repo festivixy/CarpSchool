@@ -448,9 +448,6 @@ class MobileChat extends React.Component {
               <OverlayTitle>
                 {this.getChatDisplayName(selectedChat)}
               </OverlayTitle>
-              <OverlayCloseButton onClick={this.handleCloseChatOverlay}>
-                ✕
-              </OverlayCloseButton>
             </OverlayHeader>
 
             {/* Messages */}
