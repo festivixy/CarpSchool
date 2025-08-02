@@ -46,7 +46,8 @@ class App extends React.Component {
     const appStyle = {
       display: "flex",
       flexDirection: "column",
-      minHeight: "100vh", // Ensure minimum viewport height
+      // Limit height to viewport minus navbar space
+      height: "calc(100vh - 70px - env(safe-area-inset-bottom))",
       // Account for safe areas on mobile devices
       paddingTop: "env(safe-area-inset-top)",
       paddingLeft: "env(safe-area-inset-left)",
@@ -155,9 +156,6 @@ class App extends React.Component {
           </main>
           {/* <MobileFooter /> */}
           <MobileOnly>
-            <div style={{ height: "calc(70px + env(safe-area-inset-bottom))" }}>
-              {/* Spacer for fixed navbar */}
-            </div>
             <LiquidGlassMobileNavBar />
           </MobileOnly>
         </div>
