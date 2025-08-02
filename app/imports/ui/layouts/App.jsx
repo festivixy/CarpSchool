@@ -6,6 +6,8 @@ import {
   Switch,
   Redirect,
 } from "react-router-dom";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
 import MobileAdminRides from "../mobile/pages/AdminRides";
 import MobileAdminUsers from "../mobile/pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
@@ -156,7 +158,7 @@ class App extends React.Component {
           </main>
           {/* <MobileFooter /> */}
           <MobileOnly>
-            <LiquidGlassMobileNavBar />
+            {this.props.currentUser && <LiquidGlassMobileNavBar />}
           </MobileOnly>
         </div>
       </Router>
@@ -164,4 +166,9 @@ class App extends React.Component {
   }
 }
 
-export default App;
+/** withTracker connects Meteor data to React components. */
+const AppContainer = withTracker(() => ({
+  currentUser: Meteor.user(),
+}))(App);
+
+export default AppContainer;
