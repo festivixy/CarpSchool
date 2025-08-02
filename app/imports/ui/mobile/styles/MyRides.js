@@ -2,7 +2,7 @@ import styled, { keyframes } from "styled-components";
 
 // Styled Components for MyRides
 export const Container = styled.div`
-  background-color: rgba(248, 249, 250, 1);
+  background-color: rgba(255, 255, 255, 1);
   min-height: 100vh;
   font-family:
     Inter,
