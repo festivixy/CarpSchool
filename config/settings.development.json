@@ -1,4 +1,7 @@
 {
+  "public": {
+    "enableDebugMode": true
+  },
   "defaultAccounts": [
     {
       "email": "admin@foo.com",
