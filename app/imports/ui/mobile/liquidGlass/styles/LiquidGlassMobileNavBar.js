@@ -13,8 +13,6 @@ export const NavBarContainer = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  /* Ensure navbar stays above bottom safe area (home indicator) */
-  padding-bottom: max(env(safe-area-inset-bottom), 8px);
 
   /* Hide navbar when chat overlay is open */
   .chat-overlay-open & {
@@ -169,7 +167,7 @@ export const TabLabel = styled.span`
 // Dropdown styles for upward-opening menus
 export const DropdownContainer = styled.div`
   position: fixed;
-  bottom: calc(70px + max(env(safe-area-inset-bottom), 8px) + 10px);
+  bottom: calc(70px + 10px);
   right: 10px;
   z-index: 1001;
   max-width: 300px;
