@@ -45,7 +45,6 @@ import {
   OverlayHeader,
   OverlayBackButton,
   OverlayTitle,
-  OverlayCloseButton,
   MobileChatList,
   MobileChatListItem,
 } from "../styles/Chat";
