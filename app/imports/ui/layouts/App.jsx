@@ -62,6 +62,8 @@ class App extends React.Component {
       display: "flex",
       flexDirection: "column",
       minHeight: 0, // Important: allows flex item to shrink below content size
+      // Add bottom padding to account for fixed navbar
+      paddingBottom: "80px", // Approximate height of navbar + safe area
     };
 
     return (

@@ -9,9 +9,12 @@ export const NavBarContainer = styled.div`
   z-index: 1000;
   border: 1px solid rgba(255, 255, 255, 0.2);
   flex-shrink: 0; /* Prevent navbar from shrinking */
+  /* Fixed positioning to bottom with safe area padding */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   /* Ensure navbar stays above bottom safe area (home indicator) */
-  padding-bottom: env(safe-area-inset-bottom);
-  /* Fallback for browsers that don't support env() */
   padding-bottom: max(env(safe-area-inset-bottom), 8px);
 `;
 
