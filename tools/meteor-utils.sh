@@ -20,7 +20,7 @@ meteor_update_browserslist() {
 meteor_build_bundle() {
     local build_dir=${1:-"../build"}
     local architecture=${2:-"os.linux.x86_64"}
-    
+
     echo -e "${YELLOW}🚀 Building Meteor bundle...${NC}"
     meteor build "$build_dir" --architecture "$architecture" --server-only
 }
@@ -29,17 +29,27 @@ meteor_build_bundle() {
 meteor_run_dev() {
     local settings_file=${1:-"../config/settings.development.json"}
     local port=${2:-"3001"}
-    
+
     echo -e "${YELLOW}🚀 Starting Meteor development server...${NC}"
     cd app
-    meteor --no-release-check --settings "$settings_file" --port "$port"
+    meteor --no-release-check --settings "$settings_file" --port "$port" --verbose
+}
+
+# Function to run iOS development server
+meteor_run_ios() {
+    local settings_file=${1:-"../config/settings.development.json"}
+    local port=${2:-"3001"}
+
+    echo -e "${YELLOW}📱 Starting Meteor iOS development server...${NC}"
+    cd app
+    meteor run ios --port "$port" --verbose --no-release-check --settings "$settings_file"
 }
 
 # Function to clean Meteor local directory
 meteor_clean_local() {
     local app_dir=${1:-"app"}
     local clean_type=${2:-"db"}  # "db" or "all"
-    
+
     case $clean_type in
         "db")
             echo -e "${YELLOW}🗑️  Removing Meteor local database...${NC}"
@@ -62,7 +72,7 @@ meteor_clean_local() {
 # Function to clean Node.js dependencies
 meteor_clean_dependencies() {
     local app_dir=${1:-"app"}
-    
+
     echo -e "${YELLOW}🗑️  Removing Node.js dependencies...${NC}"
     rm -f "$app_dir/package-lock.json"
     rm -rf "$app_dir/node_modules"
