@@ -13,8 +13,6 @@ import styled from "styled-components";
 const BackButton = styled.button`
   background: none;
   border: none;
-  font-size: 20px;
-  color: rgba(0, 0, 0, 0.87);
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
@@ -28,6 +26,11 @@ const BackButton = styled.button`
 
   &:hover {
     background-color: rgba(240, 240, 240, 1);
+  }
+
+  img {
+    width: 24px;
+    height: 24px;
   }
 `;
 
@@ -56,7 +59,7 @@ function MobilePrivacy({ history }) {
       <MobileOnly>
         <HeaderWithBack>
           <BackButton onClick={handleBack}>
-            ←
+            <img src="/svg/back.svg" alt="Back" />
           </BackButton>
           <SectionTitle>Privacy Policy</SectionTitle>
         </HeaderWithBack>
