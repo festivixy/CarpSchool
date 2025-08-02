@@ -32,10 +32,3 @@ body.ios {
   /* Prevent bounce scrolling on iOS */
   -webkit-overflow-scrolling: touch;
 }
-
-/* App layout responsive adjustments */
-@media (min-width: 768px) {
-  .app-container {
-    height: calc(100vh - 70px) !important;
-  }
-}

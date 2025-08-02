@@ -48,8 +48,8 @@ class App extends React.Component {
     const appStyle = {
       display: "flex",
       flexDirection: "column",
-      // Full height on mobile (navbar is at bottom), subtract navbar height on desktop
-      height: "100vh",
+      // Limit height to viewport minus navbar space
+      height: "calc(100vh - 70px - env(safe-area-inset-bottom))",
       // Account for safe areas on mobile devices (only sides, not top)
       paddingLeft: "env(safe-area-inset-left)",
       paddingRight: "env(safe-area-inset-right)",
@@ -67,7 +67,7 @@ class App extends React.Component {
 
     return (
       <Router>
-        <div className="app-container" style={appStyle}>
+        <div style={appStyle}>
           <DesktopOnly>
             <MobileNavBar />
           </DesktopOnly>
