@@ -40,11 +40,26 @@ App.icons({
 
 // Before Meteor 2.6 we had to pass device specific splash screens for iOS, but this behavior was dropped in favor of story board images.
 App.launchScreens({
-    // iOS
-    // For most cases you will only need to use the 'ios_universal' and 'ios_universal_3x'.
+    // iOS Universal
     'ios_universal': { src: 'resources/splash/ios_universal.png', srcDarkMode: 'resources/splash/ios_universal.png' }, // (2732x2732) - All @2x devices, if device/mode specific is not declared
     'ios_universal_3x': 'resources/splash/ios_universal_3x.png', // (2208x2208) - All @3x devices, if device/mode specific is not declared
+    'ios_universal_portrait_2x': 'resources/splash/ios_universal_portrait_2x.png', // 1278x2732 pixels
+    'ios_universal_landscape_2x': 'resources/splash/ios_universal_landscape_2x.png', // 1334x750 pixels
+    'ios_universal_landscape_3x': 'resources/splash/ios_universal_landscape_3x.png', // 2208x1242 pixels
+    'ios_universal_portrait_3x': 'resources/splash/ios_universal_portrait_3x.png', // 1242x2208 pixels
+
+    // iOS iPhone specific
+    'ios_iphone_2x': 'resources/splash/ios_iphone_2x.png', // 1334x1334 pixels
+    'ios_iphone_portrait_2x': 'resources/splash/ios_iphone_portrait_2x.png', // 750x1334 pixels
+    'ios_iphone_landscape_2x': 'resources/splash/ios_iphone_landscape_2x.png', // 1334x750 pixels
+    'ios_iphone_3x': 'resources/splash/ios_iphone_3x.png', // 2208x2208 pixels
+    'ios_iphone_landscape_3x': 'resources/splash/ios_iphone_landscape_3x.png', // 2208x1242 pixels
+    'ios_iphone_portrait_3x': 'resources/splash/ios_iphone_portrait_3x.png', // 1242x2208 pixels
+
+    // iOS iPad specific
+    'ios_ipad_2x': 'resources/splash/ios_ipad_2x.png', // 2732x2732 pixels
+    'ios_ipad_portrait_2x': 'resources/splash/ios_ipad_portrait_2x.png', // 1278x2732 pixels
 
     // Android
-    'android_universal': 'resources/splash/android_universal.png', // (320x480)
+    'android_universal': 'resources/splash/android_universal.png', // 288x288 pixels
 });
