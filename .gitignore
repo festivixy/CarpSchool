@@ -7,7 +7,7 @@ package-lock.json
 app/.meteor/local
 app/.deploy
 build/
-config/settings.prod.json
+# config/settings.prod.json
 .env
 openmaptiles/
 openmaptilesdata/
