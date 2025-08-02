@@ -50,8 +50,7 @@ class App extends React.Component {
       flexDirection: "column",
       // Limit height to viewport minus navbar space
       height: "calc(100vh - 70px - env(safe-area-inset-bottom))",
-      // Account for safe areas on mobile devices
-      paddingTop: "env(safe-area-inset-top)",
+      // Account for safe areas on mobile devices (only sides, not top)
       paddingLeft: "env(safe-area-inset-left)",
       paddingRight: "env(safe-area-inset-right)",
       // Ensure we don't exceed viewport bounds
