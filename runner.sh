@@ -6,6 +6,7 @@
 # Usage: ./runner.sh [command]
 # Commands:
 #   dev   - Run the app in development mode
+#   ios   - Run the app in iOS development mode
 #   prod  - Build and run the app in production mode
 #
 # Environment Variables:
@@ -26,10 +27,12 @@ source "./tools/ui-utils.sh"
 # Function to display usage
 show_usage() {
     local commands="  ${GREEN}dev${NC}    - Run the app in development mode
+  ${GREEN}ios${NC}    - Run the app in iOS development mode
   ${GREEN}prod${NC}   - Build and run the app in production mode
 
 Examples:
   ./runner.sh dev
+  ./runner.sh ios
   ./runner.sh prod"
 
     ui_show_usage "runner.sh" "$commands"
@@ -46,6 +49,10 @@ case $COMMAND in
     "dev")
         echo -e "${YELLOW}🚀 Starting development server...${NC}"
         meteor_run_dev "../config/settings.development.json" "3001"
+        ;;
+    "ios")
+        echo -e "${YELLOW}📱 Starting iOS development server...${NC}"
+        meteor_run_ios "../config/settings.development.json" "3001"
         ;;
     "prod")
         echo -e "${YELLOW}🚀 Running production build and run...${NC}"
