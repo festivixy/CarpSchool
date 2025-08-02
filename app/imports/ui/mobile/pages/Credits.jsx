@@ -1,4 +1,5 @@
 import React from "react";
+import { withRouter } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import {
   Container,
@@ -6,6 +7,37 @@ import {
   SectionTitle,
   Content,
 } from "../styles/Landing";
+import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
+import styled from "styled-components";
+
+const BackButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.87);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  position: absolute;
+  left: 20px;
+  top: 20px;
+
+  &:hover {
+    background-color: rgba(240, 240, 240, 1);
+  }
+`;
+
+const HeaderWithBack = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+`;
 
 const creditsContent = `
 ## Development Team
@@ -33,7 +65,7 @@ This application was built with dedication and care by our development team.
 
 ## Contact
 
-For questions about this application or to report issues, please contact us at kobosh@kobosh.com.
+For questions about this application or to report issues, please contact lz at kobosh@kobosh.com.
 
 ---
 
@@ -43,15 +75,31 @@ For questions about this application or to report issues, please contact us at k
 /**
  * Credits page with markdown content
  */
-export default function MobileCredits() {
+function MobileCredits({ history }) {
+  const handleBack = () => {
+    history.goBack();
+  };
+
   return (
     <Container style={{ minHeight: "100vh", paddingBottom: "40px" }}>
-      <SectionHeader>
-        <SectionTitle>Credits</SectionTitle>
-      </SectionHeader>
+      <MobileOnly>
+        <HeaderWithBack>
+          <BackButton onClick={handleBack}>
+            ←
+          </BackButton>
+          <SectionTitle>Credits</SectionTitle>
+        </HeaderWithBack>
+      </MobileOnly>
+      <DesktopOnly>
+        <SectionHeader>
+          <SectionTitle>Credits</SectionTitle>
+        </SectionHeader>
+      </DesktopOnly>
       <Content>
         <ReactMarkdown>{creditsContent}</ReactMarkdown>
       </Content>
     </Container>
   );
 }
+
+export default withRouter(MobileCredits);
