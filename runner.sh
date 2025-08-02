@@ -5,9 +5,10 @@
 #
 # Usage: ./runner.sh [command]
 # Commands:
-#   dev   - Run the app in development mode
-#   ios   - Run the app in iOS development mode
-#   prod  - Build and run the app in production mode
+#   dev     - Run the app in development mode
+#   ios     - Run the app in iOS development mode
+#   android - Run the app in Android development mode
+#   prod    - Build and run the app in production mode
 #
 # Environment Variables:
 #   READ_TIMEOUT           - Input timeout in seconds (default: 10s)
@@ -26,13 +27,15 @@ source "./tools/ui-utils.sh"
 
 # Function to display usage
 show_usage() {
-    local commands="  ${GREEN}dev${NC}    - Run the app in development mode
-  ${GREEN}ios${NC}    - Run the app in iOS development mode
-  ${GREEN}prod${NC}   - Build and run the app in production mode
+    local commands="  ${GREEN}dev${NC}     - Run the app in development mode
+  ${GREEN}ios${NC}     - Run the app in iOS development mode
+  ${GREEN}android${NC} - Run the app in Android development mode
+  ${GREEN}prod${NC}    - Build and run the app in production mode
 
 Examples:
   ./runner.sh dev
   ./runner.sh ios
+  ./runner.sh android
   ./runner.sh prod"
 
     ui_show_usage "runner.sh" "$commands"
@@ -53,6 +56,10 @@ case $COMMAND in
     "ios")
         echo -e "${YELLOW}📱 Starting iOS development server...${NC}"
         meteor_run_ios "../config/settings.development.json" "3001"
+        ;;
+    "android")
+        echo -e "${YELLOW}🤖 Starting Android development server...${NC}"
+        meteor_run_android "../config/settings.development.json" "3001"
         ;;
     "prod")
         echo -e "${YELLOW}🚀 Running production build and run...${NC}"
