@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import "semantic-ui-css/semantic.css";
 import {
   HashRouter as Router,
@@ -164,6 +165,10 @@ class App extends React.Component {
     );
   }
 }
+
+App.propTypes = {
+  currentUser: PropTypes.object,
+};
 
 /** withTracker connects Meteor data to React components. */
 const AppContainer = withTracker(() => ({

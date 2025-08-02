@@ -89,7 +89,7 @@ class MobileChat extends React.Component {
 
   componentWillUnmount() {
     // Clean up body class when component unmounts
-    document.body.classList.remove('chat-overlay-open');
+    document.body.classList.remove("chat-overlay-open");
   }
 
   componentDidUpdate(prevProps) {
@@ -226,7 +226,7 @@ class MobileChat extends React.Component {
       showChatOverlay: true,
     });
     // Hide navbar when chat overlay opens
-    document.body.classList.add('chat-overlay-open');
+    document.body.classList.add("chat-overlay-open");
   };
 
   handleCloseChatOverlay = () => {
@@ -234,7 +234,7 @@ class MobileChat extends React.Component {
       showChatOverlay: false,
     });
     // Show navbar when chat overlay closes
-    document.body.classList.remove('chat-overlay-open');
+    document.body.classList.remove("chat-overlay-open");
   };
 
   render() {

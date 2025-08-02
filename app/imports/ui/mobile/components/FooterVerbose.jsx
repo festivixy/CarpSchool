@@ -26,7 +26,6 @@ import {
   LegalLinkExternal,
 } from "../styles/FooterVerbose";
 
-
 /**
  * Comprehensive Footer component with enhanced features
  */
@@ -42,7 +41,6 @@ function FooterVerbose({
   className,
   ...props
 }) {
-
 
   const handleLinkClick = (link, e) => {
     if (onLinkClick) {
@@ -177,7 +175,6 @@ function FooterVerbose({
               ))}
             </FooterLinksList>
           </FooterSection>
-
 
         </FooterGrid>
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import styled from "styled-components";
 import {
   Container,
   SectionHeader,
@@ -8,7 +9,6 @@ import {
   Content,
 } from "../styles/Landing";
 import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
-import styled from "styled-components";
 
 const BackButton = styled.button`
   background: none;

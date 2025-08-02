@@ -24,12 +24,12 @@ const DesktopOnlyWrapper = styled.div`
 
 // User agent detection for JavaScript fallback
 const isMobileUserAgent = () => {
-  if (typeof navigator === 'undefined') return false;
+  if (typeof navigator === "undefined") return false;
 
   const userAgent = navigator.userAgent.toLowerCase();
   const mobileKeywords = [
-    'android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry',
-    'windows phone', 'mobile', 'opera mini', 'iemobile'
+    "android", "webos", "iphone", "ipad", "ipod", "blackberry",
+    "windows phone", "mobile", "opera mini", "iemobile",
   ];
 
   return mobileKeywords.some(keyword => userAgent.includes(keyword));

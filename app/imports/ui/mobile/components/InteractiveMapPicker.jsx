@@ -171,8 +171,8 @@ const InteractiveMapPicker = ({
   const tryIpBasedLocation = async () => {
     try {
       // Use a simple IP geolocation service
-      const response = await fetch('https://ipapi.co/json/');
-      if (!response.ok) throw new Error('IP location service unavailable');
+      const response = await fetch("https://ipapi.co/json/");
+      if (!response.ok) throw new Error("IP location service unavailable");
 
       const data = await response.json();
       if (data.latitude && data.longitude) {
@@ -191,7 +191,7 @@ const InteractiveMapPicker = ({
 
           // Show success message
           setTimeout(() => {
-            showSuccess(`Located you in ${data.city || 'your area'} using network location. This is less precise than GPS - you may want to refine the marker position manually.`);
+            showSuccess(`Located you in ${data.city || "your area"} using network location. This is less precise than GPS - you may want to refine the marker position manually.`);
           }, 500);
         }
       }
@@ -216,13 +216,13 @@ const InteractiveMapPicker = ({
     }
 
     // Check if we're on HTTPS or localhost (required for geolocation)
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    if (location.protocol !== "https:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
       showError("Location services require a secure connection (HTTPS) to work.");
       return;
     }
 
     // Detect Firefox browser
-    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -287,10 +287,10 @@ const InteractiveMapPicker = ({
         }
       },
       {
-        enableHighAccuracy: isFirefox ? false : true, // Firefox often fails with high accuracy on macOS
+        enableHighAccuracy: !isFirefox, // Firefox often fails with high accuracy on macOS
         timeout: isFirefox ? 15000 : 10000, // Longer timeout for Firefox
-        maximumAge: isFirefox ? 600000 : 300000 // 10 minutes cache for Firefox, 5 for others
-      }
+        maximumAge: isFirefox ? 600000 : 300000, // 10 minutes cache for Firefox, 5 for others
+      },
     );
   };
 

@@ -121,8 +121,6 @@ export const SocialLinks = styled.div`
   margin-top: 20px;
 `;
 
-
-
 export const FooterBottom = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 20px;
