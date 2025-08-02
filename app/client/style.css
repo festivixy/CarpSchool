@@ -24,9 +24,7 @@ body {
 
 /* iOS specific fixes */
 body.ios {
-  /* Handle iOS status bar */
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+  /* iOS-specific styling handled at app level for better control */
 }
 
 /* Cordova specific styles */
