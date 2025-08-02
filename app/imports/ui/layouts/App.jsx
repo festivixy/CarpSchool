@@ -17,7 +17,7 @@ import MobileSignup from "../mobile/pages/Signup";
 import MobileForgotPassword from "../mobile/pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
-import NavBar from "../mobile/components/NavBar";
+import MobileNavBar from "../mobile/components/NavBar";
 import MobileChat from "../mobile/pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
 import MobileVerifyEmail from "../mobile/pages/VerifyEmail";
@@ -62,15 +62,13 @@ class App extends React.Component {
       display: "flex",
       flexDirection: "column",
       minHeight: 0, // Important: allows flex item to shrink below content size
-      // Add bottom padding to account for fixed navbar
-      paddingBottom: "calc(80px + env(safe-area-inset-bottom))", // Navbar height + safe area
     };
 
     return (
       <Router>
         <div style={appStyle}>
           <DesktopOnly>
-            <NavBar />
+            <MobileNavBar />
           </DesktopOnly>
           <main style={mainContentStyle}>
             <Switch>

@@ -9,11 +9,6 @@ export const NavBarContainer = styled.div`
   z-index: 1000;
   border: 1px solid rgba(255, 255, 255, 0.2);
   flex-shrink: 0; /* Prevent navbar from shrinking */
-  /* Fixed positioning to bottom with safe area padding */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   /* Ensure navbar stays above bottom safe area (home indicator) */
   padding-bottom: max(env(safe-area-inset-bottom), 8px);
 `;
@@ -164,11 +159,12 @@ export const TabLabel = styled.span`
 
 // Dropdown styles for upward-opening menus
 export const DropdownContainer = styled.div`
-  position: fixed;
-  bottom: calc(80px + env(safe-area-inset-bottom) + 10px);
+  position: absolute;
+  bottom: 100%;
   right: 10px;
   z-index: 1001;
   max-width: 300px;
+  margin-bottom: 10px;
 `;
 
 export const DropdownMenu = styled.div`
