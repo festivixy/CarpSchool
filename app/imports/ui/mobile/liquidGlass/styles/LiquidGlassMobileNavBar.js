@@ -164,12 +164,11 @@ export const TabLabel = styled.span`
 
 // Dropdown styles for upward-opening menus
 export const DropdownContainer = styled.div`
-  position: absolute;
-  bottom: 100%;
+  position: fixed;
+  bottom: calc(80px + env(safe-area-inset-bottom) + 10px);
   right: 10px;
   z-index: 1001;
   max-width: 300px;
-  margin-bottom: 10px;
 `;
 
 export const DropdownMenu = styled.div`
