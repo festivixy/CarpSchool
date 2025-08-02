@@ -107,7 +107,7 @@ export default function MapView({ coordinates, tileServerUrl }) {
         // Fit bounds to show all coordinates
         if (coordinates && coordinates.length > 1) {
           // Filter out invalid coordinates
-          const validCoords = coordinates.filter(coord => coord && !Number.isNaN(coord.lat) && !Number.isNaN(coord.lng) &&
+          const validCoords = coordinates.filter((coord) => coord && !Number.isNaN(coord.lat) && !Number.isNaN(coord.lng) &&
             coord.lat >= -90 && coord.lat <= 90 &&
             coord.lng >= -180 && coord.lng <= 180);
 

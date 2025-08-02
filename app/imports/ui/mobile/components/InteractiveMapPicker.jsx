@@ -191,7 +191,10 @@ const InteractiveMapPicker = ({
 
           // Show success message
           setTimeout(() => {
-            showSuccess(`Located you in ${data.city || "your area"} using network location. This is less precise than GPS - you may want to refine the marker position manually.`);
+            showSuccess(
+              `Located you in ${data.city || "your area"} using network location. ` +
+              "This is less precise than GPS - you may want to refine the marker position manually.",
+            );
           }, 500);
         }
       }
@@ -255,7 +258,8 @@ const InteractiveMapPicker = ({
 
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = "Location access was denied. Please enable location permissions in your browser settings and try again.";
+            errorMessage = "Location access was denied. Please enable location permissions in your " +
+              "browser settings and try again.";
             break;
           case error.POSITION_UNAVAILABLE:
             if (isFirefox) {
@@ -272,10 +276,12 @@ const InteractiveMapPicker = ({
             }
             break;
           case error.TIMEOUT:
-            errorMessage = "Location request timed out. Please try again or click on the map to manually set your location.";
+            errorMessage = "Location request timed out. Please try again or click on the map to " +
+              "manually set your location.";
             break;
           default:
-            errorMessage = `An unknown error occurred while retrieving your location (Error: ${error.message}). Please click on the map to manually set your location.`;
+            errorMessage = `An unknown error occurred while retrieving your location (Error: ${error.message}). ` +
+              "Please click on the map to manually set your location.";
             break;
         }
 
