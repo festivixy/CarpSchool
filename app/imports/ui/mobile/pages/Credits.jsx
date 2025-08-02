@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import styled from "styled-components";
@@ -104,5 +105,11 @@ function MobileCredits({ history }) {
     </Container>
   );
 }
+
+MobileCredits.propTypes = {
+  history: PropTypes.shape({
+    goBack: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 export default withRouter(MobileCredits);
