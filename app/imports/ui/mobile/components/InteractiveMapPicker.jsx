@@ -219,7 +219,9 @@ const InteractiveMapPicker = ({
     }
 
     // Check if we're on HTTPS or localhost (required for geolocation)
-    if (location.protocol !== "https:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+    if (window.location.protocol !== "https:" &&
+        window.location.hostname !== "localhost" &&
+        window.location.hostname !== "127.0.0.1") {
       showError("Location services require a secure connection (HTTPS) to work.");
       return;
     }
@@ -254,16 +256,16 @@ const InteractiveMapPicker = ({
       (error) => {
         console.warn("Geolocation error:", error);
 
-        let errorMessage;
+        let geoErrorMessage;
 
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = "Location access was denied. Please enable location permissions in your " +
+            geoErrorMessage = "Location access was denied. Please enable location permissions in your " +
               "browser settings and try again.";
             break;
           case error.POSITION_UNAVAILABLE:
             if (isFirefox) {
-              errorMessage = "Firefox couldn't determine your location. This might be due to:\n\n" +
+              geoErrorMessage = "Firefox couldn't determine your location. This might be due to:\n\n" +
                 "• macOS Location Services not enabled for Firefox\n" +
                 "• Firefox privacy settings blocking location\n" +
                 "• Network connectivity issues\n\n" +
@@ -272,20 +274,20 @@ const InteractiveMapPicker = ({
                 "2. Firefox Settings → Privacy & Security → Permissions → Location → Allow\n" +
                 "3. Or manually click on the map to set your location";
             } else {
-              errorMessage = "Location information is unavailable. Please check your device's location settings.";
+              geoErrorMessage = "Location information is unavailable. Please check your device's location settings.";
             }
             break;
           case error.TIMEOUT:
-            errorMessage = "Location request timed out. Please try again or click on the map to " +
+            geoErrorMessage = "Location request timed out. Please try again or click on the map to " +
               "manually set your location.";
             break;
           default:
-            errorMessage = `An unknown error occurred while retrieving your location (Error: ${error.message}). ` +
+            geoErrorMessage = `An unknown error occurred while retrieving your location (Error: ${error.message}). ` +
               "Please click on the map to manually set your location.";
             break;
         }
 
-        showError(errorMessage);
+        showError(geoErrorMessage);
 
         // For Firefox, try fallback IP-based location as last resort
         if (isFirefox && error.code === error.POSITION_UNAVAILABLE) {
