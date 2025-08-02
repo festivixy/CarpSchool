@@ -46,10 +46,9 @@ class App extends React.Component {
     const appStyle = {
       display: "flex",
       flexDirection: "column",
-      height: "100vh", // Use full viewport height
+      minHeight: "100vh", // Ensure minimum viewport height
       // Account for safe areas on mobile devices
       paddingTop: "env(safe-area-inset-top)",
-      paddingBottom: "env(safe-area-inset-bottom)",
       paddingLeft: "env(safe-area-inset-left)",
       paddingRight: "env(safe-area-inset-right)",
       // Ensure we don't exceed viewport bounds
