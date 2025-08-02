@@ -13,6 +13,7 @@ export const NavBarContainer = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
+  padding-bottom: 8px;
 
   /* Hide navbar when chat overlay is open */
   .chat-overlay-open & {
@@ -167,7 +168,7 @@ export const TabLabel = styled.span`
 // Dropdown styles for upward-opening menus
 export const DropdownContainer = styled.div`
   position: fixed;
-  bottom: calc(70px + 10px);
+  bottom: calc(70px + 8px + 10px);
   right: 10px;
   z-index: 1001;
   max-width: 300px;
