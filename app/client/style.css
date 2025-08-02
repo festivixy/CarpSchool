@@ -3,8 +3,34 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  /* Mobile-specific fixes */
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent scrolling on iOS */
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
 }
 
 #root {
   height: 100%;
+  width: 100%;
+  /* Allow scrolling within the app */
+  position: relative;
+  overflow: auto;
+}
+
+/* iOS specific fixes */
+body.ios {
+  /* Handle iOS status bar */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Cordova specific styles */
+.cordova {
+  /* Prevent bounce scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
