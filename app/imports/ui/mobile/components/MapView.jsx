@@ -21,7 +21,7 @@ export default function MapView({ coordinates, tileServerUrl }) {
 
     try {
       // Filter out invalid coordinates
-      const validCoords = coordinates.filter(coord => coord && !isNaN(coord.lat) && !isNaN(coord.lng) &&
+      const validCoords = coordinates.filter(coord => coord && !Number.isNaN(coord.lat) && !Number.isNaN(coord.lng) &&
         coord.lat >= -90 && coord.lat <= 90 &&
         coord.lng >= -180 && coord.lng <= 180);
 
@@ -39,7 +39,7 @@ export default function MapView({ coordinates, tileServerUrl }) {
       const centerLat = latSum / validCoords.length;
       const centerLng = lngSum / validCoords.length;
 
-      if (isNaN(centerLat) || isNaN(centerLng)) {
+      if (Number.isNaN(centerLat) || Number.isNaN(centerLng)) {
         return [49.345196, -123.149805]; // Default to Vancouver
       }
 
@@ -57,8 +57,8 @@ export default function MapView({ coordinates, tileServerUrl }) {
     }
 
     try {
-      const lats = coordinates.map((coord) => coord.lat).filter(lat => !isNaN(lat));
-      const lngs = coordinates.map((coord) => coord.lng).filter(lng => !isNaN(lng));
+      const lats = coordinates.map((coord) => coord.lat).filter(lat => !Number.isNaN(lat));
+      const lngs = coordinates.map((coord) => coord.lng).filter(lng => !Number.isNaN(lng));
 
       if (lats.length === 0 || lngs.length === 0) {
         return 13;
@@ -68,7 +68,7 @@ export default function MapView({ coordinates, tileServerUrl }) {
       const lngSpread = Math.max(...lngs) - Math.min(...lngs);
       const maxSpread = Math.max(latSpread, lngSpread);
 
-      if (isNaN(maxSpread)) return 13;
+      if (Number.isNaN(maxSpread)) return 13;
       if (maxSpread > 0.1) return 10;
       if (maxSpread > 0.05) return 11;
       if (maxSpread > 0.01) return 12;
@@ -107,7 +107,7 @@ export default function MapView({ coordinates, tileServerUrl }) {
         // Fit bounds to show all coordinates
         if (coordinates && coordinates.length > 1) {
           // Filter out invalid coordinates
-          const validCoords = coordinates.filter(coord => coord && !isNaN(coord.lat) && !isNaN(coord.lng) &&
+          const validCoords = coordinates.filter(coord => coord && !Number.isNaN(coord.lat) && !Number.isNaN(coord.lng) &&
             coord.lat >= -90 && coord.lat <= 90 &&
             coord.lng >= -180 && coord.lng <= 180);
 
