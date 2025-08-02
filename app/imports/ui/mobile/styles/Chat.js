@@ -24,7 +24,7 @@ const modalSlideIn = keyframes`
 // Styled Components for Chat
 export const Container = styled.div`
   background-color: rgba(248, 249, 250, 1);
-  min-height: 100vh;
+  height: 100%;
   font-family:
     Inter,
     -apple-system,
