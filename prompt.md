@@ -30,7 +30,7 @@ LiquidGlass Component Library Location:
 - use Bash command tool to run git commands.
 - commit after each change. ## IMPORTANT ##
 - `git add .` or `git add -A` is NOT ALLOWED.
-- use `git add <file> [<other files>]` to add specific files.
+- use `git add <file> [<other files>]` to add specific files (allow multiple).
 
 ### COMMIT MESSAGE FORMAT
 
