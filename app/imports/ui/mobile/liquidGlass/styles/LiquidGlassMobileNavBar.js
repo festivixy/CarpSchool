@@ -15,6 +15,11 @@ export const NavBarContainer = styled.div`
   right: 0;
   /* Ensure navbar stays above bottom safe area (home indicator) */
   padding-bottom: max(env(safe-area-inset-bottom), 8px);
+
+  /* Hide navbar when chat overlay is open */
+  .chat-overlay-open & {
+    display: none;
+  }
 `;
 
 export const TabBarInner = styled.div`
