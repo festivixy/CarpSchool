@@ -155,6 +155,9 @@ class App extends React.Component {
           </main>
           {/* <MobileFooter /> */}
           <MobileOnly>
+            <div style={{ height: "calc(70px + env(safe-area-inset-bottom))" }}>
+              {/* Spacer for fixed navbar */}
+            </div>
             <LiquidGlassMobileNavBar />
           </MobileOnly>
         </div>

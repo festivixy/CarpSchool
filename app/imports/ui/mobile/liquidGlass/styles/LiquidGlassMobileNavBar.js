@@ -8,10 +8,11 @@ export const NavBarContainer = styled.div`
   border-radius: 20px 20px 0 0;
   z-index: 1000;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  flex-shrink: 0; /* Prevent navbar from shrinking */
-  /* Stick to bottom of viewport while staying in document flow */
-  position: sticky;
+  /* Fixed to bottom of viewport */
+  position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
   /* Ensure navbar stays above bottom safe area (home indicator) */
   padding-bottom: max(env(safe-area-inset-bottom), 8px);
 `;
@@ -162,12 +163,11 @@ export const TabLabel = styled.span`
 
 // Dropdown styles for upward-opening menus
 export const DropdownContainer = styled.div`
-  position: absolute;
-  bottom: 100%;
+  position: fixed;
+  bottom: calc(70px + max(env(safe-area-inset-bottom), 8px) + 10px);
   right: 10px;
   z-index: 1001;
   max-width: 300px;
-  margin-bottom: 10px;
 `;
 
 export const DropdownMenu = styled.div`
