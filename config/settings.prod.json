@@ -1,0 +1,8 @@
+{
+  "public": {
+    "enableDebugMode": true
+  },
+  "defaultAccounts": [],
+  "defaultPlaces": [],
+  "defaultRides": []
+}
