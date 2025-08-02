@@ -73,7 +73,7 @@ For questions about this application or to report issues, please contact lz at k
 
 ---
 
-*Built with ❤️ for the student community by [Carpool team]()*
+*Built with ❤️ for the student community by Carpool team*
 `;
 
 /**
