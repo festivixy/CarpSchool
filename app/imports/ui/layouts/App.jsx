@@ -17,7 +17,7 @@ import MobileSignup from "../mobile/pages/Signup";
 import MobileForgotPassword from "../mobile/pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
-import MobileNavBar from "../mobile/components/NavBar";
+import NavBar from "../mobile/components/NavBar";
 import MobileChat from "../mobile/pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
 import MobileVerifyEmail from "../mobile/pages/VerifyEmail";
@@ -70,7 +70,7 @@ class App extends React.Component {
       <Router>
         <div style={appStyle}>
           <DesktopOnly>
-            <MobileNavBar />
+            <NavBar />
           </DesktopOnly>
           <main style={mainContentStyle}>
             <Switch>

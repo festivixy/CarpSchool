@@ -27,7 +27,7 @@ import {
 } from "../styles/NavBar";
 
 /** The Mobile NavBar appears at the top of every page with modern mobile design. */
-class MobileNavBar extends React.Component {
+class NavBar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -327,7 +327,7 @@ class MobileNavBar extends React.Component {
 }
 
 /** Declare the types of all properties. */
-MobileNavBar.propTypes = {
+NavBar.propTypes = {
   currentUser: PropTypes.string,
   currentId: PropTypes.string,
   isAdmin: PropTypes.bool,
@@ -346,7 +346,7 @@ const MobileNavBarContainer = withTracker(() => ({
       Meteor.user().emails[0] &&
       Meteor.user().emails[0].verified
     : false,
-}))(MobileNavBar);
+}))(NavBar);
 
 /** Enable ReactRouter for this component. */
 export default withRouter(MobileNavBarContainer);
