@@ -23,13 +23,33 @@ const ProtectedRoutesComponent = ({
   // Create a functional component to use hooks
   const MainRouteWrapper = (props) => {
     // Dynamic auth overlay state
-    const [showAuthOverlay, setShowAuthOverlay] = useState(!loggedIn && !userLoaded && loggingIn);
+    const initialOverlayState = !loggedIn && !userLoaded && loggingIn;
+    const [showAuthOverlay, setShowAuthOverlay] = useState(initialOverlayState);
+
+    console.log('🔍 MainRouteWrapper render:', {
+      loggedIn,
+      userLoaded,
+      loggingIn,
+      initialOverlayState,
+      currentShowAuthOverlay: showAuthOverlay
+    });
 
     // Update overlay state when auth conditions change
     useEffect(() => {
       const shouldShow = !loggedIn && !userLoaded && loggingIn;
-      setShowAuthOverlay(shouldShow);
-    }, [loggedIn, userLoaded, loggingIn]);
+      console.log('🔄 MainRouteWrapper useEffect triggered:', {
+        loggedIn,
+        userLoaded,
+        loggingIn,
+        shouldShow,
+        previousShowAuthOverlay: showAuthOverlay
+      });
+
+      if (shouldShow !== showAuthOverlay) {
+        console.log(`🎯 MainRouteWrapper changing overlay: ${showAuthOverlay} → ${shouldShow}`);
+        setShowAuthOverlay(shouldShow);
+      }
+    }, [loggedIn, userLoaded, loggingIn, showAuthOverlay]);
 
     // If not logged in, redirect to signin
     if (!loggedIn && userLoaded) {
@@ -91,13 +111,32 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
     const isLogged = !!user;
 
     // Dynamic auth overlay state
-    const [showAuthOverlay, setShowAuthOverlay] = useState(!isLogged && isLoggingIn);
+    const initialOverlayState = !isLogged && isLoggingIn;
+    const [showAuthOverlay, setShowAuthOverlay] = useState(initialOverlayState);
+
+    console.log('🔍 SimpleRouteWrapper render:', {
+      isLoggingIn,
+      userExists: !!user,
+      isLogged,
+      initialOverlayState,
+      currentShowAuthOverlay: showAuthOverlay
+    });
 
     // Update overlay state when auth conditions change
     useEffect(() => {
       const shouldShow = !isLogged && isLoggingIn;
-      setShowAuthOverlay(shouldShow);
-    }, [isLogged, isLoggingIn]);
+      console.log('🔄 SimpleRouteWrapper useEffect triggered:', {
+        isLogged,
+        isLoggingIn,
+        shouldShow,
+        previousShowAuthOverlay: showAuthOverlay
+      });
+
+      if (shouldShow !== showAuthOverlay) {
+        console.log(`🎯 SimpleRouteWrapper changing overlay: ${showAuthOverlay} → ${shouldShow}`);
+        setShowAuthOverlay(shouldShow);
+      }
+    }, [isLogged, isLoggingIn, showAuthOverlay]);
 
     // If no user and not logging in, redirect to signin
     if (!user && !isLoggingIn) {
@@ -236,13 +275,35 @@ export const ProtectedRouteRequireAdmin = ({
     const userLoaded = user !== undefined;
 
     // Dynamic auth overlay state
-    const [showAuthOverlay, setShowAuthOverlay] = useState(!isLogged && isLoggingIn);
+    const initialOverlayState = !isLogged && isLoggingIn;
+    const [showAuthOverlay, setShowAuthOverlay] = useState(initialOverlayState);
+
+    console.log('🔍 AdminRouteWrapper render:', {
+      userId,
+      userExists: !!user,
+      isLoggingIn,
+      isLogged,
+      isAdmin,
+      userLoaded,
+      initialOverlayState,
+      currentShowAuthOverlay: showAuthOverlay
+    });
 
     // Update overlay state when auth conditions change
     useEffect(() => {
       const shouldShow = !isLogged && isLoggingIn;
-      setShowAuthOverlay(shouldShow);
-    }, [isLogged, isLoggingIn]);
+      console.log('🔄 AdminRouteWrapper useEffect triggered:', {
+        isLogged,
+        isLoggingIn,
+        shouldShow,
+        previousShowAuthOverlay: showAuthOverlay
+      });
+
+      if (shouldShow !== showAuthOverlay) {
+        console.log(`🎯 AdminRouteWrapper changing overlay: ${showAuthOverlay} → ${shouldShow}`);
+        setShowAuthOverlay(shouldShow);
+      }
+    }, [isLogged, isLoggingIn, showAuthOverlay]);
 
     // If we don't have a userId, we're definitely not logged in
     if (!userId) {
