@@ -32,10 +32,10 @@ import {
  * LiquidGlass Footer component with glass morphism effect
  */
 function LiquidGlassFooter({
-  logo = "/staticimages/Carpool.png",
-  companyName = "Carpool",
+  logo = "/staticimages/carp.school.png",
+  companyName = "carp.school",
   description = "Making transportation easier, greener, and more connected for everyone.",
-  email = "hello@carpool.com",
+  email = "contact@carp.school",
   phone = "+1 (555) 123-4567",
   address = "123 Green Street, Eco City, EC 12345",
   onNewsletterSubmit,

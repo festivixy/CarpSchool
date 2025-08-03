@@ -1,3 +1,3 @@
 import { Accounts } from "meteor/accounts-base";
 
-Accounts.emailTemplates.resetPassword.from = () => "Carpool Password Reset <no-reply@carpool.com>";
+Accounts.emailTemplates.resetPassword.from = () => "carp.school Password Reset <contact@carp.school>";

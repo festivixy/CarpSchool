@@ -97,7 +97,7 @@ export default class LiquidGlassSignIn extends React.Component {
     return (
       <Container>
         <Header>
-          <AppName>Carpool App</AppName>
+          <AppName>carp.school</AppName>
         </Header>
 
         <Content>

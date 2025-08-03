@@ -367,7 +367,7 @@ class MobileOnboarding extends React.Component {
       } else {
         this.setState({
           success:
-            "Welcome to Carpool! Your profile has been created successfully!",
+            "Welcome to carp.school! Your profile has been created successfully!",
           redirectToReferer: true,
         });
       }
@@ -393,7 +393,7 @@ class MobileOnboarding extends React.Component {
   renderStep1 = () => (
     <Step>
       <StepIcon>👋</StepIcon>
-      <StepTitle>Welcome to Carpool!</StepTitle>
+      <StepTitle>Welcome to carp.school!</StepTitle>
       <StepSubtitle>
         Let&apos;s start by getting your name. This helps other users identify
         you.
@@ -410,7 +410,7 @@ class MobileOnboarding extends React.Component {
           maxLength="50"
         />
         <InputHint>
-          Use your real name so other carpoolers can recognize you
+          Use your real name so other ride sharers can recognize you
         </InputHint>
       </InputGroup>
     </Step>
@@ -421,7 +421,7 @@ class MobileOnboarding extends React.Component {
       <StepIcon>📍</StepIcon>
       <StepTitle>Where are you located?</StepTitle>
       <StepSubtitle>
-        This helps us connect you with nearby rides and carpoolers.
+        This helps us connect you with nearby rides and ride sharers.
       </StepSubtitle>
 
       <InputGroup>
@@ -442,7 +442,7 @@ class MobileOnboarding extends React.Component {
   renderStep3 = () => (
     <Step>
       <StepIcon>🚗</StepIcon>
-      <StepTitle>How do you carpool?</StepTitle>
+      <StepTitle>How do you ride share?</StepTitle>
       <StepSubtitle>
         Tell us if you drive, ride, or do both. You can change this later.
       </StepSubtitle>
@@ -508,7 +508,7 @@ class MobileOnboarding extends React.Component {
       <StepIcon>📸</StepIcon>
       <StepTitle>Add some photos!</StepTitle>
       <StepSubtitle>
-        Photos help build trust with other carpoolers. These are optional but
+        Photos help build trust with other ride sharers. These are optional but
         recommended. Upload photos one at a time with security verification.
       </StepSubtitle>
 
@@ -680,7 +680,7 @@ class MobileOnboarding extends React.Component {
     return (
       <Container>
         <Header>
-          <AppName>Carpool</AppName>
+          <AppName>carp.school</AppName>
           {this.renderProgressBar()}
         </Header>
 

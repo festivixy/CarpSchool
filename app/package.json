@@ -1,5 +1,5 @@
 {
-  "name": "carpool",
+  "name": "carp.school",
   "private": true,
   "dependencies": {
     "@babel/preset-env": "^7.28.0",

@@ -18,17 +18,17 @@ export default function MobileFooter() {
     <FooterContainer>
       <FooterContent>
         <FooterLogo>
-          <AppName>Carpool</AppName>
+          <AppName>carp.school</AppName>
         </FooterLogo>
         <FooterLinks>
           <FooterLink to="/tos">Terms</FooterLink>
           <FooterLink to="/privacy">Privacy</FooterLink>
           <FooterLink to="/credits">Credits</FooterLink>
-          <FooterLinkExternal href="mailto:support@carpool.edu">
+          <FooterLinkExternal href="mailto:contact@carp.school">
             Support
           </FooterLinkExternal>
         </FooterLinks>
-        <Copyright>© 2025 Carpool. All rights reserved.</Copyright>
+        <Copyright>© 2025 carp.school. All rights reserved.</Copyright>
       </FooterContent>
     </FooterContainer>
   );

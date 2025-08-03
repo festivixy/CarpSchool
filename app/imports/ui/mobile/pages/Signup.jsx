@@ -108,7 +108,7 @@ export default class MobileSignup extends React.Component {
     return (
       <Container>
         <Header>
-          <AppName>Carpool App</AppName>
+          <AppName>carp.school</AppName>
         </Header>
 
         <Content>

@@ -102,7 +102,7 @@ export default class MobileForgotPassword extends React.Component {
     return (
       <Container>
         <Header>
-          <AppName>Carpool App</AppName>
+          <AppName>carp.school</AppName>
         </Header>
 
         <Content>

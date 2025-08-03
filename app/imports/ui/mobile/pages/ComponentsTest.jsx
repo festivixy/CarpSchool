@@ -1333,7 +1333,7 @@ const MobileTestMapView = () => {
       <LiquidGlassFooter
         companyName=""
         description="Testing the LiquidGlass footer component with glass morphism effects and responsive design."
-        email="test@carpool.app"
+        email="contact@carp.school"
         phone="+1 (555) 123-TEST"
         address="123 Test Street, Component City, CC 12345"
         onNewsletterSubmit={(email) => {
@@ -1348,7 +1348,7 @@ const MobileTestMapView = () => {
       <FooterVerbose
         companyName=""
         description="Testing the LiquidGlass footer component with glass morphism effects and responsive design."
-        email="test@carpool.app"
+        email="contact@carp.school"
         phone="+1 (555) 123-TEST"
         address="123 Test Street, Component City, CC 12345"
         onNewsletterSubmit={(email) => {

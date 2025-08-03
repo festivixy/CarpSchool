@@ -23,8 +23,8 @@ import {
  * LiquidGlass Navbar component with glass morphism effect
  */
 function LiquidGlassNavbar({
-  logo = "/staticimages/Carpool.png",
-  logoText = "Carpool",
+  logo = "/staticimages/carp.school.png",
+  logoText = "carp.school",
   user = null,
   isAdmin = false,
   notifications = 0,

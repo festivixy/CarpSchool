@@ -31,7 +31,7 @@ export default class MobileLanding extends React.Component {
         <Hero>
           <HeroContent>
             <LogoSection>
-              <AppName>Carpool</AppName>
+              <AppName>carp.school</AppName>
             </LogoSection>
 
             <CtaSection>
@@ -41,35 +41,35 @@ export default class MobileLanding extends React.Component {
           </HeroContent>
         </Hero>
 
-        {/* What is Carpool Section */}
+        {/* What is carp.school Section */}
         <Features>
           <SectionHeader>
-            <SectionTitle>What is Carpool?</SectionTitle>
+            <SectionTitle>What is carp.school?</SectionTitle>
           </SectionHeader>
 
           <Content>
             <Paragraph>
-              The Carpool website provides a space for students traveling
-              to/from the school campus to easily coordinate carpools.
+              The carp.school website provides a space for students traveling
+              to/from the school campus to easily coordinate ride shares.
             </Paragraph>
 
             <Paragraph>
               The use of school email/school ID numbers ensures that each user
               is a verified school student; this system also prohibits banned
-              users from continuing to use the Carpool website.
+              users from continuing to use the carp.school website.
             </Paragraph>
           </Content>
         </Features>
 
-        {/* How to Use Carpool Section */}
+        {/* How to Use carp.school Section */}
         <HowItWorks>
           <SectionHeader>
-            <SectionTitle>How to Use Carpool</SectionTitle>
+            <SectionTitle>How to Use carp.school</SectionTitle>
           </SectionHeader>
 
           <Content>
             <Paragraph>
-              After signing up for Carpool with your school email, users can
+              After signing up for carp.school with your school email, users can
               sign in to look through a list of future rides or create a new
               ride. After creating a new ride or signing up for a ride, users
               can view their scheduled rides on their calendar.
@@ -86,7 +86,7 @@ export default class MobileLanding extends React.Component {
         {/* CTA Section */}
         <FinalCta>
           <CtaContent>
-            <CtaTitle>Ready to Start Carpooling?</CtaTitle>
+            <CtaTitle>Ready to Start Ride Sharing?</CtaTitle>
             <CtaButtons>
               <CtaPrimary to="/signup">Create Account</CtaPrimary>
               <CtaSecondary to="/signin">Sign In</CtaSecondary>

@@ -30,11 +30,11 @@ import {
  * Comprehensive Footer component with enhanced features
  */
 function FooterVerbose({
-  logo = "/staticimages/Carpool.png",
-  companyName = "Carpool",
+  logo = "/staticimages/carp.school.png",
+  companyName = "carp.school",
   description = "Making transportation easier, greener, and more connected for everyone. " +
-    "Join thousands of users who are already carpooling to save money and reduce their environmental impact.",
-  email = "hello@carpool.com",
+    "Join thousands of users who are already sharing rides to save money and reduce their environmental impact.",
+  email = "contact@carp.school",
   phone = "+1 (555) 123-4567",
   address = "123 Green Street, Eco City, EC 12345",
   onLinkClick,
@@ -73,11 +73,11 @@ function FooterVerbose({
   ];
 
   const socialLinks = [
-    { platform: "Twitter", icon: "🐦", url: "https://twitter.com/carpool" },
-    { platform: "Facebook", icon: "📘", url: "https://facebook.com/carpool" },
-    { platform: "Instagram", icon: "📷", url: "https://instagram.com/carpool" },
-    { platform: "LinkedIn", icon: "💼", url: "https://linkedin.com/company/carpool" },
-    { platform: "YouTube", icon: "📺", url: "https://youtube.com/carpool" },
+    { platform: "Twitter", icon: "🐦", url: "https://twitter.com/carpschool" },
+    { platform: "Facebook", icon: "📘", url: "https://facebook.com/carpschool" },
+    { platform: "Instagram", icon: "📷", url: "https://instagram.com/carpschool" },
+    { platform: "LinkedIn", icon: "💼", url: "https://linkedin.com/company/carpschool" },
+    { platform: "YouTube", icon: "📺", url: "https://youtube.com/carpschool" },
   ];
 
   return (
@@ -193,7 +193,7 @@ function FooterVerbose({
               Cookie Policy
             </LegalLink>
             <LegalLinkExternal
-              href="mailto:legal@carpool.com"
+              href="mailto:contact@carp.school"
               onClick={(e) => handleLinkClick("legal-contact", e)}
             >
               Legal
