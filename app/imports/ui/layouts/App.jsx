@@ -154,9 +154,11 @@ class App extends React.Component {
             <FooterVerbose />
           </DesktopOnly>
           {/* <MobileFooter /> */}
-          <MobileOnly>
-            {this.props.currentUser && <LiquidGlassMobileNavBar />}
-          </MobileOnly>
+          {this.props.currentUser && (
+            <MobileOnly>
+              <LiquidGlassMobileNavBar />
+            </MobileOnly>
+          )}
         </div>
       </Router>
     );
