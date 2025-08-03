@@ -1,4 +1,4 @@
-# Carpool
+# carp.school (Carpool)
 
 A modern web application built with Meteor and React that facilitates ride sharing within school communities. Users can create, join, and manage carpools.
 
