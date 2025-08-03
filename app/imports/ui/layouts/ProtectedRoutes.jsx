@@ -26,27 +26,11 @@ const ProtectedRoutesComponent = ({
     const initialOverlayState = !loggedIn && !userLoaded && loggingIn;
     const [showAuthOverlay, setShowAuthOverlay] = useState(initialOverlayState);
 
-    console.log('🔍 MainRouteWrapper render:', {
-      loggedIn,
-      userLoaded,
-      loggingIn,
-      initialOverlayState,
-      currentShowAuthOverlay: showAuthOverlay
-    });
-
     // Update overlay state when auth conditions change
     useEffect(() => {
       const shouldShow = !loggedIn && !userLoaded && loggingIn;
-      console.log('🔄 MainRouteWrapper useEffect triggered:', {
-        loggedIn,
-        userLoaded,
-        loggingIn,
-        shouldShow,
-        previousShowAuthOverlay: showAuthOverlay
-      });
 
       if (shouldShow !== showAuthOverlay) {
-        console.log(`🎯 MainRouteWrapper changing overlay: ${showAuthOverlay} → ${shouldShow}`);
         setShowAuthOverlay(shouldShow);
       }
     }, [loggedIn, userLoaded, loggingIn, showAuthOverlay]);
@@ -114,26 +98,11 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
     const initialOverlayState = !isLogged && isLoggingIn;
     const [showAuthOverlay, setShowAuthOverlay] = useState(initialOverlayState);
 
-    console.log('🔍 SimpleRouteWrapper render:', {
-      isLoggingIn,
-      userExists: !!user,
-      isLogged,
-      initialOverlayState,
-      currentShowAuthOverlay: showAuthOverlay
-    });
-
     // Update overlay state when auth conditions change
     useEffect(() => {
       const shouldShow = !isLogged && isLoggingIn;
-      console.log('🔄 SimpleRouteWrapper useEffect triggered:', {
-        isLogged,
-        isLoggingIn,
-        shouldShow,
-        previousShowAuthOverlay: showAuthOverlay
-      });
 
       if (shouldShow !== showAuthOverlay) {
-        console.log(`🎯 SimpleRouteWrapper changing overlay: ${showAuthOverlay} → ${shouldShow}`);
         setShowAuthOverlay(shouldShow);
       }
     }, [isLogged, isLoggingIn, showAuthOverlay]);
@@ -197,23 +166,9 @@ const ProtectedRouteRequireNotEmailVerifiedComponent = ({
     // Dynamic loading state
     const [showLoadingOverlay, setShowLoadingOverlay] = useState(isLoggingIn);
 
-    console.log('🔍 NotEmailVerifiedWrapper render:', {
-      isLoggingIn,
-      userExists: !!user,
-      emailVerified: user ? (user.emails && user.emails[0] && user.emails[0].verified) : null,
-      currentShowLoadingOverlay: showLoadingOverlay
-    });
-
     // Update loading state when auth conditions change
     useEffect(() => {
-      console.log('🔄 NotEmailVerifiedWrapper useEffect triggered:', {
-        isLoggingIn,
-        shouldShow: isLoggingIn,
-        previousShowLoadingOverlay: showLoadingOverlay
-      });
-
       if (isLoggingIn !== showLoadingOverlay) {
-        console.log(`🎯 NotEmailVerifiedWrapper changing overlay: ${showLoadingOverlay} → ${isLoggingIn}`);
         setShowLoadingOverlay(isLoggingIn);
       }
     }, [isLoggingIn, showLoadingOverlay]);
@@ -256,11 +211,6 @@ export const ProtectedRouteRequireNotEmailVerified = withTracker(() => {
   const user = Meteor.user();
   const isLoggingIn = Meteor.loggingIn();
 
-  console.log('🔄 ProtectedRouteRequireNotEmailVerified withTracker:', {
-    isLoggingIn,
-    userExists: !!user
-  });
-
   return {
     isLoggingIn,
     user,
@@ -281,22 +231,9 @@ const ProtectedRouteRequireNotLoggedInComponent = ({
     // Dynamic loading state
     const [showLoadingOverlay, setShowLoadingOverlay] = useState(isLoggingIn);
 
-    console.log('🔍 NotLoggedInWrapper render:', {
-      isLoggingIn,
-      userExists: !!user,
-      currentShowLoadingOverlay: showLoadingOverlay
-    });
-
     // Update loading state when auth conditions change
     useEffect(() => {
-      console.log('🔄 NotLoggedInWrapper useEffect triggered:', {
-        isLoggingIn,
-        shouldShow: isLoggingIn,
-        previousShowLoadingOverlay: showLoadingOverlay
-      });
-
       if (isLoggingIn !== showLoadingOverlay) {
-        console.log(`🎯 NotLoggedInWrapper changing overlay: ${showLoadingOverlay} → ${isLoggingIn}`);
         setShowLoadingOverlay(isLoggingIn);
       }
     }, [isLoggingIn, showLoadingOverlay]);
@@ -332,11 +269,6 @@ export const ProtectedRouteRequireNotLoggedIn = withTracker(() => {
   const user = Meteor.user();
   const isLoggingIn = Meteor.loggingIn();
 
-  console.log('🔄 ProtectedRouteRequireNotLoggedIn withTracker:', {
-    isLoggingIn,
-    userExists: !!user
-  });
-
   return {
     isLoggingIn,
     user,
@@ -363,29 +295,11 @@ export const ProtectedRouteRequireAdmin = ({
     const initialOverlayState = !isLogged && isLoggingIn;
     const [showAuthOverlay, setShowAuthOverlay] = useState(initialOverlayState);
 
-    console.log('🔍 AdminRouteWrapper render:', {
-      userId,
-      userExists: !!user,
-      isLoggingIn,
-      isLogged,
-      isAdmin,
-      userLoaded,
-      initialOverlayState,
-      currentShowAuthOverlay: showAuthOverlay
-    });
-
     // Update overlay state when auth conditions change
     useEffect(() => {
       const shouldShow = !isLogged && isLoggingIn;
-      console.log('🔄 AdminRouteWrapper useEffect triggered:', {
-        isLogged,
-        isLoggingIn,
-        shouldShow,
-        previousShowAuthOverlay: showAuthOverlay
-      });
 
       if (shouldShow !== showAuthOverlay) {
-        console.log(`🎯 AdminRouteWrapper changing overlay: ${showAuthOverlay} → ${shouldShow}`);
         setShowAuthOverlay(shouldShow);
       }
     }, [isLogged, isLoggingIn, showAuthOverlay]);
