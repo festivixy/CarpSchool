@@ -173,7 +173,7 @@ meteor_run_ios() {
     fi
 
     cd app
-    meteor run ios --port "$port" --verbose --no-release-check --settings "$settings_file" --mobile-settings "../config/settings.prod.json"
+    meteor run ios --port "$port" --verbose --no-release-check --settings "$settings_file"
 }
 
 # Function to run Android development server
@@ -216,7 +216,7 @@ meteor_run_android() {
     rm -rf app/.meteor/local/cordova-build
 
     cd app
-    meteor run android --port "$port" --verbose --no-release-check --settings "$settings_file" --mobile-settings "../config/settings.prod.json"
+    meteor run android --port "$port" --verbose --no-release-check --settings "$settings_file"
 }
 
 # Function to clean Meteor local directory
