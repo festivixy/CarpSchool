@@ -63,7 +63,7 @@ meteor_build_ios() {
 
     cd app
     echo -e "${YELLOW}🚀 Starting iOS build process...${NC}"
-    meteor build "$build_dir" --platforms ios --server "$server_url"
+    meteor build "$build_dir" --platforms ios --server "$server_url" --mobile-settings "../config/settings.prod.json"
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ iOS build completed successfully!${NC}"
@@ -117,7 +117,7 @@ meteor_build_android() {
 
     cd app
     echo -e "${YELLOW}🚀 Starting Android build process...${NC}"
-    meteor build "$build_dir" --platforms android --server "$server_url"
+    meteor build "$build_dir" --platforms android --server "$server_url" --mobile-settings "../config/settings.prod.json"
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ Android build completed successfully!${NC}"
@@ -173,7 +173,7 @@ meteor_run_ios() {
     fi
 
     cd app
-    meteor run ios --port "$port" --verbose --no-release-check --settings "$settings_file"
+    meteor run ios --port "$port" --verbose --no-release-check --settings "$settings_file" --mobile-settings "../config/settings.prod.json"
 }
 
 # Function to run Android development server
@@ -216,7 +216,7 @@ meteor_run_android() {
     rm -rf app/.meteor/local/cordova-build
 
     cd app
-    meteor run android --port "$port" --verbose --no-release-check --settings "$settings_file"
+    meteor run android --port "$port" --verbose --no-release-check --settings "$settings_file" --mobile-settings "../config/settings.prod.json"
 }
 
 # Function to clean Meteor local directory
