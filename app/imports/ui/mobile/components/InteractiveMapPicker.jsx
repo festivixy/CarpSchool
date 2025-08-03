@@ -89,7 +89,8 @@ const InteractiveMapPicker = ({
     });
 
     // Add async tile layer using our tileserver for better performance
-    const asyncTileLayer = new AsyncTileLayer("https://tileserver.carp.school/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png", {
+    const tileUrl = "https://tileserver.carp.school/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png";
+    const asyncTileLayer = new AsyncTileLayer(tileUrl, {
       attribution: "© OpenStreetMap contributors",
       maxZoom: 18,
       tileSize: 256,

@@ -97,9 +97,10 @@ const RouteMapView = ({
   // Find route using OSRM with fallback to straight line
   const findRouteOSRM = async (start, end) => {
     try {
-      const response = await fetch(
-        `https://osrm.carp.school/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`,
-      );
+      const baseUrl = "https://osrm.carp.school/route/v1/driving";
+      const coords = `${start.lng},${start.lat};${end.lng},${end.lat}`;
+      const osrmUrl = `${baseUrl}/${coords}?overview=full&geometries=geojson`;
+      const response = await fetch(osrmUrl);
 
       if (!response.ok) {
         throw new Error(`OSRM routing failed: ${response.status}`);
