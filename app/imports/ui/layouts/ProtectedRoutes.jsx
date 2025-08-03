@@ -186,15 +186,14 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
   );
 };
 
-export const ProtectedRouteRequireNotEmailVerified = ({
+const ProtectedRouteRequireNotEmailVerifiedComponent = ({
   component: Component,
+  isLoggingIn,
+  user,
   ...rest
 }) => {
   // Create a functional component to use hooks
   const NotEmailVerifiedWrapper = (props) => {
-    const isLoggingIn = Meteor.loggingIn();
-    const user = Meteor.user();
-
     // Dynamic loading state
     const [showLoadingOverlay, setShowLoadingOverlay] = useState(isLoggingIn);
 
@@ -253,18 +252,32 @@ export const ProtectedRouteRequireNotEmailVerified = ({
   );
 };
 
+export const ProtectedRouteRequireNotEmailVerified = withTracker(() => {
+  const user = Meteor.user();
+  const isLoggingIn = Meteor.loggingIn();
+
+  console.log('🔄 ProtectedRouteRequireNotEmailVerified withTracker:', {
+    isLoggingIn,
+    userExists: !!user
+  });
+
+  return {
+    isLoggingIn,
+    user,
+  };
+})(ProtectedRouteRequireNotEmailVerifiedComponent);
+
 /**
  * Route that requires user to NOT be logged in
  */
-export const ProtectedRouteRequireNotLoggedIn = ({
+const ProtectedRouteRequireNotLoggedInComponent = ({
   component: Component,
+  isLoggingIn,
+  user,
   ...rest
 }) => {
   // Create a functional component to use hooks
   const NotLoggedInWrapper = (props) => {
-    const isLoggingIn = Meteor.loggingIn();
-    const user = Meteor.user();
-
     // Dynamic loading state
     const [showLoadingOverlay, setShowLoadingOverlay] = useState(isLoggingIn);
 
@@ -314,6 +327,21 @@ export const ProtectedRouteRequireNotLoggedIn = ({
     />
   );
 };
+
+export const ProtectedRouteRequireNotLoggedIn = withTracker(() => {
+  const user = Meteor.user();
+  const isLoggingIn = Meteor.loggingIn();
+
+  console.log('🔄 ProtectedRouteRequireNotLoggedIn withTracker:', {
+    isLoggingIn,
+    userExists: !!user
+  });
+
+  return {
+    isLoggingIn,
+    user,
+  };
+})(ProtectedRouteRequireNotLoggedInComponent);
 
 /**
  * Route that requires admin privileges
@@ -429,8 +457,10 @@ ProtectedRoute.propTypes = {
   location: PropTypes.object,
 };
 
-ProtectedRouteRequireNotLoggedIn.propTypes = {
+ProtectedRouteRequireNotLoggedInComponent.propTypes = {
   component: PropTypes.func.isRequired,
+  isLoggingIn: PropTypes.bool.isRequired,
+  user: PropTypes.object,
   location: PropTypes.object,
 };
 
@@ -439,8 +469,10 @@ ProtectedRouteRequireAdmin.propTypes = {
   location: PropTypes.object,
 };
 
-ProtectedRouteRequireNotEmailVerified.propTypes = {
+ProtectedRouteRequireNotEmailVerifiedComponent.propTypes = {
   component: PropTypes.func.isRequired,
+  isLoggingIn: PropTypes.bool.isRequired,
+  user: PropTypes.object,
   location: PropTypes.object,
 };
 
