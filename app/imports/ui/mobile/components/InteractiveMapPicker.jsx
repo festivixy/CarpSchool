@@ -88,8 +88,8 @@ const InteractiveMapPicker = ({
       zoomControl: true,
     });
 
-    // Add async tile layer using our tileserver proxy for better performance
-    const asyncTileLayer = new AsyncTileLayer("/tileserver/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png", {
+    // Add async tile layer using our tileserver for better performance
+    const asyncTileLayer = new AsyncTileLayer("https://tileserver.carp.school/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
       maxZoom: 18,
       tileSize: 256,
@@ -310,9 +310,9 @@ const InteractiveMapPicker = ({
     setSearchResults([]);
 
     try {
-      // Use local Nominatim proxy
+      // Use Nominatim service
       const response = await fetch(
-        `/nominatim/search?q=${encodeURIComponent(
+        `https://nominatim.carp.school/search?q=${encodeURIComponent(
           searchQuery,
         )}&format=json&limit=5&addressdetails=1&countrycodes=ca`,
       );

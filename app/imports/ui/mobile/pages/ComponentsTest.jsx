@@ -1206,12 +1206,12 @@ const MobileTestMapView = () => {
               </InfoItem>
               <InfoItem>
                 <InfoLabel>Tile Source</InfoLabel>
-                <InfoValue>Tileserver proxy (/tileserver/...)</InfoValue>
+                <InfoValue>TileServer (tileserver.carp.school)</InfoValue>
               </InfoItem>
               <InfoItem>
                 <InfoLabel>Geocoding</InfoLabel>
                 <InfoValue>
-                  TileServer GL (local) with Nominatim fallback
+                  Nominatim (nominatim.carp.school)
                 </InfoValue>
               </InfoItem>
             </InfoCard>

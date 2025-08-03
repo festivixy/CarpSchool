@@ -84,7 +84,7 @@ export default function MapView({ coordinates, tileServerUrl }) {
     const effectiveTileServerUrl =
       tileServerUrl && tileServerUrl.trim() !== ""
         ? tileServerUrl
-        : "/tileserver";
+        : "https://tileserver.carp.school";
 
     return `${effectiveTileServerUrl}/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png`;
   };

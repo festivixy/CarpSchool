@@ -80,7 +80,7 @@ const PathMapView = ({
     const effectiveTileServerUrl =
       tileServerUrl && tileServerUrl.trim() !== ""
         ? tileServerUrl
-        : "/tileserver";
+        : "https://tileserver.carp.school";
 
     return `${effectiveTileServerUrl}/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png`;
   };
@@ -109,9 +109,9 @@ const PathMapView = ({
   // Find route using OSRM (Open Source Routing Machine)
   const findRouteOSRM = async (start, end) => {
     try {
-      // Use local OSRM proxy endpoint
+      // Use OSRM service endpoint
       const response = await fetch(
-        `/osrm/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`,
+        `https://osrm.carp.school/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`,
       );
 
       if (!response.ok) {

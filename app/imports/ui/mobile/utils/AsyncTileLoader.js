@@ -12,7 +12,7 @@
  */
 
 class AsyncTileLoader {
-  constructor(tileServerUrl = "/tileserver") {
+  constructor(tileServerUrl = "https://tileserver.carp.school") {
     this.tileServerUrl = tileServerUrl;
     this.cache = new Map();
     this.loadingTiles = new Set();
