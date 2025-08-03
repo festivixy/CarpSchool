@@ -3,35 +3,35 @@ import { places } from "./app/imports/api/places/Places.mjs";
 
 console.log("Available places:", places);
 
-// Hawaii coordinates for realistic place generation
-const hawaiiCoordinates = [
-  { name: "Aiea", lat: 21.3847, lng: -157.9308 },
-  { name: "Ewa Beach", lat: 21.3156, lng: -158.0067 },
-  { name: "Hale`iwa", lat: 21.5933, lng: -158.1042 },
-  { name: "Hau`ula", lat: 21.6086, lng: -157.9089 },
-  { name: "Hawaii Kai", lat: 21.2828, lng: -157.7144 },
-  { name: "Honolulu", lat: 21.3099, lng: -157.8581 },
-  { name: "Ka`a`awa", lat: 21.5544, lng: -157.8508 },
-  { name: "Kahala", lat: 21.2692, lng: -157.7714 },
-  { name: "Kahuku", lat: 21.6789, lng: -157.9528 },
-  { name: "Kailua", lat: 21.4022, lng: -157.7394 },
-  { name: "Kane`ohe", lat: 21.4036, lng: -157.7958 },
-  { name: "Kapolei", lat: 21.3361, lng: -158.0581 },
-  { name: "La`ie", lat: 21.6469, lng: -157.9261 },
-  { name: "Lanikai", lat: 21.3972, lng: -157.7281 },
-  { name: "Ma`ili", lat: 21.4411, lng: -158.1783 },
-  { name: "Makaha", lat: 21.4656, lng: -158.2169 },
-  { name: "Manoa", lat: 21.3167, lng: -157.8025 },
-  { name: "Mililani", lat: 21.4514, lng: -158.0153 },
-  { name: "Nanakuli", lat: 21.3939, lng: -158.1539 },
-  { name: "Pearl City", lat: 21.3972, lng: -157.9736 },
-  { name: "University of Hawaii Manoa", lat: 21.2969, lng: -157.8158 },
-  { name: "Wahiawa", lat: 21.5033, lng: -158.0242 },
-  { name: "Waialua", lat: 21.5769, lng: -158.1308 },
-  { name: "Wai`anae", lat: 21.4486, lng: -158.1875 },
-  { name: "Waikiki", lat: 21.2793, lng: -157.8294 },
-  { name: "Waimanalo", lat: 21.3369, lng: -157.7089 },
-  { name: "Waipahu", lat: 21.3869, lng: -158.0097 },
+// Vancouver coordinates for realistic place generation
+const vancouverCoordinates = [
+  { name: "Downtown Vancouver", lat: 49.2827, lng: -123.1207 },
+  { name: "West End", lat: 49.2911, lng: -123.1399 },
+  { name: "Gastown", lat: 49.2844, lng: -123.1089 },
+  { name: "Chinatown", lat: 49.2791, lng: -123.1020 },
+  { name: "Yaletown", lat: 49.2747, lng: -123.1207 },
+  { name: "Coal Harbour", lat: 49.2931, lng: -123.1280 },
+  { name: "Kitsilano", lat: 49.2659, lng: -123.1562 },
+  { name: "UBC Campus", lat: 49.2606, lng: -123.2460 },
+  { name: "Richmond Centre", lat: 49.1739, lng: -123.1365 },
+  { name: "Burnaby Central", lat: 49.2488, lng: -123.0036 },
+  { name: "Surrey Central", lat: 49.1897, lng: -122.8489 },
+  { name: "Coquitlam Centre", lat: 49.2776, lng: -122.8000 },
+  { name: "North Vancouver", lat: 49.3163, lng: -123.0686 },
+  { name: "West Vancouver", lat: 49.3287, lng: -123.1565 },
+  { name: "New Westminster", lat: 49.2069, lng: -122.9108 },
+  { name: "Langley Centre", lat: 49.1044, lng: -122.6604 },
+  { name: "White Rock", lat: 49.0258, lng: -122.8037 },
+  { name: "Delta Centre", lat: 49.1440, lng: -123.0583 },
+  { name: "Metrotown", lat: 49.2258, lng: -123.0038 },
+  { name: "Brentwood", lat: 49.2667, lng: -123.0017 },
+  { name: "Lougheed Mall", lat: 49.2486, lng: -122.8970 },
+  { name: "Commercial Drive", lat: 49.2659, lng: -123.0694 },
+  { name: "Main Street", lat: 49.2526, lng: -123.1007 },
+  { name: "Olympic Village", lat: 49.2660, lng: -123.1139 },
+  { name: "Science World", lat: 49.2733, lng: -123.1033 },
+  { name: "Queen Elizabeth Park", lat: 49.2404, lng: -123.1147 },
+  { name: "VGH Hospital", lat: 49.2628, lng: -123.1207 },
 ];
 
 var template = {
@@ -112,7 +112,7 @@ allUsers.forEach((userEmail, userIndex) => {
   const userPlaces = [];
 
   // Select random places for this user, ensuring no duplicates
-  const availablePlaces = hawaiiCoordinates.filter(
+  const availablePlaces = vancouverCoordinates.filter(
     (place) => !createdPlaces.some((created) => created.text === place.name),
   );
 
