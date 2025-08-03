@@ -123,7 +123,7 @@ export default class MobileSignup extends React.Component {
                 <Input
                   type="email"
                   name="email"
-                  placeholder="UH E-mail address"
+                  placeholder=".edu E-mail address"
                   value={this.state.email}
                   onChange={this.handleChange}
                   required
