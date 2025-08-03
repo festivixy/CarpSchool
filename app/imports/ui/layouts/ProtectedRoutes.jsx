@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Route, Redirect } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
@@ -22,9 +22,14 @@ const ProtectedRoutesComponent = ({
 }) => {
   // Create a functional component to use hooks
   const MainRouteWrapper = (props) => {
-    // Determine if we should show the auth overlay
-    // Only show overlay when we're not logged in AND user data hasn't loaded yet
-    const showAuthOverlay = !loggedIn && !userLoaded && loggingIn;
+    // Dynamic auth overlay state
+    const [showAuthOverlay, setShowAuthOverlay] = useState(!loggedIn && !userLoaded && loggingIn);
+
+    // Update overlay state when auth conditions change
+    useEffect(() => {
+      const shouldShow = !loggedIn && !userLoaded && loggingIn;
+      setShowAuthOverlay(shouldShow);
+    }, [loggedIn, userLoaded, loggingIn]);
 
     // If not logged in, redirect to signin
     if (!loggedIn && userLoaded) {
@@ -84,7 +89,15 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
     const isLoggingIn = Meteor.loggingIn();
     const user = Meteor.user();
     const isLogged = !!user;
-    const showAuthOverlay = !isLogged && isLoggingIn;
+
+    // Dynamic auth overlay state
+    const [showAuthOverlay, setShowAuthOverlay] = useState(!isLogged && isLoggingIn);
+
+    // Update overlay state when auth conditions change
+    useEffect(() => {
+      const shouldShow = !isLogged && isLoggingIn;
+      setShowAuthOverlay(shouldShow);
+    }, [isLogged, isLoggingIn]);
 
     // If no user and not logging in, redirect to signin
     if (!user && !isLoggingIn) {
@@ -222,8 +235,14 @@ export const ProtectedRouteRequireAdmin = ({
     const isAdmin = user && user.roles && user.roles.includes("admin");
     const userLoaded = user !== undefined;
 
-    // Determine if we should show the auth overlay
-    const showAuthOverlay = !isLogged && isLoggingIn;
+    // Dynamic auth overlay state
+    const [showAuthOverlay, setShowAuthOverlay] = useState(!isLogged && isLoggingIn);
+
+    // Update overlay state when auth conditions change
+    useEffect(() => {
+      const shouldShow = !isLogged && isLoggingIn;
+      setShowAuthOverlay(shouldShow);
+    }, [isLogged, isLoggingIn]);
 
     // If we don't have a userId, we're definitely not logged in
     if (!userId) {
