@@ -49,8 +49,7 @@ class App extends React.Component {
     const appStyle = {
       display: "flex",
       flexDirection: "column",
-      // Limit height to viewport minus navbar space
-      height: "calc(100vh - 70px - env(safe-area-inset-bottom))",
+      minHeight: "100vh", // Ensure app takes at least full viewport height
       // Account for safe areas on mobile devices (only sides, not top)
       paddingLeft: "env(safe-area-inset-left)",
       paddingRight: "env(safe-area-inset-right)",
@@ -60,10 +59,8 @@ class App extends React.Component {
 
     const mainContentStyle = {
       flex: "1",
-      overflow: "auto", // Allow scrolling when content exceeds available space
       display: "flex",
       flexDirection: "column",
-      minHeight: 0, // Important: allows flex item to shrink below content size
     };
 
     return (
