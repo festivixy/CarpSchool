@@ -138,8 +138,8 @@ nominatim_combine_and_extract() {
 # Function to fix Nominatim permissions
 nominatim_fix_permissions() {
     echo "Fixing permissions in the container..."
-    docker compose run --rm nominatim-dev chown -R postgres:postgres /var/lib/postgresql/16/main
-    docker compose run --rm nominatim-dev chmod 0700 /var/lib/postgresql/16/main
+    docker compose run --rm nominatim chown -R postgres:postgres /var/lib/postgresql/16/main
+    docker compose run --rm nominatim chmod 0700 /var/lib/postgresql/16/main
     echo "Nominatim database is ready."
 }
 
