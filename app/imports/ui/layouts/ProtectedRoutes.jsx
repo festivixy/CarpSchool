@@ -23,7 +23,8 @@ const ProtectedRoutesComponent = ({
   // Create a functional component to use hooks
   const MainRouteWrapper = (props) => {
     // Determine if we should show the auth overlay
-    const showAuthOverlay = !loggedIn && !userLoaded;
+    // Only show overlay when we're not logged in AND user data hasn't loaded yet
+    const showAuthOverlay = !loggedIn && !userLoaded && loggingIn;
 
     // If not logged in, redirect to signin
     if (!loggedIn && userLoaded) {
@@ -83,7 +84,7 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
     const isLoggingIn = Meteor.loggingIn();
     const user = Meteor.user();
     const isLogged = !!user;
-    const showAuthOverlay = !isLogged;
+    const showAuthOverlay = !isLogged && isLoggingIn;
 
     // If no user and not logging in, redirect to signin
     if (!user && !isLoggingIn) {
@@ -216,12 +217,13 @@ export const ProtectedRouteRequireAdmin = ({
   const AdminRouteWrapper = (props) => {
     const user = Meteor.user();
     const userId = Meteor.userId();
+    const isLoggingIn = Meteor.loggingIn();
     const isLogged = userId !== null;
     const isAdmin = user && user.roles && user.roles.includes("admin");
     const userLoaded = user !== undefined;
 
     // Determine if we should show the auth overlay
-    const showAuthOverlay = !isLogged;
+    const showAuthOverlay = !isLogged && isLoggingIn;
 
     // If we don't have a userId, we're definitely not logged in
     if (!userId) {
