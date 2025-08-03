@@ -34,6 +34,13 @@ App.setPreference("android-minSdkVersion", "21");
 App.setPreference("android-targetSdkVersion", "34");
 App.setPreference("android-installLocation", "auto");
 
+// Android signing preferences for release builds
+App.setPreference("android-signed", "true");
+App.setPreference("android-versionCode", "1");
+App.setPreference("CodePushDeploymentKey", "");
+App.setPreference("AutoHideSplashScreen", "true", "android");
+App.setPreference("SplashMaintainAspectRatio", "true", "android");
+
 // Access origins for external resources
 App.accessRule("*");
 App.accessRule("https://carp.school/*");
