@@ -189,60 +189,43 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
 export const ProtectedRouteRequireNotEmailVerified = ({
   component: Component,
   ...rest
-}) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      const isLoggingIn = Meteor.loggingIn();
-      const user = Meteor.user();
+}) => {
+  // Create a functional component to use hooks
+  const NotEmailVerifiedWrapper = (props) => {
+    const isLoggingIn = Meteor.loggingIn();
+    const user = Meteor.user();
 
-      // Show loading while authentication state is being determined
-      if (isLoggingIn) {
-        return <LoadingPage message="Authenticating..." />;
+    // Dynamic loading state
+    const [showLoadingOverlay, setShowLoadingOverlay] = useState(isLoggingIn);
+
+    console.log('🔍 NotEmailVerifiedWrapper render:', {
+      isLoggingIn,
+      userExists: !!user,
+      emailVerified: user ? (user.emails && user.emails[0] && user.emails[0].verified) : null,
+      currentShowLoadingOverlay: showLoadingOverlay
+    });
+
+    // Update loading state when auth conditions change
+    useEffect(() => {
+      console.log('🔄 NotEmailVerifiedWrapper useEffect triggered:', {
+        isLoggingIn,
+        shouldShow: isLoggingIn,
+        previousShowLoadingOverlay: showLoadingOverlay
+      });
+
+      if (isLoggingIn !== showLoadingOverlay) {
+        console.log(`🎯 NotEmailVerifiedWrapper changing overlay: ${showLoadingOverlay} → ${isLoggingIn}`);
+        setShowLoadingOverlay(isLoggingIn);
       }
+    }, [isLoggingIn, showLoadingOverlay]);
 
-      if (user) {
-        if (!user.emails[0].verified) {
-          return <Component {...props} />;
-        }
-        return (
-          <Redirect
-            to={
-              props.location.state && props.location.state.from
-                ? props.location.state.from.pathname
-                : "/"
-            }
-          />
-        );
-      }
-      return (
-        <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
-        />
-      );
-    }}
-  />
-);
+    // Show loading while authentication state is being determined
+    if (showLoadingOverlay) {
+      return <LoadingPage message="Authenticating..." />;
+    }
 
-/**
- * Route that requires user to NOT be logged in
- */
-export const ProtectedRouteRequireNotLoggedIn = ({
-  component: Component,
-  ...rest
-}) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      const isLoggingIn = Meteor.loggingIn();
-      const user = Meteor.user();
-
-      // Show loading while authentication state is being determined
-      if (isLoggingIn) {
-        return <LoadingPage message="Authenticating..." />;
-      }
-
-      if (!user) {
+    if (user) {
+      if (!user.emails[0].verified) {
         return <Component {...props} />;
       }
       return (
@@ -254,9 +237,83 @@ export const ProtectedRouteRequireNotLoggedIn = ({
           }
         />
       );
-    }}
-  />
-);
+    }
+    return (
+      <Redirect
+        to={{ pathname: "/signin", state: { from: props.location } }}
+      />
+    );
+  };
+
+  return (
+    <Route
+      {...rest}
+      render={(props) => <NotEmailVerifiedWrapper {...props} />}
+    />
+  );
+};
+
+/**
+ * Route that requires user to NOT be logged in
+ */
+export const ProtectedRouteRequireNotLoggedIn = ({
+  component: Component,
+  ...rest
+}) => {
+  // Create a functional component to use hooks
+  const NotLoggedInWrapper = (props) => {
+    const isLoggingIn = Meteor.loggingIn();
+    const user = Meteor.user();
+
+    // Dynamic loading state
+    const [showLoadingOverlay, setShowLoadingOverlay] = useState(isLoggingIn);
+
+    console.log('🔍 NotLoggedInWrapper render:', {
+      isLoggingIn,
+      userExists: !!user,
+      currentShowLoadingOverlay: showLoadingOverlay
+    });
+
+    // Update loading state when auth conditions change
+    useEffect(() => {
+      console.log('🔄 NotLoggedInWrapper useEffect triggered:', {
+        isLoggingIn,
+        shouldShow: isLoggingIn,
+        previousShowLoadingOverlay: showLoadingOverlay
+      });
+
+      if (isLoggingIn !== showLoadingOverlay) {
+        console.log(`🎯 NotLoggedInWrapper changing overlay: ${showLoadingOverlay} → ${isLoggingIn}`);
+        setShowLoadingOverlay(isLoggingIn);
+      }
+    }, [isLoggingIn, showLoadingOverlay]);
+
+    // Show loading while authentication state is being determined
+    if (showLoadingOverlay) {
+      return <LoadingPage message="Authenticating..." />;
+    }
+
+    if (!user) {
+      return <Component {...props} />;
+    }
+    return (
+      <Redirect
+        to={
+          props.location.state && props.location.state.from
+            ? props.location.state.from.pathname
+            : "/"
+        }
+      />
+    );
+  };
+
+  return (
+    <Route
+      {...rest}
+      render={(props) => <NotLoggedInWrapper {...props} />}
+    />
+  );
+};
 
 /**
  * Route that requires admin privileges
