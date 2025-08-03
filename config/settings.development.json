@@ -49,338 +49,344 @@
   ],
   "defaultPlaces": [
     {
-      "_id": "687f54808390dadacc0a29de",
-      "text": "Mililani",
-      "value": "21.4514,-158.0153",
+      "_id": "688f8b3ba431c411c9987b8f",
+      "text": "Gastown",
+      "value": "49.2844,-123.1089",
       "createdBy": "admin@foo.com",
-      "createdAt": "2025-07-11T09:14:31.155Z"
+      "createdAt": "2025-07-23T15:13:23.849Z"
     },
     {
-      "_id": "687f5480d0b36e4436b0304a",
-      "text": "Hale`iwa",
-      "value": "21.5933,-158.1042",
+      "_id": "688f8b3baab08bceff69158b",
+      "text": "White Rock",
+      "value": "49.0258,-122.8037",
       "createdBy": "admin@foo.com",
-      "createdAt": "2025-07-16T22:13:00.447Z"
+      "createdAt": "2025-08-03T15:36:07.688Z"
     },
     {
-      "_id": "687f5480032919053dfcfb53",
-      "text": "Honolulu",
-      "value": "21.3099,-157.8581",
+      "_id": "688f8b3bc13348867019a773",
+      "text": "Lougheed Mall",
+      "value": "49.2486,-122.897",
       "createdBy": "admin@foo.com",
-      "createdAt": "2025-07-09T22:41:03.097Z"
+      "createdAt": "2025-07-30T00:32:19.719Z"
     },
     {
-      "_id": "687f5480ba30abd9150aaaeb",
-      "text": "Lanikai",
-      "value": "21.3972,-157.7281",
+      "_id": "688f8b3b927c2c563652855e",
+      "text": "Coquitlam Centre",
+      "value": "49.2776,-122.8",
       "createdBy": "admin@foo.com",
-      "createdAt": "2025-07-11T13:01:16.768Z"
+      "createdAt": "2025-07-27T11:47:16.466Z"
     },
     {
-      "_id": "687f54806335793a2bac3388",
-      "text": "Waimanalo",
-      "value": "21.3369,-157.7089",
+      "_id": "688f8b3b44637131231c4786",
+      "text": "Commercial Drive",
+      "value": "49.2659,-123.0694",
       "createdBy": "alice@example.com",
-      "createdAt": "2025-07-16T07:49:15.721Z"
+      "createdAt": "2025-07-21T01:03:54.540Z"
     },
     {
-      "_id": "687f548002d325e95d3a1803",
-      "text": "University of Hawaii Manoa",
-      "value": "21.2969,-157.8158",
+      "_id": "688f8b3b534f1c3edfd5c300",
+      "text": "Delta Centre",
+      "value": "49.144,-123.0583",
       "createdBy": "alice@example.com",
-      "createdAt": "2025-07-17T23:00:05.415Z"
+      "createdAt": "2025-07-21T05:38:22.030Z"
     },
     {
-      "_id": "687f5480b28e964162712d9c",
-      "text": "Wahiawa",
-      "value": "21.5033,-158.0242",
+      "_id": "688f8b3bab1dacc019bf314b",
+      "text": "Chinatown",
+      "value": "49.2791,-123.102",
       "createdBy": "alice@example.com",
-      "createdAt": "2025-07-16T18:41:54.547Z"
+      "createdAt": "2025-07-28T08:44:24.183Z"
     },
     {
-      "_id": "687f548011f03e5624e89c13",
-      "text": "Ka`a`awa",
-      "value": "21.5544,-157.8508",
+      "_id": "688f8b3b4b351103e51b95ba",
+      "text": "Kitsilano",
+      "value": "49.2659,-123.1562",
       "createdBy": "alice@example.com",
-      "createdAt": "2025-07-21T07:33:25.441Z"
+      "createdAt": "2025-07-25T01:28:53.396Z"
     },
     {
-      "_id": "687f5480b3a9b28780fb6492",
-      "text": "Manoa",
-      "value": "21.3167,-157.8025",
+      "_id": "688f8b3b3b3904097567e2f1",
+      "text": "UBC Campus",
+      "value": "49.2606,-123.246",
+      "createdBy": "alice@example.com",
+      "createdAt": "2025-07-31T08:16:12.045Z"
+    },
+    {
+      "_id": "688f8b3b4a3b26959449c6a8",
+      "text": "Science World",
+      "value": "49.2733,-123.1033",
       "createdBy": "bob@example.com",
-      "createdAt": "2025-07-20T09:34:00.105Z"
+      "createdAt": "2025-07-31T07:16:33.068Z"
     },
     {
-      "_id": "687f548051681279a8fd7a1f",
-      "text": "Pearl City",
-      "value": "21.3972,-157.9736",
+      "_id": "688f8b3bf619125a9f0b268c",
+      "text": "North Vancouver",
+      "value": "49.3163,-123.0686",
       "createdBy": "bob@example.com",
-      "createdAt": "2025-07-21T02:47:07.824Z"
+      "createdAt": "2025-07-24T23:30:36.420Z"
     },
     {
-      "_id": "687f5480f8a83006b49383ae",
-      "text": "Aiea",
-      "value": "21.3847,-157.9308",
+      "_id": "688f8b3b27dff0dc89ed618b",
+      "text": "West Vancouver",
+      "value": "49.3287,-123.1565",
       "createdBy": "bob@example.com",
-      "createdAt": "2025-07-10T01:13:25.054Z"
+      "createdAt": "2025-07-28T12:27:48.417Z"
     },
     {
-      "_id": "687f5480931a9adfec19d772",
-      "text": "Waikiki",
-      "value": "21.2793,-157.8294",
+      "_id": "688f8b3ba6ce7459cc5ee74f",
+      "text": "Queen Elizabeth Park",
+      "value": "49.2404,-123.1147",
       "createdBy": "bob@example.com",
-      "createdAt": "2025-07-13T05:20:22.601Z"
+      "createdAt": "2025-07-29T03:03:18.694Z"
     },
     {
-      "_id": "687f5480ce5330e3d3e1dfbe",
-      "text": "Ewa Beach",
-      "value": "21.3156,-158.0067",
+      "_id": "688f8b3b916c55c5055cd3bf",
+      "text": "VGH Hospital",
+      "value": "49.2628,-123.1207",
+      "createdBy": "bob@example.com",
+      "createdAt": "2025-08-02T20:14:31.032Z"
+    },
+    {
+      "_id": "688f8b3b97946210647bbfe0",
+      "text": "Yaletown",
+      "value": "49.2747,-123.1207",
       "createdBy": "charlie@example.com",
-      "createdAt": "2025-07-09T06:53:01.318Z"
+      "createdAt": "2025-07-26T17:21:03.055Z"
     },
     {
-      "_id": "687f5480382dd9aa39f40230",
-      "text": "Kane`ohe",
-      "value": "21.4036,-157.7958",
+      "_id": "688f8b3b16e4989102cf858b",
+      "text": "Coal Harbour",
+      "value": "49.2931,-123.128",
       "createdBy": "charlie@example.com",
-      "createdAt": "2025-07-15T06:27:45.062Z"
+      "createdAt": "2025-07-30T09:05:03.000Z"
     },
     {
-      "_id": "687f5480a6c07925efde957a",
-      "text": "Wai`anae",
-      "value": "21.4486,-158.1875",
+      "_id": "688f8b3b7b25e474c3a041e1",
+      "text": "West End",
+      "value": "49.2911,-123.1399",
       "createdBy": "charlie@example.com",
-      "createdAt": "2025-07-18T02:25:56.997Z"
+      "createdAt": "2025-07-27T15:09:42.861Z"
     },
     {
-      "_id": "687f54803b164a8ee1eae7a8",
-      "text": "Kailua",
-      "value": "21.4022,-157.7394",
+      "_id": "688f8b3b1f3f54f14e6237e2",
+      "text": "Olympic Village",
+      "value": "49.266,-123.1139",
+      "createdBy": "charlie@example.com",
+      "createdAt": "2025-07-29T01:19:59.281Z"
+    },
+    {
+      "_id": "688f8b3b23a69ffca0c022f0",
+      "text": "Brentwood",
+      "value": "49.2667,-123.0017",
+      "createdBy": "charlie@example.com",
+      "createdAt": "2025-07-22T14:06:31.703Z"
+    },
+    {
+      "_id": "688f8b3be021b78a5fbae598",
+      "text": "Metrotown",
+      "value": "49.2258,-123.0038",
       "createdBy": "student1@uni.edu",
-      "createdAt": "2025-07-20T10:39:48.662Z"
+      "createdAt": "2025-07-28T03:48:01.708Z"
     },
     {
-      "_id": "687f5480882072602c3c094c",
-      "text": "Waipahu",
-      "value": "21.3869,-158.0097",
+      "_id": "688f8b3b98bdcbdc3281d562",
+      "text": "Burnaby Central",
+      "value": "49.2488,-123.0036",
       "createdBy": "student1@uni.edu",
-      "createdAt": "2025-07-19T03:14:05.191Z"
+      "createdAt": "2025-07-22T12:50:35.921Z"
     },
     {
-      "_id": "687f54803b1573252ff7b7d3",
-      "text": "Hau`ula",
-      "value": "21.6086,-157.9089",
+      "_id": "688f8b3b23256957245d4cae",
+      "text": "New Westminster",
+      "value": "49.2069,-122.9108",
       "createdBy": "student1@uni.edu",
-      "createdAt": "2025-07-17T02:27:59.537Z"
+      "createdAt": "2025-08-01T14:15:06.372Z"
     },
     {
-      "_id": "687f5480c0cf92c409bd5ec9",
-      "text": "Kahuku",
-      "value": "21.6789,-157.9528",
-      "createdBy": "student1@uni.edu",
-      "createdAt": "2025-07-19T09:31:02.349Z"
-    },
-    {
-      "_id": "687f5480e6ddd273f1d702f5",
-      "text": "Waialua",
-      "value": "21.5769,-158.1308",
-      "createdBy": "student1@uni.edu",
-      "createdAt": "2025-07-10T07:00:49.166Z"
-    },
-    {
-      "_id": "687f5480619e5d5b53cf2cc5",
-      "text": "Makaha",
-      "value": "21.4656,-158.2169",
+      "_id": "688f8b3b989811709e12ac12",
+      "text": "Main Street",
+      "value": "49.2526,-123.1007",
       "createdBy": "student2@uni.edu",
-      "createdAt": "2025-07-12T12:18:24.361Z"
+      "createdAt": "2025-07-26T08:25:50.886Z"
     },
     {
-      "_id": "687f54809e28d279835a7105",
-      "text": "Kahala",
-      "value": "21.2692,-157.7714",
+      "_id": "688f8b3b2661024a952aeea2",
+      "text": "Downtown Vancouver",
+      "value": "49.2827,-123.1207",
       "createdBy": "student2@uni.edu",
-      "createdAt": "2025-07-09T04:13:10.468Z"
+      "createdAt": "2025-08-03T06:07:31.038Z"
     },
     {
-      "_id": "687f54802fd52db98a009ffe",
-      "text": "La`ie",
-      "value": "21.6469,-157.9261",
+      "_id": "688f8b3b10e2e8f0aec25a05",
+      "text": "Langley Centre",
+      "value": "49.1044,-122.6604",
       "createdBy": "student2@uni.edu",
-      "createdAt": "2025-07-14T06:53:29.076Z"
+      "createdAt": "2025-07-29T19:59:58.285Z"
     },
     {
-      "_id": "687f54804942718a1c89e962",
-      "text": "Hawaii Kai",
-      "value": "21.2828,-157.7144",
-      "createdBy": "student2@uni.edu",
-      "createdAt": "2025-07-18T15:35:58.653Z"
-    },
-    {
-      "_id": "687f5480441d14fd492a45ba",
-      "text": "Nanakuli",
-      "value": "21.3939,-158.1539",
+      "_id": "688f8b3b3540a8547c40fb45",
+      "text": "Surrey Central",
+      "value": "49.1897,-122.8489",
       "createdBy": "student3@uni.edu",
-      "createdAt": "2025-07-12T05:54:10.803Z"
-    },
-    {
-      "_id": "687f548067cc1837ba90f396",
-      "text": "Ma`ili",
-      "value": "21.4411,-158.1783",
-      "createdBy": "student3@uni.edu",
-      "createdAt": "2025-07-11T19:42:08.106Z"
+      "createdAt": "2025-07-29T05:59:27.736Z"
     }
   ],
   "defaultRides": [
     {
-      "driver": "alice@example.com",
+      "driver": "admin@foo.com",
       "riders": [],
-      "origin": "687f5480d0b36e4436b0304a",
-      "destination": "687f5480b3a9b28780fb6492",
-      "date": "2025-07-30T14:25:28.742Z",
-      "seats": 2,
-      "notes": "Picking up coffee on the way",
-      "createdAt": "2025-07-19T08:56:18.147Z"
-    },
-    {
-      "driver": "alice@example.com",
-      "riders": [],
-      "origin": "687f548051681279a8fd7a1f",
-      "destination": "687f5480b28e964162712d9c",
-      "date": "2025-08-10T06:57:17.430Z",
-      "seats": 2,
-      "notes": "Non-smoking vehicle",
-      "createdAt": "2025-07-17T00:43:02.304Z"
+      "origin": "688f8b3b4a3b26959449c6a8",
+      "destination": "688f8b3b44637131231c4786",
+      "date": "2025-09-02T07:04:41.042Z",
+      "seats": 4,
+      "notes": "",
+      "createdAt": "2025-08-01T04:13:30.435Z"
     },
     {
       "driver": "admin@foo.com",
       "riders": [],
-      "origin": "687f5480ba30abd9150aaaeb",
-      "destination": "687f54809e28d279835a7105",
-      "date": "2025-07-29T18:23:34.778Z",
+      "origin": "688f8b3b23256957245d4cae",
+      "destination": "688f8b3b4a3b26959449c6a8",
+      "date": "2025-09-02T06:52:32.274Z",
       "seats": 1,
       "notes": "",
-      "createdAt": "2025-07-17T12:40:29.333Z"
+      "createdAt": "2025-07-31T15:36:39.916Z"
     },
     {
-      "driver": "admin@foo.com",
+      "driver": "charlie@example.com",
       "riders": [],
-      "origin": "687f5480ba30abd9150aaaeb",
-      "destination": "687f54806335793a2bac3388",
-      "date": "2025-08-20T19:53:16.832Z",
+      "origin": "688f8b3b4b351103e51b95ba",
+      "destination": "688f8b3b23256957245d4cae",
+      "date": "2025-08-30T08:56:29.995Z",
+      "seats": 1,
+      "notes": "Picking up coffee on the way",
+      "createdAt": "2025-07-27T21:41:32.529Z"
+    },
+    {
+      "driver": "charlie@example.com",
+      "riders": [
+        "student1@uni.edu",
+        "student2@uni.edu"
+      ],
+      "origin": "688f8b3b534f1c3edfd5c300",
+      "destination": "688f8b3ba6ce7459cc5ee74f",
+      "date": "2025-08-21T15:55:34.372Z",
+      "seats": 2,
+      "notes": "",
+      "createdAt": "2025-07-30T11:12:14.443Z"
+    },
+    {
+      "driver": "charlie@example.com",
+      "riders": [],
+      "origin": "688f8b3b27dff0dc89ed618b",
+      "destination": "688f8b3ba6ce7459cc5ee74f",
+      "date": "2025-08-06T13:53:52.222Z",
       "seats": 1,
       "notes": "Please bring exact change",
-      "createdAt": "2025-07-21T19:33:45.143Z"
+      "createdAt": "2025-07-30T22:27:25.883Z"
     },
     {
       "driver": "bob@example.com",
       "riders": [],
-      "origin": "687f548002d325e95d3a1803",
-      "destination": "687f5480032919053dfcfb53",
-      "date": "2025-08-05T23:20:27.607Z",
+      "origin": "688f8b3b4b351103e51b95ba",
+      "destination": "688f8b3b916c55c5055cd3bf",
+      "date": "2025-08-15T14:43:54.403Z",
       "seats": 2,
-      "notes": "",
-      "createdAt": "2025-07-21T12:18:34.593Z"
+      "notes": "Space for luggage available",
+      "createdAt": "2025-08-03T01:11:07.915Z"
     },
     {
       "driver": "bob@example.com",
       "riders": [],
-      "origin": "687f54802fd52db98a009ffe",
-      "destination": "687f5480d0b36e4436b0304a",
-      "date": "2025-08-15T00:39:31.099Z",
+      "origin": "688f8b3ba6ce7459cc5ee74f",
+      "destination": "688f8b3bc13348867019a773",
+      "date": "2025-08-13T17:28:38.076Z",
       "seats": 2,
-      "notes": "Picking up coffee on the way",
-      "createdAt": "2025-07-20T21:47:30.338Z"
+      "notes": "",
+      "createdAt": "2025-07-27T20:27:31.574Z"
     },
     {
       "driver": "admin@foo.com",
       "riders": [],
-      "origin": "687f5480b28e964162712d9c",
-      "destination": "687f54809e28d279835a7105",
-      "date": "2025-08-12T00:26:59.735Z",
-      "seats": 1,
-      "notes": "",
-      "createdAt": "2025-07-15T10:14:20.210Z"
-    },
-    {
-      "driver": "admin@foo.com",
-      "riders": [],
-      "origin": "687f5480882072602c3c094c",
-      "destination": "687f54808390dadacc0a29de",
-      "date": "2025-07-24T15:22:06.211Z",
-      "seats": 1,
-      "notes": "",
-      "createdAt": "2025-07-17T15:49:38.611Z"
-    },
-    {
-      "driver": "alice@example.com",
-      "riders": [],
-      "origin": "687f54803b1573252ff7b7d3",
-      "destination": "687f5480ce5330e3d3e1dfbe",
-      "date": "2025-08-19T09:36:03.610Z",
+      "origin": "688f8b3b27dff0dc89ed618b",
+      "destination": "688f8b3bc13348867019a773",
+      "date": "2025-09-01T03:00:27.545Z",
       "seats": 2,
       "notes": "Meeting at main entrance",
-      "createdAt": "2025-07-18T19:31:15.705Z"
-    },
-    {
-      "driver": "bob@example.com",
-      "riders": [],
-      "origin": "687f5480619e5d5b53cf2cc5",
-      "destination": "687f54802fd52db98a009ffe",
-      "date": "2025-07-23T01:34:59.324Z",
-      "seats": 1,
-      "notes": "",
-      "createdAt": "2025-07-21T17:34:52.787Z"
-    },
-    {
-      "driver": "bob@example.com",
-      "riders": [],
-      "origin": "687f548002d325e95d3a1803",
-      "destination": "687f54808390dadacc0a29de",
-      "date": "2025-08-06T23:17:15.601Z",
-      "seats": 1,
-      "notes": "Non-smoking vehicle",
-      "createdAt": "2025-07-16T17:56:27.016Z"
-    },
-    {
-      "driver": "admin@foo.com",
-      "riders": [],
-      "origin": "687f5480f8a83006b49383ae",
-      "destination": "687f5480382dd9aa39f40230",
-      "date": "2025-08-09T08:16:27.972Z",
-      "seats": 2,
-      "notes": "",
-      "createdAt": "2025-07-21T08:26:36.622Z"
+      "createdAt": "2025-07-31T04:18:10.852Z"
     },
     {
       "driver": "alice@example.com",
       "riders": [],
-      "origin": "687f5480c0cf92c409bd5ec9",
-      "destination": "687f548051681279a8fd7a1f",
-      "date": "2025-07-29T10:40:43.398Z",
+      "origin": "688f8b3be021b78a5fbae598",
+      "destination": "688f8b3b7b25e474c3a041e1",
+      "date": "2025-08-07T05:20:25.927Z",
+      "seats": 2,
+      "notes": "Picking up coffee on the way",
+      "createdAt": "2025-08-01T12:26:02.861Z"
+    },
+    {
+      "driver": "charlie@example.com",
+      "riders": [],
+      "origin": "688f8b3b44637131231c4786",
+      "destination": "688f8b3baab08bceff69158b",
+      "date": "2025-08-25T22:02:38.965Z",
       "seats": 4,
+      "notes": "Space for luggage available",
+      "createdAt": "2025-07-28T01:48:16.264Z"
+    },
+    {
+      "driver": "charlie@example.com",
+      "riders": [],
+      "origin": "688f8b3b10e2e8f0aec25a05",
+      "destination": "688f8b3ba6ce7459cc5ee74f",
+      "date": "2025-08-08T14:20:15.095Z",
+      "seats": 2,
       "notes": "",
-      "createdAt": "2025-07-21T16:31:37.195Z"
+      "createdAt": "2025-07-30T04:27:02.035Z"
     },
     {
       "driver": "admin@foo.com",
       "riders": [],
-      "origin": "687f5480c0cf92c409bd5ec9",
-      "destination": "687f54809e28d279835a7105",
-      "date": "2025-08-12T03:25:32.346Z",
-      "seats": 4,
-      "notes": "",
-      "createdAt": "2025-07-17T15:21:02.891Z"
-    },
-    {
-      "driver": "admin@foo.com",
-      "riders": [],
-      "origin": "687f54809e28d279835a7105",
-      "destination": "687f5480b3a9b28780fb6492",
-      "date": "2025-08-14T01:17:39.634Z",
+      "origin": "688f8b3b23256957245d4cae",
+      "destination": "688f8b3b10e2e8f0aec25a05",
+      "date": "2025-08-13T23:54:04.183Z",
       "seats": 1,
       "notes": "",
-      "createdAt": "2025-07-16T23:26:56.867Z"
+      "createdAt": "2025-08-03T15:30:36.349Z"
+    },
+    {
+      "driver": "admin@foo.com",
+      "riders": [],
+      "origin": "688f8b3b16e4989102cf858b",
+      "destination": "688f8b3bc13348867019a773",
+      "date": "2025-08-25T14:20:45.693Z",
+      "seats": 1,
+      "notes": "",
+      "createdAt": "2025-07-30T23:49:01.175Z"
+    },
+    {
+      "driver": "admin@foo.com",
+      "riders": [
+        "student1@uni.edu",
+        "student2@uni.edu"
+      ],
+      "origin": "688f8b3b989811709e12ac12",
+      "destination": "688f8b3bab1dacc019bf314b",
+      "date": "2025-08-11T21:26:41.610Z",
+      "seats": 4,
+      "notes": "",
+      "createdAt": "2025-07-28T15:09:22.540Z"
+    },
+    {
+      "driver": "alice@example.com",
+      "riders": [],
+      "origin": "688f8b3b23256957245d4cae",
+      "destination": "688f8b3b1f3f54f14e6237e2",
+      "date": "2025-08-03T18:21:05.125Z",
+      "seats": 7,
+      "notes": "",
+      "createdAt": "2025-08-02T18:53:59.891Z"
     }
   ]
 }

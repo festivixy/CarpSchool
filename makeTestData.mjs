@@ -35,6 +35,9 @@ const vancouverCoordinates = [
 ];
 
 var template = {
+  public: {
+    enableDebugMode: true
+  },
   defaultAccounts: [
     {
       email: "admin@foo.com",
