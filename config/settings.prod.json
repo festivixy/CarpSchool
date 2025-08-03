@@ -1,8 +1,12 @@
 {
-  "public": {
-    "enableDebugMode": true
-  },
-  "defaultAccounts": [],
+  "public": {},
+  "defaultAccounts": [
+    {
+      "email": "admin@carp.school",
+      "password": "admin",
+      "role": "admin"
+    }
+  ],
   "defaultPlaces": [],
   "defaultRides": []
 }
