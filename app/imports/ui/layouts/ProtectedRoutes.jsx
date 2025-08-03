@@ -251,7 +251,7 @@ const ProtectedRouteRequireNotLoggedInComponent = ({
         to={
           props.location.state && props.location.state.from
             ? props.location.state.from.pathname
-            : "/"
+            : "/myRides"
         }
       />
     );

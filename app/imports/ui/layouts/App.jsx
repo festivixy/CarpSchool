@@ -71,7 +71,7 @@ class App extends React.Component {
           </DesktopOnly>
           <main style={mainContentStyle}>
             <Switch>
-              <Route exact path="/" component={MobileLanding} />
+              <ProtectedRouteRequireNotLoggedIn exact path="/" component={MobileLanding} />
               <Route exact path="/404" component={MobileNotFound} />
               <ProtectedRouteRequireNotLoggedIn
                 path="/signin"
