@@ -1,14 +1,20 @@
 You are working on a Meteor.js rideshare application with multi-rider
 carpooling, interactive map-based place selection using
-tileserver proxy, UUID-based place references, modern mobile
-UI with styled-components, and comprehensive test data generation
-the codebase follows imports/api/{collection}/{Methods,Publications}.js
-for backend, imports/ui/mobile/{components,pages}/ for frontend,
-with places/rides relational data structure and backward compatibility
-for legacy schemas.
+external services (tileserver.carp.school, nominatim.carp.school, osrm.carp.school),
+UUID-based place references, modern mobile UI with styled-components,
+and comprehensive test data generation. The codebase follows
+imports/api/{collection}/{Methods,Publications}.js for backend,
+imports/ui/mobile/{components,pages}/ for frontend, with places/rides
+relational data structure and backward compatibility for legacy schemas.
 
 ### Package Manager:
 - Uses `meteor` commands (not npm/yarn/pnpm)
+
+### External Services:
+- **TileServer**: `https://tileserver.carp.school` - OpenMapTiles server for map rendering
+- **Nominatim**: `https://nominatim.carp.school` - Geocoding and address search service
+- **OSRM**: `https://osrm.carp.school` - Open Source Routing Machine for route calculation
+- **Note**: No proxy endpoints - services are accessed directly via external URLs
 
 ## IMPORTANT
 
