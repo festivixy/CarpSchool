@@ -30,7 +30,7 @@ App.setPreference("PaginationBreakingMode", "page", "ios");
 App.setPreference("PaginationMode", "unpaginated", "ios");
 
 // Android specific preferences
-App.setPreference("android-minSdkVersion", "19");
+App.setPreference("android-minSdkVersion", "21");
 App.setPreference("android-targetSdkVersion", "34");
 App.setPreference("android-installLocation", "auto");
 
