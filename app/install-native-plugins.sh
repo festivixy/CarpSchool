@@ -24,6 +24,17 @@ if [ ! -d "plugins" ]; then
     exit 1
 fi
 
+# Check if plugin files exist
+if [ ! -f "plugins/cordova-plugin-liquid-blur/package.json" ]; then
+    echo "❌ Error: cordova-plugin-liquid-blur/package.json not found."
+    exit 1
+fi
+
+if [ ! -f "plugins/cordova-plugin-floating-toolbar/package.json" ]; then
+    echo "❌ Error: cordova-plugin-floating-toolbar/package.json not found."
+    exit 1
+fi
+
 echo "📦 Installing cordova-plugin-add-swift-support..."
 meteor add cordova:cordova-plugin-add-swift-support@2.0.2
 
