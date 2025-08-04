@@ -56,16 +56,23 @@ App.accessRule("*");
 App.accessRule("https://carp.school/*");
 App.accessRule("https://*.carp.school/*");
 
-// Essential plugins for mobile functionality are automatically included:
-// - cordova-plugin-meteor-webapp (for hot code push)
-// - cordova-plugin-statusbar (for status bar control)
-// - cordova-plugin-device (for platform detection)
-// - cordova-plugin-console (for debugging)
+// Essential plugins for mobile functionality
+App.configurePlugin('cordova-plugin-meteor-webapp', {
+    version: '2.0.1'
+});
+App.configurePlugin('cordova-plugin-statusbar', {
+    version: '3.0.0'
+});
+App.configurePlugin('cordova-plugin-device', {
+    version: '2.1.0'
+});
+App.configurePlugin('cordova-plugin-console', {
+    version: '1.1.0'
+});
 
 // Native iOS 26 Liquid Glass plugins are added via command line:
-// CURRENT_DIR=$(pwd)
-// meteor add cordova:cordova-plugin-liquid-blur@file://$CURRENT_DIR/plugins/cordova-plugin-liquid-blur
-// meteor add cordova:cordova-plugin-floating-toolbar@file://$CURRENT_DIR/plugins/cordova-plugin-floating-toolbar
+// meteor add cordova:cordova-plugin-liquid-blur@file://plugins/cordova-plugin-liquid-blur
+// meteor add cordova:cordova-plugin-floating-toolbar@file://plugins/cordova-plugin-floating-toolbar
 
 // Set up resources such as icons and launch screens.
 App.icons({
@@ -97,34 +104,14 @@ App.icons({
     android_xxxhdpi: "resources/icons/android_xxxhdpi.png", // 192x192 pixels
 });
 
-// Before Meteor 2.6 we had to pass device specific splash screens for iOS
-// but this behavior was dropped in favor of story board images.
+// Modern launch screens using universal assets
+// Meteor 2.6+ uses storyboard images instead of device-specific splash screens
 App.launchScreens({
-    // iOS Universal
+    // iOS Universal - supports all devices with single asset
     ios_universal: {
         src: "resources/splash/ios_universal.png",
         srcDarkMode: "resources/splash/ios_universal.png",
     },
-    // (2732x2732) - All @2x devices, if device/mode specific is not declared
-    ios_universal_3x: "resources/splash/ios_universal_3x.png",
-    // (2208x2208) - All @3x devices, if device/mode specific is not declared
-    ios_universal_portrait_2x: "resources/splash/ios_universal_portrait_2x.png", // 1278x2732 pixels
-    ios_universal_landscape_2x: "resources/splash/ios_universal_landscape_2x.png", // 1334x750 pixels
-    ios_universal_landscape_3x: "resources/splash/ios_universal_landscape_3x.png", // 2208x1242 pixels
-    ios_universal_portrait_3x: "resources/splash/ios_universal_portrait_3x.png", // 1242x2208 pixels
-
-    // iOS iPhone specific
-    ios_iphone_2x: "resources/splash/ios_iphone_2x.png", // 1334x1334 pixels
-    ios_iphone_portrait_2x: "resources/splash/ios_iphone_portrait_2x.png", // 750x1334 pixels
-    ios_iphone_landscape_2x: "resources/splash/ios_iphone_landscape_2x.png", // 1334x750 pixels
-    ios_iphone_3x: "resources/splash/ios_iphone_3x.png", // 2208x2208 pixels
-    ios_iphone_landscape_3x: "resources/splash/ios_iphone_landscape_3x.png", // 2208x1242 pixels
-    ios_iphone_portrait_3x: "resources/splash/ios_iphone_portrait_3x.png", // 1242x2208 pixels
-
-    // iOS iPad specific
-    ios_ipad_2x: "resources/splash/ios_ipad_2x.png", // 2732x2732 pixels
-    ios_ipad_portrait_2x: "resources/splash/ios_ipad_portrait_2x.png", // 1278x2732 pixels
-
-    // Android
+    // Android Universal
     android_universal: "resources/splash/android_universal.png", // 288x288 pixels
 });
