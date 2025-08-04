@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
-import { FlowRouter } from "meteor/kadira:flow-router";
+import { withRouter } from "react-router-dom";
 import { Roles } from "meteor/alanning:roles";
 import useNativeNavBar from "../hooks/useNativeNavBar";
 import LiquidGlassDropdown from "../../liquidGlass/components/Dropdown";
@@ -248,37 +248,37 @@ const NativeNavBar = ({
 
       switch (option.value) {
         case 'edit-profile':
-          FlowRouter.go('/editProfile');
+          props.history.push('/editProfile');
           break;
         case 'my-places':
-          FlowRouter.go('/places');
+          props.history.push('/places');
           break;
         case 'admin-rides':
-          FlowRouter.go('/adminRides');
+          props.history.push('/adminRides');
           break;
         case 'admin-users':
-          FlowRouter.go('/adminUsers');
+          props.history.push('/adminUsers');
           break;
         case 'admin-places':
-          FlowRouter.go('/adminPlaceManager');
+          props.history.push('/adminPlaceManager');
           break;
         case 'components-test':
-          FlowRouter.go('/_test');
+          props.history.push('/_test');
           break;
         case 'sign-out':
           Meteor.logout((err) => {
             if (err) {
               console.error('Logout error:', err);
             } else {
-              FlowRouter.go('/');
+              props.history.push('/');
             }
           });
           break;
         case 'sign-in':
-          FlowRouter.go('/signin');
+          props.history.push('/signin');
           break;
         case 'sign-up':
-          FlowRouter.go('/signup');
+          props.history.push('/signup');
           break;
         default:
           console.warn('Unknown dropdown option:', option.value);
@@ -370,6 +370,7 @@ NativeNavBar.propTypes = {
   activeIndex: PropTypes.number,
   className: PropTypes.string,
   style: PropTypes.object,
+  history: PropTypes.object.isRequired, // React Router history
 };
 
-export default NativeNavBar;
+export default withRouter(NativeNavBar);

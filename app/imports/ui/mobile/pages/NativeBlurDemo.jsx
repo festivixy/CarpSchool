@@ -176,16 +176,16 @@ const NativeBlurDemo = () => {
 
     switch (item.action) {
       case 'home':
-        FlowRouter.go('/myRides');
+        props.history.push('/myRides');
         break;
       case 'join':
-        FlowRouter.go('/imRiding');
+        props.history.push('/imRiding');
         break;
       case 'create':
-        FlowRouter.go('/imDriving');
+        props.history.push('/imDriving');
         break;
       case 'messages':
-        FlowRouter.go('/chat');
+        props.history.push('/chat');
         break;
       case 'profile':
         // Profile dropdown is handled automatically by NativeNavBar
