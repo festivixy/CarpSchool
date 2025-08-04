@@ -40,6 +40,7 @@ import ProtectedRoutes, {
 import { DesktopOnly, MobileOnly } from "./Devices";
 import FooterVerbose from "../mobile/components/FooterVerbose";
 import LiquidGlassMobileNavBar from "../mobile/liquidGlass/components/LiquidGlassMobileNavBar";
+import MobileNativeBlurDemo from "../mobile/pages/NativeBlurDemo";
 // Lazy load TestMapView to improve initial load performance
 const TestMapView = React.lazy(() => import("../mobile/pages/ComponentsTest"));
 
@@ -124,6 +125,10 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/_test/liquidglass/login"
                 component={LiquidGlassSignIn}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/_test/native-blur"
+                component={MobileNativeBlurDemo}
               />
               <ProtectedRoutes
                 path="/_test"
