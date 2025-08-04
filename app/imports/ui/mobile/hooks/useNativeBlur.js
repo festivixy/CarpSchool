@@ -169,46 +169,94 @@ export const useFloatingToolbar = () => {
 
   useEffect(() => {
     const checkSupport = async () => {
+      console.log("[useFloatingToolbar] 🔍 Starting support check:", {
+        hasCordova: !!window.cordova,
+        hasFloatingToolbarPlugin: !!window.cordova?.plugins?.floatingToolbar,
+        hasPromise: !!window.cordova?.plugins?.floatingToolbar?.promise,
+        hasIsSupported: !!window.cordova?.plugins?.floatingToolbar?.promise?.isSupported,
+      });
+
       try {
         if (window.cordova?.plugins?.floatingToolbar) {
+          console.log("[useFloatingToolbar] 🚀 Calling isSupported()...");
           const supported = await window.cordova.plugins.floatingToolbar.promise.isSupported();
+          console.log("[useFloatingToolbar] ✅ Support check result:", supported);
           setIsSupported(supported);
+        } else {
+          console.log("[useFloatingToolbar] ❌ Plugin not found");
+          setIsSupported(false);
         }
       } catch (error) {
-        console.log("[useFloatingToolbar] Native toolbar not available:", error);
+        console.error("[useFloatingToolbar] ❌ Support check error:", error);
         setIsSupported(false);
       } finally {
+        console.log("[useFloatingToolbar] 🏁 Support check complete, setting loading false");
         setIsLoading(false);
       }
     };
 
+    console.log("[useFloatingToolbar] 🎬 useEffect triggered:", {
+      hasCordova: !!window.cordova,
+      deviceReady: !!window.cordova,
+    });
+
     if (window.cordova) {
+      console.log("[useFloatingToolbar] 📱 Cordova available, checking support immediately");
       checkSupport();
     } else {
-      const onDeviceReady = () => checkSupport();
+      console.log("[useFloatingToolbar] ⏳ Waiting for deviceready event");
+      const onDeviceReady = () => {
+        console.log("[useFloatingToolbar] 🎉 Device ready event fired");
+        checkSupport();
+      };
       document.addEventListener("deviceready", onDeviceReady);
       return () => document.removeEventListener("deviceready", onDeviceReady);
     }
   }, []);
 
   const setActionHandler = useCallback((handler) => {
+    console.log("[useFloatingToolbar] 🎛️ setActionHandler called:", {
+      hasHandler: !!handler,
+      hasPlugin: !!window.cordova?.plugins?.floatingToolbar,
+      hasSetActionHandler: !!window.cordova?.plugins?.floatingToolbar?.setActionHandler,
+    });
+
     actionHandlerRef.current = handler;
+
     if (window.cordova?.plugins?.floatingToolbar) {
+      console.log("[useFloatingToolbar] ✅ Setting native action handler");
       window.cordova.plugins.floatingToolbar.setActionHandler(handler);
+    } else {
+      console.warn("[useFloatingToolbar] ⚠️ Cannot set action handler - plugin not available");
     }
   }, []);
 
   const createToolbar = useCallback(async (options = {}) => {
+    console.log("[useFloatingToolbar] 🏗️ createToolbar called:", {
+      isSupported,
+      hasPlugin: !!window.cordova?.plugins?.floatingToolbar,
+      hasPromise: !!window.cordova?.plugins?.floatingToolbar?.promise,
+      hasCreateMethod: !!window.cordova?.plugins?.floatingToolbar?.promise?.createToolbar,
+      options,
+    });
+
     if (!isSupported || !window.cordova?.plugins?.floatingToolbar) {
-      throw new Error("Native toolbar not supported");
+      const error = new Error("Native toolbar not supported");
+      console.error("[useFloatingToolbar] ❌ Cannot create toolbar:", error.message);
+      throw error;
     }
 
     try {
+      console.log("[useFloatingToolbar] 🚀 Calling native createToolbar with options:", options);
       const toolbarId = await window.cordova.plugins.floatingToolbar.promise.createToolbar(options);
+      console.log("[useFloatingToolbar] ✅ Native toolbar created successfully:", toolbarId);
+
       toolbarsRef.current.set(toolbarId, options);
+      console.log("[useFloatingToolbar] 📝 Toolbar stored in ref, total toolbars:", toolbarsRef.current.size);
+
       return toolbarId;
     } catch (error) {
-      console.error("[useFloatingToolbar] Failed to create toolbar:", error);
+      console.error("[useFloatingToolbar] ❌ Failed to create native toolbar:", error);
       throw error;
     }
   }, [isSupported]);

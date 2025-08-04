@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import LiquidGlassBlur from "../liquidGlass/components/LiquidGlassBlur";
 import LiquidGlassToolbar from "../liquidGlass/components/LiquidGlassToolbar";
 import { useNativeBlur, useFloatingToolbar } from "../hooks/useNativeBlur";
@@ -31,6 +31,9 @@ const NativeBlurDemo = () => {
   const [selectedBlur, setSelectedBlur] = useState("systemMaterial");
   const [showToolbar, setShowToolbar] = useState(true);
   const [blurIntensity, setBlurIntensity] = useState(1.0);
+  const [logs, setLogs] = useState([]);
+  const [showLogs, setShowLogs] = useState(true);
+  const logTextAreaRef = useRef(null);
 
   const {
     isSupported: blurSupported,
@@ -54,6 +57,64 @@ const NativeBlurDemo = () => {
       setAvailableStyles(["light", "dark", "tinted"]);
     }
   }, [blurSupported, getAvailableStyles]);
+
+  // Capture console logs
+  useEffect(() => {
+    const originalLog = console.log;
+    const originalError = console.error;
+    const originalWarn = console.warn;
+
+    const addLog = (type, args) => {
+      const timestamp = new Date().toLocaleTimeString();
+      const message = args.map(arg => {
+        if (typeof arg === 'object') {
+          return JSON.stringify(arg, null, 2);
+        }
+        return String(arg);
+      }).join(' ');
+
+      setLogs(prev => [...prev.slice(-50), { // Keep last 50 logs
+        type,
+        timestamp,
+        message,
+        id: Date.now() + Math.random()
+      }]);
+    };
+
+    console.log = (...args) => {
+      originalLog(...args);
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('useFloating'))) {
+        addLog('log', args);
+      }
+    };
+
+    console.error = (...args) => {
+      originalError(...args);
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('useFloating'))) {
+        addLog('error', args);
+      }
+    };
+
+    console.warn = (...args) => {
+      originalWarn(...args);
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('useFloating'))) {
+        addLog('warn', args);
+      }
+    };
+
+    return () => {
+      console.log = originalLog;
+      console.error = originalError;
+      console.warn = originalWarn;
+    };
+  }, []);
+
+  // Auto-scroll logs
+  useEffect(() => {
+    if (logTextAreaRef.current) {
+      logTextAreaRef.current.scrollTop = logTextAreaRef.current.scrollHeight;
+    }
+  }, [logs]);
 
   const toolbarItems = [
     {
@@ -88,6 +149,20 @@ const NativeBlurDemo = () => {
   const handleBlurReady = ({ blurId, useNative }) => {
     console.log("Blur ready:", { blurId, useNative });
   };
+
+  // Log initial environment
+  useEffect(() => {
+    console.log("[NativeBlurDemo] 🚀 Component mounted - Environment check:", {
+      platform: window.cordova ? 'Cordova' : 'Web',
+      isCordova: !!window.cordova,
+      isMeteorCordova: !!window.Meteor?.isCordova,
+      hasFloatingToolbarPlugin: !!window.cordova?.plugins?.floatingToolbar,
+      hasLiquidBlurPlugin: !!window.cordova?.plugins?.liquidBlur,
+      userAgent: navigator.userAgent,
+      toolbarSupported,
+      toolbarLoading,
+    });
+  }, [toolbarSupported, toolbarLoading]);
 
   if (blurLoading || toolbarLoading) {
     return (
@@ -158,6 +233,58 @@ const NativeBlurDemo = () => {
             >
               {showToolbar ? "Hide Toolbar" : "Show Toolbar"}
             </ToolbarToggle>
+          </ControlGroup>
+
+          <ControlGroup>
+            <ControlLabel>Debug Logs</ControlLabel>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+              <StyleButton
+                active={showLogs}
+                onClick={() => setShowLogs(!showLogs)}
+              >
+                {showLogs ? "Hide Logs" : "Show Logs"}
+              </StyleButton>
+              <StyleButton
+                onClick={() => setLogs([])}
+              >
+                Clear Logs
+              </StyleButton>
+            </div>
+
+            {showLogs && (
+              <div style={{
+                width: '100%',
+                height: '300px',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                background: 'rgba(0,0,0,0.05)',
+              }}>
+                <textarea
+                  ref={logTextAreaRef}
+                  readOnly
+                  value={logs.map(log =>
+                    `[${log.timestamp}] ${log.type.toUpperCase()}: ${log.message}`
+                  ).join('\n')}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    background: 'transparent',
+                    fontFamily: 'Monaco, Consolas, monospace',
+                    fontSize: '11px',
+                    padding: '8px',
+                    resize: 'none',
+                    color: '#333',
+                  }}
+                  placeholder="Debug logs will appear here..."
+                />
+              </div>
+            )}
+
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              Total logs: {logs.length} | Toolbar supported: {toolbarSupported ? '✅' : '❌'}
+            </div>
           </ControlGroup>
 
           <ControlGroup>

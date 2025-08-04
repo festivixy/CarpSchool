@@ -41,15 +41,43 @@ const LiquidGlassToolbar = ({
 
   // Determine if we should use native toolbar
   useEffect(() => {
+    console.log("[LiquidGlassToolbar] 🔍 Checking native support:", {
+      isLoading,
+      nativeSupported,
+      hasCordova: !!window.cordova,
+      isMeteorCordova: !!window.Meteor?.isCordova,
+      floatingToolbarPlugin: !!window.cordova?.plugins?.floatingToolbar,
+    });
+
     if (!isLoading) {
-      setUseNative(nativeSupported && window.cordova && window.Meteor?.isCordova);
+      const shouldUseNative = nativeSupported && window.cordova && window.Meteor?.isCordova;
+      console.log("[LiquidGlassToolbar] 🎯 Native decision:", {
+        shouldUseNative,
+        nativeSupported,
+        cordova: !!window.cordova,
+        meteorcordova: !!window.Meteor?.isCordova,
+      });
+      setUseNative(shouldUseNative);
     }
   }, [nativeSupported, isLoading]);
 
   // Set up action handler for native toolbar
   useEffect(() => {
+    console.log("[LiquidGlassToolbar] 🎛️ Setting up action handler:", {
+      useNative,
+      hasOnItemPress: !!onItemPress,
+      toolbarItemsCount: toolbarItems.length,
+    });
+
     if (useNative && onItemPress) {
+      console.log("[LiquidGlassToolbar] ✅ Registering native action handler");
       setActionHandler((toolbarId, action, itemIndex) => {
+        console.log("[LiquidGlassToolbar] 🔥 Native action triggered:", {
+          toolbarId,
+          action,
+          itemIndex,
+          item: toolbarItems[itemIndex],
+        });
         const item = toolbarItems[itemIndex];
         if (item && onItemPress) {
           onItemPress(item, itemIndex, action);
@@ -60,16 +88,26 @@ const LiquidGlassToolbar = ({
 
   // Create native toolbar when component mounts
   useEffect(() => {
+    console.log("[LiquidGlassToolbar] 🏗️ Toolbar creation effect:", {
+      useNative,
+      toolbarId,
+      shouldCreate: useNative && !toolbarId,
+    });
+
     if (useNative && !toolbarId) {
+      console.log("[LiquidGlassToolbar] 🚀 Starting native toolbar creation...");
       createNativeToolbar();
     }
 
     return () => {
       if (toolbarId) {
-        removeToolbar(toolbarId).catch(console.error);
+        console.log("[LiquidGlassToolbar] 🧹 Cleaning up toolbar:", toolbarId);
+        removeToolbar(toolbarId).catch((error) => {
+          console.error("[LiquidGlassToolbar] ❌ Cleanup error:", error);
+        });
       }
     };
-  }, [useNative]);
+  }, [useNative, createNativeToolbar, removeToolbar]);
 
   const createNativeToolbar = useCallback(async () => {
     if (!useNative) return;
@@ -108,8 +146,19 @@ const LiquidGlassToolbar = ({
 
   // Handle visibility changes
   useEffect(() => {
+    console.log("[LiquidGlassToolbar] 👁️ Visibility change:", {
+      useNative,
+      toolbarId,
+      visible,
+      animated,
+      willUpdate: useNative && toolbarId,
+    });
+
     if (useNative && toolbarId) {
-      setToolbarVisibility(toolbarId, visible, animated).catch(console.error);
+      console.log("[LiquidGlassToolbar] 🔄 Updating native toolbar visibility:", { visible, animated });
+      setToolbarVisibility(toolbarId, visible, animated).catch((error) => {
+        console.error("[LiquidGlassToolbar] ❌ Visibility update error:", error);
+      });
     }
   }, [visible, toolbarId, useNative, animated, setToolbarVisibility]);
 
@@ -124,11 +173,23 @@ const LiquidGlassToolbar = ({
     }
   }, [onItemPress]);
 
+  console.log("[LiquidGlassToolbar] 🎨 Render decision:", {
+    isLoading,
+    useNative,
+    toolbarId,
+    hasItems: toolbarItems.length > 0,
+  });
+
   if (isLoading) {
+    console.log("[LiquidGlassToolbar] ⏳ Rendering loading state");
     return null; // Don't render anything while loading
   }
 
   if (useNative) {
+    console.log("[LiquidGlassToolbar] 🍎 Rendering native placeholder", {
+      toolbarId,
+      height: floating ? 0 : height,
+    });
     // Native toolbar handles rendering - return invisible placeholder for layout
     return (
       <div
@@ -140,6 +201,13 @@ const LiquidGlassToolbar = ({
       />
     );
   }
+
+  console.log("[LiquidGlassToolbar] 🎨 Rendering CSS fallback toolbar", {
+    itemCount: toolbarItems.length,
+    position,
+    floating,
+    visible,
+  });
 
   // CSS fallback implementation with iOS 26 styling
   return (
