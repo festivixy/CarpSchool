@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import { useFloatingToolbar } from "../../hooks/useNativeBlur";
-import LiquidGlassBlur from "./LiquidGlassBlur";
 import { ToolbarContainer, ToolbarItem, ToolbarButton, ToolbarSpace } from "../styles/LiquidGlassToolbar";
 
 /**
@@ -76,24 +75,31 @@ const LiquidGlassToolbar = ({
     if (!useNative) return;
 
     try {
+      // Configure for iOS 26 Liquid Glass look
       const toolbarOptions = {
-        position: position,
-        items: toolbarItems.map(item => ({
-          type: item.type || "button",
-          title: item.title,
-          icon: item.icon,
-          action: item.action || item.title,
-        })),
+        position: position === "floating" ? "bottom" : position,
+        items: toolbarItems
+          .filter(item => item.type !== "flexibleSpace") // Filter out flexibleSpace for now
+          .map(item => ({
+            type: item.type || "button",
+            title: item.title,
+            icon: item.icon,
+            action: item.action || item.title,
+            primary: item.primary || false,
+          })),
         style: {
-          blurStyle: blurStyle,
-          cornerRadius: floating ? 20 : 0,
-          margin: floating ? 16 : 0,
+          blurStyle: blurStyle === "systemMaterial" ? "systemMaterial" : blurStyle,
+          cornerRadius: floating ? 24 : 8, // iOS 26 uses larger radius
+          margin: floating ? 16 : 8,
           height: height,
+          liquidGlass: true, // Enable iOS 26 liquid glass effect
         },
       };
 
+      console.log("[LiquidGlassToolbar] Creating native toolbar with options:", toolbarOptions);
       const id = await createToolbar(toolbarOptions);
       setToolbarId(id);
+      console.log("[LiquidGlassToolbar] Native toolbar created with ID:", id);
     } catch (error) {
       console.error("[LiquidGlassToolbar] Failed to create native toolbar:", error);
       setUseNative(false);
@@ -135,54 +141,48 @@ const LiquidGlassToolbar = ({
     );
   }
 
-  // CSS fallback implementation
+  // CSS fallback implementation with iOS 26 styling
   return (
-    <LiquidGlassBlur
-      blurStyle={blurStyle}
+    <ToolbarContainer
+      ref={containerRef}
+      position={position}
       floating={floating}
-      position="fixed"
+      visible={visible}
       animated={animated}
+      height={height}
+      safeArea={safeArea}
+      blurStyle={blurStyle}
       className={className}
       style={style}
+      {...props}
     >
-      <ToolbarContainer
-        ref={containerRef}
-        position={position}
-        floating={floating}
-        visible={visible}
-        animated={animated}
-        height={height}
-        safeArea={safeArea}
-        {...props}
-      >
-        {toolbarItems.map((item, index) => (
-          <ToolbarItem key={index} type={item.type}>
-            {item.type === "space" && <ToolbarSpace size={item.size} />}
-            {item.type === "flexibleSpace" && <ToolbarSpace flexible />}
-            {(item.type === "button" || !item.type) && (
-              <ToolbarButton
-                onClick={(e) => handleItemPress(item, index, e)}
-                disabled={item.disabled}
-                primary={item.primary}
-                icon={item.icon}
-                title={item.title}
-              >
-                {item.icon && (
-                  <span className="toolbar-icon" aria-hidden="true">
-                    {item.icon}
-                  </span>
-                )}
-                {item.title && (
-                  <span className="toolbar-title">
-                    {item.title}
-                  </span>
-                )}
-              </ToolbarButton>
-            )}
-          </ToolbarItem>
-        ))}
-      </ToolbarContainer>
-    </LiquidGlassBlur>
+      {toolbarItems.map((item, index) => (
+        <ToolbarItem key={index} type={item.type}>
+          {item.type === "space" && <ToolbarSpace size={item.size} />}
+          {item.type === "flexibleSpace" && <ToolbarSpace flexible />}
+          {(item.type === "button" || !item.type) && (
+            <ToolbarButton
+              onClick={(e) => handleItemPress(item, index, e)}
+              disabled={item.disabled}
+              primary={item.primary}
+              icon={item.icon}
+              title={item.title}
+            >
+              {item.icon && (
+                <span className="toolbar-icon" aria-hidden="true">
+                  {item.icon}
+                </span>
+              )}
+              {item.title && (
+                <span className="toolbar-title">
+                  {item.title}
+                </span>
+              )}
+            </ToolbarButton>
+          )}
+        </ToolbarItem>
+      ))}
+    </ToolbarContainer>
   );
 };
 

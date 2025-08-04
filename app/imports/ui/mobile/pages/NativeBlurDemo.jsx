@@ -115,10 +115,10 @@ const NativeBlurDemo = () => {
 
       <StatusBar>
         <StatusItem>
-          Native Blur: {blurSupported ? "✅ Supported" : "❌ CSS Fallback"}
+          Native iOS 26 Toolbar: {toolbarSupported ? "✅ Liquid Glass" : "❌ CSS Fallback"}
         </StatusItem>
         <StatusItem>
-          Native Toolbar: {toolbarSupported ? "✅ Supported" : "❌ CSS Fallback"}
+          Blur Effects: CSS backdrop-filter only
         </StatusItem>
       </StatusBar>
 
@@ -161,88 +161,57 @@ const NativeBlurDemo = () => {
           </ControlGroup>
 
           <ControlGroup>
-            <ControlLabel>Native Blur Demo Areas</ControlLabel>
+            <ControlLabel>CSS Blur Demo Areas (Native Blur Disabled)</ControlLabel>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <LiquidGlassBlur
-                blurStyle={selectedBlur}
-                intensity={blurIntensity}
-                floating={true}
-                position="relative"
-                onBlurReady={handleBlurReady}
-                style={{ width: '200px', height: '100px' }}
-              >
+              <div style={{
+                width: '200px',
+                height: '100px',
+                background: `rgba(255, 255, 255, ${blurIntensity * 0.7})`,
+                backdropFilter: `blur(${blurIntensity * 20}px)`,
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+              }}>
                 <div style={{ padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Demo Panel 1</div>
+                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>CSS Blur Panel 1</div>
                   <div style={{ fontSize: '12px', opacity: 0.8 }}>
-                    Native blur behind this panel
+                    CSS backdrop-filter blur
                   </div>
                 </div>
-              </LiquidGlassBlur>
+              </div>
 
-              <LiquidGlassBlur
-                blurStyle={selectedBlur}
-                intensity={blurIntensity}
-                floating={true}
-                position="relative"
-                style={{ width: '200px', height: '100px' }}
-              >
+              <div style={{
+                width: '200px',
+                height: '100px',
+                background: `rgba(255, 255, 255, ${blurIntensity * 0.7})`,
+                backdropFilter: `blur(${blurIntensity * 20}px)`,
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+              }}>
                 <div style={{ padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Demo Panel 2</div>
+                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>CSS Blur Panel 2</div>
                   <div style={{ fontSize: '12px', opacity: 0.8 }}>
-                    Native blur behind this panel
+                    CSS backdrop-filter blur
                   </div>
                 </div>
-              </LiquidGlassBlur>
+              </div>
             </div>
           </ControlGroup>
         </ControlsContent>
       </ControlsContainer>
 
       {showToolbar && (
-        <div style={{
-          position: 'fixed',
-          bottom: '120px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 1000
-        }}>
-          <LiquidGlassBlur
-            blurStyle={selectedBlur}
-            intensity={blurIntensity}
-            floating={true}
-            position="relative"
-            style={{ width: '300px', height: '60px' }}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-around',
-              padding: '8px 16px',
-              height: '100%'
-            }}>
-              {toolbarItems.filter(item => item.type === 'button').map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleToolbarAction(item, index, item.action)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '20px',
-                    cursor: 'pointer',
-                    padding: '8px',
-                    borderRadius: '8px',
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
-                  onMouseOut={(e) => e.target.style.background = 'none'}
-                  title={item.title}
-                >
-                  {item.icon}
-                </button>
-              ))}
-            </div>
-          </LiquidGlassBlur>
-        </div>
+        <LiquidGlassToolbar
+          items={toolbarItems}
+          position="bottom"
+          floating={true}
+          blurStyle={selectedBlur}
+          onItemPress={handleToolbarAction}
+          visible={showToolbar}
+          animated={true}
+          height={60}
+        />
       )}
     </DemoContainer>
   );
