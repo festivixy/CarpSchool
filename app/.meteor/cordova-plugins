@@ -1,2 +1,2 @@
-cordova-plugin-floating-toolbar@file:///plugins/cordova-plugin-floating-toolbar
-cordova-plugin-liquid-blur@file:///plugins/cordova-plugin-liquid-blur
+cordova-plugin-floating-toolbar@file://plugins/cordova-plugin-floating-toolbar
+cordova-plugin-liquid-blur@file://plugins/cordova-plugin-liquid-blur
