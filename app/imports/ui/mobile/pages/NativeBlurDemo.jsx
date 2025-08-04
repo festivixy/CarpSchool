@@ -123,62 +123,126 @@ const NativeBlurDemo = () => {
       </StatusBar>
 
       <ControlsContainer>
-        <LiquidGlassBlur
-          blurStyle={selectedBlur}
-          intensity={blurIntensity}
-          floating={true}
-          onBlurReady={handleBlurReady}
-        >
-          <ControlsContent>
-            <ControlGroup>
-              <ControlLabel>Blur Style</ControlLabel>
-              <StyleSelector>
-                {availableStyles.map(style => (
-                  <StyleButton
-                    key={style}
-                    active={selectedBlur === style}
-                    onClick={() => setSelectedBlur(style)}
-                  >
-                    {style}
-                  </StyleButton>
-                ))}
-              </StyleSelector>
-            </ControlGroup>
+        <ControlsContent>
+          <ControlGroup>
+            <ControlLabel>Blur Style</ControlLabel>
+            <StyleSelector>
+              {availableStyles.map(style => (
+                <StyleButton
+                  key={style}
+                  active={selectedBlur === style}
+                  onClick={() => setSelectedBlur(style)}
+                >
+                  {style}
+                </StyleButton>
+              ))}
+            </StyleSelector>
+          </ControlGroup>
 
-            <ControlGroup>
-              <ControlLabel>Intensity: {blurIntensity.toFixed(1)}</ControlLabel>
-              <IntensitySlider
-                type="range"
-                min="0.1"
-                max="2.0"
-                step="0.1"
-                value={blurIntensity}
-                onChange={(e) => setBlurIntensity(parseFloat(e.target.value))}
-              />
-            </ControlGroup>
+          <ControlGroup>
+            <ControlLabel>Intensity: {blurIntensity.toFixed(1)}</ControlLabel>
+            <IntensitySlider
+              type="range"
+              min="0.1"
+              max="2.0"
+              step="0.1"
+              value={blurIntensity}
+              onChange={(e) => setBlurIntensity(parseFloat(e.target.value))}
+            />
+          </ControlGroup>
 
-            <ControlGroup>
-              <ToolbarToggle
-                active={showToolbar}
-                onClick={() => setShowToolbar(!showToolbar)}
+          <ControlGroup>
+            <ToolbarToggle
+              active={showToolbar}
+              onClick={() => setShowToolbar(!showToolbar)}
+            >
+              {showToolbar ? "Hide Toolbar" : "Show Toolbar"}
+            </ToolbarToggle>
+          </ControlGroup>
+
+          <ControlGroup>
+            <ControlLabel>Native Blur Demo Areas</ControlLabel>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <LiquidGlassBlur
+                blurStyle={selectedBlur}
+                intensity={blurIntensity}
+                floating={true}
+                position="relative"
+                onBlurReady={handleBlurReady}
+                style={{ width: '200px', height: '100px' }}
               >
-                {showToolbar ? "Hide Toolbar" : "Show Toolbar"}
-              </ToolbarToggle>
-            </ControlGroup>
-          </ControlsContent>
-        </LiquidGlassBlur>
+                <div style={{ padding: '16px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Demo Panel 1</div>
+                  <div style={{ fontSize: '12px', opacity: 0.8 }}>
+                    Native blur behind this panel
+                  </div>
+                </div>
+              </LiquidGlassBlur>
+
+              <LiquidGlassBlur
+                blurStyle={selectedBlur}
+                intensity={blurIntensity}
+                floating={true}
+                position="relative"
+                style={{ width: '200px', height: '100px' }}
+              >
+                <div style={{ padding: '16px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Demo Panel 2</div>
+                  <div style={{ fontSize: '12px', opacity: 0.8 }}>
+                    Native blur behind this panel
+                  </div>
+                </div>
+              </LiquidGlassBlur>
+            </div>
+          </ControlGroup>
+        </ControlsContent>
       </ControlsContainer>
 
       {showToolbar && (
-        <LiquidGlassToolbar
-          items={toolbarItems}
-          position="bottom"
-          floating={true}
-          blurStyle={selectedBlur}
-          onItemPress={handleToolbarAction}
-          visible={showToolbar}
-          animated={true}
-        />
+        <div style={{
+          position: 'fixed',
+          bottom: '120px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000
+        }}>
+          <LiquidGlassBlur
+            blurStyle={selectedBlur}
+            intensity={blurIntensity}
+            floating={true}
+            position="relative"
+            style={{ width: '300px', height: '60px' }}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-around',
+              padding: '8px 16px',
+              height: '100%'
+            }}>
+              {toolbarItems.filter(item => item.type === 'button').map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleToolbarAction(item, index, item.action)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    borderRadius: '8px',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
+                  onMouseOut={(e) => e.target.style.background = 'none'}
+                  title={item.title}
+                >
+                  {item.icon}
+                </button>
+              ))}
+            </div>
+          </LiquidGlassBlur>
+        </div>
       )}
     </DemoContainer>
   );

@@ -62,12 +62,13 @@ export const StatusItem = styled.div`
 `;
 
 export const ControlsContainer = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 20px;
-  right: 20px;
-  transform: translateY(-50%);
-  z-index: 999;
+  position: relative;
+  margin: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 10;
 `;
 
 export const ControlsContent = styled.div`
@@ -76,7 +77,7 @@ export const ControlsContent = styled.div`
 
 export const ControlGroup = styled.div`
   margin-bottom: 20px;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -104,17 +105,17 @@ export const StyleButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   background: ${props => (props.active
     ? "rgba(0, 122, 255, 0.8)"
     : "rgba(0, 0, 0, 0.1)")
   };
-  
+
   color: ${props => (props.active
     ? "white"
     : "rgba(0, 0, 0, 0.7)")
   };
-  
+
   &:hover {
     background: ${props => (props.active
       ? "rgba(0, 122, 255, 1)"
@@ -129,7 +130,7 @@ export const IntensitySlider = styled.input`
   border-radius: 2px;
   background: rgba(0, 0, 0, 0.1);
   outline: none;
-  
+
   &::-webkit-slider-thumb {
     appearance: none;
     width: 20px;
@@ -151,14 +152,14 @@ export const ToolbarToggle = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   background: ${props => (props.active
     ? "rgba(255, 59, 48, 0.8)"
     : "rgba(0, 122, 255, 0.8)")
   };
-  
+
   color: white;
-  
+
   &:hover {
     background: ${props => (props.active
       ? "rgba(255, 59, 48, 1)"
