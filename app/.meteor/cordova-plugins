@@ -2,7 +2,7 @@ cordova-plugin-add-swift-support@2.0.2
 cordova-plugin-console@1.1.0
 cordova-plugin-device@2.1.0
 cordova-plugin-floating-toolbar@file://plugins/cordova-plugin-floating-toolbar
-cordova-plugin-liquid-blur@file://plugins/cordova-plugin-floating-toolbar
+cordova-plugin-liquid-blur@file://plugins/cordova-plugin-liquid-blur
 cordova-plugin-meteor-webapp@2.0.1
 cordova-plugin-native-navbar@file://plugins/cordova-plugin-native-navbar
 cordova-plugin-statusbar@3.0.0
