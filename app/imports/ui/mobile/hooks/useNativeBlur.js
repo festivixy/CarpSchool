@@ -30,7 +30,18 @@ export const useNativeBlur = () => {
       // Wait for deviceready event
       const onDeviceReady = () => checkSupport();
       document.addEventListener("deviceready", onDeviceReady);
-      return () => document.removeEventListener("deviceready", onDeviceReady);
+
+      // Add timeout for web environments where deviceready never fires
+      const webTimeout = setTimeout(() => {
+        console.log("[useNativeBlur] ⏰ Web timeout - deviceready never fired, proceeding with web mode");
+        setIsSupported(false);
+        setIsLoading(false);
+      }, 2000); // 2 second timeout
+
+      return () => {
+        document.removeEventListener("deviceready", onDeviceReady);
+        clearTimeout(webTimeout);
+      };
     }
   }, []);
 
@@ -210,7 +221,18 @@ export const useFloatingToolbar = () => {
         checkSupport();
       };
       document.addEventListener("deviceready", onDeviceReady);
-      return () => document.removeEventListener("deviceready", onDeviceReady);
+
+      // Add timeout for web environments where deviceready never fires
+      const webTimeout = setTimeout(() => {
+        console.log("[useFloatingToolbar] ⏰ Web timeout - deviceready never fired, proceeding with web mode");
+        setIsSupported(false);
+        setIsLoading(false);
+      }, 2000); // 2 second timeout
+
+      return () => {
+        document.removeEventListener("deviceready", onDeviceReady);
+        clearTimeout(webTimeout);
+      };
     }
   }, []);
 
