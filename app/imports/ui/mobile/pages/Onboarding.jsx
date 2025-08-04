@@ -44,7 +44,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../styles/Onboarding";
-import Captcha from "../components/Captcha";
+import Captcha from "../../components/Captcha";
 
 /**
  * Mobile Onboarding component - Interactive profile creation flow

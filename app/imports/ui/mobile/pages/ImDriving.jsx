@@ -5,7 +5,7 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import MobileRide from "../components/Ride";
-import ConfirmFunction from "../components/ConfirmFunction";
+import ConfirmFunction from "../../components/ConfirmFunction";
 import "../../../api/chat/ChatMethods";
 import {
   Container,

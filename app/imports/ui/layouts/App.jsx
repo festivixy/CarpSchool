@@ -9,28 +9,28 @@ import {
 } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import MobileAdminRides from "../mobile/pages/AdminRides";
-import MobileAdminUsers from "../mobile/pages/AdminUsers";
+import MobileAdminRides from "../pages/AdminRides";
+import MobileAdminUsers from "../pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import LoadingPage from "../mobile/components/LoadingPage";
 import MobileNotFound from "../mobile/pages/NotFound";
-import MobileSignIn from "../mobile/pages/SignIn";
+import MobileSignIn from "../pages/SignIn";
 import LiquidGlassSignIn from "../mobile/liquidGlass/pages/SignIn";
-import MobileSignup from "../mobile/pages/Signup";
-import MobileForgotPassword from "../mobile/pages/ForgotPassword";
+import MobileSignup from "../pages/Signup";
+import MobileForgotPassword from "../pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
 import MobileNavBar from "../mobile/components/NavBar";
-import MobileChat from "../mobile/pages/Chat";
+import MobileChat from "../pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
-import MobileVerifyEmail from "../mobile/pages/VerifyEmail";
-import MobileEditProfile from "../mobile/pages/EditProfile";
+import MobileVerifyEmail from "../pages/VerifyEmail";
+import MobileEditProfile from "../pages/EditProfile";
 import MobileOnboarding from "../mobile/pages/Onboarding";
 import MobileTOS from "../mobile/pages/TOS";
 import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
 import MobilePlaceManager from "../mobile/pages/PlaceManager";
-import MobileAdminPlaceManager from "../mobile/pages/AdminPlaceManager";
+import MobileAdminPlaceManager from "../pages/AdminPlaceManager";
 import ProtectedRoutes, {
   ProtectedRoute,
   ProtectedRouteRequireNotLoggedIn,

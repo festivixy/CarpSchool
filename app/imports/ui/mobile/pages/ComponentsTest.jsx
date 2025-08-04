@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MapView from "../components/MapView";
+import MapView from "../../components/MapView";
 import InteractiveMapPicker from "../components/InteractiveMapPicker";
 import PathMapView from "../components/PathMapView";
 import LiquidGlassButton from "../liquidGlass/components/Button";
