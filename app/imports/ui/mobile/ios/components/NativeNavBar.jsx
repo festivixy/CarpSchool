@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
-import { Roles } from "meteor/alanning:roles";
 import useNativeNavBar from "../hooks/useNativeNavBar";
 import LiquidGlassDropdown from "../../liquidGlass/components/Dropdown";
 
@@ -216,7 +215,7 @@ const NativeNavBar = ({
     // Get profile dropdown options
     const getProfileDropdownOptions = () => {
       const currentUser = Meteor.user();
-      const isAdmin = currentUser && Roles.userIsInRole(currentUser._id, 'admin');
+      const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes('admin');
 
       if (currentUser) {
         const options = [
