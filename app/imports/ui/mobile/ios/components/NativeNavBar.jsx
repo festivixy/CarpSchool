@@ -194,23 +194,24 @@ const NativeNavBar = ({
     );
   }
 
-  // Not supported - return nothing (let CSS version handle it)
-  if (!isSupported) {
-    console.log("[NativeNavBar] ❌ Native navbar not supported:", {
-      iosVersion,
+  // Render based on support and visibility
+  if (!isSupported || !visible) {
+    console.log("[NativeNavBar] ❌ Not rendering - not supported or not visible:", {
       isSupported,
+      visible,
+      iosVersion,
       platform: window.cordova ? 'Cordova' : 'Web',
     });
     return null;
   }
 
-  // Native navbar is active - render invisible placeholder with dropdown overlay
-  if (navBarId && visible) {
-    console.log("[NativeNavBar] 🍎 Rendering native placeholder:", {
-      navBarId,
-      activeIndex: currentActiveIndex,
-      itemCount: items.length,
-    });
+  // Native navbar is supported and visible
+  console.log("[NativeNavBar] 🍎 Rendering native navbar:", {
+    navBarId,
+    activeIndex: currentActiveIndex,
+    itemCount: items.length,
+    hasNavBarId: !!navBarId,
+  });
 
     // Get profile dropdown options
     const getProfileDropdownOptions = () => {
@@ -284,36 +285,146 @@ const NativeNavBar = ({
       }
     };
 
-    return (
-      <>
-        <div
-          ref={navBarRef}
-          className={className}
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 83,
-            pointerEvents: 'none', // Let native navbar handle touches
-            ...style
-          }}
-          {...props}
-        >
-          <div style={{
-            position: 'absolute',
-            bottom: 8,
-            right: 8,
-            fontSize: '10px',
-            color: 'rgba(0,0,0,0.3)',
-            userSelect: 'none',
-            pointerEvents: 'none'
-          }}>
-            Native iOS
+    // If native navbar was created successfully, render placeholder
+    if (navBarId) {
+      return (
+        <>
+          <div
+            ref={navBarRef}
+            className={className}
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 83,
+              pointerEvents: 'none', // Let native navbar handle touches
+              ...style
+            }}
+            {...props}
+          >
+            <div style={{
+              position: 'absolute',
+              bottom: 8,
+              right: 8,
+              fontSize: '10px',
+              color: 'rgba(0,0,0,0.3)',
+              userSelect: 'none',
+              pointerEvents: 'none'
+            }}>
+              Native iOS
+            </div>
           </div>
+
+          {/* Profile Dropdown Overlay */}
+          {profileDropdownOpen && (
+            <div
+              style={{
+                position: 'fixed',
+                bottom: 100,
+                right: 20,
+                zIndex: 10000,
+                pointerEvents: 'auto',
+              }}
+              onClick={(e) => {
+                // Close dropdown if clicking outside
+                if (e.target === e.currentTarget) {
+                  setProfileDropdownOpen(false);
+                }
+              }}
+            >
+              <LiquidGlassDropdown
+                options={getProfileDropdownOptions()}
+                value={null}
+                placeholder="Profile Menu"
+                onChange={handleDropdownSelect}
+                onOpen={() => {}}
+                onClose={() => setProfileDropdownOpen(false)}
+                width="200px"
+                position="top"
+                searchable={false}
+                disabled={false}
+                loading={false}
+                clearable={false}
+              />
+            </div>
+          )}
+        </>
+      );
+    }
+
+    // Native navbar creation failed - render fallback CSS navbar
+    console.log("[NativeNavBar] 🔄 Rendering fallback CSS navbar - native creation failed");
+    return (
+      <div
+        ref={navBarRef}
+        className={className}
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 83,
+          backgroundColor: 'rgba(0,0,0,0.9)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          backdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          ...style
+        }}
+        {...props}
+      >
+        {items.map((item, index) => (
+          <button
+            key={item.id || index}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: index === currentActiveIndex ? '#007AFF' : 'white',
+              fontSize: '24px',
+              padding: '8px',
+              borderRadius: '8px',
+              minWidth: '44px',
+              minHeight: '44px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'color 0.2s ease',
+            }}
+            onClick={() => {
+              setCurrentActiveIndex(index);
+              if (item.id === 'profile' || item.action === 'profile') {
+                setProfileDropdownOpen(true);
+              } else if (onItemPress) {
+                onItemPress(item, index, item.action);
+              }
+            }}
+          >
+            <div style={{ fontSize: '20px', marginBottom: '2px' }}>
+              {item.icon}
+            </div>
+            <div style={{ fontSize: '10px', fontWeight: '500' }}>
+              {item.label}
+            </div>
+          </button>
+        ))}
+
+        <div style={{
+          position: 'absolute',
+          bottom: 8,
+          right: 8,
+          fontSize: '10px',
+          color: 'rgba(255,255,255,0.5)',
+          userSelect: 'none',
+          pointerEvents: 'none'
+        }}>
+          CSS Fallback
         </div>
 
-        {/* Profile Dropdown Overlay */}
+        {/* Profile Dropdown Overlay for fallback navbar */}
         {profileDropdownOpen && (
           <div
             style={{
@@ -346,12 +457,8 @@ const NativeNavBar = ({
             />
           </div>
         )}
-      </>
+      </div>
     );
-  }
-
-  // Hidden state
-  return null;
 };
 
 NativeNavBar.propTypes = {
