@@ -65,7 +65,12 @@ export const useNativeBlur = () => {
   }, [isSupported]);
 
   const removeBlurView = useCallback(async (blurId) => {
-    if (!isSupported || !window.cordova?.plugins?.liquidBlur) {
+    if (!isSupported || !window.cordova?.plugins?.liquidBlur || !blurId) {
+      return;
+    }
+
+    // Check if blur view exists before trying to remove
+    if (!blurViewsRef.current.has(blurId)) {
       return;
     }
 
@@ -73,7 +78,12 @@ export const useNativeBlur = () => {
       await window.cordova.plugins.liquidBlur.promise.removeBlurView(blurId);
       blurViewsRef.current.delete(blurId);
     } catch (error) {
-      console.error("[useNativeBlur] Failed to remove blur view:", error);
+      // Only log error if it's not "blur view not found"
+      if (!error.message?.includes("not found")) {
+        console.error("[useNativeBlur] Failed to remove blur view:", error);
+      }
+      // Always remove from our tracking
+      blurViewsRef.current.delete(blurId);
     }
   }, [isSupported]);
 

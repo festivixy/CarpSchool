@@ -52,36 +52,51 @@ const LiquidGlassBlur = ({
 
     return () => {
       mountedRef.current = false;
-    };
-  }, [nativeSupported, isLoading]);
-
-  // Create native blur view when component mounts
-  useEffect(() => {
-    if (useNative && !blurId && containerRef.current) {
-      createNativeBlur();
-    }
-
-    return () => {
+      // Ensure cleanup on unmount
       if (blurId) {
         removeBlurView(blurId).catch(console.error);
       }
     };
-  }, [useNative, blurId]);
+  }, [nativeSupported, isLoading, blurId, removeBlurView]);
+
+  // Create native blur view when component mounts
+  useEffect(() => {
+    if (useNative && !blurId && containerRef.current) {
+      // Delay creation slightly to ensure DOM is settled
+      const timer = setTimeout(() => {
+        if (mountedRef.current && containerRef.current) {
+          createNativeBlur();
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+
+    return () => {
+      if (blurId && mountedRef.current) {
+        removeBlurView(blurId).catch(console.error);
+      }
+    };
+  }, [useNative, blurId, createNativeBlur, removeBlurView]);
 
   const createNativeBlur = useCallback(async () => {
     if (!useNative || !containerRef.current) return;
 
     try {
+      // Calculate actual DOM element position and size
+      const rect = containerRef.current.getBoundingClientRect();
+      const actualFrame = frame || {
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height,
+      };
+
       const blurOptions = {
         style: blurStyle,
         alpha: intensity,
         floating: floating,
-        frame: frame || {
-          x: 0,
-          y: 0,
-          width: "100%",
-          height: "100%",
-        },
+        frame: actualFrame,
       };
 
       const id = await createBlurView(blurOptions);
@@ -101,14 +116,51 @@ const LiquidGlassBlur = ({
 
   // Update native blur when props change
   useEffect(() => {
-    if (useNative && blurId) {
+    if (useNative && blurId && containerRef.current) {
+      // Recalculate frame on updates
+      const rect = containerRef.current.getBoundingClientRect();
+      const actualFrame = frame || {
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height,
+      };
+
       updateBlurView(blurId, {
         style: blurStyle,
         alpha: intensity,
         floating: floating,
+        frame: actualFrame,
       }).catch(console.error);
     }
-  }, [blurStyle, intensity, floating, blurId, useNative, updateBlurView]);
+  }, [blurStyle, intensity, floating, frame, blurId, useNative, updateBlurView]);
+
+  // Handle window resize to update frame position
+  useEffect(() => {
+    if (!useNative || !blurId) return;
+
+    const handleResize = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const actualFrame = frame || {
+          x: rect.left,
+          y: rect.top,
+          width: rect.width,
+          height: rect.height,
+        };
+
+        updateBlurView(blurId, { frame: actualFrame }).catch(console.error);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, [useNative, blurId, frame, updateBlurView]);
 
   // Handle visibility changes
   const handleVisibilityChange = useCallback((visible) => {
@@ -139,6 +191,15 @@ const LiquidGlassBlur = ({
   }, [useNative, isLoading, onBlurReady]);
 
   if (isLoading) {
+    return (
+      <SimpleLoadingContainer ref={containerRef} className={className} style={style} {...props}>
+        {children}
+      </SimpleLoadingContainer>
+    );
+  }
+
+  // Prevent flash by not rendering until we've determined blur type
+  if (useNative && !blurId && nativeSupported) {
     return (
       <SimpleLoadingContainer ref={containerRef} className={className} style={style} {...props}>
         {children}
