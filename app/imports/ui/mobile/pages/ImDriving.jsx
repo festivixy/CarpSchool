@@ -3,10 +3,10 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
-import { Rides } from "../../../api/ride/Rides";
+import { Rides } from "/imports/api/ride/Rides";
 import MobileRide from "../components/Ride";
 import ConfirmFunction from "../../components/ConfirmFunction";
-import "../../../api/chat/ChatMethods";
+import "/imports/api/chat/ChatMethods";
 import {
   Container,
   Header,

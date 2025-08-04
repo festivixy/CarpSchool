@@ -2,9 +2,9 @@ import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
-import { Rides } from "../../api/ride/Rides";
-import { Places } from "../../api/places/Places.js";
-import { Captcha } from "../../api/captcha/Captcha";
+import { Rides } from "/imports/api/ride/Rides";
+import { Places } from "/imports/api/places/Places.js";
+import { Captcha } from "/imports/api/captcha/Captcha";
 
 /* eslint-disable no-console */
 

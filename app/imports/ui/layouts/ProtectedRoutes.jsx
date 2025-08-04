@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Route, Redirect } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { Profiles } from "../../api/profile/Profile";
+import { Profiles } from "/imports/api/profile/Profile";
 import LoadingPage from "../mobile/components/LoadingPage";
 
 /**

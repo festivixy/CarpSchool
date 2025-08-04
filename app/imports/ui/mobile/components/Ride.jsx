@@ -5,7 +5,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
-import { Places } from "../../../api/places/Places.js";
+import { Places } from "/imports/api/places/Places.js";
 import RouteMapView from "./RouteMapView.jsx";
 import {
   RideCard,
