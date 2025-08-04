@@ -84,7 +84,7 @@ const LiquidGlassToolbar = ({
         }
       });
     }
-  }, [useNative, onItemPress, toolbarItems, setActionHandler]);
+  }, [useNative, onItemPress, toolbarItems]);
 
   // Create native toolbar when component mounts
   useEffect(() => {
