@@ -4,12 +4,13 @@
  */
 
 var exec;
-try {
-    exec = require('cordova/exec');
-} catch (e) {
-    // cordova/exec not available in web builds
+// In Meteor, cordova is available as a global object when running in Cordova environment
+if (typeof cordova !== 'undefined' && cordova.exec) {
+    exec = cordova.exec;
+} else {
+    // Fallback for web builds or when cordova is not available
     exec = function() {
-        console.warn('[FloatingToolbar] cordova/exec not available');
+        console.warn('[FloatingToolbar] cordova.exec not available');
     };
 }
 
