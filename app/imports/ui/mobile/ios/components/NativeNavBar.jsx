@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import { Meteor } from "meteor/meteor";
+import { FlowRouter } from "meteor/kadira:flow-router";
+import { Roles } from "meteor/alanning:roles";
 import useNativeNavBar from "../hooks/useNativeNavBar";
 import LiquidGlassDropdown from "../../liquidGlass/components/Dropdown";
 
@@ -212,42 +215,73 @@ const NativeNavBar = ({
 
     // Get profile dropdown options
     const getProfileDropdownOptions = () => {
-      const currentUser = window.Meteor?.user();
-      const isAdmin = currentUser?.profile?.isAdmin;
+      const currentUser = Meteor.user();
+      const isAdmin = currentUser && Roles.userIsInRole(currentUser._id, 'admin');
 
       if (currentUser) {
         const options = [
-          { value: '/editProfile', label: '📋 Edit Profile' },
-          { value: '/places', label: '📍 My Places' },
+          { value: 'edit-profile', label: '📋 Edit Profile' },
+          { value: 'my-places', label: '📍 My Places' },
         ];
 
         if (isAdmin) {
           options.push(
-            { value: '/adminRides', label: '🚗 Manage Rides' },
-            { value: '/adminUsers', label: '👥 Manage Users' },
-            { value: '/adminPlaces', label: '📍 Manage Places' },
-            { value: '/_test', label: '🧪 Components Test' }
+            { value: 'admin-rides', label: '🚗 Manage Rides' },
+            { value: 'admin-users', label: '👥 Manage Users' },
+            { value: 'admin-places', label: '📍 Manage Places' },
+            { value: 'components-test', label: '🧪 Components Test' }
           );
         }
 
-        options.push({ value: '/signout', label: '🚪 Sign Out' });
+        options.push({ value: 'sign-out', label: '🚪 Sign Out' });
         return options;
       } else {
         return [
-          { value: '/signin', label: '👤 Sign In' },
-          { value: '/signup', label: '📝 Sign Up' },
+          { value: 'sign-in', label: '👤 Sign In' },
+          { value: 'sign-up', label: '📝 Sign Up' },
         ];
       }
     };
 
     const handleDropdownSelect = (option) => {
       setProfileDropdownOpen(false);
-      if (option.value === '/signout') {
-        // Handle sign out
-        window.FlowRouter?.go('/signout');
-      } else {
-        // Navigate to selected route
-        window.FlowRouter?.go(option.value);
+
+      switch (option.value) {
+        case 'edit-profile':
+          FlowRouter.go('/editProfile');
+          break;
+        case 'my-places':
+          FlowRouter.go('/places');
+          break;
+        case 'admin-rides':
+          FlowRouter.go('/adminRides');
+          break;
+        case 'admin-users':
+          FlowRouter.go('/adminUsers');
+          break;
+        case 'admin-places':
+          FlowRouter.go('/adminPlaceManager');
+          break;
+        case 'components-test':
+          FlowRouter.go('/_test');
+          break;
+        case 'sign-out':
+          Meteor.logout((err) => {
+            if (err) {
+              console.error('Logout error:', err);
+            } else {
+              FlowRouter.go('/');
+            }
+          });
+          break;
+        case 'sign-in':
+          FlowRouter.go('/signin');
+          break;
+        case 'sign-up':
+          FlowRouter.go('/signup');
+          break;
+        default:
+          console.warn('Unknown dropdown option:', option.value);
       }
     };
 
@@ -282,20 +316,34 @@ const NativeNavBar = ({
 
         {/* Profile Dropdown Overlay */}
         {profileDropdownOpen && (
-          <div style={{
-            position: 'fixed',
-            bottom: 100,
-            right: 20,
-            zIndex: 10000,
-            pointerEvents: 'auto',
-          }}>
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 100,
+              right: 20,
+              zIndex: 10000,
+              pointerEvents: 'auto',
+            }}
+            onClick={(e) => {
+              // Close dropdown if clicking outside
+              if (e.target === e.currentTarget) {
+                setProfileDropdownOpen(false);
+              }
+            }}
+          >
             <LiquidGlassDropdown
               options={getProfileDropdownOptions()}
+              value={null}
               placeholder="Profile Menu"
-              onSelect={handleDropdownSelect}
+              onChange={handleDropdownSelect}
+              onOpen={() => {}}
               onClose={() => setProfileDropdownOpen(false)}
-              isOpen={profileDropdownOpen}
+              width="200px"
+              position="top"
               searchable={false}
+              disabled={false}
+              loading={false}
+              clearable={false}
             />
           </div>
         )}

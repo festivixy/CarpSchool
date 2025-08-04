@@ -176,23 +176,23 @@ const NativeBlurDemo = () => {
 
     switch (item.action) {
       case 'home':
-        alert('Navigate to My Rides');
+        FlowRouter.go('/myRides');
         break;
       case 'join':
-        alert('Open Join Ride Modal');
+        FlowRouter.go('/imRiding');
         break;
       case 'create':
-        alert('Open Create Ride Modal');
+        FlowRouter.go('/imDriving');
         break;
       case 'messages':
-        alert('Navigate to Messages/Chat');
+        FlowRouter.go('/chat');
         break;
       case 'profile':
         // Profile dropdown is handled automatically by NativeNavBar
         console.log('Profile dropdown should open');
         break;
       default:
-        alert(`Navigated to: ${item.label}`);
+        console.warn(`Unknown navbar action: ${item.action}`);
     }
   };
 
