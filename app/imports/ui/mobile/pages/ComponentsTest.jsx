@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { withRouter } from "react-router-dom";
 import MapView from "../../components/MapView";
 import InteractiveMapPicker from "../components/InteractiveMapPicker";
 import PathMapView from "../components/PathMapView";
@@ -32,7 +33,7 @@ import FooterVerbose from "../components/FooterVerbose";
 /**
  * Test page for MapView component - Admin only
  */
-const MobileTestMapView = () => {
+const MobileTestMapView = ({ history }) => {
   const [coordinates, setCoordinates] = useState([
     { lat: 49.345196, lng: -123.149805, label: "Vancouver" },
     { lat: 49.35, lng: -123.155, label: "Point 2" },
@@ -53,6 +54,7 @@ const MobileTestMapView = () => {
   const [dropdownValue, setDropdownValue] = useState(null);
   const [multiDropdownValue, setMultiDropdownValue] = useState([]);
   const [searchDropdownValue, setSearchDropdownValue] = useState(null);
+  const [gotoTestInput, setGotoTestInput] = useState("");
 
   // PathMapView state
   const [pathStartCoord, setPathStartCoord] = useState({
@@ -235,6 +237,12 @@ const MobileTestMapView = () => {
     setPathEndCoord(tempCoord);
     setPathEndLat(tempLat);
     setPathEndLng(tempLng);
+  };
+
+  const handleGotoTest = () => {
+    if (gotoTestInput.trim()) {
+      history.push(`/_test/${gotoTestInput.trim()}`);
+    }
   };
 
   return (
@@ -1240,6 +1248,62 @@ const MobileTestMapView = () => {
         </Section>
 
         <Section>
+          <SectionTitle>🚀 Goto Test</SectionTitle>
+          <SectionContent>
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>Navigation Tool</InfoLabel>
+                <InfoValue>
+                  Enter a test path to navigate to /_test/ + your input.
+                  Use this to quickly navigate to different test pages or routes.
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+
+            <ControlsGrid>
+              <ControlItem>
+                <LiquidGlassTextInput
+                  label="Test Path"
+                  type="text"
+                  value={gotoTestInput}
+                  onChange={(e) => setGotoTestInput(e.target.value)}
+                  placeholder="Enter test path (e.g., components, login, maps)"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleGotoTest();
+                    }
+                  }}
+                />
+              </ControlItem>
+              <ControlItem>
+                <Label>Actions</Label>
+                <LiquidGlassButton
+                  label="Go to Test"
+                  onClick={handleGotoTest}
+                />
+              </ControlItem>
+            </ControlsGrid>
+
+            <InfoCard>
+              <InfoItem>
+                <InfoLabel>📱 Usage Instructions</InfoLabel>
+                <InfoValue>
+                  1. Enter a test path in the input field above
+                  <br />
+                  2. Click "Go to Test" button or press Enter
+                  <br />
+                  3. You will be redirected to /_test/ + your input
+                  <br />
+                  4. Example: entering "components" goes to /_test/components
+                  <br />
+                  5. Use this for quick navigation during development and testing
+                </InfoValue>
+              </InfoItem>
+            </InfoCard>
+          </SectionContent>
+        </Section>
+
+        <Section>
           <SectionTitle>📱 LiquidGlass Mobile NavBar Test</SectionTitle>
           <SectionContent>
             <InfoCard>
@@ -1364,4 +1428,4 @@ const MobileTestMapView = () => {
   );
 };
 
-export default MobileTestMapView;
+export default withRouter(MobileTestMapView);
