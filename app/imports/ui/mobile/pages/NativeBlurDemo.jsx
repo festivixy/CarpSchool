@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import LiquidGlassBlur from "../liquidGlass/components/LiquidGlassBlur";
 import LiquidGlassMobileNavBarCSS from "../liquidGlass/components/LiquidGlassMobileNavBarCSS";
-import iOS26NativeNavBar from "../ios/components/iOS26NativeNavBar";
+import NativeNavBar from "../ios/components/NativeNavBar";
 import { useNativeBlur } from "../hooks/useNativeBlur";
-import useNativeiOS26NavBar from "../ios/hooks/useNativeiOS26NavBar";
+import useNativeNavBar from "../ios/hooks/useNativeNavBar";
 import {
   DemoContainer,
   BackgroundContent,
@@ -48,7 +48,7 @@ const NativeBlurDemo = () => {
     isSupported: nativeNavBarSupported,
     isLoading: nativeNavBarLoading,
     iosVersion,
-  } = useNativeiOS26NavBar();
+  } = useNativeNavBar();
 
   const [availableStyles, setAvailableStyles] = useState([]);
 
@@ -87,7 +87,7 @@ const NativeBlurDemo = () => {
       }).join(' ');
 
       // Only log if it contains our keywords
-      if (message.includes('LiquidGlass') || message.includes('NavBarCSS') || message.includes('iOS26NavBar') || message.includes('useNativeiOS26NavBar')) {
+      if (message.includes('LiquidGlass') || message.includes('NavBarCSS') || message.includes('NativeNavBar') || message.includes('useNativeNavBar')) {
         pendingLogs.push({
           type,
           timestamp,
@@ -103,21 +103,21 @@ const NativeBlurDemo = () => {
 
     console.log = (...args) => {
       originalLog(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('iOS26NavBar') || String(arg).includes('useNativeiOS26NavBar'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('NativeNavBar') || String(arg).includes('useNativeNavBar'))) {
         addLog('log', args);
       }
     };
 
     console.error = (...args) => {
       originalError(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('iOS26NavBar') || String(arg).includes('useNativeiOS26NavBar'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('NativeNavBar') || String(arg).includes('useNativeNavBar'))) {
         addLog('error', args);
       }
     };
 
     console.warn = (...args) => {
       originalWarn(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('iOS26NavBar') || String(arg).includes('useNativeiOS26NavBar'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('NativeNavBar') || String(arg).includes('useNativeNavBar'))) {
         addLog('warn', args);
       }
     };
@@ -175,7 +175,7 @@ const NativeBlurDemo = () => {
       isCordova: !!window.cordova,
       isMeteorCordova: !!window.Meteor?.isCordova,
       hasLiquidBlurPlugin: !!window.cordova?.plugins?.liquidBlur,
-      hasiOS26NavBarPlugin: !!window.cordova?.plugins?.iOS26NavBar,
+      hasNativeNavBarPlugin: !!window.cordova?.plugins?.NativeNavBar,
       userAgent: navigator.userAgent,
       iosVersion: window.device?.version || 'unknown',
       nativeNavBarSupported,
@@ -212,7 +212,7 @@ const NativeBlurDemo = () => {
           iOS Version: {iosVersion || 'Unknown'}
         </StatusItem>
         <StatusItem>
-          Native iOS 26 NavBar: {nativeNavBarSupported ? "✅ Available" : "❌ Not Available"}
+          Native iOS NavBar: {nativeNavBarSupported ? "✅ Available" : "❌ Not Available"}
         </StatusItem>
         <StatusItem>
           CSS NavBar: ✅ Always Available (Fallback)
@@ -355,8 +355,8 @@ const NativeBlurDemo = () => {
 
       {showNavBar && (
         <>
-          {/* Native iOS 26 NavBar - Only renders on iOS 26+ */}
-          <iOS26NativeNavBar
+          {/* Native iOS NavBar - Available on all iOS versions */}
+          <NativeNavBar
             items={navBarItems}
             onItemPress={handleNavBarAction}
             visible={showNavBar}

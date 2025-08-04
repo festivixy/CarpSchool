@@ -19,10 +19,8 @@ export const NativeNavBarContainer = styled.div`
   /* Only used when native navbar is not available */
   &.fallback {
     pointer-events: auto;
-    background: rgba(249, 249, 249, 0.78);
-    backdrop-filter: blur(20px) saturate(1.8);
-    -webkit-backdrop-filter: blur(20px) saturate(1.8);
-    border-top: 0.5px solid rgba(255, 255, 255, 0.2);
+    background: rgba(249, 249, 249, 0.9);
+    border-top: 0.5px solid rgba(0, 0, 0, 0.2);
     
     display: flex;
     align-items: center;
@@ -46,9 +44,8 @@ export const LoadingIndicator = styled.div`
   align-items: center;
   justify-content: center;
   
-  background: rgba(249, 249, 249, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(249, 249, 249, 0.9);
+  border-top: 0.5px solid rgba(0, 0, 0, 0.2);
   
   font-size: 14px;
   color: #666;

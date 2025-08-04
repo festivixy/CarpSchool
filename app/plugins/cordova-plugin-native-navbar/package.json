@@ -1,8 +1,8 @@
 {
-  "name": "cordova-plugin-ios26-navbar",
+  "name": "cordova-plugin-native-navbar",
   "version": "1.0.0",
-  "description": "Native iOS 26 Liquid Glass navigation bar for Cordova applications",
-  "main": "www/iOS26NavBar.js",
+  "description": "Native iOS navigation bar for Cordova applications",
+  "main": "www/NativeNavBar.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,8 +11,6 @@
     "ios",
     "navbar",
     "navigation",
-    "liquid glass",
-    "ios26",
     "native",
     "uitabbar"
   ],
@@ -20,14 +18,14 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/carpschool/cordova-plugin-ios26-navbar.git"
+    "url": "https://github.com/carpschool/cordova-plugin-native-navbar.git"
   },
   "bugs": {
-    "url": "https://github.com/carpschool/cordova-plugin-ios26-navbar/issues"
+    "url": "https://github.com/carpschool/cordova-plugin-native-navbar/issues"
   },
-  "homepage": "https://github.com/carpschool/cordova-plugin-ios26-navbar#readme",
+  "homepage": "https://github.com/carpschool/cordova-plugin-native-navbar#readme",
   "cordova": {
-    "id": "cordova-plugin-ios26-navbar",
+    "id": "cordova-plugin-native-navbar",
     "platforms": [
       "ios"
     ]

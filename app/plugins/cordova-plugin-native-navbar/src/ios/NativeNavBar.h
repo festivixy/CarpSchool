@@ -1,7 +1,7 @@
 #import <Cordova/CDVPlugin.h>
 #import <UIKit/UIKit.h>
 
-@interface iOS26NavBar : CDVPlugin
+@interface NativeNavBar : CDVPlugin
 
 // Plugin methods
 - (void)isSupported:(CDVInvokedUrlCommand*)command;

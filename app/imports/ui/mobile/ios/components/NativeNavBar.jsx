@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import useNativeiOS26NavBar from "../hooks/useNativeiOS26NavBar";
+import useNativeNavBar from "../hooks/useNativeNavBar";
 
 /**
- * iOS26NativeNavBar Component
+ * NativeNavBar Component
  *
- * Provides true native iOS 26 liquid glass navigation bar
- * Uses UITabBar with iOS 26 system materials for authentic look
- * Falls back gracefully on non-iOS 26 devices
+ * Provides native iOS navigation bar using UITabBar
+ * Uses standard iOS appearance and works on all iOS versions
+ * Falls back gracefully on non-iOS devices
  */
-const iOS26NativeNavBar = ({
+const NativeNavBar = ({
   items = [],
   visible = true,
   onItemPress = null,
@@ -29,7 +29,7 @@ const iOS26NativeNavBar = ({
     hideNavBar,
     removeNavBar,
     setActionHandler,
-  } = useNativeiOS26NavBar();
+  } = useNativeNavBar();
 
   const [navBarId, setNavBarId] = useState(null);
   const [currentActiveIndex, setCurrentActiveIndex] = useState(activeIndex);
@@ -40,29 +40,29 @@ const iOS26NativeNavBar = ({
     setCurrentActiveIndex(activeIndex);
     if (navBarId && isSupported) {
       setActiveItem(navBarId, activeIndex).catch((error) => {
-        console.error("[iOS26NativeNavBar] ❌ Failed to set active item:", error);
+        console.error("[NativeNavBar] ❌ Failed to set active item:", error);
       });
     }
   }, [activeIndex, navBarId, isSupported, setActiveItem]);
 
   // Set up action handler for native navbar
   useEffect(() => {
-    console.log("[iOS26NativeNavBar] 🎛️ Setting up action handler:", {
+    console.log("[NativeNavBar] 🎛️ Setting up action handler:", {
       isSupported,
       hasOnItemPress: !!onItemPress,
       itemCount: items.length,
     });
 
     if (isSupported && onItemPress) {
-      console.log("[iOS26NativeNavBar] ✅ Registering native action handler");
+      console.log("[NativeNavBar] ✅ Registering native action handler");
       setActionHandler((navBarId, action, itemIndex) => {
-        console.log("[iOS26NativeNavBar] 🔥 Native action triggered:", {
+        console.log("[NativeNavBar] 🔥 Native action triggered:", {
           navBarId,
           action,
           itemIndex,
           item: items[itemIndex],
         });
-
+        
         const item = items[itemIndex];
         if (item && onItemPress) {
           setCurrentActiveIndex(itemIndex);
@@ -75,7 +75,7 @@ const iOS26NativeNavBar = ({
   // Create native navbar when component mounts
   useEffect(() => {
     if (!isSupported || !visible) {
-      console.log("[iOS26NativeNavBar] ❌ Cannot create navbar:", {
+      console.log("[NativeNavBar] ❌ Cannot create navbar:", {
         isSupported,
         visible,
         iosVersion,
@@ -83,38 +83,37 @@ const iOS26NativeNavBar = ({
       return;
     }
 
-    console.log("[iOS26NativeNavBar] 🏗️ Creating native navbar...");
-
+    console.log("[NativeNavBar] 🏗️ Creating native navbar...");
+    
     const createNativeNavBar = async () => {
       try {
         // Create the navbar
         const newNavBarId = await createNavBar({
           position: "bottom",
-          blurStyle: "systemMaterial",
           safeArea: true,
         });
-
-        console.log("[iOS26NativeNavBar] ✅ Native navbar created:", newNavBarId);
+        
+        console.log("[NativeNavBar] ✅ Native navbar created:", newNavBarId);
         setNavBarId(newNavBarId);
 
         // Set items
         if (items.length > 0) {
           await setNavBarItems(newNavBarId, items);
-          console.log("[iOS26NativeNavBar] ✅ NavBar items set");
+          console.log("[NativeNavBar] ✅ NavBar items set");
         }
 
         // Set active item
         if (currentActiveIndex >= 0 && currentActiveIndex < items.length) {
           await setActiveItem(newNavBarId, currentActiveIndex);
-          console.log("[iOS26NativeNavBar] ✅ Active item set to:", currentActiveIndex);
+          console.log("[NativeNavBar] ✅ Active item set to:", currentActiveIndex);
         }
 
         // Show navbar
         await showNavBar(newNavBarId);
-        console.log("[iOS26NativeNavBar] ✅ Native navbar shown");
+        console.log("[NativeNavBar] ✅ Native navbar shown");
 
       } catch (error) {
-        console.error("[iOS26NativeNavBar] ❌ Failed to create native navbar:", error);
+        console.error("[NativeNavBar] ❌ Failed to create native navbar:", error);
       }
     };
 
@@ -123,9 +122,9 @@ const iOS26NativeNavBar = ({
     // Cleanup function
     return () => {
       if (navBarId) {
-        console.log("[iOS26NativeNavBar] 🧹 Cleaning up navbar:", navBarId);
+        console.log("[NativeNavBar] 🧹 Cleaning up navbar:", navBarId);
         removeNavBar(navBarId).catch((error) => {
-          console.error("[iOS26NativeNavBar] ❌ Cleanup error:", error);
+          console.error("[NativeNavBar] ❌ Cleanup error:", error);
         });
       }
     };
@@ -134,9 +133,9 @@ const iOS26NativeNavBar = ({
   // Update items when they change
   useEffect(() => {
     if (navBarId && items.length > 0) {
-      console.log("[iOS26NativeNavBar] 🔄 Updating navbar items");
+      console.log("[NativeNavBar] 🔄 Updating navbar items");
       setNavBarItems(navBarId, items).catch((error) => {
-        console.error("[iOS26NativeNavBar] ❌ Failed to update items:", error);
+        console.error("[NativeNavBar] ❌ Failed to update items:", error);
       });
     }
   }, [navBarId, items, setNavBarItems]);
@@ -146,11 +145,11 @@ const iOS26NativeNavBar = ({
     if (navBarId) {
       if (visible) {
         showNavBar(navBarId).catch((error) => {
-          console.error("[iOS26NativeNavBar] ❌ Failed to show navbar:", error);
+          console.error("[NativeNavBar] ❌ Failed to show navbar:", error);
         });
       } else {
         hideNavBar(navBarId).catch((error) => {
-          console.error("[iOS26NativeNavBar] ❌ Failed to hide navbar:", error);
+          console.error("[NativeNavBar] ❌ Failed to hide navbar:", error);
         });
       }
     }
@@ -158,9 +157,9 @@ const iOS26NativeNavBar = ({
 
   // Loading state
   if (isLoading) {
-    console.log("[iOS26NativeNavBar] ⏳ Rendering loading state");
+    console.log("[NativeNavBar] ⏳ Rendering loading state");
     return (
-      <div
+      <div 
         className={className}
         style={{
           position: 'fixed',
@@ -177,7 +176,7 @@ const iOS26NativeNavBar = ({
         {...props}
       >
         <div style={{ fontSize: '14px', color: '#666' }}>
-          Initializing Native iOS 26 NavBar...
+          Initializing Native NavBar...
         </div>
       </div>
     );
@@ -185,7 +184,7 @@ const iOS26NativeNavBar = ({
 
   // Not supported - return nothing (let CSS version handle it)
   if (!isSupported) {
-    console.log("[iOS26NativeNavBar] ❌ Native navbar not supported:", {
+    console.log("[NativeNavBar] ❌ Native navbar not supported:", {
       iosVersion,
       isSupported,
       platform: window.cordova ? 'Cordova' : 'Web',
@@ -195,14 +194,14 @@ const iOS26NativeNavBar = ({
 
   // Native navbar is active - render invisible placeholder
   if (navBarId && visible) {
-    console.log("[iOS26NativeNavBar] 🍎 Rendering native placeholder:", {
+    console.log("[NativeNavBar] 🍎 Rendering native placeholder:", {
       navBarId,
       activeIndex: currentActiveIndex,
       itemCount: items.length,
     });
-
+    
     return (
-      <div
+      <div 
         ref={navBarRef}
         className={className}
         style={{
@@ -216,7 +215,7 @@ const iOS26NativeNavBar = ({
         }}
         {...props}
       >
-        <div style={{
+        <div style={{ 
           position: 'absolute',
           bottom: 8,
           right: 8,
@@ -225,7 +224,7 @@ const iOS26NativeNavBar = ({
           userSelect: 'none',
           pointerEvents: 'none'
         }}>
-          Native iOS 26
+          Native iOS
         </div>
       </div>
     );
@@ -235,7 +234,7 @@ const iOS26NativeNavBar = ({
   return null;
 };
 
-iOS26NativeNavBar.propTypes = {
+NativeNavBar.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
@@ -252,4 +251,4 @@ iOS26NativeNavBar.propTypes = {
   style: PropTypes.object,
 };
 
-export default iOS26NativeNavBar;
+export default NativeNavBar;

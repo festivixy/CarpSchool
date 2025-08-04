@@ -1,0 +1,230 @@
+import { useState, useEffect, useCallback, useRef } from 'react';
+
+/**
+ * Hook for managing native iOS navigation bars
+ * Provides interface to native iOS navbar functionality
+ */
+export const useNativeNavBar = () => {
+  const [isSupported, setIsSupported] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [iosVersion, setIOSVersion] = useState(null);
+  const navBarsRef = useRef(new Map());
+  const actionHandlerRef = useRef(null);
+
+  useEffect(() => {
+    const checkSupport = async () => {
+      console.log("[useNativeNavBar] 🔍 Starting support check:", {
+        hasCordova: !!window.cordova,
+        hasPlugin: !!window.cordova?.plugins?.NativeNavBar,
+        hasPromise: !!window.cordova?.plugins?.NativeNavBar?.promise,
+      });
+
+      try {
+        if (window.cordova?.plugins?.NativeNavBar) {
+          console.log("[useNativeNavBar] 🚀 Calling isSupported()...");
+          
+          // Get iOS version first
+          const version = await window.cordova.plugins.NativeNavBar.promise.getIOSVersion();
+          setIOSVersion(version);
+          console.log("[useNativeNavBar] 📱 iOS Version:", version);
+          
+          // Check if native navbar is supported (should be true for all iOS versions)
+          const supported = await window.cordova.plugins.NativeNavBar.promise.isSupported();
+          console.log("[useNativeNavBar] ✅ Support check result:", supported);
+          setIsSupported(supported);
+        } else {
+          console.log("[useNativeNavBar] ❌ Plugin not found");
+          setIsSupported(false);
+        }
+      } catch (error) {
+        console.error("[useNativeNavBar] ❌ Support check error:", error);
+        setIsSupported(false);
+      } finally {
+        console.log("[useNativeNavBar] 🏁 Support check complete, setting loading false");
+        setIsLoading(false);
+      }
+    };
+
+    console.log("[useNativeNavBar] 🎬 useEffect triggered:", {
+      hasCordova: !!window.cordova,
+      deviceReady: !!window.cordova,
+    });
+
+    if (window.cordova) {
+      console.log("[useNativeNavBar] 📱 Cordova available, checking support immediately");
+      checkSupport();
+    } else {
+      console.log("[useNativeNavBar] ⏳ Waiting for deviceready event");
+      const onDeviceReady = () => {
+        console.log("[useNativeNavBar] 🎉 Device ready event fired");
+        checkSupport();
+      };
+      document.addEventListener("deviceready", onDeviceReady);
+
+      // Add timeout for web environments where deviceready never fires
+      const webTimeout = setTimeout(() => {
+        console.log("[useNativeNavBar] ⏰ Web timeout - deviceready never fired, proceeding with web mode");
+        setIsSupported(false);
+        setIsLoading(false);
+      }, 2000); // 2 second timeout
+
+      return () => {
+        document.removeEventListener("deviceready", onDeviceReady);
+        clearTimeout(webTimeout);
+      };
+    }
+  }, []);
+
+  const setActionHandler = useCallback((handler) => {
+    console.log("[useNativeNavBar] 🎛️ setActionHandler called:", {
+      hasHandler: !!handler,
+      hasPlugin: !!window.cordova?.plugins?.NativeNavBar,
+    });
+
+    actionHandlerRef.current = handler;
+
+    if (window.cordova?.plugins?.NativeNavBar) {
+      console.log("[useNativeNavBar] ✅ Setting native action handler");
+      window.cordova.plugins.NativeNavBar.setActionHandler(handler);
+    } else {
+      console.warn("[useNativeNavBar] ⚠️ Cannot set action handler - plugin not available");
+    }
+  }, []);
+
+  const createNavBar = useCallback(async (options = {}) => {
+    console.log("[useNativeNavBar] 🏗️ createNavBar called:", {
+      isSupported,
+      hasPlugin: !!window.cordova?.plugins?.NativeNavBar,
+      options,
+    });
+
+    if (!isSupported || !window.cordova?.plugins?.NativeNavBar) {
+      const error = new Error("Native navbar not supported");
+      console.error("[useNativeNavBar] ❌ Cannot create navbar:", error.message);
+      throw error;
+    }
+
+    try {
+      console.log("[useNativeNavBar] 🚀 Calling native createNavBar with options:", options);
+      const navBarId = await window.cordova.plugins.NativeNavBar.promise.createNavBar(options);
+      console.log("[useNativeNavBar] ✅ Native navbar created successfully:", navBarId);
+
+      navBarsRef.current.set(navBarId, options);
+      console.log("[useNativeNavBar] 📝 NavBar stored in ref, total navbars:", navBarsRef.current.size);
+
+      return navBarId;
+    } catch (error) {
+      console.error("[useNativeNavBar] ❌ Create navbar error:", error);
+      throw error;
+    }
+  }, [isSupported]);
+
+  const setNavBarItems = useCallback(async (navBarId, items) => {
+    console.log("[useNativeNavBar] 📋 setNavBarItems called:", {
+      navBarId,
+      itemCount: items.length,
+      hasPlugin: !!window.cordova?.plugins?.NativeNavBar,
+    });
+
+    if (!window.cordova?.plugins?.NativeNavBar) {
+      throw new Error("Plugin not available");
+    }
+
+    try {
+      await window.cordova.plugins.NativeNavBar.promise.setNavBarItems(navBarId, items);
+      console.log("[useNativeNavBar] ✅ NavBar items set successfully");
+    } catch (error) {
+      console.error("[useNativeNavBar] ❌ Set navbar items error:", error);
+      throw error;
+    }
+  }, []);
+
+  const setActiveItem = useCallback(async (navBarId, itemIndex) => {
+    console.log("[useNativeNavBar] 🎯 setActiveItem called:", {
+      navBarId,
+      itemIndex,
+    });
+
+    if (!window.cordova?.plugins?.NativeNavBar) {
+      throw new Error("Plugin not available");
+    }
+
+    try {
+      await window.cordova.plugins.NativeNavBar.promise.setActiveItem(navBarId, itemIndex);
+      console.log("[useNativeNavBar] ✅ Active item set successfully");
+    } catch (error) {
+      console.error("[useNativeNavBar] ❌ Set active item error:", error);
+      throw error;
+    }
+  }, []);
+
+  const showNavBar = useCallback(async (navBarId) => {
+    console.log("[useNativeNavBar] 👁️ showNavBar called:", navBarId);
+
+    if (!window.cordova?.plugins?.NativeNavBar) {
+      throw new Error("Plugin not available");
+    }
+
+    try {
+      await window.cordova.plugins.NativeNavBar.promise.showNavBar(navBarId);
+      console.log("[useNativeNavBar] ✅ NavBar shown successfully");
+    } catch (error) {
+      console.error("[useNativeNavBar] ❌ Show navbar error:", error);
+      throw error;
+    }
+  }, []);
+
+  const hideNavBar = useCallback(async (navBarId) => {
+    console.log("[useNativeNavBar] 🙈 hideNavBar called:", navBarId);
+
+    if (!window.cordova?.plugins?.NativeNavBar) {
+      throw new Error("Plugin not available");
+    }
+
+    try {
+      await window.cordova.plugins.NativeNavBar.promise.hideNavBar(navBarId);
+      console.log("[useNativeNavBar] ✅ NavBar hidden successfully");
+    } catch (error) {
+      console.error("[useNativeNavBar] ❌ Hide navbar error:", error);
+      throw error;
+    }
+  }, []);
+
+  const removeNavBar = useCallback(async (navBarId) => {
+    console.log("[useNativeNavBar] 🗑️ removeNavBar called:", navBarId);
+
+    if (!window.cordova?.plugins?.NativeNavBar) {
+      throw new Error("Plugin not available");
+    }
+
+    try {
+      await window.cordova.plugins.NativeNavBar.promise.removeNavBar(navBarId);
+      navBarsRef.current.delete(navBarId);
+      console.log("[useNativeNavBar] ✅ NavBar removed successfully");
+    } catch (error) {
+      console.error("[useNativeNavBar] ❌ Remove navbar error:", error);
+      throw error;
+    }
+  }, []);
+
+  return {
+    // State
+    isSupported,
+    isLoading,
+    iosVersion,
+    
+    // Methods
+    createNavBar,
+    setNavBarItems,
+    setActiveItem,
+    showNavBar,
+    hideNavBar,
+    removeNavBar,
+    setActionHandler,
+    
+    // Utility
+    navBars: navBarsRef.current,
+  };
+};
+
+export default useNativeNavBar;
