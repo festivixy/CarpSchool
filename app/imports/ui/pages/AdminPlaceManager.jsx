@@ -1,5 +1,5 @@
 import React from "react";
-import AdminPlaceManager from "../components/AdminPlaceManager";
+import AdminPlaceManager from "../mobile/components/AdminPlaceManager";
 
 /**
  * Mobile page component for admins to manage all places
