@@ -5,3 +5,4 @@ cordova-plugin-floating-toolbar@file://plugins/cordova-plugin-floating-toolbar
 cordova-plugin-liquid-blur@file://plugins/cordova-plugin-liquid-blur
 cordova-plugin-meteor-webapp@2.0.1
 cordova-plugin-statusbar@3.0.0
+plugins/cordova-plugin-ios26-navbar@file://plugins/cordova-plugin-ios26-navbar

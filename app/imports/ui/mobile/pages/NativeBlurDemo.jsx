@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import LiquidGlassBlur from "../liquidGlass/components/LiquidGlassBlur";
 import LiquidGlassMobileNavBarCSS from "../liquidGlass/components/LiquidGlassMobileNavBarCSS";
+import iOS26NativeNavBar from "../ios/components/iOS26NativeNavBar";
 import { useNativeBlur } from "../hooks/useNativeBlur";
+import useNativeiOS26NavBar from "../ios/hooks/useNativeiOS26NavBar";
 import {
   DemoContainer,
   BackgroundContent,
@@ -42,6 +44,12 @@ const NativeBlurDemo = () => {
     getAvailableStyles,
   } = useNativeBlur();
 
+  const {
+    isSupported: nativeNavBarSupported,
+    isLoading: nativeNavBarLoading,
+    iosVersion,
+  } = useNativeiOS26NavBar();
+
   const [availableStyles, setAvailableStyles] = useState([]);
 
   useEffect(() => {
@@ -79,7 +87,7 @@ const NativeBlurDemo = () => {
       }).join(' ');
 
       // Only log if it contains our keywords
-      if (message.includes('LiquidGlass') || message.includes('NavBarCSS')) {
+      if (message.includes('LiquidGlass') || message.includes('NavBarCSS') || message.includes('iOS26NavBar') || message.includes('useNativeiOS26NavBar')) {
         pendingLogs.push({
           type,
           timestamp,
@@ -95,21 +103,21 @@ const NativeBlurDemo = () => {
 
     console.log = (...args) => {
       originalLog(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('iOS26NavBar') || String(arg).includes('useNativeiOS26NavBar'))) {
         addLog('log', args);
       }
     };
 
     console.error = (...args) => {
       originalError(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('iOS26NavBar') || String(arg).includes('useNativeiOS26NavBar'))) {
         addLog('error', args);
       }
     };
 
     console.warn = (...args) => {
       originalWarn(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('iOS26NavBar') || String(arg).includes('useNativeiOS26NavBar'))) {
         addLog('warn', args);
       }
     };
@@ -167,12 +175,15 @@ const NativeBlurDemo = () => {
       isCordova: !!window.cordova,
       isMeteorCordova: !!window.Meteor?.isCordova,
       hasLiquidBlurPlugin: !!window.cordova?.plugins?.liquidBlur,
+      hasiOS26NavBarPlugin: !!window.cordova?.plugins?.iOS26NavBar,
       userAgent: navigator.userAgent,
       iosVersion: window.device?.version || 'unknown',
+      nativeNavBarSupported,
+      nativeNavBarLoading,
     });
-  }, []);
+  }, [nativeNavBarSupported, nativeNavBarLoading]);
 
-  if (blurLoading) {
+  if (blurLoading || nativeNavBarLoading) {
     return (
       <LoadingContainer>
         <LoadingText>Initializing Native Features...</LoadingText>
@@ -198,7 +209,13 @@ const NativeBlurDemo = () => {
 
       <StatusBar>
         <StatusItem>
-          iOS 26 NavBar: CSS Liquid Glass (iOS 18 Compatible)
+          iOS Version: {iosVersion || 'Unknown'}
+        </StatusItem>
+        <StatusItem>
+          Native iOS 26 NavBar: {nativeNavBarSupported ? "✅ Available" : "❌ Not Available"}
+        </StatusItem>
+        <StatusItem>
+          CSS NavBar: ✅ Always Available (Fallback)
         </StatusItem>
         <StatusItem>
           Blur Effects: CSS backdrop-filter only
@@ -337,14 +354,27 @@ const NativeBlurDemo = () => {
       </ControlsContainer>
 
       {showNavBar && (
-        <LiquidGlassMobileNavBarCSS
-          items={navBarItems}
-          blurStyle={selectedBlur}
-          onItemPress={handleNavBarAction}
-          visible={showNavBar}
-          animated={true}
-          activeIndex={activeNavIndex}
-        />
+        <>
+          {/* Native iOS 26 NavBar - Only renders on iOS 26+ */}
+          <iOS26NativeNavBar
+            items={navBarItems}
+            onItemPress={handleNavBarAction}
+            visible={showNavBar}
+            activeIndex={activeNavIndex}
+          />
+
+          {/* CSS Fallback NavBar - Only renders when native is not supported */}
+          {!nativeNavBarSupported && (
+            <LiquidGlassMobileNavBarCSS
+              items={navBarItems}
+              blurStyle={selectedBlur}
+              onItemPress={handleNavBarAction}
+              visible={showNavBar}
+              animated={true}
+              activeIndex={activeNavIndex}
+            />
+          )}
+        </>
       )}
     </DemoContainer>
   );
