@@ -36,13 +36,28 @@ if [ ! -f "plugins/cordova-plugin-floating-toolbar/package.json" ]; then
 fi
 
 echo "📦 Installing cordova-plugin-add-swift-support..."
-meteor add cordova:cordova-plugin-add-swift-support@2.0.2
+if meteor add cordova:cordova-plugin-add-swift-support@2.0.2; then
+    echo "✅ Swift support plugin installed"
+else
+    echo "❌ Failed to install Swift support plugin"
+    exit 1
+fi
 
 echo "🌀 Installing cordova-plugin-liquid-blur..."
-meteor add cordova:cordova-plugin-liquid-blur@file://$CURRENT_DIR/plugins/cordova-plugin-liquid-blur
+if meteor add cordova:cordova-plugin-liquid-blur@file://$CURRENT_DIR/plugins/cordova-plugin-liquid-blur; then
+    echo "✅ Liquid blur plugin installed"
+else
+    echo "❌ Failed to install liquid blur plugin"
+    exit 1
+fi
 
 echo "🛠️ Installing cordova-plugin-floating-toolbar..."
-meteor add cordova:cordova-plugin-floating-toolbar@file://$CURRENT_DIR/plugins/cordova-plugin-floating-toolbar
+if meteor add cordova:cordova-plugin-floating-toolbar@file://$CURRENT_DIR/plugins/cordova-plugin-floating-toolbar; then
+    echo "✅ Floating toolbar plugin installed"
+else
+    echo "❌ Failed to install floating toolbar plugin"
+    exit 1
+fi
 
 echo "✅ All plugins installed successfully!"
 echo ""

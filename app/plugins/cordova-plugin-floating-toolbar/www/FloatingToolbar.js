@@ -3,13 +3,21 @@
  * Provides native iOS 26 Liquid Glass floating toolbars
  */
 
-var exec = require('cordova/exec');
+var exec;
+try {
+    exec = require('cordova/exec');
+} catch (e) {
+    // cordova/exec not available in web builds
+    exec = function() {
+        console.warn('[FloatingToolbar] cordova/exec not available');
+    };
+}
 
 /**
  * FloatingToolbar plugin interface
  */
 var FloatingToolbar = {
-    
+
     /**
      * Check if native floating toolbars are supported
      * @param {Function} success Success callback with boolean result
@@ -39,7 +47,7 @@ var FloatingToolbar = {
                 height: 50
             }
         };
-        
+
         var config = Object.assign(defaultOptions, options || {});
         exec(success, error, 'FloatingToolbar', 'createToolbar', [config]);
     },

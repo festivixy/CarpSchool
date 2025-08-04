@@ -3,13 +3,21 @@
  * Provides native iOS 26 Liquid Glass blur effects
  */
 
-var exec = require('cordova/exec');
+var exec;
+try {
+    exec = require('cordova/exec');
+} catch (e) {
+    // cordova/exec not available in web builds
+    exec = function() {
+        console.warn('[LiquidBlur] cordova/exec not available');
+    };
+}
 
 /**
  * LiquidBlur plugin interface
  */
 var LiquidBlur = {
-    
+
     /**
      * Check if native blur is supported on current platform
      * @param {Function} success Success callback with boolean result
@@ -36,7 +44,7 @@ var LiquidBlur = {
             floating: true,
             alpha: 1.0
         };
-        
+
         var config = Object.assign(defaultOptions, options || {});
         exec(success, error, 'LiquidBlur', 'createBlurView', [config]);
     },

@@ -40,7 +40,6 @@
   "dependencies": {},
   "devDependencies": {},
   "peerDependencies": {
-    "cordova-plugin-add-swift-support": ">=2.0.0",
-    "cordova-plugin-liquid-blur": ">=1.0.0"
+    "cordova-plugin-add-swift-support": ">=2.0.0"
   }
 }
