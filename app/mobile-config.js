@@ -29,6 +29,9 @@ App.setPreference("PageLength", "0", "ios");
 App.setPreference("PaginationBreakingMode", "page", "ios");
 App.setPreference("PaginationMode", "unpaginated", "ios");
 
+// Set iOS deployment target to support iOS 13+ features (systemBackground, etc.)
+App.setPreference("deployment-target", "13.0", "ios");
+
 // iOS 26 Liquid Glass specific preferences
 App.setPreference("StatusBarOverlaysWebView", "true", "ios");
 App.setPreference("WKWebViewOnly", "true", "ios");
