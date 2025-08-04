@@ -134,14 +134,21 @@ vulnerabilities.md
 │   ├── client
 │   └── server
 └── ui
+    ├── components       # ✅ NEW - Shared components (desktop + mobile)
+    ├── desktop          # ✅ NEW - Desktop-specific components
+    │   ├── components
+    │   ├── pages
+    │   └── styles
     ├── forms
     ├── layouts
-    └── mobile
-        ├── components
-        ├── liquidGlass
-        │   ├── components
-        │   ├── pages
-        │   └── styles
-        ├── pages
-        ├── styles
-        └── utils
+    ├── mobile           # Mobile-specific components
+    │   ├── components
+    │   ├── liquidGlass
+    │   │   ├── components
+    │   │   ├── pages
+    │   │   └── styles
+    │   ├── pages
+    │   ├── styles
+    │   └── utils
+    ├── pages            # ✅ NEW - Shared pages (desktop + mobile)
+    └── styles           # ✅ NEW - Shared styles (desktop + mobile)

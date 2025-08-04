@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { Rides } from "../../../api/ride/Rides";
-import { Places } from "../../../api/places/Places.js";
+import { Rides } from "/imports/api/ride/Rides";
+import { Places } from "/imports/api/places/Places.js";
 import {
   ModalOverlay,
   Modal,

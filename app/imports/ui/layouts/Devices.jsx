@@ -1,26 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import styled from "styled-components";
-
-// Mobile breakpoint - matches common mobile device widths
-const MOBILE_BREAKPOINT = 768;
-
-// Styled components for CSS-only solution (more performant)
-const MobileOnlyWrapper = styled.div`
-  display: block;
-
-  @media (min-width: ${MOBILE_BREAKPOINT}px) {
-    display: none;
-  }
-`;
-
-const DesktopOnlyWrapper = styled.div`
-  display: none;
-
-  @media (min-width: ${MOBILE_BREAKPOINT}px) {
-    display: block;
-  }
-`;
+import {
+  MobileOnlyWrapper,
+  DesktopOnlyWrapper,
+  MOBILE_BREAKPOINT,
+} from "../styles/Devices";
 
 // User agent detection for JavaScript fallback
 const isMobileUserAgent = () => {

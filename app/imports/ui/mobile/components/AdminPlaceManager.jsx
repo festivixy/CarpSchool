@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import swal from "sweetalert";
-import { Places } from "../../../api/places/Places.js";
+import { Places } from "/imports/api/places/Places.js";
 import InteractiveMapPicker from "./InteractiveMapPicker";
 import {
   Container,
@@ -51,7 +51,7 @@ import {
   ErrorText,
   Button,
   LoadingButton,
-} from "../styles/AdminPlaceManager";
+} from "/imports/ui/styles/AdminPlaceManager";
 
 /**
  * Component for admins to manage all places in the system

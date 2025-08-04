@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Redirect } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Profiles } from "../../../api/profile/Profile";
+import { Profiles } from "/imports/api/profile/Profile";
 import {
   Container,
   Header,
@@ -44,7 +44,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../styles/Onboarding";
-import Captcha from "../components/Captcha";
+import Captcha from "../../components/Captcha";
 
 /**
  * Mobile Onboarding component - Interactive profile creation flow

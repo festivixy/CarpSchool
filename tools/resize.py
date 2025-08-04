@@ -58,19 +58,6 @@ for icon, size in data.items():
 
 data = {
     "ios_universal.png": [2732, 2732],
-    "ios_universal_3x.png": [2208, 2208],
-    "ios_universal_portrait_2x.png": [1278, 2732],
-    "ios_universal_landscape_2x.png": [1334, 750],
-    "ios_universal_landscape_3x.png": [2208, 1242],
-    "ios_universal_portrait_3x.png": [1242, 2208],
-    "ios_iphone_2x.png": [1334, 1334],
-    "ios_iphone_portrait_2x.png": [750, 1334],
-    "ios_iphone_landscape_2x.png": [1334, 750],
-    "ios_iphone_3x.png": [2208, 2208],
-    "ios_iphone_landscape_3x.png": [2208, 1242],
-    "ios_iphone_portrait_3x.png": [1242, 2208],
-    "ios_ipad_2x.png": [2732, 2732],
-    "ios_ipad_portrait_2x.png": [1278, 2732],
     "android_universal.png": [288, 288],
 }
 

@@ -2,46 +2,14 @@ import React from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import styled from "styled-components";
 import {
   Container,
   SectionHeader,
   SectionTitle,
   Content,
 } from "../styles/Landing";
-import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
-
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s ease;
-  position: absolute;
-  left: 20px;
-  top: 20px;
-
-  &:hover {
-    background-color: rgba(240, 240, 240, 1);
-  }
-
-  svg {
-    width: 24px;
-    height: 24px;
-  }
-`;
-
-const HeaderWithBack = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 0;
-`;
+import { MobileOnly, DesktopOnly } from "/imports/ui/layouts/Devices";
+import { BackButton, HeaderWithBack } from "../styles/Credits";
 
 const creditsContent = `
 ## Development Team
