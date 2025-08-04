@@ -4,8 +4,8 @@ import { Rides } from "/imports/api/ride/Rides";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
-import { placesOptions } from "../../../api/places/Places.mjs";
-import { Places } from "../../../api/places/Places.js";
+import { placesOptions } from "/imports/api/places/Places.mjs";
+import { Places } from "/imports/api/places/Places.js";
 import {
   Container,
   Header,
