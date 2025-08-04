@@ -31,14 +31,30 @@ meteor add cordova:cordova-plugin-add-swift-support@2.0.2
 
 ### 2. Install Local Plugins
 
-The native plugins are included in the `plugins/` directory. Install them:
+#### Option A: Use Installation Script (Recommended)
+
+Run the provided installation script from the app directory:
 
 ```bash
-# Install liquid blur plugin
-meteor add cordova:cordova-plugin-liquid-blur@file:./plugins/cordova-plugin-liquid-blur
+./install-native-plugins.sh
+```
 
-# Install floating toolbar plugin  
-meteor add cordova:cordova-plugin-floating-toolbar@file:./plugins/cordova-plugin-floating-toolbar
+#### Option B: Manual Installation
+
+The native plugins are included in the `plugins/` directory. Install them using absolute paths:
+
+```bash
+# Add Swift support (required)
+meteor add cordova:cordova-plugin-add-swift-support@2.0.2
+
+# Get current directory
+CURRENT_DIR=$(pwd)
+
+# Install liquid blur plugin
+meteor add cordova:cordova-plugin-liquid-blur@file://$CURRENT_DIR/plugins/cordova-plugin-liquid-blur
+
+# Install floating toolbar plugin
+meteor add cordova:cordova-plugin-floating-toolbar@file://$CURRENT_DIR/plugins/cordova-plugin-floating-toolbar
 ```
 
 ### 3. Configure Build Settings
@@ -116,7 +132,8 @@ When modifying plugin code:
 
 3. **Reinstall plugin**:
    ```bash
-   meteor add cordova:cordova-plugin-liquid-blur@file:./plugins/cordova-plugin-liquid-blur
+   CURRENT_DIR=$(pwd)
+   meteor add cordova:cordova-plugin-liquid-blur@file://$CURRENT_DIR/plugins/cordova-plugin-liquid-blur
    ```
 
 4. **Rebuild platform**:
@@ -223,9 +240,10 @@ const MyComponent = () => {
 ```bash
 Error: Cannot find plugin cordova-plugin-liquid-blur
 ```
-**Solution**: Ensure plugins are installed locally:
+**Solution**: Ensure plugins are installed with correct path syntax:
 ```bash
-meteor add cordova:cordova-plugin-liquid-blur@file:./plugins/cordova-plugin-liquid-blur
+CURRENT_DIR=$(pwd)
+meteor add cordova:cordova-plugin-liquid-blur@file://$CURRENT_DIR/plugins/cordova-plugin-liquid-blur
 ```
 
 #### Swift Compilation Errors
@@ -247,7 +265,7 @@ Native blur not visible behind content.
 #### Performance Issues
 Blur effects causing frame drops.
 
-**Solution**: 
+**Solution**:
 - Reduce blur intensity for older devices
 - Use CSS fallback on low-memory devices
 - Limit number of simultaneous blur views
@@ -299,6 +317,6 @@ meteor run ios
 
 ---
 
-**Status**: ✅ Phase 1-5 Complete  
-**Last Updated**: Implementation commit 4af21d4  
+**Status**: ✅ Phase 1-5 Complete
+**Last Updated**: Implementation commit 4af21d4
 **Next Phase**: Performance optimization and component integration

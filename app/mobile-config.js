@@ -63,8 +63,9 @@ App.accessRule("https://*.carp.school/*");
 // - cordova-plugin-console (for debugging)
 
 // Native iOS 26 Liquid Glass plugins are added via command line:
-// meteor add cordova:cordova-plugin-liquid-blur@file:./plugins/cordova-plugin-liquid-blur
-// meteor add cordova:cordova-plugin-floating-toolbar@file:./plugins/cordova-plugin-floating-toolbar
+// CURRENT_DIR=$(pwd)
+// meteor add cordova:cordova-plugin-liquid-blur@file://$CURRENT_DIR/plugins/cordova-plugin-liquid-blur
+// meteor add cordova:cordova-plugin-floating-toolbar@file://$CURRENT_DIR/plugins/cordova-plugin-floating-toolbar
 
 // Set up resources such as icons and launch screens.
 App.icons({
