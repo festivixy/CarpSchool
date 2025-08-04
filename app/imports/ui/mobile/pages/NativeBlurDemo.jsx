@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import LiquidGlassBlur from "../liquidGlass/components/LiquidGlassBlur";
-import LiquidGlassNavBar from "../liquidGlass/components/LiquidGlassNavBar";
+import LiquidGlassMobileNavBarCSS from "../liquidGlass/components/LiquidGlassMobileNavBarCSS";
 import { useNativeBlur } from "../hooks/useNativeBlur";
 import {
   DemoContainer,
@@ -79,7 +79,7 @@ const NativeBlurDemo = () => {
       }).join(' ');
 
       // Only log if it contains our keywords
-      if (message.includes('LiquidGlass') || message.includes('NavBar')) {
+      if (message.includes('LiquidGlass') || message.includes('NavBarCSS')) {
         pendingLogs.push({
           type,
           timestamp,
@@ -95,21 +95,21 @@ const NativeBlurDemo = () => {
 
     console.log = (...args) => {
       originalLog(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBar'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS'))) {
         addLog('log', args);
       }
     };
 
     console.error = (...args) => {
       originalError(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBar'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS'))) {
         addLog('error', args);
       }
     };
 
     console.warn = (...args) => {
       originalWarn(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBar'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS'))) {
         addLog('warn', args);
       }
     };
@@ -337,7 +337,7 @@ const NativeBlurDemo = () => {
       </ControlsContainer>
 
       {showNavBar && (
-        <LiquidGlassNavBar
+        <LiquidGlassMobileNavBarCSS
           items={navBarItems}
           blurStyle={selectedBlur}
           onItemPress={handleNavBarAction}

@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { 
-  NavBarContainer, 
-  NavBarItem, 
-  NavBarButton, 
+import {
+  NavBarContainer,
+  NavBarItem,
+  NavBarButton,
   NavBarIcon,
-  NavBarLabel 
-} from "../styles/LiquidGlassNavBar";
+  NavBarLabel
+} from "../styles/LiquidGlassMobileNavBarCSS";
 
 /**
- * LiquidGlassNavBar Component
+ * LiquidGlassMobileNavBarCSS Component
  *
- * Provides iOS 26 style liquid glass navigation bar
- * Uses CSS implementation for iOS 18 and below (native liquid glass requires iOS 26+)
+ * Provides iOS 26 style liquid glass navigation bar using CSS implementation
+ * Uses CSS backdrop-filter for liquid glass effect on iOS 18 and below
  * Always positioned at bottom for primary navigation
  */
-const LiquidGlassNavBar = ({
+const LiquidGlassMobileNavBarCSS = ({
   items = [],
   visible = true,
   animated = true,
@@ -43,7 +43,7 @@ const LiquidGlassNavBar = ({
   const iosVersion = getIOSVersion();
   const supportsNativeLiquidGlass = iosVersion >= 26;
 
-  console.log("[LiquidGlassNavBar] 📱 Environment check:", {
+  console.log("[LiquidGlassMobileNavBarCSS] 📱 Environment check:", {
     iosVersion,
     supportsNativeLiquidGlass,
     forceCSSMode: !supportsNativeLiquidGlass,
@@ -52,14 +52,14 @@ const LiquidGlassNavBar = ({
   });
 
   const handleItemPress = (item, index) => {
-    console.log("[LiquidGlassNavBar] 🔥 Item pressed:", {
+    console.log("[LiquidGlassMobileNavBarCSS] 🔥 Item pressed:", {
       item,
       index,
       wasActive: index === currentActiveIndex,
     });
 
     setCurrentActiveIndex(index);
-    
+
     if (onItemPress) {
       onItemPress(item, index);
     }
@@ -69,7 +69,7 @@ const LiquidGlassNavBar = ({
     return null;
   }
 
-  console.log("[LiquidGlassNavBar] 🎨 Rendering CSS navbar:", {
+  console.log("[LiquidGlassMobileNavBarCSS] 🎨 Rendering CSS navbar:", {
     itemCount: items.length,
     activeIndex: currentActiveIndex,
     blurStyle,
@@ -86,7 +86,7 @@ const LiquidGlassNavBar = ({
     >
       {items.map((item, index) => {
         const isActive = index === currentActiveIndex;
-        
+
         return (
           <NavBarItem
             key={item.id || index}
@@ -116,7 +116,7 @@ const LiquidGlassNavBar = ({
   );
 };
 
-LiquidGlassNavBar.propTypes = {
+LiquidGlassMobileNavBarCSS.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
@@ -130,7 +130,7 @@ LiquidGlassNavBar.propTypes = {
   animated: PropTypes.bool,
   blurStyle: PropTypes.oneOf([
     "systemMaterial",
-    "systemThinMaterial", 
+    "systemThinMaterial",
     "systemUltraThinMaterial",
     "systemThickMaterial",
     "light",
@@ -143,4 +143,4 @@ LiquidGlassNavBar.propTypes = {
   activeIndex: PropTypes.number,
 };
 
-export default LiquidGlassNavBar;
+export default LiquidGlassMobileNavBarCSS;
