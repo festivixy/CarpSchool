@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
 import { fileTypeFromBuffer } from "file-type";
 import { Images, ImagesSchema } from "./Images.js";
-import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha.js";
+import { isCaptchaSolved, useCaptcha } from "/imports/api/captcha/Captcha.js";
 
 // Image compression function - converts to PNG and compresses efficiently
 const compressImage = async (inputBuffer, targetSizeKB = 750) => {
