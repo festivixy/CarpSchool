@@ -58,11 +58,20 @@ const NativeBlurDemo = () => {
     }
   }, [blurSupported, getAvailableStyles]);
 
-  // Capture console logs
+  // Capture console logs with debouncing to prevent infinite loops
   useEffect(() => {
     const originalLog = console.log;
     const originalError = console.error;
     const originalWarn = console.warn;
+    let pendingLogs = [];
+    let updateTimeout;
+
+    const batchUpdateLogs = () => {
+      if (pendingLogs.length > 0) {
+        setLogs(prev => [...prev.slice(-50), ...pendingLogs].slice(-50));
+        pendingLogs = [];
+      }
+    };
 
     const addLog = (type, args) => {
       const timestamp = new Date().toLocaleTimeString();
@@ -73,12 +82,19 @@ const NativeBlurDemo = () => {
         return String(arg);
       }).join(' ');
 
-      setLogs(prev => [...prev.slice(-50), { // Keep last 50 logs
-        type,
-        timestamp,
-        message,
-        id: Date.now() + Math.random()
-      }]);
+      // Only log if it contains our keywords
+      if (message.includes('LiquidGlass') || message.includes('useFloating')) {
+        pendingLogs.push({
+          type,
+          timestamp,
+          message,
+          id: Date.now() + Math.random()
+        });
+
+        // Debounce updates to prevent infinite loops
+        clearTimeout(updateTimeout);
+        updateTimeout = setTimeout(batchUpdateLogs, 50);
+      }
     };
 
     console.log = (...args) => {
@@ -106,6 +122,7 @@ const NativeBlurDemo = () => {
       console.log = originalLog;
       console.error = originalError;
       console.warn = originalWarn;
+      clearTimeout(updateTimeout);
     };
   }, []);
 
