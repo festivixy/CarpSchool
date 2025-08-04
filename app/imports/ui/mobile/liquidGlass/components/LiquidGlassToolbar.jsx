@@ -1,24 +1,24 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import PropTypes from 'prop-types';
-import { useFloatingToolbar } from '../../hooks/useNativeBlur';
-import LiquidGlassBlur from './LiquidGlassBlur';
-import { ToolbarContainer, ToolbarItem, ToolbarButton, ToolbarSpace } from '../styles/LiquidGlassToolbar';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import PropTypes from "prop-types";
+import { useFloatingToolbar } from "../../hooks/useNativeBlur";
+import LiquidGlassBlur from "./LiquidGlassBlur";
+import { ToolbarContainer, ToolbarItem, ToolbarButton, ToolbarSpace } from "../styles/LiquidGlassToolbar";
 
 /**
  * LiquidGlassToolbar Component
- * 
+ *
  * Provides iOS 26 style floating toolbars with native support
  * Automatically falls back to CSS implementation on non-iOS platforms
  */
 const LiquidGlassToolbar = ({
   items = [],
-  position = 'bottom',
+  position = "bottom",
   visible = true,
   floating = true,
   animated = true,
-  blurStyle = 'systemMaterial',
+  blurStyle = "systemMaterial",
   onItemPress = null,
-  className = '',
+  className = "",
   style = {},
   safeArea = true,
   hideOnScroll = false,
@@ -32,7 +32,7 @@ const LiquidGlassToolbar = ({
     removeToolbar,
     setToolbarVisibility,
     addToolbarItem,
-    setActionHandler
+    setActionHandler,
   } = useFloatingToolbar();
 
   const [toolbarId, setToolbarId] = useState(null);
@@ -79,23 +79,23 @@ const LiquidGlassToolbar = ({
       const toolbarOptions = {
         position: position,
         items: toolbarItems.map(item => ({
-          type: item.type || 'button',
+          type: item.type || "button",
           title: item.title,
           icon: item.icon,
-          action: item.action || item.title
+          action: item.action || item.title,
         })),
         style: {
           blurStyle: blurStyle,
           cornerRadius: floating ? 20 : 0,
           margin: floating ? 16 : 0,
-          height: height
-        }
+          height: height,
+        },
       };
 
       const id = await createToolbar(toolbarOptions);
       setToolbarId(id);
     } catch (error) {
-      console.error('[LiquidGlassToolbar] Failed to create native toolbar:', error);
+      console.error("[LiquidGlassToolbar] Failed to create native toolbar:", error);
       setUseNative(false);
     }
   }, [useNative, position, toolbarItems, blurStyle, floating, height, createToolbar]);
@@ -125,11 +125,11 @@ const LiquidGlassToolbar = ({
   if (useNative) {
     // Native toolbar handles rendering - return invisible placeholder for layout
     return (
-      <div 
+      <div
         ref={containerRef}
-        style={{ 
+        style={{
           height: floating ? 0 : height,
-          paddingBottom: safeArea ? 'env(safe-area-inset-bottom)' : 0
+          paddingBottom: safeArea ? "env(safe-area-inset-bottom)" : 0,
         }}
       />
     );
@@ -157,9 +157,9 @@ const LiquidGlassToolbar = ({
       >
         {toolbarItems.map((item, index) => (
           <ToolbarItem key={index} type={item.type}>
-            {item.type === 'space' && <ToolbarSpace size={item.size} />}
-            {item.type === 'flexibleSpace' && <ToolbarSpace flexible />}
-            {(item.type === 'button' || !item.type) && (
+            {item.type === "space" && <ToolbarSpace size={item.size} />}
+            {item.type === "flexibleSpace" && <ToolbarSpace flexible />}
+            {(item.type === "button" || !item.type) && (
               <ToolbarButton
                 onClick={(e) => handleItemPress(item, index, e)}
                 disabled={item.disabled}
@@ -188,34 +188,34 @@ const LiquidGlassToolbar = ({
 
 LiquidGlassToolbar.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape({
-    type: PropTypes.oneOf(['button', 'space', 'flexibleSpace']),
+    type: PropTypes.oneOf(["button", "space", "flexibleSpace"]),
     title: PropTypes.string,
     icon: PropTypes.string,
     action: PropTypes.string,
     disabled: PropTypes.bool,
     primary: PropTypes.bool,
-    size: PropTypes.number // for space type
+    size: PropTypes.number, // for space type
   })),
-  position: PropTypes.oneOf(['top', 'bottom', 'floating']),
+  position: PropTypes.oneOf(["top", "bottom", "floating"]),
   visible: PropTypes.bool,
   floating: PropTypes.bool,
   animated: PropTypes.bool,
   blurStyle: PropTypes.oneOf([
-    'systemMaterial',
-    'systemThinMaterial',
-    'systemThickMaterial',
-    'systemChromeMaterial',
-    'systemUltraThinMaterial',
-    'light',
-    'dark',
-    'extraLight'
+    "systemMaterial",
+    "systemThinMaterial",
+    "systemThickMaterial",
+    "systemChromeMaterial",
+    "systemUltraThinMaterial",
+    "light",
+    "dark",
+    "extraLight",
   ]),
   onItemPress: PropTypes.func,
   className: PropTypes.string,
   style: PropTypes.object,
   safeArea: PropTypes.bool,
   hideOnScroll: PropTypes.bool,
-  height: PropTypes.number
+  height: PropTypes.number,
 };
 
 export default LiquidGlassToolbar;

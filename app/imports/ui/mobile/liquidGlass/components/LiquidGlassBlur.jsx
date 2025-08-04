@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { useNativeBlur } from '../../hooks/useNativeBlur';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import PropTypes from "prop-types";
+import { useNativeBlur } from "../../hooks/useNativeBlur";
 import {
   SimpleLoadingContainer,
   SimpleNativeBlurContainer,
   SimpleCSSBlurContainer,
-} from '../styles/LiquidGlassBlur';
+} from "../styles/LiquidGlassBlur";
 
 /**
  * LiquidGlassBlur Component
@@ -15,15 +15,15 @@ import {
  */
 const LiquidGlassBlur = ({
   children,
-  blurStyle = 'systemMaterial',
+  blurStyle = "systemMaterial",
   intensity = 1.0,
   floating = false,
-  position = 'relative',
+  position = "relative",
   frame = null,
-  className = '',
+  className = "",
   style = {},
   animated = true,
-  fallbackStyle = 'light',
+  fallbackStyle = "light",
   onBlurReady = null,
   ...props
 }) => {
@@ -33,7 +33,7 @@ const LiquidGlassBlur = ({
     createBlurView,
     removeBlurView,
     updateBlurView,
-    setBlurVisibility
+    setBlurVisibility,
   } = useNativeBlur();
 
   const [blurId, setBlurId] = useState(null);
@@ -79,9 +79,9 @@ const LiquidGlassBlur = ({
         frame: frame || {
           x: 0,
           y: 0,
-          width: '100%',
-          height: '100%'
-        }
+          width: "100%",
+          height: "100%",
+        },
       };
 
       const id = await createBlurView(blurOptions);
@@ -94,7 +94,7 @@ const LiquidGlassBlur = ({
         }
       }
     } catch (error) {
-      console.error('[LiquidGlassBlur] Failed to create native blur:', error);
+      console.error("[LiquidGlassBlur] Failed to create native blur:", error);
       setUseNative(false);
     }
   }, [useNative, blurStyle, intensity, floating, frame, createBlurView, onBlurReady]);
@@ -105,7 +105,7 @@ const LiquidGlassBlur = ({
       updateBlurView(blurId, {
         style: blurStyle,
         alpha: intensity,
-        floating: floating
+        floating: floating,
       }).catch(console.error);
     }
   }, [blurStyle, intensity, floating, blurId, useNative, updateBlurView]);
@@ -184,29 +184,29 @@ const LiquidGlassBlur = ({
 LiquidGlassBlur.propTypes = {
   children: PropTypes.node,
   blurStyle: PropTypes.oneOf([
-    'systemMaterial',
-    'systemThinMaterial',
-    'systemThickMaterial',
-    'systemChromeMaterial',
-    'systemUltraThinMaterial',
-    'light',
-    'dark',
-    'extraLight'
+    "systemMaterial",
+    "systemThinMaterial",
+    "systemThickMaterial",
+    "systemChromeMaterial",
+    "systemUltraThinMaterial",
+    "light",
+    "dark",
+    "extraLight",
   ]),
   intensity: PropTypes.number,
   floating: PropTypes.bool,
-  position: PropTypes.oneOf(['relative', 'absolute', 'fixed', 'sticky']),
+  position: PropTypes.oneOf(["relative", "absolute", "fixed", "sticky"]),
   frame: PropTypes.shape({
     x: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     y: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   }),
   className: PropTypes.string,
   style: PropTypes.object,
   animated: PropTypes.bool,
-  fallbackStyle: PropTypes.oneOf(['light', 'dark', 'tinted']),
-  onBlurReady: PropTypes.func
+  fallbackStyle: PropTypes.oneOf(["light", "dark", "tinted"]),
+  onBlurReady: PropTypes.func,
 };
 
 export default LiquidGlassBlur;

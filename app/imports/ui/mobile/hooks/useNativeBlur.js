@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 
 /**
  * React hook for managing native iOS blur effects
@@ -17,7 +17,7 @@ export const useNativeBlur = () => {
           setIsSupported(supported);
         }
       } catch (error) {
-        console.log('[useNativeBlur] Native blur not available:', error);
+        console.log("[useNativeBlur] Native blur not available:", error);
         setIsSupported(false);
       } finally {
         setIsLoading(false);
@@ -29,14 +29,14 @@ export const useNativeBlur = () => {
     } else {
       // Wait for deviceready event
       const onDeviceReady = () => checkSupport();
-      document.addEventListener('deviceready', onDeviceReady);
-      return () => document.removeEventListener('deviceready', onDeviceReady);
+      document.addEventListener("deviceready", onDeviceReady);
+      return () => document.removeEventListener("deviceready", onDeviceReady);
     }
   }, []);
 
   const createBlurView = useCallback(async (options = {}) => {
     if (!isSupported || !window.cordova?.plugins?.liquidBlur) {
-      throw new Error('Native blur not supported');
+      throw new Error("Native blur not supported");
     }
 
     try {
@@ -44,14 +44,14 @@ export const useNativeBlur = () => {
       blurViewsRef.current.set(blurId, options);
       return blurId;
     } catch (error) {
-      console.error('[useNativeBlur] Failed to create blur view:', error);
+      console.error("[useNativeBlur] Failed to create blur view:", error);
       throw error;
     }
   }, [isSupported]);
 
   const updateBlurView = useCallback(async (blurId, options) => {
     if (!isSupported || !window.cordova?.plugins?.liquidBlur) {
-      throw new Error('Native blur not supported');
+      throw new Error("Native blur not supported");
     }
 
     try {
@@ -59,7 +59,7 @@ export const useNativeBlur = () => {
       const existing = blurViewsRef.current.get(blurId) || {};
       blurViewsRef.current.set(blurId, { ...existing, ...options });
     } catch (error) {
-      console.error('[useNativeBlur] Failed to update blur view:', error);
+      console.error("[useNativeBlur] Failed to update blur view:", error);
       throw error;
     }
   }, [isSupported]);
@@ -73,7 +73,7 @@ export const useNativeBlur = () => {
       await window.cordova.plugins.liquidBlur.promise.removeBlurView(blurId);
       blurViewsRef.current.delete(blurId);
     } catch (error) {
-      console.error('[useNativeBlur] Failed to remove blur view:', error);
+      console.error("[useNativeBlur] Failed to remove blur view:", error);
     }
   }, [isSupported]);
 
@@ -85,7 +85,7 @@ export const useNativeBlur = () => {
     try {
       await window.cordova.plugins.liquidBlur.promise.setBlurViewVisibility(blurId, visible);
     } catch (error) {
-      console.error('[useNativeBlur] Failed to set blur visibility:', error);
+      console.error("[useNativeBlur] Failed to set blur visibility:", error);
     }
   }, [isSupported]);
 
@@ -97,7 +97,7 @@ export const useNativeBlur = () => {
     try {
       await window.cordova.plugins.liquidBlur.promise.animateBlurView(blurId, properties, duration);
     } catch (error) {
-      console.error('[useNativeBlur] Failed to animate blur view:', error);
+      console.error("[useNativeBlur] Failed to animate blur view:", error);
     }
   }, [isSupported]);
 
@@ -110,7 +110,7 @@ export const useNativeBlur = () => {
       await window.cordova.plugins.liquidBlur.promise.removeAllBlurViews();
       blurViewsRef.current.clear();
     } catch (error) {
-      console.error('[useNativeBlur] Failed to remove all blur views:', error);
+      console.error("[useNativeBlur] Failed to remove all blur views:", error);
     }
   }, [isSupported]);
 
@@ -122,19 +122,17 @@ export const useNativeBlur = () => {
     try {
       return await window.cordova.plugins.liquidBlur.promise.getAvailableBlurStyles();
     } catch (error) {
-      console.error('[useNativeBlur] Failed to get blur styles:', error);
+      console.error("[useNativeBlur] Failed to get blur styles:", error);
       return [];
     }
   }, [isSupported]);
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
+  useEffect(() => () => {
       if (blurViewsRef.current.size > 0) {
         removeAllBlurs().catch(console.error);
       }
-    };
-  }, [removeAllBlurs]);
+    }, [removeAllBlurs]);
 
   return {
     isSupported,
@@ -146,7 +144,7 @@ export const useNativeBlur = () => {
     animateBlur,
     removeAllBlurs,
     getAvailableStyles,
-    activeBlurs: Array.from(blurViewsRef.current.keys())
+    activeBlurs: Array.from(blurViewsRef.current.keys()),
   };
 };
 
@@ -167,7 +165,7 @@ export const useFloatingToolbar = () => {
           setIsSupported(supported);
         }
       } catch (error) {
-        console.log('[useFloatingToolbar] Native toolbar not available:', error);
+        console.log("[useFloatingToolbar] Native toolbar not available:", error);
         setIsSupported(false);
       } finally {
         setIsLoading(false);
@@ -178,8 +176,8 @@ export const useFloatingToolbar = () => {
       checkSupport();
     } else {
       const onDeviceReady = () => checkSupport();
-      document.addEventListener('deviceready', onDeviceReady);
-      return () => document.removeEventListener('deviceready', onDeviceReady);
+      document.addEventListener("deviceready", onDeviceReady);
+      return () => document.removeEventListener("deviceready", onDeviceReady);
     }
   }, []);
 
@@ -192,7 +190,7 @@ export const useFloatingToolbar = () => {
 
   const createToolbar = useCallback(async (options = {}) => {
     if (!isSupported || !window.cordova?.plugins?.floatingToolbar) {
-      throw new Error('Native toolbar not supported');
+      throw new Error("Native toolbar not supported");
     }
 
     try {
@@ -200,14 +198,14 @@ export const useFloatingToolbar = () => {
       toolbarsRef.current.set(toolbarId, options);
       return toolbarId;
     } catch (error) {
-      console.error('[useFloatingToolbar] Failed to create toolbar:', error);
+      console.error("[useFloatingToolbar] Failed to create toolbar:", error);
       throw error;
     }
   }, [isSupported]);
 
   const updateToolbar = useCallback(async (toolbarId, options) => {
     if (!isSupported || !window.cordova?.plugins?.floatingToolbar) {
-      throw new Error('Native toolbar not supported');
+      throw new Error("Native toolbar not supported");
     }
 
     try {
@@ -215,20 +213,20 @@ export const useFloatingToolbar = () => {
       const existing = toolbarsRef.current.get(toolbarId) || {};
       toolbarsRef.current.set(toolbarId, { ...existing, ...options });
     } catch (error) {
-      console.error('[useFloatingToolbar] Failed to update toolbar:', error);
+      console.error("[useFloatingToolbar] Failed to update toolbar:", error);
       throw error;
     }
   }, [isSupported]);
 
   const addToolbarItem = useCallback(async (toolbarId, item) => {
     if (!isSupported || !window.cordova?.plugins?.floatingToolbar) {
-      throw new Error('Native toolbar not supported');
+      throw new Error("Native toolbar not supported");
     }
 
     try {
       await window.cordova.plugins.floatingToolbar.promise.addToolbarItem(toolbarId, item);
     } catch (error) {
-      console.error('[useFloatingToolbar] Failed to add toolbar item:', error);
+      console.error("[useFloatingToolbar] Failed to add toolbar item:", error);
       throw error;
     }
   }, [isSupported]);
@@ -241,7 +239,7 @@ export const useFloatingToolbar = () => {
     try {
       await window.cordova.plugins.floatingToolbar.promise.setToolbarVisibility(toolbarId, visible, animated);
     } catch (error) {
-      console.error('[useFloatingToolbar] Failed to set toolbar visibility:', error);
+      console.error("[useFloatingToolbar] Failed to set toolbar visibility:", error);
     }
   }, [isSupported]);
 
@@ -254,7 +252,7 @@ export const useFloatingToolbar = () => {
       await window.cordova.plugins.floatingToolbar.promise.removeToolbar(toolbarId);
       toolbarsRef.current.delete(toolbarId);
     } catch (error) {
-      console.error('[useFloatingToolbar] Failed to remove toolbar:', error);
+      console.error("[useFloatingToolbar] Failed to remove toolbar:", error);
     }
   }, [isSupported]);
 
@@ -267,18 +265,16 @@ export const useFloatingToolbar = () => {
       await window.cordova.plugins.floatingToolbar.promise.removeAllToolbars();
       toolbarsRef.current.clear();
     } catch (error) {
-      console.error('[useFloatingToolbar] Failed to remove all toolbars:', error);
+      console.error("[useFloatingToolbar] Failed to remove all toolbars:", error);
     }
   }, [isSupported]);
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
+  useEffect(() => () => {
       if (toolbarsRef.current.size > 0) {
         removeAllToolbars().catch(console.error);
       }
-    };
-  }, [removeAllToolbars]);
+    }, [removeAllToolbars]);
 
   return {
     isSupported,
@@ -290,7 +286,7 @@ export const useFloatingToolbar = () => {
     removeToolbar,
     removeAllToolbars,
     setActionHandler,
-    activeToolbars: Array.from(toolbarsRef.current.keys())
+    activeToolbars: Array.from(toolbarsRef.current.keys()),
   };
 };
 

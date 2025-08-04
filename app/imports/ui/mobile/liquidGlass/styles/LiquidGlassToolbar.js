@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, { css } from "styled-components";
 
 // Main toolbar container
 export const ToolbarContainer = styled.div`
@@ -8,20 +8,20 @@ export const ToolbarContainer = styled.div`
   width: 100%;
   height: ${props => props.height || 60}px;
   
-  ${props => props.position === 'bottom' && css`
+  ${props => props.position === "bottom" && css`
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    padding-bottom: ${props.safeArea ? 'env(safe-area-inset-bottom)' : '0'};
+    padding-bottom: ${props.safeArea ? "env(safe-area-inset-bottom)" : "0"};
   `}
   
-  ${props => props.position === 'top' && css`
+  ${props => props.position === "top" && css`
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    padding-top: ${props.safeArea ? 'env(safe-area-inset-top)' : '0'};
+    padding-top: ${props.safeArea ? "env(safe-area-inset-top)" : "0"};
   `}
   
   ${props => props.floating && css`
@@ -37,14 +37,14 @@ export const ToolbarContainer = styled.div`
   `}
   
   /* Visibility and animation */
-  opacity: ${props => props.visible ? 1 : 0};
+  opacity: ${props => (props.visible ? 1 : 0)};
   transform: ${props => {
     if (!props.visible) {
-      if (props.position === 'bottom') return 'translateY(100%)';
-      if (props.position === 'top') return 'translateY(-100%)';
-      return 'scale(0.95)';
+      if (props.position === "bottom") return "translateY(100%)";
+      if (props.position === "top") return "translateY(-100%)";
+      return "scale(0.95)";
     }
-    return 'translateY(0) scale(1)';
+    return "translateY(0) scale(1)";
   }};
   
   ${props => props.animated && css`
@@ -74,15 +74,15 @@ export const ToolbarItem = styled.div`
   align-items: center;
   justify-content: center;
   
-  ${props => props.type === 'space' && css`
+  ${props => props.type === "space" && css`
     flex: none;
   `}
   
-  ${props => props.type === 'flexibleSpace' && css`
+  ${props => props.type === "flexibleSpace" && css`
     flex: 1;
   `}
   
-  ${props => (props.type === 'button' || !props.type) && css`
+  ${props => (props.type === "button" || !props.type) && css`
     flex: none;
   `}
 `;
@@ -90,7 +90,7 @@ export const ToolbarItem = styled.div`
 // Toolbar button component
 export const ToolbarButton = styled.button`
   display: flex;
-  flex-direction: ${props => props.icon && props.title ? 'column' : 'row'};
+  flex-direction: ${props => (props.icon && props.title ? "column" : "row")};
   align-items: center;
   justify-content: center;
   
@@ -101,9 +101,9 @@ export const ToolbarButton = styled.button`
   
   background: ${props => {
     if (props.primary) {
-      return 'rgba(0, 122, 255, 0.8)';
+      return "rgba(0, 122, 255, 0.8)";
     }
-    return 'transparent';
+    return "transparent";
   }};
   
   border: none;
@@ -112,9 +112,9 @@ export const ToolbarButton = styled.button`
   
   color: ${props => {
     if (props.primary) {
-      return 'rgba(255, 255, 255, 0.95)';
+      return "rgba(255, 255, 255, 0.95)";
     }
-    return 'rgba(0, 0, 0, 0.8)';
+    return "rgba(0, 0, 0, 0.8)";
   }};
   
   font-size: 14px;
@@ -127,7 +127,7 @@ export const ToolbarButton = styled.button`
   .toolbar-icon {
     font-size: 20px;
     line-height: 1;
-    margin-bottom: ${props => props.title ? '2px' : '0'};
+    margin-bottom: ${props => (props.title ? "2px" : "0")};
   }
   
   .toolbar-title {
@@ -140,9 +140,9 @@ export const ToolbarButton = styled.button`
   &:hover {
     background: ${props => {
       if (props.primary) {
-        return 'rgba(0, 122, 255, 1)';
+        return "rgba(0, 122, 255, 1)";
       }
-      return 'rgba(0, 0, 0, 0.05)';
+      return "rgba(0, 0, 0, 0.05)";
     }};
     
     transform: scale(1.05);
@@ -153,9 +153,9 @@ export const ToolbarButton = styled.button`
     transform: scale(0.95);
     background: ${props => {
       if (props.primary) {
-        return 'rgba(0, 122, 255, 0.7)';
+        return "rgba(0, 122, 255, 0.7)";
       }
-      return 'rgba(0, 0, 0, 0.1)';
+      return "rgba(0, 0, 0, 0.1)";
     }};
   }
   
@@ -187,7 +187,7 @@ export const ToolbarButton = styled.button`
 // Toolbar spacer component
 export const ToolbarSpace = styled.div`
   width: ${props => {
-    if (props.flexible) return 'auto';
+    if (props.flexible) return "auto";
     return `${props.size || 16}px`;
   }};
   
@@ -272,72 +272,70 @@ export const ToolbarProgress = styled.div`
 export const ToolbarUtils = {
   // Create standard toolbar items
   createBackButton: (onPress) => ({
-    type: 'button',
-    icon: '←',
-    title: 'Back',
-    action: 'back',
-    onPress
+    type: "button",
+    icon: "←",
+    title: "Back",
+    action: "back",
+    onPress,
   }),
-  
+
   createShareButton: (onPress) => ({
-    type: 'button',
-    icon: '↗',
-    title: 'Share',
-    action: 'share',
-    onPress
+    type: "button",
+    icon: "↗",
+    title: "Share",
+    action: "share",
+    onPress,
   }),
-  
+
   createMoreButton: (onPress) => ({
-    type: 'button',
-    icon: '⋯',
-    title: 'More',
-    action: 'more',
-    onPress
+    type: "button",
+    icon: "⋯",
+    title: "More",
+    action: "more",
+    onPress,
   }),
-  
+
   createFlexibleSpace: () => ({
-    type: 'flexibleSpace'
+    type: "flexibleSpace",
   }),
-  
+
   createFixedSpace: (size = 16) => ({
-    type: 'space',
-    size
+    type: "space",
+    size,
   }),
-  
+
   // Validate toolbar items
-  validateItems: (items) => {
-    return items.filter(item => {
-      if (!item.type) item.type = 'button';
-      
-      if (item.type === 'button' && !item.title && !item.icon) {
-        console.warn('[ToolbarUtils] Button item missing title and icon');
+  validateItems: (items) => items.filter(item => {
+      if (!item.type) item.type = "button";
+
+      if (item.type === "button" && !item.title && !item.icon) {
+        console.warn("[ToolbarUtils] Button item missing title and icon");
         return false;
       }
-      
+
       return true;
-    });
-  },
-  
+    }),
+
   // Calculate optimal button sizes
   calculateButtonSizes: (items, containerWidth, padding = 16) => {
     const availableWidth = containerWidth - (padding * 2);
-    const buttonItems = items.filter(item => item.type === 'button' || !item.type);
-    const spaceItems = items.filter(item => item.type === 'space');
-    const flexibleSpaces = items.filter(item => item.type === 'flexibleSpace');
-    
+    const buttonItems = items.filter(item => item.type === "button" || !item.type);
+    const spaceItems = items.filter(item => item.type === "space");
+    const flexibleSpaces = items.filter(item => item.type === "flexibleSpace");
+
     const fixedSpaceWidth = spaceItems.reduce((sum, item) => sum + (item.size || 16), 0);
     const minButtonWidth = 44;
     const totalMinButtonWidth = buttonItems.length * minButtonWidth;
-    
+
     const remainingWidth = availableWidth - fixedSpaceWidth - totalMinButtonWidth;
     const flexibleSpaceWidth = flexibleSpaces.length > 0 ? remainingWidth / flexibleSpaces.length : 0;
-    
+
     return {
       buttonWidth: minButtonWidth,
       flexibleSpaceWidth: Math.max(flexibleSpaceWidth, 0),
-      totalWidth: totalMinButtonWidth + fixedSpaceWidth + (flexibleSpaceWidth * flexibleSpaces.length)
+      totalWidth: totalMinButtonWidth + fixedSpaceWidth + (flexibleSpaceWidth * flexibleSpaces.length),
     };
-  }
+  },
 };
 
 export default {
@@ -351,5 +349,5 @@ export default {
   ToolbarButtonWithBadge,
   ToolbarText,
   ToolbarProgress,
-  ToolbarUtils
+  ToolbarUtils,
 };

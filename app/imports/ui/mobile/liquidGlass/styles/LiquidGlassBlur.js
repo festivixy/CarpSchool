@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components';
+import styled, { css, keyframes } from "styled-components";
 
 // Animation keyframes for floating effect
 const floatingAnimation = keyframes`
@@ -35,7 +35,7 @@ const glassShimmer = keyframes`
 
 // Base blur container styles
 export const BlurContainer = styled.div`
-  position: ${props => props.position || 'relative'};
+  position: ${props => props.position || "relative"};
   overflow: hidden;
 
   ${props => props.animated && css`
@@ -159,7 +159,7 @@ export const ToolbarBlurContainer = styled(BlurContainer)`
   bottom: 0;
   left: 0;
   right: 0;
-  height: ${props => props.height || '80px'};
+  height: ${props => props.height || "80px"};
   padding-bottom: env(safe-area-inset-bottom);
 
   ${props => props.floating && css`
@@ -167,7 +167,7 @@ export const ToolbarBlurContainer = styled(BlurContainer)`
     left: 16px;
     right: 16px;
     border-radius: 24px;
-    height: ${props.height || '60px'};
+    height: ${props.height || "60px"};
   `}
 
   /* Ensure toolbar is above other content */
@@ -178,28 +178,28 @@ export const ToolbarBlurContainer = styled(BlurContainer)`
 export const BlurContent = styled.div`
   position: relative;
   z-index: 2;
-  padding: ${props => props.padding || '16px'};
+  padding: ${props => props.padding || "16px"};
 
   /* Ensure text is readable over blur */
   color: ${props => {
     switch (props.blurStyle) {
-      case 'dark':
-        return 'rgba(255, 255, 255, 0.9)';
-      case 'light':
-      case 'extraLight':
-        return 'rgba(0, 0, 0, 0.9)';
+      case "dark":
+        return "rgba(255, 255, 255, 0.9)";
+      case "light":
+      case "extraLight":
+        return "rgba(0, 0, 0, 0.9)";
       default:
-        return 'var(--text-primary, rgba(0, 0, 0, 0.9))';
+        return "var(--text-primary, rgba(0, 0, 0, 0.9))";
     }
   }};
 
   /* Text shadow for better readability */
   text-shadow: ${props => {
     switch (props.blurStyle) {
-      case 'dark':
-        return '0 1px 2px rgba(0, 0, 0, 0.5)';
+      case "dark":
+        return "0 1px 2px rgba(0, 0, 0, 0.5)";
       default:
-        return '0 1px 2px rgba(255, 255, 255, 0.5)';
+        return "0 1px 2px rgba(255, 255, 255, 0.5)";
     }
   }};
 `;
@@ -209,13 +209,13 @@ function getBlurBackground(blurStyle, intensity) {
   const alpha = Math.min(intensity * 0.7, 0.9);
 
   switch (blurStyle) {
-    case 'dark':
+    case "dark":
       return `rgba(0, 0, 0, ${alpha})`;
-    case 'light':
+    case "light":
       return `rgba(255, 255, 255, ${alpha})`;
-    case 'extraLight':
+    case "extraLight":
       return `rgba(255, 255, 255, ${alpha * 0.8})`;
-    case 'tinted':
+    case "tinted":
       return `rgba(120, 120, 128, ${alpha})`;
     default:
       // System material approximation
@@ -230,21 +230,19 @@ export const BlurUtils = {
   // Get appropriate text color for blur style
   getTextColor: (blurStyle) => {
     switch (blurStyle) {
-      case 'dark':
-        return 'rgba(255, 255, 255, 0.9)';
-      case 'light':
-      case 'extraLight':
-        return 'rgba(0, 0, 0, 0.9)';
+      case "dark":
+        return "rgba(255, 255, 255, 0.9)";
+      case "light":
+      case "extraLight":
+        return "rgba(0, 0, 0, 0.9)";
       default:
-        return 'rgba(0, 0, 0, 0.9)';
+        return "rgba(0, 0, 0, 0.9)";
     }
   },
 
   // Check if backdrop-filter is supported
-  supportsBackdropFilter: () => {
-    return CSS.supports('backdrop-filter', 'blur(1px)') ||
-           CSS.supports('-webkit-backdrop-filter', 'blur(1px)');
-  },
+  supportsBackdropFilter: () => CSS.supports("backdrop-filter", "blur(1px)") ||
+           CSS.supports("-webkit-backdrop-filter", "blur(1px)"),
 
   // Get optimal blur intensity for device
   getOptimalIntensity: (baseIntensity = 1.0) => {
@@ -257,7 +255,7 @@ export const BlurUtils = {
     }
 
     return baseIntensity;
-  }
+  },
 };
 
 // Additional containers for component variants
@@ -270,7 +268,7 @@ export const SimpleLoadingContainer = styled.div`
 export const SimpleNativeBlurContainer = styled.div`
   position: ${props => props.position};
   background: transparent;
-  opacity: ${props => props.isVisible ? 1 : 0};
+  opacity: ${props => (props.isVisible ? 1 : 0)};
   transition: opacity 0.3s ease;
 
   /* Ensure content is visible over native blur */
@@ -279,16 +277,16 @@ export const SimpleNativeBlurContainer = styled.div`
 
 export const SimpleCSSBlurContainer = styled.div`
   position: ${props => props.position};
-  opacity: ${props => props.isVisible ? 1 : 0};
-  transition: ${props => props.animated ? 'all 0.3s ease' : 'none'};
+  opacity: ${props => (props.isVisible ? 1 : 0)};
+  transition: ${props => (props.animated ? "all 0.3s ease" : "none")};
 
   /* CSS backdrop-filter fallback */
   background: ${props => {
     const alpha = props.intensity * 0.7;
     switch (props.blurStyle) {
-      case 'dark':
+      case "dark":
         return `rgba(0, 0, 0, ${alpha})`;
-      case 'tinted':
+      case "tinted":
         return `rgba(120, 120, 128, ${alpha})`;
       default:
         return `rgba(255, 255, 255, ${alpha})`;
@@ -309,9 +307,9 @@ export const SimpleCSSBlurContainer = styled.div`
     background: ${props => {
       const alpha = Math.min(props.intensity * 0.9, 0.95);
       switch (props.blurStyle) {
-        case 'dark':
+        case "dark":
           return `rgba(0, 0, 0, ${alpha})`;
-        case 'tinted':
+        case "tinted":
           return `rgba(120, 120, 128, ${alpha})`;
         default:
           return `rgba(255, 255, 255, ${alpha})`;
@@ -330,5 +328,5 @@ export default {
   BlurUtils,
   SimpleLoadingContainer,
   SimpleNativeBlurContainer,
-  SimpleCSSBlurContainer
+  SimpleCSSBlurContainer,
 };

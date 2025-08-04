@@ -105,20 +105,20 @@ export const StyleButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   
-  background: ${props => props.active 
-    ? 'rgba(0, 122, 255, 0.8)' 
-    : 'rgba(0, 0, 0, 0.1)'
+  background: ${props => (props.active
+    ? "rgba(0, 122, 255, 0.8)"
+    : "rgba(0, 0, 0, 0.1)")
   };
   
-  color: ${props => props.active 
-    ? 'white' 
-    : 'rgba(0, 0, 0, 0.7)'
+  color: ${props => (props.active
+    ? "white"
+    : "rgba(0, 0, 0, 0.7)")
   };
   
   &:hover {
-    background: ${props => props.active 
-      ? 'rgba(0, 122, 255, 1)' 
-      : 'rgba(0, 0, 0, 0.2)'
+    background: ${props => (props.active
+      ? "rgba(0, 122, 255, 1)"
+      : "rgba(0, 0, 0, 0.2)")
     };
   }
 `;
@@ -152,17 +152,17 @@ export const ToolbarToggle = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   
-  background: ${props => props.active 
-    ? 'rgba(255, 59, 48, 0.8)' 
-    : 'rgba(0, 122, 255, 0.8)'
+  background: ${props => (props.active
+    ? "rgba(255, 59, 48, 0.8)"
+    : "rgba(0, 122, 255, 0.8)")
   };
   
   color: white;
   
   &:hover {
-    background: ${props => props.active 
-      ? 'rgba(255, 59, 48, 1)' 
-      : 'rgba(0, 122, 255, 1)'
+    background: ${props => (props.active
+      ? "rgba(255, 59, 48, 1)"
+      : "rgba(0, 122, 255, 1)")
     };
   }
 `;
