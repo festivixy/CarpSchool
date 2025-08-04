@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import LiquidGlassBlur from "../liquidGlass/components/LiquidGlassBlur";
-import LiquidGlassToolbar from "../liquidGlass/components/LiquidGlassToolbar";
-import { useNativeBlur, useFloatingToolbar } from "../hooks/useNativeBlur";
+import LiquidGlassNavBar from "../liquidGlass/components/LiquidGlassNavBar";
+import { useNativeBlur } from "../hooks/useNativeBlur";
 import {
   DemoContainer,
   BackgroundContent,
@@ -24,15 +24,16 @@ import {
 } from "../styles/NativeBlurDemo";
 
 /**
- * Demo component showcasing iOS 26 native blur and toolbar features
+ * Demo component showcasing iOS 26 native blur and navbar features
  * Demonstrates automatic fallback to CSS when native features are unavailable
  */
 const NativeBlurDemo = () => {
   const [selectedBlur, setSelectedBlur] = useState("systemMaterial");
-  const [showToolbar, setShowToolbar] = useState(true);
+  const [showNavBar, setShowNavBar] = useState(true);
   const [blurIntensity, setBlurIntensity] = useState(1.0);
   const [logs, setLogs] = useState([]);
   const [showLogs, setShowLogs] = useState(true);
+  const [activeNavIndex, setActiveNavIndex] = useState(0);
   const logTextAreaRef = useRef(null);
 
   const {
@@ -40,11 +41,6 @@ const NativeBlurDemo = () => {
     isLoading: blurLoading,
     getAvailableStyles,
   } = useNativeBlur();
-
-  const {
-    isSupported: toolbarSupported,
-    isLoading: toolbarLoading,
-  } = useFloatingToolbar();
 
   const [availableStyles, setAvailableStyles] = useState([]);
 
@@ -83,7 +79,7 @@ const NativeBlurDemo = () => {
       }).join(' ');
 
       // Only log if it contains our keywords
-      if (message.includes('LiquidGlass') || message.includes('useFloating')) {
+      if (message.includes('LiquidGlass') || message.includes('NavBar')) {
         pendingLogs.push({
           type,
           timestamp,
@@ -99,21 +95,21 @@ const NativeBlurDemo = () => {
 
     console.log = (...args) => {
       originalLog(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('useFloating'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBar'))) {
         addLog('log', args);
       }
     };
 
     console.error = (...args) => {
       originalError(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('useFloating'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBar'))) {
         addLog('error', args);
       }
     };
 
     console.warn = (...args) => {
       originalWarn(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('useFloating'))) {
+      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBar'))) {
         addLog('warn', args);
       }
     };
@@ -133,34 +129,31 @@ const NativeBlurDemo = () => {
     }
   }, [logs]);
 
-  const toolbarItems = [
+  const navBarItems = [
     {
-      type: "button",
+      id: "home",
+      label: "Home",
       icon: "🏠",
-      title: "Home",
       action: "home",
     },
     {
-      type: "flexibleSpace",
-    },
-    {
-      type: "button",
+      id: "search",
+      label: "Search",
       icon: "🔍",
-      title: "Search",
       action: "search",
     },
     {
-      type: "button",
+      id: "settings",
+      label: "Settings",
       icon: "⚙️",
-      title: "Settings",
       action: "settings",
-      primary: true,
     },
   ];
 
-  const handleToolbarAction = (item, index, action) => {
-    console.log("Toolbar action:", { item, index, action });
-    alert(`Pressed: ${item.title}`);
+  const handleNavBarAction = (item, index) => {
+    console.log("NavBar action:", { item, index });
+    setActiveNavIndex(index);
+    alert(`Navigated to: ${item.label}`);
   };
 
   const handleBlurReady = ({ blurId, useNative }) => {
@@ -173,15 +166,13 @@ const NativeBlurDemo = () => {
       platform: window.cordova ? 'Cordova' : 'Web',
       isCordova: !!window.cordova,
       isMeteorCordova: !!window.Meteor?.isCordova,
-      hasFloatingToolbarPlugin: !!window.cordova?.plugins?.floatingToolbar,
       hasLiquidBlurPlugin: !!window.cordova?.plugins?.liquidBlur,
       userAgent: navigator.userAgent,
-      toolbarSupported,
-      toolbarLoading,
+      iosVersion: window.device?.version || 'unknown',
     });
-  }, [toolbarSupported, toolbarLoading]);
+  }, []);
 
-  if (blurLoading || toolbarLoading) {
+  if (blurLoading) {
     return (
       <LoadingContainer>
         <LoadingText>Initializing Native Features...</LoadingText>
@@ -207,7 +198,7 @@ const NativeBlurDemo = () => {
 
       <StatusBar>
         <StatusItem>
-          Native iOS 26 Toolbar: {toolbarSupported ? "✅ Liquid Glass" : "❌ CSS Fallback"}
+          iOS 26 NavBar: CSS Liquid Glass (iOS 18 Compatible)
         </StatusItem>
         <StatusItem>
           Blur Effects: CSS backdrop-filter only
@@ -245,10 +236,10 @@ const NativeBlurDemo = () => {
 
           <ControlGroup>
             <ToolbarToggle
-              active={showToolbar}
-              onClick={() => setShowToolbar(!showToolbar)}
+              active={showNavBar}
+              onClick={() => setShowNavBar(!showNavBar)}
             >
-              {showToolbar ? "Hide Toolbar" : "Show Toolbar"}
+              {showNavBar ? "Hide NavBar" : "Show NavBar"}
             </ToolbarToggle>
           </ControlGroup>
 
@@ -300,7 +291,7 @@ const NativeBlurDemo = () => {
             )}
 
             <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-              Total logs: {logs.length} | Toolbar supported: {toolbarSupported ? '✅' : '❌'}
+              Total logs: {logs.length} | NavBar: CSS Liquid Glass
             </div>
           </ControlGroup>
 
@@ -345,16 +336,14 @@ const NativeBlurDemo = () => {
         </ControlsContent>
       </ControlsContainer>
 
-      {showToolbar && (
-        <LiquidGlassToolbar
-          items={toolbarItems}
-          position="bottom"
-          floating={true}
+      {showNavBar && (
+        <LiquidGlassNavBar
+          items={navBarItems}
           blurStyle={selectedBlur}
-          onItemPress={handleToolbarAction}
-          visible={showToolbar}
+          onItemPress={handleNavBarAction}
+          visible={showNavBar}
           animated={true}
-          height={60}
+          activeIndex={activeNavIndex}
         />
       )}
     </DemoContainer>
