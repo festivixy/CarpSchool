@@ -9,7 +9,7 @@ import {
   SectionTitle,
   Content,
 } from "../styles/Landing";
-import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
+import { MobileOnly, DesktopOnly } from "/imports/ui/layouts/Devices";
 
 const BackButton = styled.button`
   background: none;
