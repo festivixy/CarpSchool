@@ -51,7 +51,7 @@ import {
   ErrorText,
   Button,
   LoadingButton,
-} from "../styles/AdminPlaceManager";
+} from "/imports/ui/styles/AdminPlaceManager";
 
 /**
  * Component for admins to manage all places in the system
