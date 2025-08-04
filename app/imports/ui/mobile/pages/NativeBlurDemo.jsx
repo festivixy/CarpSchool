@@ -140,28 +140,60 @@ const NativeBlurDemo = () => {
   const navBarItems = [
     {
       id: "home",
-      label: "Home",
+      label: "My Rides",
       icon: "🏠",
       action: "home",
     },
     {
-      id: "search",
-      label: "Search",
+      id: "join",
+      label: "Join Ride",
       icon: "🔍",
-      action: "search",
+      action: "join",
     },
     {
-      id: "settings",
-      label: "Settings",
-      icon: "⚙️",
-      action: "settings",
+      id: "create",
+      label: "Create",
+      icon: "���",
+      action: "create",
+    },
+    {
+      id: "messages",
+      label: "Messages",
+      icon: "💬",
+      action: "messages",
+    },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: "👤",
+      action: "profile",
     },
   ];
 
   const handleNavBarAction = (item, index) => {
     console.log("NavBar action:", { item, index });
     setActiveNavIndex(index);
-    alert(`Navigated to: ${item.label}`);
+
+    switch (item.action) {
+      case 'home':
+        alert('Navigate to My Rides');
+        break;
+      case 'join':
+        alert('Open Join Ride Modal');
+        break;
+      case 'create':
+        alert('Open Create Ride Modal');
+        break;
+      case 'messages':
+        alert('Navigate to Messages/Chat');
+        break;
+      case 'profile':
+        // Profile dropdown is handled automatically by NativeNavBar
+        console.log('Profile dropdown should open');
+        break;
+      default:
+        alert(`Navigated to: ${item.label}`);
+    }
   };
 
   const handleBlurReady = ({ blurId, useNative }) => {

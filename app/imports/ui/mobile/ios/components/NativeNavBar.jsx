@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import useNativeNavBar from "../hooks/useNativeNavBar";
+import LiquidGlassDropdown from "../../liquidGlass/components/Dropdown";
 
 /**
  * NativeNavBar Component
@@ -33,6 +34,7 @@ const NativeNavBar = ({
 
   const [navBarId, setNavBarId] = useState(null);
   const [currentActiveIndex, setCurrentActiveIndex] = useState(activeIndex);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const navBarRef = useRef(null);
 
   // Update active index when prop changes
@@ -62,11 +64,19 @@ const NativeNavBar = ({
           itemIndex,
           item: items[itemIndex],
         });
-        
+
         const item = items[itemIndex];
-        if (item && onItemPress) {
-          setCurrentActiveIndex(itemIndex);
-          onItemPress(item, itemIndex, action);
+        if (item) {
+          // Handle profile dropdown specially
+          if (item.id === 'profile' || item.action === 'profile') {
+            setProfileDropdownOpen(true);
+            setCurrentActiveIndex(itemIndex);
+          } else {
+            setCurrentActiveIndex(itemIndex);
+            if (onItemPress) {
+              onItemPress(item, itemIndex, action);
+            }
+          }
         }
       });
     }
@@ -84,7 +94,7 @@ const NativeNavBar = ({
     }
 
     console.log("[NativeNavBar] 🏗️ Creating native navbar...");
-    
+
     const createNativeNavBar = async () => {
       try {
         // Create the navbar
@@ -92,8 +102,8 @@ const NativeNavBar = ({
           position: "bottom",
           safeArea: true,
         });
-        
-        console.log("[NativeNavBar] ✅ Native navbar created:", newNavBarId);
+
+        console.log("[NativeNavBar] �� Native navbar created:", newNavBarId);
         setNavBarId(newNavBarId);
 
         // Set items
@@ -159,7 +169,7 @@ const NativeNavBar = ({
   if (isLoading) {
     console.log("[NativeNavBar] ⏳ Rendering loading state");
     return (
-      <div 
+      <div
         className={className}
         style={{
           position: 'fixed',
@@ -192,41 +202,104 @@ const NativeNavBar = ({
     return null;
   }
 
-  // Native navbar is active - render invisible placeholder
+  // Native navbar is active - render invisible placeholder with dropdown overlay
   if (navBarId && visible) {
     console.log("[NativeNavBar] 🍎 Rendering native placeholder:", {
       navBarId,
       activeIndex: currentActiveIndex,
       itemCount: items.length,
     });
-    
+
+    // Get profile dropdown options
+    const getProfileDropdownOptions = () => {
+      const currentUser = window.Meteor?.user();
+      const isAdmin = currentUser?.profile?.isAdmin;
+
+      if (currentUser) {
+        const options = [
+          { value: '/editProfile', label: '📋 Edit Profile' },
+          { value: '/places', label: '📍 My Places' },
+        ];
+
+        if (isAdmin) {
+          options.push(
+            { value: '/adminRides', label: '🚗 Manage Rides' },
+            { value: '/adminUsers', label: '👥 Manage Users' },
+            { value: '/adminPlaces', label: '📍 Manage Places' },
+            { value: '/_test', label: '🧪 Components Test' }
+          );
+        }
+
+        options.push({ value: '/signout', label: '🚪 Sign Out' });
+        return options;
+      } else {
+        return [
+          { value: '/signin', label: '👤 Sign In' },
+          { value: '/signup', label: '📝 Sign Up' },
+        ];
+      }
+    };
+
+    const handleDropdownSelect = (option) => {
+      setProfileDropdownOpen(false);
+      if (option.value === '/signout') {
+        // Handle sign out
+        window.FlowRouter?.go('/signout');
+      } else {
+        // Navigate to selected route
+        window.FlowRouter?.go(option.value);
+      }
+    };
+
     return (
-      <div 
-        ref={navBarRef}
-        className={className}
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 83,
-          pointerEvents: 'none', // Let native navbar handle touches
-          ...style
-        }}
-        {...props}
-      >
-        <div style={{ 
-          position: 'absolute',
-          bottom: 8,
-          right: 8,
-          fontSize: '10px',
-          color: 'rgba(0,0,0,0.3)',
-          userSelect: 'none',
-          pointerEvents: 'none'
-        }}>
-          Native iOS
+      <>
+        <div
+          ref={navBarRef}
+          className={className}
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 83,
+            pointerEvents: 'none', // Let native navbar handle touches
+            ...style
+          }}
+          {...props}
+        >
+          <div style={{
+            position: 'absolute',
+            bottom: 8,
+            right: 8,
+            fontSize: '10px',
+            color: 'rgba(0,0,0,0.3)',
+            userSelect: 'none',
+            pointerEvents: 'none'
+          }}>
+            Native iOS
+          </div>
         </div>
-      </div>
+
+        {/* Profile Dropdown Overlay */}
+        {profileDropdownOpen && (
+          <div style={{
+            position: 'fixed',
+            bottom: 100,
+            right: 20,
+            zIndex: 10000,
+            pointerEvents: 'auto',
+          }}>
+            <LiquidGlassDropdown
+              options={getProfileDropdownOptions()}
+              placeholder="Profile Menu"
+              onSelect={handleDropdownSelect}
+              onClose={() => setProfileDropdownOpen(false)}
+              isOpen={profileDropdownOpen}
+              searchable={false}
+            />
+          </div>
+        )}
+      </>
     );
   }
 
