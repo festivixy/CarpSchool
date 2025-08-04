@@ -185,7 +185,23 @@ export const useFloatingToolbar = () => {
         hasFloatingToolbarPlugin: !!window.cordova?.plugins?.floatingToolbar,
         hasPromise: !!window.cordova?.plugins?.floatingToolbar?.promise,
         hasIsSupported: !!window.cordova?.plugins?.floatingToolbar?.promise?.isSupported,
+        userAgent: navigator.userAgent,
+        platform: window.device?.platform || 'Web'
       });
+
+      // Check if we're in a web environment (not native iOS)
+      const isWebEnvironment = !window.device ||
+                               window.device.platform !== 'iOS' ||
+                               navigator.userAgent.includes('Chrome') ||
+                               navigator.userAgent.includes('Firefox') ||
+                               navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Mobile');
+
+      if (isWebEnvironment) {
+        console.log("[useFloatingToolbar] 🌐 Web environment detected, native toolbar not supported");
+        setIsSupported(false);
+        setIsLoading(false);
+        return;
+      }
 
       try {
         if (window.cordova?.plugins?.floatingToolbar) {
