@@ -21,13 +21,23 @@ App.setPreference("ShowSplashScreenSpinner", "true");
 App.setPreference("Orientation", "portrait", "ios");
 App.setPreference("EnableViewportScale", "true", "ios");
 App.setPreference("MediaPlaybackRequiresUserAction", "false", "ios");
-App.setPreference("AllowInlineMediaPlayback", "true", "ios");
+App.setPreference("AllowInlineMediaPlaybook", "true", "ios");
 App.setPreference("BackupWebStorage", "cloud", "ios");
 App.setPreference("TopActivityIndicator", "gray", "ios");
 App.setPreference("GapBetweenPages", "0", "ios");
 App.setPreference("PageLength", "0", "ios");
 App.setPreference("PaginationBreakingMode", "page", "ios");
 App.setPreference("PaginationMode", "unpaginated", "ios");
+
+// iOS 26 Liquid Glass specific preferences
+App.setPreference("StatusBarOverlaysWebView", "true", "ios");
+App.setPreference("WKWebViewOnly", "true", "ios");
+App.setPreference("StatusBarBackgroundColor", "transparent", "ios");
+App.setPreference("WKWebViewDecelerationRate", "normal", "ios");
+App.setPreference("DisallowOverscroll", "false", "ios");
+App.setPreference("EnableViewportScale", "true", "ios");
+App.setPreference("KeyboardDisplayRequiresUserAction", "false", "ios");
+App.setPreference("SuppressesIncrementalRendering", "false", "ios");
 
 // Android specific preferences
 App.setPreference("android-minSdkVersion", "21");
@@ -51,6 +61,17 @@ App.accessRule("https://*.carp.school/*");
 // - cordova-plugin-statusbar (for status bar control)
 // - cordova-plugin-device (for platform detection)
 // - cordova-plugin-console (for debugging)
+
+// Native iOS 26 Liquid Glass plugins
+App.addGlobalPlugin("cordova-plugin-liquid-blur", {
+    LIQUID_BLUR_DEFAULT_STYLE: "systemMaterial",
+    LIQUID_BLUR_ENABLE_DYNAMIC_ADJUSTMENT: "true"
+});
+
+App.addGlobalPlugin("cordova-plugin-floating-toolbar", {
+    FLOATING_TOOLBAR_DEFAULT_POSITION: "bottom",
+    FLOATING_TOOLBAR_SAFE_AREA: "true"
+});
 
 // Set up resources such as icons and launch screens.
 App.icons({

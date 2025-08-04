@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="cordova-plugin-floating-toolbar"
+        version="1.0.0">
+
+    <name>Cordova Floating Toolbar Plugin</name>
+    <description>Native iOS 26 Liquid Glass floating toolbars for Cordova applications</description>
+    <license>MIT</license>
+    <keywords>cordova,ios,toolbar,liquid glass,ios26,floating</keywords>
+    <repo>https://github.com/carpschool/cordova-plugin-floating-toolbar.git</repo>
+    <issue>https://github.com/carpschool/cordova-plugin-floating-toolbar/issues</issue>
+
+    <js-module src="www/FloatingToolbar.js" name="FloatingToolbar">
+        <clobbers target="cordova.plugins.floatingToolbar" />
+    </js-module>
+
+    <!-- iOS -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="FloatingToolbar">
+                <param name="ios-package" value="FloatingToolbar" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/FloatingToolbar.h" />
+        <source-file src="src/ios/FloatingToolbar.m" />
+        <source-file src="src/ios/ToolbarManager.swift" />
+
+        <dependency id="cordova-plugin-add-swift-support" version="2.0.2"/>
+        <dependency id="cordova-plugin-liquid-blur" version="1.0.0"/>
+
+        <framework src="UIKit.framework" />
+        <framework src="Foundation.framework" />
+        <framework src="CoreGraphics.framework" />
+    </platform>
+
+    <!-- Android (fallback) -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="FloatingToolbar">
+                <param name="android-package" value="school.carp.plugins.FloatingToolbar" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <source-file src="src/android/FloatingToolbar.java" target-dir="src/school/carp/plugins" />
+    </platform>
+
+</plugin>
