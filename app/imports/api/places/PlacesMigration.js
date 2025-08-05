@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { Places } from "./Places.js";
+import { Places } from "./Places";
 
 // Static places data for migration
 const staticPlaces = [

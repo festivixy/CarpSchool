@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
 import { fileTypeFromBuffer } from "file-type";
-import { Images, ImagesSchema } from "./Images.js";
+import { Images, ImagesSchema } from "./Images";
 import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
 
 // Image compression function - converts to PNG and compresses efficiently
