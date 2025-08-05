@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
-import MobileJoinRideModal from "../../mobile/components/JoinRideModal";
+import MobileJoinRideModal from "../../components/JoinRideModal";
 import AddRidesModal from "../../components/AddRides";
 import {
   NavBarContainer,
