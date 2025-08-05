@@ -125,42 +125,47 @@ class RefChecker:
         return None
 
     def load_package_dependencies(self) -> Set[str]:
-        """Load all dependencies from package.json files"""
+        """Load dependencies from the nearest package.json walking up the directory tree"""
         dependencies = set()
 
-        # Skip build directories and node_modules to avoid corrupted/generated files
-        excluded_paths = ['node_modules', '.meteor/local', 'build', 'dist']
+        # Walk up the directory tree to find the first package.json
+        current_dir = self.root_dir
+        while current_dir != current_dir.parent:  # Stop at filesystem root
+            package_json_path = current_dir / "package.json"
 
-        # Find all package.json files in the project
-        for package_json_path in self.root_dir.rglob("package.json"):
-            # Skip if in excluded directories
-            if any(excluded in str(package_json_path) for excluded in excluded_paths):
-                continue
+            if package_json_path.exists():
+                try:
+                    with open(package_json_path, 'r', encoding='utf-8') as f:
+                        content = f.read().strip()
+                        if not content:  # Skip empty files
+                            break
 
-            try:
-                with open(package_json_path, 'r', encoding='utf-8') as f:
-                    content = f.read().strip()
-                    if not content:  # Skip empty files
-                        continue
+                        package_data = json.loads(content)
 
-                    package_data = json.loads(content)
+                    # Collect all types of dependencies
+                    for dep_type in ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']:
+                        if dep_type in package_data:
+                            dep_section = package_data[dep_type]
+                            # Handle both object (normal) and list (rare edge case) formats
+                            if isinstance(dep_section, dict):
+                                dependencies.update(dep_section.keys())
+                            elif isinstance(dep_section, list):
+                                dependencies.update(dep_section)
 
-                # Collect all types of dependencies
-                for dep_type in ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']:
-                    if dep_type in package_data:
-                        dep_section = package_data[dep_type]
-                        # Handle both object (normal) and list (rare edge case) formats
-                        if isinstance(dep_section, dict):
-                            dependencies.update(dep_section.keys())
-                        elif isinstance(dep_section, list):
-                            dependencies.update(dep_section)
+                    self.log(f"Loaded {len(dependencies)} dependencies from {package_json_path}")
+                    break  # Stop once we find and process the first package.json
 
-            except (json.JSONDecodeError, FileNotFoundError, KeyError, UnicodeDecodeError) as e:
-                # Only log if verbose mode is on to reduce noise
-                if self.verbose:
-                    self.log(f"Warning: Could not read {package_json_path}: {e}")
+                except (json.JSONDecodeError, FileNotFoundError, KeyError, UnicodeDecodeError) as e:
+                    # Only log if verbose mode is on to reduce noise
+                    if self.verbose:
+                        self.log(f"Warning: Could not read {package_json_path}: {e}")
+                    # Continue to parent directory if current package.json is corrupted
 
-        self.log(f"Loaded {len(dependencies)} dependencies from package.json files")
+            current_dir = current_dir.parent
+
+        if not dependencies:
+            self.log("No valid package.json found in directory hierarchy")
+
         return dependencies
 
     def resolve_import_path(self, import_path: str, current_file: Path) -> Optional[Path]:
