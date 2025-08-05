@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import useNativeNavBar from "../hooks/useNativeNavBar";
-import LiquidGlassDropdown from "../../liquidGlass/components/Dropdown";
+import LiquidGlassDropdown from "../../../liquidGlass/components/Dropdown";
 
 /**
  * NativeNavBar Component

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
-import { useNativeBlur } from "../../hooks/useNativeBlur";
+import { useNativeBlur } from "../../mobile/hooks/useNativeBlur";
 import {
   SimpleLoadingContainer,
   SimpleNativeBlurContainer,

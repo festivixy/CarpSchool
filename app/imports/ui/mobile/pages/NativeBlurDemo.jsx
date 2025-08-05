@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
-import LiquidGlassBlur from "../liquidGlass/components/LiquidGlassBlur";
-import LiquidGlassMobileNavBarCSS from "../liquidGlass/components/LiquidGlassMobileNavBarCSS";
+import LiquidGlassBlur from "../../liquidGlass/components/LiquidGlassBlur";
+import LiquidGlassMobileNavBarCSS from "../../liquidGlass/components/LiquidGlassMobileNavBarCSS";
 import NativeNavBar from "../ios/components/NativeNavBar";
 import { useNativeBlur } from "../hooks/useNativeBlur";
 import useNativeNavBar from "../ios/hooks/useNativeNavBar";

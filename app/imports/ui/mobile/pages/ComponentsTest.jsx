@@ -3,13 +3,13 @@ import { withRouter } from "react-router-dom";
 import MapView from "../../components/MapView";
 import InteractiveMapPicker from "../components/InteractiveMapPicker";
 import PathMapView from "../components/PathMapView";
-import LiquidGlassButton from "../liquidGlass/components/Button";
-import LiquidGlassNavbar from "../liquidGlass/components/Navbar";
-import LiquidGlassDropdown from "../liquidGlass/components/Dropdown";
-import LiquidGlassFooter from "../liquidGlass/components/Footer";
-import LiquidGlassTextInput from "../liquidGlass/components/TextInput";
-import LiquidGlassIconButton from "../liquidGlass/components/IconButton";
-import LiquidGlassMobileNavBar from "../liquidGlass/components/LiquidGlassMobileNavBar";
+import LiquidGlassButton from "../../liquidGlass/components/Button";
+import LiquidGlassNavbar from "../../liquidGlass/components/Navbar";
+import LiquidGlassDropdown from "../../liquidGlass/components/Dropdown";
+import LiquidGlassFooter from "../../liquidGlass/components/Footer";
+import LiquidGlassTextInput from "../../liquidGlass/components/TextInput";
+import LiquidGlassIconButton from "../../liquidGlass/components/IconButton";
+import LiquidGlassMobileNavBar from "../../liquidGlass/components/LiquidGlassMobileNavBar";
 import {
   Container,
   Content,
@@ -813,7 +813,7 @@ const MobileTestMapView = ({ history }) => {
 
             <InfoCard>
               <InfoItem>
-                <InfoLabel>🧪 LiquidGlass Dropdown Features</InfoLabel>
+                <InfoLabel>���� LiquidGlass Dropdown Features</InfoLabel>
                 <InfoValue>
                   1. Glass morphism effect with backdrop blur and transparency
                   <br />

@@ -15,7 +15,7 @@ import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import LoadingPage from "../mobile/components/LoadingPage";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../pages/SignIn";
-import LiquidGlassSignIn from "../mobile/liquidGlass/pages/SignIn";
+import LiquidGlassSignIn from "../liquidGlass/pages/SignIn";
 import MobileSignup from "../pages/Signup";
 import MobileForgotPassword from "../pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
@@ -39,7 +39,7 @@ import ProtectedRoutes, {
 } from "./ProtectedRoutes";
 import { DesktopOnly, MobileOnly } from "./Devices";
 import FooterVerbose from "../desktop/components/FooterVerbose";
-import LiquidGlassMobileNavBar from "../mobile/liquidGlass/components/LiquidGlassMobileNavBar";
+import LiquidGlassMobileNavBar from "../liquidGlass/components/LiquidGlassMobileNavBar";
 import MobileNativeBlurDemo from "../mobile/pages/NativeBlurDemo";
 import SharedComponentsDemo from "../pages/SharedComponentsDemo";
 // Lazy load TestMapView to improve initial load performance
