@@ -90,7 +90,7 @@ class ErrorBoundary extends Component {
 
   handleReport = () => {
     const { error, errorInfo, errorId } = this.state;
-    
+
     // Create error report
     const errorReport = {
       errorId,
@@ -151,13 +151,13 @@ class ErrorBoundary extends Component {
       return (
         <ErrorContainer variant={variant}>
           <ErrorIcon>⚠️</ErrorIcon>
-          
+
           <ErrorTitle>
             {title || "Something went wrong"}
           </ErrorTitle>
-          
+
           <ErrorMessage>
-            {message || (isProduction 
+            {message || (isProduction
               ? "We apologize for the inconvenience. Please try refreshing the page."
               : errorMessage
             )}
@@ -176,7 +176,7 @@ class ErrorBoundary extends Component {
                 Try Again
               </RetryButton>
             )}
-            
+
             {showReport && (
               <ReportButton onClick={this.handleReport}>
                 Report Issue

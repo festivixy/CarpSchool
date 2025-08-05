@@ -42,16 +42,12 @@ export const NavBarContainer = styled.div`
   padding-right: env(safe-area-inset-right, 16px);
 
   /* iOS 26 Liquid Glass Effect */
-  background: ${props =>
-    liquidGlassColors[props.blurStyle]?.background || liquidGlassColors.systemMaterial.background};
-  backdrop-filter: ${props =>
-    liquidGlassColors[props.blurStyle]?.backdropFilter || liquidGlassColors.systemMaterial.backdropFilter};
-  -webkit-backdrop-filter: ${props =>
-    liquidGlassColors[props.blurStyle]?.backdropFilter || liquidGlassColors.systemMaterial.backdropFilter};
+  background: ${props => liquidGlassColors[props.blurStyle]?.background || liquidGlassColors.systemMaterial.background};
+  backdrop-filter: ${props => liquidGlassColors[props.blurStyle]?.backdropFilter || liquidGlassColors.systemMaterial.backdropFilter};
+  -webkit-backdrop-filter: ${props => liquidGlassColors[props.blurStyle]?.backdropFilter || liquidGlassColors.systemMaterial.backdropFilter};
 
   /* Subtle border for depth */
-  border-top: 0.5px solid ${props =>
-    liquidGlassColors[props.blurStyle]?.border || liquidGlassColors.systemMaterial.border};
+  border-top: 0.5px solid ${props => liquidGlassColors[props.blurStyle]?.border || liquidGlassColors.systemMaterial.border};
 
   /* Floating glass shadow */
   box-shadow:

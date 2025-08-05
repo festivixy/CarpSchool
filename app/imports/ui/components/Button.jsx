@@ -41,11 +41,11 @@ const Button = ({
       {icon && iconPosition === "left" && (
         <ButtonIcon position="left">{icon}</ButtonIcon>
       )}
-      
+
       <ButtonText hasIcon={!!icon}>
         {loading ? "Loading..." : children}
       </ButtonText>
-      
+
       {icon && iconPosition === "right" && (
         <ButtonIcon position="right">{icon}</ButtonIcon>
       )}

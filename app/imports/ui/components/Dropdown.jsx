@@ -54,7 +54,7 @@ const Dropdown = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [internalValue, setInternalValue] = useState(defaultValue);
   const [focusedIndex, setFocusedIndex] = useState(-1);
-  
+
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -74,10 +74,8 @@ const Dropdown = ({
 
   // Filter options based on search term
   const filteredOptions = searchable && searchTerm
-    ? options.filter(option => 
-        option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (option.searchText && option.searchText.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
+    ? options.filter(option => option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (option.searchText && option.searchText.toLowerCase().includes(searchTerm.toLowerCase())))
     : options;
 
   // Get display value
@@ -90,7 +88,7 @@ const Dropdown = ({
       }
       return `${selectedValue.length} selected`;
     }
-    
+
     const option = options.find(opt => opt.value === selectedValue);
     return option ? option.label : selectedValue;
   };
@@ -123,15 +121,11 @@ const Dropdown = ({
           break;
         case "ArrowDown":
           event.preventDefault();
-          setFocusedIndex(prev => 
-            prev < filteredOptions.length - 1 ? prev + 1 : 0
-          );
+          setFocusedIndex(prev => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
           break;
         case "ArrowUp":
           event.preventDefault();
-          setFocusedIndex(prev => 
-            prev > 0 ? prev - 1 : filteredOptions.length - 1
-          );
+          setFocusedIndex(prev => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
           break;
         case "Enter":
           event.preventDefault();
@@ -150,11 +144,11 @@ const Dropdown = ({
 
   const openDropdown = () => {
     if (disabled) return;
-    
+
     setIsOpen(true);
     setFocusedIndex(-1);
     if (onOpen) onOpen();
-    
+
     // Focus search input if searchable
     if (searchable) {
       setTimeout(() => {
@@ -170,7 +164,7 @@ const Dropdown = ({
     setSearchTerm("");
     setFocusedIndex(-1);
     if (onClose) onClose();
-    
+
     // Return focus to trigger
     if (triggerRef.current) {
       triggerRef.current.focus();
@@ -204,11 +198,11 @@ const Dropdown = ({
   const handleClear = (event) => {
     event.stopPropagation();
     const newValue = multiple ? [] : null;
-    
+
     if (!isControlled) {
       setInternalValue(newValue);
     }
-    
+
     if (onChange) {
       onChange(newValue);
     }
@@ -218,7 +212,7 @@ const Dropdown = ({
     const term = event.target.value;
     setSearchTerm(term);
     setFocusedIndex(-1);
-    
+
     if (onSearch) {
       onSearch(term);
     }
@@ -232,7 +226,7 @@ const Dropdown = ({
           {required && <RequiredIndicator>*</RequiredIndicator>}
         </DropdownLabel>
       )}
-      
+
       <DropdownTrigger
         ref={triggerRef}
         id={triggerId}
@@ -264,7 +258,7 @@ const Dropdown = ({
             <TriggerPlaceholder>{placeholder}</TriggerPlaceholder>
           )}
         </TriggerContent>
-        
+
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {clearable && displayValue && !disabled && (
             <button
@@ -277,20 +271,20 @@ const Dropdown = ({
                 padding: "4px",
                 display: "flex",
                 alignItems: "center",
-                color: "#8E8E93"
+                color: "#8E8E93",
               }}
               aria-label="Clear selection"
             >
               ×
             </button>
           )}
-          
+
           <TriggerIcon isOpen={isOpen}>
             ▼
           </TriggerIcon>
         </div>
       </DropdownTrigger>
-      
+
       {isOpen && (
         <DropdownMenu
           ref={menuRef}
@@ -309,7 +303,7 @@ const Dropdown = ({
               onClick={(e) => e.stopPropagation()}
             />
           )}
-          
+
           {filteredOptions.length === 0 ? (
             <NoResults>
               {searchTerm ? `No results for "${searchTerm}"` : "No options available"}
@@ -320,7 +314,7 @@ const Dropdown = ({
                 ? Array.isArray(selectedValue) && selectedValue.includes(option.value)
                 : selectedValue === option.value;
               const isFocused = index === focusedIndex;
-              
+
               return (
                 <MenuItem
                   key={option.value}
@@ -344,7 +338,7 @@ const Dropdown = ({
           )}
         </DropdownMenu>
       )}
-      
+
       {(error || helperText) && (
         <div>
           {error && (
@@ -352,7 +346,7 @@ const Dropdown = ({
               {error}
             </ErrorMessage>
           )}
-          
+
           {helperText && !error && (
             <HelperText id={helperId}>
               {helperText}
@@ -372,17 +366,17 @@ Dropdown.propTypes = {
       icon: PropTypes.node,
       disabled: PropTypes.bool,
       searchText: PropTypes.string,
-    })
+    }),
   ).isRequired,
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
+    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
   ]),
   defaultValue: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
+    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
   ]),
   placeholder: PropTypes.string,
   label: PropTypes.string,

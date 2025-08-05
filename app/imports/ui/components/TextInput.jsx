@@ -72,11 +72,11 @@ const TextInput = ({
 
   const handleChange = (event) => {
     const newValue = event.target.value;
-    
+
     if (!isControlled) {
       setInternalValue(newValue);
     }
-    
+
     if (onChange) {
       onChange(event);
     }
@@ -107,7 +107,7 @@ const TextInput = ({
           {required && <RequiredIndicator>*</RequiredIndicator>}
         </InputLabel>
       )}
-      
+
       <InputWrapper
         size={size}
         variant={variant}
@@ -120,7 +120,7 @@ const TextInput = ({
         {icon && iconPosition === "left" && (
           <InputIcon position="left">{icon}</InputIcon>
         )}
-        
+
         <StyledInput
           ref={inputRef}
           id={inputId}
@@ -149,12 +149,12 @@ const TextInput = ({
           iconPosition={iconPosition}
           {...props}
         />
-        
+
         {icon && iconPosition === "right" && (
           <InputIcon position="right">{icon}</InputIcon>
         )}
       </InputWrapper>
-      
+
       {(error || helperText || showCharacterCount) && (
         <div>
           {error && (
@@ -162,13 +162,13 @@ const TextInput = ({
               {error}
             </ErrorMessage>
           )}
-          
+
           {helperText && !error && (
             <HelperText id={helperId}>
               {helperText}
             </HelperText>
           )}
-          
+
           {showCharacterCount && maxLength && (
             <CharacterCount isOverLimit={isOverLimit}>
               {characterCount}/{maxLength}

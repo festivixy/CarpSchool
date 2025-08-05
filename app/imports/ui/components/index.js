@@ -5,7 +5,6 @@ export { default as Dropdown } from "./Dropdown";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as ErrorBoundary } from "./ErrorBoundary";
 
-
 // Previously moved components
 export { default as MapView } from "./MapView";
 export { default as ImageUpload } from "./ImageUpload";

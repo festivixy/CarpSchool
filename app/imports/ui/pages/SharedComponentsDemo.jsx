@@ -219,7 +219,7 @@ const SharedComponentsDemo = ({ history }) => {
           <ComponentDemo>
             <ComponentTitle>ErrorBoundary Component</ComponentTitle>
             <ComponentControls>
-              <Button 
+              <Button
                 variant={showError ? "primary" : "danger"}
                 onClick={() => setShowError(!showError)}
               >
@@ -261,7 +261,7 @@ const SharedComponentsDemo = ({ history }) => {
               <li>✅ Consistent styling with styled-components</li>
             </ul>
           </DemoDescription>
-          
+
           <DemoCode>
 {`// Easy importing
 import { Button, TextInput, Dropdown } from '../components';
