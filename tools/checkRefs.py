@@ -37,6 +37,9 @@ class RefChecker:
 
         # File patterns to check
         self.js_extensions = {'.js', '.jsx', '.ts', '.tsx', '.mjs'}
+
+        # Load package.json dependencies
+        self.package_dependencies = self.load_package_dependencies()
         self.import_patterns = [
             r'import\s+(?:(?:\{[^}]+\}|\w+|\*\s+as\s+\w+)(?:\s*,\s*(?:\{[^}]+\}|\w+))*\s+from\s+)?["\']([^"\']+)["\']',
             r'require\s*\(\s*["\']([^"\']+)["\']\s*\)',
@@ -120,6 +123,45 @@ class RefChecker:
             current_dir = current_dir.parent
 
         return None
+
+    def load_package_dependencies(self) -> Set[str]:
+        """Load all dependencies from package.json files"""
+        dependencies = set()
+
+        # Skip build directories and node_modules to avoid corrupted/generated files
+        excluded_paths = ['node_modules', '.meteor/local', 'build', 'dist']
+
+        # Find all package.json files in the project
+        for package_json_path in self.root_dir.rglob("package.json"):
+            # Skip if in excluded directories
+            if any(excluded in str(package_json_path) for excluded in excluded_paths):
+                continue
+
+            try:
+                with open(package_json_path, 'r', encoding='utf-8') as f:
+                    content = f.read().strip()
+                    if not content:  # Skip empty files
+                        continue
+
+                    package_data = json.loads(content)
+
+                # Collect all types of dependencies
+                for dep_type in ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']:
+                    if dep_type in package_data:
+                        dep_section = package_data[dep_type]
+                        # Handle both object (normal) and list (rare edge case) formats
+                        if isinstance(dep_section, dict):
+                            dependencies.update(dep_section.keys())
+                        elif isinstance(dep_section, list):
+                            dependencies.update(dep_section)
+
+            except (json.JSONDecodeError, FileNotFoundError, KeyError, UnicodeDecodeError) as e:
+                # Only log if verbose mode is on to reduce noise
+                if self.verbose:
+                    self.log(f"Warning: Could not read {package_json_path}: {e}")
+
+        self.log(f"Loaded {len(dependencies)} dependencies from package.json files")
+        return dependencies
 
     def resolve_import_path(self, import_path: str, current_file: Path) -> Optional[Path]:
         """Resolve an import path to an actual file path"""
@@ -222,14 +264,25 @@ class RefChecker:
         return dict(broken_imports)
 
     def is_external_package(self, import_path: str) -> bool:
-        """Check if import is an external package"""
-        external_patterns = [
-            'react', 'meteor/', 'prop-types', 'styled-components',
-            'react-router', 'semantic-ui', '@babel/', 'lodash',
-            'moment', 'uuid', 'joi', 'canvas', 'leaflet'
-        ]
+        """Check if import is an external package that exists in package.json"""
+        # Handle scoped packages (e.g., @babel/core)
+        if import_path.startswith('@'):
+            # For scoped packages, take everything up to the second slash or end
+            parts = import_path.split('/')
+            if len(parts) >= 2:
+                package_name = f"{parts[0]}/{parts[1]}"
+            else:
+                package_name = import_path
+        else:
+            # For regular packages, take only the first part
+            package_name = import_path.split('/')[0]
 
-        return any(import_path.startswith(pattern) for pattern in external_patterns)
+        # Special handling for Meteor packages
+        if import_path.startswith('meteor/'):
+            return True  # Meteor packages are always considered valid
+
+        # Check if the package is declared in package.json
+        return package_name in self.package_dependencies
 
 
 
