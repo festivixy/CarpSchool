@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import LiquidGlassIconButton from "../liquidGlass/components/IconButton";
+import LiquidGlassIconButton from "../../mobile/liquidGlass/components/IconButton";
 import {
   FooterContainer,
   FooterContent,
