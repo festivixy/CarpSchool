@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
-import MobileJoinRideModal from "./JoinRideModal";
+import MobileJoinRideModal from "../../mobile/components/JoinRideModal";
 import AddRidesModal from "../../components/AddRides";
 import {
   NavBarContainer,
@@ -26,7 +26,7 @@ import {
   MobileButton,
 } from "../styles/NavBar";
 
-/** The Mobile NavBar appears at the top of every page with modern mobile design. */
+/** The Desktop NavBar appears at the top of every page with responsive design for both desktop and mobile viewports. */
 class NavBar extends React.Component {
   constructor(props) {
     super(props);

@@ -20,7 +20,7 @@ import MobileSignup from "../pages/Signup";
 import MobileForgotPassword from "../pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
-import MobileNavBar from "../mobile/components/NavBar";
+import MobileNavBar from "../desktop/components/NavBar";
 import MobileChat from "../pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
 import MobileVerifyEmail from "../pages/VerifyEmail";
