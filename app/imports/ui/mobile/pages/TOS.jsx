@@ -8,7 +8,7 @@ import {
   SectionTitle,
   Content,
 } from "../styles/Landing";
-import { MobileOnly, DesktopOnly } from "/imports/ui/layouts/Devices";
+import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
 import { BackButton, HeaderWithBack } from "../styles/TOS";
 
 const tosContent = `

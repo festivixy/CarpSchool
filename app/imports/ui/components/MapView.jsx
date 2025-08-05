@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { Map, Marker, Popup } from "react-leaflet";
 import { MapContainer } from "../styles/MapView";
-import { AsyncTileLayer } from "/imports/ui/mobile/utils/AsyncTileLayer";
+import { AsyncTileLayer } from "../mobile/utils/AsyncTileLayer";
 
 /**
  * MapView component that displays an interactive Leaflet map with coordinate points

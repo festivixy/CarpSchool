@@ -23,7 +23,7 @@ import {
   StyledLink,
   Legal,
   LegalLink,
-} from "/imports/ui/styles/SignIn";
+} from "../../styles/SignIn";
 
 /**
  * LiquidGlass SignIn component using same structure as normal SignIn but with LiquidGlass components
