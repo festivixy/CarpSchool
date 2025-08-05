@@ -41,6 +41,7 @@ import { DesktopOnly, MobileOnly } from "./Devices";
 import FooterVerbose from "../mobile/components/FooterVerbose";
 import LiquidGlassMobileNavBar from "../mobile/liquidGlass/components/LiquidGlassMobileNavBar";
 import MobileNativeBlurDemo from "../mobile/pages/NativeBlurDemo";
+import SharedComponentsDemo from "../pages/SharedComponentsDemo";
 // Lazy load TestMapView to improve initial load performance
 const TestMapView = React.lazy(() => import("../mobile/pages/ComponentsTest"));
 
@@ -129,6 +130,10 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/_test/native-blur"
                 component={MobileNativeBlurDemo}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/_test/shared-components"
+                component={SharedComponentsDemo}
               />
               <ProtectedRoutes
                 path="/_test"
