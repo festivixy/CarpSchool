@@ -12,7 +12,7 @@ import {
 
 /**
  * Simple Footer component with modern design
- * Used across desktop and mobile platforms
+ * Desktop-only component for footer navigation
  */
 export default function SimpleFooter() {
   return (

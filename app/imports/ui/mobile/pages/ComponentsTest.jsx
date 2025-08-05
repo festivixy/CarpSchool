@@ -28,7 +28,7 @@ import {
   InfoValue,
 } from "../styles/ComponentsTest";
 
-import FooterVerbose from "../components/FooterVerbose";
+import FooterVerbose from "../../desktop/components/FooterVerbose";
 
 /**
  * Test page for MapView component - Admin only

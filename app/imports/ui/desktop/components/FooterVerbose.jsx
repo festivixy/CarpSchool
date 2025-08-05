@@ -28,6 +28,7 @@ import {
 
 /**
  * Comprehensive Footer component with enhanced features
+ * Desktop-only component for detailed footer navigation
  */
 function FooterVerbose({
   logo = "/staticimages/carp.school.png",

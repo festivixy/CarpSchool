@@ -38,7 +38,7 @@ import ProtectedRoutes, {
   ProtectedRouteRequireNotEmailVerified,
 } from "./ProtectedRoutes";
 import { DesktopOnly, MobileOnly } from "./Devices";
-import FooterVerbose from "../mobile/components/FooterVerbose";
+import FooterVerbose from "../desktop/components/FooterVerbose";
 import LiquidGlassMobileNavBar from "../mobile/liquidGlass/components/LiquidGlassMobileNavBar";
 import MobileNativeBlurDemo from "../mobile/pages/NativeBlurDemo";
 import SharedComponentsDemo from "../pages/SharedComponentsDemo";
@@ -163,7 +163,7 @@ class App extends React.Component {
           <DesktopOnly>
             <FooterVerbose />
           </DesktopOnly>
-          {/* <SimpleFooter /> */}
+          {/* <SimpleFooter /> - Desktop footer component */}
           {this.props.currentUser && (
             <MobileOnly>
               <LiquidGlassMobileNavBar />
