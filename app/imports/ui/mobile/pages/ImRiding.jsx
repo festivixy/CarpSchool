@@ -7,7 +7,7 @@ import { Rides } from "../../../api/ride/Rides";
 import JoinRideModal from "../../components/JoinRideModal";
 import Ride from "../../components/Ride";
 import ConfirmFunction from "../../components/ConfirmFunction";
-import "/imports/api/chat/ChatMethods";
+import "../../../api/chat/ChatMethods";
 import {
   Container,
   Header,
