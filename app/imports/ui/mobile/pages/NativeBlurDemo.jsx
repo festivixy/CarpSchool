@@ -89,7 +89,8 @@ const NativeBlurDemo = (props) => {
       }).join(" ");
 
       // Only log if it contains our keywords
-      if (message.includes("LiquidGlass") || message.includes("NavBarCSS") || message.includes("NativeNavBar") || message.includes("useNativeNavBar")) {
+      if (message.includes("LiquidGlass") || message.includes("NavBarCSS") ||
+          message.includes("NativeNavBar") || message.includes("useNativeNavBar")) {
         pendingLogs.push({
           type,
           timestamp,
@@ -105,21 +106,24 @@ const NativeBlurDemo = (props) => {
 
     console.log = (...args) => {
       originalLog(...args);
-      if (args.some(arg => String(arg).includes("LiquidGlass") || String(arg).includes("NavBarCSS") || String(arg).includes("NativeNavBar") || String(arg).includes("useNativeNavBar"))) {
+      if (args.some(arg => String(arg).includes("LiquidGlass") || String(arg).includes("NavBarCSS") ||
+          String(arg).includes("NativeNavBar") || String(arg).includes("useNativeNavBar"))) {
         addLog("log", args);
       }
     };
 
     console.error = (...args) => {
       originalError(...args);
-      if (args.some(arg => String(arg).includes("LiquidGlass") || String(arg).includes("NavBarCSS") || String(arg).includes("NativeNavBar") || String(arg).includes("useNativeNavBar"))) {
+      if (args.some(arg => String(arg).includes("LiquidGlass") || String(arg).includes("NavBarCSS") ||
+          String(arg).includes("NativeNavBar") || String(arg).includes("useNativeNavBar"))) {
         addLog("error", args);
       }
     };
 
     console.warn = (...args) => {
       originalWarn(...args);
-      if (args.some(arg => String(arg).includes("LiquidGlass") || String(arg).includes("NavBarCSS") || String(arg).includes("NativeNavBar") || String(arg).includes("useNativeNavBar"))) {
+      if (args.some(arg => String(arg).includes("LiquidGlass") || String(arg).includes("NavBarCSS") ||
+          String(arg).includes("NativeNavBar") || String(arg).includes("useNativeNavBar"))) {
         addLog("warn", args);
       }
     };
