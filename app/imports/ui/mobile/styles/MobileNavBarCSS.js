@@ -1,205 +1,251 @@
 import styled from "styled-components";
 
-// iOS 26 Liquid Glass color system
-const liquidGlassColors = {
-  systemMaterial: {
-    background: "rgba(249, 249, 249, 0.78)",
-    backdropFilter: "blur(20px) saturate(1.8)",
-    border: "rgba(255, 255, 255, 0.2)",
-  },
-  systemThinMaterial: {
-    background: "rgba(249, 249, 249, 0.6)",
-    backdropFilter: "blur(12px) saturate(1.4)",
-    border: "rgba(255, 255, 255, 0.15)",
-  },
-  systemUltraThinMaterial: {
-    background: "rgba(249, 249, 249, 0.4)",
-    backdropFilter: "blur(8px) saturate(1.2)",
-    border: "rgba(255, 255, 255, 0.1)",
-  },
-  systemThickMaterial: {
-    background: "rgba(249, 249, 249, 0.9)",
-    backdropFilter: "blur(24px) saturate(2.0)",
-    border: "rgba(255, 255, 255, 0.3)",
-  },
-};
-
 export const NavBarContainer = styled.div`
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  overflow: hidden;
+  border-radius: 20px 20px 0 0;
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Fixed to bottom of viewport */
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  padding-bottom: 8px;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-
-  height: 83px; /* Standard iOS navbar height */
-  ${props => (props.safeArea ? "padding-bottom: env(safe-area-inset-bottom, 20px);" : "")}
-  padding-top: 8px;
-  padding-left: env(safe-area-inset-left, 16px);
-  padding-right: env(safe-area-inset-right, 16px);
-
-  /* iOS 26 Liquid Glass Effect */
-  background: ${props => liquidGlassColors[props.blurStyle]?.background || liquidGlassColors.systemMaterial.background};
-  backdrop-filter: ${props => liquidGlassColors[props.blurStyle]?.backdropFilter || liquidGlassColors.systemMaterial.backdropFilter};
-  -webkit-backdrop-filter: ${props => liquidGlassColors[props.blurStyle]?.backdropFilter || liquidGlassColors.systemMaterial.backdropFilter};
-
-  /* Subtle border for depth */
-  border-top: 0.5px solid ${props => liquidGlassColors[props.blurStyle]?.border || liquidGlassColors.systemMaterial.border};
-
-  /* Floating glass shadow */
-  box-shadow:
-    0 -1px 0 rgba(255, 255, 255, 0.1) inset,
-    0 1px 20px rgba(0, 0, 0, 0.08),
-    0 4px 40px rgba(0, 0, 0, 0.04);
-
-  /* iOS smooth animations */
-  transition: ${props => (props.animated ? "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none")};
-
-  /* Ensure proper rendering */
-  will-change: transform, opacity;
-  transform: translateZ(0);
-
-  @media (prefers-color-scheme: dark) {
-    background: rgba(28, 28, 30, 0.78);
-    backdrop-filter: blur(20px) saturate(1.8);
-    -webkit-backdrop-filter: blur(20px) saturate(1.8);
-    border-top-color: rgba(84, 84, 88, 0.3);
+  /* Hide navbar when chat overlay is open */
+  .chat-overlay-open & {
+    display: none;
   }
 `;
 
-export const NavBarItem = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  /* iOS navigation item sizing */
-  min-height: 44px;
-  max-width: 80px;
-
-  /* Touch target enhancement */
+export const TabBarInner = styled.div`
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);
+  width: 100%;
   position: relative;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
-    top: -8px;
-    bottom: -8px;
-    left: -8px;
-    right: -8px;
-    /* Invisible touch area expansion */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0.08) 100%
+    );
+    pointer-events: none;
   }
 `;
 
-export const NavBarButton = styled.button`
-  background: none;
-  border: none;
-  padding: 4px 8px;
-
+export const TabsContainer = styled.div`
   display: flex;
+  width: 100%;
+  align-items: center;
+  overflow: hidden;
+  justify-content: space-around;
+  position: relative;
+  z-index: 1;
+`;
+
+export const TabBarItem = styled.div`
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-
-  /* iOS standard touch target */
-  min-width: 44px;
-  min-height: 44px;
-
-  /* Remove browser button styles */
-  appearance: none;
-  -webkit-appearance: none;
-  outline: none;
+  gap: 4px;
+  width: 76px;
+  margin: auto 0;
+  padding: 12px 8px 8px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
 
-  /* Smooth state transitions */
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  /* Active/pressed state */
-  &:active {
-    transform: scale(0.95);
-    opacity: 0.7;
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
   }
 
-  /* iOS haptic feedback simulation */
   &:active {
-    transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.7);
   }
 `;
 
-export const NavBarIcon = styled.div`
-  width: 24px;
-  height: 24px;
-
+export const TabWithBadge = styled.div`
+  align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  color: rgba(255, 255, 255, 1);
+  white-space: nowrap;
+  text-align: center;
+  margin: auto 0;
+  padding: 12px 8px 8px;
+  font: 600 10px/1.2 Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
 
-  /* SF Symbols style sizing */
-  font-size: 22px;
-  line-height: 1;
-
-  /* iOS icon colors */
-  color: ${props => (props.isActive ? "#007AFF" : "#8E8E93")};
-
-  /* Smooth color transitions */
-  transition: color 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  /* Image handling */
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: ${props => (props.isActive ? "none" : "grayscale(1) opacity(0.6)")};
-    transition: filter 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
   }
 
-  /* SVG handling */
-  svg {
-    width: 100%;
-    height: 100%;
-    fill: currentColor;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    color: ${props => (props.isActive ? "#0A84FF" : "#8E8E93")};
+  &:active {
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.7);
   }
 `;
 
-export const NavBarLabel = styled.span`
+export const NotificationBadge = styled.div`
+  border-radius: 10px;
+  background-color: rgba(254, 44, 85, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  justify-content: center;
+  padding: 2px 6px;
+  border: 2px solid rgba(255, 255, 255, 1);
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(254, 44, 85, 0.3);
+  animation: pulse 2s infinite;
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+`;
+
+export const BadgeText = styled.div`
+  align-self: stretch;
+  margin: auto 0;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 1.2;
+`;
+
+export const TabLabel = styled.span`
   font-size: 10px;
   font-weight: 500;
-  line-height: 12px;
-
-  /* iOS system font */
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
-
-  /* iOS label colors */
-  color: ${props => (props.isActive ? "#007AFF" : "#8E8E93")};
-
-  /* Smooth color transitions */
-  transition: color 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  /* Text rendering optimization */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  /* Prevent text selection */
-  user-select: none;
-  -webkit-user-select: none;
-
-  /* Multi-line support with ellipsis */
+  color: #666;
   text-align: center;
-  word-break: break-word;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  margin-top: 2px;
+  opacity: 0.8;
+  transition: all 0.2s ease;
 
-  @media (prefers-color-scheme: dark) {
-    color: ${props => (props.isActive ? "#0A84FF" : "#8E8E93")};
+  ${TabBarItem}:hover &,
+  ${TabWithBadge}:hover & {
+    color: #333;
+    opacity: 1;
+  }
+`;
+
+// Dropdown styles for upward-opening menus
+export const DropdownContainer = styled.div`
+  position: fixed;
+  bottom: calc(70px + 8px + 10px);
+  right: 10px;
+  z-index: 1001;
+  max-width: 300px;
+`;
+
+export const DropdownMenu = styled.div`
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
+  min-width: 180px;
+  overflow: hidden;
+  transform: translateY(${(props) => (props.$isOpen ? "0" : "10px")});
+  opacity: ${(props) => (props.$isOpen ? "1" : "0")};
+  visibility: ${(props) => (props.$isOpen ? "visible" : "hidden")};
+  transition: all 0.2s ease;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid rgba(255, 255, 255, 0.9);
+    z-index: 1002;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -12px;
+    right: 18px;
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 12px solid rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+  }
+`;
+
+export const DropdownItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.9);
+
+  &:hover {
+    background: rgba(0, 123, 255, 0.8);
+    color: #0056b3;
+  }
+
+  &:active {
+    background: rgba(0, 123, 255, 0.7);
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  &:first-child {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  &:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
   }
 `;

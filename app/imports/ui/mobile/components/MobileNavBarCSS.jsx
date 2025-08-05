@@ -1,146 +1,289 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import { withRouter } from "react-router-dom";
+import JoinRideModal from "../../components/JoinRideModal";
+import AddRidesModal from "../../components/AddRides";
 import {
   NavBarContainer,
-  NavBarItem,
-  NavBarButton,
-  NavBarIcon,
-  NavBarLabel,
-} from "../styles/MobileNavBarCSS";
+  TabBarInner,
+  TabsContainer,
+  TabBarItem,
+  TabWithBadge,
+  NotificationBadge,
+  BadgeText,
+  TabLabel,
+  DropdownContainer,
+  DropdownMenu,
+  DropdownItem,
+} from "../MobileNavBarCSS";
 
 /**
- * MobileNavBarCSS Component
- *
- * Provides iOS 26 style liquid glass navigation bar using CSS implementation
- * Uses CSS backdrop-filter for liquid glass effect on iOS 18 and below
- * Always positioned at bottom for primary navigation
+ * LiquidGlass Mobile Navigation Bar - Bottom tab bar with glass morphism effect
  */
-const MobileNavBarCSS = ({
-  items = [],
-  visible = true,
-  animated = true,
-  blurStyle = "systemMaterial",
-  onItemPress = null,
-  className = "",
-  style = {},
-  safeArea = true,
-  activeIndex = 0,
-  ...props
-}) => {
-  const [currentActiveIndex, setCurrentActiveIndex] = useState(activeIndex);
+class MobileNavBarCSS extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      joinRideModalOpen: false,
+      addRidesModalOpen: false,
+      activeDropdown: null,
+      userMenuOpen: false,
+      adminMenuOpen: false,
+    };
+  }
 
-  // Update active index when prop changes
-  useEffect(() => {
-    setCurrentActiveIndex(activeIndex);
-  }, [activeIndex]);
-
-  // Check iOS version - only iOS 26+ supports native liquid glass
-  const getIOSVersion = () => {
-    if (!window.device?.version) return 0;
-    return parseInt(window.device.version.split(".")[0]);
+  handleJoinRideClick = () => {
+    this.setState({ joinRideModalOpen: true });
+    this.closeAllDropdowns();
   };
 
-  const iosVersion = getIOSVersion();
-  const supportsNativeLiquidGlass = iosVersion >= 26;
+  handleJoinRideClose = () => {
+    this.setState({ joinRideModalOpen: false });
+  };
 
-  console.log("[MobileNavBarCSS] 📱 Environment check:", {
-    iosVersion,
-    supportsNativeLiquidGlass,
-    forceCSSMode: !supportsNativeLiquidGlass,
-    itemCount: items.length,
-    activeIndex: currentActiveIndex,
-  });
+  handleAddRidesClick = () => {
+    this.setState({ addRidesModalOpen: true });
+    this.closeAllDropdowns();
+  };
 
-  const handleItemPress = (item, index) => {
-    console.log("[MobileNavBarCSS] 🔥 Item pressed:", {
-      item,
-      index,
-      wasActive: index === currentActiveIndex,
+  handleAddRidesClose = () => {
+    this.setState({ addRidesModalOpen: false });
+  };
+
+  toggleUserMenu = () => {
+    console.log("toggleUserMenu clicked, current state:", this.state.userMenuOpen);
+    this.setState((prevState) => ({
+      userMenuOpen: !prevState.userMenuOpen,
+      adminMenuOpen: false,
+      activeDropdown: prevState.userMenuOpen ? null : "user",
+    }), () => {
+      console.log("toggleUserMenu new state:", this.state.userMenuOpen);
     });
+  };
 
-    setCurrentActiveIndex(index);
+  toggleAdminMenu = () => {
+    this.setState((prevState) => ({
+      adminMenuOpen: !prevState.adminMenuOpen,
+      userMenuOpen: false,
+      activeDropdown: prevState.adminMenuOpen ? null : "admin",
+    }));
+  };
 
-    if (onItemPress) {
-      onItemPress(item, index);
+  closeAllDropdowns = () => {
+    this.setState({
+      userMenuOpen: false,
+      adminMenuOpen: false,
+      activeDropdown: null,
+    });
+  };
+
+  // Close dropdowns when clicking outside
+  componentDidMount() {
+    document.addEventListener("click", this.handleOutsideClick);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("click", this.handleOutsideClick);
+  }
+
+  handleOutsideClick = (event) => {
+    if (!event.target.closest(".liquid-glass-mobile-navbar")) {
+      this.closeAllDropdowns();
     }
   };
 
-  if (!visible) {
-    return null;
-  }
+  handleNavigation = (path) => {
+    this.props.history.push(path);
+    this.closeAllDropdowns();
+  };
 
-  console.log("[MobileNavBarCSS] 🎨 Rendering CSS navbar:", {
-    itemCount: items.length,
-    activeIndex: currentActiveIndex,
-    blurStyle,
-  });
+  handleSignOut = () => {
+    this.props.history.push("/signout");
+    this.closeAllDropdowns();
+  };
 
-  return (
-    <NavBarContainer
-      className={className}
-      style={style}
-      blurStyle={blurStyle}
-      safeArea={safeArea}
-      animated={animated}
-      {...props}
-    >
-      {items.map((item, index) => {
-        const isActive = index === currentActiveIndex;
+  render() {
+    const { currentUser, isAdmin } = this.props;
+    const homeLink = currentUser ? "/myRides" : "/";
 
-        return (
-          <NavBarItem
-            key={item.id || index}
-            isActive={isActive}
-            onClick={() => handleItemPress(item, index)}
-          >
-            <NavBarButton isActive={isActive}>
-              {item.icon && (
-                <NavBarIcon isActive={isActive}>
-                  {typeof item.icon === "string" ? (
-                    <img src={item.icon} alt={item.label || "Navigation"} />
-                  ) : (
-                    item.icon
+    // Calculate total notifications (placeholder for now)
+    const totalNotifications = 5; // This would come from real notification system
+
+    return (
+      <div style={{ position: "relative" }}>
+        <NavBarContainer className="liquid-glass-mobile-navbar">
+          <TabBarInner>
+            <TabsContainer>
+              {/* Home/My Rides Tab */}
+              <TabBarItem onClick={() => this.handleNavigation(homeLink)}>
+                <img
+                  src="/svg/home.svg"
+                  alt="Home"
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
+                  }}
+                />
+                <TabLabel>{currentUser ? "My Rides" : "Home"}</TabLabel>
+              </TabBarItem>
+
+              {/* Search/Join Ride Tab */}
+              <TabBarItem onClick={this.handleJoinRideClick}>
+                <img
+                  src="/svg/search.svg"
+                  alt="Search"
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
+                  }}
+                />
+                <TabLabel>Join Ride</TabLabel>
+              </TabBarItem>
+
+              {/* Add/Create Ride Tab */}
+              <TabBarItem onClick={this.handleAddRidesClick}>
+                <img
+                  src="/svg/plus.svg"
+                  alt="Add"
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
+                  }}
+                />
+                <TabLabel>Create</TabLabel>
+              </TabBarItem>
+
+              {/* Messages/Chat Tab with Notification Badge */}
+              <TabWithBadge onClick={() => this.handleNavigation("/chat")}>
+                <img
+                  src="/svg/message.svg"
+                  alt="Messages"
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
+                  }}
+                />
+                <TabLabel>Messages</TabLabel>
+                {totalNotifications > 0 && (
+                  <NotificationBadge>
+                    <BadgeText>{totalNotifications}</BadgeText>
+                  </NotificationBadge>
+                )}
+              </TabWithBadge>
+
+              {/* User Profile Tab with Dropdown */}
+              <TabBarItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  this.toggleUserMenu();
+                }}
+                style={{ position: "relative" }}
+              >
+                <img
+                  src="/svg/user.svg"
+                  alt="Profile"
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
+                    borderRadius: "50%",
+                  }}
+                />
+                <TabLabel>Profile</TabLabel>
+              </TabBarItem>
+            </TabsContainer>
+          </TabBarInner>
+
+          {/* User Dropdown Menu - Inside NavBarContainer for proper positioning */}
+          {this.state.userMenuOpen && (
+          <DropdownContainer>
+            <DropdownMenu $isOpen={this.state.userMenuOpen}>
+              {currentUser ? (
+                <>
+                  <DropdownItem onClick={() => this.handleNavigation("/editProfile")}>
+                    📋 Edit Profile
+                  </DropdownItem>
+                  <DropdownItem onClick={() => this.handleNavigation("/places")}>
+                    ��� My Places
+                  </DropdownItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownItem onClick={() => this.handleNavigation("/adminRides")}>
+                        🚗 Manage Rides
+                      </DropdownItem>
+                      <DropdownItem onClick={() => this.handleNavigation("/adminUsers")}>
+                        👥 Manage Users
+                      </DropdownItem>
+                      <DropdownItem onClick={() => this.handleNavigation("/adminPlaces")}>
+                        📍 Manage Places
+                      </DropdownItem>
+                      <DropdownItem onClick={() => this.handleNavigation("/_test")}>
+                        🧪 Components Test
+                      </DropdownItem>
+                    </>
                   )}
-                </NavBarIcon>
+                  <DropdownItem onClick={this.handleSignOut}>
+                    🚪 Sign Out
+                  </DropdownItem>
+                </>
+              ) : (
+                <>
+                  <DropdownItem onClick={() => this.handleNavigation("/signin")}>
+                    👤 Sign In
+                  </DropdownItem>
+                  <DropdownItem onClick={() => this.handleNavigation("/signup")}>
+                    📝 Sign Up
+                  </DropdownItem>
+                </>
               )}
-              {item.label && (
-                <NavBarLabel isActive={isActive}>
-                  {item.label}
-                </NavBarLabel>
-              )}
-            </NavBarButton>
-          </NavBarItem>
-        );
-      })}
-    </NavBarContainer>
-  );
-};
+            </DropdownMenu>
+          </DropdownContainer>
+          )}
+        </NavBarContainer>
 
+        <JoinRideModal
+          open={this.state.joinRideModalOpen}
+          onClose={this.handleJoinRideClose}
+          prefillCode=""
+        />
+
+        <AddRidesModal
+          open={this.state.addRidesModalOpen}
+          onClose={this.handleAddRidesClose}
+        />
+      </div>
+    );
+  }
+}
+
+/** Declare the types of all properties. */
 MobileNavBarCSS.propTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      label: PropTypes.string,
-      icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-      action: PropTypes.string,
-      disabled: PropTypes.bool,
-    }),
-  ),
-  visible: PropTypes.bool,
-  animated: PropTypes.bool,
-  blurStyle: PropTypes.oneOf([
-    "systemMaterial",
-    "systemThinMaterial",
-    "systemUltraThinMaterial",
-    "systemThickMaterial",
-    "light",
-    "dark",
-  ]),
-  onItemPress: PropTypes.func,
-  className: PropTypes.string,
-  style: PropTypes.object,
-  safeArea: PropTypes.bool,
-  activeIndex: PropTypes.number,
+  currentUser: PropTypes.string,
+  currentId: PropTypes.string,
+  isAdmin: PropTypes.bool,
+  isLoggedInAndEmailVerified: PropTypes.bool,
+  history: PropTypes.object.isRequired,
 };
 
-export default MobileNavBarCSS;
+/** withTracker connects Meteor data to React components. */
+const MobileNavBarCSSContainer = withTracker(() => ({
+  currentUser: Meteor.user() ? Meteor.user().username : "",
+  currentId: Meteor.user() ? Meteor.user()._id : "",
+  isAdmin: Meteor.user()
+    ? Meteor.user().roles && Meteor.user().roles.includes("admin")
+    : false,
+  isLoggedInAndEmailVerified: Meteor.user()
+    ? Meteor.user().emails &&
+      Meteor.user().emails[0] &&
+      Meteor.user().emails[0].verified
+    : false,
+}))(MobileNavBarCSS);
+
+/** Enable ReactRouter for this component. */
+export default withRouter(MobileNavBarCSSContainer);
