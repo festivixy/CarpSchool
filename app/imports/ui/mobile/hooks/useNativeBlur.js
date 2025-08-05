@@ -15,10 +15,13 @@ export const useNativeBlur = () => {
         if (window.cordova?.plugins?.liquidBlur) {
           const supported = await window.cordova.plugins.liquidBlur.promise.isSupported();
           setIsSupported(supported);
+          return;
         }
+        return;
       } catch (error) {
         console.log("[useNativeBlur] Native blur not available:", error);
         setIsSupported(false);
+        return;
       } finally {
         setIsLoading(false);
       }
@@ -193,13 +196,16 @@ export const useFloatingToolbar = () => {
           const supported = await window.cordova.plugins.floatingToolbar.promise.isSupported();
           console.log("[useFloatingToolbar] ✅ Support check result:", supported);
           setIsSupported(supported);
+          return;
         } else {
           console.log("[useFloatingToolbar] ❌ Plugin not found");
           setIsSupported(false);
+          return;
         }
       } catch (error) {
         console.error("[useFloatingToolbar] ❌ Support check error:", error);
         setIsSupported(false);
+        return;
       } finally {
         console.log("[useFloatingToolbar] 🏁 Support check complete, setting loading false");
         setIsLoading(false);

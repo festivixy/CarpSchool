@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 
 /**
  * Hook for managing native iOS navigation bars
@@ -22,23 +22,26 @@ export const useNativeNavBar = () => {
       try {
         if (window.cordova?.plugins?.NativeNavBar) {
           console.log("[useNativeNavBar] 🚀 Calling isSupported()...");
-          
+
           // Get iOS version first
           const version = await window.cordova.plugins.NativeNavBar.promise.getIOSVersion();
           setIOSVersion(version);
           console.log("[useNativeNavBar] 📱 iOS Version:", version);
-          
+
           // Check if native navbar is supported (should be true for all iOS versions)
           const supported = await window.cordova.plugins.NativeNavBar.promise.isSupported();
           console.log("[useNativeNavBar] ✅ Support check result:", supported);
           setIsSupported(supported);
+          return;
         } else {
           console.log("[useNativeNavBar] ❌ Plugin not found");
           setIsSupported(false);
+          return;
         }
       } catch (error) {
         console.error("[useNativeNavBar] ❌ Support check error:", error);
         setIsSupported(false);
+        return;
       } finally {
         console.log("[useNativeNavBar] 🏁 Support check complete, setting loading false");
         setIsLoading(false);
@@ -212,7 +215,7 @@ export const useNativeNavBar = () => {
     isSupported,
     isLoading,
     iosVersion,
-    
+
     // Methods
     createNavBar,
     setNavBarItems,
@@ -221,7 +224,7 @@ export const useNativeNavBar = () => {
     hideNavBar,
     removeNavBar,
     setActionHandler,
-    
+
     // Utility
     navBars: navBarsRef.current,
   };
