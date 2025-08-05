@@ -17,7 +17,7 @@ import {
   DropdownContainer,
   DropdownMenu,
   DropdownItem,
-} from "../MobileNavBarCSS";
+} from "../styles/MobileNavBarCSS";
 
 /**
  * LiquidGlass Mobile Navigation Bar - Bottom tab bar with glass morphism effect
