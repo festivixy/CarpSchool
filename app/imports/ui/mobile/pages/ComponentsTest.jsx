@@ -1305,11 +1305,11 @@ const MobileTestMapView = ({ history }) => {
                 <InfoValue>
                   1. Enter a test path in the input field above
                   <br />
-                  2. Click "Go to Test" button or press Enter
+                  2. Click &quot;Go to Test&quot; button or press Enter
                   <br />
                   3. You will be redirected to /_test/ + your input
                   <br />
-                  4. Example: entering "components" goes to /_test/components
+                  4. Example: entering &quot;components&quot; goes to /_test/components
                   <br />
                   5. Use this for quick navigation during development and testing
                 </InfoValue>
