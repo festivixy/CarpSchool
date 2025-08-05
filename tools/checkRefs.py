@@ -70,7 +70,7 @@ class RefChecker:
 
         self.component_pattern = r'(?:export\s+default\s+(?:function\s+)?(\w+)|export\s+(?:const|function)\s+(\w+)|class\s+(\w+)\s+extends)'
 
-        # Pattern to extract named imports from import statements
+        # Pattern to extract named imports from import statements (handles multi-line)
         self.named_import_pattern = r'import\s+\{([^}]+)\}\s+from\s+["\']([^"\']+)["\']'
 
     def log(self, message: str, level: str = "INFO"):
@@ -129,15 +129,14 @@ class RefChecker:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            for line_num, line in enumerate(content.split('\n'), 1):
-                # Skip comments
-                if line.strip().startswith('//') or line.strip().startswith('/*'):
-                    continue
-
-                for pattern in self.import_patterns:
-                    matches = re.findall(pattern, line)
-                    for match in matches:
-                        imports.append((match, line_num))
+            # Process entire content to handle multi-line imports
+            for pattern in self.import_patterns:
+                matches = re.finditer(pattern, content, re.MULTILINE | re.DOTALL)
+                for match in matches:
+                    import_path = match.group(1)
+                    # Calculate line number by counting newlines before the match
+                    line_num = content[:match.start()].count('\n') + 1
+                    imports.append((import_path, line_num))
 
         except Exception as e:
             self.add_error(f"Error reading {file_path}: {e}")
@@ -152,28 +151,28 @@ class RefChecker:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            for line_num, line in enumerate(content.split('\n'), 1):
-                # Skip comments
-                if line.strip().startswith('//') or line.strip().startswith('/*'):
-                    continue
+            # Process entire content to handle multi-line named imports
+            matches = re.finditer(self.named_import_pattern, content, re.MULTILINE | re.DOTALL)
+            for match in matches:
+                imports_str, source_path = match.groups()
+                # Calculate line number by counting newlines before the match
+                line_num = content[:match.start()].count('\n') + 1
 
-                matches = re.findall(self.named_import_pattern, line)
-                for imports_str, source_path in matches:
-                    # Parse the named imports, handling spaces and aliases
-                    import_names = []
-                    for import_item in imports_str.split(','):
-                        import_item = import_item.strip()
-                        # Handle "as" aliases (e.g., "Component as MyComponent")
-                        if ' as ' in import_item:
-                            original_name = import_item.split(' as ')[0].strip()
-                        else:
-                            original_name = import_item
+                # Parse the named imports, handling spaces and aliases
+                import_names = []
+                for import_item in imports_str.split(','):
+                    import_item = import_item.strip()
+                    # Handle "as" aliases (e.g., "Component as MyComponent")
+                    if ' as ' in import_item:
+                        original_name = import_item.split(' as ')[0].strip()
+                    else:
+                        original_name = import_item
 
-                        if original_name:
-                            import_names.append(original_name)
+                    if original_name:
+                        import_names.append(original_name)
 
-                    if import_names:
-                        named_imports.append((import_names, source_path, line_num))
+                if import_names:
+                    named_imports.append((import_names, source_path, line_num))
 
         except Exception as e:
             self.add_error(f"Error reading {file_path}: {e}")
