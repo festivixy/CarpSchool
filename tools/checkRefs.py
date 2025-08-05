@@ -636,6 +636,9 @@ class RefChecker:
                             if self.check_file_has_exports(candidate, import_details):
                                 valid_candidates.append(candidate)
 
+                        # Filter out the current file from suggestions (file shouldn't import from itself)
+                        valid_candidates = [candidate for candidate in valid_candidates if candidate.resolve() != file_path.resolve()]
+
                         if len(valid_candidates) == 1:
                             # Exactly one valid candidate
                             replacement_path = valid_candidates[0]
