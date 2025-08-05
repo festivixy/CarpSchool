@@ -38,6 +38,18 @@ class RefChecker:
         # File patterns to check
         self.js_extensions = {'.js', '.jsx', '.ts', '.tsx', '.mjs'}
 
+        # Node.js built-in modules
+        self.builtin_modules = {
+            'assert', 'async_hooks', 'buffer', 'child_process', 'cluster',
+            'console', 'constants', 'crypto', 'dgram', 'dns', 'domain',
+            'events', 'fs', 'http', 'http2', 'https', 'inspector',
+            'module', 'net', 'os', 'path', 'perf_hooks', 'process',
+            'punycode', 'querystring', 'readline', 'repl', 'stream',
+            'string_decoder', 'sys', 'timers', 'tls', 'trace_events',
+            'tty', 'url', 'util', 'v8', 'vm', 'wasi', 'worker_threads',
+            'zlib'
+        }
+
         # Load package.json dependencies
         self.package_dependencies = self.load_package_dependencies()
         self.import_patterns = [
@@ -269,7 +281,7 @@ class RefChecker:
         return dict(broken_imports)
 
     def is_external_package(self, import_path: str) -> bool:
-        """Check if import is an external package that exists in package.json"""
+        """Check if import is an external package that exists in package.json or is built-in"""
         # Handle scoped packages (e.g., @babel/core)
         if import_path.startswith('@'):
             # For scoped packages, take everything up to the second slash or end
@@ -285,6 +297,10 @@ class RefChecker:
         # Special handling for Meteor packages
         if import_path.startswith('meteor/'):
             return True  # Meteor packages are always considered valid
+
+        # Check if it's a Node.js built-in module
+        if package_name in self.builtin_modules:
+            return True  # Built-in modules are always valid
 
         # Check if the package is declared in package.json
         return package_name in self.package_dependencies
