@@ -32,16 +32,13 @@ export const useNativeNavBar = () => {
           const supported = await window.cordova.plugins.NativeNavBar.promise.isSupported();
           console.log("[useNativeNavBar] ✅ Support check result:", supported);
           setIsSupported(supported);
-          return;
         } else {
           console.log("[useNativeNavBar] ❌ Plugin not found");
           setIsSupported(false);
-          return;
         }
       } catch (error) {
         console.error("[useNativeNavBar] ❌ Support check error:", error);
         setIsSupported(false);
-        return;
       } finally {
         console.log("[useNativeNavBar] 🏁 Support check complete, setting loading false");
         setIsLoading(false);
