@@ -499,7 +499,7 @@ class Ride extends React.Component {
   }
 }
 
-MobileRide.propTypes = {
+Ride.propTypes = {
   ride: PropTypes.object.isRequired,
   places: PropTypes.array.isRequired,
   history: PropTypes.object.isRequired,
