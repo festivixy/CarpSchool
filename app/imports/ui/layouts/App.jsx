@@ -39,7 +39,7 @@ import ProtectedRoutes, {
 } from "./ProtectedRoutes";
 import { DesktopOnly, MobileOnly } from "./Devices";
 import FooterVerbose from "../desktop/components/FooterVerbose";
-import LiquidGlassMobileNavBar from "../liquidGlass/components/LiquidGlassMobileNavBar";
+import LiquidGlassMobileNavBarCSS from "../liquidGlass/components/LiquidGlassMobileNavBarCSS";
 import MobileNativeBlurDemo from "../mobile/pages/NativeBlurDemo";
 import SharedComponentsDemo from "../pages/SharedComponentsDemo";
 // Lazy load TestMapView to improve initial load performance
@@ -166,7 +166,13 @@ class App extends React.Component {
           {/* <SimpleFooter /> - Desktop footer component */}
           {this.props.currentUser && (
             <MobileOnly>
-              <LiquidGlassMobileNavBar />
+              <LiquidGlassMobileNavBarCSS items={[
+                { id: "home", label: "My Rides", icon: "🏠", action: "home" },
+                { id: "join", label: "Join Ride", icon: "🔍", action: "join" },
+                { id: "create", label: "Create", icon: "➕", action: "create" },
+                { id: "messages", label: "Messages", icon: "💬", action: "messages" },
+                { id: "profile", label: "Profile", icon: "👤", action: "profile" }
+              ]} />
             </MobileOnly>
           )}
         </div>

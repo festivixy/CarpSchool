@@ -9,7 +9,7 @@ import LiquidGlassDropdown from "../../liquidGlass/components/Dropdown";
 import LiquidGlassFooter from "../../liquidGlass/components/Footer";
 import LiquidGlassTextInput from "../../liquidGlass/components/TextInput";
 import LiquidGlassIconButton from "../../liquidGlass/components/IconButton";
-import LiquidGlassMobileNavBar from "../../liquidGlass/components/LiquidGlassMobileNavBar";
+import LiquidGlassMobileNavBarCSS from "../../liquidGlass/components/LiquidGlassMobileNavBarCSS";
 import {
   Container,
   Content,
@@ -1325,7 +1325,7 @@ const MobileTestMapView = ({ history }) => {
               <InfoItem>
                 <InfoLabel>Component Demo</InfoLabel>
                 <InfoValue>
-                  Testing the LiquidGlassMobileNavBar component - a bottom tab bar with glass morphism effects.
+                  Testing the LiquidGlassMobileNavBarCSS component - a bottom tab bar with glass morphism effects.
                   The navbar is positioned fixed at the bottom of the screen.
                 </InfoValue>
               </InfoItem>
@@ -1406,7 +1406,13 @@ const MobileTestMapView = ({ history }) => {
       </Content>
 
       {/* Demo LiquidGlass Mobile NavBar - Fixed at bottom */}
-      <LiquidGlassMobileNavBar />
+      <LiquidGlassMobileNavBarCSS items={[
+        { id: "home", label: "My Rides", icon: "🏠", action: "home" },
+        { id: "join", label: "Join Ride", icon: "🔍", action: "join" },
+        { id: "create", label: "Create", icon: "➕", action: "create" },
+        { id: "messages", label: "Messages", icon: "💬", action: "messages" },
+        { id: "profile", label: "Profile", icon: "👤", action: "profile" }
+      ]} />
 
       {/* Demo LiquidGlass Footer */}
       <LiquidGlassFooter
