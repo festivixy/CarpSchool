@@ -187,9 +187,20 @@ class RefChecker:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # Find default exports (but not re-exports)
+            # Find default exports - handle various patterns
+            # Pattern 1: export default ComponentName
             default_exports = re.findall(r'export\s+default\s+(?:function\s+)?(\w+)(?!\s+as)', content)
             exports.update(default_exports)
+
+            # Pattern 2: export default withRouter(...(ComponentName))
+            # Look for component names in withRouter/withTracker patterns
+            hoc_pattern = r'export\s+default\s+.*?\(\s*.*?\)\s*\(\s*(\w+)\s*\)'
+            hoc_exports = re.findall(hoc_pattern, content, re.MULTILINE | re.DOTALL)
+            exports.update(hoc_exports)
+
+            # Pattern 3: Check if there's any default export at all
+            if re.search(r'export\s+default\s+', content):
+                exports.add('default')  # Mark that this file has a default export
 
             # Find named exports
             named_exports = re.findall(r'export\s+(?:const|let|var|function|class)\s+(\w+)', content)
@@ -504,9 +515,10 @@ class RefChecker:
 
             # Check if file has default export (for default imports)
             if required_exports["default_import"]:
-                # For default imports, we need to check if file has any export
-                # (default export detection is complex, so we'll be lenient)
-                if not file_exports:
+                # Check if the file has a default export
+                # Either the component name itself or the 'default' marker
+                required_default = required_exports["default_import"]
+                if required_default not in file_exports and 'default' not in file_exports:
                     return False
 
             # Check if file has all named exports
