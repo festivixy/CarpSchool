@@ -686,12 +686,14 @@ class RefChecker:
                 for import_path in imports:
                     # Skip npm packages and meteor packages
                     if (not import_path.startswith('.') and
-                        not import_path.startswith('/') and
                         not import_path.startswith('meteor/') and
                         '/' in import_path):
 
+                        # Handle absolute imports that start with /
+                        clean_import_path = import_path.lstrip('/')
+
                         # Check if this is an absolute import within our project
-                        potential_absolute_path = self.root_dir / import_path
+                        potential_absolute_path = self.root_dir / clean_import_path
                         potential_absolute_path_js = potential_absolute_path.with_suffix('.js')
                         potential_absolute_path_jsx = potential_absolute_path.with_suffix('.jsx')
 
@@ -797,7 +799,8 @@ class RefChecker:
                 if path_str.endswith(('.jsx', '.js', '.ts', '.tsx')):
                     path_str = path_str.rsplit('.', 1)[0]
 
-                return path_str
+                # Add leading slash for absolute imports
+                return '/' + path_str
 
             except ValueError:
                 # Path is outside project root, keep as relative
