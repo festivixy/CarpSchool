@@ -4,6 +4,7 @@ export { default as TextInput } from "./TextInput";
 export { default as Dropdown } from "./Dropdown";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as ErrorBoundary } from "./ErrorBoundary";
+export { default as SimpleFooter } from "./SimpleFooter";
 
 // Previously moved components
 export { default as MapView } from "./MapView";

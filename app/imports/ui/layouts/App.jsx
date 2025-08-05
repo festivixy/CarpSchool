@@ -163,7 +163,7 @@ class App extends React.Component {
           <DesktopOnly>
             <FooterVerbose />
           </DesktopOnly>
-          {/* <MobileFooter /> */}
+          {/* <SimpleFooter /> */}
           {this.props.currentUser && (
             <MobileOnly>
               <LiquidGlassMobileNavBar />

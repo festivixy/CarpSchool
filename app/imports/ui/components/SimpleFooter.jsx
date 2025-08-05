@@ -8,12 +8,13 @@ import {
   FooterLink,
   FooterLinkExternal,
   Copyright,
-} from "../styles/Footer";
+} from "../styles/SimpleFooter";
 
 /**
- * Mobile Footer component with modern design
+ * Simple Footer component with modern design
+ * Used across desktop and mobile platforms
  */
-export default function MobileFooter() {
+export default function SimpleFooter() {
   return (
     <FooterContainer>
       <FooterContent>
