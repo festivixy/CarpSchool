@@ -53,13 +53,13 @@
 
 ### iOS 26 Liquid Glass Features
 
-- [ ] **iOS 26 Liquid Glass System** (`ios26-liquid-glass.md`)
+- [🚧] **iOS 26 Liquid Glass System** (`ios26-liquid-glass.md`)
   - Implement native blur effects and floating toolbars
   - Create component wrappers for existing functionality
   - Add Cordova plugin integration for native features
 
   **Commits:**
-  <!-- Add commit hashes and descriptions as work progresses -->
+  - `913b25255fc955ee7da112235ab00b141f8b29e0` - fix(ui/mobile): fix router access in NativeBlurDemo component - Resolved ReferenceError where props was undefined in handleNavBarAction
 
 ---
 
