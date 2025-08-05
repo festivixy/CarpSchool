@@ -44,9 +44,9 @@ import {
 } from "../styles/AddRides";
 
 /**
- * Modern Mobile AddRides modal component with clean design and comprehensive functionality
+ * Universal AddRides modal component with clean design and comprehensive functionality
  */
-class MobileAddRidesModal extends React.Component {
+class AddRidesModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -584,7 +584,7 @@ class MobileAddRidesModal extends React.Component {
   }
 }
 
-MobileAddRidesModal.propTypes = {
+AddRidesModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
@@ -602,5 +602,5 @@ export default withRouter(
       places: places, // Return full place objects instead of just names
       ready: placesSubscription.ready(),
     };
-  })(MobileAddRidesModal),
+  })(AddRidesModal),
 );

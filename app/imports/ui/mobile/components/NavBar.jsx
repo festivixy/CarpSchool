@@ -4,7 +4,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import MobileJoinRideModal from "./JoinRideModal";
-import MobileAddRidesModal from "./AddRides";
+import AddRidesModal from "../../components/AddRides";
 import {
   NavBarContainer,
   NavBarInner,
@@ -317,7 +317,7 @@ class NavBar extends React.Component {
           prefillCode=""
         />
 
-        <MobileAddRidesModal
+        <AddRidesModal
           open={this.state.addRidesModalOpen}
           onClose={this.handleAddRidesClose}
         />
