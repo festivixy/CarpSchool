@@ -27,6 +27,35 @@ from pathlib import Path
 from collections import defaultdict, deque
 from typing import Dict, List, Set, Tuple, Optional
 
+class Colors:
+    """ANSI color codes for terminal output"""
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    MAGENTA = '\033[95m'
+    CYAN = '\033[96m'
+    WHITE = '\033[97m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+    RESET = '\033[0m'
+
+    @staticmethod
+    def disable_on_windows():
+        """Disable colors on Windows if colorama is not available"""
+        if os.name == 'nt':
+            try:
+                import colorama
+                colorama.init()
+            except ImportError:
+                # Disable colors on Windows without colorama
+                for attr in dir(Colors):
+                    if not attr.startswith('_') and attr != 'disable_on_windows':
+                        setattr(Colors, attr, '')
+
+# Initialize colors
+Colors.disable_on_windows()
+
 class RefChecker:
     def __init__(self, root_dir: str = ".", verbose: bool = False):
         self.root_dir = Path(root_dir).resolve()
@@ -66,7 +95,13 @@ class RefChecker:
     def log(self, message: str, level: str = "INFO"):
         """Log message with level"""
         if self.verbose or level in ["ERROR", "WARNING"]:
-            print(f"[{level}] {message}")
+            color = {
+                "INFO": Colors.CYAN,
+                "ERROR": Colors.RED,
+                "WARNING": Colors.YELLOW,
+                "SUCCESS": Colors.GREEN
+            }.get(level, Colors.WHITE)
+            print(f"{color}[{level}]{Colors.RESET} {message}")
 
     def add_error(self, message: str):
         """Add error to results"""
@@ -475,7 +510,7 @@ class RefChecker:
 
     def run_all_checks(self) -> Dict:
         """Run all reference checks"""
-        print("🔍 Starting comprehensive reference check...\n")
+        print(f"{Colors.BOLD}{Colors.BLUE}🔍 Starting comprehensive reference check...{Colors.RESET}\n")
 
         # Check imports
         broken_imports = self.check_imports()
@@ -520,22 +555,28 @@ def main():
             report = checker.generate_report()
 
         # Print summary
-        print("\n" + "="*60)
-        print("📊 REFERENCE CHECK SUMMARY")
-        print("="*60)
-        print(f"❌ Errors: {report['summary']['total_errors']}")
-        print(f"⚠️  Warnings: {report['summary']['total_warnings']}")
-        print(f"💡 Suggestions: {report['summary']['total_suggestions']}")
+        print(f"\n{Colors.BOLD}{'='*60}")
+        print(f"📊 REFERENCE CHECK SUMMARY")
+        print(f"{'='*60}{Colors.RESET}")
+
+        # Color-coded counts
+        error_color = Colors.RED if report['summary']['total_errors'] > 0 else Colors.GREEN
+        warning_color = Colors.YELLOW if report['summary']['total_warnings'] > 0 else Colors.GREEN
+        suggestion_color = Colors.BLUE if report['summary']['total_suggestions'] > 0 else Colors.GREEN
+
+        print(f"{error_color}❌ Errors: {report['summary']['total_errors']}{Colors.RESET}")
+        print(f"{warning_color}⚠️  Warnings: {report['summary']['total_warnings']}{Colors.RESET}")
+        print(f"{suggestion_color}💡 Suggestions: {report['summary']['total_suggestions']}{Colors.RESET}")
 
         if report['summary']['total_errors'] == 0 and report['summary']['total_warnings'] == 0:
-            print("\n�� All references look good!")
+            print(f"\n{Colors.BOLD}{Colors.GREEN}✅ All references look good!{Colors.RESET}")
             return 0
         else:
-            print(f"\n🔧 Found issues that may need attention.")
+            print(f"\n{Colors.BOLD}{Colors.YELLOW}🔧 Found issues that may need attention.{Colors.RESET}")
             return 1
 
     except Exception as e:
-        print(f"❌ Error running reference check: {e}")
+        print(f"{Colors.BOLD}{Colors.RED}❌ Error running reference check: {e}{Colors.RESET}")
         return 1
 
 if __name__ == "__main__":
