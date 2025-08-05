@@ -27,34 +27,14 @@ from pathlib import Path
 from collections import defaultdict, deque
 from typing import Dict, List, Set, Tuple, Optional
 
-class Colors:
-    """ANSI color codes for terminal output"""
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    MAGENTA = '\033[95m'
-    CYAN = '\033[96m'
-    WHITE = '\033[97m'
-    BOLD = '\033[1m'
-    DIM = '\033[2m'
-    RESET = '\033[0m'
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+from rich import print as rich_print
 
-    @staticmethod
-    def disable_on_windows():
-        """Disable colors on Windows if colorama is not available"""
-        if os.name == 'nt':
-            try:
-                import colorama
-                colorama.init()
-            except ImportError:
-                # Disable colors on Windows without colorama
-                for attr in dir(Colors):
-                    if not attr.startswith('_') and attr != 'disable_on_windows':
-                        setattr(Colors, attr, '')
-
-# Initialize colors
-Colors.disable_on_windows()
+# Initialize rich console
+console = Console()
 
 class RefChecker:
     def __init__(self, root_dir: str = ".", verbose: bool = False):
@@ -95,13 +75,14 @@ class RefChecker:
     def log(self, message: str, level: str = "INFO"):
         """Log message with level"""
         if self.verbose or level in ["ERROR", "WARNING"]:
-            color = {
-                "INFO": Colors.CYAN,
-                "ERROR": Colors.RED,
-                "WARNING": Colors.YELLOW,
-                "SUCCESS": Colors.GREEN
-            }.get(level, Colors.WHITE)
-            print(f"{color}[{level}]{Colors.RESET} {message}")
+            color_map = {
+                "INFO": "cyan",
+                "ERROR": "red",
+                "WARNING": "yellow",
+                "SUCCESS": "green"
+            }
+            color = color_map.get(level, "white")
+            console.print(f"[{color}][{level}][/{color}] {message}")
 
     def add_error(self, message: str):
         """Add error to results"""
@@ -510,7 +491,7 @@ class RefChecker:
 
     def run_all_checks(self) -> Dict:
         """Run all reference checks"""
-        print(f"{Colors.BOLD}{Colors.BLUE}🔍 Starting comprehensive reference check...{Colors.RESET}\n")
+        console.print("🔍 [bold blue]Starting comprehensive reference check...[/bold blue]\n")
 
         # Check imports
         broken_imports = self.check_imports()
@@ -554,29 +535,37 @@ def main():
 
             report = checker.generate_report()
 
-        # Print summary
-        print(f"\n{Colors.BOLD}{'='*60}")
-        print(f"📊 REFERENCE CHECK SUMMARY")
-        print(f"{'='*60}{Colors.RESET}")
+        # Create summary table
+        table = Table(title="📊 Reference Check Summary", show_header=True, header_style="bold magenta")
+        table.add_column("Type", style="dim", width=12)
+        table.add_column("Count", justify="center", width=8)
+        table.add_column("Status", width=15)
 
-        # Color-coded counts
-        error_color = Colors.RED if report['summary']['total_errors'] > 0 else Colors.GREEN
-        warning_color = Colors.YELLOW if report['summary']['total_warnings'] > 0 else Colors.GREEN
-        suggestion_color = Colors.BLUE if report['summary']['total_suggestions'] > 0 else Colors.GREEN
+        # Add rows with conditional styling
+        error_count = report['summary']['total_errors']
+        warning_count = report['summary']['total_warnings']
+        suggestion_count = report['summary']['total_suggestions']
 
-        print(f"{error_color}❌ Errors: {report['summary']['total_errors']}{Colors.RESET}")
-        print(f"{warning_color}⚠️  Warnings: {report['summary']['total_warnings']}{Colors.RESET}")
-        print(f"{suggestion_color}💡 Suggestions: {report['summary']['total_suggestions']}{Colors.RESET}")
+        error_style = "red" if error_count > 0 else "green"
+        warning_style = "yellow" if warning_count > 0 else "green"
+        suggestion_style = "blue" if suggestion_count > 0 else "green"
 
-        if report['summary']['total_errors'] == 0 and report['summary']['total_warnings'] == 0:
-            print(f"\n{Colors.BOLD}{Colors.GREEN}✅ All references look good!{Colors.RESET}")
+        table.add_row("❌ Errors", str(error_count), "✗ Issues found" if error_count > 0 else "✓ Clean", style=error_style)
+        table.add_row("⚠️  Warnings", str(warning_count), "⚠ Attention needed" if warning_count > 0 else "✓ Clean", style=warning_style)
+        table.add_row("💡 Suggestions", str(suggestion_count), "💡 Improvements" if suggestion_count > 0 else "✓ Clean", style=suggestion_style)
+
+        console.print()
+        console.print(table)
+
+        if error_count == 0 and warning_count == 0:
+            console.print(Panel.fit("��� [bold green]All references look good![/bold green]", border_style="green"))
             return 0
         else:
-            print(f"\n{Colors.BOLD}{Colors.YELLOW}🔧 Found issues that may need attention.{Colors.RESET}")
+            console.print(Panel.fit("🔧 [bold yellow]Found issues that may need attention.[/bold yellow]", border_style="yellow"))
             return 1
 
     except Exception as e:
-        print(f"{Colors.BOLD}{Colors.RED}❌ Error running reference check: {e}{Colors.RESET}")
+        console.print(Panel.fit(f"❌ [bold red]Error running reference check: {e}[/bold red]", border_style="red"))
         return 1
 
 if __name__ == "__main__":
