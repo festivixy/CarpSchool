@@ -680,10 +680,18 @@ class RefChecker:
                     original_content = content
 
                 # Find all absolute imports (imports that start with project root paths)
+                # Pattern 1: Regular imports with 'from'
                 import_pattern = r'from\s+["\']([^"\']+)["\']'
                 imports = re.findall(import_pattern, content)
 
-                for import_path in imports:
+                # Pattern 2: Side-effect imports without 'from'
+                side_effect_pattern = r'import\s+["\']([^"\']+)["\'](?!\s*from)'
+                side_effect_imports = re.findall(side_effect_pattern, content)
+
+                # Combine both types of imports
+                all_imports = imports + side_effect_imports
+
+                for import_path in all_imports:
                     # Skip npm packages and meteor packages
                     if (not import_path.startswith('.') and
                         not import_path.startswith('meteor/') and
@@ -704,9 +712,11 @@ class RefChecker:
                             # Convert to relative path
                             relative_path = self.generate_relative_path(file_path, potential_absolute_path)
 
-                            # Replace in content
+                            # Replace in content (handle both regular and side-effect imports)
                             content = content.replace(f'from "{import_path}"', f'from "{relative_path}"')
                             content = content.replace(f"from '{import_path}'", f"from '{relative_path}'")
+                            content = content.replace(f'import "{import_path}"', f'import "{relative_path}"')
+                            content = content.replace(f"import '{import_path}'", f"import '{relative_path}'")
 
                 # Write back if changes were made
                 if content != original_content:
@@ -735,17 +745,27 @@ class RefChecker:
                     original_content = content
 
                 # Find all relative imports (imports that start with . or ..)
+                # Pattern 1: Regular imports with 'from'
                 import_pattern = r'from\s+["\'](\.[^"\']*)["\']'
                 imports = re.findall(import_pattern, content)
 
-                for import_path in imports:
+                # Pattern 2: Side-effect imports without 'from'
+                side_effect_pattern = r'import\s+["\'](\.[^"\']*)["\'](?!\s*from)'
+                side_effect_imports = re.findall(side_effect_pattern, content)
+
+                # Combine both types of imports
+                all_imports = imports + side_effect_imports
+
+                for import_path in all_imports:
                     # Convert relative path to absolute path
                     absolute_path = self.generate_absolute_path(file_path, import_path)
 
                     if absolute_path:
-                        # Replace in content
+                        # Replace in content (handle both regular and side-effect imports)
                         content = content.replace(f'from "{import_path}"', f'from "{absolute_path}"')
                         content = content.replace(f"from '{import_path}'", f"from '{absolute_path}'")
+                        content = content.replace(f'import "{import_path}"', f'import "{absolute_path}"')
+                        content = content.replace(f"import '{import_path}'", f"import '{absolute_path}'")
 
                 # Write back if changes were made
                 if content != original_content:
