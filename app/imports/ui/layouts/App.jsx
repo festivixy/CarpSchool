@@ -40,10 +40,10 @@ import ProtectedRoutes, {
 import { DesktopOnly, MobileOnly } from "./Devices";
 import FooterVerbose from "../desktop/components/FooterVerbose";
 import MobileNavBarCSS from "../mobile/components/MobileNavBarCSS";
-import MobileNativeBlurDemo from "../mobile/pages/NativeBlurDemo";
-import SharedComponentsDemo from "../pages/SharedComponentsDemo";
+import MobileNativeBlurDemo from "../test/pages/NativeBlurDemo";
+import SharedComponentsDemo from "../test/pages/SharedComponentsDemo";
 // Lazy load TestMapView to improve initial load performance
-const TestMapView = React.lazy(() => import("../mobile/pages/ComponentsTest"));
+const TestMapView = React.lazy(() => import("/imports/ui/test/pages/ComponentsTest.jsx"));
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {

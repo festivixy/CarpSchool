@@ -7,7 +7,7 @@ import {
   Dropdown,
   LoadingSpinner,
   ErrorBoundary,
-} from "../components";
+} from "../../components";
 import {
   DemoContainer,
   DemoSection,
@@ -264,10 +264,10 @@ const SharedComponentsDemo = ({ history }) => {
 
           <DemoCode>
 {`// Easy importing
-import { Button, TextInput, Dropdown } from '../components';
+import { Button, TextInput, Dropdown } from '../../components';
 
 // Or import individual components
-import Button from '../components/Button';`}
+import Button from '../../components/Button';`}
           </DemoCode>
         </DemoSection>
 

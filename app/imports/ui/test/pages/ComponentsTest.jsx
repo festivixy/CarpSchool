@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { withRouter } from "react-router-dom";
 import MapView from "../../components/MapView";
-import InteractiveMapPicker from "../components/InteractiveMapPicker";
-import PathMapView from "../components/PathMapView";
+import InteractiveMapPicker from "../../mobile/components/InteractiveMapPicker";
+import PathMapView from "../../mobile/components/PathMapView";
 import LiquidGlassButton from "../../liquidGlass/components/Button";
 import LiquidGlassNavbar from "../../liquidGlass/components/Navbar";
 import LiquidGlassDropdown from "../../liquidGlass/components/Dropdown";
 import LiquidGlassFooter from "../../liquidGlass/components/Footer";
 import LiquidGlassTextInput from "../../liquidGlass/components/TextInput";
 import LiquidGlassIconButton from "../../liquidGlass/components/IconButton";
-import MobileNavBarCSS from "../components/MobileNavBarCSS";
+import MobileNavBarCSS from "../../mobile/components/MobileNavBarCSS";
 import {
   Container,
   Content,
