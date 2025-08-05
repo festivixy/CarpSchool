@@ -147,13 +147,13 @@ export const SpinnerContainer = styled.div`
 export const SpinnerElement = styled.div`
   ${props => getSizeStyles(props.size)}
   ${props => getColorStyles(props.color)}
-  
+
   border: 2px solid transparent;
   border-top: 2px solid currentColor;
   border-right: 2px solid currentColor;
   border-radius: 50%;
   animation: ${spin} 0.8s linear infinite;
-  
+
   /* Ensure visibility */
   min-width: inherit;
   min-height: inherit;
@@ -163,20 +163,20 @@ export const DotsSpinner = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  
+
   ${props => getColorStyles(props.color)}
 
   span {
     ${props => {
-      const baseSize = props.size === "small" ? "6px" : 
-                     props.size === "large" ? "10px" : 
+      const baseSize = props.size === "small" ? "6px" :
+                     props.size === "large" ? "10px" :
                      props.size === "xlarge" ? "12px" : "8px";
       return css`
         width: ${baseSize};
         height: ${baseSize};
       `;
     }}
-    
+
     background-color: currentColor;
     border-radius: 50%;
     animation: ${dotBounce} 1.4s ease-in-out infinite both;
@@ -198,41 +198,16 @@ export const DotsSpinner = styled.div`
 export const PulseSpinner = styled.div`
   ${props => getSizeStyles(props.size)}
   ${props => getColorStyles(props.color)}
-  
+
   background-color: currentColor;
   border-radius: 50%;
   animation: ${pulse} 1s ease-in-out infinite;
 `;
 
-export const RingSpinner = styled.svg`
+export const RingSpinner = styled.div`
   ${props => getSizeStyles(props.size)}
-  ${props => getColorStyles(props.color)}
-  
-  animation: ${spin} 2s linear infinite;
+  display: inline-block;
 
-  circle {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-dasharray: 90, 150;
-    stroke-dashoffset: 0;
-    animation: ${ringDash} 1.5s ease-in-out infinite;
-  }
-
-  /* Create the SVG content */
-  &::before {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-`;
-
-// Override RingSpinner to use proper SVG
-export const RingSpinnerSVG = styled.div`
-  ${props => getSizeStyles(props.size)}
-  
   svg {
     width: 100%;
     height: 100%;
@@ -258,32 +233,23 @@ export const RingSpinnerSVG = styled.div`
   }
 `;
 
-// Create a proper Ring component
-export const RingSpinner = styled(({ size, color, ...props }) => (
-  <RingSpinnerSVG size={size} color={color} {...props}>
-    <svg viewBox="22 22 44 44">
-      <circle cx="44" cy="44" r="20.2" />
-    </svg>
-  </RingSpinnerSVG>
-))``;
-
 export const SpinnerText = styled.div`
   color: #1C1C1E;
   font-weight: 500;
   text-align: center;
-  
+
   ${props => props.size === "small" && css`
     font-size: 12px;
   `}
-  
+
   ${props => props.size === "medium" && css`
     font-size: 14px;
   `}
-  
+
   ${props => props.size === "large" && css`
     font-size: 16px;
   `}
-  
+
   ${props => props.size === "xlarge" && css`
     font-size: 18px;
   `}

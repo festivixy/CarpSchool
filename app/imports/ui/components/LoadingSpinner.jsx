@@ -42,7 +42,7 @@ const LoadingSpinner = ({
             <span />
           </DotsSpinner>
         );
-      
+
       case "pulse":
         return (
           <PulseSpinner
@@ -52,7 +52,7 @@ const LoadingSpinner = ({
             aria-label={accessibilityLabel}
           />
         );
-      
+
       case "ring":
         return (
           <RingSpinner
@@ -60,9 +60,13 @@ const LoadingSpinner = ({
             color={color}
             role="status"
             aria-label={accessibilityLabel}
-          />
+          >
+            <svg viewBox="22 22 44 44">
+              <circle cx="44" cy="44" r="20.2" />
+            </svg>
+          </RingSpinner>
         );
-      
+
       default:
         return (
           <SpinnerElement
