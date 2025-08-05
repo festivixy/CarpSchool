@@ -666,6 +666,147 @@ class RefChecker:
 
         return self.generate_report()
 
+    def convert_to_relative_imports(self):
+        """Convert all absolute imports to relative imports"""
+        js_files = self.find_js_files()
+        converted_count = 0
+
+        self.log("Converting absolute imports to relative imports...")
+
+        for file_path in js_files:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    original_content = content
+
+                # Find all absolute imports (imports that start with project root paths)
+                import_pattern = r'from\s+["\']([^"\']+)["\']'
+                imports = re.findall(import_pattern, content)
+
+                for import_path in imports:
+                    # Skip npm packages and meteor packages
+                    if (not import_path.startswith('.') and
+                        not import_path.startswith('/') and
+                        not import_path.startswith('meteor/') and
+                        '/' in import_path):
+
+                        # Check if this is an absolute import within our project
+                        potential_absolute_path = self.root_dir / import_path
+                        potential_absolute_path_js = potential_absolute_path.with_suffix('.js')
+                        potential_absolute_path_jsx = potential_absolute_path.with_suffix('.jsx')
+
+                        if (potential_absolute_path.exists() or
+                            potential_absolute_path_js.exists() or
+                            potential_absolute_path_jsx.exists()):
+
+                            # Convert to relative path
+                            relative_path = self.generate_relative_path(file_path, potential_absolute_path)
+
+                            # Replace in content
+                            content = content.replace(f'from "{import_path}"', f'from "{relative_path}"')
+                            content = content.replace(f"from '{import_path}'", f"from '{relative_path}'")
+
+                # Write back if changes were made
+                if content != original_content:
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                    converted_count += 1
+                    self.log(f"Converted absolute imports in: {file_path}", "SUCCESS")
+
+            except Exception as e:
+                self.log(f"Error converting imports in {file_path}: {e}", "ERROR")
+
+        self.log(f"Converted {converted_count} files from absolute to relative imports", "SUCCESS")
+        return converted_count
+
+    def convert_to_absolute_imports(self):
+        """Convert all relative imports to absolute imports"""
+        js_files = self.find_js_files()
+        converted_count = 0
+
+        self.log("Converting relative imports to absolute imports...")
+
+        for file_path in js_files:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    original_content = content
+
+                # Find all relative imports (imports that start with . or ..)
+                import_pattern = r'from\s+["\'](\.[^"\']*)["\']'
+                imports = re.findall(import_pattern, content)
+
+                for import_path in imports:
+                    # Convert relative path to absolute path
+                    absolute_path = self.generate_absolute_path(file_path, import_path)
+
+                    if absolute_path:
+                        # Replace in content
+                        content = content.replace(f'from "{import_path}"', f'from "{absolute_path}"')
+                        content = content.replace(f"from '{import_path}'", f"from '{absolute_path}'")
+
+                # Write back if changes were made
+                if content != original_content:
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                    converted_count += 1
+                    self.log(f"Converted relative imports in: {file_path}", "SUCCESS")
+
+            except Exception as e:
+                self.log(f"Error converting imports in {file_path}: {e}", "ERROR")
+
+        self.log(f"Converted {converted_count} files from relative to absolute imports", "SUCCESS")
+        return converted_count
+
+    def generate_relative_path(self, from_file: Path, to_file: Path) -> str:
+        """Generate relative import path from one file to another"""
+        try:
+            # Get the directory containing the source file
+            from_dir = from_file.parent
+
+            # Calculate relative path
+            relative_path = os.path.relpath(to_file, from_dir)
+
+            # Ensure it starts with ./ or ../
+            if not relative_path.startswith('.'):
+                relative_path = './' + relative_path
+
+            # Remove file extension for imports
+            if relative_path.endswith(('.jsx', '.js', '.ts', '.tsx')):
+                relative_path = relative_path.rsplit('.', 1)[0]
+
+            return relative_path
+
+        except Exception as e:
+            self.log(f"Error generating relative path: {e}", "ERROR")
+            return str(to_file)
+
+    def generate_absolute_path(self, from_file: Path, relative_import: str) -> str:
+        """Generate absolute import path from relative import"""
+        try:
+            # Resolve the relative import to an absolute path
+            from_dir = from_file.parent
+            resolved_path = (from_dir / relative_import).resolve()
+
+            # Convert back to project-relative path
+            try:
+                project_relative = resolved_path.relative_to(self.root_dir)
+
+                # Remove file extension for imports
+                path_str = str(project_relative)
+                if path_str.endswith(('.jsx', '.js', '.ts', '.tsx')):
+                    path_str = path_str.rsplit('.', 1)[0]
+
+                return path_str
+
+            except ValueError:
+                # Path is outside project root, keep as relative
+                return relative_import
+
+        except Exception as e:
+            self.log(f"Error generating absolute path: {e}", "ERROR")
+            return relative_import
+
 def main():
     parser = argparse.ArgumentParser(description="Check references in React/Meteor codebase")
     parser.add_argument("--imports", action="store_true", help="Check import statements")
@@ -675,17 +816,30 @@ def main():
     parser.add_argument("--all", action="store_true", help="Run all checks")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     parser.add_argument("--fix", action="store_true", help="Suggest and automatically fix imports when possible")
+    parser.add_argument("--convert-to-relative", action="store_true", help="Convert all absolute imports to relative imports")
+    parser.add_argument("--convert-to-absolute", action="store_true", help="Convert all relative imports to absolute imports")
     parser.add_argument("--root", default=".", help="Root directory to check")
 
     args = parser.parse_args()
 
-    # Default to all checks if no specific check is requested
-    if not any([args.imports, args.exports, args.circular, args.paths]):
-        args.all = True
-
     checker = RefChecker(args.root, args.verbose, args.fix)
 
     try:
+        # Handle conversion modes - these skip all other operations
+        if getattr(args, 'convert_to_relative', False):
+            converted_count = checker.convert_to_relative_imports()
+            console.print(f"✅ Conversion complete! Converted {converted_count} files to relative imports.")
+            return
+
+        if getattr(args, 'convert_to_absolute', False):
+            converted_count = checker.convert_to_absolute_imports()
+            console.print(f"✅ Conversion complete! Converted {converted_count} files to absolute imports.")
+            return
+
+        # Default to all checks if no specific check is requested and no conversion mode
+        if not any([args.imports, args.exports, args.circular, args.paths]):
+            args.all = True
+
         if args.all:
             report = checker.run_all_checks()
         else:
