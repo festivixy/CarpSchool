@@ -9,7 +9,6 @@ Comprehensive reference checker for React/Meteor codebase. Validates import stat
 ### Features
 
 - ✅ **Broken Import Detection** - Finds imports that point to non-existent files
-- ✅ **Unused Import Detection** - Identifies imported components that aren't used
 - ✅ **Circular Dependency Detection** - Finds circular import chains
 - ✅ **Fix Suggestions** - Suggests alternative import paths for broken references
 - ✅ **Component Export Validation** - Checks component exports and usage
@@ -23,7 +22,6 @@ python checkRefs.py
 
 # Run specific checks
 python checkRefs.py --imports      # Check import statements only
-python checkRefs.py --unused       # Check for unused imports only
 python checkRefs.py --circular     # Check for circular dependencies only
 
 # Options
@@ -38,14 +36,13 @@ python checkRefs.py --root ../app  # Specify different root directory
 🔍 Starting comprehensive reference check...
 
 [ERROR] imports/ui/mobile/pages/ComponentsTest.jsx:31 - Broken import: '../components/FooterVerbose'
-[WARNING] imports/ui/components/Button.jsx - Unused import: 'PropTypes'
 [WARNING] Circular dependency: imports/ui/components/A.jsx → imports/ui/components/B.jsx → imports/ui/components/A.jsx
 
 ============================================================
 📊 REFERENCE CHECK SUMMARY
 ============================================================
 ❌ Errors: 1
-⚠️  Warnings: 2
+⚠️  Warnings: 1
 💡 Suggestions: 1
 
 🔧 Found issues that may need attention.

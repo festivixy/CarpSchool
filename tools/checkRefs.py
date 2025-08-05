@@ -2,9 +2,8 @@
 """
 Reference Checker for React/Meteor Codebase
 
-Validates import statements, file references, and component usage
-after refactoring and file moves. Helps catch broken imports and
-unused components.
+Validates import statements and file references after refactoring
+and file moves. Helps catch broken imports and circular dependencies.
 
 Usage:
     python checkRefs.py [options]
@@ -12,7 +11,6 @@ Usage:
 Options:
     --imports     Check import statements for broken references
     --exports     Check component exports and usage
-    --unused      Find unused imported components
     --circular    Check for circular dependencies
     --paths       Validate all file paths in imports
     --all         Run all checks (default)
@@ -233,43 +231,7 @@ class RefChecker:
 
         return any(import_path.startswith(pattern) for pattern in external_patterns)
 
-    def find_unused_imports(self) -> Dict[str, List[str]]:
-        """Find imported components that are not used"""
-        self.log("Checking for unused imports...")
 
-        unused_imports = defaultdict(list)
-        js_files = self.find_js_files()
-
-        for file_path in js_files:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-
-                # Extract import names
-                import_matches = re.findall(
-                    r'import\s+(?:\{([^}]+)\}|(\w+))\s+from\s+["\'][^"\']+["\']',
-                    content
-                )
-
-                imported_names = set()
-                for named_imports, default_import in import_matches:
-                    if named_imports:
-                        names = [name.strip().split(' as ')[-1] for name in named_imports.split(',')]
-                        imported_names.update([name.strip() for name in names if name.strip()])
-                    if default_import:
-                        imported_names.add(default_import)
-
-                # Check if imports are used
-                for name in imported_names:
-                    if name and not re.search(rf'\b{re.escape(name)}\b', content.split('import')[0] + ''.join(content.split('\n')[10:])):
-                        unused_msg = f"{file_path.relative_to(self.root_dir)} - Unused import: '{name}'"
-                        unused_imports[str(file_path.relative_to(self.root_dir))].append(unused_msg)
-                        self.add_warning(unused_msg)
-
-            except Exception as e:
-                self.add_error(f"Error checking unused imports in {file_path}: {e}")
-
-        return dict(unused_imports)
 
     def check_circular_dependencies(self) -> List[List[str]]:
         """Check for circular dependencies"""
@@ -368,9 +330,6 @@ class RefChecker:
         # Check imports
         broken_imports = self.check_imports()
 
-        # Check unused imports
-        unused_imports = self.find_unused_imports()
-
         # Check circular dependencies
         circular_deps = self.check_circular_dependencies()
 
@@ -384,7 +343,6 @@ def main():
     parser = argparse.ArgumentParser(description="Check references in React/Meteor codebase")
     parser.add_argument("--imports", action="store_true", help="Check import statements")
     parser.add_argument("--exports", action="store_true", help="Check component exports")
-    parser.add_argument("--unused", action="store_true", help="Find unused imports")
     parser.add_argument("--circular", action="store_true", help="Check circular dependencies")
     parser.add_argument("--paths", action="store_true", help="Validate file paths")
     parser.add_argument("--all", action="store_true", help="Run all checks")
@@ -395,7 +353,7 @@ def main():
     args = parser.parse_args()
 
     # Default to all checks if no specific check is requested
-    if not any([args.imports, args.exports, args.unused, args.circular, args.paths]):
+    if not any([args.imports, args.exports, args.circular, args.paths]):
         args.all = True
 
     checker = RefChecker(args.root, args.verbose)
@@ -406,8 +364,6 @@ def main():
         else:
             if args.imports:
                 checker.check_imports()
-            if args.unused:
-                checker.find_unused_imports()
             if args.circular:
                 checker.check_circular_dependencies()
 
