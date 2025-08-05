@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
+import { withRouter } from "react-router-dom";
 import LiquidGlassBlur from "../liquidGlass/components/LiquidGlassBlur";
 import LiquidGlassMobileNavBarCSS from "../liquidGlass/components/LiquidGlassMobileNavBarCSS";
 import NativeNavBar from "../ios/components/NativeNavBar";
@@ -29,7 +31,7 @@ import {
  * Demo component showcasing iOS 26 native blur and navbar features
  * Demonstrates automatic fallback to CSS when native features are unavailable
  */
-const NativeBlurDemo = () => {
+const NativeBlurDemo = (props) => {
   const [selectedBlur, setSelectedBlur] = useState("systemMaterial");
   const [showNavBar, setShowNavBar] = useState(true);
   const [blurIntensity, setBlurIntensity] = useState(1.0);
@@ -412,4 +414,8 @@ const NativeBlurDemo = () => {
   );
 };
 
-export default NativeBlurDemo;
+NativeBlurDemo.propTypes = {
+  history: PropTypes.object.isRequired,
+};
+
+export default withRouter(NativeBlurDemo);
