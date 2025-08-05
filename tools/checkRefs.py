@@ -171,27 +171,41 @@ class RefChecker:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # Find default exports
-            default_exports = re.findall(r'export\s+default\s+(?:function\s+)?(\w+)', content)
+            # Find default exports (but not re-exports)
+            default_exports = re.findall(r'export\s+default\s+(?:function\s+)?(\w+)(?!\s+as)', content)
             exports.update(default_exports)
 
             # Find named exports
             named_exports = re.findall(r'export\s+(?:const|let|var|function|class)\s+(\w+)', content)
             exports.update(named_exports)
 
-            # Find export { ... } statements
-            export_blocks = re.findall(r'export\s*\{\s*([^}]+)\s*\}', content)
-            for block in export_blocks:
-                names = [name.strip().split(' as ')[0] for name in block.split(',')]
-                exports.update([name.strip() for name in names if name.strip()])
+            # Find export { ... } statements and re-exports
+            # Handle: export { default as ComponentName } from "./ComponentName"
+            reexport_pattern = r'export\s*\{\s*default\s+as\s+(\w+)\s*\}\s*from'
+            reexports = re.findall(reexport_pattern, content)
+            exports.update(reexports)
 
-            # Find class declarations that might be exported later
-            class_declarations = re.findall(r'class\s+(\w+)', content)
-            exports.update(class_declarations)
+            # Handle: export { ComponentName } (but not re-exports)
+            # Only process lines that don't have 'from' keyword
+            for line in content.split('\n'):
+                if line.strip().startswith('export') and '{' in line and '}' in line and 'from' not in line:
+                    # Extract content between braces
+                    match = re.search(r'export\s*\{\s*([^}]+)\s*\}', line)
+                    if match:
+                        block = match.group(1)
+                        for export_item in block.split(','):
+                            export_item = export_item.strip()
+                            if ' as ' in export_item:
+                                # Handle "originalName as exportedName"
+                                exported_name = export_item.split(' as ')[1].strip()
+                                exports.add(exported_name)
+                            else:
+                                # Handle simple exports like "ComponentName"
+                                if export_item and export_item != 'default':
+                                    exports.add(export_item)
 
-            # Find function declarations that might be exported later
-            function_declarations = re.findall(r'function\s+(\w+)', content)
-            exports.update(function_declarations)
+            # Only add class/function declarations if they are explicitly exported
+            # (The patterns above should catch all legitimate exports)
 
         except Exception as e:
             self.add_error(f"Error reading exports from {file_path}: {e}")
@@ -305,33 +319,6 @@ class RefChecker:
                     return index_path
 
         return None
-
-    def extract_exports(self, file_path: Path) -> List[str]:
-        """Extract exported component names from a file"""
-        exports = []
-
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-
-            # Find component exports
-            matches = re.findall(self.component_pattern, content)
-            for match in matches:
-                # match is a tuple, find the non-empty group
-                component_name = next((name for name in match if name), None)
-                if component_name:
-                    exports.append(component_name)
-
-            # Find named exports
-            named_exports = re.findall(r'export\s*\{\s*([^}]+)\s*\}', content)
-            for export_list in named_exports:
-                names = [name.strip().split(' as ')[0] for name in export_list.split(',')]
-                exports.extend([name.strip() for name in names if name.strip()])
-
-        except Exception as e:
-            self.add_error(f"Error reading exports from {file_path}: {e}")
-
-        return exports
 
     def check_imports(self) -> Dict[str, List[str]]:
         """Check all import statements for broken references"""
