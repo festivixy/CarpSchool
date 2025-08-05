@@ -6,16 +6,16 @@ import {
   NavBarButton,
   NavBarIcon,
   NavBarLabel,
-} from "../styles/LiquidGlassMobileNavBarCSS";
+} from "../styles/MobileNavBarCSS";
 
 /**
- * LiquidGlassMobileNavBarCSS Component
+ * MobileNavBarCSS Component
  *
  * Provides iOS 26 style liquid glass navigation bar using CSS implementation
  * Uses CSS backdrop-filter for liquid glass effect on iOS 18 and below
  * Always positioned at bottom for primary navigation
  */
-const LiquidGlassMobileNavBarCSS = ({
+const MobileNavBarCSS = ({
   items = [],
   visible = true,
   animated = true,
@@ -43,7 +43,7 @@ const LiquidGlassMobileNavBarCSS = ({
   const iosVersion = getIOSVersion();
   const supportsNativeLiquidGlass = iosVersion >= 26;
 
-  console.log("[LiquidGlassMobileNavBarCSS] 📱 Environment check:", {
+  console.log("[MobileNavBarCSS] 📱 Environment check:", {
     iosVersion,
     supportsNativeLiquidGlass,
     forceCSSMode: !supportsNativeLiquidGlass,
@@ -52,7 +52,7 @@ const LiquidGlassMobileNavBarCSS = ({
   });
 
   const handleItemPress = (item, index) => {
-    console.log("[LiquidGlassMobileNavBarCSS] 🔥 Item pressed:", {
+    console.log("[MobileNavBarCSS] 🔥 Item pressed:", {
       item,
       index,
       wasActive: index === currentActiveIndex,
@@ -69,7 +69,7 @@ const LiquidGlassMobileNavBarCSS = ({
     return null;
   }
 
-  console.log("[LiquidGlassMobileNavBarCSS] 🎨 Rendering CSS navbar:", {
+  console.log("[MobileNavBarCSS] 🎨 Rendering CSS navbar:", {
     itemCount: items.length,
     activeIndex: currentActiveIndex,
     blurStyle,
@@ -116,7 +116,7 @@ const LiquidGlassMobileNavBarCSS = ({
   );
 };
 
-LiquidGlassMobileNavBarCSS.propTypes = {
+MobileNavBarCSS.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
@@ -143,4 +143,4 @@ LiquidGlassMobileNavBarCSS.propTypes = {
   activeIndex: PropTypes.number,
 };
 
-export default LiquidGlassMobileNavBarCSS;
+export default MobileNavBarCSS;

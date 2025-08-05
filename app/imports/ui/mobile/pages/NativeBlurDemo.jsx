@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import LiquidGlassBlur from "../../liquidGlass/components/LiquidGlassBlur";
-import LiquidGlassMobileNavBarCSS from "../../liquidGlass/components/LiquidGlassMobileNavBarCSS";
+import MobileNavBarCSS from "../components/MobileNavBarCSS";
 import NativeNavBar from "../ios/components/NativeNavBar";
 import { useNativeBlur } from "../hooks/useNativeBlur";
 import useNativeNavBar from "../ios/hooks/useNativeNavBar";
@@ -401,7 +401,7 @@ const NativeBlurDemo = (props) => {
 
           {/* CSS Fallback NavBar - Only renders when native is not supported */}
           {!nativeNavBarSupported && (
-            <LiquidGlassMobileNavBarCSS
+            <MobileNavBarCSS
               items={navBarItems}
               blurStyle={selectedBlur}
               onItemPress={handleNavBarAction}
