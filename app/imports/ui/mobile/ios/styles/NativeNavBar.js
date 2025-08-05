@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 // Placeholder styles for the native navbar component
 // The actual styling is handled by native iOS UITabBar

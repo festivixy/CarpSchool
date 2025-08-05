@@ -82,19 +82,19 @@ const NativeBlurDemo = (props) => {
     const addLog = (type, args) => {
       const timestamp = new Date().toLocaleTimeString();
       const message = args.map(arg => {
-        if (typeof arg === 'object') {
+        if (typeof arg === "object") {
           return JSON.stringify(arg, null, 2);
         }
         return String(arg);
-      }).join(' ');
+      }).join(" ");
 
       // Only log if it contains our keywords
-      if (message.includes('LiquidGlass') || message.includes('NavBarCSS') || message.includes('NativeNavBar') || message.includes('useNativeNavBar')) {
+      if (message.includes("LiquidGlass") || message.includes("NavBarCSS") || message.includes("NativeNavBar") || message.includes("useNativeNavBar")) {
         pendingLogs.push({
           type,
           timestamp,
           message,
-          id: Date.now() + Math.random()
+          id: Date.now() + Math.random(),
         });
 
         // Debounce updates to prevent infinite loops
@@ -105,22 +105,22 @@ const NativeBlurDemo = (props) => {
 
     console.log = (...args) => {
       originalLog(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('NativeNavBar') || String(arg).includes('useNativeNavBar'))) {
-        addLog('log', args);
+      if (args.some(arg => String(arg).includes("LiquidGlass") || String(arg).includes("NavBarCSS") || String(arg).includes("NativeNavBar") || String(arg).includes("useNativeNavBar"))) {
+        addLog("log", args);
       }
     };
 
     console.error = (...args) => {
       originalError(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('NativeNavBar') || String(arg).includes('useNativeNavBar'))) {
-        addLog('error', args);
+      if (args.some(arg => String(arg).includes("LiquidGlass") || String(arg).includes("NavBarCSS") || String(arg).includes("NativeNavBar") || String(arg).includes("useNativeNavBar"))) {
+        addLog("error", args);
       }
     };
 
     console.warn = (...args) => {
       originalWarn(...args);
-      if (args.some(arg => String(arg).includes('LiquidGlass') || String(arg).includes('NavBarCSS') || String(arg).includes('NativeNavBar') || String(arg).includes('useNativeNavBar'))) {
-        addLog('warn', args);
+      if (args.some(arg => String(arg).includes("LiquidGlass") || String(arg).includes("NavBarCSS") || String(arg).includes("NativeNavBar") || String(arg).includes("useNativeNavBar"))) {
+        addLog("warn", args);
       }
     };
 
@@ -177,21 +177,21 @@ const NativeBlurDemo = (props) => {
     setActiveNavIndex(index);
 
     switch (item.action) {
-      case 'home':
-        props.history.push('/myRides');
+      case "home":
+        props.history.push("/myRides");
         break;
-      case 'join':
-        props.history.push('/imRiding');
+      case "join":
+        props.history.push("/imRiding");
         break;
-      case 'create':
-        props.history.push('/imDriving');
+      case "create":
+        props.history.push("/imDriving");
         break;
-      case 'messages':
-        props.history.push('/chat');
+      case "messages":
+        props.history.push("/chat");
         break;
-      case 'profile':
+      case "profile":
         // Profile dropdown is handled automatically by NativeNavBar
-        console.log('Profile dropdown should open');
+        console.log("Profile dropdown should open");
         break;
       default:
         console.warn(`Unknown navbar action: ${item.action}`);
@@ -205,13 +205,13 @@ const NativeBlurDemo = (props) => {
   // Log initial environment
   useEffect(() => {
     console.log("[NativeBlurDemo] 🚀 Component mounted - Environment check:", {
-      platform: window.cordova ? 'Cordova' : 'Web',
+      platform: window.cordova ? "Cordova" : "Web",
       isCordova: !!window.cordova,
       isMeteorCordova: !!window.Meteor?.isCordova,
       hasLiquidBlurPlugin: !!window.cordova?.plugins?.liquidBlur,
       hasNativeNavBarPlugin: !!window.cordova?.plugins?.NativeNavBar,
       userAgent: navigator.userAgent,
-      iosVersion: window.device?.version || 'unknown',
+      iosVersion: window.device?.version || "unknown",
       nativeNavBarSupported,
       nativeNavBarLoading,
     });
@@ -243,7 +243,7 @@ const NativeBlurDemo = (props) => {
 
       <StatusBar>
         <StatusItem>
-          iOS Version: {iosVersion || 'Unknown'}
+          iOS Version: {iosVersion || "Unknown"}
         </StatusItem>
         <StatusItem>
           Native iOS NavBar: {nativeNavBarSupported ? "✅ Available" : "❌ Not Available"}
@@ -296,7 +296,7 @@ const NativeBlurDemo = (props) => {
 
           <ControlGroup>
             <ControlLabel>Debug Logs</ControlLabel>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+            <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
               <StyleButton
                 active={showLogs}
                 onClick={() => setShowLogs(!showLogs)}
@@ -312,72 +312,70 @@ const NativeBlurDemo = (props) => {
 
             {showLogs && (
               <div style={{
-                width: '100%',
-                height: '300px',
-                border: '1px solid rgba(0,0,0,0.2)',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                background: 'rgba(0,0,0,0.05)',
+                width: "100%",
+                height: "300px",
+                border: "1px solid rgba(0,0,0,0.2)",
+                borderRadius: "8px",
+                overflow: "hidden",
+                background: "rgba(0,0,0,0.05)",
               }}>
                 <textarea
                   ref={logTextAreaRef}
                   readOnly
-                  value={logs.map(log =>
-                    `[${log.timestamp}] ${log.type.toUpperCase()}: ${log.message}`
-                  ).join('\n')}
+                  value={logs.map(log => `[${log.timestamp}] ${log.type.toUpperCase()}: ${log.message}`).join("\n")}
                   style={{
-                    width: '100%',
-                    height: '100%',
-                    border: 'none',
-                    background: 'transparent',
-                    fontFamily: 'Monaco, Consolas, monospace',
-                    fontSize: '11px',
-                    padding: '8px',
-                    resize: 'none',
-                    color: '#333',
+                    width: "100%",
+                    height: "100%",
+                    border: "none",
+                    background: "transparent",
+                    fontFamily: "Monaco, Consolas, monospace",
+                    fontSize: "11px",
+                    padding: "8px",
+                    resize: "none",
+                    color: "#333",
                   }}
                   placeholder="Debug logs will appear here..."
                 />
               </div>
             )}
 
-            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+            <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
               Total logs: {logs.length} | NavBar: CSS Liquid Glass
             </div>
           </ControlGroup>
 
           <ControlGroup>
             <ControlLabel>CSS Blur Demo Areas (Native Blur Disabled)</ControlLabel>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
               <div style={{
-                width: '200px',
-                height: '100px',
+                width: "200px",
+                height: "100px",
                 background: `rgba(255, 255, 255, ${blurIntensity * 0.7})`,
                 backdropFilter: `blur(${blurIntensity * 20}px)`,
-                borderRadius: '16px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                borderRadius: "16px",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
               }}>
-                <div style={{ padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>CSS Blur Panel 1</div>
-                  <div style={{ fontSize: '12px', opacity: 0.8 }}>
+                <div style={{ padding: "16px", textAlign: "center" }}>
+                  <div style={{ fontWeight: "bold", marginBottom: "8px" }}>CSS Blur Panel 1</div>
+                  <div style={{ fontSize: "12px", opacity: 0.8 }}>
                     CSS backdrop-filter blur
                   </div>
                 </div>
               </div>
 
               <div style={{
-                width: '200px',
-                height: '100px',
+                width: "200px",
+                height: "100px",
                 background: `rgba(255, 255, 255, ${blurIntensity * 0.7})`,
                 backdropFilter: `blur(${blurIntensity * 20}px)`,
-                borderRadius: '16px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                borderRadius: "16px",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
               }}>
-                <div style={{ padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>CSS Blur Panel 2</div>
-                  <div style={{ fontSize: '12px', opacity: 0.8 }}>
+                <div style={{ padding: "16px", textAlign: "center" }}>
+                  <div style={{ fontWeight: "bold", marginBottom: "8px" }}>CSS Blur Panel 2</div>
+                  <div style={{ fontSize: "12px", opacity: 0.8 }}>
                     CSS backdrop-filter blur
                   </div>
                 </div>

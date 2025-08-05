@@ -70,7 +70,7 @@ const NativeNavBar = ({
         const item = items[itemIndex];
         if (item) {
           // Handle profile dropdown specially
-          if (item.id === 'profile' || item.action === 'profile') {
+          if (item.id === "profile" || item.action === "profile") {
             setProfileDropdownOpen(true);
             setCurrentActiveIndex(itemIndex);
           } else {
@@ -174,20 +174,20 @@ const NativeNavBar = ({
       <div
         className={className}
         style={{
-          position: 'fixed',
+          position: "fixed",
           bottom: 0,
           left: 0,
           right: 0,
           height: 83,
-          backgroundColor: 'rgba(249, 249, 249, 0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          ...style
+          backgroundColor: "rgba(249, 249, 249, 0.8)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          ...style,
         }}
         {...props}
       >
-        <div style={{ fontSize: '14px', color: '#666' }}>
+        <div style={{ fontSize: "14px", color: "#666" }}>
           Initializing Native NavBar...
         </div>
       </div>
@@ -200,7 +200,7 @@ const NativeNavBar = ({
       isSupported,
       visible,
       iosVersion,
-      platform: window.cordova ? 'Cordova' : 'Web',
+      platform: window.cordova ? "Cordova" : "Web",
     });
     return null;
   }
@@ -216,72 +216,72 @@ const NativeNavBar = ({
     // Get profile dropdown options
     const getProfileDropdownOptions = () => {
       const currentUser = Meteor.user();
-      const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes('admin');
+      const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes("admin");
 
       if (currentUser) {
         const options = [
-          { value: 'edit-profile', label: '📋 Edit Profile' },
-          { value: 'my-places', label: '📍 My Places' },
+          { value: "edit-profile", label: "📋 Edit Profile" },
+          { value: "my-places", label: "📍 My Places" },
         ];
 
         if (isAdmin) {
           options.push(
-            { value: 'admin-rides', label: '🚗 Manage Rides' },
-            { value: 'admin-users', label: '👥 Manage Users' },
-            { value: 'admin-places', label: '📍 Manage Places' },
-            { value: 'components-test', label: '🧪 Components Test' }
+            { value: "admin-rides", label: "🚗 Manage Rides" },
+            { value: "admin-users", label: "👥 Manage Users" },
+            { value: "admin-places", label: "📍 Manage Places" },
+            { value: "components-test", label: "🧪 Components Test" },
           );
         }
 
-        options.push({ value: 'sign-out', label: '🚪 Sign Out' });
+        options.push({ value: "sign-out", label: "🚪 Sign Out" });
         return options;
-      } else {
-        return [
-          { value: 'sign-in', label: '👤 Sign In' },
-          { value: 'sign-up', label: '📝 Sign Up' },
-        ];
       }
+        return [
+          { value: "sign-in", label: "👤 Sign In" },
+          { value: "sign-up", label: "📝 Sign Up" },
+        ];
+
     };
 
     const handleDropdownSelect = (option) => {
       setProfileDropdownOpen(false);
 
       switch (option.value) {
-        case 'edit-profile':
-          props.history.push('/editProfile');
+        case "edit-profile":
+          props.history.push("/editProfile");
           break;
-        case 'my-places':
-          props.history.push('/places');
+        case "my-places":
+          props.history.push("/places");
           break;
-        case 'admin-rides':
-          props.history.push('/adminRides');
+        case "admin-rides":
+          props.history.push("/adminRides");
           break;
-        case 'admin-users':
-          props.history.push('/adminUsers');
+        case "admin-users":
+          props.history.push("/adminUsers");
           break;
-        case 'admin-places':
-          props.history.push('/adminPlaceManager');
+        case "admin-places":
+          props.history.push("/adminPlaceManager");
           break;
-        case 'components-test':
-          props.history.push('/_test');
+        case "components-test":
+          props.history.push("/_test");
           break;
-        case 'sign-out':
+        case "sign-out":
           Meteor.logout((err) => {
             if (err) {
-              console.error('Logout error:', err);
+              console.error("Logout error:", err);
             } else {
-              props.history.push('/');
+              props.history.push("/");
             }
           });
           break;
-        case 'sign-in':
-          props.history.push('/signin');
+        case "sign-in":
+          props.history.push("/signin");
           break;
-        case 'sign-up':
-          props.history.push('/signup');
+        case "sign-up":
+          props.history.push("/signup");
           break;
         default:
-          console.warn('Unknown dropdown option:', option.value);
+          console.warn("Unknown dropdown option:", option.value);
       }
     };
 
@@ -293,24 +293,24 @@ const NativeNavBar = ({
             ref={navBarRef}
             className={className}
             style={{
-              position: 'fixed',
+              position: "fixed",
               bottom: 0,
               left: 0,
               right: 0,
               height: 83,
-              pointerEvents: 'none', // Let native navbar handle touches
-              ...style
+              pointerEvents: "none", // Let native navbar handle touches
+              ...style,
             }}
             {...props}
           >
             <div style={{
-              position: 'absolute',
+              position: "absolute",
               bottom: 8,
               right: 8,
-              fontSize: '10px',
-              color: 'rgba(0,0,0,0.3)',
-              userSelect: 'none',
-              pointerEvents: 'none'
+              fontSize: "10px",
+              color: "rgba(0,0,0,0.3)",
+              userSelect: "none",
+              pointerEvents: "none",
             }}>
               Native iOS
             </div>
@@ -320,11 +320,11 @@ const NativeNavBar = ({
           {profileDropdownOpen && (
             <div
               style={{
-                position: 'fixed',
+                position: "fixed",
                 bottom: 100,
                 right: 20,
                 zIndex: 10000,
-                pointerEvents: 'auto',
+                pointerEvents: "auto",
               }}
               onClick={(e) => {
                 // Close dropdown if clicking outside
@@ -360,18 +360,18 @@ const NativeNavBar = ({
         ref={navBarRef}
         className={className}
         style={{
-          position: 'fixed',
+          position: "fixed",
           bottom: 0,
           left: 0,
           right: 0,
           height: 83,
-          backgroundColor: 'rgba(0,0,0,0.9)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-around',
-          backdropFilter: 'blur(20px)',
-          borderTop: '1px solid rgba(255,255,255,0.1)',
-          ...style
+          backgroundColor: "rgba(0,0,0,0.9)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          backdropFilter: "blur(20px)",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          ...style,
         }}
         {...props}
       >
@@ -379,47 +379,47 @@ const NativeNavBar = ({
           <button
             key={item.id || index}
             style={{
-              background: 'none',
-              border: 'none',
-              color: index === currentActiveIndex ? '#007AFF' : 'white',
-              fontSize: '24px',
-              padding: '8px',
-              borderRadius: '8px',
-              minWidth: '44px',
-              minHeight: '44px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'color 0.2s ease',
+              background: "none",
+              border: "none",
+              color: index === currentActiveIndex ? "#007AFF" : "white",
+              fontSize: "24px",
+              padding: "8px",
+              borderRadius: "8px",
+              minWidth: "44px",
+              minHeight: "44px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              transition: "color 0.2s ease",
             }}
             onClick={() => {
               setCurrentActiveIndex(index);
-              if (item.id === 'profile' || item.action === 'profile') {
+              if (item.id === "profile" || item.action === "profile") {
                 setProfileDropdownOpen(true);
               } else if (onItemPress) {
                 onItemPress(item, index, item.action);
               }
             }}
           >
-            <div style={{ fontSize: '20px', marginBottom: '2px' }}>
+            <div style={{ fontSize: "20px", marginBottom: "2px" }}>
               {item.icon}
             </div>
-            <div style={{ fontSize: '10px', fontWeight: '500' }}>
+            <div style={{ fontSize: "10px", fontWeight: "500" }}>
               {item.label}
             </div>
           </button>
         ))}
 
         <div style={{
-          position: 'absolute',
+          position: "absolute",
           bottom: 8,
           right: 8,
-          fontSize: '10px',
-          color: 'rgba(255,255,255,0.5)',
-          userSelect: 'none',
-          pointerEvents: 'none'
+          fontSize: "10px",
+          color: "rgba(255,255,255,0.5)",
+          userSelect: "none",
+          pointerEvents: "none",
         }}>
           CSS Fallback
         </div>
@@ -428,11 +428,11 @@ const NativeNavBar = ({
         {profileDropdownOpen && (
           <div
             style={{
-              position: 'fixed',
+              position: "fixed",
               bottom: 100,
               right: 20,
               zIndex: 10000,
-              pointerEvents: 'auto',
+              pointerEvents: "auto",
             }}
             onClick={(e) => {
               // Close dropdown if clicking outside
@@ -469,7 +469,7 @@ NativeNavBar.propTypes = {
       icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
       action: PropTypes.string,
       disabled: PropTypes.bool,
-    })
+    }),
   ),
   visible: PropTypes.bool,
   onItemPress: PropTypes.func,

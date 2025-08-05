@@ -1,26 +1,26 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 // iOS 26 Liquid Glass color system
 const liquidGlassColors = {
   systemMaterial: {
-    background: 'rgba(249, 249, 249, 0.78)',
-    backdropFilter: 'blur(20px) saturate(1.8)',
-    border: 'rgba(255, 255, 255, 0.2)',
+    background: "rgba(249, 249, 249, 0.78)",
+    backdropFilter: "blur(20px) saturate(1.8)",
+    border: "rgba(255, 255, 255, 0.2)",
   },
   systemThinMaterial: {
-    background: 'rgba(249, 249, 249, 0.6)',
-    backdropFilter: 'blur(12px) saturate(1.4)',
-    border: 'rgba(255, 255, 255, 0.15)',
+    background: "rgba(249, 249, 249, 0.6)",
+    backdropFilter: "blur(12px) saturate(1.4)",
+    border: "rgba(255, 255, 255, 0.15)",
   },
   systemUltraThinMaterial: {
-    background: 'rgba(249, 249, 249, 0.4)',
-    backdropFilter: 'blur(8px) saturate(1.2)',
-    border: 'rgba(255, 255, 255, 0.1)',
+    background: "rgba(249, 249, 249, 0.4)",
+    backdropFilter: "blur(8px) saturate(1.2)",
+    border: "rgba(255, 255, 255, 0.1)",
   },
   systemThickMaterial: {
-    background: 'rgba(249, 249, 249, 0.9)',
-    backdropFilter: 'blur(24px) saturate(2.0)',
-    border: 'rgba(255, 255, 255, 0.3)',
+    background: "rgba(249, 249, 249, 0.9)",
+    backdropFilter: "blur(24px) saturate(2.0)",
+    border: "rgba(255, 255, 255, 0.3)",
   },
 };
 
@@ -36,7 +36,7 @@ export const NavBarContainer = styled.div`
   justify-content: space-around;
   
   height: 83px; /* Standard iOS navbar height */
-  ${props => props.safeArea ? 'padding-bottom: env(safe-area-inset-bottom, 20px);' : ''}
+  ${props => (props.safeArea ? "padding-bottom: env(safe-area-inset-bottom, 20px);" : "")}
   padding-top: 8px;
   padding-left: env(safe-area-inset-left, 16px);
   padding-right: env(safe-area-inset-right, 16px);
@@ -56,7 +56,7 @@ export const NavBarContainer = styled.div`
     0 4px 40px rgba(0, 0, 0, 0.04);
   
   /* iOS smooth animations */
-  transition: ${props => props.animated ? 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none'};
+  transition: ${props => (props.animated ? "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none")};
   
   /* Ensure proper rendering */
   will-change: transform, opacity;
@@ -143,7 +143,7 @@ export const NavBarIcon = styled.div`
   line-height: 1;
   
   /* iOS icon colors */
-  color: ${props => props.isActive ? '#007AFF' : '#8E8E93'};
+  color: ${props => (props.isActive ? "#007AFF" : "#8E8E93")};
   
   /* Smooth color transitions */
   transition: color 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -153,7 +153,7 @@ export const NavBarIcon = styled.div`
     width: 100%;
     height: 100%;
     object-fit: contain;
-    filter: ${props => props.isActive ? 'none' : 'grayscale(1) opacity(0.6)'};
+    filter: ${props => (props.isActive ? "none" : "grayscale(1) opacity(0.6)")};
     transition: filter 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   
@@ -165,7 +165,7 @@ export const NavBarIcon = styled.div`
   }
   
   @media (prefers-color-scheme: dark) {
-    color: ${props => props.isActive ? '#0A84FF' : '#8E8E93'};
+    color: ${props => (props.isActive ? "#0A84FF" : "#8E8E93")};
   }
 `;
 
@@ -178,7 +178,7 @@ export const NavBarLabel = styled.span`
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
   
   /* iOS label colors */
-  color: ${props => props.isActive ? '#007AFF' : '#8E8E93'};
+  color: ${props => (props.isActive ? "#007AFF" : "#8E8E93")};
   
   /* Smooth color transitions */
   transition: color 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -200,6 +200,6 @@ export const NavBarLabel = styled.span`
   -webkit-box-orient: vertical;
   
   @media (prefers-color-scheme: dark) {
-    color: ${props => props.isActive ? '#0A84FF' : '#8E8E93'};
+    color: ${props => (props.isActive ? "#0A84FF" : "#8E8E93")};
   }
 `;

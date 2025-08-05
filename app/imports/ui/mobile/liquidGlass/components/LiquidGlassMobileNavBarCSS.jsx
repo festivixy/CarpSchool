@@ -5,7 +5,7 @@ import {
   NavBarItem,
   NavBarButton,
   NavBarIcon,
-  NavBarLabel
+  NavBarLabel,
 } from "../styles/LiquidGlassMobileNavBarCSS";
 
 /**
@@ -37,7 +37,7 @@ const LiquidGlassMobileNavBarCSS = ({
   // Check iOS version - only iOS 26+ supports native liquid glass
   const getIOSVersion = () => {
     if (!window.device?.version) return 0;
-    return parseInt(window.device.version.split('.')[0]);
+    return parseInt(window.device.version.split(".")[0]);
   };
 
   const iosVersion = getIOSVersion();
@@ -96,8 +96,8 @@ const LiquidGlassMobileNavBarCSS = ({
             <NavBarButton isActive={isActive}>
               {item.icon && (
                 <NavBarIcon isActive={isActive}>
-                  {typeof item.icon === 'string' ? (
-                    <img src={item.icon} alt={item.label || 'Navigation'} />
+                  {typeof item.icon === "string" ? (
+                    <img src={item.icon} alt={item.label || "Navigation"} />
                   ) : (
                     item.icon
                   )}
@@ -124,7 +124,7 @@ LiquidGlassMobileNavBarCSS.propTypes = {
       icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
       action: PropTypes.string,
       disabled: PropTypes.bool,
-    })
+    }),
   ),
   visible: PropTypes.bool,
   animated: PropTypes.bool,

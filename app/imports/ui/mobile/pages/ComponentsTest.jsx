@@ -1269,7 +1269,7 @@ const MobileTestMapView = ({ history }) => {
                   onChange={(e) => setGotoTestInput(e.target.value)}
                   placeholder="Enter test path (e.g., components, login, maps)"
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       handleGotoTest();
                     }
                   }}
@@ -1277,16 +1277,16 @@ const MobileTestMapView = ({ history }) => {
               </ControlItem>
               <ControlItem>
                 <Label>Quick Choices</Label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <LiquidGlassButton
                     label="liquidglass/login"
-                    onClick={() => setGotoTestInput('liquidglass/login')}
-                    style={{ fontSize: '12px', padding: '8px 12px' }}
+                    onClick={() => setGotoTestInput("liquidglass/login")}
+                    style={{ fontSize: "12px", padding: "8px 12px" }}
                   />
                   <LiquidGlassButton
                     label="native-blur"
-                    onClick={() => setGotoTestInput('native-blur')}
-                    style={{ fontSize: '12px', padding: '8px 12px' }}
+                    onClick={() => setGotoTestInput("native-blur")}
+                    style={{ fontSize: "12px", padding: "8px 12px" }}
                   />
                 </div>
               </ControlItem>
