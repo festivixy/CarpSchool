@@ -37,9 +37,10 @@ from rich import print as rich_print
 console = Console()
 
 class RefChecker:
-    def __init__(self, root_dir: str = ".", verbose: bool = False):
+    def __init__(self, root_dir: str = ".", verbose: bool = False, autofix: bool = False):
         self.root_dir = Path(root_dir).resolve()
         self.verbose = verbose
+        self.autofix = autofix
         self.errors = []
         self.warnings = []
         self.suggestions = []
@@ -449,32 +450,192 @@ class RefChecker:
 
         return cycles
 
+    def extract_import_details(self, file_path: Path, broken_import_path: str) -> Dict:
+        """Extract what is being imported from a broken import statement"""
+        import_details = {
+            "named_imports": [],
+            "default_import": None,
+            "namespace_import": None
+        }
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Find import statements that match the broken path
+            for line in content.split('\n'):
+                if f'from "{broken_import_path}"' in line or f"from '{broken_import_path}'" in line:
+                    # Extract default import: import Something from '...'
+                    default_match = re.search(r'import\s+(\w+)\s+from', line)
+                    if default_match and '{' not in line:  # Ensure it's not a named import
+                        import_details["default_import"] = default_match.group(1)
+
+                    # Extract named imports: import { A, B, C } from '...'
+                    named_match = re.search(r'import\s+\{([^}]+)\}\s+from', line)
+                    if named_match:
+                        named_imports = [name.strip() for name in named_match.group(1).split(',')]
+                        import_details["named_imports"].extend(named_imports)
+
+                    # Extract namespace import: import * as Something from '...'
+                    namespace_match = re.search(r'import\s+\*\s+as\s+(\w+)\s+from', line)
+                    if namespace_match:
+                        import_details["namespace_import"] = namespace_match.group(1)
+
+        except Exception as e:
+            self.log(f"Error extracting import details from {file_path}: {e}", "ERROR")
+
+        return import_details
+
+    def check_file_has_exports(self, file_path: Path, required_exports: Dict) -> bool:
+        """Check if a file has all the required exports"""
+        try:
+            file_exports = self.extract_exports(file_path)
+
+            # Check if file has default export (for default imports)
+            if required_exports["default_import"]:
+                # For default imports, we need to check if file has any export
+                # (default export detection is complex, so we'll be lenient)
+                if not file_exports:
+                    return False
+
+            # Check if file has all named exports
+            for named_export in required_exports["named_imports"]:
+                if named_export not in file_exports:
+                    return False
+
+            return True
+
+        except Exception as e:
+            self.log(f"Error checking exports in {file_path}: {e}", "ERROR")
+            return False
+
+    def find_replacement_candidates(self, broken_import_path: str, js_files: List[Path]) -> List[Path]:
+        """Find potential replacement files for a broken import"""
+        candidates = []
+
+        # Extract the target file name from the broken path
+        target_filename = broken_import_path.split('/')[-1]
+        if not target_filename.endswith(('.js', '.jsx', '.ts', '.tsx')):
+            # Add common extensions if not present
+            for ext in ['.jsx', '.js', '.ts', '.tsx']:
+                potential_target = target_filename + ext
+                candidates.extend([f for f in js_files if f.name == potential_target])
+        else:
+            candidates.extend([f for f in js_files if f.name == target_filename])
+
+        return candidates
+
+    def generate_autofix_suggestion(self, file_path: Path, broken_import_path: str, replacement_path: Path) -> str:
+        """Generate the correct import path for autofix"""
+        # Calculate relative path from file_path to replacement_path
+        try:
+            # Get the directory containing the file with broken import
+            file_dir = file_path.parent
+
+            # Calculate relative path
+            relative_path = os.path.relpath(replacement_path, file_dir)
+
+            # Ensure it starts with ./ or ../
+            if not relative_path.startswith('.'):
+                relative_path = './' + relative_path
+
+            # Remove file extension for imports
+            if relative_path.endswith(('.jsx', '.js', '.ts', '.tsx')):
+                relative_path = relative_path.rsplit('.', 1)[0]
+
+            return relative_path
+
+        except Exception as e:
+            self.log(f"Error generating autofix path: {e}", "ERROR")
+            return str(replacement_path)
+
+    def apply_autofix(self, file_path: Path, broken_import_path: str, correct_import_path: str) -> bool:
+        """Apply autofix by replacing the broken import path"""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Replace the broken import path with the correct one
+            old_pattern1 = f'from "{broken_import_path}"'
+            old_pattern2 = f"from '{broken_import_path}'"
+            new_replacement1 = f'from "{correct_import_path}"'
+            new_replacement2 = f"from '{correct_import_path}'"
+
+            if old_pattern1 in content:
+                content = content.replace(old_pattern1, new_replacement1)
+            elif old_pattern2 in content:
+                content = content.replace(old_pattern2, new_replacement2)
+            else:
+                return False
+
+            # Write the fixed content back
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+
+            return True
+
+        except Exception as e:
+            self.log(f"Error applying autofix to {file_path}: {e}", "ERROR")
+            return False
+
     def suggest_fixes(self, broken_imports: Dict[str, List[str]]):
-        """Suggest fixes for broken imports"""
+        """Suggest fixes for broken imports with autofix capability"""
         self.log("Generating fix suggestions...")
 
         js_files = self.find_js_files()
-        file_map = {}
+        autofix_count = 0
 
-        # Build map of component names to file paths
-        for file_path in js_files:
-            exports = self.extract_exports(file_path)
-            for export in exports:
-                if export not in file_map:
-                    file_map[export] = []
-                file_map[export].append(file_path)
+        # Process each broken import
+        for file_path_str, errors in broken_imports.items():
+            file_path = Path(file_path_str)
 
-        # Suggest fixes
-        for file_path, errors in broken_imports.items():
             for error in errors:
-                # Extract import name from error
+                # Extract import path from error
                 match = re.search(r"Broken import: '([^']+)'", error)
                 if match:
-                    import_path = match.group(1)
-                    # Simple suggestion based on file name
-                    suggested_files = [f for f in js_files if import_path.split('/')[-1] in str(f)]
-                    if suggested_files:
-                        self.add_suggestion(f"For broken import '{import_path}' in {file_path}, consider: {[str(f.relative_to(self.root_dir)) for f in suggested_files[:3]]}")
+                    broken_import_path = match.group(1)
+
+                    # Find potential replacement files
+                    candidates = self.find_replacement_candidates(broken_import_path, js_files)
+
+                    if candidates:
+                        # Extract what is being imported
+                        import_details = self.extract_import_details(file_path, broken_import_path)
+
+                        # Check which candidates have all required exports
+                        valid_candidates = []
+                        for candidate in candidates:
+                            if self.check_file_has_exports(candidate, import_details):
+                                valid_candidates.append(candidate)
+
+                        if len(valid_candidates) == 1:
+                            # Exactly one valid candidate
+                            replacement_path = valid_candidates[0]
+                            correct_import_path = self.generate_autofix_suggestion(file_path, broken_import_path, replacement_path)
+
+                            if self.autofix:
+                                # Apply autofix when flag is enabled
+                                if self.apply_autofix(file_path, broken_import_path, correct_import_path):
+                                    self.add_suggestion(f"[AUTOFIX APPLIED] Fixed broken import '{broken_import_path}' in {file_path_str} → '{correct_import_path}'")
+                                    autofix_count += 1
+                                else:
+                                    self.add_suggestion(f"[AUTOFIX FAILED] Could not fix '{broken_import_path}' in {file_path_str}, consider: {str(replacement_path.relative_to(self.root_dir))}")
+                            else:
+                                # Just suggest when autofix is not enabled
+                                self.add_suggestion(f"[AUTOFIX READY] For broken import '{broken_import_path}' in {file_path_str}, can fix to: '{correct_import_path}' (use --autofix to apply)")
+
+                        elif len(valid_candidates) > 1:
+                            # Multiple valid candidates - suggest without autofix
+                            candidate_paths = [str(c.relative_to(self.root_dir)) for c in valid_candidates]
+                            self.add_suggestion(f"[SUGGESTION] For broken import '{broken_import_path}' in {file_path_str}, multiple valid options: {candidate_paths}")
+
+                        elif candidates:
+                            # Candidates exist but none have all required exports
+                            candidate_paths = [str(c.relative_to(self.root_dir)) for c in candidates[:3]]
+                            self.add_suggestion(f"[SUGGESTION] For broken import '{broken_import_path}' in {file_path_str}, consider (manual verification needed): {candidate_paths}")
+
+        if autofix_count > 0:
+            self.log(f"Applied {autofix_count} automatic fixes", "SUCCESS")
 
     def generate_report(self) -> Dict:
         """Generate comprehensive report"""
@@ -514,6 +675,7 @@ def main():
     parser.add_argument("--all", action="store_true", help="Run all checks")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     parser.add_argument("--fix", action="store_true", help="Suggest fixes")
+    parser.add_argument("--autofix", action="store_true", help="Automatically fix imports when possible")
     parser.add_argument("--root", default=".", help="Root directory to check")
 
     args = parser.parse_args()
@@ -522,16 +684,21 @@ def main():
     if not any([args.imports, args.exports, args.circular, args.paths]):
         args.all = True
 
-    checker = RefChecker(args.root, args.verbose)
+    checker = RefChecker(args.root, args.verbose, args.autofix)
 
     try:
         if args.all:
             report = checker.run_all_checks()
         else:
+            broken_imports = {}
             if args.imports:
-                checker.check_imports()
+                broken_imports = checker.check_imports()
             if args.circular:
                 checker.check_circular_dependencies()
+
+            # Generate fix suggestions if requested
+            if (args.fix or args.autofix) and broken_imports:
+                checker.suggest_fixes(broken_imports)
 
             report = checker.generate_report()
 
