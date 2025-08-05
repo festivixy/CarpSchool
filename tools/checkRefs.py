@@ -908,6 +908,29 @@ def main():
 
         if args.all:
             report = checker.run_all_checks()
+
+            # If fixes were applied, run checks again to verify
+            if args.fix and (checker.errors or checker.warnings):
+                initial_errors = len(checker.errors)
+                initial_warnings = len(checker.warnings)
+                initial_suggestions = len(checker.suggestions)
+
+                if any("AUTOFIX APPLIED" in s for s in checker.suggestions):
+                    console.print("\n🔄 [bold blue]Re-running checks after applying fixes...[/bold blue]")
+
+                    # Reset checker state for re-run
+                    checker.errors = []
+                    checker.warnings = []
+                    checker.suggestions = []
+
+                    # Run checks again (without applying more fixes)
+                    original_fix_mode = checker.fix
+                    checker.fix = False
+                    report = checker.run_all_checks()
+                    checker.fix = original_fix_mode
+
+                    # Show comparison
+                    console.print(f"📈 [dim]Initial issues: {initial_errors} errors, {initial_warnings} warnings, {initial_suggestions} suggestions[/dim]")
         else:
             broken_imports = {}
             if args.imports:
@@ -916,8 +939,25 @@ def main():
                 checker.check_circular_dependencies()
 
             # Generate fix suggestions if requested
+            fix_applied = False
             if args.fix and broken_imports:
+                initial_error_count = len(checker.errors)
                 checker.suggest_fixes(broken_imports)
+                fix_applied = any("AUTOFIX APPLIED" in s for s in checker.suggestions)
+
+            # If fixes were applied, run import check again
+            if args.fix and fix_applied:
+                console.print("\n🔄 [bold blue]Re-running import check after applying fixes...[/bold blue]")
+
+                # Reset relevant state
+                initial_errors = len(checker.errors)
+                checker.errors = [e for e in checker.errors if "Broken import:" not in e]
+
+                # Re-run import check only
+                new_broken_imports = checker.check_imports()
+
+                if not new_broken_imports:
+                    console.print("✅ [green]All import issues have been resolved![/green]")
 
             report = checker.generate_report()
 
