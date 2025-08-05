@@ -455,7 +455,8 @@ class RefChecker:
         import_details = {
             "named_imports": [],
             "default_import": None,
-            "namespace_import": None
+            "namespace_import": None,
+            "is_side_effect": False
         }
 
         try:
@@ -464,6 +465,7 @@ class RefChecker:
 
             # Find import statements that match the broken path
             for line in content.split('\n'):
+                # Check for regular imports with 'from'
                 if f'from "{broken_import_path}"' in line or f"from '{broken_import_path}'" in line:
                     # Extract default import: import Something from '...'
                     default_match = re.search(r'import\s+(\w+)\s+from', line)
@@ -481,6 +483,12 @@ class RefChecker:
                     if namespace_match:
                         import_details["namespace_import"] = namespace_match.group(1)
 
+                # Check for side-effect imports without 'from'
+                elif (f'import "{broken_import_path}"' in line or f"import '{broken_import_path}'" in line):
+                    # Verify it's actually a side-effect import (no 'from' keyword)
+                    if 'from' not in line:
+                        import_details["is_side_effect"] = True
+
         except Exception as e:
             self.log(f"Error extracting import details from {file_path}: {e}", "ERROR")
 
@@ -489,6 +497,10 @@ class RefChecker:
     def check_file_has_exports(self, file_path: Path, required_exports: Dict) -> bool:
         """Check if a file has all the required exports"""
         try:
+            # For side-effect imports, we only care if the file exists (no exports needed)
+            if required_exports.get("is_side_effect", False):
+                return file_path.exists()
+
             file_exports = self.extract_exports(file_path)
 
             # Check if file has default export (for default imports)
@@ -556,16 +568,33 @@ class RefChecker:
                 content = f.read()
 
             # Replace the broken import path with the correct one
+            # Handle regular imports with 'from'
             old_pattern1 = f'from "{broken_import_path}"'
             old_pattern2 = f"from '{broken_import_path}'"
             new_replacement1 = f'from "{correct_import_path}"'
             new_replacement2 = f"from '{correct_import_path}'"
 
+            # Handle side-effect imports without 'from'
+            old_side_effect1 = f'import "{broken_import_path}"'
+            old_side_effect2 = f"import '{broken_import_path}'"
+            new_side_effect1 = f'import "{correct_import_path}"'
+            new_side_effect2 = f"import '{correct_import_path}'"
+
+            replaced = False
             if old_pattern1 in content:
                 content = content.replace(old_pattern1, new_replacement1)
+                replaced = True
             elif old_pattern2 in content:
                 content = content.replace(old_pattern2, new_replacement2)
-            else:
+                replaced = True
+            elif old_side_effect1 in content:
+                content = content.replace(old_side_effect1, new_side_effect1)
+                replaced = True
+            elif old_side_effect2 in content:
+                content = content.replace(old_side_effect2, new_side_effect2)
+                replaced = True
+
+            if not replaced:
                 return False
 
             # Write the fixed content back
