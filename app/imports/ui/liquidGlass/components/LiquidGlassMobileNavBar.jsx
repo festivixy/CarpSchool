@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
-import MobileJoinRideModal from "../../components/JoinRideModal";
+import JoinRideModal from "../../components/JoinRideModal";
 import AddRidesModal from "../../components/AddRides";
 import {
   NavBarContainer,
@@ -247,7 +247,7 @@ class LiquidGlassMobileNavBar extends React.Component {
           )}
         </NavBarContainer>
 
-        <MobileJoinRideModal
+        <JoinRideModal
           open={this.state.joinRideModalOpen}
           onClose={this.handleJoinRideClose}
           prefillCode=""

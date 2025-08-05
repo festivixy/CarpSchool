@@ -24,9 +24,9 @@ import {
 } from "../styles/JoinRideModal";
 
 /**
- * Modern Mobile JoinRideModal component with clean design and smooth interactions
+ * JoinRideModal component with clean design and smooth interactions for both mobile and desktop
  */
-class MobileJoinRideModal extends React.Component {
+class JoinRideModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -283,10 +283,10 @@ class MobileJoinRideModal extends React.Component {
   }
 }
 
-MobileJoinRideModal.propTypes = {
+JoinRideModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   prefillCode: PropTypes.string,
 };
 
-export default MobileJoinRideModal;
+export default JoinRideModal;
