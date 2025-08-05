@@ -37,10 +37,10 @@ from rich import print as rich_print
 console = Console()
 
 class RefChecker:
-    def __init__(self, root_dir: str = ".", verbose: bool = False, autofix: bool = False):
+    def __init__(self, root_dir: str = ".", verbose: bool = False, fix: bool = False):
         self.root_dir = Path(root_dir).resolve()
         self.verbose = verbose
-        self.autofix = autofix
+        self.fix = fix
         self.errors = []
         self.warnings = []
         self.suggestions = []
@@ -613,16 +613,16 @@ class RefChecker:
                             replacement_path = valid_candidates[0]
                             correct_import_path = self.generate_autofix_suggestion(file_path, broken_import_path, replacement_path)
 
-                            if self.autofix:
-                                # Apply autofix when flag is enabled
+                            if self.fix:
+                                # Apply autofix when --fix flag is enabled
                                 if self.apply_autofix(file_path, broken_import_path, correct_import_path):
                                     self.add_suggestion(f"[AUTOFIX APPLIED] Fixed broken import '{broken_import_path}' in {file_path_str} → '{correct_import_path}'")
                                     autofix_count += 1
                                 else:
                                     self.add_suggestion(f"[AUTOFIX FAILED] Could not fix '{broken_import_path}' in {file_path_str}, consider: {str(replacement_path.relative_to(self.root_dir))}")
                             else:
-                                # Just suggest when autofix is not enabled
-                                self.add_suggestion(f"[AUTOFIX READY] For broken import '{broken_import_path}' in {file_path_str}, can fix to: '{correct_import_path}' (use --autofix to apply)")
+                                # Just suggest when --fix is not enabled
+                                self.add_suggestion(f"[AUTOFIX READY] For broken import '{broken_import_path}' in {file_path_str}, can fix to: '{correct_import_path}' (use --fix to apply)")
 
                         elif len(valid_candidates) > 1:
                             # Multiple valid candidates - suggest without autofix
@@ -674,8 +674,7 @@ def main():
     parser.add_argument("--paths", action="store_true", help="Validate file paths")
     parser.add_argument("--all", action="store_true", help="Run all checks")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
-    parser.add_argument("--fix", action="store_true", help="Suggest fixes")
-    parser.add_argument("--autofix", action="store_true", help="Automatically fix imports when possible")
+    parser.add_argument("--fix", action="store_true", help="Suggest and automatically fix imports when possible")
     parser.add_argument("--root", default=".", help="Root directory to check")
 
     args = parser.parse_args()
@@ -684,7 +683,7 @@ def main():
     if not any([args.imports, args.exports, args.circular, args.paths]):
         args.all = True
 
-    checker = RefChecker(args.root, args.verbose, args.autofix)
+    checker = RefChecker(args.root, args.verbose, args.fix)
 
     try:
         if args.all:
@@ -697,7 +696,7 @@ def main():
                 checker.check_circular_dependencies()
 
             # Generate fix suggestions if requested
-            if (args.fix or args.autofix) and broken_imports:
+            if args.fix and broken_imports:
                 checker.suggest_fixes(broken_imports)
 
             report = checker.generate_report()
