@@ -171,7 +171,7 @@ class App extends React.Component {
                 { id: "join", label: "Join Ride", icon: "🔍", action: "join" },
                 { id: "create", label: "Create", icon: "➕", action: "create" },
                 { id: "messages", label: "Messages", icon: "💬", action: "messages" },
-                { id: "profile", label: "Profile", icon: "👤", action: "profile" }
+                { id: "profile", label: "Profile", icon: "👤", action: "profile" },
               ]} />
             </MobileOnly>
           )}
