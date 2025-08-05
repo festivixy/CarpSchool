@@ -5,7 +5,7 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import JoinRideModal from "../../components/JoinRideModal";
-import MobileRide from "../components/Ride";
+import Ride from "../../components/Ride";
 import ConfirmFunction from "../../components/ConfirmFunction";
 import "/imports/api/chat/ChatMethods";
 import {
@@ -234,7 +234,7 @@ class MobileImRiding extends React.Component {
             ) : (
               filteredRides.map((ride) => (
                 <RideWrapper key={ride._id}>
-                  <MobileRide ride={ride} />
+                  <Ride ride={ride} />
                   <AdditionalActions>
                     <ContactButton
                       onClick={() => this.handleContactDriver(ride.driver)}

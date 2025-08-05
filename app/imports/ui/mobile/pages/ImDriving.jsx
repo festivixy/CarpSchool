@@ -4,7 +4,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
-import MobileRide from "../components/Ride";
+import Ride from "../../components/Ride";
 import ConfirmFunction from "../../components/ConfirmFunction";
 import "/imports/api/chat/ChatMethods";
 import {
@@ -218,7 +218,7 @@ class MobileImDriving extends React.Component {
           ) : (
             filteredRides.map((ride) => (
               <RideWrapper key={ride._id}>
-                <MobileRide ride={ride} />
+                <Ride ride={ride} />
                 <AdditionalActions>
                   {/* Handle new schema with riders array */}
                   {ride.riders && ride.riders.length > 0 && (

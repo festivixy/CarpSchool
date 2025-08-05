@@ -5,8 +5,8 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
-import { Places } from "../../../api/places/Places";
-import RouteMapView from "./RouteMapView.jsx";
+import { Places } from "../../api/places/Places";
+import RouteMapView from "../mobile/components/RouteMapView.jsx";
 import {
   RideCard,
   Header,
@@ -51,8 +51,8 @@ import {
   DoneButton,
 } from "../styles/Ride";
 
-/** Modern mobile Ride component with clean design and join functionality */
-class MobileRide extends React.Component {
+/** Ride component with clean design and join functionality */
+class Ride extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -511,5 +511,5 @@ export default withRouter(
     return {
       places: Places.find({}).fetch(),
     };
-  })(MobileRide),
+  })(Ride),
 );
