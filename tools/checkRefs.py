@@ -550,15 +550,15 @@ def main():
         warning_style = "yellow" if warning_count > 0 else "green"
         suggestion_style = "blue" if suggestion_count > 0 else "green"
 
-        table.add_row("❌ Errors", str(error_count), "✗ Issues found" if error_count > 0 else "✓ Clean", style=error_style)
-        table.add_row("⚠️  Warnings", str(warning_count), "⚠ Attention needed" if warning_count > 0 else "✓ Clean", style=warning_style)
-        table.add_row("💡 Suggestions", str(suggestion_count), "💡 Improvements" if suggestion_count > 0 else "✓ Clean", style=suggestion_style)
+        table.add_row("❌ Errors", str(error_count), "❌ Issues found" if error_count > 0 else "✅ Clean", style=error_style)
+        table.add_row("⚠️  Warnings", str(warning_count), "⚠️ Attention needed" if warning_count > 0 else "✅ Clean", style=warning_style)
+        table.add_row("💡 Suggestions", str(suggestion_count), "💡 Improvements" if suggestion_count > 0 else "✅ Clean", style=suggestion_style)
 
         console.print()
         console.print(table)
 
         if error_count == 0 and warning_count == 0:
-            console.print(Panel.fit("��� [bold green]All references look good![/bold green]", border_style="green"))
+            console.print(Panel.fit("✅ [bold green]All references look good![/bold green]", border_style="green"))
             return 0
         else:
             console.print(Panel.fit("🔧 [bold yellow]Found issues that may need attention.[/bold yellow]", border_style="yellow"))
