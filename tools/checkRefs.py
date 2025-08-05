@@ -60,6 +60,9 @@ class RefChecker:
 
         self.component_pattern = r'(?:export\s+default\s+(?:function\s+)?(\w+)|export\s+(?:const|function)\s+(\w+)|class\s+(\w+)\s+extends)'
 
+        # Pattern to extract named imports from import statements
+        self.named_import_pattern = r'import\s+\{([^}]+)\}\s+from\s+["\']([^"\']+)["\']'
+
     def log(self, message: str, level: str = "INFO"):
         """Log message with level"""
         if self.verbose or level in ["ERROR", "WARNING"]:
@@ -123,6 +126,77 @@ class RefChecker:
             self.add_error(f"Error reading {file_path}: {e}")
 
         return imports
+
+    def extract_named_imports(self, file_path: Path) -> List[Tuple[List[str], str, int]]:
+        """Extract named imports (e.g., {Component1, Component2}) from a file"""
+        named_imports = []
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            for line_num, line in enumerate(content.split('\n'), 1):
+                # Skip comments
+                if line.strip().startswith('//') or line.strip().startswith('/*'):
+                    continue
+
+                matches = re.findall(self.named_import_pattern, line)
+                for imports_str, source_path in matches:
+                    # Parse the named imports, handling spaces and aliases
+                    import_names = []
+                    for import_item in imports_str.split(','):
+                        import_item = import_item.strip()
+                        # Handle "as" aliases (e.g., "Component as MyComponent")
+                        if ' as ' in import_item:
+                            original_name = import_item.split(' as ')[0].strip()
+                        else:
+                            original_name = import_item
+
+                        if original_name:
+                            import_names.append(original_name)
+
+                    if import_names:
+                        named_imports.append((import_names, source_path, line_num))
+
+        except Exception as e:
+            self.add_error(f"Error reading {file_path}: {e}")
+
+        return named_imports
+
+    def extract_exports(self, file_path: Path) -> Set[str]:
+        """Extract all exported names from a file"""
+        exports = set()
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Find default exports
+            default_exports = re.findall(r'export\s+default\s+(?:function\s+)?(\w+)', content)
+            exports.update(default_exports)
+
+            # Find named exports
+            named_exports = re.findall(r'export\s+(?:const|let|var|function|class)\s+(\w+)', content)
+            exports.update(named_exports)
+
+            # Find export { ... } statements
+            export_blocks = re.findall(r'export\s*\{\s*([^}]+)\s*\}', content)
+            for block in export_blocks:
+                names = [name.strip().split(' as ')[0] for name in block.split(',')]
+                exports.update([name.strip() for name in names if name.strip()])
+
+            # Find class declarations that might be exported later
+            class_declarations = re.findall(r'class\s+(\w+)', content)
+            exports.update(class_declarations)
+
+            # Find function declarations that might be exported later
+            function_declarations = re.findall(r'function\s+(\w+)', content)
+            exports.update(function_declarations)
+
+        except Exception as e:
+            self.add_error(f"Error reading exports from {file_path}: {e}")
+
+        return exports
 
     def find_project_root(self, current_file: Path) -> Optional[Path]:
         """Find the nearest package.json to determine project root"""
@@ -277,6 +351,21 @@ class RefChecker:
                     error_msg = f"{relative_path}:{line_num} - Broken import: '{import_path}'"
                     broken_imports[str(relative_path)].append(error_msg)
                     self.add_error(error_msg)
+
+            # Check named imports
+            named_imports = self.extract_named_imports(file_path)
+            for import_names, source_path, line_num in named_imports:
+                resolved = self.resolve_import_path(source_path, file_path)
+
+                if resolved and not self.is_external_package(source_path):
+                    # File exists, check if exports contain the named imports
+                    exports = self.extract_exports(resolved)
+
+                    for import_name in import_names:
+                        if import_name not in exports:
+                            error_msg = f"{relative_path}:{line_num} - Named import '{import_name}' not found in '{source_path}'"
+                            broken_imports[str(relative_path)].append(error_msg)
+                            self.add_error(error_msg)
 
         return dict(broken_imports)
 
@@ -452,7 +541,7 @@ def main():
         print(f"💡 Suggestions: {report['summary']['total_suggestions']}")
 
         if report['summary']['total_errors'] == 0 and report['summary']['total_warnings'] == 0:
-            print("\n✅ All references look good!")
+            print("\n�� All references look good!")
             return 0
         else:
             print(f"\n🔧 Found issues that may need attention.")
