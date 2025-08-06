@@ -42,6 +42,7 @@ import FooterVerbose from "../desktop/components/FooterVerbose";
 import MobileNavBarCSS from "../mobile/components/MobileNavBarCSS";
 import MobileNativeBlurDemo from "../test/pages/NativeBlurDemo";
 import SharedComponentsDemo from "../test/pages/SharedComponentsDemo";
+import MobileNavBarAutoTest from "../test/pages/MobileNavBarAutoTest";
 // Lazy load TestMapView to improve initial load performance
 const TestMapView = React.lazy(() => import("/imports/ui/test/pages/ComponentsTest.jsx"));
 
@@ -134,6 +135,10 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/_test/shared-components"
                 component={SharedComponentsDemo}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/_test/mobile-navbar-auto"
+                component={MobileNavBarAutoTest}
               />
               <ProtectedRoutes
                 path="/_test"
