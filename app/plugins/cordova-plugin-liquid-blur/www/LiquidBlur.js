@@ -3,29 +3,29 @@
  * Provides native iOS 26 Liquid Glass blur effects
  */
 
-var exec;
+let exec;
 // In Meteor, cordova is available as a global object when running in Cordova environment
-if (typeof cordova !== 'undefined' && cordova.exec) {
+if (typeof cordova !== "undefined" && cordova.exec) {
     exec = cordova.exec;
 } else {
     // Fallback for web builds or when cordova is not available
-    exec = function() {
-        console.warn('[LiquidBlur] cordova.exec not available');
+    exec = function () {
+        console.warn("[LiquidBlur] cordova.exec not available");
     };
 }
 
 /**
  * LiquidBlur plugin interface
  */
-var LiquidBlur = {
+const LiquidBlur = {
 
     /**
      * Check if native blur is supported on current platform
      * @param {Function} success Success callback with boolean result
      * @param {Function} error Error callback
      */
-    isSupported: function(success, error) {
-        exec(success, error, 'LiquidBlur', 'isSupported', []);
+    isSupported: function (success, error) {
+        exec(success, error, "LiquidBlur", "isSupported", []);
     },
 
     /**
@@ -38,16 +38,16 @@ var LiquidBlur = {
      * @param {Function} success Success callback with blur view ID
      * @param {Function} error Error callback
      */
-    createBlurView: function(options, success, error) {
-        var defaultOptions = {
-            style: 'systemMaterial',
-            frame: { x: 0, y: 0, width: '100%', height: '100%' },
+    createBlurView: function (options, success, error) {
+        const defaultOptions = {
+            style: "systemMaterial",
+            frame: { x: 0, y: 0, width: "100%", height: "100%" },
             floating: true,
-            alpha: 1.0
+            alpha: 1.0,
         };
 
-        var config = Object.assign(defaultOptions, options || {});
-        exec(success, error, 'LiquidBlur', 'createBlurView', [config]);
+        const config = Object.assign(defaultOptions, options || {});
+        exec(success, error, "LiquidBlur", "createBlurView", [config]);
     },
 
     /**
@@ -57,8 +57,8 @@ var LiquidBlur = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    updateBlurView: function(blurId, options, success, error) {
-        exec(success, error, 'LiquidBlur', 'updateBlurView', [blurId, options]);
+    updateBlurView: function (blurId, options, success, error) {
+        exec(success, error, "LiquidBlur", "updateBlurView", [blurId, options]);
     },
 
     /**
@@ -67,8 +67,8 @@ var LiquidBlur = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    removeBlurView: function(blurId, success, error) {
-        exec(success, error, 'LiquidBlur', 'removeBlurView', [blurId]);
+    removeBlurView: function (blurId, success, error) {
+        exec(success, error, "LiquidBlur", "removeBlurView", [blurId]);
     },
 
     /**
@@ -76,8 +76,8 @@ var LiquidBlur = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    removeAllBlurViews: function(success, error) {
-        exec(success, error, 'LiquidBlur', 'removeAllBlurViews', []);
+    removeAllBlurViews: function (success, error) {
+        exec(success, error, "LiquidBlur", "removeAllBlurViews", []);
     },
 
     /**
@@ -87,8 +87,8 @@ var LiquidBlur = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    setBlurViewVisibility: function(blurId, visible, success, error) {
-        exec(success, error, 'LiquidBlur', 'setBlurViewVisibility', [blurId, visible]);
+    setBlurViewVisibility: function (blurId, visible, success, error) {
+        exec(success, error, "LiquidBlur", "setBlurViewVisibility", [blurId, visible]);
     },
 
     /**
@@ -99,9 +99,9 @@ var LiquidBlur = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    animateBlurView: function(blurId, properties, duration, success, error) {
+    animateBlurView: function (blurId, properties, duration, success, error) {
         duration = duration || 300;
-        exec(success, error, 'LiquidBlur', 'animateBlurView', [blurId, properties, duration]);
+        exec(success, error, "LiquidBlur", "animateBlurView", [blurId, properties, duration]);
     },
 
     /**
@@ -109,8 +109,8 @@ var LiquidBlur = {
      * @param {Function} success Success callback with array of available styles
      * @param {Function} error Error callback
      */
-    getAvailableBlurStyles: function(success, error) {
-        exec(success, error, 'LiquidBlur', 'getAvailableBlurStyles', []);
+    getAvailableBlurStyles: function (success, error) {
+        exec(success, error, "LiquidBlur", "getAvailableBlurStyles", []);
     },
 
     /**
@@ -119,66 +119,66 @@ var LiquidBlur = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    setScrollEdgeEffects: function(enabled, success, error) {
-        exec(success, error, 'LiquidBlur', 'setScrollEdgeEffects', [enabled]);
-    }
+    setScrollEdgeEffects: function (enabled, success, error) {
+        exec(success, error, "LiquidBlur", "setScrollEdgeEffects", [enabled]);
+    },
 };
 
 // Promise-based wrapper for modern async/await usage
 LiquidBlur.promise = {
-    isSupported: function() {
-        return new Promise(function(resolve, reject) {
+    isSupported: function () {
+        return new Promise(function (resolve, reject) {
             LiquidBlur.isSupported(resolve, reject);
         });
     },
 
-    createBlurView: function(options) {
-        return new Promise(function(resolve, reject) {
+    createBlurView: function (options) {
+        return new Promise(function (resolve, reject) {
             LiquidBlur.createBlurView(options, resolve, reject);
         });
     },
 
-    updateBlurView: function(blurId, options) {
-        return new Promise(function(resolve, reject) {
+    updateBlurView: function (blurId, options) {
+        return new Promise(function (resolve, reject) {
             LiquidBlur.updateBlurView(blurId, options, resolve, reject);
         });
     },
 
-    removeBlurView: function(blurId) {
-        return new Promise(function(resolve, reject) {
+    removeBlurView: function (blurId) {
+        return new Promise(function (resolve, reject) {
             LiquidBlur.removeBlurView(blurId, resolve, reject);
         });
     },
 
-    removeAllBlurViews: function() {
-        return new Promise(function(resolve, reject) {
+    removeAllBlurViews: function () {
+        return new Promise(function (resolve, reject) {
             LiquidBlur.removeAllBlurViews(resolve, reject);
         });
     },
 
-    setBlurViewVisibility: function(blurId, visible) {
-        return new Promise(function(resolve, reject) {
+    setBlurViewVisibility: function (blurId, visible) {
+        return new Promise(function (resolve, reject) {
             LiquidBlur.setBlurViewVisibility(blurId, visible, resolve, reject);
         });
     },
 
-    animateBlurView: function(blurId, properties, duration) {
-        return new Promise(function(resolve, reject) {
+    animateBlurView: function (blurId, properties, duration) {
+        return new Promise(function (resolve, reject) {
             LiquidBlur.animateBlurView(blurId, properties, duration, resolve, reject);
         });
     },
 
-    getAvailableBlurStyles: function() {
-        return new Promise(function(resolve, reject) {
+    getAvailableBlurStyles: function () {
+        return new Promise(function (resolve, reject) {
             LiquidBlur.getAvailableBlurStyles(resolve, reject);
         });
     },
 
-    setScrollEdgeEffects: function(enabled) {
-        return new Promise(function(resolve, reject) {
+    setScrollEdgeEffects: function (enabled) {
+        return new Promise(function (resolve, reject) {
             LiquidBlur.setScrollEdgeEffects(enabled, resolve, reject);
         });
-    }
+    },
 };
 
 module.exports = LiquidBlur;

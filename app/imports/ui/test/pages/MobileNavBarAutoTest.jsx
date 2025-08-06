@@ -36,14 +36,14 @@ const MobileNavBarAutoTest = ({ history }) => {
   const [customItems, setCustomItems] = useState([
     {
       id: "test1",
-      label: "Test 1", 
+      label: "Test 1",
       icon: "/svg/home.svg",
       action: "navigate",
     },
     {
       id: "test2",
       label: "Test 2",
-      icon: "/svg/search.svg", 
+      icon: "/svg/search.svg",
       action: "navigate",
     },
     {
@@ -55,15 +55,13 @@ const MobileNavBarAutoTest = ({ history }) => {
   ]);
 
   // Environment detection info
-  const getEnvironmentInfo = () => {
-    return {
+  const getEnvironmentInfo = () => ({
       hasDevice: !!window.device,
       hasCordova: !!window.cordova,
       platform: window.device?.platform || "Web Browser",
       userAgent: navigator.userAgent,
       isNativeIOS: window.cordova && window.device?.platform?.toLowerCase() === "ios",
-    };
-  };
+    });
 
   const envInfo = getEnvironmentInfo();
 
@@ -71,10 +69,10 @@ const MobileNavBarAutoTest = ({ history }) => {
   const handleItemPress = (index, item) => {
     const timestamp = new Date().toLocaleTimeString();
     const logEntry = `[${timestamp}] NavBar item pressed: ${item.label} (index: ${index})`;
-    
+
     setActiveIndex(index);
     setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]); // Keep last 10 logs
-    
+
     console.log(logEntry);
   };
 
@@ -82,7 +80,7 @@ const MobileNavBarAutoTest = ({ history }) => {
   const simulateEnvironment = (type) => {
     const timestamp = new Date().toLocaleTimeString();
     let logEntry = "";
-    
+
     switch (type) {
       case "ios":
         // Simulate iOS Cordova environment
@@ -91,7 +89,7 @@ const MobileNavBarAutoTest = ({ history }) => {
         logEntry = `[${timestamp}] Simulated iOS Cordova environment`;
         break;
       case "android":
-        // Simulate Android Cordova environment  
+        // Simulate Android Cordova environment
         window.cordova = { version: "12.0.0" };
         window.device = { platform: "Android", version: "13.0" };
         logEntry = `[${timestamp}] Simulated Android Cordova environment`;
@@ -105,9 +103,9 @@ const MobileNavBarAutoTest = ({ history }) => {
       default:
         logEntry = `[${timestamp}] Unknown environment type`;
     }
-    
+
     setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
-    
+
     // Force re-render by updating state
     setActiveIndex(prev => prev);
   };
@@ -178,8 +176,8 @@ const MobileNavBarAutoTest = ({ history }) => {
               </ControlItem>
               <ControlItem>
                 <Label>Active Tab Index:</Label>
-                <Select 
-                  value={activeIndex} 
+                <Select
+                  value={activeIndex}
                   onChange={(e) => setActiveIndex(parseInt(e.target.value))}
                 >
                   <option value={0}>Tab 0</option>
@@ -242,7 +240,7 @@ const MobileNavBarAutoTest = ({ history }) => {
                 <li>Check console logs for detailed debug information</li>
                 <li>Verify that the correct component is being used based on environment</li>
               </ol>
-              
+
               <p><strong>Expected Behavior:</strong></p>
               <ul>
                 <li><strong>iOS Cordova:</strong> Should use NativeNavBar with native UITabBar</li>

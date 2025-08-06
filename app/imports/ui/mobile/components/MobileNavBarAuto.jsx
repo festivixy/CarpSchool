@@ -60,25 +60,23 @@ class MobileNavBarAuto extends React.Component {
   /**
    * Check if native navbar is supported and should be used
    */
-  shouldUseNativeNavBar = () => {
+  shouldUseNativeNavBar = () =>
     // Only use native navbar if we're in native iOS environment
     // The NativeNavBar component itself handles feature detection and fallback
-    return this.isNativeIOS();
-  };
+     this.isNativeIOS()
+  ;
 
   /**
    * Get environment info for debugging
    */
-  getEnvironmentInfo = () => {
-    return {
+  getEnvironmentInfo = () => ({
       hasDevice: !!window.device,
       hasCordova: !!window.cordova,
       platform: window.device?.platform || "unknown",
       userAgent: navigator.userAgent,
       isNativeIOS: this.isNativeIOS(),
       shouldUseNative: this.shouldUseNativeNavBar(),
-    };
-  };
+    });
 
   render() {
     const { ...props } = this.props;
@@ -135,12 +133,12 @@ class MobileNavBarAuto extends React.Component {
           {...props}
         />
       );
-    } else {
+    }
       console.log("[MobileNavBarAuto] 🌐 Using CSS NavBar");
 
       // Use CSS version for web and non-iOS environments
       return <MobileNavBarCSS {...props} />;
-    }
+
   }
 }
 
