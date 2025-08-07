@@ -2,8 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
+import { withTracker } from "meteor/react-meteor-data";
 import useNativeNavBar from "../hooks/useNativeNavBar";
 import LiquidGlassDropdown from "../../../liquidGlass/components/Dropdown";
+import JoinRideModal from "../../../components/JoinRideModal";
+import AddRidesModal from "../../../components/AddRides";
 
 /**
  * NativeNavBar Component
@@ -19,6 +22,9 @@ const NativeNavBar = ({
   activeIndex = 0,
   className = "",
   style = {},
+  history,
+  currentUser,
+  isAdmin,
   ...props
 }) => {
   const {
@@ -37,7 +43,38 @@ const NativeNavBar = ({
   const [navBarId, setNavBarId] = useState(null);
   const [currentActiveIndex, setCurrentActiveIndex] = useState(activeIndex);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [joinRideModalOpen, setJoinRideModalOpen] = useState(false);
+  const [addRidesModalOpen, setAddRidesModalOpen] = useState(false);
   const navBarRef = useRef(null);
+
+  // Navigation methods - same as MobileNavBarCSS
+  const handleNavigation = (path) => {
+    history.push(path);
+    setProfileDropdownOpen(false);
+  };
+
+  const handleSignOut = () => {
+    history.push("/signout");
+    setProfileDropdownOpen(false);
+  };
+
+  const handleJoinRideClick = () => {
+    setJoinRideModalOpen(true);
+    setProfileDropdownOpen(false);
+  };
+
+  const handleJoinRideClose = () => {
+    setJoinRideModalOpen(false);
+  };
+
+  const handleAddRidesClick = () => {
+    setAddRidesModalOpen(true);
+    setProfileDropdownOpen(false);
+  };
+
+  const handleAddRidesClose = () => {
+    setAddRidesModalOpen(false);
+  };
 
   // Update active index when prop changes
   useEffect(() => {
@@ -57,7 +94,7 @@ const NativeNavBar = ({
       itemCount: items.length,
     });
 
-    if (isSupported && onItemPress) {
+    if (isSupported) {
       console.log("[NativeNavBar] ✅ Registering native action handler");
       setActionHandler((navBarId, action, itemIndex) => {
         console.log("[NativeNavBar] 🔥 Native action triggered:", {
@@ -69,20 +106,28 @@ const NativeNavBar = ({
 
         const item = items[itemIndex];
         if (item) {
-          // Handle profile dropdown specially
-          if (item.id === "profile" || item.action === "profile") {
+          setCurrentActiveIndex(itemIndex);
+
+          // Handle different navigation items
+          if (item.id === "home" || item.action === "home") {
+            const homeLink = currentUser ? "/myRides" : "/";
+            handleNavigation(homeLink);
+          } else if (item.id === "search" || item.action === "search") {
+            handleJoinRideClick();
+          } else if (item.id === "add" || item.action === "add") {
+            handleAddRidesClick();
+          } else if (item.id === "chat" || item.action === "chat") {
+            handleNavigation("/chat");
+          } else if (item.id === "profile" || item.action === "profile") {
             setProfileDropdownOpen(true);
-            setCurrentActiveIndex(itemIndex);
-          } else {
-            setCurrentActiveIndex(itemIndex);
-            if (onItemPress) {
-              onItemPress(item, itemIndex, action);
-            }
+          } else if (onItemPress) {
+            // Fallback to custom handler
+            onItemPress(item, itemIndex, action);
           }
         }
       });
     }
-  }, [isSupported, onItemPress, items, setActionHandler]);
+  }, [isSupported, onItemPress, items, setActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick]);
 
   // Create native navbar when component mounts
   useEffect(() => {
@@ -205,6 +250,76 @@ const NativeNavBar = ({
     return null;
   }
 
+  // Get profile dropdown options
+  const getProfileDropdownOptions = () => {
+    if (currentUser) {
+      const options = [
+        { value: "edit-profile", label: "📋 Edit Profile" },
+        { value: "my-places", label: "📍 My Places" },
+      ];
+
+      if (isAdmin) {
+        options.push(
+          { value: "admin-rides", label: "🚗 Manage Rides" },
+          { value: "admin-users", label: "👥 Manage Users" },
+          { value: "admin-places", label: "📍 Manage Places" },
+          { value: "components-test", label: "🧪 Components Test" },
+        );
+      }
+
+      options.push({ value: "signout", label: "🚪 Sign Out" });
+      return options;
+    }
+
+    return [
+      { value: "signin", label: "🔑 Sign In" },
+      { value: "signup", label: "👤 Sign Up" },
+    ];
+  };
+
+  // Handle dropdown selection
+  const handleDropdownSelect = (option) => {
+    console.log("[NativeNavBar] 📱 Dropdown option selected:", option);
+    setProfileDropdownOpen(false);
+
+    if (!option || !option.value) {
+      console.log("[NativeNavBar] ❌ Invalid dropdown option");
+      return;
+    }
+
+    switch (option.value) {
+      case "edit-profile":
+        handleNavigation("/profile");
+        break;
+      case "my-places":
+        handleNavigation("/profile");
+        break;
+      case "admin-rides":
+        handleNavigation("/admin/rides");
+        break;
+      case "admin-users":
+        handleNavigation("/admin/users");
+        break;
+      case "admin-places":
+        handleNavigation("/admin/places");
+        break;
+      case "components-test":
+        handleNavigation("/_test");
+        break;
+      case "signout":
+        handleSignOut();
+        break;
+      case "signin":
+        handleNavigation("/signin");
+        break;
+      case "signup":
+        handleNavigation("/signup");
+        break;
+      default:
+        console.log("[NativeNavBar] ❓ Unknown dropdown option:", option.value);
+    }
+  };
+
   // Native navbar is supported and visible
   console.log("[NativeNavBar] 🍎 Rendering native navbar:", {
     navBarId,
@@ -213,79 +328,7 @@ const NativeNavBar = ({
     hasNavBarId: !!navBarId,
   });
 
-    // Get profile dropdown options
-    const getProfileDropdownOptions = () => {
-      const currentUser = Meteor.user();
-      const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes("admin");
-
-      if (currentUser) {
-        const options = [
-          { value: "edit-profile", label: "📋 Edit Profile" },
-          { value: "my-places", label: "📍 My Places" },
-        ];
-
-        if (isAdmin) {
-          options.push(
-            { value: "admin-rides", label: "🚗 Manage Rides" },
-            { value: "admin-users", label: "👥 Manage Users" },
-            { value: "admin-places", label: "📍 Manage Places" },
-            { value: "components-test", label: "🧪 Components Test" },
-          );
-        }
-
-        options.push({ value: "sign-out", label: "🚪 Sign Out" });
-        return options;
-      }
-        return [
-          { value: "sign-in", label: "👤 Sign In" },
-          { value: "sign-up", label: "📝 Sign Up" },
-        ];
-
-    };
-
-    const handleDropdownSelect = (option) => {
-      setProfileDropdownOpen(false);
-
-      switch (option.value) {
-        case "edit-profile":
-          props.history.push("/editProfile");
-          break;
-        case "my-places":
-          props.history.push("/places");
-          break;
-        case "admin-rides":
-          props.history.push("/adminRides");
-          break;
-        case "admin-users":
-          props.history.push("/adminUsers");
-          break;
-        case "admin-places":
-          props.history.push("/adminPlaceManager");
-          break;
-        case "components-test":
-          props.history.push("/_test");
-          break;
-        case "sign-out":
-          Meteor.logout((err) => {
-            if (err) {
-              console.error("Logout error:", err);
-            } else {
-              props.history.push("/");
-            }
-          });
-          break;
-        case "sign-in":
-          props.history.push("/signin");
-          break;
-        case "sign-up":
-          props.history.push("/signup");
-          break;
-        default:
-          console.warn("Unknown dropdown option:", option.value);
-      }
-    };
-
-    // If native navbar was created successfully, render placeholder
+  // If native navbar was created successfully, render placeholder
     if (navBarId) {
       return (
         <>
@@ -396,9 +439,21 @@ const NativeNavBar = ({
             }}
             onClick={() => {
               setCurrentActiveIndex(index);
-              if (item.id === "profile" || item.action === "profile") {
+
+              // Handle different navigation items
+              if (item.id === "home" || item.action === "home") {
+                const homeLink = currentUser ? "/myRides" : "/";
+                handleNavigation(homeLink);
+              } else if (item.id === "search" || item.action === "search") {
+                handleJoinRideClick();
+              } else if (item.id === "add" || item.action === "add") {
+                handleAddRidesClick();
+              } else if (item.id === "chat" || item.action === "chat") {
+                handleNavigation("/chat");
+              } else if (item.id === "profile" || item.action === "profile") {
                 setProfileDropdownOpen(true);
               } else if (onItemPress) {
+                // Fallback to custom handler
                 onItemPress(item, index, item.action);
               }
             }}
@@ -457,6 +512,18 @@ const NativeNavBar = ({
             />
           </div>
         )}
+
+        {/* Join Ride Modal */}
+        <JoinRideModal
+          isOpen={joinRideModalOpen}
+          onClose={handleJoinRideClose}
+        />
+
+        {/* Add Rides Modal */}
+        <AddRidesModal
+          isOpen={addRidesModalOpen}
+          onClose={handleAddRidesClose}
+        />
       </div>
     );
 };
@@ -477,6 +544,16 @@ NativeNavBar.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
   history: PropTypes.object.isRequired, // React Router history
+  currentUser: PropTypes.object,
+  isAdmin: PropTypes.bool,
 };
 
-export default withRouter(NativeNavBar);
+export default withRouter(withTracker(() => {
+  const currentUser = Meteor.user();
+  const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes("admin");
+
+  return {
+    currentUser,
+    isAdmin,
+  };
+})(NativeNavBar));
