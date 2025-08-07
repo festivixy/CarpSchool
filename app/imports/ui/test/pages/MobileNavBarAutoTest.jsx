@@ -27,6 +27,46 @@ import {
 } from "../styles/MobileNavBarAutoTest";
 
 /**
+ * Error boundary to catch navbar crashes during testing
+ */
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("[ErrorBoundary] NavBar crashed:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          padding: '20px',
+          background: '#ffe6e6',
+          border: '2px solid #ff4444',
+          borderRadius: '8px',
+          color: '#cc0000'
+        }}>
+          <h3>⚠️ NavBar Component Crashed</h3>
+          <p><strong>Error:</strong> {this.state.error?.message || 'Unknown error'}</p>
+          <button onClick={() => this.setState({ hasError: false, error: null })}>
+            🔄 Try Again
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+/**
  * Test page for MobileNavBarAuto component
  * Tests automatic environment detection and component switching
  */
@@ -66,14 +106,27 @@ const MobileNavBarAutoTest = ({ history }) => {
   const envInfo = getEnvironmentInfo();
 
   // Handle navbar item press
-  const handleItemPress = (index, item) => {
-    const timestamp = new Date().toLocaleTimeString();
-    const logEntry = `[${timestamp}] NavBar item pressed: ${item.label} (index: ${index})`;
+  // Note: NativeNavBar calls onItemPress(item, index, action) - item first!
+  const handleItemPress = (item, index, action) => {
+    try {
+      const timestamp = new Date().toLocaleTimeString();
+      const itemLabel = item?.label || item?.id || "Unknown Item";
+      const logEntry = `[${timestamp}] NavBar item pressed: ${itemLabel} (index: ${index}, action: ${action})`;
 
-    setActiveIndex(index);
-    setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]); // Keep last 10 logs
+      console.log("[MobileNavBarAutoTest] NavBar interaction:", { item, index, action });
 
-    console.log(logEntry);
+      // Safely update state
+      if (typeof index === 'number' && index >= 0) {
+        setActiveIndex(index);
+      }
+
+      setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]); // Keep last 10 logs
+
+    } catch (error) {
+      console.error("[MobileNavBarAutoTest] Error in handleItemPress:", error);
+      const errorEntry = `[${new Date().toLocaleTimeString()}] ERROR: ${error.message}`;
+      setTestLogs(prev => [errorEntry, ...prev.slice(0, 9)]);
+    }
   };
 
   // Simulate environment changes for testing
@@ -200,11 +253,13 @@ const MobileNavBarAutoTest = ({ history }) => {
           <SectionContent>
             <ComponentContainer>
               <NavBarWrapper>
-                <MobileNavBarAuto
-                  history={history}
-                  activeIndex={activeIndex}
-                  onItemPress={handleItemPress}
-                />
+                <ErrorBoundary>
+                  <MobileNavBarAuto
+                    history={history}
+                    activeIndex={activeIndex}
+                    onItemPress={handleItemPress}
+                  />
+                </ErrorBoundary>
               </NavBarWrapper>
             </ComponentContainer>
           </SectionContent>
