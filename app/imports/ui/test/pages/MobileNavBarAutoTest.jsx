@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { withRouter } from "react-router-dom";
 import MobileNavBarAuto from "../../mobile/components/MobileNavBarAuto";
+import ErrorBoundary from "../../components/ErrorBoundary";
 import {
   Container,
   Content,
@@ -25,46 +26,6 @@ import {
   TestResults,
   LogOutput,
 } from "../styles/MobileNavBarAutoTest";
-
-/**
- * Error boundary to catch navbar crashes during testing
- */
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error("[ErrorBoundary] NavBar crashed:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{
-          padding: '20px',
-          background: '#ffe6e6',
-          border: '2px solid #ff4444',
-          borderRadius: '8px',
-          color: '#cc0000'
-        }}>
-          <h3>⚠️ NavBar Component Crashed</h3>
-          <p><strong>Error:</strong> {this.state.error?.message || 'Unknown error'}</p>
-          <button onClick={() => this.setState({ hasError: false, error: null })}>
-            🔄 Try Again
-          </button>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
 
 /**
  * Test page for MobileNavBarAuto component
@@ -253,7 +214,22 @@ const MobileNavBarAutoTest = ({ history }) => {
           <SectionContent>
             <ComponentContainer>
               <NavBarWrapper>
-                <ErrorBoundary>
+                <ErrorBoundary
+                  title="NavBar Component Error"
+                  message="The navbar component encountered an error during testing"
+                  showDetails={true}
+                  showRetry={true}
+                  showReport={false}
+                  variant="minimal"
+                  onError={(error, errorInfo, errorId) => {
+                    const errorEntry = `[${new Date().toLocaleTimeString()}] ERROR: ${error.message} (ID: ${errorId})`;
+                    setTestLogs(prev => [errorEntry, ...prev.slice(0, 9)]);
+                  }}
+                  onRetry={() => {
+                    const retryEntry = `[${new Date().toLocaleTimeString()}] User clicked retry - reloading navbar`;
+                    setTestLogs(prev => [retryEntry, ...prev.slice(0, 9)]);
+                  }}
+                >
                   <MobileNavBarAuto
                     history={history}
                     activeIndex={activeIndex}
