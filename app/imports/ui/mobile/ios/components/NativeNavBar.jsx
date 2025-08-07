@@ -114,8 +114,15 @@ const NativeNavBar = ({
         if (item) {
           setCurrentActiveIndex(itemIndex);
 
-          // Handle different navigation items
-          console.log("[NativeNavBar] 🎯 Processing item:", { id: item.id, action: item.action, label: item.label });
+          // Prioritize onItemPress prop for bridging solution
+          if (onItemPress) {
+            console.log("[NativeNavBar] 🔗 Delegating to onItemPress handler for bridging");
+            onItemPress(item, itemIndex, action);
+            return;
+          }
+
+          // Handle different navigation items (fallback for standalone usage)
+          console.log("[NativeNavBar] 🎯 Processing item with internal handler:", { id: item.id, action: item.action, label: item.label });
 
           if (item.id === "home" || item.action === "home") {
             console.log("[NativeNavBar] 🏠 Home action triggered");
@@ -133,12 +140,8 @@ const NativeNavBar = ({
           } else if (item.id === "profile" || item.action === "profile") {
             console.log("[NativeNavBar] 👤 Profile action triggered");
             setProfileDropdownOpen(true);
-          } else if (onItemPress) {
-            console.log("[NativeNavBar] 🔄 Fallback to custom handler");
-            // Fallback to custom handler
-            onItemPress(item, itemIndex, action);
           } else {
-            console.log("[NativeNavBar] ❓ No handler found for item");
+            console.log("[NativeNavBar] ❓ Unknown item action, no handler available");
           }
         }
       });
