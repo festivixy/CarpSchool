@@ -78,6 +78,76 @@ class MobileNavBarAuto extends React.Component {
       shouldUseNative: this.shouldUseNativeNavBar(),
     });
 
+  constructor(props) {
+    super(props);
+    // Refs for CSS navbar buttons to simulate clicks
+    this.cssNavBarRef = React.createRef();
+    this.cssButtonRefs = {
+      home: React.createRef(),
+      search: React.createRef(),
+      create: React.createRef(),
+      messages: React.createRef(),
+      profile: React.createRef(),
+    };
+  }
+
+  // Handle native navbar clicks by simulating CSS navbar clicks
+  handleNativeClick = (item, index, action) => {
+    console.log("[MobileNavBarAuto] 🔗 Bridging native click to CSS:", { id: item.id, index, action });
+
+    // Map native item IDs to CSS button actions
+    const buttonMap = {
+      home: () => {
+        // Home button - find and click the first tab
+        const homeButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="home"]');
+        if (homeButton) {
+          console.log("[MobileNavBarAuto] 🏠 Clicking CSS home button");
+          homeButton.click();
+        }
+      },
+      search: () => {
+        // Search button - find and click the search/join button
+        const searchButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="search"]');
+        if (searchButton) {
+          console.log("[MobileNavBarAuto] 🔍 Clicking CSS search button");
+          searchButton.click();
+        }
+      },
+      create: () => {
+        // Create button - find and click the add/create button
+        const createButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="create"]');
+        if (createButton) {
+          console.log("[MobileNavBarAuto] ➕ Clicking CSS create button");
+          createButton.click();
+        }
+      },
+      messages: () => {
+        // Messages button - find and click the messages/chat button
+        const messagesButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="messages"]');
+        if (messagesButton) {
+          console.log("[MobileNavBarAuto] 💬 Clicking CSS messages button");
+          messagesButton.click();
+        }
+      },
+      profile: () => {
+        // Profile button - find and click the profile button
+        const profileButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="profile"]');
+        if (profileButton) {
+          console.log("[MobileNavBarAuto] 👤 Clicking CSS profile button");
+          profileButton.click();
+        }
+      }
+    };
+
+    // Execute the mapped action
+    const action = buttonMap[item.id];
+    if (action) {
+      action();
+    } else {
+      console.warn("[MobileNavBarAuto] ❓ No CSS button mapping found for:", item.id);
+    }
+  };
+
   render() {
     const { ...props } = this.props;
 
@@ -88,7 +158,7 @@ class MobileNavBarAuto extends React.Component {
 
     // Determine which navbar to render
     if (this.shouldUseNativeNavBar()) {
-      console.log("[MobileNavBarAuto] 🍎 Using Native iOS NavBar");
+      console.log("[MobileNavBarAuto] 🍎 Using Native iOS NavBar with hidden CSS controller");
 
       // For NativeNavBar, we need to provide default items since it expects an items prop
       // but the CSS version handles this internally
@@ -126,12 +196,33 @@ class MobileNavBarAuto extends React.Component {
       ];
 
       return (
-        <NativeNavBar
-          items={defaultItems}
-          visible={true}
-          activeIndex={0}
-          {...props}
-        />
+        <>
+          {/* Native NavBar - Visible UI */}
+          <NativeNavBar
+            items={defaultItems}
+            visible={true}
+            activeIndex={props.activeIndex || 0}
+            onItemPress={this.handleNativeClick}
+            {...props}
+          />
+
+          {/* CSS NavBar - Hidden Controller (height: 0, invisible) */}
+          <div
+            ref={this.cssNavBarRef}
+            style={{
+              height: 0,
+              overflow: "hidden",
+              pointerEvents: "none",
+              position: "fixed",
+              bottom: -200, // Move completely off-screen
+              left: 0,
+              right: 0,
+              zIndex: -1, // Behind everything
+            }}
+          >
+            <MobileNavBarCSS {...props} />
+          </div>
+        </>
       );
     }
       console.log("[MobileNavBarAuto] 🌐 Using CSS NavBar");

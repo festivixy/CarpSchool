@@ -117,7 +117,10 @@ class MobileNavBarCSS extends React.Component {
           <TabBarInner>
             <TabsContainer>
               {/* Home/My Rides Tab */}
-              <TabBarItem onClick={() => this.handleNavigation(homeLink)}>
+              <TabBarItem
+                onClick={() => this.handleNavigation(homeLink)}
+                data-navbar-item="home"
+              >
                 <img
                   src="/svg/home.svg"
                   alt="Home"
@@ -131,7 +134,10 @@ class MobileNavBarCSS extends React.Component {
               </TabBarItem>
 
               {/* Search/Join Ride Tab */}
-              <TabBarItem onClick={this.handleJoinRideClick}>
+              <TabBarItem
+                onClick={this.handleJoinRideClick}
+                data-navbar-item="search"
+              >
                 <img
                   src="/svg/search.svg"
                   alt="Search"
@@ -145,7 +151,10 @@ class MobileNavBarCSS extends React.Component {
               </TabBarItem>
 
               {/* Add/Create Ride Tab */}
-              <TabBarItem onClick={this.handleAddRidesClick}>
+              <TabBarItem
+                onClick={this.handleAddRidesClick}
+                data-navbar-item="create"
+              >
                 <img
                   src="/svg/plus.svg"
                   alt="Add"
@@ -159,7 +168,10 @@ class MobileNavBarCSS extends React.Component {
               </TabBarItem>
 
               {/* Messages/Chat Tab with Notification Badge */}
-              <TabWithBadge onClick={() => this.handleNavigation("/chat")}>
+              <TabWithBadge
+                onClick={() => this.handleNavigation("/chat")}
+                data-navbar-item="messages"
+              >
                 <img
                   src="/svg/message.svg"
                   alt="Messages"
@@ -184,6 +196,7 @@ class MobileNavBarCSS extends React.Component {
                   this.toggleUserMenu();
                 }}
                 style={{ position: "relative" }}
+                data-navbar-item="profile"
               >
                 <img
                   src="/svg/user.svg"
