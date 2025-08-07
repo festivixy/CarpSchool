@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
 import { Meteor } from "meteor/meteor";
-import { Places } from "./Places.js";
+import { Places } from "./Places";
 import { Rides } from "../ride/Rides";
 
 /**

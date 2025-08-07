@@ -1,6 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
-import { Places, PlacesSchema } from "./Places.js";
+import { Places, PlacesSchema } from "./Places";
 
 /**
  * Create a new place (user can only create places for themselves)

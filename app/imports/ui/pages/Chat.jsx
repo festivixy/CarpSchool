@@ -3,9 +3,9 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
-import { Chats } from "/imports/api/chat/Chat";
-import "/imports/api/chat/ChatMethods";
-import { MobileOnly, DesktopOnly } from "/imports/ui/layouts/Devices";
+import { Chats } from "../../api/chat/Chat";
+import "../../api/chat/ChatMethods";
+import { MobileOnly, DesktopOnly } from "../layouts/Devices";
 import {
   Container,
   Header,

@@ -15,12 +15,12 @@ import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import LoadingPage from "../mobile/components/LoadingPage";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../pages/SignIn";
-import LiquidGlassSignIn from "../mobile/liquidGlass/pages/SignIn";
+import LiquidGlassSignIn from "../liquidGlass/pages/SignIn";
 import MobileSignup from "../pages/Signup";
 import MobileForgotPassword from "../pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
-import MobileNavBar from "../mobile/components/NavBar";
+import MobileNavBar from "../desktop/components/NavBar";
 import MobileChat from "../pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
 import MobileVerifyEmail from "../pages/VerifyEmail";
@@ -38,11 +38,13 @@ import ProtectedRoutes, {
   ProtectedRouteRequireNotEmailVerified,
 } from "./ProtectedRoutes";
 import { DesktopOnly, MobileOnly } from "./Devices";
-import FooterVerbose from "../mobile/components/FooterVerbose";
-import LiquidGlassMobileNavBar from "../mobile/liquidGlass/components/LiquidGlassMobileNavBar";
-import MobileNativeBlurDemo from "../mobile/pages/NativeBlurDemo";
+import FooterVerbose from "../desktop/components/FooterVerbose";
+import MobileNavBarAuto from "../mobile/components/MobileNavBarAuto";
+import MobileNativeBlurDemo from "../test/pages/NativeBlurDemo";
+import SharedComponentsDemo from "../test/pages/SharedComponentsDemo";
+import MobileNavBarAutoTest from "../test/pages/MobileNavBarAutoTest";
 // Lazy load TestMapView to improve initial load performance
-const TestMapView = React.lazy(() => import("../mobile/pages/ComponentsTest"));
+const TestMapView = React.lazy(() => import("/imports/ui/test/pages/ComponentsTest.jsx"));
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -130,6 +132,14 @@ class App extends React.Component {
                 path="/_test/native-blur"
                 component={MobileNativeBlurDemo}
               />
+              <ProtectedRouteRequireAdmin
+                path="/_test/shared-components"
+                component={SharedComponentsDemo}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/_test/mobile-navbar-auto"
+                component={MobileNavBarAutoTest}
+              />
               <ProtectedRoutes
                 path="/_test"
                 component={() => (
@@ -158,10 +168,10 @@ class App extends React.Component {
           <DesktopOnly>
             <FooterVerbose />
           </DesktopOnly>
-          {/* <MobileFooter /> */}
+          {/* <SimpleFooter /> - Desktop footer component */}
           {this.props.currentUser && (
             <MobileOnly>
-              <LiquidGlassMobileNavBar />
+              <MobileNavBarAuto />
             </MobileOnly>
           )}
         </div>

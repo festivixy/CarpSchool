@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import swal from "sweetalert";
-import { Places } from "/imports/api/places/Places.js";
+import { Places } from "../../../api/places/Places";
 import InteractiveMapPicker from "./InteractiveMapPicker";
 import {
   Container,

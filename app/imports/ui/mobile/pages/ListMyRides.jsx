@@ -2,7 +2,7 @@ import React from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
-import { Rides } from "/imports/api/ride/Rides";
+import { Rides } from "../../../api/ride/Rides";
 
 /**
  * Modern Mobile ListMyRides component showing all available rides

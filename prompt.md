@@ -20,13 +20,36 @@ relational data structure and backward compatibility for legacy schemas.
 
 ### file locations
 
-- normal components: app/imports/ui/mobile/components
-- normal styles app/imports/ui/mobile/styles
-- pages: app/imports/ui/mobile/pages
+#### Mobile Components:
+- **Mobile Components**: `app/imports/ui/mobile/components/` (includes MobileNavBarAuto)
+- **Mobile Styles**: `app/imports/ui/mobile/styles/`
+- **Mobile Pages**: `app/imports/ui/mobile/pages/`
+- **Mobile Hooks**: `app/imports/ui/mobile/hooks/`
+- **Mobile Utils**: `app/imports/ui/mobile/utils/`
 
-LiquidGlass Component Library Location:
-- **Components**: `app/imports/ui/mobile/liquidGlass/components/`
-- **Styles**: `app/imports/ui/mobile/liquidGlass/styles/`
+#### Native iOS Components:
+- **iOS Components**: `app/imports/ui/mobile/ios/components/` (includes NativeNavBar)
+- **iOS Hooks**: `app/imports/ui/mobile/ios/hooks/`
+- **iOS Styles**: `app/imports/ui/mobile/ios/styles/`
+
+#### LiquidGlass Component Library:
+- **Components**: `app/imports/ui/liquidGlass/components/`
+- **Pages**: `app/imports/ui/liquidGlass/pages/`
+- **Styles**: `app/imports/ui/liquidGlass/styles/`
+
+#### Shared Components:
+- **Shared Components**: `app/imports/ui/components/`
+- **Shared Pages**: `app/imports/ui/pages/`
+- **Shared Styles**: `app/imports/ui/styles/`
+
+#### Desktop Components:
+- **Desktop Components**: `app/imports/ui/desktop/components/`
+- **Desktop Pages**: `app/imports/ui/desktop/pages/`
+- **Desktop Styles**: `app/imports/ui/desktop/styles/`
+
+#### Backend API:
+- **API Collections**: `app/imports/api/{collection}/`
+- **API Structure**: `{Collection}.js`, `{Collection}Methods.js`, `{Collection}Publications.js`
 
 ## COMMIT INSTRUCTIONS
 
@@ -101,6 +124,51 @@ Convert LiquidGlass SignIn to use centralized captcha pattern
 5. **Action verbs**: Add, Remove, Update, Fix, Refactor, Convert, Extract
 6. **Present tense**: "Add feature" not "Added feature"
 
+## Python Tools
+
+### Reference Checker Script: `../tools/checkRefs.py`
+
+A comprehensive Python tool for validating and fixing import/export references in the codebase.
+
+#### **Features:**
+- **Import Validation**: Detects broken import statements (including multi-line imports)
+- **Export Detection**: Analyzes component exports and validates named/default imports
+- **Circular Dependencies**: Finds circular import dependencies
+- **Autofix**: Automatically fixes broken imports with `--fix` flag
+- **Multi-line Support**: Handles complex import statements across multiple lines
+- **Environment Detection**: Smart suggestions based on file exports
+- **Re-checking**: Automatically re-runs checks after applying fixes
+
+#### **Usage:**
+```bash
+# Check imports only
+python ../tools/checkRefs.py --imports -v
+
+# Check imports and automatically fix issues
+python ../tools/checkRefs.py --imports --fix -v
+
+# Run comprehensive check (imports + circular dependencies + suggestions)
+python ../tools/checkRefs.py --all -v
+
+# Run all checks with autofix
+python ../tools/checkRefs.py --all --fix -v
+```
+
+#### **Key Capabilities:**
+- **Self-reference Filtering**: Prevents files from importing themselves
+- **Export Analysis**: Validates that imports match actual exports (e.g., `AddRidesModal` exists)
+- **HOC Support**: Detects exports wrapped in `withRouter(withTracker()(Component))`
+- **Path Resolution**: Suggests correct relative paths for broken imports
+- **Development Integration**: Use `--fix` for automated import repair
+
+#### **Example Output:**
+```
+[ERROR] imports/ui/components/Test.jsx:5 - Broken import: '../broken/path'
+[AUTOFIX APPLIED] Fixed broken import '../broken/path' → './correct/Component'
+🔄 Re-running checks after applying fixes...
+✅ All import issues have been resolved!
+```
+
 ## docker
 
 - docker compose: docker-compose.yml
@@ -129,26 +197,51 @@ vulnerabilities.md
 │   ├── images
 │   ├── places
 │   ├── profile
+│   ├── rateLimit
 │   └── ride
 ├── startup
 │   ├── client
 │   └── server
 └── ui
-    ├── components       # ✅ NEW - Shared components (desktop + mobile)
-    ├── desktop          # ✅ NEW - Desktop-specific components
+    ├── components       # Shared components (desktop + mobile)
+    ├── desktop          # Desktop-specific components
     │   ├── components
     │   ├── pages
     │   └── styles
-    ├── forms
-    ├── layouts
-    ├── mobile           # Mobile-specific components
+    ├── forms            # Form utilities and validation
+    ├── layouts          # App layout components
+    ├── liquidGlass      # LiquidGlass component library
     │   ├── components
-    │   ├── liquidGlass
-    │   │   ├── components
-    │   │   ├── pages
-    │   │   └── styles
     │   ├── pages
-    │   ├── styles
-    │   └── utils
-    ├── pages            # ✅ NEW - Shared pages (desktop + mobile)
-    └── styles           # ✅ NEW - Shared styles (desktop + mobile)
+    │   └── styles
+    ├── mobile           # Mobile-specific components
+    │   ├── components   # Mobile components (includes MobileNavBarAuto)
+    │   ├── hooks        # Mobile-specific React hooks
+    │   ├── ios          # Native iOS components
+    │   │   ├── components
+    │   │   ├── hooks
+    │   │   └── styles
+    │   ├── pages        # Mobile page components
+    │   ├── styles       # Mobile styled-components
+    │   └── utils        # Mobile utility functions
+    ├── pages            # Shared pages (desktop + mobile)
+    ├── styles           # Shared styled-components
+    └── test             # Test components and utilities
+        ├── pages
+        └── styles
+
+./plugins/
+├── cordova-plugin-floating-toolbar    # Native iOS 26 Liquid Glass floating toolbars
+│   ├── src
+│   │   ├── android                    # Android implementation
+│   │   └── ios                        # iOS Swift implementation
+│   └── www                           # JavaScript interface
+├── cordova-plugin-liquid-blur         # Native iOS 26 Liquid Glass blur effects
+│   ├── src
+│   │   ├── android                    # Android implementation
+│   │   └── ios                        # iOS UIVisualEffectView implementation
+│   └── www                           # JavaScript interface
+└── cordova-plugin-native-navbar       # Native iOS navigation bar
+    ├── src
+    │   └── ios                        # iOS UITabBar implementation
+    └── www                           # JavaScript interface

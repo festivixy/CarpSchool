@@ -1,8 +1,3 @@
-// Using ES6 named import from .mjs file
-import { places } from "./app/imports/api/places/Places.mjs";
-
-console.log("Available places:", places);
-
 // Vancouver coordinates for realistic place generation
 const vancouverCoordinates = [
   { name: "Downtown Vancouver", lat: 49.2827, lng: -123.1207 },

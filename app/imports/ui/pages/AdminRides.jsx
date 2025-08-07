@@ -1,11 +1,10 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
-import { Rides } from "/imports/api/ride/Rides";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
-import { placesOptions } from "/imports/api/places/Places.mjs";
-import { Places } from "/imports/api/places/Places.js";
+import { Rides } from "../../api/ride/Rides";
+import { PlacesSchema, Places } from "../../api/places/Places";
 import {
   Container,
   Header,
@@ -381,7 +380,7 @@ class MobileAdminRides extends React.Component {
                         disabled={loading}
                       >
                         <option value="">Select Origin</option>
-                        {placesOptions.map((place) => (
+                        {PlacesSchema.map((place) => (
                           <option key={place.key} value={place.value}>
                             {place.text}
                           </option>
@@ -398,7 +397,7 @@ class MobileAdminRides extends React.Component {
                         disabled={loading}
                       >
                         <option value="">Select Destination</option>
-                        {placesOptions.map((place) => (
+                        {PlacesSchema.map((place) => (
                           <option key={place.key} value={place.value}>
                             {place.text}
                           </option>

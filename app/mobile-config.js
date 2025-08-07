@@ -59,24 +59,6 @@ App.accessRule("*");
 App.accessRule("https://carp.school/*");
 App.accessRule("https://*.carp.school/*");
 
-// Essential plugins for mobile functionality
-App.configurePlugin('cordova-plugin-meteor-webapp', {
-    version: '2.0.1'
-});
-App.configurePlugin('cordova-plugin-statusbar', {
-    version: '3.0.0'
-});
-App.configurePlugin('cordova-plugin-device', {
-    version: '2.1.0'
-});
-App.configurePlugin('cordova-plugin-console', {
-    version: '1.1.0'
-});
-
-// Native iOS 26 Liquid Glass plugins are added via command line:
-// meteor add cordova:cordova-plugin-liquid-blur@file://plugins/cordova-plugin-liquid-blur
-// meteor add cordova:cordova-plugin-floating-toolbar@file://plugins/cordova-plugin-floating-toolbar
-
 // Set up resources such as icons and launch screens.
 App.icons({
     app_store: "resources/icons/app_store.png", // 1024x1024 pixels

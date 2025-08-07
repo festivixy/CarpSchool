@@ -3,29 +3,29 @@
  * Provides native iOS 26 Liquid Glass floating toolbars
  */
 
-var exec;
+let exec;
 // In Meteor, cordova is available as a global object when running in Cordova environment
-if (typeof cordova !== 'undefined' && cordova.exec) {
+if (typeof cordova !== "undefined" && cordova.exec) {
     exec = cordova.exec;
 } else {
     // Fallback for web builds or when cordova is not available
-    exec = function() {
-        console.warn('[FloatingToolbar] cordova.exec not available');
+    exec = function () {
+        console.warn("[FloatingToolbar] cordova.exec not available");
     };
 }
 
 /**
  * FloatingToolbar plugin interface
  */
-var FloatingToolbar = {
+const FloatingToolbar = {
 
     /**
      * Check if native floating toolbars are supported
      * @param {Function} success Success callback with boolean result
      * @param {Function} error Error callback
      */
-    isSupported: function(success, error) {
-        exec(success, error, 'FloatingToolbar', 'isSupported', []);
+    isSupported: function (success, error) {
+        exec(success, error, "FloatingToolbar", "isSupported", []);
     },
 
     /**
@@ -37,20 +37,20 @@ var FloatingToolbar = {
      * @param {Function} success Success callback with toolbar ID
      * @param {Function} error Error callback
      */
-    createToolbar: function(options, success, error) {
-        var defaultOptions = {
-            position: 'bottom',
+    createToolbar: function (options, success, error) {
+        const defaultOptions = {
+            position: "bottom",
             items: [],
             style: {
-                blurStyle: 'systemMaterial',
+                blurStyle: "systemMaterial",
                 cornerRadius: 16,
                 margin: 16,
-                height: 50
-            }
+                height: 50,
+            },
         };
 
-        var config = Object.assign(defaultOptions, options || {});
-        exec(success, error, 'FloatingToolbar', 'createToolbar', [config]);
+        const config = Object.assign(defaultOptions, options || {});
+        exec(success, error, "FloatingToolbar", "createToolbar", [config]);
     },
 
     /**
@@ -60,8 +60,8 @@ var FloatingToolbar = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    updateToolbar: function(toolbarId, options, success, error) {
-        exec(success, error, 'FloatingToolbar', 'updateToolbar', [toolbarId, options]);
+    updateToolbar: function (toolbarId, options, success, error) {
+        exec(success, error, "FloatingToolbar", "updateToolbar", [toolbarId, options]);
     },
 
     /**
@@ -75,8 +75,8 @@ var FloatingToolbar = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    addToolbarItem: function(toolbarId, item, success, error) {
-        exec(success, error, 'FloatingToolbar', 'addToolbarItem', [toolbarId, item]);
+    addToolbarItem: function (toolbarId, item, success, error) {
+        exec(success, error, "FloatingToolbar", "addToolbarItem", [toolbarId, item]);
     },
 
     /**
@@ -86,8 +86,8 @@ var FloatingToolbar = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    removeToolbarItem: function(toolbarId, itemIndex, success, error) {
-        exec(success, error, 'FloatingToolbar', 'removeToolbarItem', [toolbarId, itemIndex]);
+    removeToolbarItem: function (toolbarId, itemIndex, success, error) {
+        exec(success, error, "FloatingToolbar", "removeToolbarItem", [toolbarId, itemIndex]);
     },
 
     /**
@@ -98,9 +98,9 @@ var FloatingToolbar = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    setToolbarVisibility: function(toolbarId, visible, animated, success, error) {
+    setToolbarVisibility: function (toolbarId, visible, animated, success, error) {
         animated = animated !== false; // Default to true
-        exec(success, error, 'FloatingToolbar', 'setToolbarVisibility', [toolbarId, visible, animated]);
+        exec(success, error, "FloatingToolbar", "setToolbarVisibility", [toolbarId, visible, animated]);
     },
 
     /**
@@ -109,8 +109,8 @@ var FloatingToolbar = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    removeToolbar: function(toolbarId, success, error) {
-        exec(success, error, 'FloatingToolbar', 'removeToolbar', [toolbarId]);
+    removeToolbar: function (toolbarId, success, error) {
+        exec(success, error, "FloatingToolbar", "removeToolbar", [toolbarId]);
     },
 
     /**
@@ -118,15 +118,15 @@ var FloatingToolbar = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    removeAllToolbars: function(success, error) {
-        exec(success, error, 'FloatingToolbar', 'removeAllToolbars', []);
+    removeAllToolbars: function (success, error) {
+        exec(success, error, "FloatingToolbar", "removeAllToolbars", []);
     },
 
     /**
      * Set toolbar item action handler
      * @param {Function} handler Function to handle toolbar item actions
      */
-    setActionHandler: function(handler) {
+    setActionHandler: function (handler) {
         this._actionHandler = handler;
     },
 
@@ -134,8 +134,8 @@ var FloatingToolbar = {
      * Internal method to handle toolbar actions
      * @private
      */
-    _handleAction: function(toolbarId, action, itemIndex) {
-        if (this._actionHandler && typeof this._actionHandler === 'function') {
+    _handleAction: function (toolbarId, action, itemIndex) {
+        if (this._actionHandler && typeof this._actionHandler === "function") {
             this._actionHandler(toolbarId, action, itemIndex);
         }
     },
@@ -148,9 +148,9 @@ var FloatingToolbar = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    animateToolbar: function(toolbarId, properties, duration, success, error) {
+    animateToolbar: function (toolbarId, properties, duration, success, error) {
         duration = duration || 300;
-        exec(success, error, 'FloatingToolbar', 'animateToolbar', [toolbarId, properties, duration]);
+        exec(success, error, "FloatingToolbar", "animateToolbar", [toolbarId, properties, duration]);
     },
 
     /**
@@ -160,8 +160,8 @@ var FloatingToolbar = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    configureSafeArea: function(toolbarId, respectSafeArea, success, error) {
-        exec(success, error, 'FloatingToolbar', 'configureSafeArea', [toolbarId, respectSafeArea]);
+    configureSafeArea: function (toolbarId, respectSafeArea, success, error) {
+        exec(success, error, "FloatingToolbar", "configureSafeArea", [toolbarId, respectSafeArea]);
     },
 
     /**
@@ -171,78 +171,78 @@ var FloatingToolbar = {
      * @param {Function} success Success callback
      * @param {Function} error Error callback
      */
-    setScrollBehavior: function(toolbarId, hideOnScroll, success, error) {
-        exec(success, error, 'FloatingToolbar', 'setScrollBehavior', [toolbarId, hideOnScroll]);
-    }
+    setScrollBehavior: function (toolbarId, hideOnScroll, success, error) {
+        exec(success, error, "FloatingToolbar", "setScrollBehavior", [toolbarId, hideOnScroll]);
+    },
 };
 
 // Promise-based wrapper
 FloatingToolbar.promise = {
-    isSupported: function() {
-        return new Promise(function(resolve, reject) {
+    isSupported: function () {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.isSupported(resolve, reject);
         });
     },
 
-    createToolbar: function(options) {
-        return new Promise(function(resolve, reject) {
+    createToolbar: function (options) {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.createToolbar(options, resolve, reject);
         });
     },
 
-    updateToolbar: function(toolbarId, options) {
-        return new Promise(function(resolve, reject) {
+    updateToolbar: function (toolbarId, options) {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.updateToolbar(toolbarId, options, resolve, reject);
         });
     },
 
-    addToolbarItem: function(toolbarId, item) {
-        return new Promise(function(resolve, reject) {
+    addToolbarItem: function (toolbarId, item) {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.addToolbarItem(toolbarId, item, resolve, reject);
         });
     },
 
-    removeToolbarItem: function(toolbarId, itemIndex) {
-        return new Promise(function(resolve, reject) {
+    removeToolbarItem: function (toolbarId, itemIndex) {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.removeToolbarItem(toolbarId, itemIndex, resolve, reject);
         });
     },
 
-    setToolbarVisibility: function(toolbarId, visible, animated) {
-        return new Promise(function(resolve, reject) {
+    setToolbarVisibility: function (toolbarId, visible, animated) {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.setToolbarVisibility(toolbarId, visible, animated, resolve, reject);
         });
     },
 
-    removeToolbar: function(toolbarId) {
-        return new Promise(function(resolve, reject) {
+    removeToolbar: function (toolbarId) {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.removeToolbar(toolbarId, resolve, reject);
         });
     },
 
-    removeAllToolbars: function() {
-        return new Promise(function(resolve, reject) {
+    removeAllToolbars: function () {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.removeAllToolbars(resolve, reject);
         });
     },
 
-    animateToolbar: function(toolbarId, properties, duration) {
-        return new Promise(function(resolve, reject) {
+    animateToolbar: function (toolbarId, properties, duration) {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.animateToolbar(toolbarId, properties, duration, resolve, reject);
         });
     },
 
-    configureSafeArea: function(toolbarId, respectSafeArea) {
-        return new Promise(function(resolve, reject) {
+    configureSafeArea: function (toolbarId, respectSafeArea) {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.configureSafeArea(toolbarId, respectSafeArea, resolve, reject);
         });
     },
 
-    setScrollBehavior: function(toolbarId, hideOnScroll) {
-        return new Promise(function(resolve, reject) {
+    setScrollBehavior: function (toolbarId, hideOnScroll) {
+        return new Promise(function (resolve, reject) {
             FloatingToolbar.setScrollBehavior(toolbarId, hideOnScroll, resolve, reject);
         });
-    }
+    },
 };
 
 module.exports = FloatingToolbar;

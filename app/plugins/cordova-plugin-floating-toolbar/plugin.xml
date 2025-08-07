@@ -5,9 +5,9 @@
         version="1.0.0">
 
     <name>Cordova Floating Toolbar Plugin</name>
-    <description>Native iOS 26 Liquid Glass floating toolbars for Cordova applications</description>
+    <description>Native iOS floating toolbars for Cordova applications</description>
     <license>MIT</license>
-    <keywords>cordova,ios,toolbar,liquid glass,ios26,floating</keywords>
+    <keywords>cordova,ios,toolbar,floating</keywords>
     <repo>https://github.com/carpschool/cordova-plugin-floating-toolbar.git</repo>
     <issue>https://github.com/carpschool/cordova-plugin-floating-toolbar/issues</issue>
 

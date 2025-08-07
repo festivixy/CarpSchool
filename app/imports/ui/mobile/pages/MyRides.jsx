@@ -3,11 +3,11 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
-import { Rides } from "/imports/api/ride/Rides";
-import JoinRideModal from "../components/JoinRideModal";
-import MobileRide from "../components/Ride";
+import { Rides } from "../../../api/ride/Rides";
+import JoinRideModal from "../../components/JoinRideModal";
+import Ride from "../../components/Ride";
 import ConfirmFunction from "../../components/ConfirmFunction";
-import "/imports/api/chat/ChatMethods";
+import "../../../api/chat/ChatMethods";
 import {
   Container,
   Header,
@@ -284,7 +284,7 @@ class MobileMyRides extends React.Component {
           ) : (
             filteredDrivingRides.map((ride) => (
               <RideWrapper key={ride._id}>
-                <MobileRide ride={ride} />
+                <Ride ride={ride} />
                 <AdditionalActions>
                   {/* Handle new schema with riders array */}
                   {ride.riders && ride.riders.length > 0 && (
@@ -381,7 +381,7 @@ class MobileMyRides extends React.Component {
           ) : (
             filteredRidingRides.map((ride) => (
               <RideWrapper key={ride._id}>
-                <MobileRide ride={ride} />
+                <Ride ride={ride} />
                 <AdditionalActions>
                   <ContactButton
                     onClick={() => this.handleContactDriver(ride.driver)}

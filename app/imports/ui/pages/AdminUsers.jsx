@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
-import { Profiles } from "/imports/api/profile/Profile";
+import { Profiles } from "../../api/profile/Profile";
 import {
   Container,
   Header,
