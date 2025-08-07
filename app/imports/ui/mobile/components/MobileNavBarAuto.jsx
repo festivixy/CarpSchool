@@ -92,8 +92,8 @@ class MobileNavBarAuto extends React.Component {
   }
 
   // Handle native navbar clicks by simulating CSS navbar clicks
-  handleNativeClick = (item, index, action) => {
-    console.log("[MobileNavBarAuto] 🔗 Bridging native click to CSS:", { id: item.id, index, action });
+  handleNativeClick = (item, index, actionType) => {
+    console.log("[MobileNavBarAuto] 🔗 Bridging native click to CSS:", { id: item.id, index, actionType });
 
     // Map native item IDs to CSS button actions
     const buttonMap = {
@@ -140,9 +140,9 @@ class MobileNavBarAuto extends React.Component {
     };
 
     // Execute the mapped action
-    const action = buttonMap[item.id];
-    if (action) {
-      action();
+    const clickHandler = buttonMap[item.id];
+    if (clickHandler) {
+      clickHandler();
     } else {
       console.warn("[MobileNavBarAuto] ❓ No CSS button mapping found for:", item.id);
     }
