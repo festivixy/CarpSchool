@@ -1288,6 +1288,11 @@ const MobileTestMapView = ({ history }) => {
                     onClick={() => setGotoTestInput("native-blur")}
                     style={{ fontSize: "12px", padding: "8px 12px" }}
                   />
+                  <LiquidGlassButton
+                    label="mobile-navbar-auto"
+                    onClick={() => setGotoTestInput("mobile-navbar-auto")}
+                    style={{ fontSize: "12px", padding: "8px 12px" }}
+                  />
                 </div>
               </ControlItem>
               <ControlItem>
