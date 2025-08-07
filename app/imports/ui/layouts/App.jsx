@@ -39,7 +39,7 @@ import ProtectedRoutes, {
 } from "./ProtectedRoutes";
 import { DesktopOnly, MobileOnly } from "./Devices";
 import FooterVerbose from "../desktop/components/FooterVerbose";
-import MobileNavBarCSS from "../mobile/components/MobileNavBarCSS";
+import MobileNavBarAuto from "../mobile/components/MobileNavBarAuto";
 import MobileNativeBlurDemo from "../test/pages/NativeBlurDemo";
 import SharedComponentsDemo from "../test/pages/SharedComponentsDemo";
 import MobileNavBarAutoTest from "../test/pages/MobileNavBarAutoTest";
@@ -171,13 +171,7 @@ class App extends React.Component {
           {/* <SimpleFooter /> - Desktop footer component */}
           {this.props.currentUser && (
             <MobileOnly>
-              <MobileNavBarCSS items={[
-                { id: "home", label: "My Rides", icon: "🏠", action: "home" },
-                { id: "join", label: "Join Ride", icon: "🔍", action: "join" },
-                { id: "create", label: "Create", icon: "➕", action: "create" },
-                { id: "messages", label: "Messages", icon: "💬", action: "messages" },
-                { id: "profile", label: "Profile", icon: "👤", action: "profile" },
-              ]} />
+              <MobileNavBarAuto />
             </MobileOnly>
           )}
         </div>
