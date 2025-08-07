@@ -90,6 +90,53 @@ const MobileNavBarAutoTest = ({ history }) => {
     }
   };
 
+  // Debug: Monitor the global action handler
+  React.useEffect(() => {
+    // Check if global handler is set
+    const checkGlobalHandler = () => {
+      const hasGlobalHandler = !!window.NativeNavBarActionHandler;
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = `[${timestamp}] Global handler check: ${hasGlobalHandler ? 'SET' : 'NOT SET'}`;
+      setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
+
+      if (hasGlobalHandler) {
+        console.log("[MobileNavBarAutoTest] ✅ Global handler found:", window.NativeNavBarActionHandler);
+      } else {
+        console.log("[MobileNavBarAutoTest] ❌ No global handler found");
+      }
+    };
+
+    // Initial check
+    checkGlobalHandler();
+
+    // Monitor for changes every 2 seconds
+    const interval = setInterval(checkGlobalHandler, 2000);
+
+    // Override the global handler to add our own logging
+    const originalHandler = window.NativeNavBarActionHandler;
+    window.NativeNavBarActionHandler = function(navBarId, action, itemIndex) {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = `[${timestamp}] NATIVE CALL: navBarId=${navBarId}, action=${action}, itemIndex=${itemIndex}`;
+      console.log("[MobileNavBarAutoTest] 🔥 Native action handler called!", { navBarId, action, itemIndex });
+
+      // Update test logs
+      setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
+
+      // Call original handler if it exists
+      if (originalHandler && typeof originalHandler === 'function') {
+        originalHandler(navBarId, action, itemIndex);
+      }
+    };
+
+    return () => {
+      clearInterval(interval);
+      // Restore original handler
+      if (originalHandler) {
+        window.NativeNavBarActionHandler = originalHandler;
+      }
+    };
+  }, []);
+
   // Simulate environment changes for testing
   const simulateEnvironment = (type) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -204,6 +251,33 @@ const MobileNavBarAutoTest = ({ history }) => {
               <ControlItem>
                 <Label>Test Logs:</Label>
                 <Button onClick={clearLogs}>Clear Logs</Button>
+              </ControlItem>
+              <ControlItem>
+                <Label>Manual Native Test:</Label>
+                <div>
+                  <Button onClick={() => {
+                    if (window.NativeNavBarActionHandler) {
+                      window.NativeNavBarActionHandler("test-navbar", "navigate", 0);
+                    } else {
+                      const logEntry = `[${new Date().toLocaleTimeString()}] No global handler to test`;
+                      setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
+                    }
+                  }}>
+                    Test Global Handler
+                  </Button>
+                  <Button onClick={() => {
+                    const hasPlugin = !!window.cordova?.plugins?.NativeNavBar;
+                    const logEntry = `[${new Date().toLocaleTimeString()}] Plugin check: ${hasPlugin ? 'AVAILABLE' : 'NOT FOUND'}`;
+                    setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
+                    console.log("[Test] Plugin status:", {
+                      hasCordova: !!window.cordova,
+                      hasPlugin,
+                      pluginMethods: window.cordova?.plugins?.NativeNavBar ? Object.keys(window.cordova.plugins.NativeNavBar) : 'N/A'
+                    });
+                  }}>
+                    Check Plugin
+                  </Button>
+                </div>
               </ControlItem>
             </ControlsGrid>
           </SectionContent>
