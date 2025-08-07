@@ -114,9 +114,9 @@ const NativeNavBar = ({
             handleNavigation(homeLink);
           } else if (item.id === "search" || item.action === "search") {
             handleJoinRideClick();
-          } else if (item.id === "add" || item.action === "add") {
+          } else if (item.id === "add" || item.id === "create" || item.action === "add" || item.action === "create") {
             handleAddRidesClick();
-          } else if (item.id === "chat" || item.action === "chat") {
+          } else if (item.id === "chat" || item.id === "messages" || item.action === "chat" || item.action === "messages") {
             handleNavigation("/chat");
           } else if (item.id === "profile" || item.action === "profile") {
             setProfileDropdownOpen(true);
@@ -446,9 +446,9 @@ const NativeNavBar = ({
                 handleNavigation(homeLink);
               } else if (item.id === "search" || item.action === "search") {
                 handleJoinRideClick();
-              } else if (item.id === "add" || item.action === "add") {
+              } else if (item.id === "add" || item.id === "create" || item.action === "add" || item.action === "create") {
                 handleAddRidesClick();
-              } else if (item.id === "chat" || item.action === "chat") {
+              } else if (item.id === "chat" || item.id === "messages" || item.action === "chat" || item.action === "messages") {
                 handleNavigation("/chat");
               } else if (item.id === "profile" || item.action === "profile") {
                 setProfileDropdownOpen(true);
