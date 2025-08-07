@@ -59,20 +59,26 @@ const NativeNavBar = ({
   };
 
   const handleJoinRideClick = () => {
+    console.log("[NativeNavBar] 🔍 handleJoinRideClick called - setting joinRideModalOpen to true");
     setJoinRideModalOpen(true);
     setProfileDropdownOpen(false);
+    console.log("[NativeNavBar] 🔍 joinRideModalOpen state should now be true");
   };
 
   const handleJoinRideClose = () => {
+    console.log("[NativeNavBar] 🔍 handleJoinRideClose called - setting joinRideModalOpen to false");
     setJoinRideModalOpen(false);
   };
 
   const handleAddRidesClick = () => {
+    console.log("[NativeNavBar] ➕ handleAddRidesClick called - setting addRidesModalOpen to true");
     setAddRidesModalOpen(true);
     setProfileDropdownOpen(false);
+    console.log("[NativeNavBar] ➕ addRidesModalOpen state should now be true");
   };
 
   const handleAddRidesClose = () => {
+    console.log("[NativeNavBar] ➕ handleAddRidesClose called - setting addRidesModalOpen to false");
     setAddRidesModalOpen(false);
   };
 
@@ -524,12 +530,14 @@ const NativeNavBar = ({
         )}
 
         {/* Join Ride Modal */}
+        {console.log("[NativeNavBar] 🔍 Rendering JoinRideModal with isOpen:", joinRideModalOpen)}
         <JoinRideModal
           isOpen={joinRideModalOpen}
           onClose={handleJoinRideClose}
         />
 
         {/* Add Rides Modal */}
+        {console.log("[NativeNavBar] ➕ Rendering AddRidesModal with isOpen:", addRidesModalOpen)}
         <AddRidesModal
           isOpen={addRidesModalOpen}
           onClose={handleAddRidesClose}
