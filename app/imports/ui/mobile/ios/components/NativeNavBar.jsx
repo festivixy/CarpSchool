@@ -109,20 +109,30 @@ const NativeNavBar = ({
           setCurrentActiveIndex(itemIndex);
 
           // Handle different navigation items
+          console.log("[NativeNavBar] 🎯 Processing item:", { id: item.id, action: item.action, label: item.label });
+
           if (item.id === "home" || item.action === "home") {
+            console.log("[NativeNavBar] 🏠 Home action triggered");
             const homeLink = currentUser ? "/myRides" : "/";
             handleNavigation(homeLink);
           } else if (item.id === "search" || item.action === "search") {
+            console.log("[NativeNavBar] 🔍 Search action triggered - calling handleJoinRideClick");
             handleJoinRideClick();
           } else if (item.id === "add" || item.id === "create" || item.action === "add" || item.action === "create") {
+            console.log("[NativeNavBar] ➕ Create action triggered - calling handleAddRidesClick");
             handleAddRidesClick();
           } else if (item.id === "chat" || item.id === "messages" || item.action === "chat" || item.action === "messages") {
+            console.log("[NativeNavBar] 💬 Messages action triggered");
             handleNavigation("/chat");
           } else if (item.id === "profile" || item.action === "profile") {
+            console.log("[NativeNavBar] 👤 Profile action triggered");
             setProfileDropdownOpen(true);
           } else if (onItemPress) {
+            console.log("[NativeNavBar] 🔄 Fallback to custom handler");
             // Fallback to custom handler
             onItemPress(item, itemIndex, action);
+          } else {
+            console.log("[NativeNavBar] ❓ No handler found for item");
           }
         }
       });
