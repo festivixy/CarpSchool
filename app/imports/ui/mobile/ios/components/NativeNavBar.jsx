@@ -47,40 +47,40 @@ const NativeNavBar = ({
   const [addRidesModalOpen, setAddRidesModalOpen] = useState(false);
   const navBarRef = useRef(null);
 
-  // Navigation methods - same as MobileNavBarCSS
-  const handleNavigation = (path) => {
+  // Navigation methods - same as MobileNavBarCSS - memoized to prevent re-renders
+  const handleNavigation = React.useCallback((path) => {
     history.push(path);
     setProfileDropdownOpen(false);
-  };
+  }, [history]);
 
-  const handleSignOut = () => {
+  const handleSignOut = React.useCallback(() => {
     history.push("/signout");
     setProfileDropdownOpen(false);
-  };
+  }, [history]);
 
-  const handleJoinRideClick = () => {
+  const handleJoinRideClick = React.useCallback(() => {
     console.log("[NativeNavBar] 🔍 handleJoinRideClick called - setting joinRideModalOpen to true");
     setJoinRideModalOpen(true);
     setProfileDropdownOpen(false);
     console.log("[NativeNavBar] 🔍 joinRideModalOpen state should now be true");
-  };
+  }, []);
 
-  const handleJoinRideClose = () => {
+  const handleJoinRideClose = React.useCallback(() => {
     console.log("[NativeNavBar] 🔍 handleJoinRideClose called - setting joinRideModalOpen to false");
     setJoinRideModalOpen(false);
-  };
+  }, []);
 
-  const handleAddRidesClick = () => {
+  const handleAddRidesClick = React.useCallback(() => {
     console.log("[NativeNavBar] ➕ handleAddRidesClick called - setting addRidesModalOpen to true");
     setAddRidesModalOpen(true);
     setProfileDropdownOpen(false);
     console.log("[NativeNavBar] ➕ addRidesModalOpen state should now be true");
-  };
+  }, []);
 
-  const handleAddRidesClose = () => {
+  const handleAddRidesClose = React.useCallback(() => {
     console.log("[NativeNavBar] ➕ handleAddRidesClose called - setting addRidesModalOpen to false");
     setAddRidesModalOpen(false);
-  };
+  }, []);
 
   // Update active index when prop changes
   useEffect(() => {
@@ -143,7 +143,7 @@ const NativeNavBar = ({
         }
       });
     }
-  }, [isSupported, onItemPress, items, setActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick]);
+  }, [isSupported, setActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick]);
 
   // Create native navbar when component mounts
   useEffect(() => {
