@@ -11,7 +11,7 @@ Usage:
     rawansi "git status --porcelain=v1 --color=always"
     rawansi "ps aux | head -5"
     rawansi --hex "tput cup 5 10; echo 'test'; tput cup 0 0"
-    rawansi --compare "printf '\\033[31mRed\\033[0m\\n'"
+    rawansi --compare "echo -e '\\033[31mRed\\033[0m'"
 
 Features:
     - Captures raw ANSI sequences using pty for authentic terminal output
@@ -389,7 +389,7 @@ class RawANSICapture:
         processed_output = self.processor.process_ansi_sequences(raw_output)
         stripped_output = self.processor.strip_ansi(raw_output)
 
-        # Get real terminal output using printf
+        # Get real terminal output using echo
         real_terminal_output = None
         if show_real_terminal:
             real_terminal_output = self.get_real_terminal_output(raw_output)
@@ -410,7 +410,7 @@ class RawANSICapture:
         def format_output_section(title, content, max_lines=5):
             """Format an output section with truncation for readability"""
             log_print(f"{title}:")
-            log_print("┌────────────────────────────────────────────────────────────┐")
+            log_print("┌───────────────────────────────��────────────────────────────┐")
 
             if not content:
                 log_print("│ (empty)")
@@ -440,9 +440,9 @@ class RawANSICapture:
         # Raw output
         format_output_section("📜 Raw Output (with ANSI sequences)", raw_output)
 
-        # Real terminal output (using printf)
+        # Real terminal output (using echo)
         if show_real_terminal and real_terminal_output is not None:
-            format_output_section("🖥️  Real Terminal Output (printf rendered)", real_terminal_output)
+            format_output_section("🖥️  Real Terminal Output (echo rendered)", real_terminal_output)
 
         # Processed output
         format_output_section("🎯 Processed Output (ANSIProcessor result)", processed_output)
@@ -483,14 +483,14 @@ class RawANSICapture:
 
         log_print()
         if show_real_terminal:
-            log_print("💡 Use --hex for hex dump, --no-compare to skip comparison, --no-real-terminal to skip printf rendering")
+            log_print("💡 Use --hex for hex dump, --no-compare to skip comparison, --no-real-terminal to skip echo rendering")
         else:
-            log_print("💡 Use --hex for hex dump, --no-compare to skip comparison, --real-terminal to enable printf rendering")
+            log_print("💡 Use --hex for hex dump, --no-compare to skip comparison, --real-terminal to enable echo rendering")
 
         # Add note about commands that may not produce ANSI when captured
         if len(sequences) == 0 and len(raw_output) > 50:
             log_print("📝 Note: Some commands (like ls --color) may not produce ANSI codes when run via pty.")
-            log_print("   Try explicit ANSI sequences with printf for testing ANSI processing.")
+            log_print("   Try explicit ANSI sequences with echo -e for testing ANSI processing.")
 
         # Write log file if logging is enabled
         if self.enable_logging:
@@ -508,8 +508,8 @@ def main():
 Examples:
   rawansi "ls --color=always"
   rawansi "git status --color=always"
-  rawansi --hex "printf '\\033[31mRed\\033[0m\\n'"
-  rawansi --real-terminal "printf '\\033[6;11HTest\\033[1;1H'"
+  rawansi --hex "echo -e '\\033[31mRed\\033[0m'"
+  rawansi --real-terminal "echo -e '\\033[6;11HTest\\033[1;1H'"
   rawansi --timeout 10 "ps aux | head -5"
   rawansi "tput cup 5 10; echo 'Positioned'; tput cup 0 0"
 
@@ -542,7 +542,7 @@ Perfect for:
     parser.add_argument(
         '--real-terminal',
         action='store_true',
-        help='Enable real terminal output using printf (default: enabled)'
+        help='Enable real terminal output using echo (default: enabled)'
     )
 
     parser.add_argument(
@@ -574,7 +574,7 @@ Perfect for:
     print(f"🚀 Executing: {args.command}")
     print("⏳ Capturing raw ANSI output...")
     if show_real_terminal:
-        print("🖥️  Will render with real terminal (printf)...")
+        print("🖥️  Will render with real terminal (echo)...")
     print()
 
     raw_output, returncode = capture.capture_command_output(args.command)
