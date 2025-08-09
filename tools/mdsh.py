@@ -347,7 +347,6 @@ class MarkdownShell:
         self.agent_command = agent_command
         self.console = Console()
         self.buffer = ""
-        self.ansi_processor = ANSIProcessor()
 
     def get_terminal_size(self):
         """Get current terminal size"""
@@ -389,7 +388,8 @@ class MarkdownShell:
     def is_markdown_content(self, text):
         """Simple heuristic to detect if text contains markdown"""
         # Strip ANSI codes before checking for markdown
-        clean_text = self.ansi_processor.strip_ansi(text)
+        temp_processor = ANSIProcessor()
+        clean_text = temp_processor.strip_ansi(text)
 
         markdown_indicators = [
             r'^#{1,6}\s',      # Headers
@@ -429,8 +429,6 @@ class MarkdownShell:
 
         if looks_like_prompt:
             # For shell prompts, ensure proper positioning with Rich console
-            # Force start at column 0 by printing a carriage return first
-            self.console.print('\r', end='')
             self.console.print(processed_text.rstrip(), end='')
         elif self.is_markdown_content(processed_text):
             try:
@@ -555,7 +553,8 @@ class MarkdownShell:
                                     self.buffer += data
 
                                 # Check for real-time updates (carriage returns or cursor movements)
-                                ansi_sequences = self.ansi_processor.ansi_pattern.findall(self.buffer)
+                                temp_ansi_processor = ANSIProcessor()
+                                ansi_sequences = temp_ansi_processor.ansi_pattern.findall(self.buffer)
                                 has_cursor_movement = any(
                                     seq for seq in ansi_sequences
                                     if re.match(r'\x1b\[[0-9]*[ABCDEFGH]', seq) or 'K' in seq
@@ -574,7 +573,7 @@ class MarkdownShell:
                                         # For carriage returns and cursor movements, use Rich console
                                         if '\r' in self.buffer or has_cursor_movement:
                                             # Use Rich console for consistent cursor handling
-                                            self.console.print('\r' + processed.strip(), end='')
+                                            self.console.print(processed.strip(), end='')
                                             self._has_realtime_output = True
                                             self.buffer = ''  # Clear buffer to prevent reprocessing
                                         else:
@@ -592,10 +591,9 @@ class MarkdownShell:
                                         self.console.print()  # Move to new line
                                         delattr(self, '_has_realtime_output')
 
-                                    if line.strip() or self.ansi_processor.ansi_pattern.search(line):
+                                    temp_line_processor = ANSIProcessor()
+                                    if line.strip() or temp_line_processor.ansi_pattern.search(line):
                                         self.render_text(line + '\n')
-                                        # Reset ANSIProcessor state after each line to prevent cursor accumulation
-                                        self.ansi_processor.reset_state()
                                     else:
                                         self.console.print()  # Empty line
 
