@@ -256,7 +256,7 @@ class BrokenUnicodeSearcher:
                 result = chardet.detect(raw_data)
 
                 # For code files, prefer UTF-8 if chardet confidence is low
-                if result and result.get('confidence', 0) < 0.7:
+                if result and result.get('confidence', 0) < 0.93:
                     file_ext = str(file_path).lower().split('.')[-1] if '.' in str(file_path) else ''
                     code_extensions = {'py', 'js', 'jsx', 'ts', 'tsx', 'md', 'json', 'css', 'scss', 'html', 'xml', 'yml', 'yaml'}
 
