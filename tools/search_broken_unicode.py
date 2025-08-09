@@ -25,6 +25,7 @@ import os
 import argparse
 import re
 import chardet
+from charset_normalizer import from_path
 from pathlib import Path
 import shutil
 from datetime import datetime
@@ -249,8 +250,23 @@ class BrokenUnicodeSearcher:
             return None
 
     def detect_encoding(self, file_path):
-        """Detect file encoding using chardet with smart defaults for code files"""
+        """Detect file encoding using charset-normalizer with chardet fallback"""
         try:
+            # Try charset-normalizer first (more accurate, especially for UTF-8 vs Windows-1252)
+            try:
+                results = from_path(file_path)
+                if results.best():
+                    best_match = results.best()
+                    return {
+                        'encoding': best_match.encoding,
+                        'confidence': 1.0 - best_match.chaos,  # Convert chaos to confidence (lower chaos = higher confidence)
+                        'language': getattr(best_match, 'language', ''),
+                        'method': 'charset-normalizer'
+                    }
+            except Exception:
+                pass  # Fall back to chardet
+
+            # Fallback to chardet if charset-normalizer fails
             with open(file_path, 'rb') as f:
                 raw_data = f.read(10000)  # Read first 10KB
                 result = chardet.detect(raw_data)
@@ -265,13 +281,15 @@ class BrokenUnicodeSearcher:
                         try:
                             with open(file_path, 'r', encoding='utf-8') as test_f:
                                 test_f.read()  # If this succeeds, UTF-8 is valid
-                            return {'encoding': 'utf-8', 'confidence': 0.95, 'language': '', 'chardet_result': result}
+                            return {'encoding': 'utf-8', 'confidence': 0.95, 'language': '', 'chardet_result': result, 'method': 'utf-8-fallback'}
                         except UnicodeDecodeError:
                             pass  # Fall back to chardet result
 
+                if result:
+                    result['method'] = 'chardet'
                 return result
         except Exception as e:
-            return {'encoding': None, 'confidence': 0, 'error': str(e)}
+            return {'encoding': None, 'confidence': 0, 'error': str(e), 'method': 'error'}
 
     def search_file(self, file_path, patterns=None, check_encoding=True, enable_git_history=True):
         """Search a single file for broken unicode"""
