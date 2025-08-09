@@ -437,10 +437,10 @@ class MarkdownShell:
                 self.console.print(markdown)
             except Exception:
                 # Fallback to plain text
-                self.console.print(processed_text, end='')
+                self.console.print(processed_text.rstrip())
         else:
-            # For non-markdown, use Rich console
-            self.console.print(processed_text, end='')
+            # For non-markdown, use Rich console - always ensure proper line termination
+            self.console.print(processed_text.rstrip())
 
     def run(self):
         """Run the AI agent in a simple wrapper"""
@@ -512,7 +512,7 @@ class MarkdownShell:
                         if processed.strip():
                             # Clear any previous real-time output first
                             if hasattr(self, '_has_realtime_output'):
-                                print()  # Move to new line
+                                self.console.print()  # Move to new line
                                 delattr(self, '_has_realtime_output')
 
                             # Render directly (already processed by temp_processor)
@@ -614,7 +614,16 @@ class MarkdownShell:
 
                                     temp_line_processor = ANSIProcessor()
                                     if line.strip() or temp_line_processor.ansi_pattern.search(line):
-                                        self.render_text(line + '\n')
+                                        # Check if line has ANSI sequences
+                                        if temp_line_processor.ansi_pattern.search(line):
+                                            # Has ANSI sequences, use full processing
+                                            clean_line = line.lstrip()
+                                            self.render_text(clean_line + '\n')
+                                        else:
+                                            # Simple text line, print directly to avoid cursor accumulation
+                                            clean_text = line.strip()
+                                            if clean_text:
+                                                self.console.print(clean_text)
                                     else:
                                         self.console.print()  # Empty line
 
