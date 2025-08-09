@@ -31,6 +31,34 @@ from datetime import datetime
 import subprocess
 import json
 
+try:
+    from tqdm import tqdm
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
+    # Fallback tqdm for when it's not installed
+    class tqdm:
+        def __init__(self, iterable=None, desc="", total=None, disable=False):
+            self.iterable = iterable
+            self.desc = desc
+            self.total = total or (len(iterable) if iterable else 0)
+            self.n = 0
+            if not disable:
+                print(f"{desc}: 0/{self.total}")
+
+        def __iter__(self):
+            for item in self.iterable:
+                yield item
+                self.update(1)
+
+        def update(self, n=1):
+            self.n += n
+            if self.n % max(1, self.total // 10) == 0:
+                print(f"{self.desc}: {self.n}/{self.total}")
+
+        def close(self):
+            print(f"{self.desc}: {self.n}/{self.total} ✅")
+
 class BrokenUnicodeSearcher:
     """Search for and optionally fix broken unicode characters"""
 
@@ -39,7 +67,7 @@ class BrokenUnicodeSearcher:
         self.broken_patterns = [
             r'�',           # Replacement character
             r'��',          # Double replacement
-            r'����',         # Triple replacement
+            r'���',         # Triple replacement
             r'\ufffd',      # Unicode replacement character
             r'\u00c2\u00a0', # Non-breaking space encoding issue
             r'\u00e2\u0080\u0099', # Smart quote encoding issue
@@ -58,6 +86,7 @@ class BrokenUnicodeSearcher:
 
         self.results = []
         self.git_available = self.check_git_available()
+        self.git_cache = {}  # Cache git results to avoid repeated calls
 
     def check_git_available(self):
         """Check if git is available and we're in a git repository"""
@@ -68,83 +97,95 @@ class BrokenUnicodeSearcher:
         except Exception:
             return False
 
-    def get_git_history_for_line(self, file_path, line_number, max_commits=20):
-        """Get git history for a specific line to find original character"""
+    def get_file_git_history(self, file_path, max_commits=10):
+        """Get git history for entire file (more efficient than per-line)"""
         if not self.git_available:
             return None
 
-        try:
-            # Use git log -L to get line history with diff
-            cmd = ['git', 'log', '-L', f'{line_number},{line_number}:{file_path}',
-                   f'-{max_commits}']
+        cache_key = f"{file_path}_{max_commits}"
+        if cache_key in self.git_cache:
+            return self.git_cache[cache_key]
 
+        try:
+            # Use git log -p to get all changes to the file
+            cmd = ['git', 'log', '-p', '--follow', f'-{max_commits}', file_path]
             result = subprocess.run(cmd, capture_output=True, text=True, cwd='.')
             if result.returncode != 0:
                 return None
 
-            # Parse the output to find commits that touched this line
-            commits = []
+            # Parse commits and their changes
+            commits = {}
             lines = result.stdout.split('\n')
-            i = 0
+            current_commit = None
+            current_changes = {}
 
-            while i < len(lines):
-                line = lines[i]
+            for line in lines:
                 if line.startswith('commit '):
-                    commit_hash = line.split()[1]
+                    if current_commit and current_changes:
+                        commits[current_commit] = current_changes
+                    current_commit = line.split()[1][:8]  # Short hash
+                    current_changes = {}
+                elif line.startswith('+') and not line.startswith('+++') and len(line) > 1:
+                    # This is an added line
+                    added_line = line[1:]  # Remove + prefix
+                    # Store by content for easy lookup
+                    content_key = added_line.strip()
+                    if content_key:
+                        current_changes[content_key] = added_line
 
-                    # Look for the diff section
-                    while i < len(lines) and not lines[i].startswith('@@'):
-                        i += 1
+            # Don't forget the last commit
+            if current_commit and current_changes:
+                commits[current_commit] = current_changes
 
-                    if i < len(lines):
-                        # Found diff section, extract the added lines
-                        i += 1  # Skip the @@ line
-                        added_lines = []
-
-                        while i < len(lines) and not lines[i].startswith('commit '):
-                            if lines[i].startswith('+') and len(lines[i]) > 1:
-                                added_lines.append(lines[i][1:])  # Remove + prefix
-                            i += 1
-
-                        if added_lines:
-                            commits.append({
-                                'commit': commit_hash,
-                                'lines': added_lines
-                            })
-
-                        # Back up one since we'll increment at end of loop
-                        i -= 1
-
-                i += 1
-
+            self.git_cache[cache_key] = commits
             return commits
 
-        except Exception as e:
+        except Exception:
             return None
 
+    def get_git_suggestion_from_cache(self, file_path, line_content):
+        """Get git suggestion from cached file history"""
+        file_history = self.get_file_git_history(file_path)
+        if not file_history:
+            return None
+
+        line_stripped = line_content.strip()
+
+        # Look through commits for a similar line without broken unicode
+        for commit_hash, changes in file_history.items():
+            for original_content in changes.values():
+                original_stripped = original_content.strip()
+
+                # Skip if it has broken unicode too
+                if '�' in original_stripped or any(pattern in original_stripped for pattern in ['ğŸ', 'â']):
+                    continue
+
+                # Check if this could be the original version
+                # Simple heuristic: similar length and structure
+                if (abs(len(original_stripped) - len(line_stripped)) < 10 and
+                    any(word in original_stripped for word in line_stripped.split() if len(word) > 3)):
+
+                    return {
+                        'suggestion': original_stripped,
+                        'commit': commit_hash,
+                        'historical_line': original_content
+                    }
+
+        return None
+
     def suggest_original_character(self, file_path, line_number, current_line):
-        """Suggest original character based on git history"""
+        """Suggest original character based on git history (now uses cached approach)"""
         if not self.git_available:
             return None
 
-        # Get git history for this line
-        history = self.get_git_history_for_line(file_path, line_number)
-        if not history:
-            return None
-
-        # Look through history to find a version without broken unicode
-        for commit_info in history:
-            for hist_line in commit_info['lines']:
-                # Check if this historical line has the same structure but valid unicode
-                if '�' not in hist_line and '\ufffd' not in hist_line:
-                    # Try to match the pattern and suggest replacement
-                    suggestion = self.extract_unicode_suggestion(current_line, hist_line)
-                    if suggestion:
-                        return {
-                            'suggestion': suggestion,
-                            'commit': commit_info['commit'][:8],
-                            'historical_line': hist_line.strip()
-                        }
+        # Use the faster cached git history approach
+        suggestion = self.get_git_suggestion_from_cache(file_path, current_line)
+        if suggestion:
+            # Extract specific unicode suggestions from the full line
+            unicode_suggestion = self.extract_unicode_suggestion(current_line, suggestion['historical_line'])
+            if unicode_suggestion:
+                suggestion['suggestion'] = unicode_suggestion
+            return suggestion
 
         return None
 
@@ -217,7 +258,7 @@ class BrokenUnicodeSearcher:
         except Exception as e:
             return {'encoding': None, 'confidence': 0, 'error': str(e)}
 
-    def search_file(self, file_path, patterns=None, check_encoding=True):
+    def search_file(self, file_path, patterns=None, check_encoding=True, enable_git_history=True):
         """Search a single file for broken unicode"""
         if patterns is None:
             patterns = self.broken_patterns
@@ -284,22 +325,22 @@ class BrokenUnicodeSearcher:
                         'encoding_used': used_encoding
                     }
 
-                    # Try to get git history suggestion for this line
-                    if self.git_available:
-                        suggestion = self.suggest_original_character(file_path, line_num, line)
-                        if suggestion:
-                            issue['git_suggestion'] = suggestion
-
-                    # Try encoding reversal for the matched text
+                    # Try encoding reversal first (faster)
                     reversal = self.try_encoding_reversal(line.strip())
                     if reversal:
                         issue['encoding_reversal'] = reversal
+
+                    # Try git history suggestion only if enabled and encoding reversal failed
+                    if enable_git_history and self.git_available and not reversal:
+                        suggestion = self.suggest_original_character(file_path, line_num, line)
+                        if suggestion:
+                            issue['git_suggestion'] = suggestion
 
                     file_results['issues'].append(issue)
 
         return file_results
 
-    def search_directory(self, directory, recursive=True, extensions=None):
+    def search_directory(self, directory, recursive=True, extensions=None, enable_git_history=True):
         """Search directory for files with broken unicode"""
         if extensions is None:
             extensions = self.default_extensions
@@ -314,8 +355,10 @@ class BrokenUnicodeSearcher:
             print("📁 Recursive search enabled")
 
         pattern = "**/*" if recursive else "*"
+
+        # First pass: collect all files to check
+        files_to_check = []
         files_found = 0
-        files_checked = 0
 
         for file_path in directory.glob(pattern):
             if file_path.is_file():
@@ -329,15 +372,20 @@ class BrokenUnicodeSearcher:
                 if self.is_likely_binary(file_path):
                     continue
 
-                files_checked += 1
-                if files_checked % 50 == 0:
-                    print(f"📊 Checked {files_checked} files...")
+                files_to_check.append(file_path)
 
-                result = self.search_file(file_path)
-                if result['issues'] or result['errors']:
-                    self.results.append(result)
+        print(f"📊 Found {files_found} files, will check {len(files_to_check)}")
 
-        print(f"📈 Summary: {files_found} files found, {files_checked} checked")
+        # Second pass: check files with progress bar
+        if files_to_check:
+            with tqdm(files_to_check, desc="🔍 Scanning files", disable=len(files_to_check) < 5) as pbar:
+                for file_path in pbar:
+                    pbar.set_postfix_str(str(file_path.name))
+                    result = self.search_file(file_path, enable_git_history=enable_git_history)
+                    if result['issues'] or result['errors']:
+                        self.results.append(result)
+
+        print(f"✅ Scanned {len(files_to_check)} files, found issues in {len(self.results)}")
 
     def is_likely_binary(self, file_path):
         """Check if file is likely binary"""
@@ -513,14 +561,21 @@ def main():
 Examples:
   search_broken_unicode.py myfile.py
   search_broken_unicode.py --recursive src/
+  search_broken_unicode.py --fast --recursive .  # Fast mode, no git
   search_broken_unicode.py --pattern "��" --verbose .
   search_broken_unicode.py --fix --backup broken_file.txt
   search_broken_unicode.py --extensions .py,.js,.html src/
+
+Performance options:
+  --fast          Skip git history (fastest)
+  --no-git        Disable git suggestions only
+  (default)       Full analysis with git + encoding reversal
 
 Common patterns searched:
   � (replacement character)
   �� (double replacement)
   ��� (triple replacement)
+  ğŸ* (Windows-1254 corruption)
   Unicode escape sequences
         """
     )
@@ -581,6 +636,18 @@ Common patterns searched:
         help='Check file encodings (default: true)'
     )
 
+    parser.add_argument(
+        '--fast',
+        action='store_true',
+        help='Fast mode: skip git history lookups for speed'
+    )
+
+    parser.add_argument(
+        '--no-git',
+        action='store_true',
+        help='Disable git history suggestions (faster)'
+    )
+
     args = parser.parse_args()
 
     # Handle backup option
@@ -596,15 +663,22 @@ Common patterns searched:
     # Create searcher
     searcher = BrokenUnicodeSearcher()
 
+    # Disable git if requested
+    if args.no_git or args.fast:
+        searcher.git_available = False
+        if args.fast:
+            print("⚡ Fast mode: skipping git history lookups")
+
     # Add custom patterns
     if args.pattern:
         searcher.broken_patterns.extend(args.pattern)
 
     path = Path(args.path)
+    enable_git = searcher.git_available and not args.fast and not args.no_git
 
     if path.is_file():
         print(f"🔍 Searching file: {path}")
-        result = searcher.search_file(path, check_encoding=args.encoding_check)
+        result = searcher.search_file(path, check_encoding=args.encoding_check, enable_git_history=enable_git)
         if result['issues'] or result['errors']:
             searcher.results.append(result)
 
@@ -612,13 +686,15 @@ Common patterns searched:
             searcher.fix_file(path, backup=backup)
 
     elif path.is_dir():
-        searcher.search_directory(path, recursive=args.recursive, extensions=extensions)
+        searcher.search_directory(path, recursive=args.recursive, extensions=extensions, enable_git_history=enable_git)
 
         if args.fix and searcher.results:
             print(f"\n🔧 Fixing {len(searcher.results)} files...")
-            for result in searcher.results:
-                if result['issues']:
-                    searcher.fix_file(result['file'], backup=backup)
+            with tqdm(searcher.results, desc="🔧 Fixing files", disable=len(searcher.results) < 3) as pbar:
+                for result in pbar:
+                    if result['issues']:
+                        pbar.set_postfix_str(Path(result['file']).name)
+                        searcher.fix_file(result['file'], backup=backup)
     else:
         print(f"❌ Path does not exist: {path}")
         sys.exit(1)
