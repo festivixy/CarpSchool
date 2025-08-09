@@ -81,7 +81,7 @@ class BrokenUnicodeSearcher:
         # File extensions to check by default
         self.default_extensions = {
             '.py', '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.scss',
-            '.json', '.xml', '.txt', '.md', '.rst', '.log', '.yml', '.yaml'
+            '.txt', '.md', '.rst'
         }
 
         self.results = []
@@ -207,7 +207,7 @@ class BrokenUnicodeSearcher:
                 suggestions[i] = good_chars[i]
 
         # Also check for common patterns
-        broken_patterns = ['�', '��', '���']
+        broken_patterns = ['�', '��', '�����']
         for pattern in broken_patterns:
             if pattern in broken_line and pattern not in good_line:
                 # Try to find what this pattern corresponds to in good_line
