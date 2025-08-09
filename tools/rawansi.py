@@ -48,10 +48,11 @@ except ImportError:
 class RawANSICapture:
     """Captures raw ANSI output from commands"""
 
-    def __init__(self, timeout=5, enable_logging=True):
+    def __init__(self, timeout=5, enable_logging=True, interactive_mode=False):
         self.timeout = timeout
         self.processor = ANSIProcessor()
         self.enable_logging = enable_logging
+        self.interactive_mode = interactive_mode
         self.log_dir = os.path.join(os.path.dirname(__file__), 'tmp', 'rawansi')
         self.log_buffer = []  # Buffer to capture all output for logging
 
@@ -119,6 +120,119 @@ class RawANSICapture:
 
         except Exception as e:
             return f"Error executing command: {e}", 1
+
+    def run_interactive(self, command):
+        """Run command interactively showing plain text instead of rendering ANSI"""
+        print(f"🔍 Interactive Raw ANSI Mode")
+        print(f"📝 Command: {command}")
+        print(f"💡 ANSI sequences will be shown as plain text (not rendered)")
+        print("=" * 60)
+        print()
+
+        try:
+            # Use pty to ensure ANSI sequences are preserved
+            master, slave = pty.openpty()
+
+            # Start the command
+            process = subprocess.Popen(
+                ["bash", "-c", command],
+                stdin=slave,
+                stdout=slave,
+                stderr=slave,
+                preexec_fn=os.setsid
+            )
+
+            os.close(slave)
+
+            # Set terminal to raw mode for interactive input (only if stdin is a tty)
+            old_settings = None
+            raw_mode_enabled = False
+            if sys.stdin.isatty():
+                try:
+                    old_settings = termios.tcgetattr(sys.stdin)
+                    tty.setraw(sys.stdin.fileno())
+                    raw_mode_enabled = True
+                except:
+                    pass
+
+            print("🚀 Starting interactive session (Ctrl+C to exit):")
+            print("─" * 60)
+
+            try:
+                while True:
+                    # Check if process is still running
+                    if process.poll() is not None:
+                        print("\n📝 Process finished")
+                        break
+
+                    # Wait for input from either stdin or the process
+                    stdin_list = [sys.stdin] if sys.stdin.isatty() else []
+                    ready, _, _ = select.select(stdin_list + [master], [], [], 0.1)
+
+                    if sys.stdin in ready:
+                        # User input - forward to process
+                        try:
+                            char = sys.stdin.read(1)
+                            if char == '\x03':  # Ctrl+C
+                                print("\n🛑 Interrupted by user")
+                                break
+                            os.write(master, char.encode())
+                        except (EOFError, KeyboardInterrupt):
+                            break
+
+                    if master in ready:
+                        # Process output - show as plain text
+                        try:
+                            raw_data = os.read(master, 1024)
+                            if raw_data:
+                                # Decode and show as plain text (including ANSI sequences)
+                                try:
+                                    text = raw_data.decode('utf-8', errors='replace')
+                                except:
+                                    text = raw_data.decode('latin1', errors='replace')
+
+                                # Show the raw text with ANSI sequences visible
+                                # Use repr() to show escape sequences as \x1b[...
+                                for char in text:
+                                    if ord(char) < 32 and char not in ['\n', '\r', '\t']:
+                                        # Show control characters as escape sequences
+                                        print(repr(char), end='')
+                                    else:
+                                        # Show printable characters normally
+                                        print(char, end='')
+
+                                sys.stdout.flush()
+                            else:
+                                break
+                        except OSError:
+                            break
+
+            finally:
+                # Restore terminal settings only if we enabled raw mode
+                if raw_mode_enabled and old_settings:
+                    try:
+                        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+                    except:
+                        pass
+
+            # Cleanup
+            try:
+                if process.poll() is None:
+                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                    process.wait(timeout=1)
+            except:
+                pass
+
+            os.close(master)
+
+            print("\n─" * 60)
+            print("🏁 Interactive session ended")
+
+        except Exception as e:
+            print(f"❌ Error in interactive mode: {e}")
+            return 1
+
+        return 0
 
     def format_hex_dump(self, text, width=16):
         """Create a hex dump of the text"""
@@ -512,6 +626,8 @@ Examples:
   rawansi --real-terminal "echo -e '\\033[6;11HTest\\033[1;1H'"
   rawansi --timeout 10 "ps aux | head -5"
   rawansi "tput cup 5 10; echo 'Positioned'; tput cup 0 0"
+  rawansi --interactive "sh"
+  rawansi --interactive "vi test.txt"
 
 Perfect for:
   - Debugging ANSI processing issues
@@ -558,6 +674,12 @@ Perfect for:
         help='Command timeout in seconds (default: 5)'
     )
 
+    parser.add_argument(
+        '--interactive',
+        action='store_true',
+        help='Run in interactive mode - shows plain text instead of rendering ANSI commands'
+    )
+
     args = parser.parse_args()
 
     # Determine if real terminal output should be shown
@@ -568,9 +690,15 @@ Perfect for:
         show_real_terminal = True
 
     # Create capture instance
-    capture = RawANSICapture(timeout=args.timeout)
+    capture = RawANSICapture(timeout=args.timeout, interactive_mode=args.interactive)
 
-    # Execute command and capture output
+    # Check if interactive mode is requested
+    if args.interactive:
+        # Run in interactive mode
+        exit_code = capture.run_interactive(args.command)
+        sys.exit(exit_code)
+
+    # Execute command and capture output (normal mode)
     print(f"🚀 Executing: {args.command}")
     print("⏳ Capturing raw ANSI output...")
     if show_real_terminal:
