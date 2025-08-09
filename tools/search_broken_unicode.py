@@ -69,6 +69,7 @@ class BrokenUnicodeSearcher:
             r'�',           # Replacement character
             r'��',          # Double replacement
             r'���',         # Triple replacement
+            r'����',        # Quadruple replacement (4-byte chars like emojis)
             r'\ufffd',      # Unicode replacement character
             r'\u00c2\u00a0', # Non-breaking space encoding issue
             r'\u00e2\u0080\u0099', # Smart quote encoding issue
