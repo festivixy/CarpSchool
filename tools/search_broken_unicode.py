@@ -249,11 +249,26 @@ class BrokenUnicodeSearcher:
             return None
 
     def detect_encoding(self, file_path):
-        """Detect file encoding using chardet"""
+        """Detect file encoding using chardet with smart defaults for code files"""
         try:
             with open(file_path, 'rb') as f:
                 raw_data = f.read(10000)  # Read first 10KB
                 result = chardet.detect(raw_data)
+
+                # For code files, prefer UTF-8 if chardet confidence is low
+                if result and result.get('confidence', 0) < 0.7:
+                    file_ext = str(file_path).lower().split('.')[-1] if '.' in str(file_path) else ''
+                    code_extensions = {'py', 'js', 'jsx', 'ts', 'tsx', 'md', 'json', 'css', 'scss', 'html', 'xml', 'yml', 'yaml'}
+
+                    if file_ext in code_extensions:
+                        # Try UTF-8 first for code files
+                        try:
+                            with open(file_path, 'r', encoding='utf-8') as test_f:
+                                test_f.read()  # If this succeeds, UTF-8 is valid
+                            return {'encoding': 'utf-8', 'confidence': 0.95, 'language': '', 'chardet_result': result}
+                        except UnicodeDecodeError:
+                            pass  # Fall back to chardet result
+
                 return result
         except Exception as e:
             return {'encoding': None, 'confidence': 0, 'error': str(e)}
