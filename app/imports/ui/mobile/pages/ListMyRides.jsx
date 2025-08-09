@@ -190,7 +190,7 @@ class MobileListMyRides extends React.Component {
                       </span>
                     </div>
                     <div className="mobile-listrides-detail-item">
-                      <span className="mobile-listrides-detail-icon">����</span>
+                      <span className="mobile-listrides-detail-icon">🕐</span>
                       <span className="mobile-listrides-detail-text">
                         {this.formatTime(ride.date)}
                       </span>
