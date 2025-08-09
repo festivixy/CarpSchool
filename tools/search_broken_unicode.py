@@ -419,9 +419,16 @@ class BrokenUnicodeSearcher:
         # First, analyze the file to get git suggestions
         file_results = self.search_file(file_path)
 
-        # Read file with replacement characters
+        # Use the same encoding that was used during search
+        used_encoding = 'utf-8'
+        for issue in file_results['issues']:
+            if issue.get('encoding_used'):
+                used_encoding = issue['encoding_used']
+                break
+
+        # Read file with replacement characters using the same encoding as search
         try:
-            with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+            with open(file_path, 'r', encoding=used_encoding, errors='replace') as f:
                 lines = f.readlines()
         except Exception as e:
             print(f"❌ Could not read file: {e}")
@@ -440,12 +447,27 @@ class BrokenUnicodeSearcher:
                         old_line = lines[line_num]
 
                         # Apply the git suggestions
-                        new_line = old_line
-                        if isinstance(suggestion['suggestion'], dict):
-                            for pattern, replacement in suggestion['suggestion'].items():
-                                if isinstance(pattern, str):  # Only replace string patterns
-                                    new_line = new_line.replace(pattern, replacement)
-                            print(f"   ✨ Applied git suggestion on line {issue['line']}: {pattern} → {replacement}")
+                        broken_pattern = issue['match']  # The actual broken pattern that was found
+
+                        if isinstance(suggestion['suggestion'], dict) and suggestion['suggestion']:
+                            # Get the first suggested replacement character
+                            replacement_char = list(suggestion['suggestion'].values())[0]
+
+                            # For � characters, replace directly
+                            if broken_pattern == '�' and '�' in old_line:
+                                new_line = old_line.replace('�', replacement_char, 1)
+                                if new_line != old_line:
+                                    lines[line_num] = new_line
+                                    changes_made = True
+                                    print(f"   ✨ Applied git suggestion on line {issue['line']}: � → {replacement_char}")
+
+                            # For other patterns, try to replace the pattern directly
+                            elif broken_pattern in old_line and isinstance(replacement_char, str):
+                                new_line = old_line.replace(broken_pattern, replacement_char, 1)
+                                if new_line != old_line:
+                                    lines[line_num] = new_line
+                                    changes_made = True
+                                    print(f"   ✨ Applied git suggestion on line {issue['line']}: {broken_pattern} → {replacement_char}")
 
         # Apply encoding reversal fixes
         # Disabled: Windows-1254 reversal causes false positives on normal unicode text
@@ -497,7 +519,7 @@ class BrokenUnicodeSearcher:
     def print_results(self, verbose=False):
         """Print search results"""
         if not self.results:
-            print("✅ No broken unicode characters found!")
+            print("��� No broken unicode characters found!")
             return
 
         print(f"\n🚨 Found issues in {len(self.results)} file(s):")
@@ -683,7 +705,7 @@ Common patterns searched:
     if args.no_git or args.fast:
         searcher.git_available = False
         if args.fast:
-            print("⚡ Fast mode: skipping git history lookups")
+            print("��� Fast mode: skipping git history lookups")
 
     # Add custom patterns
     if args.pattern:
