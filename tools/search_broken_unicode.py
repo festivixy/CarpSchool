@@ -39,12 +39,15 @@ class BrokenUnicodeSearcher:
         self.broken_patterns = [
             r'�',           # Replacement character
             r'��',          # Double replacement
-            r'���',         # Triple replacement
+            r'����',         # Triple replacement
             r'\ufffd',      # Unicode replacement character
             r'\u00c2\u00a0', # Non-breaking space encoding issue
             r'\u00e2\u0080\u0099', # Smart quote encoding issue
             r'\u00e2\u0080\u009c', # Smart quote encoding issue
             r'\u00e2\u0080\u009d', # Smart quote encoding issue
+            # Windows-1254 corruption patterns (potentially reversible)
+            r'ğŸ[^\s]{2,}',  # Patterns starting with ğŸ (F0 9F in Windows-1254)
+            r'â[^\s]{2,}',   # Patterns starting with â (E2 in Windows-1254)
         ]
 
         # File extensions to check by default
@@ -178,6 +181,32 @@ class BrokenUnicodeSearcher:
 
         return suggestions if suggestions else None
 
+    def try_encoding_reversal(self, corrupted_text, encoding='windows-1254'):
+        """Try to reverse encoding corruption by re-encoding and decoding"""
+        try:
+            # Check if the corrupted text contains replacement characters
+            if '�' in corrupted_text:
+                return None  # Cannot reverse if data was lost
+
+            # Encode the corrupted text back to bytes using the suspected wrong encoding
+            wrong_encoding_bytes = corrupted_text.encode(encoding, errors='strict')
+
+            # Decode as UTF-8 to get the original
+            restored = wrong_encoding_bytes.decode('utf-8', errors='strict')
+
+            # Verify this looks like a valid restoration (contains emoji/unicode)
+            if any(ord(c) > 127 for c in restored):
+                return {
+                    'restored': restored,
+                    'method': f'encoding_reversal_{encoding}',
+                    'confidence': 'high' if len(restored) < len(corrupted_text) else 'medium'
+                }
+
+            return None
+
+        except Exception:
+            return None
+
     def detect_encoding(self, file_path):
         """Detect file encoding using chardet"""
         try:
@@ -260,6 +289,11 @@ class BrokenUnicodeSearcher:
                         suggestion = self.suggest_original_character(file_path, line_num, line)
                         if suggestion:
                             issue['git_suggestion'] = suggestion
+
+                    # Try encoding reversal for the matched text
+                    reversal = self.try_encoding_reversal(line.strip())
+                    if reversal:
+                        issue['encoding_reversal'] = reversal
 
                     file_results['issues'].append(issue)
 
@@ -362,12 +396,26 @@ class BrokenUnicodeSearcher:
                             for pattern, replacement in suggestion['suggestion'].items():
                                 if isinstance(pattern, str):  # Only replace string patterns
                                     new_line = new_line.replace(pattern, replacement)
-                                    print(f"   ✨ Applied git suggestion on line {issue['line']}: {pattern} → {replacement}")
+                            print(f"   ✨ Applied git suggestion on line {issue['line']}: {pattern} → {replacement}")
+
+        # Apply encoding reversal fixes
+        if use_git_suggestions:  # Use same flag for encoding reversals
+            for issue in file_results['issues']:
+                if issue['type'] == 'broken_unicode' and 'encoding_reversal' in issue:
+                    line_num = issue['line'] - 1
+                    if line_num < len(lines):
+                        reversal = issue['encoding_reversal']
+                        old_line = lines[line_num]
+                        new_line = reversal['restored']
+
+                        if new_line != old_line:
+                            lines[line_num] = new_line + '\n' if not new_line.endswith('\n') else new_line
+                            changes_made = True
+                            print(f"   🔄 Applied encoding reversal on line {issue['line']}: {reversal['method']}")
 
                         if new_line != old_line:
                             lines[line_num] = new_line
                             changes_made = True
-                            print(f"   ✨ Applied git suggestion on line {issue['line']}: {replacement}")
 
         # Apply fallback fixes for any remaining issues
         fallback_fixes = {
@@ -446,6 +494,11 @@ class BrokenUnicodeSearcher:
                             print(f"      💡 Git suggests: {suggestion['suggestion']} (from commit {suggestion['commit']})")
                             if verbose:
                                 print(f"      📝 Original line: {repr(suggestion['historical_line'][:60])}")
+
+                        # Show encoding reversal suggestion if available
+                        if 'encoding_reversal' in issue:
+                            reversal = issue['encoding_reversal']
+                            print(f"      🔄 Encoding reversal: {repr(reversal['restored'])} (method: {reversal['method']}, confidence: {reversal['confidence']})")
 
                     elif issue['type'] == 'encoding_uncertainty':
                         print(f"   ⚠️  {issue['message']}")
