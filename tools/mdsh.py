@@ -571,12 +571,12 @@ class MarkdownShell:
                                     # This is likely a real-time update or shell prompt - process immediately
                                     processed = temp_processor.process_ansi_sequences(self.buffer)
                                     if processed.strip():
-                                        # For carriage returns and cursor movements, use direct printing
+                                        # For carriage returns and cursor movements, use Rich console
                                         if '\r' in self.buffer or has_cursor_movement:
-                                            # Clear current line and show update
-                                            print('\r' + ' ' * 120 + '\r', end='', flush=True)
-                                            print(processed.strip(), end='', flush=True)
+                                            # Use Rich console for consistent cursor handling
+                                            self.console.print('\r' + processed.strip(), end='')
                                             self._has_realtime_output = True
+                                            self.buffer = ''  # Clear buffer to prevent reprocessing
                                         else:
                                             # For shell prompts, use render_text for consistency
                                             self.render_text(processed)
@@ -589,13 +589,15 @@ class MarkdownShell:
 
                                     # Clear any previous real-time output
                                     if hasattr(self, '_has_realtime_output'):
-                                        print()  # Move to new line
+                                        self.console.print()  # Move to new line
                                         delattr(self, '_has_realtime_output')
 
                                     if line.strip() or self.ansi_processor.ansi_pattern.search(line):
                                         self.render_text(line + '\n')
+                                        # Reset ANSIProcessor state after each line to prevent cursor accumulation
+                                        self.ansi_processor.reset_state()
                                     else:
-                                        print()  # Empty line
+                                        self.console.print()  # Empty line
 
                                 # Mark if we have real-time output
                                 if self.buffer and ('\r' in self.buffer or has_cursor_movement):
