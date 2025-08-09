@@ -129,6 +129,10 @@ class RawANSICapture:
         print("=" * 60)
         print()
 
+        # Initialize session capture
+        session_output = []
+        session_start_time = time.time()
+
         try:
             # Use pty to ensure ANSI sequences are preserved
             master, slave = pty.openpty()
@@ -191,6 +195,9 @@ class RawANSICapture:
                                 except:
                                     text = raw_data.decode('latin1', errors='replace')
 
+                                # Capture the raw output for logging
+                                session_output.append(text)
+
                                 # Show the raw text with ANSI sequences visible
                                 # Use repr() to show escape sequences as \x1b[...
                                 for char in text:
@@ -228,11 +235,64 @@ class RawANSICapture:
             print("\n─" * 60)
             print("🏁 Interactive session ended")
 
+            # Write session output to log file
+            self._write_interactive_log(command, session_output, session_start_time)
+
         except Exception as e:
             print(f"❌ Error in interactive mode: {e}")
+            # Still try to write log even on error
+            if 'session_output' in locals():
+                self._write_interactive_log(command, session_output, session_start_time)
             return 1
 
         return 0
+
+    def _write_interactive_log(self, command, session_output, session_start_time):
+        """Write interactive session output to log file"""
+        if not session_output:
+            return None
+
+        try:
+            # Create log directory if it doesn't exist
+            if not self.create_log_directory():
+                print("⚠️  Could not create log directory")
+                return None
+
+            # Generate filename: {timestamp}_{command}.log
+            timestamp = str(int(session_start_time))
+            safe_command = re.sub(r'[^\w\s-]', '', command)
+            safe_command = re.sub(r'\s+', '_', safe_command)
+            safe_command = safe_command[:50]  # Limit length
+
+            if not safe_command:
+                safe_command = "interactive"
+
+            filename = f"{timestamp}_{safe_command}.log"
+            filepath = os.path.join(self.log_dir, filename)
+
+            # Write session log
+            with open(filepath, 'w', encoding='utf-8') as f:
+                # Write header
+                f.write(f"# Interactive Raw ANSI Session Log\n")
+                f.write(f"# Generated: {datetime.fromtimestamp(session_start_time).strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"# Command: {command}\n")
+                f.write(f"# Session Duration: {time.time() - session_start_time:.2f} seconds\n")
+                f.write(f"# Timestamp: {timestamp}\n")
+                f.write("# " + "="*60 + "\n")
+                f.write("# Raw output captured during interactive session\n")
+                f.write("# ANSI sequences are preserved as-is\n")
+                f.write("# " + "="*60 + "\n\n")
+
+                # Write all captured session output
+                for output_chunk in session_output:
+                    f.write(output_chunk)
+
+            print(f"📄 Session log written to: {filepath}")
+            return filepath
+
+        except Exception as e:
+            print(f"⚠️  Could not write session log: {e}")
+            return None
 
     def format_hex_dump(self, text, width=16):
         """Create a hex dump of the text"""
