@@ -415,7 +415,9 @@ class MarkdownShell:
             return
 
         # Process all ANSI escape sequences comprehensively
-        processed_text = self.ansi_processor.process_ansi_sequences(text)
+        # Use a fresh processor to avoid state accumulation
+        temp_processor = ANSIProcessor()
+        processed_text = temp_processor.process_ansi_sequences(text)
 
         # Skip empty or whitespace-only content after processing
         if not processed_text.strip():
@@ -537,7 +539,9 @@ class MarkdownShell:
 
                                 if ('\r' in self.buffer or has_cursor_movement) and '\n' not in self.buffer:
                                     # This is likely a real-time update - process immediately
-                                    processed = self.ansi_processor.process_ansi_sequences(self.buffer)
+                                    # Use a fresh processor instance to avoid state accumulation
+                                    temp_processor = ANSIProcessor()
+                                    processed = temp_processor.process_ansi_sequences(self.buffer)
                                     if processed.strip():
                                         # Clear current line and show update
                                         print('\r' + ' ' * 120 + '\r', end='', flush=True)
