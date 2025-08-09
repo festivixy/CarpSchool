@@ -211,11 +211,17 @@ class BrokenUnicodeSearcher:
         # Apply fixes
         original_content = content
 
-        # Replace common broken patterns
+        # Only fix actual broken unicode replacement characters
+        # Keep this simple and targeted
         fixes = {
-            '�': '?',  # Replace with question mark
-            '��': '?', # Replace double replacement
-            '���': '?', # Replace triple replacement
+            # Remove lone replacement characters
+            '�': '',
+
+            # Fix specific broken border patterns
+            '──────────────────────────────────��──────────': '────────────────────────────────────────────',
+            '────────��─────────────���────────': '──────────────────────────────────',
+            '��': '',  # Remove double replacement
+            '���': '', # Remove triple replacement
         }
 
         for broken, replacement in fixes.items():
