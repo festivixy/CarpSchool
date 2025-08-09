@@ -222,45 +222,50 @@ class RawANSICapture:
     def get_real_terminal_output(self, raw_output):
         """Show what a terminal would display - the final visual result"""
         try:
-            # For comparison purposes, show what a terminal would display
-            # after processing all the ANSI sequences
-
-            # Write raw output to a file and cat it to see terminal behavior
+            # Create a more accurate terminal simulation
+            # Use script command to capture terminal output with proper ANSI handling
             import tempfile
 
-            with tempfile.NamedTemporaryFile(mode='wb', delete=False) as f:
-                f.write(raw_output.encode('utf-8'))
-                temp_file = f.name
+            # Create a script that outputs the raw sequences
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.sh', delete=False) as f:
+                f.write('#!/bin/bash\n')
+                f.write('cat << \'EOF\'\n')
+                f.write(raw_output)
+                f.write('\nEOF\n')
+                script_file = f.name
 
             try:
-                # Cat the file to see how terminal handles it
-                # Capture both stdout and stderr to see actual terminal output
+                # Make script executable
+                os.chmod(script_file, 0o755)
+
+                # Run script and capture output with terminal processing
                 result = subprocess.run(
-                    ['cat', temp_file],
+                    ['bash', script_file],
                     capture_output=True,
-                    text=False,  # Keep as bytes initially
-                    timeout=2
+                    text=False,  # Keep as bytes to preserve encoding
+                    timeout=5
                 )
 
                 if result.returncode == 0:
-                    # Decode the result
+                    # Decode the terminal output
                     terminal_output = result.stdout.decode('utf-8', errors='replace')
 
-                    # Process this output through our ANSIProcessor to show
-                    # what the terminal would display as final text
+                    # Use our ANSIProcessor to show what the terminal displays
+                    # This simulates the terminal's final visual output
                     final_display = self.processor.process_ansi_sequences(terminal_output)
                     return final_display
                 else:
-                    return f"Terminal error: {result.stderr.decode('utf-8', errors='replace')}"
+                    error_msg = result.stderr.decode('utf-8', errors='replace')
+                    return f"Script error: {error_msg}"
 
             finally:
                 try:
-                    os.unlink(temp_file)
+                    os.unlink(script_file)
                 except:
                     pass
 
         except Exception as e:
-            return f"Error simulating terminal: {e}"
+            return f"Error creating terminal simulation: {e}"
 
     def print_analysis(self, command, raw_output, returncode, show_hex=False, show_compare=True, show_real_terminal=True):
         """Print comprehensive analysis of the captured output"""
@@ -291,49 +296,51 @@ class RawANSICapture:
                 print(f"│ {i:2d}. {seq_info['repr']:<20} → {seq_info['description']}")
             if len(sequences) > 10:
                 print(f"│     ... and {len(sequences) - 10} more sequences")
-            print("└─────────────────────────────────────────────────────────┘")
+            print("└──────────────────────────────────────────────��──────────┘")
         print()
 
-        # Raw output
-        print("📜 Raw Output (with ANSI sequences):")
-        print("┌─ Raw ───────────────────────────────────────────────────┐")
-        if raw_output.strip():
-            print(f"│ {repr(raw_output)}")
-        else:
-            print("│ (empty)")
-        print("└─────────────────────────────────────────────────────────┘")
-        print()
+        def format_output_section(title, content, max_lines=5):
+            """Format an output section with truncation for readability"""
+            print(f"{title}:")
+            print("┌─────────────────────────────────────────────────────────┐")
 
-        # Real terminal output (using printf)
-        if show_real_terminal and real_terminal_output is not None:
-            print("🖥️  Real Terminal Output (printf rendered):")
-            print("┌─ Real Terminal ─────────────────────────────────────────┐")
-            if real_terminal_output:
-                print(f"│ {repr(real_terminal_output)}")
-            else:
+            if not content:
                 print("│ (empty)")
+            else:
+                content_repr = repr(content)
+                if len(content_repr) > 500:  # Truncate very long content
+                    content_repr = content_repr[:497] + "..."
+
+                # Handle multi-line display
+                if '\n' in content and len(content.split('\n')) > max_lines:
+                    lines = content.split('\n')
+                    displayed_lines = lines[:max_lines]
+                    remaining = len(lines) - max_lines
+
+                    for line in displayed_lines:
+                        line_repr = repr(line)
+                        if len(line_repr) > 55:
+                            line_repr = line_repr[:52] + "..."
+                        print(f"│ {line_repr}")
+                    print(f"│ ... and {remaining} more lines")
+                else:
+                    print(f"│ {content_repr}")
+
             print("└─────────────────────────────────────────────────────────┘")
             print()
 
+        # Raw output
+        format_output_section("📜 Raw Output (with ANSI sequences)", raw_output)
+
+        # Real terminal output (using printf)
+        if show_real_terminal and real_terminal_output is not None:
+            format_output_section("🖥️  Real Terminal Output (printf rendered)", real_terminal_output)
+
         # Processed output
-        print("🎯 Processed Output (ANSIProcessor result):")
-        print("┌─ Processed ─────────────────────────────────────────────┐")
-        if processed_output:
-            print(f"│ {repr(processed_output)}")
-        else:
-            print("│ (empty)")
-        print("└─────────────────────────────────────────────────────────┘")
-        print()
+        format_output_section("🎯 Processed Output (ANSIProcessor result)", processed_output)
 
         # Stripped output
-        print("🧹 Stripped Output (ANSI sequences removed):")
-        print("┌─ Stripped ──────────────────────────────────────────────┐")
-        if stripped_output:
-            print(f"│ {repr(stripped_output)}")
-        else:
-            print("│ (empty)")
-        print("└─────────────────────────────────────────────────────────┘")
-        print()
+        format_output_section("🧹 Stripped Output (ANSI sequences removed)", stripped_output)
 
         # Enhanced comparison
         if show_compare:
@@ -360,7 +367,7 @@ class RawANSICapture:
                 print(f"│ {line}")
             if len(hex_lines) > 20:
                 print(f"│ ... and {len(hex_lines) - 20} more lines")
-            print("└─────────────────────────────────────────────────────────┘")
+            print("└─────────────────────────────────────────────────────��───┘")
             print()
 
         # Visual output (if it looks safe to display)
@@ -382,6 +389,11 @@ class RawANSICapture:
             print("💡 Use --hex for hex dump, --no-compare to skip comparison, --no-real-terminal to skip printf rendering")
         else:
             print("💡 Use --hex for hex dump, --no-compare to skip comparison, --real-terminal to enable printf rendering")
+
+        # Add note about commands that may not produce ANSI when captured
+        if len(sequences) == 0 and len(raw_output) > 50:
+            print("📝 Note: Some commands (like ls --color) may not produce ANSI codes when run via pty.")
+            print("   Try explicit ANSI sequences with printf for testing ANSI processing.")
 
 def main():
     parser = argparse.ArgumentParser(
