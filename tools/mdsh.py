@@ -635,6 +635,44 @@ class MarkdownShell:
             self.console.print(f"[red]❌ Error: {e}[/]")
             sys.exit(1)
 
+    def run_test_mode(self):
+        """Test mode using subprocess instead of pty"""
+        try:
+            # Show startup message
+            self.console.print(f"[bold]>[/] {self.agent_command} [yellow](test mode)[/]")
+
+            # Show terminal size info
+            rows, cols = self.get_terminal_size()
+            self.console.print(f"[dim]Terminal size: {cols}x{rows} (cols×rows)[/]")
+
+            # Run command with subprocess instead of pty
+            result = subprocess.run(
+                ["zsh", "-c", self.agent_command],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            # Process stdout line by line to simulate the original behavior
+            if result.stdout:
+                lines = result.stdout.split('\n')
+                for line in lines:
+                    if line or line == '':  # Include empty lines
+                        self.render_text(line + '\n')
+
+            # Process stderr if any
+            if result.stderr:
+                self.console.print(f"[red]stderr: {result.stderr}[/]")
+
+            # Show return code if non-zero
+            if result.returncode != 0:
+                self.console.print(f"[yellow]Exit code: {result.returncode}[/]")
+
+        except subprocess.TimeoutExpired:
+            self.console.print("[red]❌ Command timed out[/]")
+        except Exception as e:
+            self.console.print(f"[red]❌ Test mode error: {e}[/]")
+
 def main():
     parser = argparse.ArgumentParser(
         description="Markdown Shell (mdsh) - Interactive Terminal with Markdown Rendering",
@@ -655,11 +693,20 @@ Examples:
         help='Command to run (default: zsh)'
     )
 
+    parser.add_argument(
+        '--test',
+        action='store_true',
+        help='Test mode: use subprocess instead of pty (for debugging)'
+    )
+
     args = parser.parse_args()
 
     # Create and run the wrapper
     wrapper = MarkdownShell(args.agent)
-    wrapper.run()
+    if args.test:
+        wrapper.run_test_mode()
+    else:
+        wrapper.run()
 
 if __name__ == "__main__":
     main()
