@@ -570,7 +570,9 @@ class MarkdownShell:
                                 if (('\r' in self.buffer or has_cursor_movement or looks_like_prompt) and
                                     '\n' not in self.buffer):
                                     # This is likely a real-time update or shell prompt - process immediately
-                                    processed = temp_processor.process_ansi_sequences(self.buffer)
+                                    # Use fresh processor to avoid state accumulation from strip_ansi call above
+                                    fresh_processor = ANSIProcessor()
+                                    processed = fresh_processor.process_ansi_sequences(self.buffer)
                                     if processed.strip():
                                         # For carriage returns and cursor movements, use Rich console
                                         if '\r' in self.buffer or has_cursor_movement:
