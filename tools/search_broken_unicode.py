@@ -28,6 +28,8 @@ import chardet
 from pathlib import Path
 import shutil
 from datetime import datetime
+import subprocess
+import json
 
 class BrokenUnicodeSearcher:
     """Search for and optionally fix broken unicode characters"""
@@ -52,6 +54,129 @@ class BrokenUnicodeSearcher:
         }
 
         self.results = []
+        self.git_available = self.check_git_available()
+
+    def check_git_available(self):
+        """Check if git is available and we're in a git repository"""
+        try:
+            result = subprocess.run(['git', 'rev-parse', '--git-dir'],
+                                  capture_output=True, text=True, cwd='.')
+            return result.returncode == 0
+        except Exception:
+            return False
+
+    def get_git_history_for_line(self, file_path, line_number, max_commits=20):
+        """Get git history for a specific line to find original character"""
+        if not self.git_available:
+            return None
+
+        try:
+            # Use git log -L to get line history with diff
+            cmd = ['git', 'log', '-L', f'{line_number},{line_number}:{file_path}',
+                   f'-{max_commits}']
+
+            result = subprocess.run(cmd, capture_output=True, text=True, cwd='.')
+            if result.returncode != 0:
+                return None
+
+            # Parse the output to find commits that touched this line
+            commits = []
+            lines = result.stdout.split('\n')
+            i = 0
+
+            while i < len(lines):
+                line = lines[i]
+                if line.startswith('commit '):
+                    commit_hash = line.split()[1]
+
+                    # Look for the diff section
+                    while i < len(lines) and not lines[i].startswith('@@'):
+                        i += 1
+
+                    if i < len(lines):
+                        # Found diff section, extract the added lines
+                        i += 1  # Skip the @@ line
+                        added_lines = []
+
+                        while i < len(lines) and not lines[i].startswith('commit '):
+                            if lines[i].startswith('+') and len(lines[i]) > 1:
+                                added_lines.append(lines[i][1:])  # Remove + prefix
+                            i += 1
+
+                        if added_lines:
+                            commits.append({
+                                'commit': commit_hash,
+                                'lines': added_lines
+                            })
+
+                        # Back up one since we'll increment at end of loop
+                        i -= 1
+
+                i += 1
+
+            return commits
+
+        except Exception as e:
+            return None
+
+    def suggest_original_character(self, file_path, line_number, current_line):
+        """Suggest original character based on git history"""
+        if not self.git_available:
+            return None
+
+        # Get git history for this line
+        history = self.get_git_history_for_line(file_path, line_number)
+        if not history:
+            return None
+
+        # Look through history to find a version without broken unicode
+        for commit_info in history:
+            for hist_line in commit_info['lines']:
+                # Check if this historical line has the same structure but valid unicode
+                if '�' not in hist_line and '\ufffd' not in hist_line:
+                    # Try to match the pattern and suggest replacement
+                    suggestion = self.extract_unicode_suggestion(current_line, hist_line)
+                    if suggestion:
+                        return {
+                            'suggestion': suggestion,
+                            'commit': commit_info['commit'][:8],
+                            'historical_line': hist_line.strip()
+                        }
+
+        return None
+
+    def extract_unicode_suggestion(self, broken_line, good_line):
+        """Extract unicode character suggestions by comparing lines"""
+        # Simple approach: find positions where broken_line has � and good_line has unicode
+        suggestions = {}
+
+        # Convert both lines to lists for character-by-character comparison
+        broken_chars = list(broken_line)
+        good_chars = list(good_line)
+
+        # Try to align and find replacements
+        min_len = min(len(broken_chars), len(good_chars))
+
+        for i in range(min_len):
+            if broken_chars[i] == '�' and good_chars[i] != '�':
+                # Found a potential replacement
+                suggestions[i] = good_chars[i]
+
+        # Also check for common patterns
+        broken_patterns = ['�', '��', '���']
+        for pattern in broken_patterns:
+            if pattern in broken_line and pattern not in good_line:
+                # Try to find what this pattern corresponds to in good_line
+                broken_pos = broken_line.find(pattern)
+                if broken_pos >= 0 and broken_pos < len(good_line):
+                    # Look for unicode characters around this position in good_line
+                    for j in range(max(0, broken_pos-2), min(len(good_line), broken_pos+3)):
+                        char = good_line[j]
+                        if ord(char) > 127:  # Non-ASCII character (likely emoji/unicode)
+                            suggestions[pattern] = char
+                            break
+
+        return suggestions if suggestions else None
 
     def detect_encoding(self, file_path):
         """Detect file encoding using chardet"""
@@ -120,7 +245,7 @@ class BrokenUnicodeSearcher:
             for pattern in patterns:
                 matches = re.finditer(pattern, line)
                 for match in matches:
-                    file_results['issues'].append({
+                    issue = {
                         'type': 'broken_unicode',
                         'pattern': pattern,
                         'line': line_num,
@@ -128,7 +253,15 @@ class BrokenUnicodeSearcher:
                         'context': line.strip(),
                         'match': match.group(),
                         'encoding_used': used_encoding
-                    })
+                    }
+
+                    # Try to get git history suggestion for this line
+                    if self.git_available:
+                        suggestion = self.suggest_original_character(file_path, line_num, line)
+                        if suggestion:
+                            issue['git_suggestion'] = suggestion
+
+                    file_results['issues'].append(issue)
 
         return file_results
 
@@ -193,44 +326,68 @@ class BrokenUnicodeSearcher:
 
         return False
 
-    def fix_file(self, file_path, backup=True):
-        """Attempt to fix broken unicode in a file"""
+    def fix_file(self, file_path, backup=True, use_git_suggestions=True):
+        """Attempt to fix broken unicode in a file using git history when possible"""
         if backup:
             backup_path = f"{file_path}.unicode_backup_{int(datetime.now().timestamp())}"
             shutil.copy2(file_path, backup_path)
             print(f"📄 Created backup: {backup_path}")
 
+        # First, analyze the file to get git suggestions
+        file_results = self.search_file(file_path)
+
         # Read file with replacement characters
         try:
             with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
-                content = f.read()
+                lines = f.readlines()
         except Exception as e:
             print(f"❌ Could not read file: {e}")
             return False
 
-        # Apply fixes
-        original_content = content
+        original_lines = lines.copy()
+        changes_made = False
 
-        # Only fix actual broken unicode replacement characters
-        # Keep this simple and targeted
-        fixes = {
-            # Remove lone replacement characters
-            '�': '',
+        # Apply git-based fixes first if available
+        if use_git_suggestions and self.git_available:
+            for issue in file_results['issues']:
+                if issue['type'] == 'broken_unicode' and 'git_suggestion' in issue:
+                    line_num = issue['line'] - 1  # Convert to 0-based index
+                    if line_num < len(lines):
+                        suggestion = issue['git_suggestion']
+                        old_line = lines[line_num]
 
-            # Fix specific broken border patterns
-            '──────────────────────────────────��──────────': '────────────────────────────────────────────',
-            '────────��─────────────���────────': '──────────────────────────────────',
+                        # Apply the git suggestions
+                        new_line = old_line
+                        if isinstance(suggestion['suggestion'], dict):
+                            for pattern, replacement in suggestion['suggestion'].items():
+                                if isinstance(pattern, str):  # Only replace string patterns
+                                    new_line = new_line.replace(pattern, replacement)
+                                    print(f"   ✨ Applied git suggestion on line {issue['line']}: {pattern} → {replacement}")
+
+                        if new_line != old_line:
+                            lines[line_num] = new_line
+                            changes_made = True
+                            print(f"   ✨ Applied git suggestion on line {issue['line']}: {replacement}")
+
+        # Apply fallback fixes for any remaining issues
+        fallback_fixes = {
+            '�': '',  # Remove lone replacement characters
             '��': '',  # Remove double replacement
             '���': '', # Remove triple replacement
         }
 
-        for broken, replacement in fixes.items():
-            content = content.replace(broken, replacement)
+        for i, line in enumerate(lines):
+            original_line = line
+            for broken, replacement in fallback_fixes.items():
+                line = line.replace(broken, replacement)
+            if line != original_line:
+                lines[i] = line
+                changes_made = True
 
-        if content != original_content:
+        if changes_made:
             try:
                 with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write(content)
+                    f.writelines(lines)
                 print(f"✅ Fixed unicode issues in: {file_path}")
                 return True
             except Exception as e:
@@ -282,6 +439,14 @@ class BrokenUnicodeSearcher:
                         print(f"   🔸 Line {line}:{col} - Pattern: {repr(pattern)}")
                         if verbose:
                             print(f"      Context: {repr(context)}")
+
+                        # Show git history suggestion if available
+                        if 'git_suggestion' in issue:
+                            suggestion = issue['git_suggestion']
+                            print(f"      💡 Git suggests: {suggestion['suggestion']} (from commit {suggestion['commit']})")
+                            if verbose:
+                                print(f"      📝 Original line: {repr(suggestion['historical_line'][:60])}")
+
                     elif issue['type'] == 'encoding_uncertainty':
                         print(f"   ⚠️  {issue['message']}")
 
