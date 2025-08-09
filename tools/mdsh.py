@@ -503,9 +503,13 @@ class MarkdownShell:
                         temp_processor = ANSIProcessor()
                         processed = temp_processor.process_ansi_sequences(self.buffer)
                         if processed.strip():
-                            print('\r' + ' ' * 120 + '\r', end='', flush=True)
-                            print(processed.strip(), end='', flush=True)
-                            self._has_realtime_output = True
+                            # Clear any previous real-time output first
+                            if hasattr(self, '_has_realtime_output'):
+                                print()  # Move to new line
+                                delattr(self, '_has_realtime_output')
+
+                            # Render the processed content using render_text for consistency
+                            self.render_text(processed)
                             self.buffer = ''  # Clear buffer since we've rendered it
 
                     if sys.stdin in ready:
@@ -558,12 +562,16 @@ class MarkdownShell:
                                     # This is likely a real-time update or shell prompt - process immediately
                                     processed = temp_processor.process_ansi_sequences(self.buffer)
                                     if processed.strip():
-                                        # Clear current line and show update
-                                        print('\r' + ' ' * 120 + '\r', end='', flush=True)
-                                        print(processed.strip(), end='', flush=True)
-
-                                        # Mark that we have real-time output
-                                        self._has_realtime_output = True
+                                        # For carriage returns and cursor movements, use direct printing
+                                        if '\r' in self.buffer or has_cursor_movement:
+                                            # Clear current line and show update
+                                            print('\r' + ' ' * 120 + '\r', end='', flush=True)
+                                            print(processed.strip(), end='', flush=True)
+                                            self._has_realtime_output = True
+                                        else:
+                                            # For shell prompts, use render_text for consistency
+                                            self.render_text(processed)
+                                            self.buffer = ''  # Clear buffer to prevent reprocessing
                                     continue
 
                                 # Process complete lines
