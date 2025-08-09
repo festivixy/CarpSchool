@@ -156,11 +156,6 @@ services:
 # MONGO_EXPRESS_USERNAME - Username for mongo-express (default: admin)
 # MONGO_EXPRESS_PASSWORD - Password for mongo-express (default: carpool)
 #                         CHANGE THIS IN PRODUCTION!
-#
-# To use the dev proxy, add these into your /etc/hosts file:
-# 127.0.0.1 nominatim
-# 127.0.0.1 tileserver-gl
-# 127.0.0.1 osrm
 
 networks:
   carpool_network:
