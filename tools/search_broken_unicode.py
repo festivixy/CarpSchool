@@ -380,8 +380,9 @@ class BrokenUnicodeSearcher:
             if file_path.is_file():
                 files_found += 1
 
-                # Skip files in node_modules directories
-                if 'node_modules' in file_path.parts:
+                # Skip files in excluded directories
+                excluded_dirs = {'node_modules', 'build', '.meteor', 'archive'}
+                if any(excluded_dir in file_path.parts for excluded_dir in excluded_dirs):
                     continue
 
                 # Check extension
