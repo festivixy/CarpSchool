@@ -267,6 +267,42 @@ class RawANSICapture:
         except Exception as e:
             return f"Error creating terminal simulation: {e}"
 
+    def show_visual_output(self, raw_output, processed_output):
+        """Show visual output - what the terminal actually displays"""
+        print("👁️  Visual Output (how it appears in terminal):")
+        print("┌─ Visual ───────��────────────────────────────────────────┐")
+
+        try:
+            # Use processed output (which is what terminal shows) as the visual display
+            display_text = processed_output if processed_output else self.processor.strip_ansi(raw_output)
+
+            if not display_text.strip():
+                print("│ (no visible output)")
+            else:
+                # Split into lines and show up to 10 lines
+                lines = display_text.split('\n')
+                displayed_lines = 0
+
+                for line in lines:
+                    if displayed_lines >= 10:
+                        break
+
+                    # Handle long lines
+                    if len(line) > 60:
+                        line = line[:57] + "..."
+
+                    # Show the line (this will display with actual colors if run in terminal)
+                    print(f"│ {line}")
+                    displayed_lines += 1
+
+                if len(lines) > 10:
+                    print(f"│ ... and {len(lines) - 10} more lines")
+
+        except Exception as e:
+            print(f"│ (error displaying: {e})")
+
+        print("└───────────────────────────────────────���─────────────────┘")
+
     def print_analysis(self, command, raw_output, returncode, show_hex=False, show_compare=True, show_real_terminal=True):
         """Print comprehensive analysis of the captured output"""
 
@@ -293,7 +329,7 @@ class RawANSICapture:
         if sequences:
             print("┌─ Sequence Analysis ─────────────────────────────────────┐")
             for i, seq_info in enumerate(sequences[:10], 1):  # Show first 10
-                print(f"│ {i:2d}. {seq_info['repr']:<20} → {seq_info['description']}")
+                print(f"│ {i:2d}. {seq_info['repr']:<20} �� {seq_info['description']}")
             if len(sequences) > 10:
                 print(f"│     ... and {len(sequences) - 10} more sequences")
             print("└──────────────────────────────────────────────��──────────┘")
@@ -370,19 +406,8 @@ class RawANSICapture:
             print("└─────────────────────────────────────────────────────��───┘")
             print()
 
-        # Visual output (if it looks safe to display)
-        if raw_output and len(raw_output) < 1000 and not any(ord(c) < 32 and c not in '\n\r\t\x1b' for c in raw_output):
-            print("👁️  Visual Output (how it appears in terminal):")
-            print("┌─ Visual ────────────────────────────────────────────────┐")
-            try:
-                lines = raw_output.split('\n')
-                for line in lines[:10]:  # Show first 10 lines
-                    print(f"│ {line}")
-                if len(lines) > 10:
-                    print(f"│ ... and {len(lines) - 10} more lines")
-            except:
-                print("│ (unable to display visually)")
-            print("└─────────────────────────────────────────────────────────┘")
+        # Visual output - show what the terminal displays
+        self.show_visual_output(raw_output, processed_output)
 
         print()
         if show_real_terminal:
