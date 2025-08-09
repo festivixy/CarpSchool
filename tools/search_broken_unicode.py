@@ -468,7 +468,7 @@ class BrokenUnicodeSearcher:
                             # Get the first suggested replacement character
                             replacement_char = list(suggestion['suggestion'].values())[0]
 
-                            # For � characters, replace directly
+                            # For �� characters, replace directly
                             if broken_pattern == '�' and '�' in old_line:
                                 new_line = old_line.replace('�', replacement_char, 1)
                                 if new_line != old_line:
@@ -616,7 +616,8 @@ Examples:
   search_broken_unicode.py --recursive src/
   search_broken_unicode.py --fast --recursive .  # Fast mode, no git
   search_broken_unicode.py --pattern "��" --verbose .
-  search_broken_unicode.py --fix --backup broken_file.txt
+  search_broken_unicode.py --fix broken_file.txt
+  search_broken_unicode.py --fix --backup broken_file.txt  # Create backup
   search_broken_unicode.py --extensions .py,.js,.html src/
 
 Performance options:
@@ -666,14 +667,14 @@ Common patterns searched:
     parser.add_argument(
         '--backup',
         action='store_true',
-        default=True,
-        help='Create backup when fixing (default: true)'
+        default=False,
+        help='Create backup when fixing'
     )
 
     parser.add_argument(
         '--no-backup',
         action='store_true',
-        help='Do not create backup when fixing'
+        help='Do not create backup when fixing (default: no backup)'
     )
 
     parser.add_argument(
