@@ -203,7 +203,7 @@ class BrokenUnicodeSearcher:
         min_len = min(len(broken_chars), len(good_chars))
 
         for i in range(min_len):
-            if broken_chars[i] == '�' and good_chars[i] != '�':
+            if broken_chars[i] == '��' and good_chars[i] != '�':
                 # Found a potential replacement
                 suggestions[i] = good_chars[i]
 
@@ -345,32 +345,59 @@ class BrokenUnicodeSearcher:
         file_results['line_count'] = len(lines)
 
         for line_num, line in enumerate(lines, 1):
+            # Collect all matches first to deduplicate overlapping patterns
+            all_matches = []
             for pattern in patterns:
                 matches = re.finditer(pattern, line)
                 for match in matches:
-                    issue = {
-                        'type': 'broken_unicode',
+                    all_matches.append({
                         'pattern': pattern,
-                        'line': line_num,
-                        'column': match.start() + 1,
-                        'context': line.strip(),
+                        'start': match.start(),
+                        'end': match.end(),
                         'match': match.group(),
-                        'encoding_used': used_encoding
-                    }
+                        'line_num': line_num,
+                        'line_content': line
+                    })
 
-                    # Try encoding reversal first (faster)
-                    # Disabled: Windows-1254 reversal causes false positives on normal unicode text
-                    # reversal = self.try_encoding_reversal(match.group())
-                    # if reversal:
-                    #     issue['encoding_reversal'] = reversal
+            # Sort by start position, then by length (longest first) to prioritize longer matches
+            all_matches.sort(key=lambda x: (x['start'], -(x['end'] - x['start'])))
 
-                    # Try git history suggestion when enabled
-                    if enable_git_history and self.git_available:
-                        suggestion = self.suggest_original_character(file_path, line_num, line)
-                        if suggestion:
-                            issue['git_suggestion'] = suggestion
+            # Deduplicate overlapping matches, keeping only the longest match at each position
+            deduplicated_matches = []
+            used_positions = set()
 
-                    file_results['issues'].append(issue)
+            for match_info in all_matches:
+                start, end = match_info['start'], match_info['end']
+                # Check if this match overlaps with any already used position
+                if not any(pos in used_positions for pos in range(start, end)):
+                    deduplicated_matches.append(match_info)
+                    used_positions.update(range(start, end))
+
+            # Convert deduplicated matches to issues
+            for match_info in deduplicated_matches:
+                issue = {
+                    'type': 'broken_unicode',
+                    'pattern': match_info['pattern'],
+                    'line': match_info['line_num'],
+                    'column': match_info['start'] + 1,
+                    'context': match_info['line_content'].strip(),
+                    'match': match_info['match'],
+                    'encoding_used': used_encoding
+                }
+
+                # Try encoding reversal first (faster)
+                # Disabled: Windows-1254 reversal causes false positives on normal unicode text
+                # reversal = self.try_encoding_reversal(match.group())
+                # if reversal:
+                #     issue['encoding_reversal'] = reversal
+
+                # Try git history suggestion when enabled
+                if enable_git_history and self.git_available:
+                    suggestion = self.suggest_original_character(file_path, match_info['line_num'], match_info['line_content'])
+                    if suggestion:
+                        issue['git_suggestion'] = suggestion
+
+                file_results['issues'].append(issue)
 
         return file_results
 
@@ -766,7 +793,7 @@ Common patterns searched:
         searcher.search_directory(path, recursive=args.recursive, extensions=extensions, enable_git_history=enable_git)
 
         if args.fix and searcher.results:
-            print(f"\n🔧 Fixing {len(searcher.results)} files...")
+            print(f"\n���� Fixing {len(searcher.results)} files...")
             with tqdm(searcher.results, desc="🔧 Fixing files", disable=len(searcher.results) < 3) as pbar:
                 for result in pbar:
                     if result['issues']:
