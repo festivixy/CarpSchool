@@ -393,8 +393,16 @@ class MarkdownShell:
         try:
             # Use shutil to get terminal size
             size = shutil.get_terminal_size()
-            return (size.lines, size.columns)
-        except:
+            rows, cols = size.lines, size.columns
+
+            # Ensure reasonable values
+            if rows <= 0 or cols <= 0:
+                raise ValueError("Invalid terminal size")
+
+            return (rows, cols)
+        except Exception as e:
+            # Debug: uncomment to see size detection issues
+            # print(f"\nTerminal size detection error: {e}, using default", file=sys.stderr)
             # Default fallback
             return (24, 80)
 
@@ -404,11 +412,17 @@ class MarkdownShell:
             # Get current terminal size
             rows, cols = self.get_terminal_size()
 
+            # Validate size values
+            if rows <= 0 or cols <= 0:
+                rows, cols = 24, 80  # Fallback to default
+
             # Set the terminal size using ioctl
             winsize = struct.pack('HHHH', rows, cols, 0, 0)
             fcntl.ioctl(fd, termios.TIOCSWINSZ, winsize)
-        except:
-            # Ignore errors - terminal size setting is optional
+
+        except Exception as e:
+            # Debug: uncomment to see terminal size issues
+            # print(f"\nTerminal size error: {e}", file=sys.stderr)
             pass
 
     def is_markdown_content(self, text):
@@ -466,7 +480,7 @@ class MarkdownShell:
 
             # Show terminal size info
             rows, cols = self.get_terminal_size()
-            self.console.print(f"[dim]Terminal size: {cols}x{rows}[/]")
+            self.console.print(f"[dim]Terminal size: {cols}x{rows} (cols×rows)[/]")
 
             # Start the AI agent with pty for interactive shell behavior
             master, slave = pty.openpty()
@@ -484,6 +498,10 @@ class MarkdownShell:
 
             os.close(slave)
 
+            # Give the process a moment to start, then sync terminal size
+            time.sleep(0.1)
+            self.set_terminal_size(master)
+
             # Set up terminal
             old_settings = termios.tcgetattr(sys.stdin)
             tty.setraw(sys.stdin.fileno())
@@ -493,8 +511,15 @@ class MarkdownShell:
                 try:
                     # Update the pty size when terminal is resized
                     self.set_terminal_size(master)
-                except:
-                    pass
+                    # Also send SIGWINCH to the child process group
+                    try:
+                        os.killpg(os.getpgid(process.pid), signal.SIGWINCH)
+                    except (OSError, ProcessLookupError):
+                        # Process might have exited, ignore
+                        pass
+                except Exception as e:
+                    # Debug: uncomment to see resize issues
+                    # print(f"\nResize error: {e}", file=sys.stderr)
 
             # Set up signal handler for window size changes
             old_sigwinch = signal.signal(signal.SIGWINCH, handle_sigwinch)
