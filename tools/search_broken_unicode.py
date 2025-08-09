@@ -380,6 +380,10 @@ class BrokenUnicodeSearcher:
             if file_path.is_file():
                 files_found += 1
 
+                # Skip files in node_modules directories
+                if 'node_modules' in file_path.parts:
+                    continue
+
                 # Check extension
                 if extensions and file_path.suffix.lower() not in extensions:
                     continue
