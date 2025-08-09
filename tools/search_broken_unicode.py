@@ -326,12 +326,13 @@ class BrokenUnicodeSearcher:
                     }
 
                     # Try encoding reversal first (faster)
-                    reversal = self.try_encoding_reversal(match.group())
-                    if reversal:
-                        issue['encoding_reversal'] = reversal
+                    # Disabled: Windows-1254 reversal causes false positives on normal unicode text
+                    # reversal = self.try_encoding_reversal(match.group())
+                    # if reversal:
+                    #     issue['encoding_reversal'] = reversal
 
-                    # Try git history suggestion only if enabled and encoding reversal failed
-                    if enable_git_history and self.git_available and not reversal:
+                    # Try git history suggestion when enabled
+                    if enable_git_history and self.git_available:
                         suggestion = self.suggest_original_character(file_path, line_num, line)
                         if suggestion:
                             issue['git_suggestion'] = suggestion
@@ -447,22 +448,23 @@ class BrokenUnicodeSearcher:
                             print(f"   ✨ Applied git suggestion on line {issue['line']}: {pattern} → {replacement}")
 
         # Apply encoding reversal fixes
-        if use_git_suggestions:  # Use same flag for encoding reversals
-            for issue in file_results['issues']:
-                if issue['type'] == 'broken_unicode' and 'encoding_reversal' in issue:
-                    line_num = issue['line'] - 1
-                    if line_num < len(lines):
-                        reversal = issue['encoding_reversal']
-                        old_line = lines[line_num]
-                        pattern = issue['pattern']
-
-                        # Only replace the specific pattern, not the entire line
-                        new_line = old_line.replace(pattern, reversal['restored'])
-
-                        if new_line != old_line:
-                            lines[line_num] = new_line
-                            changes_made = True
-                            print(f"   🔄 Applied encoding reversal on line {issue['line']}: {pattern} → {reversal['restored']}")
+        # Disabled: Windows-1254 reversal causes false positives on normal unicode text
+        # if use_git_suggestions:  # Use same flag for encoding reversals
+        #     for issue in file_results['issues']:
+        #         if issue['type'] == 'broken_unicode' and 'encoding_reversal' in issue:
+        #             line_num = issue['line'] - 1
+        #             if line_num < len(lines):
+        #                 reversal = issue['encoding_reversal']
+        #                 old_line = lines[line_num]
+        #                 pattern = issue['pattern']
+        #
+        #                 # Only replace the specific pattern, not the entire line
+        #                 new_line = old_line.replace(pattern, reversal['restored'])
+        #
+        #                 if new_line != old_line:
+        #                     lines[line_num] = new_line
+        #                     changes_made = True
+        #                     print(f"   🔄 Applied encoding reversal on line {issue['line']}: {pattern} → {reversal['restored']}")
 
         # Apply fallback fixes for any remaining issues
         fallback_fixes = {
