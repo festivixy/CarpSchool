@@ -410,7 +410,7 @@ class RawANSICapture:
         def format_output_section(title, content, max_lines=5):
             """Format an output section with truncation for readability"""
             log_print(f"{title}:")
-            log_print("┌───────────────────────────────��────────────────────────────┐")
+            log_print("┌───────────────────────────────────────────────────────────┐")
 
             if not content:
                 log_print("│ (empty)")
