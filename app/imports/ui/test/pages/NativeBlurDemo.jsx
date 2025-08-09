@@ -159,7 +159,7 @@ const NativeBlurDemo = (props) => {
     {
       id: "create",
       label: "Create",
-      icon: "���",
+      icon: "💬",
       action: "create",
     },
     {

@@ -169,7 +169,7 @@ const NativeNavBar = ({
           safeArea: true,
         });
 
-        console.log("[NativeNavBar] �� Native navbar created:", newNavBarId);
+        console.log("[NativeNavBar]  Native navbar created:", newNavBarId);
         setNavBarId(newNavBarId);
 
         // Set items

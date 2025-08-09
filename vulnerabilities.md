@@ -543,7 +543,7 @@ async "chats.sendMessage"(chatId, content) {
 
 ---
 
-### <a name="v019"></a>�� ~~**V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)~~
+### <a name="v019"></a> ~~**V019: Ride Publication Exposes All Data to Any User** (DUPLICATE of V008)~~
 
 **File**: `imports/api/ride/RidePublications.js:5-8`
 **Severity**: CRITICAL

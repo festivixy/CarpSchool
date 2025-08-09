@@ -813,7 +813,7 @@ const MobileTestMapView = ({ history }) => {
 
             <InfoCard>
               <InfoItem>
-                <InfoLabel>���� LiquidGlass Dropdown Features</InfoLabel>
+                <InfoLabel> LiquidGlass Dropdown Features</InfoLabel>
                 <InfoValue>
                   1. Glass morphism effect with backdrop blur and transparency
                   <br />
@@ -1119,7 +1119,7 @@ const MobileTestMapView = ({ history }) => {
                   <br />
                   • Multiple input types (text, email, password, search, etc.)
                   <br />
-                  ��� Icon support (left or right positioning)
+                   Icon support (left or right positioning)
                   <br />
                   • Label animations and floating labels
                   <br />
