@@ -520,6 +520,7 @@ class MarkdownShell:
                 except Exception as e:
                     # Debug: uncomment to see resize issues
                     # print(f"\nResize error: {e}", file=sys.stderr)
+                    pass
 
             # Set up signal handler for window size changes
             old_sigwinch = signal.signal(signal.SIGWINCH, handle_sigwinch)
