@@ -326,7 +326,7 @@ class BrokenUnicodeSearcher:
                     }
 
                     # Try encoding reversal first (faster)
-                    reversal = self.try_encoding_reversal(line.strip())
+                    reversal = self.try_encoding_reversal(match.group())
                     if reversal:
                         issue['encoding_reversal'] = reversal
 
@@ -454,16 +454,15 @@ class BrokenUnicodeSearcher:
                     if line_num < len(lines):
                         reversal = issue['encoding_reversal']
                         old_line = lines[line_num]
-                        new_line = reversal['restored']
+                        pattern = issue['pattern']
 
-                        if new_line != old_line:
-                            lines[line_num] = new_line + '\n' if not new_line.endswith('\n') else new_line
-                            changes_made = True
-                            print(f"   🔄 Applied encoding reversal on line {issue['line']}: {reversal['method']}")
+                        # Only replace the specific pattern, not the entire line
+                        new_line = old_line.replace(pattern, reversal['restored'])
 
                         if new_line != old_line:
                             lines[line_num] = new_line
                             changes_made = True
+                            print(f"   🔄 Applied encoding reversal on line {issue['line']}: {pattern} → {reversal['restored']}")
 
         # Apply fallback fixes for any remaining issues
         fallback_fixes = {
