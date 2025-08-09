@@ -219,7 +219,50 @@ class RawANSICapture:
         else:
             return f'Other ANSI sequence: {seq[1:]}'
 
-    def print_analysis(self, command, raw_output, returncode, show_hex=False, show_compare=True):
+    def get_real_terminal_output(self, raw_output):
+        """Show what a terminal would display - the final visual result"""
+        try:
+            # For comparison purposes, show what a terminal would display
+            # after processing all the ANSI sequences
+
+            # Write raw output to a file and cat it to see terminal behavior
+            import tempfile
+
+            with tempfile.NamedTemporaryFile(mode='wb', delete=False) as f:
+                f.write(raw_output.encode('utf-8'))
+                temp_file = f.name
+
+            try:
+                # Cat the file to see how terminal handles it
+                # Capture both stdout and stderr to see actual terminal output
+                result = subprocess.run(
+                    ['cat', temp_file],
+                    capture_output=True,
+                    text=False,  # Keep as bytes initially
+                    timeout=2
+                )
+
+                if result.returncode == 0:
+                    # Decode the result
+                    terminal_output = result.stdout.decode('utf-8', errors='replace')
+
+                    # Process this output through our ANSIProcessor to show
+                    # what the terminal would display as final text
+                    final_display = self.processor.process_ansi_sequences(terminal_output)
+                    return final_display
+                else:
+                    return f"Terminal error: {result.stderr.decode('utf-8', errors='replace')}"
+
+            finally:
+                try:
+                    os.unlink(temp_file)
+                except:
+                    pass
+
+        except Exception as e:
+            return f"Error simulating terminal: {e}"
+
+    def print_analysis(self, command, raw_output, returncode, show_hex=False, show_compare=True, show_real_terminal=True):
         """Print comprehensive analysis of the captured output"""
 
         print("🔍 Raw ANSI Analyzer")
@@ -232,6 +275,11 @@ class RawANSICapture:
         # Process with ANSIProcessor
         processed_output = self.processor.process_ansi_sequences(raw_output)
         stripped_output = self.processor.strip_ansi(raw_output)
+
+        # Get real terminal output using printf
+        real_terminal_output = None
+        if show_real_terminal:
+            real_terminal_output = self.get_real_terminal_output(raw_output)
 
         # Find ANSI sequences
         sequences = self.find_ansi_sequences(raw_output)
@@ -248,13 +296,24 @@ class RawANSICapture:
 
         # Raw output
         print("📜 Raw Output (with ANSI sequences):")
-        print("┌─ Raw ────────────────���──────────────────────────────────┐")
+        print("┌─ Raw ───────────────────────────────────────────────────┐")
         if raw_output.strip():
             print(f"│ {repr(raw_output)}")
         else:
             print("│ (empty)")
         print("└─────────────────────────────────────────────────────────┘")
         print()
+
+        # Real terminal output (using printf)
+        if show_real_terminal and real_terminal_output is not None:
+            print("🖥️  Real Terminal Output (printf rendered):")
+            print("┌─ Real Terminal ─────────────────────────────────────────┐")
+            if real_terminal_output:
+                print(f"│ {repr(real_terminal_output)}")
+            else:
+                print("│ (empty)")
+            print("└─────────────────────────────────────────────────────────┘")
+            print()
 
         # Processed output
         print("🎯 Processed Output (ANSIProcessor result):")
@@ -276,12 +335,19 @@ class RawANSICapture:
         print("└─────────────────────────────────────────────────────────┘")
         print()
 
-        # Comparison
+        # Enhanced comparison
         if show_compare:
             print("⚖️  Comparison:")
             print(f"│ Raw == Processed: {raw_output == processed_output}")
             print(f"│ Raw == Stripped:  {raw_output == stripped_output}")
             print(f"│ Processed == Stripped: {processed_output == stripped_output}")
+            if real_terminal_output is not None:
+                print(f"│ Real Terminal == Processed: {real_terminal_output == processed_output}")
+                print(f"│ Real Terminal == Stripped: {real_terminal_output == stripped_output}")
+                if real_terminal_output == processed_output:
+                    print("│ 🎉 ANSIProcessor matches real terminal output!")
+                else:
+                    print("│ ⚠️  ANSIProcessor differs from real terminal output")
             print(f"│ Processing Changed Output: {raw_output != processed_output}")
             print()
 
@@ -312,7 +378,10 @@ class RawANSICapture:
             print("└─────────────────────────────────────────────────────────┘")
 
         print()
-        print("💡 Use --hex for detailed hex dump, --no-compare to skip comparison")
+        if show_real_terminal:
+            print("💡 Use --hex for hex dump, --no-compare to skip comparison, --no-real-terminal to skip printf rendering")
+        else:
+            print("💡 Use --hex for hex dump, --no-compare to skip comparison, --real-terminal to enable printf rendering")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -323,6 +392,7 @@ Examples:
   rawansi "ls --color=always"
   rawansi "git status --color=always"
   rawansi --hex "printf '\\033[31mRed\\033[0m\\n'"
+  rawansi --real-terminal "printf '\\033[6;11HTest\\033[1;1H'"
   rawansi --timeout 10 "ps aux | head -5"
   rawansi "tput cup 5 10; echo 'Positioned'; tput cup 0 0"
 
@@ -331,6 +401,7 @@ Perfect for:
   - Understanding what real commands output
   - Creating test cases for ANSIProcessor
   - Analyzing terminal application behavior
+  - Validating ANSIProcessor against real terminal behavior
         """
     )
 
@@ -352,6 +423,18 @@ Perfect for:
     )
 
     parser.add_argument(
+        '--real-terminal',
+        action='store_true',
+        help='Enable real terminal output using printf (default: enabled)'
+    )
+
+    parser.add_argument(
+        '--no-real-terminal',
+        action='store_true',
+        help='Disable real terminal output rendering'
+    )
+
+    parser.add_argument(
         '--timeout',
         type=int,
         default=5,
@@ -360,12 +443,21 @@ Perfect for:
 
     args = parser.parse_args()
 
+    # Determine if real terminal output should be shown
+    show_real_terminal = True  # Default to enabled
+    if args.no_real_terminal:
+        show_real_terminal = False
+    elif args.real_terminal:
+        show_real_terminal = True
+
     # Create capture instance
     capture = RawANSICapture(timeout=args.timeout)
 
     # Execute command and capture output
     print(f"🚀 Executing: {args.command}")
     print("⏳ Capturing raw ANSI output...")
+    if show_real_terminal:
+        print("🖥️  Will render with real terminal (printf)...")
     print()
 
     raw_output, returncode = capture.capture_command_output(args.command)
@@ -376,7 +468,8 @@ Perfect for:
         raw_output,
         returncode,
         show_hex=args.hex,
-        show_compare=not args.no_compare
+        show_compare=not args.no_compare,
+        show_real_terminal=show_real_terminal
     )
 
 if __name__ == "__main__":
