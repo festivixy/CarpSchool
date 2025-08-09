@@ -58,6 +58,9 @@ class ANSIProcessor:
             r'\[[0-?]*[ -/]*[@-~]|'  # CSI sequences (most common) - includes DEC private modes
             r'\][^\x07]*\x07|'       # OSC sequences
             r'[PX^_][^\x1b\x07]*\x07|'  # Other string sequences
+            r'[78]|'                 # DEC save/restore cursor (ESC 7, ESC 8)
+            r'[=>]|'                 # DEC keypad modes
+            r'[DHKEM]|'              # Other DEC sequences
             r'[@-Z\\-_]|'            # Single character sequences
             r'\[[0-9;]*$'            # Incomplete sequences at end of text
             r')'
@@ -82,6 +85,19 @@ class ANSIProcessor:
     def strip_ansi(self, text):
         """Remove all ANSI escape sequences from text"""
         return self.ansi_pattern.sub('', text)
+
+    def process_escape_sequence(self, sequence):
+        """Process all types of escape sequences"""
+        if sequence == '\x1b7':  # DEC Save Cursor
+            self.saved_cursor = (self.cursor_x, self.cursor_y)
+            return
+        elif sequence == '\x1b8':  # DEC Restore Cursor
+            self.cursor_x, self.cursor_y = self.saved_cursor
+            self._ensure_line_exists(self.cursor_y)
+            return
+        elif sequence.startswith('\x1b['):
+            self.process_csi_sequence(sequence)
+        # Other escape sequences are ignored
 
     def process_csi_sequence(self, sequence):
         """Process CSI (Control Sequence Introducer) sequences"""
@@ -148,31 +164,8 @@ class ANSIProcessor:
             col = max(1, col) if col > 0 else 1
 
             # Convert to 0-based coordinates
-            target_y = row - 1
-            target_x = col - 1
-
-            # For positioning commands, be smart about creating lines
-            if target_y == 0 and target_x == 0:
-                # Home position (1,1) - go to actual start
-                self.cursor_y = 0
-                self.cursor_x = 0
-            elif target_y > len(self.lines) + 2:
-                # If positioning way beyond current content, treat as relative
-                self.cursor_y = len(self.lines) - 1 if self.lines else 0
-                self.cursor_x = target_x
-            else:
-                # Normal positioning
-                self.cursor_y = target_y
-                self.cursor_x = target_x
-
-                # Special case: if positioning within existing text on same line
-                # and the position is at the end of the text, position after it
-                if (target_y < len(self.lines) and
-                    target_x < len(self.lines[target_y]) and
-                    target_x == len(self.lines[target_y]) - 1):
-                    # Position after the last character instead of on it
-                    self.cursor_x = len(self.lines[target_y])
-
+            self.cursor_y = row - 1
+            self.cursor_x = col - 1
             self._ensure_line_exists(self.cursor_y)
         elif command == 'J':  # Erase Display
             n = params[0] if params else 0
@@ -278,9 +271,6 @@ class ANSIProcessor:
                 else:
                     # Standalone \r - go to beginning of line (overwrite mode)
                     self.cursor_x = 0
-                    # Clear the current line content so next text overwrites
-                    if self.cursor_y < len(self.lines):
-                        self.lines[self.cursor_y] = ''
                     i += 1
                     continue
             elif char == '\n':
@@ -326,9 +316,7 @@ class ANSIProcessor:
 
                 # Process the escape sequence
                 sequence = match.group(0)
-                if sequence.startswith('\x1b['):
-                    self.process_csi_sequence(sequence)
-                # Other escape sequences are simply ignored/stripped
+                self.process_escape_sequence(sequence)
 
                 i = match.end()
             else:
@@ -336,47 +324,27 @@ class ANSIProcessor:
                 self.write_text(text[i:])
                 break
 
-        # Use content bounds to extract only relevant lines
+        # Extract final terminal state - focus on lines with actual content
         if self.lines:
-            # Find the actual content range
-            first_content_line = 0
-            last_content_line = len(self.lines) - 1
+            # Remove completely empty lines from the end
+            while self.lines and not self.lines[-1].strip():
+                self.lines.pop()
 
-            # Find first line with content
-            for i, line in enumerate(self.lines):
-                if line.strip():
-                    first_content_line = i
-                    break
+            # Remove completely empty lines from the beginning
+            while self.lines and not self.lines[0].strip():
+                self.lines.pop(0)
 
-            # Find last line with content
-            for i in range(len(self.lines) - 1, -1, -1):
-                if self.lines[i].strip():
-                    last_content_line = i
-                    break
-
-            # Extract only the content lines and strip positioning artifacts
-            if first_content_line <= last_content_line:
-                content_lines = self.lines[first_content_line:last_content_line + 1]
-                # For single line results, strip leading spaces from positioning
-                if len(content_lines) == 1:
-                    content_lines[0] = content_lines[0].lstrip()
-                result = '\n'.join(content_lines)
+            if self.lines:
+                result = '\n'.join(self.lines)
             else:
                 result = ''
         else:
             result = ''
 
-        # Preserve newlines based on original content structure
+        # Preserve trailing newline if original had one
         stripped_text = self.strip_ansi(text)
         if stripped_text.endswith('\n') and result and not result.endswith('\n'):
             result += '\n'
-        elif stripped_text.endswith('\n') and not result and stripped_text.strip():
-            # Only add newline if there was actual text content (not just whitespace/newlines)
-            result = stripped_text.strip() + '\n'
-
-        # If the final result is only whitespace, return empty string
-        if not result.strip():
-            return ''
 
         return result
 
