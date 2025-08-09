@@ -550,7 +550,22 @@ class BrokenUnicodeSearcher:
                     elif issue['type'] == 'encoding_uncertainty':
                         print(f"   ⚠️  {issue['message']}")
 
+        # Calculate auto-fix statistics
+        total_fixable = 0
+        for result in self.results:
+            for issue in result['issues']:
+                if issue['type'] == 'broken_unicode':
+                    # Count issues that have git suggestions or encoding reversals
+                    if 'git_suggestion' in issue or 'encoding_reversal' in issue:
+                        total_fixable += 1
+
+        fix_percentage = (total_fixable / total_issues * 100) if total_issues > 0 else 0
+
         print(f"\n📊 Total: {total_issues} broken unicode occurrences in {len(self.results)} files")
+        print(f"🔧 Auto-fixable: {total_fixable} issues ({fix_percentage:.1f}%)")
+
+        if total_fixable > 0:
+            print(f"💡 Run with --fix to automatically repair {total_fixable} issues")
 
 def main():
     parser = argparse.ArgumentParser(
