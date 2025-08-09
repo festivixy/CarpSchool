@@ -515,8 +515,10 @@ class MarkdownShell:
                                 print()  # Move to new line
                                 delattr(self, '_has_realtime_output')
 
-                            # Render the processed content using render_text for consistency
-                            self.render_text(processed)
+                            # Render directly (already processed by temp_processor)
+                            clean_text = temp_processor.strip_ansi(processed)
+                            if clean_text.strip():
+                                self.console.print(clean_text, end='')
                             self.buffer = ''  # Clear buffer since we've rendered it
 
                     if sys.stdin in ready:
@@ -577,8 +579,25 @@ class MarkdownShell:
                                             self._has_realtime_output = True
                                             self.buffer = ''  # Clear buffer to prevent reprocessing
                                         else:
-                                            # For shell prompts, use render_text for consistency
-                                            self.render_text(processed)
+                                            # For shell prompts, render directly (already processed)
+                                            # Skip empty or whitespace-only content after processing
+                                            if processed.strip():
+                                                # Check if this looks like a shell prompt (for proper positioning)
+                                                clean_text = temp_processor.strip_ansi(processed)
+                                                looks_like_prompt = bool(re.search(r'[$#%>]\s*$', clean_text.strip()))
+
+                                                if looks_like_prompt:
+                                                    self.console.print(clean_text, end='')
+                                                else:
+                                                    # Use markdown rendering for content
+                                                    if self.is_markdown_content(processed):
+                                                        try:
+                                                            markdown = Markdown(processed.strip())
+                                                            self.console.print(markdown)
+                                                        except Exception:
+                                                            self.console.print(processed.strip())
+                                                    else:
+                                                        self.console.print(processed.strip())
                                             self.buffer = ''  # Clear buffer to prevent reprocessing
                                     continue
 
