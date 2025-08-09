@@ -165,6 +165,14 @@ class ANSIProcessor:
                 self.cursor_y = target_y
                 self.cursor_x = target_x
 
+                # Special case: if positioning within existing text on same line
+                # and the position is at the end of the text, position after it
+                if (target_y < len(self.lines) and
+                    target_x < len(self.lines[target_y]) and
+                    target_x == len(self.lines[target_y]) - 1):
+                    # Position after the last character instead of on it
+                    self.cursor_x = len(self.lines[target_y])
+
             self._ensure_line_exists(self.cursor_y)
         elif command == 'J':  # Erase Display
             n = params[0] if params else 0
@@ -187,10 +195,17 @@ class ANSIProcessor:
         elif command == 's':  # Save Cursor Position
             self.saved_cursor = (self.cursor_x, self.cursor_y)
         elif command == 'u':  # Restore Cursor Position
-            self.cursor_x, self.cursor_y = self.saved_cursor
-            # Ensure we don't restore to invalid position
-            self.cursor_x = max(0, self.cursor_x)
-            self.cursor_y = max(0, self.cursor_y)
+            # For save/restore cursor, if content has been written since save,
+            # adjust the restoration to not overwrite existing content
+            saved_x, saved_y = self.saved_cursor
+            if saved_y < len(self.lines) and len(self.lines[saved_y]) > saved_x:
+                # Content exists at the saved position, restore to end of content
+                self.cursor_x = len(self.lines[saved_y])
+                self.cursor_y = saved_y
+            else:
+                # Safe to restore to original position
+                self.cursor_x = max(0, saved_x)
+                self.cursor_y = max(0, saved_y)
             self._ensure_line_exists(self.cursor_y)
         elif command == 'h' or command == 'l':  # Set/Reset Mode (DEC private modes)
             # Handle DEC private mode sequences like ?25l (hide cursor) and ?25h (show cursor)
@@ -339,25 +354,29 @@ class ANSIProcessor:
                     last_content_line = i
                     break
 
-            # Extract only the content lines
+            # Extract only the content lines and strip positioning artifacts
             if first_content_line <= last_content_line:
                 content_lines = self.lines[first_content_line:last_content_line + 1]
+                # For single line results, strip leading spaces from positioning
+                if len(content_lines) == 1:
+                    content_lines[0] = content_lines[0].lstrip()
                 result = '\n'.join(content_lines)
             else:
                 result = ''
         else:
             result = ''
 
-        # If original text ended with newline, preserve it, but only if we have actual content
-        if text.endswith('\n') and not result.endswith('\n') and result.strip():
+        # Preserve newlines based on original content structure
+        stripped_text = self.strip_ansi(text)
+        if stripped_text.endswith('\n') and result and not result.endswith('\n'):
             result += '\n'
-        elif text.endswith('\n') and not result.strip():
-            # Special case: if all content was stripped but original had newline,
-            # only preserve newline if there was actual text content originally
-            if self.strip_ansi(text).strip():
-                result = '\n' if result else ''
-            else:
-                result = ''
+        elif stripped_text.endswith('\n') and not result and stripped_text.strip():
+            # Only add newline if there was actual text content (not just whitespace/newlines)
+            result = stripped_text.strip() + '\n'
+
+        # If the final result is only whitespace, return empty string
+        if not result.strip():
+            return ''
 
         return result
 
