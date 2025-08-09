@@ -296,7 +296,7 @@ class RawANSICapture:
                         line = line[:57] + "..."
 
                     # Show the line (this will display with actual colors if run in terminal)
-                    print(f"�� {line}")
+                    print(f"│ {line}")
                     displayed_lines += 1
 
                 if len(lines) > 10:
@@ -404,13 +404,13 @@ class RawANSICapture:
                 log_print(f"│ {i:2d}. {seq_info['repr']:<20} → {seq_info['description']}")
             if len(sequences) > 10:
                 log_print(f"│     ... and {len(sequences) - 10} more sequences")
-            log_print("└──────────────────────────────────────────────��──────────┘")
+            log_print("└────────────────────────────────────────────────────────┘")
         log_print()
 
         def format_output_section(title, content, max_lines=5):
             """Format an output section with truncation for readability"""
             log_print(f"{title}:")
-            log_print("┌─────────────────────────────────────────────────────────┐")
+            log_print("┌────────────────────────────────────────────────────────────┐")
 
             if not content:
                 log_print("│ (empty)")
@@ -434,7 +434,7 @@ class RawANSICapture:
                 else:
                     log_print(f"│ {content_repr}")
 
-            log_print("└────────��─────────────���──────────────────────────────────┘")
+            log_print("└───────────────────────────────────────────────────────┘")
             log_print()
 
         # Raw output
