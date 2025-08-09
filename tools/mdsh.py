@@ -497,6 +497,17 @@ class MarkdownShell:
                     # Wait for input from either stdin or the AI agent
                     ready, _, _ = select.select([sys.stdin, master], [], [], 0.1)
 
+                    # Handle timeout - process any buffered content that's waiting
+                    if not ready and hasattr(self, 'buffer') and self.buffer and '\n' not in self.buffer:
+                        # We have buffered content but no newline - likely a prompt waiting
+                        temp_processor = ANSIProcessor()
+                        processed = temp_processor.process_ansi_sequences(self.buffer)
+                        if processed.strip():
+                            print('\r' + ' ' * 120 + '\r', end='', flush=True)
+                            print(processed.strip(), end='', flush=True)
+                            self._has_realtime_output = True
+                            self.buffer = ''  # Clear buffer since we've rendered it
+
                     if sys.stdin in ready:
                         # User input - forward to AI agent
                         try:
@@ -537,15 +548,22 @@ class MarkdownShell:
                                     if re.match(r'\x1b\[[0-9]*[ABCDEFGH]', seq) or 'K' in seq
                                 )
 
-                                if ('\r' in self.buffer or has_cursor_movement) and '\n' not in self.buffer:
-                                    # This is likely a real-time update - process immediately
-                                    # Use a fresh processor instance to avoid state accumulation
-                                    temp_processor = ANSIProcessor()
+                                # Check if buffer looks like a shell prompt (ends with $ or similar prompt indicators)
+                                temp_processor = ANSIProcessor()
+                                clean_buffer = temp_processor.strip_ansi(self.buffer)
+                                looks_like_prompt = bool(re.search(r'[$#%>]\s*$', clean_buffer))
+
+                                if (('\r' in self.buffer or has_cursor_movement or looks_like_prompt) and
+                                    '\n' not in self.buffer):
+                                    # This is likely a real-time update or shell prompt - process immediately
                                     processed = temp_processor.process_ansi_sequences(self.buffer)
                                     if processed.strip():
                                         # Clear current line and show update
                                         print('\r' + ' ' * 120 + '\r', end='', flush=True)
                                         print(processed.strip(), end='', flush=True)
+
+                                        # Mark that we have real-time output
+                                        self._has_realtime_output = True
                                     continue
 
                                 # Process complete lines
