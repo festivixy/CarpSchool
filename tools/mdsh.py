@@ -188,17 +188,10 @@ class ANSIProcessor:
         elif command == 's':  # Save Cursor Position
             self.saved_cursor = (self.cursor_x, self.cursor_y)
         elif command == 'u':  # Restore Cursor Position
-            # For save/restore cursor, if content has been written since save,
-            # adjust the restoration to not overwrite existing content
-            saved_x, saved_y = self.saved_cursor
-            if saved_y < len(self.lines) and len(self.lines[saved_y]) > saved_x:
-                # Content exists at the saved position, restore to end of content
-                self.cursor_x = len(self.lines[saved_y])
-                self.cursor_y = saved_y
-            else:
-                # Safe to restore to original position
-                self.cursor_x = max(0, saved_x)
-                self.cursor_y = max(0, saved_y)
+            self.cursor_x, self.cursor_y = self.saved_cursor
+            # Ensure cursor position is valid
+            self.cursor_x = max(0, self.cursor_x)
+            self.cursor_y = max(0, self.cursor_y)
             self._ensure_line_exists(self.cursor_y)
         elif command == 'h' or command == 'l':  # Set/Reset Mode (DEC private modes)
             # Handle DEC private mode sequences like ?25l (hide cursor) and ?25h (show cursor)
@@ -515,9 +508,25 @@ class MarkdownShell:
                     if master in ready:
                         # AI agent output - capture and render
                         try:
-                            data = os.read(master, 1024).decode('utf-8', errors='ignore')
-                            if data:
-                                self.buffer += data
+                            raw_data = os.read(master, 1024)
+                            if raw_data:
+                                # Handle UTF-8 properly with buffering for partial sequences
+                                try:
+                                    data = raw_data.decode('utf-8')
+                                except UnicodeDecodeError:
+                                    # Partial UTF-8 sequence - buffer it
+                                    if not hasattr(self, '_utf8_buffer'):
+                                        self._utf8_buffer = b''
+                                    self._utf8_buffer += raw_data
+                                    try:
+                                        data = self._utf8_buffer.decode('utf-8')
+                                        self._utf8_buffer = b''
+                                    except UnicodeDecodeError:
+                                        # Still incomplete, continue buffering
+                                        continue
+
+                                if data:
+                                    self.buffer += data
 
                                 # Check for real-time updates (carriage returns or cursor movements)
                                 ansi_sequences = self.ansi_processor.ansi_pattern.findall(self.buffer)
