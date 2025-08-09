@@ -423,17 +423,25 @@ class MarkdownShell:
         if not processed_text.strip():
             return
 
-        if self.is_markdown_content(processed_text):
+        # Check if this looks like a shell prompt (for proper positioning)
+        clean_text = temp_processor.strip_ansi(processed_text)
+        looks_like_prompt = bool(re.search(r'[$#%>]\s*$', clean_text.strip()))
+
+        if looks_like_prompt:
+            # For shell prompts, ensure we start at column 0 and don't add extra newlines
+            # Use print() instead of Rich console to avoid positioning issues
+            print(processed_text.rstrip(), end='', flush=True)
+        elif self.is_markdown_content(processed_text):
             try:
                 # Use processed text for markdown rendering
                 markdown = Markdown(processed_text.strip())
                 self.console.print(markdown)
             except Exception:
                 # Fallback to plain text
-                self.console.print(processed_text, end='')
+                print(processed_text, end='', flush=True)
         else:
-            # For non-markdown, use processed text
-            self.console.print(processed_text, end='')
+            # For non-markdown, use plain print to avoid Rich console positioning
+            print(processed_text, end='', flush=True)
 
     def run(self):
         """Run the AI agent in a simple wrapper"""
