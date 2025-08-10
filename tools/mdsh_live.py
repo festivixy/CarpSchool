@@ -14,6 +14,7 @@ import argparse
 import signal
 import tty
 import termios
+import select
 from rich.live import Live
 from rich.console import Console
 from rich.panel import Panel
@@ -94,8 +95,8 @@ class LiveTerminal:
             # Don't print errors as they interfere with Rich Live display
             return False
 
-    def send_character_to_terminal(self, char):
-        """Send a single character to the terminal window."""
+    def send_keystroke_to_terminal(self, char):
+        """Send a single keystroke to the terminal window."""
         if not self.terminal_id:
             return False
 
@@ -111,16 +112,37 @@ class LiveTerminal:
             tab_num = match.group(1)
             window_id = match.group(2)
 
-            if 32 <= char_code <= 126:  # Printable characters
-                escaped_char = char.replace("\\", "\\\\").replace('"', '\\"').replace("'", "\\'")
+            if char_code == 13 or char_code == 10:  # Enter
                 subprocess.run([
                     "osascript", "-e",
-                    f'tell application "Terminal" to tell window id {window_id} to tell tab {tab_num} to keystroke "{escaped_char}"'
+                    f'tell application "Terminal" to tell window id {window_id} to tell tab {tab_num} to keystroke return'
                 ], check=True, capture_output=True)
             elif char_code == 127 or char_code == 8:  # Backspace
                 subprocess.run([
                     "osascript", "-e",
                     f'tell application "Terminal" to tell window id {window_id} to tell tab {tab_num} to keystroke (ASCII character 8)'
+                ], check=True, capture_output=True)
+            elif char_code == 9:  # Tab
+                subprocess.run([
+                    "osascript", "-e",
+                    f'tell application "Terminal" to tell window id {window_id} to tell tab {tab_num} to keystroke tab'
+                ], check=True, capture_output=True)
+            elif char_code == 27:  # Escape
+                subprocess.run([
+                    "osascript", "-e",
+                    f'tell application "Terminal" to tell window id {window_id} to tell tab {tab_num} to keystroke (ASCII character 27)'
+                ], check=True, capture_output=True)
+            elif 32 <= char_code <= 126:  # Printable characters
+                escaped_char = char.replace("\\", "\\\\").replace('"', '\\"').replace("'", "\\'")
+                subprocess.run([
+                    "osascript", "-e",
+                    f'tell application "Terminal" to tell window id {window_id} to tell tab {tab_num} to keystroke "{escaped_char}"'
+                ], check=True, capture_output=True)
+            # For other control characters, try to send them as ASCII character
+            else:
+                subprocess.run([
+                    "osascript", "-e",
+                    f'tell application "Terminal" to tell window id {window_id} to tell tab {tab_num} to keystroke (ASCII character {char_code})'
                 ], check=True, capture_output=True)
 
             return True
@@ -165,23 +187,43 @@ class LiveTerminal:
                     self.output_queue.put(f"Error reading output: {e}")
                 break
 
-    def input_monitor_thread(self):
-        """Monitor input and forward commands to terminal."""
-        # This approach uses a simple subprocess to read input separately
-        # to avoid conflicts with Rich Live display
-        while self.running:
-            try:
-                # Use a simple approach: check for a command file
-                # This allows input without conflicting with Rich Live
-                time.sleep(0.5)
+    def keystroke_capture_thread(self):
+        """Capture keystrokes and forward them in real-time."""
+        # Store original terminal settings
+        original_settings = None
 
-                # For now, we'll make this a passive monitor
-                # Users can use the AppleScript files to send commands
+        try:
+            # Setup raw mode for keystroke capture
+            original_settings = termios.tcgetattr(sys.stdin.fileno())
+            tty.setraw(sys.stdin.fileno())
 
-            except Exception as e:
-                if self.running:
+            while self.running:
+                # Check for available input
+                if select.select([sys.stdin], [], [], 0.1)[0]:
+                    char = sys.stdin.read(1)
+
+                    if not char:
+                        break
+
+                    char_code = ord(char)
+
+                    # Handle Ctrl+C
+                    if char_code == 3:
+                        self.running = False
+                        break
+
+                    # Forward the keystroke immediately
+                    self.send_keystroke_to_terminal(char)
+
+        except Exception as e:
+            pass
+        finally:
+            # Restore terminal settings
+            if original_settings:
+                try:
+                    termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, original_settings)
+                except:
                     pass
-                break
 
     def create_display(self):
         """Create the Rich Live display layout."""
@@ -218,7 +260,7 @@ class LiveTerminal:
         layout["terminal"].update(terminal_panel)
 
         # Footer with instructions
-        footer_text = Text("Use new terminal window for commands OR use: osascript write_terminal.applescript 'command' • Live monitoring • Ctrl+C to stop")
+        footer_text = Text("Type here - keystrokes are forwarded in real-time to new terminal • Live monitoring • Ctrl+C to stop")
         footer_panel = Panel(
             footer_text,
             border_style="yellow",
@@ -241,12 +283,13 @@ class LiveTerminal:
         self.console.print("[yellow]Use the new terminal window for commands, this window shows live updates[/yellow]")
         self.console.print("[yellow]Press Ctrl+C to exit[/yellow]")
 
-        # Start monitoring threads (removed raw terminal setup to avoid Rich Live conflicts)
+        # Start monitoring threads
         output_thread = threading.Thread(target=self.output_monitor_thread, daemon=True)
         output_thread.start()
 
-        input_thread = threading.Thread(target=self.input_monitor_thread, daemon=True)
-        input_thread.start()
+        # Start keystroke capture in a separate thread to avoid Rich Live conflicts
+        keystroke_thread = threading.Thread(target=self.keystroke_capture_thread, daemon=True)
+        keystroke_thread.start()
 
         # Run Rich Live display with higher refresh rate
         try:
