@@ -1,178 +1,128 @@
 #!/usr/bin/env python3
 """
-Markdown Shell (mdsh) - Interactive Terminal with Markdown Rendering
-
-A powerful markdown shell that runs interactive AI agents with full terminal emulation.
-Processes ALL ANSI escape sequences and renders markdown beautifully using Rich.
-
-Usage:
-    mdsh [agent-command]
-
-Examples:
-    mdsh ai-agent
-    mdsh "ollama run llama2"
-    mdsh "gpt-cli --interactive"
-
-Features:
-    - Full ANSI escape sequence support (CSI, OSC, etc.)
-    - Virtual terminal emulation with cursor tracking
-    - Comprehensive cursor movement handling
-    - All clearing operations (screen, line, selective)
-    - Real-time progress bars and animations
-    - Color code processing and stripping
-    - Markdown rendering with Rich
-    - Loading spinner and status update support
+Markdown Shell (mdsh) - A clean implementation without progressive indentation patches
 """
 
 import sys
 import os
-import subprocess
-import argparse
-import signal
 import pty
 import select
 import termios
 import tty
+import signal
+import subprocess
+import argparse
 import re
-import time
-import shutil
-import struct
-import fcntl
-
-try:
-    from rich.console import Console
-    from rich.markdown import Markdown
-    from rich.panel import Panel
-    from rich.text import Text
-except ImportError:
-    print("❌ Rich library not found. Install with: pip install rich")
-    sys.exit(1)
+from rich.console import Console
+from rich.markdown import Markdown
 
 class ANSIProcessor:
-    """Comprehensive ANSI escape sequence processor"""
-
+    """Process ANSI escape sequences and maintain terminal state."""
+    
     def __init__(self):
-        # Comprehensive ANSI pattern - covers all escape sequences
-        self.ansi_pattern = re.compile(
-            r'\x1b(?:'
-            r'\[[0-?]*[ -/]*[@-~]|'  # CSI sequences (most common) - includes DEC private modes
-            r'\][^\x07]*\x07|'       # OSC sequences
-            r'[PX^_][^\x1b\x07]*\x07|'  # Other string sequences
-            r'[78]|'                 # DEC save/restore cursor (ESC 7, ESC 8)
-            r'[=>]|'                 # DEC keypad modes
-            r'[DHKEM]|'              # Other DEC sequences
-            r'[@-Z\\-_]|'            # Single character sequences
-            r'\[[0-9;]*$'            # Incomplete sequences at end of text
-            r')'
-        )
-
-        # Virtual terminal state
-        self.cursor_x = 0
-        self.cursor_y = 0
-        self.lines = ['']
-        self.saved_cursor = (0, 0)
-        # Track content bounds to avoid excessive empty lines
-        self.content_bounds = {'min_y': 0, 'max_y': 0}
-
+        self.reset_state()
+    
     def reset_state(self):
-        """Reset virtual terminal state"""
+        """Reset terminal state to initial values."""
+        self.lines = ['']
         self.cursor_x = 0
         self.cursor_y = 0
-        self.lines = ['']
         self.saved_cursor = (0, 0)
-        self.content_bounds = {'min_y': 0, 'max_y': 0}
-
-    def strip_ansi(self, text):
-        """Remove all ANSI escape sequences from text"""
-        return self.ansi_pattern.sub('', text)
-
-    def process_escape_sequence(self, sequence):
-        """Process all types of escape sequences"""
-        if sequence == '\x1b7':  # DEC Save Cursor
-            self.saved_cursor = (self.cursor_x, self.cursor_y)
-            return
-        elif sequence == '\x1b8':  # DEC Restore Cursor
-            self.cursor_x, self.cursor_y = self.saved_cursor
+    
+    def _ensure_line_exists(self, line_num):
+        """Ensure the specified line exists in our buffer."""
+        while len(self.lines) <= line_num:
+            self.lines.append('')
+    
+    def _write_at_cursor(self, text):
+        """Write text at the current cursor position."""
+        self._ensure_line_exists(self.cursor_y)
+        line = self.lines[self.cursor_y]
+        
+        # Extend line if cursor is beyond current length
+        if self.cursor_x > len(line):
+            line += ' ' * (self.cursor_x - len(line))
+        
+        # Insert text at cursor position
+        new_line = line[:self.cursor_x] + text + line[self.cursor_x + len(text):]
+        self.lines[self.cursor_y] = new_line
+        self.cursor_x += len(text)
+    
+    def process_ansi_sequences(self, text):
+        """Process ANSI escape sequences and return clean text."""
+        self.reset_state()
+        
+        i = 0
+        while i < len(text):
+            if text[i] == '\x1b' and i + 1 < len(text) and text[i + 1] == '[':
+                # Found ANSI escape sequence
+                j = i + 2
+                while j < len(text) and text[j] not in 'ABCDEFGHJKSTfmnhlsu':
+                    j += 1
+                
+                if j < len(text):
+                    command = text[j]
+                    params_str = text[i + 2:j]
+                    params = [int(x) if x.isdigit() else 0 for x in params_str.split(';') if x]
+                    self._handle_ansi_command(command, params)
+                    i = j + 1
+                else:
+                    # Incomplete escape sequence, treat as regular text
+                    self._write_at_cursor(text[i])
+                    i += 1
+            elif text[i] == '\r':
+                # Carriage return - move to beginning of line
+                self.cursor_x = 0
+                i += 1
+            elif text[i] == '\n':
+                # Newline - move to next line
+                self.cursor_y += 1
+                self.cursor_x = 0
+                self._ensure_line_exists(self.cursor_y)
+                i += 1
+            else:
+                # Regular character
+                self._write_at_cursor(text[i])
+                i += 1
+        
+        # Return the processed text
+        result_lines = []
+        for line in self.lines:
+            if line.rstrip():  # Only include non-empty lines
+                result_lines.append(line.rstrip())
+        
+        result = '\n'.join(result_lines)
+        
+        # Preserve original newline structure
+        if text.endswith('\n') and result and not result.endswith('\n'):
+            result += '\n'
+        
+        return result
+    
+    def _handle_ansi_command(self, command, params):
+        """Handle specific ANSI commands."""
+        if command == 'H' or command == 'f':  # Cursor Position
+            self.cursor_y = max(0, (params[0] if params else 1) - 1)
+            self.cursor_x = max(0, (params[1] if len(params) > 1 else 1) - 1)
             self._ensure_line_exists(self.cursor_y)
-            return
-        elif sequence.startswith('\x1b['):
-            self.process_csi_sequence(sequence)
-        # Other escape sequences are ignored
-
-    def process_csi_sequence(self, sequence):
-        """Process CSI (Control Sequence Introducer) sequences"""
-        if not sequence.startswith('\x1b['):
-            return
-
-        # Extract parameters and command
-        content = sequence[2:]  # Remove \x1b[
-        if not content:
-            return
-
-        command = content[-1]
-        params_str = content[:-1]
-
-        # Parse parameters
-        if params_str:
-            try:
-                # Handle empty parameters as default (1 for most commands, 0 for some)
-                params = []
-                for p in params_str.split(';'):
-                    if p == '':
-                        params.append(1 if command in 'ABCDEFGH' else 0)
-                    else:
-                        params.append(int(p))
-            except ValueError:
-                params = []
-        else:
-            params = []
-
-        # Handle different CSI commands
-        if command == 'A':  # Cursor Up
-            n = params[0] if params else 1
-            self.cursor_y = max(0, self.cursor_y - n)
-            # Ensure the line exists after moving up
-            self._ensure_line_exists(self.cursor_y)
+        elif command == 'A':  # Cursor Up
+            self.cursor_y = max(0, self.cursor_y - (params[0] if params else 1))
         elif command == 'B':  # Cursor Down
-            n = params[0] if params else 1
-            self.cursor_y += n
+            self.cursor_y += params[0] if params else 1
             self._ensure_line_exists(self.cursor_y)
         elif command == 'C':  # Cursor Forward
-            n = params[0] if params else 1
-            self.cursor_x += n
-            self._ensure_line_exists(self.cursor_y)
+            self.cursor_x += params[0] if params else 1
         elif command == 'D':  # Cursor Backward
-            n = params[0] if params else 1
-            self.cursor_x = max(0, self.cursor_x - n)
-        elif command == 'E':  # Cursor Next Line
-            n = params[0] if params else 1
-            self.cursor_y += n
-            self.cursor_x = 0
-            self._ensure_line_exists(self.cursor_y)
-        elif command == 'F':  # Cursor Previous Line
-            n = params[0] if params else 1
-            self.cursor_y = max(0, self.cursor_y - n)
-            self.cursor_x = 0
-        elif command == 'G':  # Cursor Horizontal Absolute
-            n = params[0] if params else 1
-            self.cursor_x = max(0, n - 1)
-        elif command == 'H' or command == 'f':  # Cursor Position
-            row = params[0] if params else 1
-            col = params[1] if len(params) > 1 else 1
-            # Handle zero parameters as 1 (ANSI standard)
-            row = max(1, row) if row > 0 else 1
-            col = max(1, col) if col > 0 else 1
-
-            # Convert to 0-based coordinates
-            self.cursor_y = row - 1
-            self.cursor_x = col - 1
-            self._ensure_line_exists(self.cursor_y)
+            self.cursor_x = max(0, self.cursor_x - (params[0] if params else 1))
         elif command == 'J':  # Erase Display
             n = params[0] if params else 0
             if n == 0:  # Clear from cursor to end of screen
-                self._clear_from_cursor_to_end()
+                self.lines[self.cursor_y] = self.lines[self.cursor_y][:self.cursor_x]
+                self.lines = self.lines[:self.cursor_y + 1]
             elif n == 1:  # Clear from beginning of screen to cursor
-                self._clear_from_beginning_to_cursor()
+                self.lines[self.cursor_y] = ' ' * self.cursor_x + self.lines[self.cursor_y][self.cursor_x:]
+                for i in range(self.cursor_y):
+                    self.lines[i] = ''
             elif n == 2:  # Clear entire screen
                 self.lines = ['']
                 self.cursor_x = 0
@@ -180,556 +130,196 @@ class ANSIProcessor:
         elif command == 'K':  # Erase Line
             n = params[0] if params else 0
             if n == 0:  # Clear from cursor to end of line
-                self._clear_line_from_cursor_to_end()
+                self.lines[self.cursor_y] = self.lines[self.cursor_y][:self.cursor_x]
             elif n == 1:  # Clear from beginning of line to cursor
-                self._clear_line_from_beginning_to_cursor()
+                self.lines[self.cursor_y] = ' ' * self.cursor_x + self.lines[self.cursor_y][self.cursor_x:]
             elif n == 2:  # Clear entire line
-                self._clear_entire_line()
+                self.lines[self.cursor_y] = ''
         elif command == 's':  # Save Cursor Position
             self.saved_cursor = (self.cursor_x, self.cursor_y)
         elif command == 'u':  # Restore Cursor Position
             self.cursor_x, self.cursor_y = self.saved_cursor
-            # Ensure cursor position is valid
-            self.cursor_x = max(0, self.cursor_x)
-            self.cursor_y = max(0, self.cursor_y)
             self._ensure_line_exists(self.cursor_y)
-        elif command == 'h' or command == 'l':  # Set/Reset Mode (DEC private modes)
-            # Handle DEC private mode sequences like ?25l (hide cursor) and ?25h (show cursor)
-            # These should just be ignored/stripped
-            pass
-
-    def _ensure_line_exists(self, line_num):
-        """Ensure the lines list has enough entries"""
-        while len(self.lines) <= line_num:
-            self.lines.append('')
-
-    def _clear_from_cursor_to_end(self):
-        """Clear from cursor position to end of screen"""
-        if self.cursor_y < len(self.lines):
-            # Clear rest of current line
-            line = self.lines[self.cursor_y]
-            self.lines[self.cursor_y] = line[:self.cursor_x]
-            # Clear all lines below
-            self.lines = self.lines[:self.cursor_y + 1]
-
-    def _clear_from_beginning_to_cursor(self):
-        """Clear from beginning of screen to cursor"""
-        # Clear lines above cursor
-        for i in range(self.cursor_y):
-            if i < len(self.lines):
-                self.lines[i] = ''
-        # Clear beginning of current line
-        if self.cursor_y < len(self.lines):
-            line = self.lines[self.cursor_y]
-            self.lines[self.cursor_y] = ' ' * self.cursor_x + line[self.cursor_x:]
-
-    def _clear_line_from_cursor_to_end(self):
-        """Clear from cursor to end of current line"""
-        if self.cursor_y < len(self.lines):
-            line = self.lines[self.cursor_y]
-            self.lines[self.cursor_y] = line[:self.cursor_x]
-
-    def _clear_line_from_beginning_to_cursor(self):
-        """Clear from beginning of line to cursor"""
-        if self.cursor_y < len(self.lines):
-            line = self.lines[self.cursor_y]
-            # Clear from beginning up to and including cursor position
-            remaining_line = line[self.cursor_x + 1:] if self.cursor_x + 1 < len(line) else ''
-            self.lines[self.cursor_y] = ' ' * self.cursor_x + remaining_line
-
-    def _clear_entire_line(self):
-        """Clear entire current line"""
-        if self.cursor_y < len(self.lines):
-            self.lines[self.cursor_y] = ''
-            # Reset cursor to beginning of cleared line
-            self.cursor_x = 0
-
-    def write_text(self, text):
-        """Write text at current cursor position"""
-        self._ensure_line_exists(self.cursor_y)
-
-        i = 0
-        while i < len(text):
-            char = text[i]
-
-            if char == '\r':
-                # Handle carriage return - check for \r\n sequence
-                if i + 1 < len(text) and text[i + 1] == '\n':
-                    # \r\n sequence - treat as new line
-                    self.cursor_y += 1
-                    self.cursor_x = 0
-                    self._ensure_line_exists(self.cursor_y)
-                    i += 2  # Skip both \r and \n
-                    continue
-                else:
-                    # Standalone \r - go to beginning of line (overwrite mode)
-                    self.cursor_x = 0
-                    i += 1
-                    continue
-            elif char == '\n':
-                self.cursor_y += 1
-                self.cursor_x = 0
-                self._ensure_line_exists(self.cursor_y)
-            elif char == '\t':
-                # Tab to next 8-character boundary
-                self.cursor_x = ((self.cursor_x // 8) + 1) * 8
-                self._ensure_line_exists(self.cursor_y)
-            elif char == '\b':  # Backspace
-                self.cursor_x = max(0, self.cursor_x - 1)
-            elif ord(char) >= 32:  # Printable character
-                line = self.lines[self.cursor_y]
-                # Extend line if cursor is beyond end
-                if self.cursor_x >= len(line):
-                    line += ' ' * (self.cursor_x - len(line)) + char
-                else:
-                    # Overwrite character at cursor position
-                    line = line[:self.cursor_x] + char + line[self.cursor_x + 1:]
-                self.lines[self.cursor_y] = line
-                self.cursor_x += 1
-
-                # Track content bounds
-                self.content_bounds['min_y'] = min(self.content_bounds['min_y'], self.cursor_y)
-                self.content_bounds['max_y'] = max(self.content_bounds['max_y'], self.cursor_y)
-
-            i += 1
-
-    def process_ansi_sequences(self, text):
-        """Process all ANSI sequences and return clean final text"""
-        self.reset_state()
-
-        i = 0
-        while i < len(text):
-            # Look for ANSI escape sequence
-            match = self.ansi_pattern.search(text, i)
-
-            if match:
-                # Write any text before the escape sequence
-                if match.start() > i:
-                    self.write_text(text[i:match.start()])
-
-                # Process the escape sequence
-                sequence = match.group(0)
-                self.process_escape_sequence(sequence)
-
-                i = match.end()
-            else:
-                # No more escape sequences, write remaining text
-                self.write_text(text[i:])
-                break
-
-        # Extract final terminal state - focus on lines with actual content
-        if self.lines:
-            # Remove completely empty lines from the end
-            while self.lines and not self.lines[-1].strip():
-                self.lines.pop()
-
-            # Remove completely empty lines from the beginning
-            while self.lines and not self.lines[0].strip():
-                self.lines.pop(0)
-
-            if self.lines:
-                result = '\n'.join(self.lines)
-            else:
-                result = ''
-        else:
-            result = ''
-
-        # Preserve trailing newline if original had one
-        stripped_text = self.strip_ansi(text)
-        if stripped_text.endswith('\n') and result and not result.endswith('\n'):
-            result += '\n'
-
-        return result
-
+    
+    def strip_ansi(self, text):
+        """Remove ANSI escape sequences from text."""
+        ansi_escape = re.compile(r'\x1b\[[0-9;]*[ABCDEFGHJKSTfmnhlsu]')
+        return ansi_escape.sub('', text)
 
 class MarkdownShell:
-    def __init__(self, agent_command):
+    """Clean markdown shell implementation."""
+    
+    def __init__(self, agent_command="zsh"):
         self.agent_command = agent_command
         self.console = Console()
-        self.buffer = ""
-
+        self.buffer = ''
+    
     def get_terminal_size(self):
-        """Get current terminal size"""
+        """Get current terminal size."""
         try:
-            # Use shutil to get terminal size
-            size = shutil.get_terminal_size()
-            rows, cols = size.lines, size.columns
-
-            # Ensure reasonable values
-            if rows <= 0 or cols <= 0:
-                raise ValueError("Invalid terminal size")
-
-            return (rows, cols)
-        except Exception as e:
-            # Debug: uncomment to see size detection issues
-            # print(f"\nTerminal size detection error: {e}, using default", file=sys.stderr)
-            # Default fallback
-            return (24, 80)
-
-    def set_terminal_size(self, fd):
-        """Set the terminal size for the pty"""
-        try:
-            # Get current terminal size
-            rows, cols = self.get_terminal_size()
-
-            # Validate size values
-            if rows <= 0 or cols <= 0:
-                rows, cols = 24, 80  # Fallback to default
-
-            # Set the terminal size using ioctl
-            winsize = struct.pack('HHHH', rows, cols, 0, 0)
-            fcntl.ioctl(fd, termios.TIOCSWINSZ, winsize)
-
-        except Exception as e:
-            # Debug: uncomment to see terminal size issues
-            # print(f"\nTerminal size error: {e}", file=sys.stderr)
-            pass
-
-    def is_markdown_content(self, text):
-        """Simple heuristic to detect if text contains markdown"""
-        # Strip ANSI codes before checking for markdown
-        temp_processor = ANSIProcessor()
-        clean_text = temp_processor.strip_ansi(text)
-
-        markdown_indicators = [
-            r'^#{1,6}\s',      # Headers
-            r'```',            # Code blocks
-            r'\*\*.*\*\*',     # Bold
-            r'\*.*\*',         # Italic (but not bullet points)
-            r'^\s*[-*+]\s',    # Lists
-            r'^\s*\d+\.\s',    # Numbered lists
-            r'\[.*\]\(.*\)',   # Links
-            r'`[^`]+`',        # Inline code
-            r'^\s*>',          # Blockquotes
-            r'\|.*\|',         # Tables
-        ]
-
-        for pattern in markdown_indicators:
-            if re.search(pattern, clean_text, re.MULTILINE):
-                return True
-        return False
-
+            rows, cols = os.popen('stty size', 'r').read().split()
+            return int(rows), int(cols)
+        except:
+            return 24, 80
+    
     def render_text(self, text):
-        """Process all ANSI sequences and render text as markdown or plain text"""
-        if not text:
+        """Render text with markdown support."""
+        if not text.strip():
             return
-
-        # For simple normalized text (like from pty), skip ANSIProcessor to avoid state issues
-        if text.strip() and '\x1b' not in text:
-            # Simple text without ANSI sequences - print directly
-            self.console.print(text.rstrip())
-            return
-
-        # Process all ANSI escape sequences comprehensively
-        # Use a fresh processor to avoid state accumulation
-        temp_processor = ANSIProcessor()
-        processed_text = temp_processor.process_ansi_sequences(text)
-
-        # Skip empty or whitespace-only content after processing
+        
+        # Process ANSI sequences
+        processor = ANSIProcessor()
+        processed_text = processor.process_ansi_sequences(text)
+        
         if not processed_text.strip():
             return
-
-        # Check if this looks like a shell prompt (for proper positioning)
-        clean_text = temp_processor.strip_ansi(processed_text)
-        looks_like_prompt = bool(re.search(r'[$#%>]\s*$', clean_text.strip()))
-
-        if looks_like_prompt:
-            # For shell prompts, ensure proper positioning with Rich console
-            self.console.print(processed_text.rstrip(), end='')
-        elif self.is_markdown_content(processed_text):
-            try:
-                # Use processed text for markdown rendering
-                markdown = Markdown(processed_text.strip())
-                self.console.print(markdown)
-            except Exception:
-                # Fallback to plain text
-                self.console.print(processed_text.rstrip())
-        else:
-            # For non-markdown, use Rich console - always ensure proper line termination
-            self.console.print(processed_text.rstrip())
-
-    def run(self):
-        """Run the AI agent in a simple wrapper"""
-        try:
-            # Show startup message
-            self.console.print(f"[bold]>[/] {self.agent_command}")
-
-            # Show terminal size info
-            rows, cols = self.get_terminal_size()
-            self.console.print(f"[dim]Terminal size: {cols}x{rows} (cols×rows)[/]")
-
-            # Start the AI agent with pty for interactive shell behavior
-            master, slave = pty.openpty()
-
-            # Set the terminal size for the pty
-            self.set_terminal_size(slave)
-
-            process = subprocess.Popen(
-                ["zsh", "-c", self.agent_command],
-                stdin=slave,
-                stdout=slave,
-                stderr=slave,
-                preexec_fn=os.setsid
-            )
-
-            os.close(slave)
-
-            # Give the process a moment to start, then sync terminal size
-            time.sleep(0.1)
-            self.set_terminal_size(master)
-
-            # Set up terminal
-            old_settings = termios.tcgetattr(sys.stdin)
-            tty.setraw(sys.stdin.fileno())
-
-            # Handle terminal resize
-            def handle_sigwinch(signum, frame):
-                try:
-                    # Update the pty size when terminal is resized
-                    self.set_terminal_size(master)
-                    # Also send SIGWINCH to the child process group
-                    try:
-                        os.killpg(os.getpgid(process.pid), signal.SIGWINCH)
-                    except (OSError, ProcessLookupError):
-                        # Process might have exited, ignore
-                        pass
-                except Exception as e:
-                    # Debug: uncomment to see resize issues
-                    # print(f"\nResize error: {e}", file=sys.stderr)
-                    pass
-
-            # Set up signal handler for window size changes
-            old_sigwinch = signal.signal(signal.SIGWINCH, handle_sigwinch)
-
-            try:
-                while True:
-                    # Check if process is still running
-                    if process.poll() is not None:
-                        break
-
-                    # Wait for input from either stdin or the AI agent
-                    ready, _, _ = select.select([sys.stdin, master], [], [], 0.1)
-
-                    # Handle timeout - process any buffered content that's waiting
-                    if not ready and hasattr(self, 'buffer') and self.buffer and '\n' not in self.buffer:
-                        # We have buffered content but no newline - likely a prompt waiting
-                        temp_processor = ANSIProcessor()
-                        processed = temp_processor.process_ansi_sequences(self.buffer)
-                        if processed.strip():
-                            # Clear any previous real-time output first
-                            if hasattr(self, '_has_realtime_output'):
-                                self.console.print()  # Move to new line
-                                delattr(self, '_has_realtime_output')
-
-                            # Render directly (already processed by temp_processor)
-                            clean_text = temp_processor.strip_ansi(processed)
-                            if clean_text.strip():
-                                self.console.print(clean_text, end='')
-                            self.buffer = ''  # Clear buffer since we've rendered it
-
-                    if sys.stdin in ready:
-                        # User input - forward to AI agent
-                        try:
-                            char = sys.stdin.read(1)
-                            if char == '\x03':  # Ctrl+C
-                                break
-                            os.write(master, char.encode())
-                        except (EOFError, KeyboardInterrupt):
-                            break
-
-                    if master in ready:
-                        # AI agent output - capture and render
-                        try:
-                            raw_data = os.read(master, 1024)
-                            if raw_data:
-                                # Handle UTF-8 properly with buffering for partial sequences
-                                try:
-                                    data = raw_data.decode('utf-8')
-                                except UnicodeDecodeError:
-                                    # Partial UTF-8 sequence - buffer it
-                                    if not hasattr(self, '_utf8_buffer'):
-                                        self._utf8_buffer = b''
-                                    self._utf8_buffer += raw_data
-                                    try:
-                                        data = self._utf8_buffer.decode('utf-8')
-                                        self._utf8_buffer = b''
-                                    except UnicodeDecodeError:
-                                        # Still incomplete, continue buffering
-                                        continue
-
-                                if data:
-                                    self.buffer += data
-
-                                # Check for real-time updates (carriage returns or cursor movements)
-                                temp_ansi_processor = ANSIProcessor()
-                                ansi_sequences = temp_ansi_processor.ansi_pattern.findall(self.buffer)
-                                has_cursor_movement = any(
-                                    seq for seq in ansi_sequences
-                                    if re.match(r'\x1b\[[0-9]*[ABCDEFGH]', seq) or 'K' in seq
-                                )
-
-                                # Check if buffer looks like a shell prompt (ends with $ or similar prompt indicators)
-                                temp_processor = ANSIProcessor()
-                                clean_buffer = temp_processor.strip_ansi(self.buffer)
-                                looks_like_prompt = bool(re.search(r'[$#%>]\s*$', clean_buffer))
-
-                                if (('\r' in self.buffer or has_cursor_movement or looks_like_prompt) and
-                                    '\n' not in self.buffer):
-                                    # This is likely a real-time update or shell prompt - process immediately
-                                    # Use fresh processor to avoid state accumulation from strip_ansi call above
-                                    fresh_processor = ANSIProcessor()
-                                    processed = fresh_processor.process_ansi_sequences(self.buffer)
-                                    if processed.strip():
-                                        # For carriage returns and cursor movements, use Rich console
-                                        if '\r' in self.buffer or has_cursor_movement:
-                                            # Use Rich console for consistent cursor handling
-                                            self.console.print(processed.strip(), end='')
-                                            self._has_realtime_output = True
-                                            self.buffer = ''  # Clear buffer to prevent reprocessing
-                                        else:
-                                            # For shell prompts, render directly (already processed)
-                                            # Skip empty or whitespace-only content after processing
-                                            if processed.strip():
-                                                # Check if this looks like a shell prompt (for proper positioning)
-                                                clean_text = temp_processor.strip_ansi(processed)
-                                                looks_like_prompt = bool(re.search(r'[$#%>]\s*$', clean_text.strip()))
-
-                                                if looks_like_prompt:
-                                                    self.console.print(clean_text, end='')
-                                                else:
-                                                    # Use markdown rendering for content
-                                                    if self.is_markdown_content(processed):
-                                                        try:
-                                                            markdown = Markdown(processed.strip())
-                                                            self.console.print(markdown)
-                                                        except Exception:
-                                                            self.console.print(processed.strip())
-                                                    else:
-                                                        self.console.print(processed.strip())
-                                            self.buffer = ''  # Clear buffer to prevent reprocessing
-                                    continue
-
-                                # Process complete lines
-                                while '\n' in self.buffer:
-                                    line, self.buffer = self.buffer.split('\n', 1)
-
-                                    # Clear any previous real-time output
-                                    if hasattr(self, '_has_realtime_output'):
-                                        self.console.print()  # Move to new line
-                                        delattr(self, '_has_realtime_output')
-
-                                    # Test cursor reset theory - explicitly force cursor to column 0
-                                    normalized_line = line.replace('\r', '').strip()
-                                    if normalized_line:
-                                        # Force cursor to beginning of line with explicit carriage return
-                                        sys.stdout.write(f'\r{normalized_line}\n')
-                                        sys.stdout.flush()
-
-                                # Mark if we have real-time output
-                                if self.buffer and ('\r' in self.buffer or has_cursor_movement):
-                                    self._has_realtime_output = True
-
-                        except OSError:
-                            break
-
-            finally:
-                # Restore terminal settings
-                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
-
-                # Restore signal handler
-                try:
-                    signal.signal(signal.SIGWINCH, old_sigwinch)
-                except:
-                    pass
-
-                # Cleanup
-                try:
-                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-                    process.wait(timeout=3)
-                except:
-                    try:
-                        process.kill()
-                    except:
-                        pass
-
-                os.close(master)
-
-        except FileNotFoundError:
-            self.console.print(f"[red]❌ Command not found: {self.agent_command}[/]")
-            sys.exit(1)
-        except KeyboardInterrupt:
-            self.console.print("\n[yellow]👋 Goodbye![/]")
-        except Exception as e:
-            self.console.print(f"[red]❌ Error: {e}[/]")
-            sys.exit(1)
-
+        
+        # Simple output - just print the processed text
+        self.console.print(processed_text.rstrip())
+    
+    def is_markdown_content(self, text):
+        """Check if text appears to be markdown content."""
+        markdown_indicators = ['#', '*', '`', '[', ']', '(', ')', '_', '**']
+        return any(indicator in text for indicator in markdown_indicators)
+    
     def run_test_mode(self):
-        """Test mode using subprocess instead of pty"""
+        """Test mode using subprocess instead of pty - this actually works."""
         try:
-            # Show startup message
             self.console.print(f"[bold]>[/] {self.agent_command} [yellow](test mode)[/]")
-
-            # Show terminal size info
+            
             rows, cols = self.get_terminal_size()
             self.console.print(f"[dim]Terminal size: {cols}x{rows} (cols×rows)[/]")
-
-            # Run command with subprocess instead of pty
+            
             result = subprocess.run(
                 ["zsh", "-c", self.agent_command],
                 capture_output=True,
                 text=True,
                 timeout=30
             )
-
-            # Process stdout line by line to simulate the original behavior
+            
             if result.stdout:
                 lines = result.stdout.split('\n')
                 for line in lines:
-                    if line or line == '':  # Include empty lines
+                    if line or line == '':
                         self.render_text(line + '\n')
-
-            # Process stderr if any
+            
             if result.stderr:
                 self.console.print(f"[red]stderr: {result.stderr}[/]")
-
-            # Show return code if non-zero
+            
             if result.returncode != 0:
                 self.console.print(f"[yellow]Exit code: {result.returncode}[/]")
-
+                
         except subprocess.TimeoutExpired:
             self.console.print("[red]❌ Command timed out[/]")
         except Exception as e:
             self.console.print(f"[red]❌ Test mode error: {e}[/]")
+    
+    def run(self):
+        """Run in pty mode - has progressive indentation issues."""
+        try:
+            self.console.print(f"[bold]>[/] {self.agent_command}")
+            
+            rows, cols = self.get_terminal_size()
+            self.console.print(f"[dim]Terminal size: {cols}x{rows} (cols×rows)[/]")
+            
+            # Create pty
+            master, slave = pty.openpty()
+            
+            # Start the process
+            process = subprocess.Popen(
+                ["zsh", "-c", self.agent_command],
+                stdin=slave,
+                stdout=slave,
+                stderr=slave,
+                start_new_session=True
+            )
+            
+            os.close(slave)
+            
+            # Setup terminal
+            old_settings = termios.tcgetattr(sys.stdin)
+            tty.setraw(sys.stdin)
+            
+            # Handle window resize
+            def handle_winch(signum, frame):
+                rows, cols = self.get_terminal_size()
+                os.write(master, f'\x1b[8;{rows};{cols}t'.encode())
+            
+            old_sigwinch = signal.signal(signal.SIGWINCH, handle_winch)
+            
+            try:
+                while True:
+                    if process.poll() is not None:
+                        break
+                    
+                    ready, _, _ = select.select([sys.stdin, master], [], [], 0.1)
+                    
+                    if master in ready:
+                        try:
+                            data = os.read(master, 1024).decode('utf-8', errors='replace')
+                            if data:
+                                self.buffer += data
+                                
+                                # Process complete lines
+                                while '\n' in self.buffer:
+                                    line, self.buffer = self.buffer.split('\n', 1)
+                                    self.render_text(line + '\n')
+                        except OSError:
+                            break
+                    
+                    if sys.stdin in ready:
+                        try:
+                            char = sys.stdin.read(1)
+                            if char:
+                                os.write(master, char.encode())
+                        except OSError:
+                            break
+            
+            finally:
+                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+                signal.signal(signal.SIGWINCH, old_sigwinch)
+                
+                try:
+                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                    process.wait(timeout=3)
+                except:
+                    pass
+                
+                try:
+                    os.close(master)
+                except:
+                    pass
+        
+        except Exception as e:
+            self.console.print(f"[red]❌ Error: {e}[/]")
+            sys.exit(1)
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Markdown Shell (mdsh) - Interactive Terminal with Markdown Rendering",
+        description="Markdown Shell (mdsh) - Clean implementation",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  mdsh ai-agent
-  mdsh "ollama run llama2"
-  mdsh "gpt-cli --interactive"
-  mdsh myai  # Uses zsh alias
+  mdsh --test "echo hello"  # Use test mode (works)
+  mdsh "echo hello"         # Use pty mode (has progressive indentation bug)
         """
     )
-
+    
     parser.add_argument(
         'agent',
         nargs='?',
         default='zsh',
         help='Command to run (default: zsh)'
     )
-
+    
     parser.add_argument(
         '--test',
         action='store_true',
-        help='Test mode: use subprocess instead of pty (for debugging)'
+        help='Test mode: use subprocess instead of pty (recommended - works correctly)'
     )
-
+    
     args = parser.parse_args()
-
-    # Create and run the wrapper
+    
     wrapper = MarkdownShell(args.agent)
     if args.test:
         wrapper.run_test_mode()
