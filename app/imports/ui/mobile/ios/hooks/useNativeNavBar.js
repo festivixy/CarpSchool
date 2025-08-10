@@ -11,6 +11,7 @@ export const useNativeNavBar = () => {
   const navBarsRef = useRef(new Map());
   const actionHandlerRef = useRef(null);
   const actionHandlersRegistry = useRef(new Map()); // Registry of handlers by navBarId
+  const masterHandlerSet = useRef(false); // Track if master handler is already set
 
   useEffect(() => {
     const checkSupport = async () => {
@@ -107,9 +108,13 @@ export const useNativeNavBar = () => {
     console.log("[useNativeNavBar] 📝 Registering action handler for navBarId:", navBarId);
     actionHandlersRegistry.current.set(navBarId, handler);
 
-    // Set the master action handler if not already set
-    if (window.cordova?.plugins?.NativeNavBar) {
+    // Set the master action handler only once
+    if (window.cordova?.plugins?.NativeNavBar && !masterHandlerSet.current) {
+      console.log("[useNativeNavBar] 🎯 Setting master action handler (first time)");
       window.cordova.plugins.NativeNavBar.setActionHandler(masterActionHandler);
+      masterHandlerSet.current = true;
+    } else if (masterHandlerSet.current) {
+      console.log("[useNativeNavBar] ✅ Master action handler already set, skipping");
     }
   }, [masterActionHandler]);
 
@@ -123,13 +128,17 @@ export const useNativeNavBar = () => {
     console.log("[useNativeNavBar] 🎛️ setActionHandler called (legacy):", {
       hasHandler: !!handler,
       hasPlugin: !!window.cordova?.plugins?.NativeNavBar,
+      masterHandlerAlreadySet: masterHandlerSet.current,
     });
 
     actionHandlerRef.current = handler;
 
-    if (window.cordova?.plugins?.NativeNavBar) {
-      console.log("[useNativeNavBar] ✅ Setting master action handler");
+    if (window.cordova?.plugins?.NativeNavBar && !masterHandlerSet.current) {
+      console.log("[useNativeNavBar] 🎯 Setting master action handler (legacy call)");
       window.cordova.plugins.NativeNavBar.setActionHandler(masterActionHandler);
+      masterHandlerSet.current = true;
+    } else if (masterHandlerSet.current) {
+      console.log("[useNativeNavBar] ✅ Master action handler already set, preserving it");
     } else {
       console.warn("[useNativeNavBar] ⚠️ Cannot set action handler - plugin not available");
     }
