@@ -122,7 +122,6 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               padding: "18px 20px",
               backgroundColor: "transparent",
               border: "none",
-              borderBottom: "1px solid #f0f0f0",
               textAlign: "left",
               fontSize: "16px",
               color: "#333",
@@ -133,26 +132,6 @@ const Profile = ({ history, currentUser, isAdmin }) => {
           >
             <span style={{ marginRight: "12px" }}>📍</span>
             My Places
-            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
-          </button>
-
-          <button
-            onClick={() => handleNavigation("/credits")}
-            style={{
-              width: "100%",
-              padding: "18px 20px",
-              backgroundColor: "transparent",
-              border: "none",
-              textAlign: "left",
-              fontSize: "16px",
-              color: "#333",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center"
-            }}
-          >
-            <span style={{ marginRight: "12px" }}>💰</span>
-            Credits
             <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
           </button>
         </div>
@@ -309,6 +288,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               padding: "18px 20px",
               backgroundColor: "transparent",
               border: "none",
+              borderBottom: "1px solid #f0f0f0",
               textAlign: "left",
               fontSize: "16px",
               color: "#333",
@@ -319,6 +299,26 @@ const Profile = ({ history, currentUser, isAdmin }) => {
           >
             <span style={{ marginRight: "12px" }}>🔒</span>
             Privacy Policy
+            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation("/credits")}
+            style={{
+              width: "100%",
+              padding: "18px 20px",
+              backgroundColor: "transparent",
+              border: "none",
+              textAlign: "left",
+              fontSize: "16px",
+              color: "#333",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center"
+            }}
+          >
+            <span style={{ marginRight: "12px" }}>💰</span>
+            Credits
             <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
           </button>
         </div>
