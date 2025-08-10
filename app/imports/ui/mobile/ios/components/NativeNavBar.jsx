@@ -308,19 +308,19 @@ const NativeNavBar = ({
 
     switch (option.value) {
       case "edit-profile":
-        handleNavigation("/profile");
+        handleNavigation("/editProfile");
         break;
       case "my-places":
-        handleNavigation("/profile");
+        handleNavigation("/places");
         break;
       case "admin-rides":
-        handleNavigation("/admin/rides");
+        handleNavigation("/adminRides");
         break;
       case "admin-users":
-        handleNavigation("/admin/users");
+        handleNavigation("/adminUsers");
         break;
       case "admin-places":
-        handleNavigation("/admin/places");
+        handleNavigation("/adminPlaces");
         break;
       case "components-test":
         handleNavigation("/_test");

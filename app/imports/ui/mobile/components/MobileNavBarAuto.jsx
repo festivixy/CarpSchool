@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
+import { Meteor } from "meteor/meteor";
 import MobileNavBarCSS from "./MobileNavBarCSS";
 import NativeNavBar from "../ios/components/NativeNavBar";
 
@@ -15,12 +16,8 @@ import NativeNavBar from "../ios/components/NativeNavBar";
  * // Simple usage - automatically detects environment
  * <MobileNavBarAuto />
  *
- * // With custom props for NativeNavBar (when in iOS)
- * <MobileNavBarAuto
- *   items={customNavItems}
- *   activeIndex={2}
- *   onItemPress={handleItemPress}
- * />
+ * // With custom props (activeIndex, etc.)
+ * <MobileNavBarAuto activeIndex={2} />
  * ```
  *
  * ENVIRONMENT DETECTION:
@@ -30,9 +27,10 @@ import NativeNavBar from "../ios/components/NativeNavBar";
  *
  * FEATURES:
  * - Automatic environment detection
- * - Seamless prop forwarding
+ * - Synchronized labels between CSS and native implementations
+ * - Dynamic home label based on user authentication state
  * - Debug logging in development
- * - Backwards compatible with existing navbar usage
+ * - Consistent navigation behavior across platforms
  */
 class MobileNavBarAuto extends React.Component {
   /**
@@ -80,73 +78,7 @@ class MobileNavBarAuto extends React.Component {
 
   constructor(props) {
     super(props);
-    // Refs for CSS navbar buttons to simulate clicks
-    this.cssNavBarRef = React.createRef();
-    this.cssButtonRefs = {
-      home: React.createRef(),
-      search: React.createRef(),
-      create: React.createRef(),
-      messages: React.createRef(),
-      profile: React.createRef(),
-    };
   }
-
-  // Handle native navbar clicks by simulating CSS navbar clicks
-  handleNativeClick = (item, index, actionType) => {
-    console.log("[MobileNavBarAuto] 🔗 Bridging native click to CSS:", { id: item.id, index, actionType });
-
-    // Map native item IDs to CSS button actions
-    const buttonMap = {
-      home: () => {
-        // Home button - find and click the first tab
-        const homeButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="home"]');
-        if (homeButton) {
-          console.log("[MobileNavBarAuto] 🏠 Clicking CSS home button");
-          homeButton.click();
-        }
-      },
-      search: () => {
-        // Search button - find and click the search/join button
-        const searchButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="search"]');
-        if (searchButton) {
-          console.log("[MobileNavBarAuto] 🔍 Clicking CSS search button");
-          searchButton.click();
-        }
-      },
-      create: () => {
-        // Create button - find and click the add/create button
-        const createButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="create"]');
-        if (createButton) {
-          console.log("[MobileNavBarAuto] ➕ Clicking CSS create button");
-          createButton.click();
-        }
-      },
-      messages: () => {
-        // Messages button - find and click the messages/chat button
-        const messagesButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="messages"]');
-        if (messagesButton) {
-          console.log("[MobileNavBarAuto] 💬 Clicking CSS messages button");
-          messagesButton.click();
-        }
-      },
-      profile: () => {
-        // Profile button - find and click the profile button
-        const profileButton = this.cssNavBarRef.current?.querySelector('[data-navbar-item="profile"]');
-        if (profileButton) {
-          console.log("[MobileNavBarAuto] 👤 Clicking CSS profile button");
-          profileButton.click();
-        }
-      }
-    };
-
-    // Execute the mapped action
-    const clickHandler = buttonMap[item.id];
-    if (clickHandler) {
-      clickHandler();
-    } else {
-      console.warn("[MobileNavBarAuto] ❓ No CSS button mapping found for:", item.id);
-    }
-  };
 
   render() {
     const { ...props } = this.props;
@@ -158,20 +90,23 @@ class MobileNavBarAuto extends React.Component {
 
     // Determine which navbar to render
     if (this.shouldUseNativeNavBar()) {
-      console.log("[MobileNavBarAuto] 🍎 Using Native iOS NavBar with hidden CSS controller");
+      console.log("[MobileNavBarAuto] 🍎 Using Native iOS NavBar");
 
-      // For NativeNavBar, we need to provide default items since it expects an items prop
-      // but the CSS version handles this internally
+      // Get current user to determine home label
+      const currentUser = Meteor.user();
+      const homeLabel = currentUser ? "My Rides" : "Home";
+
+      // Native navbar items synced with CSS labels
       const defaultItems = [
         {
           id: "home",
-          label: "Home",
+          label: homeLabel,
           icon: "/svg/home.svg",
           action: "navigate",
         },
         {
           id: "search",
-          label: "Search",
+          label: "Join Ride",
           icon: "/svg/search.svg",
           action: "navigate",
         },
@@ -196,33 +131,12 @@ class MobileNavBarAuto extends React.Component {
       ];
 
       return (
-        <>
-          {/* Native NavBar - Visible UI */}
-          <NativeNavBar
-            items={defaultItems}
-            visible={true}
-            activeIndex={props.activeIndex || 0}
-            onItemPress={this.handleNativeClick}
-            {...props}
-          />
-
-          {/* CSS NavBar - Hidden Controller (height: 0, invisible) */}
-          <div
-            ref={this.cssNavBarRef}
-            style={{
-              height: 0,
-              overflow: "hidden",
-              pointerEvents: "none",
-              position: "fixed",
-              bottom: -200, // Move completely off-screen
-              left: 0,
-              right: 0,
-              zIndex: -1, // Behind everything
-            }}
-          >
-            <MobileNavBarCSS {...props} />
-          </div>
-        </>
+        <NativeNavBar
+          items={defaultItems}
+          visible={true}
+          activeIndex={props.activeIndex || 0}
+          {...props}
+        />
       );
     }
       console.log("[MobileNavBarAuto] 🌐 Using CSS NavBar");
@@ -238,18 +152,8 @@ MobileNavBarAuto.propTypes = {
   // Props that work for both components
   history: PropTypes.object.isRequired,
 
-  // Props specific to NativeNavBar (optional)
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      label: PropTypes.string,
-      icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-      action: PropTypes.string,
-      disabled: PropTypes.bool,
-    }),
-  ),
+  // Optional props
   visible: PropTypes.bool,
-  onItemPress: PropTypes.func,
   activeIndex: PropTypes.number,
   className: PropTypes.string,
   style: PropTypes.object,
