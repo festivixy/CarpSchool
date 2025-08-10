@@ -245,3 +245,11 @@ vulnerabilities.md
     ├── src
     │   └── ios                        # iOS UITabBar implementation
     └── www                           # JavaScript interface
+
+# meteor is running. use
+
+``` shell
+osascript ../tools/read_terminal.applescript | tail -50
+```
+
+to read logs

@@ -4,9 +4,6 @@ import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import useNativeNavBar from "../hooks/useNativeNavBar";
-import LiquidGlassDropdown from "../../../liquidGlass/components/Dropdown";
-import JoinRideModal from "../../../components/JoinRideModal";
-import AddRidesModal from "../../../components/AddRides";
 
 /**
  * NativeNavBar Component
@@ -42,9 +39,6 @@ const NativeNavBar = ({
 
   const [navBarId, setNavBarId] = useState(null);
   const [currentActiveIndex, setCurrentActiveIndex] = useState(activeIndex);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [joinRideModalOpen, setJoinRideModalOpen] = useState(false);
-  const [addRidesModalOpen, setAddRidesModalOpen] = useState(false);
   const navBarRef = useRef(null);
 
   // Navigation methods - same as MobileNavBarCSS - memoized to prevent re-renders
@@ -59,28 +53,19 @@ const NativeNavBar = ({
   }, [history]);
 
   const handleJoinRideClick = React.useCallback(() => {
-    console.log("[NativeNavBar] 🔍 handleJoinRideClick called - setting joinRideModalOpen to true");
-    setJoinRideModalOpen(true);
-    setProfileDropdownOpen(false);
-    console.log("[NativeNavBar] 🔍 joinRideModalOpen state should now be true");
-  }, []);
-
-  const handleJoinRideClose = React.useCallback(() => {
-    console.log("[NativeNavBar] 🔍 handleJoinRideClose called - setting joinRideModalOpen to false");
-    setJoinRideModalOpen(false);
-  }, []);
+    console.log("[NativeNavBar] 🔍 Navigating to iOS Join Ride page");
+    handleNavigation("/ios/join-ride");
+  }, [handleNavigation]);
 
   const handleAddRidesClick = React.useCallback(() => {
-    console.log("[NativeNavBar] ➕ handleAddRidesClick called - setting addRidesModalOpen to true");
-    setAddRidesModalOpen(true);
-    setProfileDropdownOpen(false);
-    console.log("[NativeNavBar] ➕ addRidesModalOpen state should now be true");
-  }, []);
+    console.log("[NativeNavBar] ➕ Navigating to iOS Create Ride page");
+    handleNavigation("/ios/create-ride");
+  }, [handleNavigation]);
 
-  const handleAddRidesClose = React.useCallback(() => {
-    console.log("[NativeNavBar] ➕ handleAddRidesClose called - setting addRidesModalOpen to false");
-    setAddRidesModalOpen(false);
-  }, []);
+  const handleProfileClick = React.useCallback(() => {
+    console.log("[NativeNavBar] 👤 Navigating to iOS Profile page");
+    handleNavigation("/ios/profile");
+  }, [handleNavigation]);
 
   // Update active index when prop changes
   useEffect(() => {
@@ -139,14 +124,14 @@ const NativeNavBar = ({
             handleNavigation("/chat");
           } else if (item.id === "profile" || item.action === "profile") {
             console.log("[NativeNavBar] 👤 Profile action triggered");
-            setProfileDropdownOpen(true);
+            handleProfileClick();
           } else {
             console.log("[NativeNavBar] ❓ Unknown item action, no handler available");
           }
         }
       });
     }
-  }, [isSupported, setActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick]);
+  }, [isSupported, setActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick]);
 
   // Create native navbar when component mounts
   useEffect(() => {
@@ -269,75 +254,7 @@ const NativeNavBar = ({
     return null;
   }
 
-  // Get profile dropdown options
-  const getProfileDropdownOptions = () => {
-    if (currentUser) {
-      const options = [
-        { value: "edit-profile", label: "📋 Edit Profile" },
-        { value: "my-places", label: "📍 My Places" },
-      ];
 
-      if (isAdmin) {
-        options.push(
-          { value: "admin-rides", label: "🚗 Manage Rides" },
-          { value: "admin-users", label: "👥 Manage Users" },
-          { value: "admin-places", label: "📍 Manage Places" },
-          { value: "components-test", label: "🧪 Components Test" },
-        );
-      }
-
-      options.push({ value: "signout", label: "🚪 Sign Out" });
-      return options;
-    }
-
-    return [
-      { value: "signin", label: "🔑 Sign In" },
-      { value: "signup", label: "👤 Sign Up" },
-    ];
-  };
-
-  // Handle dropdown selection
-  const handleDropdownSelect = (option) => {
-    console.log("[NativeNavBar] 📱 Dropdown option selected:", option);
-    setProfileDropdownOpen(false);
-
-    if (!option || !option.value) {
-      console.log("[NativeNavBar] ❌ Invalid dropdown option");
-      return;
-    }
-
-    switch (option.value) {
-      case "edit-profile":
-        handleNavigation("/editProfile");
-        break;
-      case "my-places":
-        handleNavigation("/places");
-        break;
-      case "admin-rides":
-        handleNavigation("/adminRides");
-        break;
-      case "admin-users":
-        handleNavigation("/adminUsers");
-        break;
-      case "admin-places":
-        handleNavigation("/adminPlaces");
-        break;
-      case "components-test":
-        handleNavigation("/_test");
-        break;
-      case "signout":
-        handleSignOut();
-        break;
-      case "signin":
-        handleNavigation("/signin");
-        break;
-      case "signup":
-        handleNavigation("/signup");
-        break;
-      default:
-        console.log("[NativeNavBar] ❓ Unknown dropdown option:", option.value);
-    }
-  };
 
   // Native navbar is supported and visible
   console.log("[NativeNavBar] 🍎 Rendering native navbar:", {
@@ -378,39 +295,7 @@ const NativeNavBar = ({
             </div>
           </div>
 
-          {/* Profile Dropdown Overlay */}
-          {profileDropdownOpen && (
-            <div
-              style={{
-                position: "fixed",
-                bottom: 100,
-                right: 20,
-                zIndex: 10000,
-                pointerEvents: "auto",
-              }}
-              onClick={(e) => {
-                // Close dropdown if clicking outside
-                if (e.target === e.currentTarget) {
-                  setProfileDropdownOpen(false);
-                }
-              }}
-            >
-              <LiquidGlassDropdown
-                options={getProfileDropdownOptions()}
-                value={null}
-                placeholder="Profile Menu"
-                onChange={handleDropdownSelect}
-                onOpen={() => {}}
-                onClose={() => setProfileDropdownOpen(false)}
-                width="200px"
-                position="top"
-                searchable={false}
-                disabled={false}
-                loading={false}
-                clearable={false}
-              />
-            </div>
-          )}
+
         </>
       );
     }
@@ -469,8 +354,8 @@ const NativeNavBar = ({
                 handleAddRidesClick();
               } else if (item.id === "chat" || item.id === "messages" || item.action === "chat" || item.action === "messages") {
                 handleNavigation("/chat");
-              } else if (item.id === "profile" || item.action === "profile") {
-                setProfileDropdownOpen(true);
+            } else if (item.id === "profile" || item.action === "profile") {
+              handleProfileClick();
               } else if (onItemPress) {
                 // Fallback to custom handler
                 onItemPress(item, index, item.action);
@@ -498,53 +383,7 @@ const NativeNavBar = ({
           CSS Fallback
         </div>
 
-        {/* Profile Dropdown Overlay for fallback navbar */}
-        {profileDropdownOpen && (
-          <div
-            style={{
-              position: "fixed",
-              bottom: 100,
-              right: 20,
-              zIndex: 10000,
-              pointerEvents: "auto",
-            }}
-            onClick={(e) => {
-              // Close dropdown if clicking outside
-              if (e.target === e.currentTarget) {
-                setProfileDropdownOpen(false);
-              }
-            }}
-          >
-            <LiquidGlassDropdown
-              options={getProfileDropdownOptions()}
-              value={null}
-              placeholder="Profile Menu"
-              onChange={handleDropdownSelect}
-              onOpen={() => {}}
-              onClose={() => setProfileDropdownOpen(false)}
-              width="200px"
-              position="top"
-              searchable={false}
-              disabled={false}
-              loading={false}
-              clearable={false}
-            />
-          </div>
-        )}
 
-        {/* Join Ride Modal */}
-        {console.log("[NativeNavBar] 🔍 Rendering JoinRideModal with isOpen:", joinRideModalOpen)}
-        <JoinRideModal
-          isOpen={joinRideModalOpen}
-          onClose={handleJoinRideClose}
-        />
-
-        {/* Add Rides Modal */}
-        {console.log("[NativeNavBar] ➕ Rendering AddRidesModal with isOpen:", addRidesModalOpen)}
-        <AddRidesModal
-          isOpen={addRidesModalOpen}
-          onClose={handleAddRidesClose}
-        />
       </div>
     );
 };

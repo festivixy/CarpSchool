@@ -43,6 +43,9 @@ import MobileNavBarAuto from "../mobile/components/MobileNavBarAuto";
 import MobileNativeBlurDemo from "../test/pages/NativeBlurDemo";
 import SharedComponentsDemo from "../test/pages/SharedComponentsDemo";
 import MobileNavBarAutoTest from "../test/pages/MobileNavBarAutoTest";
+import IOSCreateRide from "../mobile/ios/pages/CreateRide";
+import IOSJoinRide from "../mobile/ios/pages/JoinRide";
+import IOSProfile from "../mobile/ios/pages/Profile";
 // Lazy load TestMapView to improve initial load performance
 const TestMapView = React.lazy(() => import("/imports/ui/test/pages/ComponentsTest.jsx"));
 
@@ -104,6 +107,11 @@ class App extends React.Component {
               />
               <ProtectedRoutes path="/chat" component={MobileChat} />
               <ProtectedRoutes path="/places" component={MobilePlaceManager} />
+
+              {/* iOS-specific routes */}
+              <ProtectedRoutes path="/ios/create-ride" component={IOSCreateRide} />
+              <ProtectedRoutes path="/ios/join-ride" component={IOSJoinRide} />
+              <ProtectedRoutes path="/ios/profile" component={IOSProfile} />
 
               {/* Admin routes */}
               <ProtectedRouteRequireAdmin
