@@ -127,6 +127,27 @@ const Profile = ({ history, currentUser, isAdmin }) => {
           </button>
 
           <button
+            onClick={() => handleNavigation("/places")}
+            style={{
+              width: "100%",
+              padding: "18px 20px",
+              backgroundColor: "transparent",
+              border: "none",
+              borderBottom: "1px solid #f0f0f0",
+              textAlign: "left",
+              fontSize: "16px",
+              color: "#333",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center"
+            }}
+          >
+            <span style={{ marginRight: "12px" }}>📍</span>
+            My Places
+            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+          </button>
+
+          <button
             onClick={() => handleNavigation("/credits")}
             style={{
               width: "100%",
@@ -184,7 +205,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               }}
             >
               <span style={{ marginRight: "12px" }}>👥</span>
-              Users
+              Manage Users
               <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
             </button>
 
@@ -205,12 +226,33 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               }}
             >
               <span style={{ marginRight: "12px" }}>🚗</span>
-              Rides
+              Manage Rides
               <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
             </button>
 
             <button
               onClick={() => handleNavigation("/admin/places")}
+              style={{
+                width: "100%",
+                padding: "18px 20px",
+                backgroundColor: "transparent",
+                border: "none",
+                borderBottom: "1px solid #f0f0f0",
+                textAlign: "left",
+                fontSize: "16px",
+                color: "#333",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center"
+              }}
+            >
+              <span style={{ marginRight: "12px" }}>📍</span>
+              Manage Places
+              <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+            </button>
+
+            <button
+              onClick={() => handleNavigation("/_test")}
               style={{
                 width: "100%",
                 padding: "18px 20px",
@@ -224,8 +266,8 @@ const Profile = ({ history, currentUser, isAdmin }) => {
                 alignItems: "center"
               }}
             >
-              <span style={{ marginRight: "12px" }}>📍</span>
-              Places
+              <span style={{ marginRight: "12px" }}>🧪</span>
+              Components Test
               <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
             </button>
           </div>
