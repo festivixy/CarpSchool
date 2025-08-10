@@ -35,6 +35,8 @@ const NativeNavBar = ({
     hideNavBar,
     removeNavBar,
     setActionHandler,
+    registerActionHandler,
+    unregisterActionHandler,
   } = useNativeNavBar();
 
   const [navBarId, setNavBarId] = useState(null);
@@ -75,19 +77,22 @@ const NativeNavBar = ({
     }
   }, [activeIndex, navBarId, isSupported, setActiveItem]);
 
-  // Set up action handler for native navbar
+  // Set up action handler for native navbar using centralized system
   useEffect(() => {
     console.log("[NativeNavBar] 🎛️ Setting up action handler:", {
       isSupported,
       hasOnItemPress: !!onItemPress,
       itemCount: items.length,
+      navBarId,
     });
 
-    if (isSupported) {
-      console.log("[NativeNavBar] ✅ Registering native action handler");
-      setActionHandler((navBarId, action, itemIndex) => {
-        console.log("[NativeNavBar] 🔥 Native action triggered:", {
-          navBarId,
+    if (isSupported && navBarId) {
+      console.log("[NativeNavBar] ✅ Registering bottom navbar action handler via centralized system");
+
+      // Use registerActionHandler instead of setActionHandler for the bottom navbar
+      registerActionHandler(navBarId, (currentNavBarId, action, itemIndex) => {
+        console.log("[NativeNavBar] 🔥 Bottom navbar action triggered:", {
+          currentNavBarId,
           action,
           itemIndex,
           item: items[itemIndex],
@@ -128,8 +133,14 @@ const NativeNavBar = ({
           }
         }
       });
+
+      // Cleanup registration when component unmounts or navBarId changes
+      return () => {
+        console.log("[NativeNavBar] 🧹 Unregistering bottom navbar action handler");
+        unregisterActionHandler(navBarId);
+      };
     }
-  }, [isSupported, setActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick, onItemPress, items]);
+  }, [isSupported, navBarId, registerActionHandler, unregisterActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick, onItemPress, items]);
 
   // Create native navbar when component mounts
   useEffect(() => {
