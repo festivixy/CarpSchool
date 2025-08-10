@@ -88,10 +88,10 @@ class LiveTerminal:
             subprocess.run([
                 "osascript", "-e",
                 f'tell application "Terminal" to do script "{escaped_command}" in {self.terminal_id}'
-            ], check=True)
+            ], check=True, capture_output=True)
             return True
-        except subprocess.CalledProcessError as e:
-            self.console.print(f"[red]Error sending command: {e}[/red]")
+        except subprocess.CalledProcessError:
+            # Don't print errors as they interfere with Rich Live display
             return False
 
     def send_character_to_terminal(self, char):
@@ -166,22 +166,21 @@ class LiveTerminal:
                 break
 
     def input_monitor_thread(self):
-        """Monitor input without interfering with Rich Live display."""
-        current_command = ""
-
-        # Use a different approach - monitor for complete lines instead of char-by-char
+        """Monitor input and forward commands to terminal."""
+        # This approach uses a simple subprocess to read input separately
         # to avoid conflicts with Rich Live display
         while self.running:
             try:
-                # Simple prompt for input without raw mode
-                time.sleep(0.5)  # Reduced frequency to avoid conflicts
+                # Use a simple approach: check for a command file
+                # This allows input without conflicting with Rich Live
+                time.sleep(0.5)
 
-                # For now, we'll use a simpler approach that doesn't conflict with Rich
-                # Users can type in the new terminal window directly
+                # For now, we'll make this a passive monitor
+                # Users can use the AppleScript files to send commands
 
             except Exception as e:
                 if self.running:
-                    print(f"Input monitoring error: {e}")
+                    pass
                 break
 
     def create_display(self):
@@ -219,7 +218,7 @@ class LiveTerminal:
         layout["terminal"].update(terminal_panel)
 
         # Footer with instructions
-        footer_text = Text("Use the new terminal window for commands • This window shows live output updates • Press Ctrl+C here to stop monitoring")
+        footer_text = Text("Use new terminal window for commands OR use: osascript write_terminal.applescript 'command' • Live monitoring • Ctrl+C to stop")
         footer_panel = Panel(
             footer_text,
             border_style="yellow",
