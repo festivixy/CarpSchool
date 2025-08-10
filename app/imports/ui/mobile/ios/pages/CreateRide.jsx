@@ -3,24 +3,130 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
-import AddRidesModal from "../../../components/AddRides";
 
 /**
  * iOS-specific Create Ride page
- * Empty page that shows the existing AddRidesModal
+ * Wrapper that removes modal styling from AddRidesModal content
  */
 const CreateRide = ({ history, currentUser }) => {
-  const [showModal, setShowModal] = useState(true);
+  const [formData, setFormData] = useState({
+    origin: "",
+    destination: "",
+    departureDate: "",
+    departureTime: "",
+    availableSeats: "1",
+    description: ""
+  });
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
-  const handleClose = () => {
-    setShowModal(false);
+  const handleBack = () => {
     history.goBack();
   };
 
-  const handleCreateSuccess = () => {
-    setShowModal(false);
-    history.push("/myRides");
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
+
+  const handleCreateRide = () => {
+    // Validation
+    if (!formData.origin.trim()) {
+      setError("Please enter a pickup location");
+      return;
+    }
+    if (!formData.destination.trim()) {
+      setError("Please enter a destination");
+      return;
+    }
+    if (!formData.departureDate) {
+      setError("Please select a departure date");
+      return;
+    }
+    if (!formData.departureTime) {
+      setError("Please select a departure time");
+      return;
+    }
+
+    setIsCreating(true);
+    setError(null);
+
+    // Create ride using Meteor method
+    Meteor.call("rides.create", {
+      origin: formData.origin.trim(),
+      destination: formData.destination.trim(),
+      departureDate: formData.departureDate,
+      departureTime: formData.departureTime,
+      availableSeats: parseInt(formData.availableSeats),
+      description: formData.description.trim()
+    }, (error, result) => {
+      setIsCreating(false);
+      
+      if (error) {
+        setError(error.reason || "Failed to create ride");
+      } else {
+        setSuccess(true);
+        setTimeout(() => {
+          history.push("/myRides");
+        }, 2000);
+      }
+    });
+  };
+
+  if (success) {
+    return (
+      <div style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "#f5f5f5",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px"
+      }}>
+        <div style={{
+          backgroundColor: "white",
+          borderRadius: "16px",
+          padding: "40px 30px",
+          textAlign: "center",
+          maxWidth: "320px",
+          width: "100%",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
+        }}>
+          <div style={{
+            fontSize: "48px",
+            marginBottom: "20px"
+          }}>
+            ��
+          </div>
+          <h2 style={{
+            margin: "0 0 12px 0",
+            fontSize: "22px",
+            fontWeight: "600",
+            color: "#333"
+          }}>
+            Ride Created!
+          </h2>
+          <p style={{
+            margin: 0,
+            fontSize: "16px",
+            color: "#666",
+            lineHeight: "1.4"
+          }}>
+            Your ride has been created successfully. Redirecting to your rides...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -29,14 +135,309 @@ const CreateRide = ({ history, currentUser }) => {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: "transparent"
+      backgroundColor: "#f5f5f5",
+      paddingTop: "60px",
+      paddingBottom: "100px",
+      overflowY: "auto"
     }}>
-      <AddRidesModal
-        open={showModal}
-        onClose={handleClose}
-        onRideCreated={handleCreateSuccess}
-        currentUser={currentUser}
-      />
+      {/* Back Button */}
+      <div style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "60px",
+        backgroundColor: "white",
+        borderBottom: "1px solid #e0e0e0",
+        display: "flex",
+        alignItems: "center",
+        paddingLeft: "16px",
+        zIndex: 100
+      }}>
+        <button
+          onClick={handleBack}
+          style={{
+            background: "none",
+            border: "none",
+            fontSize: "16px",
+            color: "#007AFF",
+            cursor: "pointer",
+            padding: "8px"
+          }}
+        >
+          ← Back
+        </button>
+        <h1 style={{
+          margin: 0,
+          marginLeft: "16px",
+          fontSize: "18px",
+          fontWeight: "600",
+          color: "#333"
+        }}>
+          Create Ride
+        </h1>
+      </div>
+
+      <div style={{ padding: "20px" }}>
+        <div style={{
+          backgroundColor: "white",
+          borderRadius: "16px",
+          padding: "30px",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
+        }}>
+          <h2 style={{
+            margin: "0 0 8px 0",
+            fontSize: "24px",
+            fontWeight: "700",
+            color: "#333"
+          }}>
+            Create a New Ride
+          </h2>
+          <p style={{
+            margin: "0 0 30px 0",
+            fontSize: "16px",
+            color: "#666",
+            lineHeight: "1.4"
+          }}>
+            Share your journey and help others get where they need to go
+          </p>
+
+          {/* Form Fields */}
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              display: "block",
+              fontSize: "14px",
+              fontWeight: "600",
+              color: "#333",
+              marginBottom: "8px"
+            }}>
+              Pickup Location *
+            </label>
+            <input
+              type="text"
+              value={formData.origin}
+              onChange={(e) => handleInputChange("origin", e.target.value)}
+              placeholder="Where will you pick up passengers?"
+              style={{
+                width: "100%",
+                padding: "14px 16px",
+                border: "2px solid #e0e0e0",
+                borderRadius: "8px",
+                fontSize: "16px",
+                backgroundColor: "white",
+                color: "#333",
+                outline: "none",
+                transition: "border-color 0.2s ease",
+                boxSizing: "border-box"
+              }}
+              onFocus={(e) => e.target.style.borderColor = "#007AFF"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
+            />
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              display: "block",
+              fontSize: "14px",
+              fontWeight: "600",
+              color: "#333",
+              marginBottom: "8px"
+            }}>
+              Destination *
+            </label>
+            <input
+              type="text"
+              value={formData.destination}
+              onChange={(e) => handleInputChange("destination", e.target.value)}
+              placeholder="Where are you going?"
+              style={{
+                width: "100%",
+                padding: "14px 16px",
+                border: "2px solid #e0e0e0",
+                borderRadius: "8px",
+                fontSize: "16px",
+                backgroundColor: "white",
+                color: "#333",
+                outline: "none",
+                transition: "border-color 0.2s ease",
+                boxSizing: "border-box"
+              }}
+              onFocus={(e) => e.target.style.borderColor = "#007AFF"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
+            <div style={{ flex: 1 }}>
+              <label style={{
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#333",
+                marginBottom: "8px"
+              }}>
+                Date *
+              </label>
+              <input
+                type="date"
+                value={formData.departureDate}
+                onChange={(e) => handleInputChange("departureDate", e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "14px 16px",
+                  border: "2px solid #e0e0e0",
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  backgroundColor: "white",
+                  color: "#333",
+                  outline: "none",
+                  transition: "border-color 0.2s ease",
+                  boxSizing: "border-box"
+                }}
+                onFocus={(e) => e.target.style.borderColor = "#007AFF"}
+                onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
+              />
+            </div>
+
+            <div style={{ flex: 1 }}>
+              <label style={{
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#333",
+                marginBottom: "8px"
+              }}>
+                Time *
+              </label>
+              <input
+                type="time"
+                value={formData.departureTime}
+                onChange={(e) => handleInputChange("departureTime", e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "14px 16px",
+                  border: "2px solid #e0e0e0",
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  backgroundColor: "white",
+                  color: "#333",
+                  outline: "none",
+                  transition: "border-color 0.2s ease",
+                  boxSizing: "border-box"
+                }}
+                onFocus={(e) => e.target.style.borderColor = "#007AFF"}
+                onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
+              />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              display: "block",
+              fontSize: "14px",
+              fontWeight: "600",
+              color: "#333",
+              marginBottom: "8px"
+            }}>
+              Available Seats
+            </label>
+            <select
+              value={formData.availableSeats}
+              onChange={(e) => handleInputChange("availableSeats", e.target.value)}
+              style={{
+                width: "100%",
+                padding: "14px 16px",
+                border: "2px solid #e0e0e0",
+                borderRadius: "8px",
+                fontSize: "16px",
+                backgroundColor: "white",
+                color: "#333",
+                outline: "none",
+                transition: "border-color 0.2s ease",
+                boxSizing: "border-box"
+              }}
+              onFocus={(e) => e.target.style.borderColor = "#007AFF"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
+            >
+              <option value="1">1 seat</option>
+              <option value="2">2 seats</option>
+              <option value="3">3 seats</option>
+              <option value="4">4 seats</option>
+              <option value="5">5 seats</option>
+              <option value="6">6 seats</option>
+              <option value="7">7 seats</option>
+            </select>
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{
+              display: "block",
+              fontSize: "14px",
+              fontWeight: "600",
+              color: "#333",
+              marginBottom: "8px"
+            }}>
+              Description (Optional)
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              placeholder="Add any additional details about your ride..."
+              rows={3}
+              style={{
+                width: "100%",
+                padding: "14px 16px",
+                border: "2px solid #e0e0e0",
+                borderRadius: "8px",
+                fontSize: "16px",
+                backgroundColor: "white",
+                color: "#333",
+                outline: "none",
+                transition: "border-color 0.2s ease",
+                boxSizing: "border-box",
+                resize: "vertical",
+                minHeight: "80px"
+              }}
+              onFocus={(e) => e.target.style.borderColor = "#007AFF"}
+              onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
+            />
+          </div>
+
+          {error && (
+            <div style={{
+              padding: "12px 16px",
+              marginBottom: "20px",
+              backgroundColor: "#FFEBEE",
+              border: "1px solid #FFCDD2",
+              borderRadius: "8px",
+              color: "#C62828",
+              fontSize: "14px"
+            }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={handleCreateRide}
+            disabled={isCreating}
+            style={{
+              width: "100%",
+              padding: "16px",
+              backgroundColor: "#007AFF",
+              border: "none",
+              borderRadius: "12px",
+              fontSize: "16px",
+              fontWeight: "600",
+              color: "white",
+              cursor: "pointer",
+              transition: "background-color 0.2s ease",
+              opacity: isCreating ? 0.7 : 1
+            }}
+          >
+            {isCreating ? "Creating Ride..." : "Create Ride"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
