@@ -84,11 +84,14 @@ class MobileNavBarAuto extends React.Component {
     const { ...props } = this.props;
     const { location } = this.props.history;
 
-    // Hide navbar on iOS-specific pages when using native iOS
-    const isIOSSpecificPage = location.pathname.startsWith('/ios/');
+    // List of pages where navbar should be hidden when using native iOS
+    const hideNavbarPaths = [];
 
-    if (this.shouldUseNativeNavBar() && isIOSSpecificPage) {
-      console.log("[MobileNavBarAuto] 🍎 Hiding navbar for iOS-specific page:", location.pathname);
+    // Check if current page should hide navbar
+    const shouldHideNavbar = hideNavbarPaths.includes(location.pathname);
+
+    if (this.shouldUseNativeNavBar() && shouldHideNavbar) {
+      console.log("[MobileNavBarAuto] 🍎 Hiding navbar for page:", location.pathname);
       return null;
     }
 
