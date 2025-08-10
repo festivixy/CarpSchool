@@ -165,7 +165,7 @@ class NavBar extends React.Component {
                         Manage Places
                       </DropdownItem>
                       <DropdownItem
-                        to="/testImageUpload"
+                        to="/_test/image-upload"
                         onClick={this.closeAllMenus}
                       >
                         Test Image Upload
@@ -273,7 +273,7 @@ class NavBar extends React.Component {
                         Manage Places
                       </MobileItem>
                       <MobileItem
-                        to="/testImageUpload"
+                        to="/_test/image-upload"
                         onClick={this.closeAllMenus}
                       >
                         Test Image Upload
