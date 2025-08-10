@@ -462,7 +462,7 @@ class RawANSICapture:
 
                 for line in lines:
                     # Show the line (this will display with actual colors if run in terminal)
-                    print(f"│ {line}")}
+                    print(f"│ {line}")
 
         except Exception as e:
             log_func(f"│ (error displaying: {e})")
@@ -624,7 +624,7 @@ class RawANSICapture:
         # Hex dump
         if show_hex:
             log_print("🔍 Hex Dump:")
-            log_print("┌─ Hex Dump ──────────────────────────────────────────────┐")
+            log_print("┌─ Hex Dump ─────────────────────────────────────���────────┐")
             hex_lines = self.format_hex_dump(raw_output).split('\n')
             for line in hex_lines:  # Show all hex lines
                 log_print(f"│ {line}")
