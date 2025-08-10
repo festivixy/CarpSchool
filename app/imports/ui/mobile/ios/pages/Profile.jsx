@@ -1,221 +1,245 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
-import useNativeNavBar from "../hooks/useNativeNavBar";
-import {
-  PageContainer,
-  Content,
-  Section,
-  SectionTitle,
-  MenuItem,
-  MenuItemIcon,
-  MenuItemText,
-  MenuItemChevron,
-  UserInfo,
-  UserName,
-  UserEmail,
-  Separator,
-} from "../styles/Profile";
 
 /**
  * iOS-specific Profile page
- * Integrates with native iOS navbar system
- * Replaces the profile dropdown with a full page
+ * Empty page that shows profile menu options
  */
 const Profile = ({ history, currentUser, isAdmin }) => {
-  const [navBarId, setNavBarId] = useState(null);
+  const [showMenu, setShowMenu] = useState(true);
 
-  const {
-    isSupported,
-    createNavBar,
-    showNavBar,
-    removeNavBar,
-    registerActionHandler,
-    unregisterActionHandler,
-  } = useNativeNavBar();
-
-  const handleBack = () => {
+  const handleClose = () => {
+    setShowMenu(false);
     history.goBack();
   };
 
   const handleNavigation = (path) => {
+    setShowMenu(false);
     history.push(path);
   };
 
   const handleSignOut = () => {
+    setShowMenu(false);
     history.push("/signout");
   };
 
-  // Register action handler for this page's navbar
-  useEffect(() => {
-    if (!isSupported || !navBarId) return;
-
-    // Register action handler specifically for this page's top navbar
-    registerActionHandler(navBarId, (navBarId, action, itemIndex) => {
-      console.log("[Profile] Action handler called:", { navBarId, action, itemIndex });
-
-      if (action === "back") {
-        handleBack();
-      }
-      // Don't handle "tap" actions here - let them go to the bottom navbar
-    });
-
-    // Cleanup registration when component unmounts
-    return () => {
-      unregisterActionHandler(navBarId);
-    };
-  }, [isSupported, navBarId, registerActionHandler, unregisterActionHandler, handleBack]);
-
-  // Set up native navbar
-  useEffect(() => {
-    if (!isSupported) return;
-
-    const setupNavBar = async () => {
-      try {
-        // Create native navbar with back button
-        const newNavBarId = await createNavBar({
-          title: "Profile",
-          showBackButton: true,
-          position: "top"
-        });
-
-        setNavBarId(newNavBarId);
-
-        // Show the navbar
-        await showNavBar(newNavBarId);
-
-      } catch (error) {
-        console.error("[Profile] Failed to setup native navbar:", error);
-      }
-    };
-
-    setupNavBar();
-
-    // Cleanup
-    return () => {
-      if (navBarId) {
-        removeNavBar(navBarId).catch(console.error);
-      }
-    };
-  }, [isSupported, createNavBar, showNavBar, removeNavBar, unregisterActionHandler]);
-
-  const userSectionItems = [
-    {
-      icon: "📋",
-      label: "Edit Profile",
-      action: () => handleNavigation("/editProfile"),
-    },
-    {
-      icon: "📍",
-      label: "My Places",
-      action: () => handleNavigation("/places"),
-    },
-  ];
-
-  const adminSectionItems = [
-    {
-      icon: "🚗",
-      label: "Manage Rides",
-      action: () => handleNavigation("/admin/rides"),
-    },
-    {
-      icon: "👥",
-      label: "Manage Users",
-      action: () => handleNavigation("/admin/users"),
-    },
-    {
-      icon: "📍",
-      label: "Manage Places",
-      action: () => handleNavigation("/admin/places"),
-    },
-    {
-      icon: "🧪",
-      label: "Components Test",
-      action: () => handleNavigation("/_test"),
-    },
-  ];
-
-  const accountSectionItems = currentUser ? [
-    {
-      icon: "🚪",
-      label: "Sign Out",
-      action: handleSignOut,
-      isDestructive: true,
-    },
-  ] : [
-    {
-      icon: "🔑",
-      label: "Sign In",
-      action: () => handleNavigation("/signin"),
-    },
-    {
-      icon: "👤",
-      label: "Sign Up",
-      action: () => handleNavigation("/signup"),
-    },
-  ];
+  if (!showMenu) return null;
 
   return (
-    <PageContainer>
-      <Content>
+    <div style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999
+    }}>
+      <div style={{
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        backdropFilter: "blur(20px)",
+        borderRadius: "16px",
+        padding: "24px",
+        minWidth: "280px",
+        maxWidth: "320px",
+        border: "1px solid rgba(255, 255, 255, 0.2)",
+        boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)"
+      }}>
+        {/* Header */}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px"
+        }}>
+          <h2 style={{
+            margin: 0,
+            fontSize: "18px",
+            fontWeight: "600",
+            color: "#333"
+          }}>
+            Profile
+          </h2>
+          <button
+            onClick={handleClose}
+            style={{
+              background: "none",
+              border: "none",
+              fontSize: "24px",
+              color: "#666",
+              cursor: "pointer",
+              padding: "4px"
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* User Info */}
         {currentUser && (
-          <>
-            <UserInfo>
-              <UserName>{currentUser.username || "User"}</UserName>
-              <UserEmail>
-                {currentUser.emails && currentUser.emails[0]
-                  ? currentUser.emails[0].address
-                  : "No email"}
-              </UserEmail>
-            </UserInfo>
-            <Separator />
-          </>
+          <div style={{
+            marginBottom: "20px",
+            padding: "16px",
+            backgroundColor: "rgba(0, 0, 0, 0.05)",
+            borderRadius: "12px"
+          }}>
+            <div style={{
+              fontSize: "16px",
+              fontWeight: "600",
+              color: "#333",
+              marginBottom: "4px"
+            }}>
+              {currentUser.profile?.firstName} {currentUser.profile?.lastName}
+            </div>
+            <div style={{
+              fontSize: "14px",
+              color: "#666"
+            }}>
+              {currentUser.emails?.[0]?.address}
+            </div>
+          </div>
         )}
 
-        {currentUser && (
-          <Section>
-            <SectionTitle>Account</SectionTitle>
-            {userSectionItems.map((item, index) => (
-              <MenuItem key={index} onClick={item.action}>
-                <MenuItemIcon>{item.icon}</MenuItemIcon>
-                <MenuItemText>{item.label}</MenuItemText>
-                <MenuItemChevron>›</MenuItemChevron>
-              </MenuItem>
-            ))}
-          </Section>
-        )}
+        {/* Menu Items */}
+        <div style={{ marginBottom: "20px" }}>
+          <button
+            onClick={() => handleNavigation("/editProfile")}
+            style={{
+              width: "100%",
+              padding: "16px",
+              marginBottom: "8px",
+              backgroundColor: "transparent",
+              border: "none",
+              borderRadius: "12px",
+              textAlign: "left",
+              fontSize: "16px",
+              color: "#333",
+              cursor: "pointer",
+              transition: "background-color 0.2s ease"
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = "rgba(0, 0, 0, 0.05)"}
+            onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+          >
+            📝 Edit Profile
+          </button>
 
-        {isAdmin && (
-          <Section>
-            <SectionTitle>Admin</SectionTitle>
-            {adminSectionItems.map((item, index) => (
-              <MenuItem key={index} onClick={item.action}>
-                <MenuItemIcon>{item.icon}</MenuItemIcon>
-                <MenuItemText>{item.label}</MenuItemText>
-                <MenuItemChevron>›</MenuItemChevron>
-              </MenuItem>
-            ))}
-          </Section>
-        )}
+          <button
+            onClick={() => handleNavigation("/credits")}
+            style={{
+              width: "100%",
+              padding: "16px",
+              marginBottom: "8px",
+              backgroundColor: "transparent",
+              border: "none",
+              borderRadius: "12px",
+              textAlign: "left",
+              fontSize: "16px",
+              color: "#333",
+              cursor: "pointer",
+              transition: "background-color 0.2s ease"
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = "rgba(0, 0, 0, 0.05)"}
+            onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+          >
+            💰 Credits
+          </button>
 
-        <Section>
-          <SectionTitle>{currentUser ? "Sign Out" : "Authentication"}</SectionTitle>
-          {accountSectionItems.map((item, index) => (
-            <MenuItem
-              key={index}
-              onClick={item.action}
-              $isDestructive={item.isDestructive}
-            >
-              <MenuItemIcon>{item.icon}</MenuItemIcon>
-              <MenuItemText>{item.label}</MenuItemText>
-              <MenuItemChevron>›</MenuItemChevron>
-            </MenuItem>
-          ))}
-        </Section>
-      </Content>
-    </PageContainer>
+          {isAdmin && (
+            <>
+              <button
+                onClick={() => handleNavigation("/admin/users")}
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  marginBottom: "8px",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  borderRadius: "12px",
+                  textAlign: "left",
+                  fontSize: "16px",
+                  color: "#333",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s ease"
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = "rgba(0, 0, 0, 0.05)"}
+                onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+              >
+                ��� Admin: Users
+              </button>
+
+              <button
+                onClick={() => handleNavigation("/admin/rides")}
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  marginBottom: "8px",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  borderRadius: "12px",
+                  textAlign: "left",
+                  fontSize: "16px",
+                  color: "#333",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s ease"
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = "rgba(0, 0, 0, 0.05)"}
+                onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+              >
+                🚗 Admin: Rides
+              </button>
+
+              <button
+                onClick={() => handleNavigation("/admin/places")}
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  marginBottom: "8px",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  borderRadius: "12px",
+                  textAlign: "left",
+                  fontSize: "16px",
+                  color: "#333",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s ease"
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = "rgba(0, 0, 0, 0.05)"}
+                onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+              >
+                📍 Admin: Places
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Sign Out Button */}
+        <button
+          onClick={handleSignOut}
+          style={{
+            width: "100%",
+            padding: "16px",
+            backgroundColor: "#FF3B30",
+            border: "none",
+            borderRadius: "12px",
+            fontSize: "16px",
+            color: "white",
+            fontWeight: "600",
+            cursor: "pointer",
+            transition: "background-color 0.2s ease"
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = "#D70015"}
+          onMouseLeave={(e) => e.target.style.backgroundColor = "#FF3B30"}
+        >
+          🚪 Sign Out
+        </button>
+      </div>
+    </div>
   );
 };
 
