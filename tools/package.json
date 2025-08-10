@@ -1,0 +1,16 @@
+{
+  "name": "ios-log-server",
+  "version": "1.0.0",
+  "description": "Node.js server to capture iOS Safari console logs via webkit debug proxy",
+  "main": "ios-log-server.js",
+  "scripts": {
+    "start": "node ios-log-server.js",
+    "logs": "node ios-log-server.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "keywords": ["ios", "safari", "console", "logs", "webkit", "debug"],
+  "author": "",
+  "license": "MIT"
+}
