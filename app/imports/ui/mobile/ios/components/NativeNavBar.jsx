@@ -44,12 +44,10 @@ const NativeNavBar = ({
   // Navigation methods - same as MobileNavBarCSS - memoized to prevent re-renders
   const handleNavigation = React.useCallback((path) => {
     history.push(path);
-    setProfileDropdownOpen(false);
   }, [history]);
 
   const handleSignOut = React.useCallback(() => {
     history.push("/signout");
-    setProfileDropdownOpen(false);
   }, [history]);
 
   const handleJoinRideClick = React.useCallback(() => {
@@ -131,7 +129,7 @@ const NativeNavBar = ({
         }
       });
     }
-  }, [isSupported, setActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick]);
+  }, [isSupported, setActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick, onItemPress, items]);
 
   // Create native navbar when component mounts
   useEffect(() => {

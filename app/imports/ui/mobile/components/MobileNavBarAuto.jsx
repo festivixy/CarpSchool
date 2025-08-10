@@ -111,31 +111,31 @@ class MobileNavBarAuto extends React.Component {
           id: "home",
           label: homeLabel,
           icon: "/svg/home.svg",
-          action: "navigate",
+          action: "home",
         },
         {
           id: "search",
           label: "Join Ride",
           icon: "/svg/search.svg",
-          action: "navigate",
+          action: "search",
         },
         {
           id: "create",
           label: "Create",
           icon: "/svg/plus.svg",
-          action: "navigate",
+          action: "create",
         },
         {
           id: "messages",
           label: "Messages",
           icon: "/svg/message.svg",
-          action: "navigate",
+          action: "messages",
         },
         {
           id: "profile",
           label: "Profile",
           icon: "/svg/user.svg",
-          action: "navigate",
+          action: "profile",
         },
       ];
 
