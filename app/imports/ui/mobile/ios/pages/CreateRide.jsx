@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
+import BackButton from "../../components/BackButton";
 
 /**
  * iOS-specific Create Ride page
@@ -66,7 +67,7 @@ const CreateRide = ({ history, currentUser }) => {
       description: formData.description.trim()
     }, (error, result) => {
       setIsCreating(false);
-      
+
       if (error) {
         setError(error.reason || "Failed to create ride");
       } else {
@@ -105,7 +106,7 @@ const CreateRide = ({ history, currentUser }) => {
             fontSize: "48px",
             marginBottom: "20px"
           }}>
-            ��
+            🚗
           </div>
           <h2 style={{
             margin: "0 0 12px 0",
@@ -136,47 +137,11 @@ const CreateRide = ({ history, currentUser }) => {
       right: 0,
       bottom: 0,
       backgroundColor: "#f5f5f5",
-      paddingTop: "60px",
+      paddingTop: "20px",
       paddingBottom: "100px",
       overflowY: "auto"
     }}>
-      {/* Back Button */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "60px",
-        backgroundColor: "white",
-        borderBottom: "1px solid #e0e0e0",
-        display: "flex",
-        alignItems: "center",
-        paddingLeft: "16px",
-        zIndex: 100
-      }}>
-        <button
-          onClick={handleBack}
-          style={{
-            background: "none",
-            border: "none",
-            fontSize: "16px",
-            color: "#007AFF",
-            cursor: "pointer",
-            padding: "8px"
-          }}
-        >
-          ← Back
-        </button>
-        <h1 style={{
-          margin: 0,
-          marginLeft: "16px",
-          fontSize: "18px",
-          fontWeight: "600",
-          color: "#333"
-        }}>
-          Create Ride
-        </h1>
-      </div>
+      <BackButton />
 
       <div style={{ padding: "20px" }}>
         <div style={{
