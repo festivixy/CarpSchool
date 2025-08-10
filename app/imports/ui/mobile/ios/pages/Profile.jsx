@@ -30,10 +30,34 @@ const Profile = ({ history, currentUser, isAdmin }) => {
       right: 0,
       bottom: 0,
       backgroundColor: "#f5f5f5",
-      paddingTop: "20px",
+      paddingTop: "60px",
       paddingBottom: "100px", // Space for bottom navbar
       overflowY: "auto"
     }}>
+      {/* Fixed Header */}
+      <div style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "60px",
+        backgroundColor: "white",
+        borderBottom: "1px solid #e0e0e0",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 99
+      }}>
+        <h1 style={{
+          margin: 0,
+          fontSize: "18px",
+          fontWeight: "600",
+          color: "#333"
+        }}>
+          Profile
+        </h1>
+      </div>
+
       <BackButton />
 
       <div style={{ padding: "20px" }}>
