@@ -448,7 +448,7 @@ class RawANSICapture:
     def show_visual_output(self, raw_output, processed_output, log_func=print):
         """Show visual output - what the terminal actually displays"""
         log_func("👁️  Visual Output (how it appears in terminal):")
-        log_func("┌─ Visual ───────────���────────────────────────────────────┐")
+        log_func("┌─ Visual ────────────────────────────────────────────────┐")
 
         try:
             # Use processed output (which is what terminal shows) as the visual display
@@ -649,7 +649,7 @@ class RawANSICapture:
                 log_print(f"│ {line}")
             if len(hex_lines) > 20:
                 log_print(f"│ ... and {len(hex_lines) - 20} more lines")
-            log_print("└──────────────────────────────────────────────────────��┘")
+            log_print("└──────────────────────────────────────────────────────┘")
             log_print()
 
         # Visual output - show what the terminal displays
