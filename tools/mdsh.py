@@ -618,11 +618,12 @@ class MarkdownShell:
                                         self.console.print()  # Move to new line
                                         delattr(self, '_has_realtime_output')
 
-                                    # Normalize line endings to match test mode (which works perfectly)
-                                    # Convert \r\n to \n to match test mode input format
-                                    normalized_line = line.replace('\r', '')
-                                    if normalized_line or line == '':  # Include empty lines like test mode
-                                        self.render_text(normalized_line + '\n')
+                                    # Test cursor reset theory - explicitly force cursor to column 0
+                                    normalized_line = line.replace('\r', '').strip()
+                                    if normalized_line:
+                                        # Force cursor to beginning of line with explicit carriage return
+                                        sys.stdout.write(f'\r{normalized_line}\n')
+                                        sys.stdout.flush()
 
                                 # Mark if we have real-time output
                                 if self.buffer and ('\r' in self.buffer or has_cursor_movement):
