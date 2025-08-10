@@ -85,11 +85,7 @@ class MobileNavBarAuto extends React.Component {
     const { location } = this.props.history;
 
     // List of pages where navbar should be hidden when using native iOS
-    const hideNavbarPaths = [
-      "/ios/create-ride",
-      "/ios/join-ride",
-      "/ios/profile"
-    ];
+    const hideNavbarPaths = [];
 
     // Check if current page should hide navbar
     const shouldHideNavbar = hideNavbarPaths.includes(location.pathname);
