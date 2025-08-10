@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import { Chats } from "../../api/chat/Chat";
 import "../../api/chat/ChatMethods";
 import { MobileOnly, DesktopOnly } from "../layouts/Devices";
+import BackButton from "../mobile/components/BackButton";
 import {
   Container,
   Header,
@@ -440,10 +441,8 @@ class MobileChat extends React.Component {
         {/* Mobile Chat Overlay */}
         {showChatOverlay && selectedChat && (
           <ChatOverlay>
+            <BackButton onClick={this.handleCloseChatOverlay} />
             <OverlayHeader>
-              <OverlayBackButton onClick={this.handleCloseChatOverlay}>
-                ←
-              </OverlayBackButton>
               <OverlayTitle>
                 {this.getChatDisplayName(selectedChat)}
               </OverlayTitle>
