@@ -457,24 +457,12 @@ class RawANSICapture:
             if not display_text.strip():
                 log_func("│ (no visible output)")
             else:
-                # Split into lines and show up to 10 lines
+                # Split into lines and show all lines
                 lines = display_text.split('\n')
-                displayed_lines = 0
 
                 for line in lines:
-                    if displayed_lines >= 10:
-                        break
-
-                    # Handle long lines
-                    if len(line) > 60:
-                        line = line[:57] + "..."
-
                     # Show the line (this will display with actual colors if run in terminal)
-                    print(f"│ {line}")
-                    displayed_lines += 1
-
-                if len(lines) > 10:
-                    log_func(f"│ ... and {len(lines) - 10} more lines")
+                    print(f"│ {line}")}
 
         except Exception as e:
             log_func(f"│ (error displaying: {e})")
@@ -581,8 +569,8 @@ class RawANSICapture:
             log_print("└────────────────────────────────────────────────────────┘")
         log_print()
 
-        def format_output_section(title, content, max_lines=5):
-            """Format an output section with truncation for readability"""
+        def format_output_section(title, content, max_lines=None):
+            """Format an output section showing all content"""
             log_print(f"{title}:")
             log_print("┌───────────────────────────────────────────────────────────┐")
 
@@ -590,25 +578,18 @@ class RawANSICapture:
                 log_print("│ (empty)")
             else:
                 content_repr = repr(content)
-                if len(content_repr) > 500:  # Truncate very long content
-                    content_repr = content_repr[:497] + "..."
 
-                # Handle multi-line display
-                if '\n' in content and len(content.split('\n')) > max_lines:
+                # Handle multi-line display - show all lines
+                if '\n' in content:
                     lines = content.split('\n')
-                    displayed_lines = lines[:max_lines]
-                    remaining = len(lines) - max_lines
 
-                    for line in displayed_lines:
+                    for line in lines:
                         line_repr = repr(line)
-                        if len(line_repr) > 55:
-                            line_repr = line_repr[:52] + "..."
                         log_print(f"│ {line_repr}")
-                    log_print(f"│ ... and {remaining} more lines")
                 else:
                     log_print(f"│ {content_repr}")
 
-            log_print("└───────────────────────────────────────────────────────┘")
+            log_print("└───────────────────────────────────────���───────────────┘")
             log_print()
 
         # Raw output
@@ -645,10 +626,8 @@ class RawANSICapture:
             log_print("🔍 Hex Dump:")
             log_print("┌─ Hex Dump ──────────────────────────────────────────────┐")
             hex_lines = self.format_hex_dump(raw_output).split('\n')
-            for line in hex_lines[:20]:  # Show first 20 lines
+            for line in hex_lines:  # Show all hex lines
                 log_print(f"│ {line}")
-            if len(hex_lines) > 20:
-                log_print(f"│ ... and {len(hex_lines) - 20} more lines")
             log_print("└──────────────────────────────────────────────────────┘")
             log_print()
 
@@ -657,7 +636,7 @@ class RawANSICapture:
 
         log_print()
         if show_real_terminal:
-            log_print("💡 Use --hex for hex dump, --no-compare to skip comparison, --no-real-terminal to skip echo rendering")
+            log_print("��� Use --hex for hex dump, --no-compare to skip comparison, --no-real-terminal to skip echo rendering")
         else:
             log_print("💡 Use --hex for hex dump, --no-compare to skip comparison, --real-terminal to enable echo rendering")
 
