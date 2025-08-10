@@ -43,11 +43,12 @@ import MobileNavBarAuto from "../mobile/components/MobileNavBarAuto";
 import MobileNativeBlurDemo from "../test/pages/NativeBlurDemo";
 import SharedComponentsDemo from "../test/pages/SharedComponentsDemo";
 import MobileNavBarAutoTest from "../test/pages/MobileNavBarAutoTest";
+import ComponentsTest from "../test/pages/ComponentsTest";
 import IOSCreateRide from "../mobile/ios/pages/CreateRide";
 import IOSJoinRide from "../mobile/ios/pages/JoinRide";
 import IOSProfile from "../mobile/ios/pages/Profile";
-// Lazy load TestMapView to improve initial load performance
-const TestMapView = React.lazy(() => import("/imports/ui/test/pages/ComponentsTest.jsx"));
+// Lazy load MapComponentsTest to improve initial load performance
+const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapComponentsTest.jsx"));
 
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
@@ -132,6 +133,20 @@ class App extends React.Component {
 
               {/* Test routes */}
               <ProtectedRouteRequireAdmin
+                path="/_test/map-components"
+                component={() => (
+                  <React.Suspense fallback={
+                    <LoadingPage
+                      message="Loading Map Components Test"
+                      subMessage="Initializing map utilities and components..."
+                      size="large"
+                    />
+                  }>
+                    <MapComponentsTest />
+                  </React.Suspense>
+                )}
+              />
+              <ProtectedRouteRequireAdmin
                 path="/_test/image-upload"
                 component={MobileTestImageUpload}
               />
@@ -151,19 +166,10 @@ class App extends React.Component {
                 path="/_test/mobile-navbar-auto"
                 component={MobileNavBarAutoTest}
               />
-              <ProtectedRoutes
+              <ProtectedRouteRequireAdmin
+                exact
                 path="/_test"
-                component={() => (
-                  <React.Suspense fallback={
-                    <LoadingPage
-                      message="Loading Admin Components Test"
-                      subMessage="Initializing LiquidGlass components and map utilities..."
-                      size="large"
-                    />
-                  }>
-                    <TestMapView />
-                  </React.Suspense>
-                )}
+                component={ComponentsTest}
               />
               <ProtectedRoute path="/signout" component={MobileSignout} />
 
