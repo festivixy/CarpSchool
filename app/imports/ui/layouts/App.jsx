@@ -129,7 +129,7 @@ class App extends React.Component {
 
               {/* Test routes */}
               <ProtectedRouteRequireAdmin
-                path="/testImageUpload"
+                path="/_test/image-upload"
                 component={MobileTestImageUpload}
               />
               <ProtectedRouteRequireAdmin
