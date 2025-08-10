@@ -12,6 +12,8 @@ import queue
 import time
 import argparse
 import signal
+import tty
+import termios
 from rich.live import Live
 from rich.console import Console
 from rich.panel import Panel
@@ -37,6 +39,9 @@ class LiveTerminal:
         self.output_queue = queue.Queue()
         self.input_queue = queue.Queue()
 
+        # Terminal settings for raw input
+        self.old_settings = None
+
         # Setup signal handling
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
@@ -46,6 +51,22 @@ class LiveTerminal:
         self.running = False
         self.cleanup()
         sys.exit(0)
+
+    def _setup_raw_terminal(self):
+        """Setup terminal for raw character input."""
+        try:
+            self.old_settings = termios.tcgetattr(sys.stdin.fileno())
+            tty.setraw(sys.stdin.fileno())
+        except:
+            pass  # Fallback if raw mode not available
+
+    def _restore_terminal(self):
+        """Restore terminal to original settings."""
+        try:
+            if self.old_settings:
+                termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, self.old_settings)
+        except:
+            pass
 
 
 
@@ -87,6 +108,32 @@ class LiveTerminal:
             self.console.print(f"[red]Error sending command: {e}[/red]")
             return False
 
+    def send_character_to_terminal(self, char):
+        """Send a single character to the terminal window."""
+        if not self.terminal_id:
+            return False
+
+        try:
+            # Convert character to hex for safe transmission
+            char_code = ord(char)
+
+            # For printable characters, send them directly
+            if 32 <= char_code <= 126:
+                escaped_char = char.replace("\\", "\\\\").replace('"', '\\"')
+                subprocess.run([
+                    "osascript", "-e",
+                    f'tell application "Terminal" to do script "{escaped_char}" in {self.terminal_id}'
+                ], check=True, capture_output=True)
+            elif char_code == 127 or char_code == 8:  # Backspace
+                subprocess.run([
+                    "osascript", "-e",
+                    f'tell application "Terminal" to keystroke (ASCII character 8) using {{shift down}}'
+                ], check=True, capture_output=True)
+
+            return True
+        except subprocess.CalledProcessError:
+            return False
+
     def read_terminal_output(self):
         """Read output from the terminal window."""
         if not self.terminal_id:
@@ -118,7 +165,7 @@ class LiveTerminal:
                     self.output_buffer = lines[-self.max_lines:]
                     last_output = current_output
 
-                time.sleep(0.5)  # Check every 500ms
+                time.sleep(0.1)  # Check every 100ms for faster updates
 
             except Exception as e:
                 if self.running:  # Only log if we're still running
@@ -126,30 +173,46 @@ class LiveTerminal:
                 break
 
     def input_monitor_thread(self):
-        """Monitor input and forward to terminal in a separate thread."""
+        """Monitor character-by-character input and forward to terminal."""
         import select
+
+        current_command = ""
 
         while self.running:
             try:
                 # Check if input is available (non-blocking)
-                if select.select([sys.stdin], [], [], 0.5)[0]:
-                    # Read a line of input
-                    line = sys.stdin.readline()
+                if select.select([sys.stdin], [], [], 0.1)[0]:
+                    # Read one character
+                    char = sys.stdin.read(1)
 
-                    if not line:
+                    if not char:
                         break
 
-                    # Strip the newline and send to terminal
-                    command = line.rstrip('\n\r')
-
-                    if command.lower() in ['exit', 'quit']:
+                    # Handle special characters
+                    if ord(char) == 3:  # Ctrl+C
                         self.running = False
                         break
+                    elif ord(char) == 13 or ord(char) == 10:  # Enter
+                        if current_command.strip():
+                            if current_command.lower().strip() in ['exit', 'quit']:
+                                self.running = False
+                                break
 
-                    # Send the command to the terminal
-                    if self.send_to_terminal(command):
-                        # Add to our display buffer for visual feedback
-                        self.output_buffer.append(f"$ {command}")
+                            # Send the complete command to terminal
+                            if self.send_to_terminal(current_command):
+                                # Add to our display buffer for visual feedback
+                                self.output_buffer.append(f">>> {current_command}")
+
+                        current_command = ""
+                    elif ord(char) == 127 or ord(char) == 8:  # Backspace
+                        if current_command:
+                            current_command = current_command[:-1]
+                            # Send backspace to terminal to erase character
+                            self.send_character_to_terminal(char)
+                    else:
+                        # Regular character - add to command and send immediately
+                        current_command += char
+                        self.send_character_to_terminal(char)
 
             except Exception as e:
                 if self.running:
@@ -191,7 +254,7 @@ class LiveTerminal:
         layout["terminal"].update(terminal_panel)
 
         # Footer with instructions
-        footer_text = Text("Type commands here and press Enter - they will be sent to the new terminal • Live output display • Type 'exit' to quit")
+        footer_text = Text("Type characters - they are sent immediately to the new terminal • Press Enter to execute • Type 'exit' to quit • Ctrl+C to stop")
         footer_panel = Panel(
             footer_text,
             border_style="yellow",
@@ -214,6 +277,9 @@ class LiveTerminal:
         self.console.print("[yellow]Use the new terminal window for commands, this window shows live updates[/yellow]")
         self.console.print("[yellow]Press Ctrl+C to exit[/yellow]")
 
+        # Setup raw terminal for character input
+        self._setup_raw_terminal()
+
         # Start monitoring threads
         output_thread = threading.Thread(target=self.output_monitor_thread, daemon=True)
         output_thread.start()
@@ -221,13 +287,13 @@ class LiveTerminal:
         input_thread = threading.Thread(target=self.input_monitor_thread, daemon=True)
         input_thread.start()
 
-        # Run Rich Live display
+        # Run Rich Live display with higher refresh rate
         try:
-            with Live(self.create_display(), refresh_per_second=2) as live:
+            with Live(self.create_display(), refresh_per_second=10) as live:
                 while self.running:
                     # Update the display
                     live.update(self.create_display())
-                    time.sleep(0.5)
+                    time.sleep(0.1)  # Update every 100ms
 
         except KeyboardInterrupt:
             self.running = False
@@ -241,6 +307,9 @@ class LiveTerminal:
     def cleanup(self):
         """Clean up resources."""
         self.running = False
+
+        # Restore terminal settings
+        self._restore_terminal()
 
         # Note: We don't automatically close the terminal window
         # as users might want to continue using it
