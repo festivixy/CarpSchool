@@ -101,13 +101,33 @@ const CreateRide = ({ history, currentUser }) => {
   useEffect(() => {
     if (!isSupported) return;
 
-    // Set action handler for back button
+    // Set action handler for back button AND preserve bottom navbar actions
     setActionHandler((navBarId, action, itemIndex) => {
+      console.log("[CreateRide] Action handler called:", { navBarId, action, itemIndex });
+
       if (action === "back") {
         handleBack();
+      } else if (action === "tap") {
+        // This is likely a bottom navbar action, let the default NativeNavBar handler deal with it
+        // We need to route this back to the main navbar handler
+        console.log("[CreateRide] Delegating tap action to main navbar");
+
+        // Import the history for navigation
+        if (itemIndex === 0) { // Home
+          const homeLink = Meteor.user() ? "/myRides" : "/";
+          history.push(homeLink);
+        } else if (itemIndex === 1) { // Join Ride
+          history.push("/ios/join-ride");
+        } else if (itemIndex === 2) { // Create (current page)
+          // Already on create page, no action needed
+        } else if (itemIndex === 3) { // Messages
+          history.push("/chat");
+        } else if (itemIndex === 4) { // Profile
+          history.push("/ios/profile");
+        }
       }
     });
-  }, [isSupported, setActionHandler, handleBack]);
+  }, [isSupported, setActionHandler, handleBack, history]);
 
   // Set up native navbar
   useEffect(() => {

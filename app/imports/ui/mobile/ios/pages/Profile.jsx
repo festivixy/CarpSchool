@@ -51,13 +51,31 @@ const Profile = ({ history, currentUser, isAdmin }) => {
   useEffect(() => {
     if (!isSupported) return;
 
-    // Set action handler for back button
+    // Set action handler for back button AND preserve bottom navbar actions
     setActionHandler((navBarId, action, itemIndex) => {
+      console.log("[Profile] Action handler called:", { navBarId, action, itemIndex });
+
       if (action === "back") {
         handleBack();
+      } else if (action === "tap") {
+        // This is likely a bottom navbar action, handle navigation
+        console.log("[Profile] Delegating tap action to main navbar");
+
+        if (itemIndex === 0) { // Home
+          const homeLink = Meteor.user() ? "/myRides" : "/";
+          history.push(homeLink);
+        } else if (itemIndex === 1) { // Join Ride
+          history.push("/ios/join-ride");
+        } else if (itemIndex === 2) { // Create
+          history.push("/ios/create-ride");
+        } else if (itemIndex === 3) { // Messages
+          history.push("/chat");
+        } else if (itemIndex === 4) { // Profile (current page)
+          // Already on profile page, no action needed
+        }
       }
     });
-  }, [isSupported, setActionHandler, handleBack]);
+  }, [isSupported, setActionHandler, handleBack, history]);
 
   // Set up native navbar
   useEffect(() => {
