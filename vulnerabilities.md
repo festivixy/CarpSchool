@@ -2,7 +2,7 @@
 
 ## 📊 **Security Fix Progress Summary**
 
-**Last Updated**: December 2024 | **Status**: Major Security Improvements Completed
+**Last Updated**: August 2025 | **Status**: Critical New Vulnerability Discovered
 
 ### ✅ **RESOLVED VULNERABILITIES** (11 Fixed)
 
@@ -22,21 +22,22 @@
 
 - **V016**: Server-Side Request Forgery in Proxy Endpoints (HIGH → ACCEPTED - Intentional proxy functionality)
 
-### 🚨 **REMAINING VULNERABILITIES** (4 Pending)
+### 🚨 **REMAINING VULNERABILITIES** (6 Pending)
 
 - **V009**: Race Condition in User Role Assignment (MEDIUM)
 - **V011**: Insecure Place Resolution in FirstRun (MEDIUM)
 - **V012**: Unsafe JSON Processing in Web Worker (LOW)
 - **V014**: Direct Image Data Exposure via Server Routes (HIGH - CRITICAL)
 - **V017**: Weak CAPTCHA Session Management (MEDIUM)
+- **V022**: Direct Database Operations in Client Code (HIGH - CRITICAL)
 
 ### 📈 **Security Progress**
 
-- **Total Vulnerabilities**: 16 identified
-- **Fixed**: 11 vulnerabilities (68.75%)
-- **Accepted Risk**: 1 vulnerability (6.25%)
-- **Remaining**: 4 vulnerabilities (25%)
-- **Critical/High Priority Remaining**: 1 (V014)
+- **Total Vulnerabilities**: 17 identified
+- **Fixed**: 11 vulnerabilities (64.7%)
+- **Accepted Risk**: 1 vulnerability (5.9%)
+- **Remaining**: 6 vulnerabilities (35.3%)
+- **Critical/High Priority Remaining**: 2 (V014, V022)
 
 ---
 
@@ -421,6 +422,68 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
 - No rate limiting on image requests
 
 **Impact**: Privacy violation, unauthorized access to images, potential DoS
+
+---
+
+### <a name="v022"></a>🚨 **V022: Direct Database Operations in Client Code**
+
+**Files**: Multiple UI components
+**Severity**: HIGH
+**Type**: Authorization Bypass & Data Validation Bypass
+**Discovered**: August 10, 2025
+
+```javascript
+// VULNERABLE: Direct database operations in client code
+// File: imports/ui/components/AddRides.jsx:288
+Rides.insert(rideData, (error) => {
+  // Bypasses all server-side validation and authorization
+});
+
+// File: imports/ui/mobile/pages/Onboarding.jsx:362
+Profiles.insert(profileData, (error) => {
+  // Bypasses profile creation validation
+});
+
+// File: imports/ui/pages/EditProfile.jsx:356
+Profiles.update(existingProfile._id, { $set: profileData }, (error) => {
+  // Direct profile updates bypass server validation
+});
+
+// File: imports/ui/pages/EditProfile.jsx:370
+Profiles.insert(profileData, (error) => {
+  // Duplicate profile creation logic without validation
+});
+```
+
+**Issues**:
+
+- Direct database operations completely bypass Meteor's security model
+- No server-side validation of input data
+- No authorization checks for user permissions
+- No business logic enforcement
+- No audit trail for operations
+- Potential for data corruption through invalid inputs
+- Race conditions possible in concurrent operations
+
+**Impact**: Critical security bypass allowing unauthorized data manipulation, data corruption, and circumvention of all server-side protections
+
+**Remediation**:
+```javascript
+// CORRECT: Use proper Meteor methods
+Meteor.call("rides.insert", rideData, (error, result) => {
+  // Properly validated and authorized on server
+});
+
+Meteor.call("profiles.insert", profileData, (error, result) => {
+  // Server-side validation and authorization
+});
+
+Meteor.call("profiles.update", profileId, updateData, (error, result) => {
+  // Proper update with validation
+});
+```
+
+**Priority**: **CRITICAL** - Immediate remediation required
 
 ---
 
@@ -826,4 +889,6 @@ Meteor.publish("places.mine", async function publishMyPlaces() {
 | [~~V020: Email-Based User Discovery~~ (FIXED)](#v020)           | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Low~~    | RESOLVED     | `d07d944`    |
 | [~~V021: Performance Issues in Publications~~ (FIXED)](#v021)   | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     | `cca6a8b`    |
 
-**Overall Risk Level**: **MEDIUM** - Significant security improvements achieved. Most critical vulnerabilities resolved (V001, V002, V004, V007, V008, V010, V013, V015, V018, V020, V021). V016 marked as accepted risk. Remaining medium-severity vulnerabilities (V009, V011, V017) and one high-severity vulnerability (V014) require attention.
+| [V022: Direct Database Operations in Client Code](#v022)        | **HIGH**                  | High       | High       | **CRITICAL** | -            |
+
+**Overall Risk Level**: **HIGH** - New critical vulnerability discovered. Significant security improvements achieved with most critical vulnerabilities resolved (V001, V002, V004, V007, V008, V010, V013, V015, V018, V020, V021). V016 marked as accepted risk. Two critical vulnerabilities remain (V014, V022) requiring immediate attention.
