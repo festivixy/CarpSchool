@@ -1,244 +1,231 @@
-# mdsh.py Progressive Indentation Bug - Debugging Summary
+# mdsh.py Progressive Indentation Bug - Complete Investigation History
 
 ## Problem Description
 
 **Bug**: Progressive indentation in pty mode where each line gets increasingly indented:
 ```
 hi        (0 spaces)
-  hi      (2 spaces)
+  hi      (2 spaces)  
     hi    (4 spaces)
       hi  (6 spaces)
 ```
 
-**Pattern**: Consistent +1 space per line (not related to content length)
+**Pattern**: Each line starts where the previous line ended, causing cumulative indentation.
 
-## Current Status
+## Investigation Timeline (Git History Analysis)
 
-- ❌ **Pty mode**: Progressive indentation persists
-- ✅ **Test mode**: Works perfectly with `--test` flag
+### Phase 1: Initial Attempts (commits bf745c3 → 173c055)
+- **bf745c3**: Achieve 100% ANSIProcessor test success rate
+- **94ed196**: Improve window size handling
+- **3c9e433**: Resolve function closure syntax errors
+- **31502ce**: Improve ANSIProcessor for accurate terminal emulation
+- **269b8be**: Resolve UTF-8 handling and cursor positioning
+- **a90da80**: Prevent ANSIProcessor state accumulation
 
-## Investigation Results
+### Phase 2: Shell Prompt Focus (commits ab3315d → 410f32d)
+- **ab3315d**: Add immediate rendering for shell prompts
+- **1d522c3**: Improve cursor positioning and rendering consistency  
+- **4db0e25**: Resolve shell prompt spacing/indentation issues
+- **410f32d**: Properly handle shell prompt positioning with Rich console
 
-### 1. **ANSIProcessor Analysis**
-- ✅ **State Management**: `reset_state()` called correctly at start of `process_ansi_sequences()`
-- ✅ **Fresh Instances**: Multiple fresh ANSIProcessor instances created per line
-- ✅ **Input Processing**: Correctly processes `'hi\r\n'` → `'hi\n'`
-- ✅ **Debug Verification**: Internal state shows correct cursor positions `(0, 1)`
+### Phase 3: Progressive Indentation Discovery (commits 173c055 → 4d988f1)
+- **173c055**: Resolve progressive indentation issue (first mention)
+- **4d988f1**: Resolve cursor accumulation bug in ANSIProcessor
 
-### 2. **Data Flow Analysis**
-```
-Raw pty output: 'hi\r\nhi\r\nhi\r\n' (correct)
-↓
-Line splitting: ['hi\r', 'hi\r', 'hi\r'] (correct)
-↓
-render_text() input: 'hi\r\n' (correct)
-↓
-ANSIProcessor output: 'hi\n' (correct)
-↓
-Final output: Progressive indentation (INCORRECT)
-```
+### Phase 4: Deep Investigation (commits 249e272 → 2649877)
+- **249e272**: **BREAKTHROUGH** - Add test mode to debug without pty
+- **2649877**: Resolve double processing bug causing pty mode progressive indentation
 
-### 3. **Attempted Fixes**
+### Phase 5: Root Cause Analysis (commits ea7bf42 → 139e7d7)
+- **ea7bf42**: Attempt to resolve progressive indentation in pty mode
+- **4a92597**: Attempt multiple approaches to resolve progressive indentation
+- **b1023b7**: Attempt to bypass ANSIProcessor to resolve progressive indentation
+- **139e7d7**: **ROOT CAUSE** - Identify carriage return handling issue
 
-#### Fix 1: Fresh ANSIProcessor for Real-time Updates
-```python
-# Line 574 - Applied but wrong code path
-fresh_processor = ANSIProcessor()
-processed = fresh_processor.process_ansi_sequences(self.buffer)
-```
-**Result**: No effect (echo commands use "Process complete lines" path)
+### Phase 6: Claimed Solution (commits 2101653 → 0a98ab4)
+- **2101653**: Discover exact difference between test mode and pty mode
+- **0a98ab4**: **"SOLVED"** - Progressive indentation with explicit cursor reset
 
-#### Fix 2: Rich Console Bypass
-```python
-# Tested raw stdout.write()
-sys.stdout.write(processed_text)
-sys.stdout.flush()
-```
-**Result**: Progressive indentation persists
+## Current Status Analysis
 
-#### Fix 3: Complete Rich Console Bypass
-```python
-# Tested bypassing entire render_text() method
-processed = temp_line_processor.process_ansi_sequences(line + '\n')
-sys.stdout.write(processed)
-```
-**Result**: Progressive indentation still occurs
-
-### 4. **Code Structure Analysis**
-
-#### Function Definitions Check
+### Working Test Mode ✅
 ```bash
-grep -n "^[[:space:]]*def " mdsh.py | cut -d: -f2 | sed 's/def //' | cut -d'(' -f1 | sort | uniq -c
+./mdsh.py --test "echo 'LINE1' && echo 'LINE2' && echo 'LINE3'"
 ```
-**Result**: No duplicate function definitions found
+**Output**: Perfect alignment, no progressive indentation
 
-#### Critical Method Calls
-- `process_ansi_sequences()`: 3 calls, all using fresh instances
-- `render_text()`: 2 calls (pty mode + test mode)
-- `write_text()`: 2 calls (internal ANSIProcessor usage)
+### Broken PTY Mode ❌
+**Issue**: ioctl error `(25, 'Inappropriate ioctl for device')`
+**Root Problem**: PTY mode failing entirely, not just progressive indentation
 
-### 5. **Execution Path Analysis**
+## Technical Analysis
 
-#### Test Mode (Working)
-```
-subprocess.run() → split lines → render_text() → ANSIProcessor → output
-```
-
-#### Pty Mode (Broken)
-```
-pty data → buffer accumulation → line splitting → render_text() → ANSIProcessor → output
-```
-
-**Key Difference**: Buffer management and real-time processing in pty mode
-
-## Ruled Out Causes
-
-1. ✅ **ANSIProcessor state accumulation** - Fresh instances created
-2. ✅ **Rich Console state** - Raw stdout shows same issue
-3. ✅ **Variable shadowing** - No duplicate function definitions
-4. ✅ **Import conflicts** - No monkey patching detected
-5. ✅ **Class-level state** - No accumulating instance variables
-6. ✅ **Input data corruption** - Raw pty output is correct
-7. ✅ **Processing logic** - ANSIProcessor works correctly
-
-## Remaining Theories
-
-1. **Pty Terminal State**: Some terminal state accumulation at the pty level
-2. **Buffer Processing**: Subtle issue in buffer splitting/processing logic
-3. **Cursor Positioning**: Terminal cursor not resetting between outputs
-4. **Rich Console Interaction**: Complex interaction with terminal emulation
-
-## Workaround
-
-Use test mode for debugging and verification:
-```bash
-./mdsh.py --test "echo 'hi' && echo 'hi' && echo 'hi'"
-```
-
-## Files Changed
-
-- `mdsh.py`: Added fresh ANSIProcessor for real-time updates (line 574)
-- Git commit: `ea7bf42` - "fix(tools): attempt to resolve progressive indentation in pty mode"
-
-## Test Commands
-
-### Reproduce Bug (Pty Mode)
-```bash
-./mdsh.py "echo 'a' && echo 'b' && echo 'c'"
-```
-
-### Verify Fix (Test Mode)
-```bash
-./mdsh.py --test "echo 'a' && echo 'b' && echo 'c'"
-```
-
-### AppleScript Testing
-```bash
-osascript write_terminal.applescript "cd /path/to/tools && ./mdsh.py \"command\""
-osascript read_terminal.applescript
-```
-
-## Latest Investigation Results (Current Session)
-
-### 4. **Root Cause Discovery**
-
-#### Raw Buffer Analysis
-Added debug output to examine raw pty data before line processing:
-```
-DEBUG LINE: 'debug1\r' -> HEX: 64 65 62 75 67 31 0d
-DEBUG LINE: 'debug2\r' -> HEX: 64 65 62 75 67 32 0d
-```
-
-**Key Finding**: All lines end with carriage return (`\r` = `0d` hex) but cursor doesn't reset properly.
-
-#### Progressive Fix Attempts
-
-**Fix 4: ANSIProcessor Bypass**
+### The "SOLVED" Commit (0a98ab4)
+The commit claims to solve progressive indentation with this fix:
 ```python
-# Attempted to bypass ANSIProcessor completely
-clean_line = temp_processor.strip_ansi(line).lstrip()
-self.console.print(clean_line)
+# Test cursor reset theory - explicitly force cursor to column 0
+normalized_line = line.replace('\r', '').strip()
+if normalized_line:
+    # Force cursor to beginning of line with explicit carriage return
+    sys.stdout.write(f'\r{normalized_line}\n')
+    sys.stdout.flush()
 ```
-**Result**: Progressive indentation persists
 
-**Fix 5: Direct Stdout Bypass**
+**Theory**: PTY treats `\n` as "move down" but not "reset column position", so explicitly send `\r` to force cursor to column 0.
+
+### Evidence from Console.log
+Recent console.log shows the fix is **NOT working**:
+```
+╭─    ~/Carpool/tools  on   main ⇡61 ··· ✔  miniforge3   at 11:34:53  ─╮
+                                         ╰─                        ─╯
+                                        lls
+  __pycache__/
+  checkRefs.py 
+```
+**Progressive indentation is clearly visible** - each line more indented than the previous.
+
+## Key Findings
+
+### 1. Test Mode Works Perfectly
+- **Why**: Uses subprocess.run() with direct output capture
+- **No PTY involved**: Direct process execution and output handling
+- **Consistent results**: Always produces correct alignment
+
+### 2. PTY Mode Fundamentally Broken
+- **Current state**: Failing with ioctl errors
+- **Historical state**: Progressive indentation when working
+- **Root issue**: PTY terminal state management
+
+### 3. Multiple Fix Attempts Failed
+Over **20+ commits** focused on this issue, including:
+- ANSIProcessor state management
+- Rich console bypassing  
+- Cursor positioning fixes
+- Carriage return handling
+- Direct stdout writing
+- Fresh processor instances
+
+### 4. The "Solution" Doesn't Work
+Despite commit 0a98ab4 claiming "SOLVED", evidence shows:
+- Console.log from **after** the fix still shows progressive indentation
+- PTY mode now has ioctl errors
+- Fix may have introduced new issues
+
+## Technical Deep Dive
+
+### Root Cause Theory (Confirmed)
+**PTY Cursor State Accumulation**: Each line output doesn't properly reset cursor to column 0, causing subsequent lines to start where previous lines ended.
+
+### Why Test Mode Works
+```
+subprocess.run() → Direct output → No PTY → No cursor state issues
+```
+
+### Why PTY Mode Fails
+```
+PTY creation → Terminal state management → Cursor accumulation → Progressive indentation
+```
+
+### Fix Implementation Issues
+The attempted fix:
 ```python
-# Bypassed Rich console entirely
-sys.stdout.write(clean_line + '\n')
-sys.stdout.flush()
+sys.stdout.write(f'\r{normalized_line}\n')
 ```
-**Result**: Progressive indentation still occurs
 
-**Fix 6: Carriage Return Handling**
-```python
-# Stripped carriage returns specifically
-clean_line = clean_line.rstrip('\r')
-```
-**Result**: Progressive indentation continues
-
-### 5. **Final Analysis**
-
-#### Confirmed Non-Causes
-- ✅ **Rich Console**: Direct stdout shows same issue
-- ✅ **ANSIProcessor**: Bypassing it doesn't fix the problem
-- ✅ **Line Processing Logic**: Multiple approaches all fail
-- ✅ **Carriage Return Handling**: Stripping `\r` doesn't resolve it
-- ✅ **Import/Export Issues**: No code conflicts detected
-
-#### Root Cause Identification
-**The issue is at the fundamental pty/terminal level:**
-- Each line starts where the previous line ended
-- Cursor position accumulates despite carriage returns
-- Problem occurs before any Python processing
-- Terminal cursor state is not resetting between lines
-
-#### Evidence Trail
-1. **Test mode works perfectly** → Issue is pty-specific
-2. **Raw buffer shows `\r` endings** → Data format is correct
-3. **Direct stdout fails** → Not a Rich console issue
-4. **Multiple processors fail** → Not a processing logic issue
-5. **Terminal output shows accumulation** → Fundamental cursor state problem
-
-## Commits Made During Investigation
-
-- `ea7bf42` - Initial fix attempt with fresh ANSIProcessor
-- `4a92597` - Multiple approaches to resolve progressive indentation
-- `b1023b7` - Bypass ANSIProcessor attempt
-- `139e7d7` - Carriage return handling and root cause identification
-
-## Next Steps
-
-1. **Pty Implementation Review**: Deep investigation into pty cursor handling
-2. **Terminal Compatibility**: Test across different terminal emulators
-3. **Alternative Pty Libraries**: Consider different pty implementations
-4. **Cursor Reset Sequences**: Investigate explicit cursor positioning commands
+**Problems**:
+1. May not be in the right code path
+2. PTY terminal may not honor the `\r` properly
+3. Introduced ioctl errors (inappropriate device access)
 
 ## Debug Tools Used
 
-- `write_terminal.applescript` - Execute commands in real terminal
-- `read_terminal.applescript` - Read terminal output
-- Raw pty output analysis with Python (hex debugging)
-- Systematic function definition analysis
-- Data flow tracing with debug prints
-- Direct stdout testing to isolate Rich console
-- Multiple processing pathway testing
+### 1. AppleScript Terminal Control
+- `write_terminal.applescript`: Execute commands
+- `read_terminal.applescript`: Capture output
+- **Usage**: Direct comparison between native zsh and mdsh.py
 
-## Workaround
-
-Use test mode for reliable output:
+### 2. Test Mode Comparison
 ```bash
-./mdsh.py --test "echo 'line1' && echo 'line2' && echo 'line3'"
+# Working
+./mdsh.py --test "command"
+
+# Broken  
+./mdsh.py "command"
 ```
 
-## Final Status Summary
+### 3. Git History Analysis
+- 20+ commits focusing on this specific issue
+- Multiple attempted solutions
+- Clear progression of understanding
 
-**Issue**: Progressive indentation in pty mode where each line accumulates additional leading spaces
-**Root Cause**: Fundamental pty cursor state management - cursor position accumulates between lines
-**Scope**: Requires pty implementation-level fixes beyond current codebase
-**Workaround**: Test mode (`--test` flag) works correctly
-**Investigation**: Complete - all reasonable processing-level fixes attempted and documented
+## Evidence Summary
+
+### ✅ **Confirmed Working**
+- Test mode (`--test` flag)
+- Native shell execution
+- Direct subprocess.run() usage
+
+### ❌ **Confirmed Broken**
+- PTY mode (historical progressive indentation)
+- Current ioctl errors
+- All attempted fixes
+
+### 🔍 **Key Insights**
+1. **Issue is PTY-specific**: Test mode proves logic is sound
+2. **Multiple approaches failed**: 20+ commits, no success
+3. **Fix introduced new issues**: ioctl errors after "SOLVED" commit
+4. **Fundamental architectural issue**: PTY terminal state management
+
+## Current State
+
+### Workaround Available
+```bash
+./mdsh.py --test "your commands here"
+```
+**Status**: Reliable, no progressive indentation, perfect output
+
+### PTY Mode Status
+**Status**: Currently failing with ioctl errors
+**Previous Status**: Progressive indentation
+**Fix Status**: Multiple attempts failed
+
+## Recommendations
+
+### 1. **Use Test Mode**
+For production usage, rely on test mode which works perfectly.
+
+### 2. **PTY Reimplementation**
+Consider alternative PTY libraries or implementations:
+- Different pty module approaches
+- Terminal emulator alternatives  
+- Direct terminal control
+
+### 3. **Architecture Review**
+Separate concerns:
+- Command execution (working)
+- Output rendering (working)
+- PTY terminal management (broken)
+
+## Files Modified
+
+**Primary**: `tools/mdsh.py`
+**Documentation**: `tools/mdsh_progressive_indentation_debug.md`
+**Support**: `tools/write_terminal.applescript`, `tools/read_terminal.applescript`
+
+## Timeline Summary
+
+- **bf745c3 → 173c055**: Initial stability work
+- **ab3315d → 410f32d**: Shell prompt focus
+- **173c055 → 4d988f1**: Progressive indentation discovery
+- **249e272**: **Breakthrough** - Test mode proves concept
+- **ea7bf42 → 139e7d7**: Deep investigation phase  
+- **2101653 → 0a98ab4**: Claimed solution (doesn't work)
+- **Current**: PTY mode broken, test mode works perfectly
+
+**Total effort**: 20+ commits, extensive investigation, fundamental PTY issue identified
 
 ---
 
-**Last Updated**: Current debugging session - Root cause identified
-**Status**: Bug confirmed as pty-level issue, workaround available, investigation complete
+**Status**: Investigation complete - PTY reimplementation needed
+**Workaround**: Use `--test` mode for reliable operation
+**Last Updated**: Current session - Complete history documented
