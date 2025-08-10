@@ -1,8 +1,8 @@
 // This section sets up some basic app metadata, the entire section is optional.
 App.info({
     id: "carp.school.app",
-    name: "carp.school",
-    description: "Get carp.school power in one button click",
+    name: "CarpSchool",
+    description: "Get CarpSchool power in one button click",
     author: "carp.school team",
     email: "contact@carp.school",
     website: "https://carp.school",
