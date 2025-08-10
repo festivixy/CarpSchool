@@ -32,7 +32,8 @@ const Profile = ({ history, currentUser, isAdmin }) => {
     createNavBar,
     showNavBar,
     removeNavBar,
-    setActionHandler,
+    registerActionHandler,
+    unregisterActionHandler,
   } = useNativeNavBar();
 
   const handleBack = () => {
@@ -47,35 +48,25 @@ const Profile = ({ history, currentUser, isAdmin }) => {
     history.push("/signout");
   };
 
-  // Set up action handler only once
+  // Register action handler for this page's navbar
   useEffect(() => {
-    if (!isSupported) return;
+    if (!isSupported || !navBarId) return;
 
-    // Set action handler for back button AND preserve bottom navbar actions
-    setActionHandler((navBarId, action, itemIndex) => {
+    // Register action handler specifically for this page's top navbar
+    registerActionHandler(navBarId, (navBarId, action, itemIndex) => {
       console.log("[Profile] Action handler called:", { navBarId, action, itemIndex });
 
       if (action === "back") {
         handleBack();
-      } else if (action === "tap") {
-        // This is likely a bottom navbar action, handle navigation
-        console.log("[Profile] Delegating tap action to main navbar");
-
-        if (itemIndex === 0) { // Home
-          const homeLink = Meteor.user() ? "/myRides" : "/";
-          history.push(homeLink);
-        } else if (itemIndex === 1) { // Join Ride
-          history.push("/ios/join-ride");
-        } else if (itemIndex === 2) { // Create
-          history.push("/ios/create-ride");
-        } else if (itemIndex === 3) { // Messages
-          history.push("/chat");
-        } else if (itemIndex === 4) { // Profile (current page)
-          // Already on profile page, no action needed
-        }
       }
+      // Don't handle "tap" actions here - let them go to the bottom navbar
     });
-  }, [isSupported, setActionHandler, handleBack, history]);
+
+    // Cleanup registration when component unmounts
+    return () => {
+      unregisterActionHandler(navBarId);
+    };
+  }, [isSupported, navBarId, registerActionHandler, unregisterActionHandler, handleBack]);
 
   // Set up native navbar
   useEffect(() => {
@@ -108,7 +99,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
         removeNavBar(navBarId).catch(console.error);
       }
     };
-  }, [isSupported, createNavBar, showNavBar, removeNavBar]);
+  }, [isSupported, createNavBar, showNavBar, removeNavBar, unregisterActionHandler]);
 
   const userSectionItems = [
     {

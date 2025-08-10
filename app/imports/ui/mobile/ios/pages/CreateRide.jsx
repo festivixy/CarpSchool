@@ -40,7 +40,8 @@ const CreateRide = ({ history, currentUser }) => {
     setNavBarItems,
     showNavBar,
     removeNavBar,
-    setActionHandler,
+    registerActionHandler,
+    unregisterActionHandler,
   } = useNativeNavBar();
 
   const handleInputChange = (field, value) => {
@@ -97,37 +98,25 @@ const CreateRide = ({ history, currentUser }) => {
     history.goBack();
   };
 
-  // Set up action handler only once
+  // Register action handler for this page's navbar
   useEffect(() => {
-    if (!isSupported) return;
+    if (!isSupported || !navBarId) return;
 
-    // Set action handler for back button AND preserve bottom navbar actions
-    setActionHandler((navBarId, action, itemIndex) => {
+    // Register action handler specifically for this page's top navbar
+    registerActionHandler(navBarId, (navBarId, action, itemIndex) => {
       console.log("[CreateRide] Action handler called:", { navBarId, action, itemIndex });
 
       if (action === "back") {
         handleBack();
-      } else if (action === "tap") {
-        // This is likely a bottom navbar action, let the default NativeNavBar handler deal with it
-        // We need to route this back to the main navbar handler
-        console.log("[CreateRide] Delegating tap action to main navbar");
-
-        // Import the history for navigation
-        if (itemIndex === 0) { // Home
-          const homeLink = Meteor.user() ? "/myRides" : "/";
-          history.push(homeLink);
-        } else if (itemIndex === 1) { // Join Ride
-          history.push("/ios/join-ride");
-        } else if (itemIndex === 2) { // Create (current page)
-          // Already on create page, no action needed
-        } else if (itemIndex === 3) { // Messages
-          history.push("/chat");
-        } else if (itemIndex === 4) { // Profile
-          history.push("/ios/profile");
-        }
       }
+      // Don't handle "tap" actions here - let them go to the bottom navbar
     });
-  }, [isSupported, setActionHandler, handleBack, history]);
+
+    // Cleanup registration when component unmounts
+    return () => {
+      unregisterActionHandler(navBarId);
+    };
+  }, [isSupported, navBarId, registerActionHandler, unregisterActionHandler, handleBack]);
 
   // Set up native navbar
   useEffect(() => {
@@ -160,7 +149,7 @@ const CreateRide = ({ history, currentUser }) => {
         removeNavBar(navBarId).catch(console.error);
       }
     };
-  }, [isSupported, createNavBar, showNavBar, removeNavBar]);
+  }, [isSupported, createNavBar, showNavBar, removeNavBar, unregisterActionHandler]);
 
   // Get today's date for min date input
   const today = new Date().toISOString().split('T')[0];

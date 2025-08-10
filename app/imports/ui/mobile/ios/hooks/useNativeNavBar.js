@@ -10,6 +10,7 @@ export const useNativeNavBar = () => {
   const [iosVersion, setIOSVersion] = useState(null);
   const navBarsRef = useRef(new Map());
   const actionHandlerRef = useRef(null);
+  const actionHandlersRegistry = useRef(new Map()); // Registry of handlers by navBarId
 
   useEffect(() => {
     const checkSupport = async () => {
@@ -75,8 +76,51 @@ export const useNativeNavBar = () => {
     }
   }, []);
 
+  // Master action handler that routes to specific navbar handlers
+  const masterActionHandler = useCallback((navBarId, action, itemIndex) => {
+    console.log("[useNativeNavBar] 🎯 Master action handler called:", {
+      navBarId,
+      action,
+      itemIndex,
+      registeredHandlers: actionHandlersRegistry.current.size,
+    });
+
+    // Try to find a specific handler for this navBarId
+    const specificHandler = actionHandlersRegistry.current.get(navBarId);
+    if (specificHandler) {
+      console.log("[useNativeNavBar] 📍 Found specific handler for navBarId:", navBarId);
+      specificHandler(navBarId, action, itemIndex);
+      return;
+    }
+
+    // Fallback to the default action handler
+    if (actionHandlerRef.current) {
+      console.log("[useNativeNavBar] 🔄 Using fallback action handler");
+      actionHandlerRef.current(navBarId, action, itemIndex);
+    } else {
+      console.warn("[useNativeNavBar] ��️ No action handler found for navBarId:", navBarId);
+    }
+  }, []);
+
+  // Register a specific action handler for a navBarId
+  const registerActionHandler = useCallback((navBarId, handler) => {
+    console.log("[useNativeNavBar] 📝 Registering action handler for navBarId:", navBarId);
+    actionHandlersRegistry.current.set(navBarId, handler);
+
+    // Set the master action handler if not already set
+    if (window.cordova?.plugins?.NativeNavBar) {
+      window.cordova.plugins.NativeNavBar.setActionHandler(masterActionHandler);
+    }
+  }, [masterActionHandler]);
+
+  // Unregister action handler for a navBarId
+  const unregisterActionHandler = useCallback((navBarId) => {
+    console.log("[useNativeNavBar] 🗑️ Unregistering action handler for navBarId:", navBarId);
+    actionHandlersRegistry.current.delete(navBarId);
+  }, []);
+
   const setActionHandler = useCallback((handler) => {
-    console.log("[useNativeNavBar] 🎛️ setActionHandler called:", {
+    console.log("[useNativeNavBar] 🎛️ setActionHandler called (legacy):", {
       hasHandler: !!handler,
       hasPlugin: !!window.cordova?.plugins?.NativeNavBar,
     });
@@ -84,12 +128,12 @@ export const useNativeNavBar = () => {
     actionHandlerRef.current = handler;
 
     if (window.cordova?.plugins?.NativeNavBar) {
-      console.log("[useNativeNavBar] ✅ Setting native action handler");
-      window.cordova.plugins.NativeNavBar.setActionHandler(handler);
+      console.log("[useNativeNavBar] ✅ Setting master action handler");
+      window.cordova.plugins.NativeNavBar.setActionHandler(masterActionHandler);
     } else {
       console.warn("[useNativeNavBar] ⚠️ Cannot set action handler - plugin not available");
     }
-  }, []);
+  }, [masterActionHandler]);
 
   const createNavBar = useCallback(async (options = {}) => {
     console.log("[useNativeNavBar] 🏗️ createNavBar called:", {
@@ -221,6 +265,10 @@ export const useNativeNavBar = () => {
     hideNavBar,
     removeNavBar,
     setActionHandler,
+
+    // New centralized action handler methods
+    registerActionHandler,
+    unregisterActionHandler,
 
     // Utility
     navBars: navBarsRef.current,

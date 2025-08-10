@@ -32,7 +32,8 @@ const JoinRide = ({ history, currentUser }) => {
     createNavBar,
     showNavBar,
     removeNavBar,
-    setActionHandler,
+    registerActionHandler,
+    unregisterActionHandler,
   } = useNativeNavBar();
 
   const handleInputChange = (value) => {
@@ -81,35 +82,25 @@ const JoinRide = ({ history, currentUser }) => {
     history.goBack();
   };
 
-  // Set up action handler only once
+  // Register action handler for this page's navbar
   useEffect(() => {
-    if (!isSupported) return;
+    if (!isSupported || !navBarId) return;
 
-    // Set action handler for back button AND preserve bottom navbar actions
-    setActionHandler((navBarId, action, itemIndex) => {
+    // Register action handler specifically for this page's top navbar
+    registerActionHandler(navBarId, (navBarId, action, itemIndex) => {
       console.log("[JoinRide] Action handler called:", { navBarId, action, itemIndex });
 
       if (action === "back") {
         handleBack();
-      } else if (action === "tap") {
-        // This is likely a bottom navbar action, handle navigation
-        console.log("[JoinRide] Delegating tap action to main navbar");
-
-        if (itemIndex === 0) { // Home
-          const homeLink = Meteor.user() ? "/myRides" : "/";
-          history.push(homeLink);
-        } else if (itemIndex === 1) { // Join Ride (current page)
-          // Already on join ride page, no action needed
-        } else if (itemIndex === 2) { // Create
-          history.push("/ios/create-ride");
-        } else if (itemIndex === 3) { // Messages
-          history.push("/chat");
-        } else if (itemIndex === 4) { // Profile
-          history.push("/ios/profile");
-        }
       }
+      // Don't handle "tap" actions here - let them go to the bottom navbar
     });
-  }, [isSupported, setActionHandler, handleBack, history]);
+
+    // Cleanup registration when component unmounts
+    return () => {
+      unregisterActionHandler(navBarId);
+    };
+  }, [isSupported, navBarId, registerActionHandler, unregisterActionHandler, handleBack]);
 
   // Set up native navbar
   useEffect(() => {
@@ -142,7 +133,7 @@ const JoinRide = ({ history, currentUser }) => {
         removeNavBar(navBarId).catch(console.error);
       }
     };
-  }, [isSupported, createNavBar, showNavBar, removeNavBar]);
+  }, [isSupported, createNavBar, showNavBar, removeNavBar, unregisterActionHandler]);
 
   const handleScanQR = () => {
     // TODO: Implement QR code scanning
