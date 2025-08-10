@@ -9,7 +9,8 @@ import {
   Content,
 } from "../styles/Landing";
 import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
-import { BackButton, HeaderWithBack } from "../styles/TOS";
+import { HeaderWithBack } from "../styles/TOS";
+import BackButton from "../components/BackButton";
 
 const tosContent = `
 # **__DEV BUILD__**
@@ -26,10 +27,8 @@ function MobileTOS({ history }) {
   return (
     <Container style={{ minHeight: "100vh", paddingBottom: "40px" }}>
       <MobileOnly>
+        <BackButton />
         <HeaderWithBack>
-          <BackButton onClick={handleBack}>
-            <img src="/svg/back.svg" alt="Back" />
-          </BackButton>
           <SectionTitle>Terms of Service</SectionTitle>
         </HeaderWithBack>
       </MobileOnly>

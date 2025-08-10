@@ -9,7 +9,8 @@ import {
   Content,
 } from "../styles/Landing";
 import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
-import { BackButton, HeaderWithBack } from "../styles/Credits";
+import { HeaderWithBack } from "../styles/Credits";
+import BackButton from "../components/BackButton";
 
 const creditsContent = `
 ## Development Team
@@ -55,10 +56,8 @@ function MobileCredits({ history }) {
   return (
     <Container style={{ minHeight: "100vh", paddingBottom: "40px" }}>
       <MobileOnly>
+        <BackButton />
         <HeaderWithBack>
-          <BackButton onClick={handleBack}>
-            <img src="/svg/back.svg" alt="Back" />
-          </BackButton>
           <SectionTitle>Credits</SectionTitle>
         </HeaderWithBack>
       </MobileOnly>
