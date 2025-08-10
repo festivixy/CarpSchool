@@ -5,7 +5,7 @@
 **Bug**: Progressive indentation in pty mode where each line gets increasingly indented:
 ```
 hi        (0 spaces)
-  hi      (2 spaces)  
+  hi      (2 spaces)
     hi    (4 spaces)
       hi  (6 spaces)
 ```
@@ -24,7 +24,7 @@ hi        (0 spaces)
 
 ### Phase 2: Shell Prompt Focus (commits ab3315d → 410f32d)
 - **ab3315d**: Add immediate rendering for shell prompts
-- **1d522c3**: Improve cursor positioning and rendering consistency  
+- **1d522c3**: Improve cursor positioning and rendering consistency
 - **4db0e25**: Resolve shell prompt spacing/indentation issues
 - **410f32d**: Properly handle shell prompt positioning with Rich console
 
@@ -80,7 +80,7 @@ Recent console.log shows the fix is **NOT working**:
                                          ╰─                        ─╯
                                         lls
   __pycache__/
-  checkRefs.py 
+  checkRefs.py
 ```
 **Progressive indentation is clearly visible** - each line more indented than the previous.
 
@@ -99,7 +99,7 @@ Recent console.log shows the fix is **NOT working**:
 ### 3. Multiple Fix Attempts Failed
 Over **20+ commits** focused on this issue, including:
 - ANSIProcessor state management
-- Rich console bypassing  
+- Rich console bypassing
 - Cursor positioning fixes
 - Carriage return handling
 - Direct stdout writing
@@ -149,7 +149,7 @@ sys.stdout.write(f'\r{normalized_line}\n')
 # Working
 ./mdsh.py --test "command"
 
-# Broken  
+# Broken
 ./mdsh.py "command"
 ```
 
@@ -197,7 +197,7 @@ For production usage, rely on test mode which works perfectly.
 ### 2. **PTY Reimplementation**
 Consider alternative PTY libraries or implementations:
 - Different pty module approaches
-- Terminal emulator alternatives  
+- Terminal emulator alternatives
 - Direct terminal control
 
 ### 3. **Architecture Review**
@@ -218,14 +218,42 @@ Separate concerns:
 - **ab3315d → 410f32d**: Shell prompt focus
 - **173c055 → 4d988f1**: Progressive indentation discovery
 - **249e272**: **Breakthrough** - Test mode proves concept
-- **ea7bf42 → 139e7d7**: Deep investigation phase  
+- **ea7bf42 → 139e7d7**: Deep investigation phase
 - **2101653 → 0a98ab4**: Claimed solution (doesn't work)
 - **Current**: PTY mode broken, test mode works perfectly
 
 **Total effort**: 20+ commits, extensive investigation, fundamental PTY issue identified
 
+## Code Cleanup (Current Session)
+
+### Bloat Removal Results
+- **Before cleanup**: 740 lines (mdsh.py)
+- **After cleanup**: 330 lines (mdsh.py)
+- **Reduction**: 410 lines removed (55% reduction)
+- **Backup created**: mdsh_bloated_backup.py
+
+### What Was Removed
+- 20+ failed progressive indentation fix attempts
+- Complex shell prompt handling logic
+- Double processing fixes that didn't work
+- Multiple render paths and cursor reset attempts
+- Redundant ANSIProcessor state management
+
+### What Was Kept
+- ✅ **Test mode (--test flag)** - Works perfectly, recommended
+- ✅ **Basic ANSIProcessor** - Core functionality
+- ✅ **Simple PTY mode** - Still has progressive indentation but cleaner
+- ✅ **Terminal size handling**
+- ✅ **Basic markdown rendering**
+
+### Current Clean Implementation
+- **mdsh.py**: 330 lines, clean and maintainable
+- **mdsh_bloated_backup.py**: 740 lines, preserved for reference
+- **Focus**: Core functionality without failed patches
+- **Recommendation**: Use `--test` mode for all production usage
+
 ---
 
-**Status**: Investigation complete - PTY reimplementation needed
+**Status**: Investigation complete, code cleaned up, PTY reimplementation needed
 **Workaround**: Use `--test` mode for reliable operation
-**Last Updated**: Current session - Complete history documented
+**Last Updated**: Current session - Complete history documented + cleanup performed
