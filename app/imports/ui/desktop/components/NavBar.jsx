@@ -147,19 +147,19 @@ class NavBar extends React.Component {
                   {this.state.adminMenuOpen && (
                     <DropdownMenu>
                       <DropdownItem
-                        to="/adminRides"
+                        to="/admin/rides"
                         onClick={this.closeAllMenus}
                       >
                         Manage Rides
                       </DropdownItem>
                       <DropdownItem
-                        to="/adminUsers"
+                        to="/admin/users"
                         onClick={this.closeAllMenus}
                       >
                         Manage Users
                       </DropdownItem>
                       <DropdownItem
-                        to="/adminPlaces"
+                        to="/admin/places"
                         onClick={this.closeAllMenus}
                       >
                         Manage Places
@@ -260,14 +260,14 @@ class NavBar extends React.Component {
                   {this.props.isAdmin && (
                     <MobileSection>
                       <MobileSectionTitle>Admin</MobileSectionTitle>
-                      <MobileItem to="/adminRides" onClick={this.closeAllMenus}>
+                      <MobileItem to="/admin/rides" onClick={this.closeAllMenus}>
                         Manage Rides
                       </MobileItem>
-                      <MobileItem to="/adminUsers" onClick={this.closeAllMenus}>
+                      <MobileItem to="/admin/users" onClick={this.closeAllMenus}>
                         Manage Users
                       </MobileItem>
                       <MobileItem
-                        to="/adminPlaces"
+                        to="/admin/places"
                         onClick={this.closeAllMenus}
                       >
                         Manage Places

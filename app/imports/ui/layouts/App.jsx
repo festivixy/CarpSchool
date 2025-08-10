@@ -115,17 +115,20 @@ class App extends React.Component {
 
               {/* Admin routes */}
               <ProtectedRouteRequireAdmin
-                path="/adminRides"
+                path="/admin/rides"
                 component={MobileAdminRides}
               />
               <ProtectedRouteRequireAdmin
-                path="/adminUsers"
+                path="/admin/users"
                 component={MobileAdminUsers}
               />
               <ProtectedRouteRequireAdmin
-                path="/adminPlaces"
+                path="/admin/places"
                 component={MobileAdminPlaceManager}
               />
+
+              {/* Redirect /admin to 404 */}
+              <Route exact path="/admin" render={() => <Redirect to="/404" />} />
 
               {/* Test routes */}
               <ProtectedRouteRequireAdmin

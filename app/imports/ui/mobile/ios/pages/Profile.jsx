@@ -56,17 +56,17 @@ const Profile = ({ history, currentUser, isAdmin }) => {
     {
       icon: "🚗",
       label: "Manage Rides",
-      action: () => handleNavigation("/adminRides"),
+      action: () => handleNavigation("/admin/rides"),
     },
     {
       icon: "👥",
-      label: "Manage Users", 
-      action: () => handleNavigation("/adminUsers"),
+      label: "Manage Users",
+      action: () => handleNavigation("/admin/users"),
     },
     {
       icon: "📍",
       label: "Manage Places",
-      action: () => handleNavigation("/adminPlaces"),
+      action: () => handleNavigation("/admin/places"),
     },
     {
       icon: "🧪",
@@ -110,8 +110,8 @@ const Profile = ({ history, currentUser, isAdmin }) => {
             <UserInfo>
               <UserName>{currentUser.username || "User"}</UserName>
               <UserEmail>
-                {currentUser.emails && currentUser.emails[0] 
-                  ? currentUser.emails[0].address 
+                {currentUser.emails && currentUser.emails[0]
+                  ? currentUser.emails[0].address
                   : "No email"}
               </UserEmail>
             </UserInfo>
@@ -148,8 +148,8 @@ const Profile = ({ history, currentUser, isAdmin }) => {
         <Section>
           <SectionTitle>{currentUser ? "Sign Out" : "Authentication"}</SectionTitle>
           {accountSectionItems.map((item, index) => (
-            <MenuItem 
-              key={index} 
+            <MenuItem
+              key={index}
               onClick={item.action}
               $isDestructive={item.isDestructive}
             >
