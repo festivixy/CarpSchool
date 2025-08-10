@@ -22,6 +22,12 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
       description: "Test MapView, InteractiveMapPicker, and PathMapView components"
     },
     {
+      path: "/_test/footer-components",
+      icon: "🦶",
+      name: "Footer Components",
+      description: "Test Simple, Verbose, and LiquidGlass footer variants"
+    },
+    {
       path: "/_test/liquidglass-components",
       icon: "✨",
       name: "LiquidGlass Components",

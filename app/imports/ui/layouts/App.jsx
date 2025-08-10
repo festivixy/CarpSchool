@@ -45,6 +45,7 @@ import SharedComponentsDemo from "../test/pages/SharedComponentsDemo";
 import MobileNavBarAutoTest from "../test/pages/MobileNavBarAutoTest";
 import ComponentsTest from "../test/pages/ComponentsTest";
 import LiquidGlassComponentsTest from "../test/pages/LiquidGlassComponentsTest";
+import FooterComponentsTest from "../test/pages/FooterComponentsTest";
 import IOSCreateRide from "../mobile/ios/pages/CreateRide";
 import IOSJoinRide from "../mobile/ios/pages/JoinRide";
 import IOSProfile from "../mobile/ios/pages/Profile";
@@ -146,6 +147,10 @@ class App extends React.Component {
                     <MapComponentsTest />
                   </React.Suspense>
                 )}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/_test/footer-components"
+                component={FooterComponentsTest}
               />
               <ProtectedRouteRequireAdmin
                 path="/_test/liquidglass-components"
