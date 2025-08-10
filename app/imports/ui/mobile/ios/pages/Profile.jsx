@@ -262,6 +262,88 @@ const Profile = ({ history, currentUser, isAdmin }) => {
           </div>
         )}
 
+        {/* Legal & Information Section */}
+        <div style={{
+          backgroundColor: "white",
+          borderRadius: "12px",
+          marginBottom: "20px",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
+        }}>
+          <div style={{
+            padding: "12px 20px",
+            borderBottom: "1px solid #f0f0f0",
+            fontSize: "14px",
+            fontWeight: "600",
+            color: "#666",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px"
+          }}>
+            Legal & Information
+          </div>
+
+          <button
+            onClick={() => handleNavigation("/tos")}
+            style={{
+              width: "100%",
+              padding: "18px 20px",
+              backgroundColor: "transparent",
+              border: "none",
+              borderBottom: "1px solid #f0f0f0",
+              textAlign: "left",
+              fontSize: "16px",
+              color: "#333",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center"
+            }}
+          >
+            <span style={{ marginRight: "12px" }}>📄</span>
+            Terms of Service
+            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation("/privacy")}
+            style={{
+              width: "100%",
+              padding: "18px 20px",
+              backgroundColor: "transparent",
+              border: "none",
+              borderBottom: "1px solid #f0f0f0",
+              textAlign: "left",
+              fontSize: "16px",
+              color: "#333",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center"
+            }}
+          >
+            <span style={{ marginRight: "12px" }}>🔒</span>
+            Privacy Policy
+            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation("/credits")}
+            style={{
+              width: "100%",
+              padding: "18px 20px",
+              backgroundColor: "transparent",
+              border: "none",
+              textAlign: "left",
+              fontSize: "16px",
+              color: "#333",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center"
+            }}
+          >
+            <span style={{ marginRight: "12px" }}>💰</span>
+            Credits
+            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+          </button>
+        </div>
+
         {/* Sign Out */}
         <button
           onClick={handleSignOut}
