@@ -254,6 +254,41 @@ Separate concerns:
 
 ---
 
-**Status**: Investigation complete, code cleaned up, PTY reimplementation needed
-**Workaround**: Use `--test` mode for reliable operation
-**Last Updated**: Current session - Complete history documented + cleanup performed
+## ✅ FINAL SOLUTION - Pipe Streaming Approach
+
+**Date**: Current session continuation
+**Status**: **SOLVED** - Progressive indentation completely eliminated
+
+### Solution Implementation
+- **File**: `mdsh_pipe_streaming.py`
+- **Approach**: Subprocess with pipes instead of PTY
+- **Method**: Uses `select()` and threading for real-time interaction
+- **Result**: Clean output with zero progressive indentation
+
+### Test Results Comparison
+
+**Regular mdsh.py (PTY mode) - ❌ BROKEN:**
+```
+Regular Test 1
+              Regular Test 2        (progressive indentation)
+                            Regular Test 3   (more indentation)
+```
+
+**Pipe streaming mdsh.py - ✅ FIXED:**
+```
+Pipe Test 1
+Pipe Test 2
+Pipe Test 3
+```
+
+### Technical Details
+- **Root Cause**: PTY cursor position tracking causes cumulative offset
+- **Solution**: Bypass PTY entirely using subprocess.PIPE
+- **Trade-off**: Interactive mode limited, but command execution perfect
+- **Benefits**: Eliminates all cursor-related issues
+
+---
+
+**Status**: **SOLVED** - Pipe streaming approach eliminates progressive indentation
+**Production Ready**: Use `mdsh_pipe_streaming.py` for command execution
+**Last Updated**: Current session - Final solution implemented and tested
