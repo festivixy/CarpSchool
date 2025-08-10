@@ -1,330 +1,240 @@
 #!/usr/bin/env python3
 """
-Markdown Shell (mdsh) - A clean implementation without progressive indentation patches
+Markdown Shell (mdsh) - Pipe-based streaming version without PTY
+Uses subprocess with pipes and select() for real-time interaction without PTY issues.
 """
 
 import sys
 import os
-import pty
 import select
-import termios
-import tty
-import signal
 import subprocess
 import argparse
 import re
+import threading
+import queue
+import time
 from rich.console import Console
 from rich.markdown import Markdown
 
-class ANSIProcessor:
-    """Process ANSI escape sequences and maintain terminal state."""
+class OutputHandler:
+    """Handle real-time output from subprocess with pipes."""
     
     def __init__(self):
-        self.reset_state()
+        self.console = Console()
+        self.output_queue = queue.Queue()
+        self.stop_event = threading.Event()
     
-    def reset_state(self):
-        """Reset terminal state to initial values."""
-        self.lines = ['']
-        self.cursor_x = 0
-        self.cursor_y = 0
-        self.saved_cursor = (0, 0)
+    def _read_stream(self, stream, stream_name):
+        """Read from a stream and put data in queue."""
+        try:
+            while not self.stop_event.is_set():
+                # Use select to check if data is available
+                ready, _, _ = select.select([stream], [], [], 0.1)
+                if ready:
+                    data = stream.read(1024)
+                    if data:
+                        self.output_queue.put((stream_name, data))
+                    else:
+                        break
+        except Exception as e:
+            self.output_queue.put(('error', str(e)))
     
-    def _ensure_line_exists(self, line_num):
-        """Ensure the specified line exists in our buffer."""
-        while len(self.lines) <= line_num:
-            self.lines.append('')
+    def start_output_threads(self, process):
+        """Start threads to read stdout and stderr."""
+        stdout_thread = threading.Thread(
+            target=self._read_stream, 
+            args=(process.stdout, 'stdout')
+        )
+        stderr_thread = threading.Thread(
+            target=self._read_stream, 
+            args=(process.stderr, 'stderr')
+        )
+        
+        stdout_thread.daemon = True
+        stderr_thread.daemon = True
+        
+        stdout_thread.start()
+        stderr_thread.start()
+        
+        return stdout_thread, stderr_thread
     
-    def _write_at_cursor(self, text):
-        """Write text at the current cursor position."""
-        self._ensure_line_exists(self.cursor_y)
-        line = self.lines[self.cursor_y]
-        
-        # Extend line if cursor is beyond current length
-        if self.cursor_x > len(line):
-            line += ' ' * (self.cursor_x - len(line))
-        
-        # Insert text at cursor position
-        new_line = line[:self.cursor_x] + text + line[self.cursor_x + len(text):]
-        self.lines[self.cursor_y] = new_line
-        self.cursor_x += len(text)
+    def process_output(self):
+        """Process queued output in real-time."""
+        while True:
+            try:
+                stream_name, data = self.output_queue.get(timeout=0.1)
+                if stream_name == 'stdout':
+                    # Write directly to stdout without any cursor manipulation
+                    sys.stdout.write(data.decode('utf-8', errors='replace'))
+                    sys.stdout.flush()
+                elif stream_name == 'stderr':
+                    # Write stderr data
+                    sys.stderr.write(data.decode('utf-8', errors='replace'))
+                    sys.stderr.flush()
+                elif stream_name == 'error':
+                    print(f"Stream error: {data}", file=sys.stderr)
+                    
+            except queue.Empty:
+                continue
+            except KeyboardInterrupt:
+                break
     
-    def process_ansi_sequences(self, text):
-        """Process ANSI escape sequences and return clean text."""
-        self.reset_state()
-        
-        i = 0
-        while i < len(text):
-            if text[i] == '\x1b' and i + 1 < len(text) and text[i + 1] == '[':
-                # Found ANSI escape sequence
-                j = i + 2
-                while j < len(text) and text[j] not in 'ABCDEFGHJKSTfmnhlsu':
-                    j += 1
-                
-                if j < len(text):
-                    command = text[j]
-                    params_str = text[i + 2:j]
-                    params = [int(x) if x.isdigit() else 0 for x in params_str.split(';') if x]
-                    self._handle_ansi_command(command, params)
-                    i = j + 1
-                else:
-                    # Incomplete escape sequence, treat as regular text
-                    self._write_at_cursor(text[i])
-                    i += 1
-            elif text[i] == '\r':
-                # Carriage return - move to beginning of line
-                self.cursor_x = 0
-                i += 1
-            elif text[i] == '\n':
-                # Newline - move to next line
-                self.cursor_y += 1
-                self.cursor_x = 0
-                self._ensure_line_exists(self.cursor_y)
-                i += 1
-            else:
-                # Regular character
-                self._write_at_cursor(text[i])
-                i += 1
-        
-        # Return the processed text
-        result_lines = []
-        for line in self.lines:
-            if line.rstrip():  # Only include non-empty lines
-                result_lines.append(line.rstrip())
-        
-        result = '\n'.join(result_lines)
-        
-        # Preserve original newline structure
-        if text.endswith('\n') and result and not result.endswith('\n'):
-            result += '\n'
-        
-        return result
-    
-    def _handle_ansi_command(self, command, params):
-        """Handle specific ANSI commands."""
-        if command == 'H' or command == 'f':  # Cursor Position
-            self.cursor_y = max(0, (params[0] if params else 1) - 1)
-            self.cursor_x = max(0, (params[1] if len(params) > 1 else 1) - 1)
-            self._ensure_line_exists(self.cursor_y)
-        elif command == 'A':  # Cursor Up
-            self.cursor_y = max(0, self.cursor_y - (params[0] if params else 1))
-        elif command == 'B':  # Cursor Down
-            self.cursor_y += params[0] if params else 1
-            self._ensure_line_exists(self.cursor_y)
-        elif command == 'C':  # Cursor Forward
-            self.cursor_x += params[0] if params else 1
-        elif command == 'D':  # Cursor Backward
-            self.cursor_x = max(0, self.cursor_x - (params[0] if params else 1))
-        elif command == 'J':  # Erase Display
-            n = params[0] if params else 0
-            if n == 0:  # Clear from cursor to end of screen
-                self.lines[self.cursor_y] = self.lines[self.cursor_y][:self.cursor_x]
-                self.lines = self.lines[:self.cursor_y + 1]
-            elif n == 1:  # Clear from beginning of screen to cursor
-                self.lines[self.cursor_y] = ' ' * self.cursor_x + self.lines[self.cursor_y][self.cursor_x:]
-                for i in range(self.cursor_y):
-                    self.lines[i] = ''
-            elif n == 2:  # Clear entire screen
-                self.lines = ['']
-                self.cursor_x = 0
-                self.cursor_y = 0
-        elif command == 'K':  # Erase Line
-            n = params[0] if params else 0
-            if n == 0:  # Clear from cursor to end of line
-                self.lines[self.cursor_y] = self.lines[self.cursor_y][:self.cursor_x]
-            elif n == 1:  # Clear from beginning of line to cursor
-                self.lines[self.cursor_y] = ' ' * self.cursor_x + self.lines[self.cursor_y][self.cursor_x:]
-            elif n == 2:  # Clear entire line
-                self.lines[self.cursor_y] = ''
-        elif command == 's':  # Save Cursor Position
-            self.saved_cursor = (self.cursor_x, self.cursor_y)
-        elif command == 'u':  # Restore Cursor Position
-            self.cursor_x, self.cursor_y = self.saved_cursor
-            self._ensure_line_exists(self.cursor_y)
-    
-    def strip_ansi(self, text):
-        """Remove ANSI escape sequences from text."""
-        ansi_escape = re.compile(r'\x1b\[[0-9;]*[ABCDEFGHJKSTfmnhlsu]')
-        return ansi_escape.sub('', text)
+    def stop(self):
+        """Stop all output processing."""
+        self.stop_event.set()
 
 class MarkdownShell:
-    """Clean markdown shell implementation."""
+    """Main shell class using pipe-based subprocess."""
     
-    def __init__(self, agent_command="zsh"):
-        self.agent_command = agent_command
+    def __init__(self, test_mode=False):
         self.console = Console()
-        self.buffer = ''
+        self.test_mode = test_mode
+        self.output_handler = OutputHandler()
     
     def get_terminal_size(self):
-        """Get current terminal size."""
+        """Get terminal dimensions."""
         try:
-            rows, cols = os.popen('stty size', 'r').read().split()
-            return int(rows), int(cols)
-        except:
-            return 24, 80
+            size = os.get_terminal_size()
+            return size.columns, size.lines
+        except OSError:
+            return 80, 24  # Default size
     
-    def render_text(self, text):
-        """Render text with markdown support."""
-        if not text.strip():
-            return
+    def print_header(self, command):
+        """Print command header."""
+        method = "pipe streaming" if not self.test_mode else "test mode"
+        print(f"> {command} ({method})")
+        cols, rows = self.get_terminal_size()
+        print(f"Terminal size: {cols}x{rows} (cols×rows)")
+    
+    def run_command(self, command):
+        """Run a command using subprocess with pipes."""
+        self.print_header(command)
         
-        # Process ANSI sequences
-        processor = ANSIProcessor()
-        processed_text = processor.process_ansi_sequences(text)
-        
-        if not processed_text.strip():
-            return
-        
-        # Simple output - just print the processed text
-        self.console.print(processed_text.rstrip())
-    
-    def is_markdown_content(self, text):
-        """Check if text appears to be markdown content."""
-        markdown_indicators = ['#', '*', '`', '[', ']', '(', ')', '_', '**']
-        return any(indicator in text for indicator in markdown_indicators)
-    
-    def run_test_mode(self):
-        """Test mode using subprocess instead of pty - this actually works."""
-        try:
-            self.console.print(f"[bold]>[/] {self.agent_command} [yellow](test mode)[/]")
-            
-            rows, cols = self.get_terminal_size()
-            self.console.print(f"[dim]Terminal size: {cols}x{rows} (cols×rows)[/]")
-            
-            result = subprocess.run(
-                ["zsh", "-c", self.agent_command],
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-            
-            if result.stdout:
-                lines = result.stdout.split('\n')
-                for line in lines:
-                    if line or line == '':
-                        self.render_text(line + '\n')
-            
-            if result.stderr:
-                self.console.print(f"[red]stderr: {result.stderr}[/]")
-            
-            if result.returncode != 0:
-                self.console.print(f"[yellow]Exit code: {result.returncode}[/]")
-                
-        except subprocess.TimeoutExpired:
-            self.console.print("[red]❌ Command timed out[/]")
-        except Exception as e:
-            self.console.print(f"[red]❌ Test mode error: {e}[/]")
-    
-    def run(self):
-        """Run in pty mode - has progressive indentation issues."""
-        try:
-            self.console.print(f"[bold]>[/] {self.agent_command}")
-            
-            rows, cols = self.get_terminal_size()
-            self.console.print(f"[dim]Terminal size: {cols}x{rows} (cols×rows)[/]")
-            
-            # Create pty
-            master, slave = pty.openpty()
-            
-            # Start the process
-            process = subprocess.Popen(
-                ["zsh", "-c", self.agent_command],
-                stdin=slave,
-                stdout=slave,
-                stderr=slave,
-                start_new_session=True
-            )
-            
-            os.close(slave)
-            
-            # Setup terminal
-            old_settings = termios.tcgetattr(sys.stdin)
-            tty.setraw(sys.stdin)
-            
-            # Handle window resize
-            def handle_winch(signum, frame):
-                rows, cols = self.get_terminal_size()
-                os.write(master, f'\x1b[8;{rows};{cols}t'.encode())
-            
-            old_sigwinch = signal.signal(signal.SIGWINCH, handle_winch)
-            
+        if self.test_mode:
+            # Test mode: simple subprocess call
             try:
-                while True:
-                    if process.poll() is not None:
-                        break
-                    
-                    ready, _, _ = select.select([sys.stdin, master], [], [], 0.1)
-                    
-                    if master in ready:
-                        try:
-                            data = os.read(master, 1024).decode('utf-8', errors='replace')
-                            if data:
-                                self.buffer += data
-                                
-                                # Process complete lines
-                                while '\n' in self.buffer:
-                                    line, self.buffer = self.buffer.split('\n', 1)
-                                    self.render_text(line + '\n')
-                        except OSError:
-                            break
-                    
-                    if sys.stdin in ready:
-                        try:
-                            char = sys.stdin.read(1)
-                            if char:
-                                os.write(master, char.encode())
-                        except OSError:
-                            break
-            
-            finally:
-                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
-                signal.signal(signal.SIGWINCH, old_sigwinch)
+                result = subprocess.run(
+                    command,
+                    shell=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=30
+                )
+                print(result.stdout, end='')
+                if result.stderr:
+                    print(result.stderr, end='', file=sys.stderr)
+                return result.returncode
+            except subprocess.TimeoutExpired:
+                print("Command timed out", file=sys.stderr)
+                return 124
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return 1
+        else:
+            # Pipe streaming mode
+            try:
+                process = subprocess.Popen(
+                    command,
+                    shell=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    universal_newlines=False
+                )
                 
-                try:
-                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-                    process.wait(timeout=3)
-                except:
-                    pass
+                # Start output handling threads
+                stdout_thread, stderr_thread = self.output_handler.start_output_threads(process)
                 
-                try:
-                    os.close(master)
-                except:
-                    pass
+                # Process output in real-time
+                output_thread = threading.Thread(target=self.output_handler.process_output)
+                output_thread.daemon = True
+                output_thread.start()
+                
+                # Wait for process to complete
+                return_code = process.wait()
+                
+                # Give threads time to finish processing
+                time.sleep(0.2)
+                
+                # Stop output processing
+                self.output_handler.stop()
+                
+                return return_code
+                
+            except KeyboardInterrupt:
+                print("\nInterrupted by user", file=sys.stderr)
+                return 130
+            except Exception as e:
+                print(f"Error running command: {e}", file=sys.stderr)
+                return 1
+    
+    def run_interactive(self):
+        """Run interactive shell mode."""
+        self.print_header("zsh (pipe streaming - no PTY)")
         
+        print("Warning: Interactive mode with pipe streaming has limitations.")
+        print("Use command mode for best results.")
+        print("Type 'exit' to quit.\n")
+        
+        try:
+            while True:
+                try:
+                    user_input = input("$ ")
+                    if user_input.strip().lower() in ['exit', 'quit']:
+                        break
+                    if user_input.strip():
+                        self.run_command(user_input)
+                except EOFError:
+                    break
+                except KeyboardInterrupt:
+                    print("\nUse 'exit' to quit.")
+                    continue
         except Exception as e:
-            self.console.print(f"[red]❌ Error: {e}[/]")
-            sys.exit(1)
+            print(f"Interactive mode error: {e}", file=sys.stderr)
 
 def main():
+    """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Markdown Shell (mdsh) - Clean implementation",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  mdsh --test "echo hello"  # Use test mode (works)
-  mdsh "echo hello"         # Use pty mode (has progressive indentation bug)
-        """
+        description='Pipe Streaming Shell - Real-time interaction without PTY'
     )
-    
     parser.add_argument(
-        'agent',
-        nargs='?',
-        default='zsh',
-        help='Command to run (default: zsh)'
+        'command', 
+        nargs='?', 
+        help='Command to run (if not provided, runs interactive zsh)'
     )
-    
     parser.add_argument(
-        '--test',
+        '--test', 
         action='store_true',
-        help='Test mode: use subprocess instead of pty (recommended - works correctly)'
+        help='Use test mode (simple subprocess, no streaming)'
     )
+    
+    parser.epilog = """
+This version uses subprocess with pipes instead of PTY to avoid cursor issues.
+
+Examples:
+  ./mdsh.py                           # Interactive mode
+  ./mdsh.py "echo 'test1' && echo 'test2'"  # Run command
+  ./mdsh.py --test "echo 'test'"      # Test mode
+    """
     
     args = parser.parse_args()
     
-    wrapper = MarkdownShell(args.agent)
-    if args.test:
-        wrapper.run_test_mode()
-    else:
-        wrapper.run()
+    try:
+        shell = MarkdownShell(test_mode=args.test)
+        
+        if args.command:
+            # Run single command
+            return_code = shell.run_command(args.command)
+            sys.exit(return_code)
+        else:
+            # Interactive mode
+            shell.run_interactive()
+            
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        sys.exit(130)
+    except Exception as e:
+        print(f"Fatal error: {e}", file=sys.stderr)
+        sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
