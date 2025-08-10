@@ -414,6 +414,12 @@ class MarkdownShell:
         if not text:
             return
 
+        # For simple normalized text (like from pty), skip ANSIProcessor to avoid state issues
+        if text.strip() and '\x1b' not in text:
+            # Simple text without ANSI sequences - print directly
+            self.console.print(text.rstrip())
+            return
+
         # Process all ANSI escape sequences comprehensively
         # Use a fresh processor to avoid state accumulation
         temp_processor = ANSIProcessor()
@@ -612,18 +618,11 @@ class MarkdownShell:
                                         self.console.print()  # Move to new line
                                         delattr(self, '_has_realtime_output')
 
-                                    # Fix progressive indentation by properly handling carriage returns
-                                    temp_processor = ANSIProcessor()
-                                    clean_line = temp_processor.strip_ansi(line)
-
-                                    # The key fix: remove carriage returns that don't reset cursor properly
-                                    clean_line = clean_line.rstrip('\r')
-
-                                    if clean_line.strip():
-                                        # Use Rich console now that carriage returns are handled
-                                        self.console.print(clean_line.strip())
-                                    elif line.strip():  # Line has only ANSI sequences
-                                        self.console.print()
+                                    # Normalize line endings to match test mode (which works perfectly)
+                                    # Convert \r\n to \n to match test mode input format
+                                    normalized_line = line.replace('\r', '')
+                                    if normalized_line or line == '':  # Include empty lines like test mode
+                                        self.render_text(normalized_line + '\n')
 
                                 # Mark if we have real-time output
                                 if self.buffer and ('\r' in self.buffer or has_cursor_movement):
