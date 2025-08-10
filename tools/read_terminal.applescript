@@ -43,7 +43,7 @@ on run
 		end try
 		
 		-- set output to output & "========================="
-		
+		do script "clear" in targetTab
 		return output
 		
 	end tell
