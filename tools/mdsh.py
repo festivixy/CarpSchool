@@ -612,20 +612,13 @@ class MarkdownShell:
                                         self.console.print()  # Move to new line
                                         delattr(self, '_has_realtime_output')
 
-                                    temp_line_processor = ANSIProcessor()
-                                    if line.strip() or temp_line_processor.ansi_pattern.search(line):
-                                        # Check if line has ANSI sequences
-                                        if temp_line_processor.ansi_pattern.search(line):
-                                            # Has ANSI sequences, use full processing
-                                            clean_line = line.lstrip()
-                                            self.render_text(clean_line + '\n')
-                                        else:
-                                            # Simple text line, print directly to avoid cursor accumulation
-                                            clean_text = line.strip()
-                                            if clean_text:
-                                                self.console.print(clean_text)
-                                    else:
-                                        self.console.print()  # Empty line
+                                    # Strip ANSI sequences and leading whitespace to prevent progressive indentation
+                                    temp_processor = ANSIProcessor()
+                                    clean_line = temp_processor.strip_ansi(line).lstrip()
+                                    if clean_line:
+                                        self.console.print(clean_line)
+                                    elif line.strip():  # Line has only ANSI sequences
+                                        self.console.print()  # Print empty line
 
                                 # Mark if we have real-time output
                                 if self.buffer and ('\r' in self.buffer or has_cursor_movement):
