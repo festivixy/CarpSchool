@@ -47,6 +47,18 @@ const Profile = ({ history, currentUser, isAdmin }) => {
     history.push("/signout");
   };
 
+  // Set up action handler only once
+  useEffect(() => {
+    if (!isSupported) return;
+
+    // Set action handler for back button
+    setActionHandler((navBarId, action, itemIndex) => {
+      if (action === "back") {
+        handleBack();
+      }
+    });
+  }, [isSupported, setActionHandler, handleBack]);
+
   // Set up native navbar
   useEffect(() => {
     if (!isSupported) return;
@@ -61,13 +73,6 @@ const Profile = ({ history, currentUser, isAdmin }) => {
         });
 
         setNavBarId(newNavBarId);
-
-        // Set action handler for back button
-        setActionHandler((navBarId, action, itemIndex) => {
-          if (action === "back") {
-            handleBack();
-          }
-        });
 
         // Show the navbar
         await showNavBar(newNavBarId);
@@ -85,7 +90,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
         removeNavBar(navBarId).catch(console.error);
       }
     };
-  }, [isSupported]);
+  }, [isSupported, createNavBar, showNavBar, removeNavBar]);
 
   const userSectionItems = [
     {

@@ -81,6 +81,18 @@ const JoinRide = ({ history, currentUser }) => {
     history.goBack();
   };
 
+  // Set up action handler only once
+  useEffect(() => {
+    if (!isSupported) return;
+
+    // Set action handler for back button
+    setActionHandler((navBarId, action, itemIndex) => {
+      if (action === "back") {
+        handleBack();
+      }
+    });
+  }, [isSupported, setActionHandler, handleBack]);
+
   // Set up native navbar
   useEffect(() => {
     if (!isSupported) return;
@@ -95,13 +107,6 @@ const JoinRide = ({ history, currentUser }) => {
         });
 
         setNavBarId(newNavBarId);
-
-        // Set action handler for back button
-        setActionHandler((navBarId, action, itemIndex) => {
-          if (action === "back") {
-            handleBack();
-          }
-        });
 
         // Show the navbar
         await showNavBar(newNavBarId);
@@ -119,7 +124,7 @@ const JoinRide = ({ history, currentUser }) => {
         removeNavBar(navBarId).catch(console.error);
       }
     };
-  }, [isSupported]);
+  }, [isSupported, createNavBar, showNavBar, removeNavBar]);
 
   const handleScanQR = () => {
     // TODO: Implement QR code scanning

@@ -97,6 +97,18 @@ const CreateRide = ({ history, currentUser }) => {
     history.goBack();
   };
 
+  // Set up action handler only once
+  useEffect(() => {
+    if (!isSupported) return;
+
+    // Set action handler for back button
+    setActionHandler((navBarId, action, itemIndex) => {
+      if (action === "back") {
+        handleBack();
+      }
+    });
+  }, [isSupported, setActionHandler, handleBack]);
+
   // Set up native navbar
   useEffect(() => {
     if (!isSupported) return;
@@ -111,13 +123,6 @@ const CreateRide = ({ history, currentUser }) => {
         });
 
         setNavBarId(newNavBarId);
-
-        // Set action handler for back button
-        setActionHandler((navBarId, action, itemIndex) => {
-          if (action === "back") {
-            handleBack();
-          }
-        });
 
         // Show the navbar
         await showNavBar(newNavBarId);
@@ -135,7 +140,7 @@ const CreateRide = ({ history, currentUser }) => {
         removeNavBar(navBarId).catch(console.error);
       }
     };
-  }, [isSupported]);
+  }, [isSupported, createNavBar, showNavBar, removeNavBar]);
 
   // Get today's date for min date input
   const today = new Date().toISOString().split('T')[0];
