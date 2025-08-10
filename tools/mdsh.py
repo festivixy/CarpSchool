@@ -612,13 +612,18 @@ class MarkdownShell:
                                         self.console.print()  # Move to new line
                                         delattr(self, '_has_realtime_output')
 
-                                    # Strip ANSI sequences and leading whitespace to prevent progressive indentation
+                                    # Fix progressive indentation by properly handling carriage returns
                                     temp_processor = ANSIProcessor()
-                                    clean_line = temp_processor.strip_ansi(line).lstrip()
-                                    if clean_line:
-                                        self.console.print(clean_line)
+                                    clean_line = temp_processor.strip_ansi(line)
+
+                                    # The key fix: remove carriage returns that don't reset cursor properly
+                                    clean_line = clean_line.rstrip('\r')
+
+                                    if clean_line.strip():
+                                        # Use Rich console now that carriage returns are handled
+                                        self.console.print(clean_line.strip())
                                     elif line.strip():  # Line has only ANSI sequences
-                                        self.console.print()  # Print empty line
+                                        self.console.print()
 
                                 # Mark if we have real-time output
                                 if self.buffer and ('\r' in self.buffer or has_cursor_movement):
