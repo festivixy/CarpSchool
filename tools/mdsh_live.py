@@ -47,6 +47,8 @@ class LiveTerminal:
         self.cleanup()
         sys.exit(0)
 
+
+
     def open_new_terminal(self):
         """Open a new terminal window and get its ID."""
         try:
@@ -73,8 +75,8 @@ class LiveTerminal:
             return False
 
         try:
-            # Escape single quotes in the command
-            escaped_command = command.replace("'", "'\"'\"'")
+            # Proper escaping for AppleScript - escape quotes and backslashes
+            escaped_command = command.replace("\\", "\\\\").replace('"', '\\"')
 
             subprocess.run([
                 "osascript", "-e",
@@ -123,7 +125,36 @@ class LiveTerminal:
                     self.output_queue.put(f"Error reading output: {e}")
                 break
 
+    def input_monitor_thread(self):
+        """Monitor input and forward to terminal in a separate thread."""
+        import select
 
+        while self.running:
+            try:
+                # Check if input is available (non-blocking)
+                if select.select([sys.stdin], [], [], 0.5)[0]:
+                    # Read a line of input
+                    line = sys.stdin.readline()
+
+                    if not line:
+                        break
+
+                    # Strip the newline and send to terminal
+                    command = line.rstrip('\n\r')
+
+                    if command.lower() in ['exit', 'quit']:
+                        self.running = False
+                        break
+
+                    # Send the command to the terminal
+                    if self.send_to_terminal(command):
+                        # Add to our display buffer for visual feedback
+                        self.output_buffer.append(f"$ {command}")
+
+            except Exception as e:
+                if self.running:
+                    print(f"Input monitoring error: {e}")
+                break
 
     def create_display(self):
         """Create the Rich Live display layout."""
@@ -160,7 +191,7 @@ class LiveTerminal:
         layout["terminal"].update(terminal_panel)
 
         # Footer with instructions
-        footer_text = Text("Use the new terminal window for commands • This window shows live updates • Ctrl+C to quit")
+        footer_text = Text("Type commands here and press Enter - they will be sent to the new terminal • Live output display • Type 'exit' to quit")
         footer_panel = Panel(
             footer_text,
             border_style="yellow",
@@ -183,9 +214,12 @@ class LiveTerminal:
         self.console.print("[yellow]Use the new terminal window for commands, this window shows live updates[/yellow]")
         self.console.print("[yellow]Press Ctrl+C to exit[/yellow]")
 
-        # Start output monitoring thread
+        # Start monitoring threads
         output_thread = threading.Thread(target=self.output_monitor_thread, daemon=True)
         output_thread.start()
+
+        input_thread = threading.Thread(target=self.input_monitor_thread, daemon=True)
+        input_thread.start()
 
         # Run Rich Live display
         try:
