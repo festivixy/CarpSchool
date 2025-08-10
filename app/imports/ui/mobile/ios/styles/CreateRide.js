@@ -10,42 +10,7 @@ export const PageContainer = styled.div`
   background-color: #f2f2f7;
   display: flex;
   flex-direction: column;
-`;
-
-export const Header = styled.div`
-  background-color: #ffffff;
-  border-bottom: 1px solid #c6c6c8;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  min-height: 44px;
-`;
-
-export const BackButton = styled.button`
-  background: none;
-  border: none;
-  color: #007aff;
-  font-size: 17px;
-  padding: 8px 0;
-  cursor: pointer;
-  margin-right: 16px;
-  
-  &:active {
-    opacity: 0.3;
-  }
-`;
-
-export const HeaderTitle = styled.h1`
-  font-size: 17px;
-  font-weight: 600;
-  color: #000000;
-  margin: 0;
-  flex: 1;
-  text-align: center;
-  margin-right: 60px; /* Account for back button */
+  padding-top: 44px; /* Account for native navbar */
 `;
 
 export const Content = styled.div`
@@ -79,17 +44,17 @@ export const Input = styled.input`
   padding: 12px 16px;
   font-size: 16px;
   color: #000000;
-  
+
   &:focus {
     outline: none;
     border-color: #007aff;
   }
-  
+
   &:disabled {
     background-color: #f2f2f7;
     color: #8e8e93;
   }
-  
+
   &::placeholder {
     color: #8e8e93;
   }
@@ -105,17 +70,17 @@ export const TextArea = styled.textarea`
   resize: vertical;
   min-height: 80px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
+
   &:focus {
     outline: none;
     border-color: #007aff;
   }
-  
+
   &:disabled {
     background-color: #f2f2f7;
     color: #8e8e93;
   }
-  
+
   &::placeholder {
     color: #8e8e93;
   }
@@ -135,11 +100,11 @@ export const Button = styled.button`
   align-items: center;
   justify-content: center;
   min-height: 50px;
-  
+
   &:active {
     background-color: #0056cc;
   }
-  
+
   &:disabled {
     background-color: #8e8e93;
     cursor: not-allowed;

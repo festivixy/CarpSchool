@@ -1,13 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
+import useNativeNavBar from "../hooks/useNativeNavBar";
 import {
   PageContainer,
-  Header,
-  HeaderTitle,
-  BackButton,
   Content,
   Section,
   SectionTitle,
@@ -23,10 +21,20 @@ import {
 
 /**
  * iOS-specific Profile page
- * Native iOS list styling without LiquidGlass components
+ * Integrates with native iOS navbar system
  * Replaces the profile dropdown with a full page
  */
 const Profile = ({ history, currentUser, isAdmin }) => {
+  const [navBarId, setNavBarId] = useState(null);
+
+  const {
+    isSupported,
+    createNavBar,
+    showNavBar,
+    removeNavBar,
+    setActionHandler,
+  } = useNativeNavBar();
+
   const handleBack = () => {
     history.goBack();
   };
@@ -38,6 +46,46 @@ const Profile = ({ history, currentUser, isAdmin }) => {
   const handleSignOut = () => {
     history.push("/signout");
   };
+
+  // Set up native navbar
+  useEffect(() => {
+    if (!isSupported) return;
+
+    const setupNavBar = async () => {
+      try {
+        // Create native navbar with back button
+        const newNavBarId = await createNavBar({
+          title: "Profile",
+          showBackButton: true,
+          position: "top"
+        });
+
+        setNavBarId(newNavBarId);
+
+        // Set action handler for back button
+        setActionHandler((navBarId, action, itemIndex) => {
+          if (action === "back") {
+            handleBack();
+          }
+        });
+
+        // Show the navbar
+        await showNavBar(newNavBarId);
+
+      } catch (error) {
+        console.error("[Profile] Failed to setup native navbar:", error);
+      }
+    };
+
+    setupNavBar();
+
+    // Cleanup
+    return () => {
+      if (navBarId) {
+        removeNavBar(navBarId).catch(console.error);
+      }
+    };
+  }, [isSupported]);
 
   const userSectionItems = [
     {
@@ -97,13 +145,6 @@ const Profile = ({ history, currentUser, isAdmin }) => {
 
   return (
     <PageContainer>
-      <Header>
-        <BackButton onClick={handleBack}>
-          ← Back
-        </BackButton>
-        <HeaderTitle>Profile</HeaderTitle>
-      </Header>
-
       <Content>
         {currentUser && (
           <>

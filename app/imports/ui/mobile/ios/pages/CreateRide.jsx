@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
+import useNativeNavBar from "../hooks/useNativeNavBar";
 import {
   PageContainer,
-  Header,
-  HeaderTitle,
-  BackButton,
   Content,
   Form,
   FormGroup,
@@ -21,7 +19,7 @@ import {
 
 /**
  * iOS-specific Create Ride page
- * Native iOS styling without LiquidGlass components
+ * Integrates with native iOS navbar system
  */
 const CreateRide = ({ history, currentUser }) => {
   const [formData, setFormData] = useState({
@@ -34,6 +32,16 @@ const CreateRide = ({ history, currentUser }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [navBarId, setNavBarId] = useState(null);
+
+  const {
+    isSupported,
+    createNavBar,
+    setNavBarItems,
+    showNavBar,
+    removeNavBar,
+    setActionHandler,
+  } = useNativeNavBar();
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -89,18 +97,51 @@ const CreateRide = ({ history, currentUser }) => {
     history.goBack();
   };
 
+  // Set up native navbar
+  useEffect(() => {
+    if (!isSupported) return;
+
+    const setupNavBar = async () => {
+      try {
+        // Create native navbar with back button
+        const newNavBarId = await createNavBar({
+          title: "Create Ride",
+          showBackButton: true,
+          position: "top"
+        });
+
+        setNavBarId(newNavBarId);
+
+        // Set action handler for back button
+        setActionHandler((navBarId, action, itemIndex) => {
+          if (action === "back") {
+            handleBack();
+          }
+        });
+
+        // Show the navbar
+        await showNavBar(newNavBarId);
+
+      } catch (error) {
+        console.error("[CreateRide] Failed to setup native navbar:", error);
+      }
+    };
+
+    setupNavBar();
+
+    // Cleanup
+    return () => {
+      if (navBarId) {
+        removeNavBar(navBarId).catch(console.error);
+      }
+    };
+  }, [isSupported]);
+
   // Get today's date for min date input
   const today = new Date().toISOString().split('T')[0];
 
   return (
     <PageContainer>
-      <Header>
-        <BackButton onClick={handleBack}>
-          ← Back
-        </BackButton>
-        <HeaderTitle>Create Ride</HeaderTitle>
-      </Header>
-
       <Content>
         <Form onSubmit={handleSubmit}>
           <FormGroup>
@@ -183,8 +224,8 @@ const CreateRide = ({ history, currentUser }) => {
             <ErrorMessage>{error}</ErrorMessage>
           )}
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isLoading || !formData.origin || !formData.destination || !formData.departureDate || !formData.departureTime}
           >
             {isLoading ? <LoadingSpinner /> : "Create Ride"}

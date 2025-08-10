@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
+import useNativeNavBar from "../hooks/useNativeNavBar";
 import {
   PageContainer,
-  Header,
-  HeaderTitle,
-  BackButton,
   Content,
   Form,
   FormGroup,
@@ -21,12 +19,21 @@ import {
 
 /**
  * iOS-specific Join Ride page
- * Native iOS styling without LiquidGlass components
+ * Integrates with native iOS navbar system
  */
 const JoinRide = ({ history, currentUser }) => {
   const [rideCode, setRideCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [navBarId, setNavBarId] = useState(null);
+
+  const {
+    isSupported,
+    createNavBar,
+    showNavBar,
+    removeNavBar,
+    setActionHandler,
+  } = useNativeNavBar();
 
   const handleInputChange = (value) => {
     setRideCode(value.toUpperCase());
@@ -74,6 +81,46 @@ const JoinRide = ({ history, currentUser }) => {
     history.goBack();
   };
 
+  // Set up native navbar
+  useEffect(() => {
+    if (!isSupported) return;
+
+    const setupNavBar = async () => {
+      try {
+        // Create native navbar with back button
+        const newNavBarId = await createNavBar({
+          title: "Join Ride",
+          showBackButton: true,
+          position: "top"
+        });
+
+        setNavBarId(newNavBarId);
+
+        // Set action handler for back button
+        setActionHandler((navBarId, action, itemIndex) => {
+          if (action === "back") {
+            handleBack();
+          }
+        });
+
+        // Show the navbar
+        await showNavBar(newNavBarId);
+
+      } catch (error) {
+        console.error("[JoinRide] Failed to setup native navbar:", error);
+      }
+    };
+
+    setupNavBar();
+
+    // Cleanup
+    return () => {
+      if (navBarId) {
+        removeNavBar(navBarId).catch(console.error);
+      }
+    };
+  }, [isSupported]);
+
   const handleScanQR = () => {
     // TODO: Implement QR code scanning
     console.log("[iOS JoinRide] 📱 QR scan feature would be implemented here");
@@ -82,13 +129,6 @@ const JoinRide = ({ history, currentUser }) => {
 
   return (
     <PageContainer>
-      <Header>
-        <BackButton onClick={handleBack}>
-          ← Back
-        </BackButton>
-        <HeaderTitle>Join Ride</HeaderTitle>
-      </Header>
-
       <Content>
         <InfoText>
           Enter the ride code shared by the driver to join their ride.
@@ -115,14 +155,14 @@ const JoinRide = ({ history, currentUser }) => {
             <ErrorMessage>{error}</ErrorMessage>
           )}
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isLoading || !rideCode}
           >
             {isLoading ? <LoadingSpinner /> : "Join Ride"}
           </Button>
 
-          <Button 
+          <Button
             type="button"
             onClick={handleScanQR}
             disabled={isLoading}
@@ -133,7 +173,7 @@ const JoinRide = ({ history, currentUser }) => {
         </Form>
 
         <InfoText style={{ marginTop: "24px", fontSize: "14px", color: "#8E8E93" }}>
-          Don't have a ride code? Ask the driver to share their ride code with you, 
+          Don't have a ride code? Ask the driver to share their ride code with you,
           or check your messages for ride invitations.
         </InfoText>
       </Content>
