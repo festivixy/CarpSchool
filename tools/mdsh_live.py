@@ -52,21 +52,7 @@ class LiveTerminal:
         self.cleanup()
         sys.exit(0)
 
-    def _setup_raw_terminal(self):
-        """Setup terminal for raw character input."""
-        try:
-            self.old_settings = termios.tcgetattr(sys.stdin.fileno())
-            tty.setraw(sys.stdin.fileno())
-        except:
-            pass  # Fallback if raw mode not available
 
-    def _restore_terminal(self):
-        """Restore terminal to original settings."""
-        try:
-            if self.old_settings:
-                termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, self.old_settings)
-        except:
-            pass
 
 
 
@@ -114,20 +100,27 @@ class LiveTerminal:
             return False
 
         try:
-            # Convert character to hex for safe transmission
             char_code = ord(char)
 
-            # For printable characters, send them directly
-            if 32 <= char_code <= 126:
-                escaped_char = char.replace("\\", "\\\\").replace('"', '\\"')
+            # Extract window and tab numbers from terminal_id (format: "tab X of window id Y")
+            import re
+            match = re.search(r'tab (\d+) of window id (\d+)', self.terminal_id)
+            if not match:
+                return False
+
+            tab_num = match.group(1)
+            window_id = match.group(2)
+
+            if 32 <= char_code <= 126:  # Printable characters
+                escaped_char = char.replace("\\", "\\\\").replace('"', '\\"').replace("'", "\\'")
                 subprocess.run([
                     "osascript", "-e",
-                    f'tell application "Terminal" to do script "{escaped_char}" in {self.terminal_id}'
+                    f'tell application "Terminal" to tell window id {window_id} to tell tab {tab_num} to keystroke "{escaped_char}"'
                 ], check=True, capture_output=True)
             elif char_code == 127 or char_code == 8:  # Backspace
                 subprocess.run([
                     "osascript", "-e",
-                    f'tell application "Terminal" to keystroke (ASCII character 8) using {{shift down}}'
+                    f'tell application "Terminal" to tell window id {window_id} to tell tab {tab_num} to keystroke (ASCII character 8)'
                 ], check=True, capture_output=True)
 
             return True
@@ -173,46 +166,18 @@ class LiveTerminal:
                 break
 
     def input_monitor_thread(self):
-        """Monitor character-by-character input and forward to terminal."""
-        import select
-
+        """Monitor input without interfering with Rich Live display."""
         current_command = ""
 
+        # Use a different approach - monitor for complete lines instead of char-by-char
+        # to avoid conflicts with Rich Live display
         while self.running:
             try:
-                # Check if input is available (non-blocking)
-                if select.select([sys.stdin], [], [], 0.1)[0]:
-                    # Read one character
-                    char = sys.stdin.read(1)
+                # Simple prompt for input without raw mode
+                time.sleep(0.5)  # Reduced frequency to avoid conflicts
 
-                    if not char:
-                        break
-
-                    # Handle special characters
-                    if ord(char) == 3:  # Ctrl+C
-                        self.running = False
-                        break
-                    elif ord(char) == 13 or ord(char) == 10:  # Enter
-                        if current_command.strip():
-                            if current_command.lower().strip() in ['exit', 'quit']:
-                                self.running = False
-                                break
-
-                            # Send the complete command to terminal
-                            if self.send_to_terminal(current_command):
-                                # Add to our display buffer for visual feedback
-                                self.output_buffer.append(f">>> {current_command}")
-
-                        current_command = ""
-                    elif ord(char) == 127 or ord(char) == 8:  # Backspace
-                        if current_command:
-                            current_command = current_command[:-1]
-                            # Send backspace to terminal to erase character
-                            self.send_character_to_terminal(char)
-                    else:
-                        # Regular character - add to command and send immediately
-                        current_command += char
-                        self.send_character_to_terminal(char)
+                # For now, we'll use a simpler approach that doesn't conflict with Rich
+                # Users can type in the new terminal window directly
 
             except Exception as e:
                 if self.running:
@@ -254,7 +219,7 @@ class LiveTerminal:
         layout["terminal"].update(terminal_panel)
 
         # Footer with instructions
-        footer_text = Text("Type characters - they are sent immediately to the new terminal • Press Enter to execute • Type 'exit' to quit • Ctrl+C to stop")
+        footer_text = Text("Use the new terminal window for commands • This window shows live output updates • Press Ctrl+C here to stop monitoring")
         footer_panel = Panel(
             footer_text,
             border_style="yellow",
@@ -277,10 +242,7 @@ class LiveTerminal:
         self.console.print("[yellow]Use the new terminal window for commands, this window shows live updates[/yellow]")
         self.console.print("[yellow]Press Ctrl+C to exit[/yellow]")
 
-        # Setup raw terminal for character input
-        self._setup_raw_terminal()
-
-        # Start monitoring threads
+        # Start monitoring threads (removed raw terminal setup to avoid Rich Live conflicts)
         output_thread = threading.Thread(target=self.output_monitor_thread, daemon=True)
         output_thread.start()
 
@@ -307,9 +269,6 @@ class LiveTerminal:
     def cleanup(self):
         """Clean up resources."""
         self.running = False
-
-        # Restore terminal settings
-        self._restore_terminal()
 
         # Note: We don't automatically close the terminal window
         # as users might want to continue using it
