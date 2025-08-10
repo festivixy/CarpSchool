@@ -22,6 +22,12 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
       description: "Test MapView, InteractiveMapPicker, and PathMapView components"
     },
     {
+      path: "/_test/liquidglass-components",
+      icon: "✨",
+      name: "LiquidGlass Components",
+      description: "Test LiquidGlass buttons, inputs, dropdowns, and navbar components"
+    },
+    {
       path: "/_test/mobile-navbar-auto",
       icon: "📱",
       name: "Mobile NavBar Auto",
@@ -41,7 +47,7 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
     },
     {
       path: "/_test/liquidglass/login",
-      icon: "✨",
+      icon: "🔐",
       name: "LiquidGlass Login",
       description: "Test LiquidGlass design system login page"
     },
@@ -66,7 +72,7 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
       overflowY: "auto"
     }}>
       <BackButton />
-      
+
       {/* Fixed Header */}
       <div style={{
         position: "fixed",
@@ -113,7 +119,7 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
             color: "#666",
             lineHeight: "1.4"
           }}>
-            Access test pages for components, demos, and development tools. 
+            Access test pages for components, demos, and development tools.
             These pages are only available to admin users.
           </p>
         </div>
