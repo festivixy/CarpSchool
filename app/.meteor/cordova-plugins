@@ -1,4 +1,2 @@
-cordova-plugin-console@1.1.0
 cordova-plugin-device@2.1.0
 cordova-plugin-native-navbar@file://plugins/cordova-plugin-native-navbar
-cordova-plugin-statusbar@3.0.0
