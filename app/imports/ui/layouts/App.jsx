@@ -38,6 +38,7 @@ import ProtectedRoutes, {
   ProtectedRouteRequireNotEmailVerified,
 } from "./ProtectedRoutes";
 import { DesktopOnly, MobileOnly } from "./Devices";
+import { AppContainer } from "../styles/App";
 import FooterVerbose from "../desktop/components/FooterVerbose";
 import MobileNavBarAuto from "../mobile/components/MobileNavBarAuto";
 import MobileNativeBlurDemo from "../test/pages/NativeBlurDemo";
@@ -55,17 +56,6 @@ const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapCom
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
   render() {
-    const appStyle = {
-      display: "flex",
-      flexDirection: "column",
-      minHeight: "100vh", // Ensure app takes at least full viewport height
-      // Account for safe areas on mobile devices (only sides, not top)
-      paddingLeft: "env(safe-area-inset-left)",
-      paddingRight: "env(safe-area-inset-right)",
-      // Ensure we don't exceed viewport bounds
-      boxSizing: "border-box",
-    };
-
     const mainContentStyle = {
       flex: "1",
       display: "flex",
@@ -74,7 +64,7 @@ class App extends React.Component {
 
     return (
       <Router>
-        <div style={appStyle}>
+        <AppContainer>
           <DesktopOnly>
             <MobileNavBar />
           </DesktopOnly>
@@ -201,7 +191,7 @@ class App extends React.Component {
               <MobileNavBarAuto />
             </MobileOnly>
           )}
-        </div>
+        </AppContainer>
       </Router>
     );
   }

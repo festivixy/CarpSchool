@@ -11,6 +11,7 @@ import {
 } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import Captcha from "./Captcha";
+import { FileFormatInfo } from "../styles/ImageUpload";
 
 const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -172,9 +173,9 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
             onChange={handleFileSelect}
             disabled={isUploading}
           />
-          <div style={{ marginTop: "0.5em", fontSize: "0.9em", color: "#666" }}>
+          <FileFormatInfo>
             Supported formats: JPEG, PNG, GIF, WebP (max 5MB)
-          </div>
+          </FileFormatInfo>
         </Form.Field>
 
         {preview && (

@@ -5,6 +5,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Profiles } from "../../api/profile/Profile";
 import LoadingPage from "../mobile/components/LoadingPage";
+import { RouteContainer, AuthOverlay } from "../styles/ProtectedRoutes";
 
 /**
  * Main protected route with onboarding logic
@@ -52,27 +53,14 @@ const ProtectedRoutesComponent = ({
 
     // Always render the component, but show overlay if still authenticating
     return (
-      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <RouteContainer>
         <Component {...props} />
         {showAuthOverlay && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 9999,
-            }}
-          >
+          <AuthOverlay>
             <LoadingPage message="Authenticating..." />
-          </div>
+          </AuthOverlay>
         )}
-      </div>
+      </RouteContainer>
     );
   };
 
@@ -123,27 +111,14 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
 
     // Always render the component, but show overlay if still authenticating
     return (
-      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <RouteContainer>
         <Component {...props} />
         {showAuthOverlay && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 9999,
-            }}
-          >
+          <AuthOverlay>
             <LoadingPage message="Authenticating..." />
-          </div>
+          </AuthOverlay>
         )}
-      </div>
+      </RouteContainer>
     );
   };
 
@@ -324,27 +299,14 @@ export const ProtectedRouteRequireAdmin = ({
 
     // Always render the component, but show overlay if still authenticating
     return (
-      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <RouteContainer>
         <Component {...props} />
         {showAuthOverlay && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 9999,
-            }}
-          >
+          <AuthOverlay>
             <LoadingPage message="Verifying admin access..." />
-          </div>
+          </AuthOverlay>
         )}
-      </div>
+      </RouteContainer>
     );
   };
 
