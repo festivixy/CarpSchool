@@ -13,6 +13,7 @@ import {
   HelperText,
   CharacterCount,
   FlexContainer,
+  RequiredAsterisk,
 } from "../styles/TextInput";
 
 /**
@@ -111,7 +112,7 @@ function LiquidGlassTextInput({
           $required={required}
         >
           {label}
-          {required && <span style={{ color: "#ff4444" }}>*</span>}
+          {required && <RequiredAsterisk>*</RequiredAsterisk>}
         </InputLabel>
       )}
 

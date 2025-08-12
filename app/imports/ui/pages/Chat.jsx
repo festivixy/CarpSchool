@@ -48,6 +48,7 @@ import {
   OverlayTitle,
   MobileChatList,
   MobileChatListItem,
+  EmptyStateSubtext,
 } from "../styles/Chat";
 
 /**
@@ -369,9 +370,9 @@ class MobileChat extends React.Component {
                   ) : (
                     <ChatListEmpty>
                       <p>No ride chats available</p>
-                      <p style={{ fontSize: "14px", color: "#666", marginTop: "8px" }}>
+                      <EmptyStateSubtext>
                         Join a ride to start chatting with other members
-                      </p>
+                      </EmptyStateSubtext>
                     </ChatListEmpty>
                   )}
                 </ChatList>
@@ -491,9 +492,9 @@ class MobileChat extends React.Component {
               ) : (
                 <ChatListEmpty>
                   <p>No ride chats available</p>
-                  <p style={{ fontSize: "14px", color: "#666", marginTop: "8px" }}>
+                  <EmptyStateSubtext>
                     Join a ride to start chatting with other members
-                  </p>
+                  </EmptyStateSubtext>
                 </ChatListEmpty>
               )}
             </MobileChatList>

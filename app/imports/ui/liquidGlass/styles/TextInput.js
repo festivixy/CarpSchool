@@ -329,3 +329,7 @@ export const CharacterCount = styled.div`
 export const FlexContainer = styled.div`
   flex: 1;
 `;
+
+export const RequiredAsterisk = styled.span`
+  color: #ff4444;
+`;

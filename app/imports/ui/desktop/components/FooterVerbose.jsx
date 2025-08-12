@@ -18,6 +18,7 @@ import {
   ContactInfo,
   ContactItem,
   ContactIcon,
+  ContactLink,
   SocialLinks,
   FooterBottom,
   Copyright,
@@ -96,15 +97,15 @@ function FooterVerbose({
               <ContactInfo>
                 <ContactItem>
                   <ContactIcon>📧</ContactIcon>
-                  <a href={`mailto:${email}`} style={{ color: "inherit", textDecoration: "none" }}>
+                  <ContactLink href={`mailto:${email}`}>
                     {email}
-                  </a>
+                  </ContactLink>
                 </ContactItem>
                 <ContactItem>
                   <ContactIcon>📞</ContactIcon>
-                  <a href={`tel:${phone}`} style={{ color: "inherit", textDecoration: "none" }}>
+                  <ContactLink href={`tel:${phone}`}>
                     {phone}
-                  </a>
+                  </ContactLink>
                 </ContactItem>
                 <ContactItem>
                   <ContactIcon>📍</ContactIcon>

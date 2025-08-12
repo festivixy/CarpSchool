@@ -659,3 +659,9 @@ export const MobileChatListItem = styled.div`
     background-color: rgba(230, 230, 230, 1);
   }
 `;
+
+export const EmptyStateSubtext = styled.p`
+  font-size: 14px;
+  color: #666;
+  margin-top: 8px;
+`;

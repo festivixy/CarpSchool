@@ -26,6 +26,9 @@ import {
   SubmitButton,
   LoadingSpinner,
   ErrorMessage,
+  FormTitle,
+  FormDescription,
+  FieldLabel,
 } from "../styles/CreateRide";
 
 /**
@@ -133,34 +136,18 @@ const CreateRide = ({ history, currentUser }) => {
 
       <CreateRideContent>
         <CreateRideForm>
-          <h2 style={{
-            margin: "0 0 8px 0",
-            fontSize: "24px",
-            fontWeight: "700",
-            color: "#333"
-          }}>
+          <FormTitle>
             Create a New Ride
-          </h2>
-          <p style={{
-            margin: "0 0 30px 0",
-            fontSize: "16px",
-            color: "#666",
-            lineHeight: "1.4"
-          }}>
+          </FormTitle>
+          <FormDescription>
             Share your journey and help others get where they need to go
-          </p>
+          </FormDescription>
 
           {/* Form Fields */}
           <FormField>
-            <label style={{
-              display: "block",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              marginBottom: "8px"
-            }}>
+            <FieldLabel>
               Pickup Location *
-            </label>
+            </FieldLabel>
             <input
               type="text"
               value={formData.origin}
@@ -184,15 +171,9 @@ const CreateRide = ({ history, currentUser }) => {
           </FormField>
 
           <FormField>
-            <label style={{
-              display: "block",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              marginBottom: "8px"
-            }}>
+            <FieldLabel>
               Destination *
-            </label>
+            </FieldLabel>
             <input
               type="text"
               value={formData.destination}
@@ -217,15 +198,9 @@ const CreateRide = ({ history, currentUser }) => {
 
           <DateTimeRow>
             <FlexField>
-              <label style={{
-                display: "block",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#333",
-                marginBottom: "8px"
-              }}>
+              <FieldLabel>
                 Date *
-              </label>
+              </FieldLabel>
               <input
                 type="date"
                 value={formData.departureDate}
@@ -248,15 +223,9 @@ const CreateRide = ({ history, currentUser }) => {
             </FlexField>
 
             <FlexField>
-              <label style={{
-                display: "block",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#333",
-                marginBottom: "8px"
-              }}>
+              <FieldLabel>
                 Time *
-              </label>
+              </FieldLabel>
               <input
                 type="time"
                 value={formData.departureTime}
@@ -280,15 +249,9 @@ const CreateRide = ({ history, currentUser }) => {
           </DateTimeRow>
 
           <FormField>
-            <label style={{
-              display: "block",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              marginBottom: "8px"
-            }}>
+            <FieldLabel>
               Available Seats
-            </label>
+            </FieldLabel>
             <select
               value={formData.availableSeats}
               onChange={(e) => handleInputChange("availableSeats", e.target.value)}
@@ -318,15 +281,9 @@ const CreateRide = ({ history, currentUser }) => {
           </FormField>
 
           <FormField>
-            <label style={{
-              display: "block",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#333",
-              marginBottom: "8px"
-            }}>
+            <FieldLabel>
               Description (Optional)
-            </label>
+            </FieldLabel>
             <textarea
               value={formData.description}
               onChange={(e) => handleInputChange("description", e.target.value)}

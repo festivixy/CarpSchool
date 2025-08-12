@@ -228,3 +228,25 @@ export const DateTimeRow = styled.div`
 export const FlexField = styled.div`
   flex: 1;
 `;
+
+export const FormTitle = styled.h2`
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+`;
+
+export const FormDescription = styled.p`
+  margin: 0 0 30px 0;
+  font-size: 16px;
+  color: #666;
+  line-height: 1.4;
+`;
+
+export const FieldLabel = styled.label`
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+`;

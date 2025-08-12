@@ -175,3 +175,16 @@ export const LegalSection = styled.div`
   margin-bottom: 20px;
   overflow: hidden;
 `;
+
+export const MenuIcon = styled.span`
+  margin-right: 12px;
+`;
+
+export const MenuArrow = styled.span`
+  margin-left: auto;
+  color: #999;
+`;
+
+export const LogoutIcon = styled.span`
+  margin-right: 8px;
+`;

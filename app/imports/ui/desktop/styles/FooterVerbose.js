@@ -115,6 +115,11 @@ export const ContactIcon = styled.span`
   font-size: 16px;
 `;
 
+export const ContactLink = styled.a`
+  color: inherit;
+  text-decoration: none;
+`;
+
 export const SocialLinks = styled.div`
   display: flex;
   gap: 16px;

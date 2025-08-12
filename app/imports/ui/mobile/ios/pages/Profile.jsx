@@ -19,6 +19,9 @@ import {
   MenuItemIcon,
   MenuItemText,
   MenuItemChevron,
+  MenuIcon,
+  MenuArrow,
+  LogoutIcon,
 } from "../styles/Profile";
 
 /**
@@ -80,9 +83,9 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               alignItems: "center"
             }}
           >
-            <span style={{ marginRight: "12px" }}>📝</span>
+            <MenuIcon>📝</MenuIcon>
             Edit Profile
-            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+            <MenuArrow>›</MenuArrow>
           </button>
 
           <button
@@ -100,9 +103,9 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               alignItems: "center"
             }}
           >
-            <span style={{ marginRight: "12px" }}>📍</span>
+            <MenuIcon>📍</MenuIcon>
             My Places
-            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+            <MenuArrow>›</MenuArrow>
           </button>
         </Section>
 
@@ -129,9 +132,9 @@ const Profile = ({ history, currentUser, isAdmin }) => {
                 alignItems: "center"
               }}
             >
-              <span style={{ marginRight: "12px" }}>👥</span>
+              <MenuIcon>👥</MenuIcon>
               Manage Users
-              <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+              <MenuArrow>›</MenuArrow>
             </button>
 
             <button
@@ -150,9 +153,9 @@ const Profile = ({ history, currentUser, isAdmin }) => {
                 alignItems: "center"
               }}
             >
-              <span style={{ marginRight: "12px" }}>🚗</span>
+              <MenuIcon>🚗</MenuIcon>
               Manage Rides
-              <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+              <MenuArrow>›</MenuArrow>
             </button>
 
             <button
@@ -171,9 +174,9 @@ const Profile = ({ history, currentUser, isAdmin }) => {
                 alignItems: "center"
               }}
             >
-              <span style={{ marginRight: "12px" }}>📍</span>
-              Manage Places
-              <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+            <MenuIcon>📍</MenuIcon>
+            Manage Places
+            <MenuArrow>›</MenuArrow>
             </button>
 
             <button
@@ -191,9 +194,9 @@ const Profile = ({ history, currentUser, isAdmin }) => {
                 alignItems: "center"
               }}
             >
-              <span style={{ marginRight: "12px" }}>🧪</span>
+              <MenuIcon>🧪</MenuIcon>
               Components Test
-              <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+              <MenuArrow>›</MenuArrow>
             </button>
           </Section>
         )}
@@ -220,9 +223,9 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               alignItems: "center"
             }}
           >
-            <span style={{ marginRight: "12px" }}>📄</span>
+            <MenuIcon>📄</MenuIcon>
             Terms of Service
-            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+            <MenuArrow>›</MenuArrow>
           </button>
 
           <button
@@ -241,9 +244,9 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               alignItems: "center"
             }}
           >
-            <span style={{ marginRight: "12px" }}>🔒</span>
+            <MenuIcon>🔒</MenuIcon>
             Privacy Policy
-            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+            <MenuArrow>›</MenuArrow>
           </button>
 
           <button
@@ -261,9 +264,9 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               alignItems: "center"
             }}
           >
-            <span style={{ marginRight: "12px" }}>💰</span>
+            <MenuIcon>💰</MenuIcon>
             Credits
-            <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
+            <MenuArrow>›</MenuArrow>
           </button>
         </LegalSection>
 
@@ -286,7 +289,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
             justifyContent: "center"
           }}
         >
-          <span style={{ marginRight: "8px" }}>🚪</span>
+          <LogoutIcon>🚪</LogoutIcon>
           Sign Out
         </button>
       </ContentContainer>
