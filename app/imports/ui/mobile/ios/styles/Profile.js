@@ -97,3 +97,81 @@ export const MenuItemChevron = styled.div`
   color: #c7c7cc;
   margin-left: 8px;
 `;
+
+export const ProfilePageContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f5f5f5;
+  padding-top: 60px;
+  padding-bottom: 100px; /* Space for bottom navbar */
+  overflow-y: auto;
+`;
+
+export const FixedHeader = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+`;
+
+export const HeaderTitle = styled.h1`
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+`;
+
+export const ContentContainer = styled.div`
+  padding: 20px;
+`;
+
+export const ProfileHeader = styled.div`
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+export const ProfileAvatar = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  background-color: #007AFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  font-size: 32px;
+  font-weight: 600;
+  color: white;
+`;
+
+export const ProfileName = styled.div`
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+`;
+
+export const ProfileEmail = styled.div`
+  font-size: 16px;
+  color: #666;
+`;
+
+export const LegalSection = styled.div`
+  background-color: white;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+`;

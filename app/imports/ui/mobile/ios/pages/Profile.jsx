@@ -4,6 +4,22 @@ import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import BackButton from "../../components/BackButton";
+import {
+  ProfilePageContainer,
+  FixedHeader,
+  HeaderTitle,
+  ContentContainer,
+  ProfileHeader,
+  ProfileAvatar,
+  ProfileName,
+  ProfileEmail,
+  LegalSection,
+  Section,
+  MenuItem,
+  MenuItemIcon,
+  MenuItemText,
+  MenuItemChevron,
+} from "../styles/Profile";
 
 /**
  * iOS-specific Profile page
@@ -23,68 +39,27 @@ const Profile = ({ history, currentUser, isAdmin }) => {
   };
 
   return (
-    <div style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "#f5f5f5",
-      paddingTop: "60px",
-      paddingBottom: "100px", // Space for bottom navbar
-      overflowY: "auto"
-    }}>
+    <ProfilePageContainer>
       {/* Fixed Header */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "60px",
-        backgroundColor: "white",
-        borderBottom: "1px solid #e0e0e0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 99
-      }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: "18px",
-          fontWeight: "600",
-          color: "#333"
-        }}>
+      <FixedHeader>
+        <HeaderTitle>
           Profile
-        </h1>
-      </div>
+        </HeaderTitle>
+      </FixedHeader>
 
       <BackButton />
 
-      <div style={{ padding: "20px" }}>
+      <ContentContainer>
         {/* User Info */}
         {currentUser && (
-          <div style={{
-            backgroundColor: "white",
-            borderRadius: "12px",
-            padding: "20px",
-            marginBottom: "20px",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
-          }}>
-            <div style={{
-              fontSize: "20px",
-              fontWeight: "600",
-              color: "#333",
-              marginBottom: "4px"
-            }}>
+          <ProfileHeader>
+            <ProfileName>
               {currentUser.profile?.firstName} {currentUser.profile?.lastName}
-            </div>
-            <div style={{
-              fontSize: "16px",
-              color: "#666"
-            }}>
+            </ProfileName>
+            <ProfileEmail>
               {currentUser.emails?.[0]?.address}
-            </div>
-          </div>
+            </ProfileEmail>
+          </ProfileHeader>
         )}
 
         {/* Profile Options */}
@@ -345,8 +320,8 @@ const Profile = ({ history, currentUser, isAdmin }) => {
           <span style={{ marginRight: "8px" }}>🚪</span>
           Sign Out
         </button>
-      </div>
-    </div>
+      </ContentContainer>
+    </ProfilePageContainer>
   );
 };
 
