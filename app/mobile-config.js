@@ -10,12 +10,12 @@ App.info({
 
 // Set PhoneGap/Cordova preferences
 App.setPreference("BackupWebStorage", "cloud");
-App.setPreference("SplashScreen", "screen");
-App.setPreference("SplashScreenDelay", "3000");
+App.setPreference("SplashScreen", "none");
+App.setPreference("SplashScreenDelay", "0");
 App.setPreference("AutoHideSplashScreen", "true");
-App.setPreference("FadeSplashScreen", "true");
-App.setPreference("FadeSplashScreenDuration", "750");
-App.setPreference("ShowSplashScreenSpinner", "true");
+App.setPreference("FadeSplashScreen", "false");
+App.setPreference("FadeSplashScreenDuration", "0");
+App.setPreference("ShowSplashScreenSpinner", "false");
 
 // iOS specific preferences
 App.setPreference("Orientation", "portrait", "ios");
@@ -89,14 +89,4 @@ App.icons({
     android_xxxhdpi: "resources/icons/android_xxxhdpi.png", // 192x192 pixels
 });
 
-// Modern launch screens using universal assets
-// Meteor 2.6+ uses storyboard images instead of device-specific splash screens
-App.launchScreens({
-    // iOS Universal - supports all devices with single asset
-    ios_universal: {
-        src: "resources/splash/ios_universal.png",
-        srcDarkMode: "resources/splash/ios_universal_dark.png",
-    },
-    // Android Universal
-    android_universal: "resources/splash/android_universal.png", // 288x288 pixels
-});
+// Splash screen disabled - no launch screens configured
