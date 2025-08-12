@@ -1,0 +1,68 @@
+{
+  "fill-specializations" : [
+    {
+      "value" : {
+        "automatic-gradient" : "display-p3:0.13330,0.27441,0.41577,1.00000"
+      }
+    },
+    {
+      "appearance" : "light",
+      "value" : {
+        "automatic-gradient" : "display-p3:0.26811,0.56657,0.86000,1.00000"
+      }
+    },
+    {
+      "appearance" : "dark",
+      "value" : {
+        "automatic-gradient" : "display-p3:0.05636,0.11909,0.18077,1.00000"
+      }
+    }
+  ],
+  "groups" : [
+    {
+      "blur-material" : 0.5,
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "image-name-specializations" : [
+            {
+              "value" : "2732 x 2732 light mode carpschool logo transparent.png"
+            },
+            {
+              "appearance" : "light",
+              "value" : "2732 x 2732 light mode carpschool logo transparent.png"
+            },
+            {
+              "appearance" : "dark",
+              "value" : "2732 x 2732 dark mode carpschool logo transparent.png"
+            }
+          ],
+          "name" : "2732 x 2732 dark mode carpschool logo transparent",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "lighting" : "combined",
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
