@@ -105,6 +105,16 @@ meteor_build_ios() {
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ iOS build completed successfully!${NC}"
         echo -e "${GREEN}📁 Build output available at: $build_dir${NC}"
+
+        # Copy Cordova plugin files to Xcode project
+        echo -e "${YELLOW}🔌 Copying Cordova plugin files to Xcode project...${NC}"
+        cd ..
+        xcode_copy_cordova_plugins
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✅ Plugin files copied and added to Xcode project!${NC}"
+        else
+            echo -e "${RED}❌ Failed to copy plugin files${NC}"
+        fi
     else
         echo -e "${RED}❌ iOS build failed${NC}"
         return 1
