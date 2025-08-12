@@ -4,6 +4,24 @@ import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import BackButton from "../../components/BackButton";
+import {
+  SuccessOverlay,
+  SuccessModal,
+  SuccessIcon,
+  SuccessTitle,
+  SuccessMessage,
+  CreateRidePageContainer,
+  CreateRideHeader,
+  CreateRideHeaderTitle,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  TextArea,
+  SubmitButton,
+  LoadingSpinner,
+  ErrorMessage,
+} from "../styles/CreateRide";
 
 /**
  * iOS-specific Create Ride page
@@ -81,89 +99,30 @@ const CreateRide = ({ history, currentUser }) => {
 
   if (success) {
     return (
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "#f5f5f5",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px"
-      }}>
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "16px",
-          padding: "40px 30px",
-          textAlign: "center",
-          maxWidth: "320px",
-          width: "100%",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
-        }}>
-          <div style={{
-            fontSize: "48px",
-            marginBottom: "20px"
-          }}>
+      <SuccessOverlay>
+        <SuccessModal>
+          <SuccessIcon>
             🚗
-          </div>
-          <h2 style={{
-            margin: "0 0 12px 0",
-            fontSize: "22px",
-            fontWeight: "600",
-            color: "#333"
-          }}>
+          </SuccessIcon>
+          <SuccessTitle>
             Ride Created!
-          </h2>
-          <p style={{
-            margin: 0,
-            fontSize: "16px",
-            color: "#666",
-            lineHeight: "1.4"
-          }}>
+          </SuccessTitle>
+          <SuccessMessage>
             Your ride has been created successfully. Redirecting to your rides...
-          </p>
-        </div>
-      </div>
+          </SuccessMessage>
+        </SuccessModal>
+      </SuccessOverlay>
     );
   }
 
   return (
-    <div style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "#f5f5f5",
-      paddingTop: "60px",
-      paddingBottom: "100px",
-      overflowY: "auto"
-    }}>
+    <CreateRidePageContainer>
       {/* Fixed Header */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "60px",
-        backgroundColor: "white",
-        borderBottom: "1px solid #e0e0e0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 99
-      }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: "18px",
-          fontWeight: "600",
-          color: "#333"
-        }}>
+      <CreateRideHeader>
+        <CreateRideHeaderTitle>
           Create Ride
-        </h1>
-      </div>
+        </CreateRideHeaderTitle>
+      </CreateRideHeader>
 
       <BackButton />
 
@@ -427,7 +386,7 @@ const CreateRide = ({ history, currentUser }) => {
           </button>
         </div>
       </div>
-    </div>
+    </CreateRidePageContainer>
   );
 };
 

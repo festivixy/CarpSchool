@@ -128,3 +128,78 @@ export const LoadingSpinner = styled.div`
   border-radius: 50%;
   animation: ${spin} 1s linear infinite;
 `;
+
+export const SuccessOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+`;
+
+export const SuccessModal = styled.div`
+  background-color: white;
+  border-radius: 16px;
+  padding: 40px 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+`;
+
+export const SuccessIcon = styled.div`
+  font-size: 64px;
+  margin-bottom: 20px;
+`;
+
+export const SuccessTitle = styled.h2`
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 16px;
+`;
+
+export const SuccessMessage = styled.p`
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 30px;
+  line-height: 1.5;
+`;
+
+export const CreateRidePageContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f5f5f5;
+  padding-top: 60px;
+  padding-bottom: 100px;
+  overflow-y: auto;
+`;
+
+export const CreateRideHeader = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+`;
+
+export const CreateRideHeaderTitle = styled.h1`
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+`;
