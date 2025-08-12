@@ -22,7 +22,7 @@ meteor_build_bundle() {
     local architecture=${2:-"os.linux.x86_64"}
 
     echo -e "${YELLOW}🚀 Building Meteor bundle...${NC}"
-    meteor build "$build_dir" --architecture "$architecture" --server-only
+    meteor build "$build_dir" --architecture "$architecture" --server-only --verbose
 }
 
 meteor_install_cordova_plugins() {
