@@ -17,6 +17,7 @@ import {
   DropdownContainer,
   DropdownMenu,
   DropdownItem,
+  RelativeContainer,
 } from "../styles/MobileNavBarCSS";
 
 /**
@@ -112,7 +113,7 @@ class MobileNavBarCSS extends React.Component {
     const totalNotifications = 5; // This would come from real notification system
 
     return (
-      <div style={{ position: "relative" }}>
+      <RelativeContainer>
         <NavBarContainer className="liquid-glass-mobile-navbar">
           <TabBarInner>
             <TabsContainer>
@@ -270,7 +271,7 @@ class MobileNavBarCSS extends React.Component {
           open={this.state.addRidesModalOpen}
           onClose={this.handleAddRidesClose}
         />
-      </div>
+      </RelativeContainer>
     );
   }
 }

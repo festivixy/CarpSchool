@@ -249,3 +249,7 @@ export const DropdownItem = styled.div`
     border-bottom-right-radius: 10px;
   }
 `;
+
+export const RelativeContainer = styled.div`
+  position: relative;
+`;

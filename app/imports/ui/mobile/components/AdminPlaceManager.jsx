@@ -51,6 +51,7 @@ import {
   ErrorText,
   Button,
   LoadingButton,
+  ButtonContainer,
 } from "../../styles/AdminPlaceManager";
 
 /**
@@ -312,12 +313,12 @@ class AdminPlaceManager extends React.Component {
             Manage All Places
             <AdminBadge>Admin</AdminBadge>
           </Title>
-          <div style={{ display: "flex", gap: "8px" }}>
+          <ButtonContainer>
             <AddButton onClick={this.fixLegacyPlaces} style={{ backgroundColor: "#ff9800" }}>
               🔧 Fix Legacy Places
             </AddButton>
             <AddButton onClick={this.openAddModal}>➕ Add Place</AddButton>
-          </div>
+          </ButtonContainer>
         </Header>
 
         <Content>

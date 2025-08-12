@@ -597,3 +597,8 @@ export const LoadingButton = styled(Button)`
     animation: spin 1s linear infinite;
   }
 `;
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  gap: 8px;
+`;
