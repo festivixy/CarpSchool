@@ -23,6 +23,7 @@ import {
   EmptyState,
   LoadingState,
   Divider,
+  ActionContainer,
 } from "../styles/Dropdown";
 
 /**
@@ -243,7 +244,7 @@ function LiquidGlassDropdown({
         <TriggerContent>
           <TriggerText $hasValue={hasValue}>{getDisplayText()}</TriggerText>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <ActionContainer>
             {clearable && hasValue && (
               <TriggerIcon onClick={handleClear} $type="clear">
                 ✕
@@ -252,7 +253,7 @@ function LiquidGlassDropdown({
             <TriggerIcon $isOpen={isOpen} $type="chevron">
               ▼
             </TriggerIcon>
-          </div>
+          </ActionContainer>
         </TriggerContent>
       </DropdownTrigger>
 

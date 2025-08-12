@@ -494,3 +494,9 @@ export const Divider = styled.div`
   margin: 8px 8px 0 8px;
   border-radius: 1px;
 `;
+
+export const ActionContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
