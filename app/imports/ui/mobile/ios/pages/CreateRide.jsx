@@ -352,17 +352,9 @@ const CreateRide = ({ history, currentUser }) => {
           </FormField>
 
           {error && (
-            <div style={{
-              padding: "12px 16px",
-              marginBottom: "20px",
-              backgroundColor: "#FFEBEE",
-              border: "1px solid #FFCDD2",
-              borderRadius: "8px",
-              color: "#C62828",
-              fontSize: "14px"
-            }}>
+            <ErrorMessage>
               {error}
-            </div>
+            </ErrorMessage>
           )}
 
           <button

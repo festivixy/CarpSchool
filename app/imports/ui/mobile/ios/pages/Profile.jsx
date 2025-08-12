@@ -108,23 +108,10 @@ const Profile = ({ history, currentUser, isAdmin }) => {
 
         {/* Admin Options */}
         {isAdmin && (
-          <div style={{
-            backgroundColor: "white",
-            borderRadius: "12px",
-            marginBottom: "20px",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
-          }}>
-            <div style={{
-              padding: "12px 20px",
-              borderBottom: "1px solid #f0f0f0",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#666",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px"
-            }}>
+          <Section>
+            <SectionTitle>
               Admin
-            </div>
+            </SectionTitle>
 
             <button
               onClick={() => handleNavigation("/admin/users")}
@@ -208,27 +195,14 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               Components Test
               <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
             </button>
-          </div>
+          </Section>
         )}
 
         {/* Legal & Information Section */}
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
-          marginBottom: "20px",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
-        }}>
-          <div style={{
-            padding: "12px 20px",
-            borderBottom: "1px solid #f0f0f0",
-            fontSize: "14px",
-            fontWeight: "600",
-            color: "#666",
-            textTransform: "uppercase",
-            letterSpacing: "0.5px"
-          }}>
+        <LegalSection>
+          <SectionTitle>
             Legal & Information
-          </div>
+          </SectionTitle>
 
           <button
             onClick={() => handleNavigation("/tos")}
@@ -291,7 +265,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
             Credits
             <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
           </button>
-        </div>
+        </LegalSection>
 
         {/* Sign Out */}
         <button
