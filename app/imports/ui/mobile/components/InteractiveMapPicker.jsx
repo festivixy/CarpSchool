@@ -19,6 +19,7 @@ import {
   HelpText,
   ErrorMessage,
   SuccessMessage,
+  MapViewContainer,
 } from "../styles/InteractiveMapPicker";
 
 // Fix for default markers in Leaflet
@@ -418,7 +419,7 @@ const InteractiveMapPicker = ({
       )}
 
       <MapWrapper style={{ height }}>
-        <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+        <MapViewContainer ref={mapRef} />
 
         <MapControls>
           <ControlButton onClick={zoomIn} title="Zoom in">

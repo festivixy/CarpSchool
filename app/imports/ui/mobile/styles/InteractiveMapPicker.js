@@ -239,3 +239,8 @@ export const SuccessMessage = styled.div`
     opacity: 0.7;
   }
 `;
+
+export const MapViewContainer = styled.div`
+  width: 100%;
+  height: 100%;
+`;

@@ -95,3 +95,8 @@ export const RefreshButton = styled.button`
     right: 8px;
   }
 `;
+
+export const MapViewContainer = styled.div`
+  width: 100%;
+  height: 100%;
+`;

@@ -13,6 +13,7 @@ import {
   ControlButton,
   ErrorMessage,
   LoadingMessage,
+  MapViewContainer,
 } from "../styles/PathMapView";
 
 // Fix for default markers in Leaflet
@@ -340,7 +341,7 @@ const PathMapView = ({
   return (
     <MapContainer>
       <MapWrapper style={{ height }}>
-        <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+        <MapViewContainer ref={mapRef} />
 
         <ControlsContainer>
           <ControlButton

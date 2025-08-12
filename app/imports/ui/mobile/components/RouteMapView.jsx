@@ -7,6 +7,7 @@ import {
   RouteMapContainer,
   RouteMapWrapper,
   RefreshButton,
+  MapViewContainer,
 } from "../styles/RouteMapView";
 
 // Fix for default markers in Leaflet
@@ -248,7 +249,7 @@ const RouteMapView = ({
   return (
     <RouteMapContainer>
       <RouteMapWrapper style={{ height }}>
-        <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+        <MapViewContainer ref={mapRef} />
 
         <RefreshButton
           onClick={handleRefresh}
