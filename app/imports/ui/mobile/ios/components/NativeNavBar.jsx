@@ -100,7 +100,11 @@ const NativeNavBar = ({
 
         const item = items[itemIndex];
         if (item) {
+          // Update both local state and native navbar active item
           setCurrentActiveIndex(itemIndex);
+          setActiveItem(navBarId, itemIndex).catch((error) => {
+            console.error("[NativeNavBar] ❌ Failed to set active item after click:", error);
+          });
 
           // Prioritize onItemPress prop for bridging solution
           if (onItemPress) {
@@ -140,7 +144,7 @@ const NativeNavBar = ({
         unregisterActionHandler(navBarId);
       };
     }
-  }, [isSupported, navBarId, registerActionHandler, unregisterActionHandler, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick, onItemPress, items]);
+  }, [isSupported, navBarId, registerActionHandler, unregisterActionHandler, setActiveItem, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick, onItemPress, items]);
 
   // Create native navbar when component mounts
   useEffect(() => {
