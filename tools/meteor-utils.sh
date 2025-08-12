@@ -54,15 +54,17 @@ xcode_copy_cordova_plugins() {
         fi
     fi
 
-    cp plugins/cordova-plugin-native-navbar/src/ios/* ../build/ios/project/CarpSchool/Plugins/
-    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/NativeNavBar.swift
-    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/NativeNavBar.m
-    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/NativeNavBar.h
+    # cp plugins/cordova-plugin-native-navbar/src/ios/* ../build/ios/project/CarpSchool/Plugins/
+    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.swift
+    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.m
+    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.h
     cd "$pathpwd"
 }
 
 # Function to build iOS app
 meteor_build_ios() {
+    local pathpwd=$(pwd)
+    meteor_clean_ios
     meteor_install_cordova_plugins
     local build_dir=${1:-"../build"}
     local server_url=${2:-"https://carp.school"}
@@ -73,8 +75,12 @@ meteor_build_ios() {
 
     # Check if we're in the right directory
     if [ ! -f "app/.meteor/release" ]; then
-        echo -e "${RED}❌ Not in Carpool root directory or app/.meteor/release not found${NC}"
-        return 1
+        if [ -f "./.meteor/release" ]; then
+            cd ..
+        else
+            echo -e "${RED}❌ Not in Carpool root directory or app/.meteor/release not found${NC}"
+            return 1
+        fi
     fi
 
     # Check iOS prerequisites
@@ -100,7 +106,7 @@ meteor_build_ios() {
 
     cd app
     echo -e "${YELLOW}🚀 Starting iOS build process...${NC}"
-    meteor build "$build_dir" --platforms ios --server "$server_url" --mobile-settings "../config/settings.prod.json"
+    meteor build "$build_dir" --platforms ios --server "$server_url" --mobile-settings "../config/settings.prod.json" --verbose
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ iOS build completed successfully!${NC}"
@@ -119,6 +125,8 @@ meteor_build_ios() {
         echo -e "${RED}❌ iOS build failed${NC}"
         return 1
     fi
+
+    cd "$pathpwd"
 }
 
 # Function to build Android app
@@ -222,7 +230,7 @@ meteor_run_ios() {
     fi
 
     cd app
-    meteor run ios --port "$port" --verbose --no-release-check --settings "$settings_file"
+    meteor run ios --port "$port" --verbose --no-release-check --settings "$settings_file" --mobile-server "127.0.0.1:$port"
 }
 
 # Function to run Android development server
@@ -291,6 +299,34 @@ meteor_clean_local() {
             return 1
             ;;
     esac
+}
+
+meteor_clean_ios() {
+    local pathpwd=$(pwd)
+    # here, make sure that we are in app. (check if ./.meteor/release exists)
+    # if not, check if ./app/.meteor/release exists. if yes, cd app
+    if [ ! -f ".meteor/release" ]; then
+        if [ -f "app/.meteor/release" ]; then
+            cd app
+        else
+            echo -e "${RED}❌ Not in Carpool app directory or .meteor/release not found${NC}"
+            return 1
+        fi
+    fi
+
+    echo -e "${YELLOW}🔄 Resetting Meteor project...${NC}"
+    meteor reset
+    echo -e "${YELLOW}🗑️  Removing Meteor local directory...${NC}"
+    rm -rf ./.meteor/local
+    echo -e "${YELLOW}🗑️  Removing build directory...${NC}"
+    rm -rf ../build
+    echo -e "${YELLOW}📱 Removing iOS platform...${NC}"
+    meteor remove-platform ios
+    echo -e "${YELLOW}📱 Adding iOS platform...${NC}"
+    meteor add-platform ios
+    echo -e "${GREEN}✅ iOS cleanup completed!${NC}"
+
+    cd "$pathpwd"
 }
 
 # Function to clean Node.js dependencies
