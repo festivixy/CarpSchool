@@ -147,3 +147,13 @@ export const StatusContainer = styled.div`
   padding: 20px;
   color: #666;
 `;
+
+export const FallbackIndicator = styled.div`
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  user-select: none;
+  pointer-events: none;
+`;

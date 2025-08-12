@@ -63,12 +63,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
         )}
 
         {/* Profile Options */}
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
-          marginBottom: "20px",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
-        }}>
+        <Section>
           <button
             onClick={() => handleNavigation("/editProfile")}
             style={{
@@ -109,7 +104,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
             My Places
             <span style={{ marginLeft: "auto", color: "#999" }}>›</span>
           </button>
-        </div>
+        </Section>
 
         {/* Admin Options */}
         {isAdmin && (

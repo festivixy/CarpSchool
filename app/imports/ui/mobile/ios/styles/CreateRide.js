@@ -203,3 +203,28 @@ export const CreateRideHeaderTitle = styled.h1`
   font-weight: 600;
   color: #333;
 `;
+
+export const CreateRideContent = styled.div`
+  padding: 20px;
+`;
+
+export const CreateRideForm = styled.div`
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+export const FormField = styled.div`
+  margin-bottom: 20px;
+`;
+
+export const DateTimeRow = styled.div`
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+`;
+
+export const FlexField = styled.div`
+  flex: 1;
+`;

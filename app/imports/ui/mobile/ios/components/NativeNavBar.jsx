@@ -14,6 +14,8 @@ import {
   FallbackItemIcon,
   FallbackItemText,
   StatusContainer,
+  NativeIndicator,
+  FallbackIndicator,
 } from "../styles/NativeNavBar";
 
 /**
@@ -128,7 +130,7 @@ const NativeNavBar = ({
           console.log("[NativeNavBar] 🎯 Processing item with internal handler:", { id: item.id, action: item.action, label: item.label });
 
           if (item.id === "home" || item.action === "home") {
-            console.log("[NativeNavBar] 🏠 Home action triggered");
+            console.log("[NativeNavBar] ���� Home action triggered");
             const homeLink = currentUser ? "/myRides" : "/";
             handleNavigation(homeLink);
           } else if (item.id === "search" || item.action === "search") {
@@ -291,17 +293,9 @@ const NativeNavBar = ({
             style={style}
             {...props}
           >
-            <div style={{
-              position: "absolute",
-              bottom: 8,
-              right: 8,
-              fontSize: "10px",
-              color: "rgba(0,0,0,0.3)",
-              userSelect: "none",
-              pointerEvents: "none",
-            }}>
+            <NativeIndicator>
               Native iOS
-            </div>
+            </NativeIndicator>
           </NativeNavBarContainer>
 
 
@@ -352,17 +346,9 @@ const NativeNavBar = ({
           </FallbackButton>
         ))}
 
-        <div style={{
-          position: "absolute",
-          bottom: 8,
-          right: 8,
-          fontSize: "10px",
-          color: "rgba(255,255,255,0.5)",
-          userSelect: "none",
-          pointerEvents: "none",
-        }}>
+        <FallbackIndicator>
           CSS Fallback
-        </div>
+        </FallbackIndicator>
 
 
       </FallbackContainer>
