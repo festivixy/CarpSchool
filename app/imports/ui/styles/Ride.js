@@ -173,14 +173,14 @@ export const NotesText = styled.span`
 
 export const Actions = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 8px;
+  justify-content: center;
 `;
 
 export const ShareButton = styled.button`
-  flex: 1;
   border: none;
   border-radius: 8px;
-  padding: 12px 24px;
+  padding: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -189,9 +189,11 @@ export const ShareButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   background-color: rgba(0, 0, 0, 1);
   color: rgba(255, 255, 255, 1);
+  width: 44px;
+  height: 44px;
+  position: relative;
 
   &:hover:not(:disabled) {
     background-color: rgba(40, 40, 40, 1);
@@ -206,13 +208,29 @@ export const ShareButton = styled.button`
   &.loading {
     opacity: 0.8;
   }
+
+  @media (min-width: 769px) {
+    &:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+  }
 `;
 
 export const JoinButton = styled.button`
-  flex: 1;
   border: none;
   border-radius: 8px;
-  padding: 12px 24px;
+  padding: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -221,9 +239,11 @@ export const JoinButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   background-color: rgba(76, 175, 80, 1);
   color: rgba(255, 255, 255, 1);
+  width: 44px;
+  height: 44px;
+  position: relative;
 
   &:hover:not(:disabled) {
     background-color: rgba(56, 142, 60, 1);
@@ -238,13 +258,29 @@ export const JoinButton = styled.button`
   &.loading {
     opacity: 0.8;
   }
+
+  @media (min-width: 769px) {
+    &:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+  }
 `;
 
 export const ChatButton = styled.button`
-  flex: 1;
   border: none;
   border-radius: 8px;
-  padding: 12px 24px;
+  padding: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -253,9 +289,11 @@ export const ChatButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   background-color: rgba(33, 150, 243, 1);
   color: rgba(255, 255, 255, 1);
+  width: 44px;
+  height: 44px;
+  position: relative;
 
   &:hover:not(:disabled) {
     background-color: rgba(25, 118, 210, 1);
@@ -266,13 +304,29 @@ export const ChatButton = styled.button`
     opacity: 0.7;
     cursor: not-allowed;
   }
+
+  @media (min-width: 769px) {
+    &:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+  }
 `;
 
 export const MapButton = styled.button`
-  flex: 1;
   border: none;
   border-radius: 8px;
-  padding: 12px 24px;
+  padding: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -281,9 +335,11 @@ export const MapButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   background-color: rgba(156, 39, 176, 1);
   color: rgba(255, 255, 255, 1);
+  width: 44px;
+  height: 44px;
+  position: relative;
 
   &:hover:not(:disabled) {
     background-color: rgba(123, 31, 162, 1);
@@ -294,22 +350,43 @@ export const MapButton = styled.button`
     opacity: 0.7;
     cursor: not-allowed;
   }
+
+  @media (min-width: 769px) {
+    &:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+  }
 `;
 
 export const ShareIcon = styled.span`
-  font-size: 16px;
+  font-size: 18px;
+  display: block;
 `;
 
 export const JoinIcon = styled.span`
-  font-size: 16px;
+  font-size: 18px;
+  display: block;
 `;
 
 export const ChatIcon = styled.span`
-  font-size: 16px;
+  font-size: 18px;
+  display: block;
 `;
 
 export const MapIcon = styled.span`
-  font-size: 16px;
+  font-size: 18px;
+  display: block;
 `;
 
 export const Spinner = styled.span`

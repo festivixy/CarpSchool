@@ -365,17 +365,12 @@ class Ride extends React.Component {
                   className={isGenerating ? "loading" : ""}
                   onClick={this.handleShareRide}
                   disabled={isGenerating}
+                  title={ride.shareCode ? "View Share Code" : "Share Ride"}
                 >
                   {isGenerating ? (
-                    <>
-                      <Spinner />
-                      Generating...
-                    </>
+                    <Spinner />
                   ) : (
-                    <>
-                      <ShareIcon>🔗</ShareIcon>
-                      {ride.shareCode ? "View Share Code" : "Share Ride"}
-                    </>
+                    <ShareIcon>🔗</ShareIcon>
                   )}
                 </ShareButton>
               )}
@@ -384,34 +379,29 @@ class Ride extends React.Component {
                   className={isGenerating ? "loading" : ""}
                   onClick={this.handleJoinRide}
                   disabled={isGenerating}
+                  title="Request to Join"
                 >
                   {isGenerating ? (
-                    <>
-                      <Spinner />
-                      Joining...
-                    </>
+                    <Spinner />
                   ) : (
-                    <>
-                      <JoinIcon>🚗</JoinIcon>
-                      Request to Join
-                    </>
+                    <JoinIcon>🚗</JoinIcon>
                   )}
                 </JoinButton>
               )}
               {this.canAccessChat() && (
                 <ChatButton
                   onClick={this.handleOpenChat}
+                  title="Open Chat"
                 >
                   <ChatIcon>💬</ChatIcon>
-                  Open Chat
                 </ChatButton>
               )}
               {this.getPlaceCoordinates(ride.origin) && this.getPlaceCoordinates(ride.destination) && (
                 <MapButton
                   onClick={this.handleOpenMap}
+                  title="Open Map"
                 >
                   <MapIcon>🗺️</MapIcon>
-                  Open Map
                 </MapButton>
               )}
             </Actions>
