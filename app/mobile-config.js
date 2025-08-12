@@ -30,7 +30,7 @@ App.setPreference("PaginationBreakingMode", "page", "ios");
 App.setPreference("PaginationMode", "unpaginated", "ios");
 
 // Set iOS deployment target to support iOS 13+ features (systemBackground, etc.)
-App.setPreference("deployment-target", "13.0", "ios");
+App.setPreference("deployment-target", "15.0", "ios");
 
 // iOS 26 Liquid Glass specific preferences
 App.setPreference("StatusBarOverlaysWebView", "true", "ios");
@@ -44,7 +44,7 @@ App.setPreference("SuppressesIncrementalRendering", "false", "ios");
 
 // Android specific preferences
 App.setPreference("android-minSdkVersion", "21");
-App.setPreference("android-targetSdkVersion", "34");
+App.setPreference("android-targetSdkVersion", "35");
 App.setPreference("android-installLocation", "auto");
 
 // Android signing preferences for release builds
