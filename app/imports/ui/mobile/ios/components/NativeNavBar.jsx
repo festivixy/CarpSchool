@@ -4,6 +4,17 @@ import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import useNativeNavBar from "../hooks/useNativeNavBar";
+import {
+  NativeNavBarContainer,
+  LoadingIndicator,
+  StatusText,
+  FallbackContainer,
+  FallbackButton,
+  FallbackItemContainer,
+  FallbackItemIcon,
+  FallbackItemText,
+  StatusContainer,
+} from "../styles/NativeNavBar";
 
 /**
  * NativeNavBar Component
@@ -237,26 +248,15 @@ const NativeNavBar = ({
   if (isLoading) {
     console.log("[NativeNavBar] ⏳ Rendering loading state");
     return (
-      <div
+      <LoadingIndicator
         className={className}
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 83,
-          backgroundColor: "rgba(249, 249, 249, 0.8)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          ...style,
-        }}
+        style={style}
         {...props}
       >
-        <div style={{ fontSize: "14px", color: "#666" }}>
+        <StatusText>
           Initializing Native NavBar...
-        </div>
-      </div>
+        </StatusText>
+      </LoadingIndicator>
     );
   }
 
@@ -285,18 +285,10 @@ const NativeNavBar = ({
     if (navBarId) {
       return (
         <>
-          <div
+          <NativeNavBarContainer
             ref={navBarRef}
             className={className}
-            style={{
-              position: "fixed",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: 83,
-              pointerEvents: "none", // Let native navbar handle touches
-              ...style,
-            }}
+            style={style}
             {...props}
           >
             <div style={{
@@ -310,7 +302,7 @@ const NativeNavBar = ({
             }}>
               Native iOS
             </div>
-          </div>
+          </NativeNavBarContainer>
 
 
         </>
@@ -320,44 +312,16 @@ const NativeNavBar = ({
     // Native navbar creation failed - render fallback CSS navbar
     console.log("[NativeNavBar] 🔄 Rendering fallback CSS navbar - native creation failed");
     return (
-      <div
+      <FallbackContainer
         ref={navBarRef}
         className={className}
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 83,
-          backgroundColor: "rgba(0,0,0,0.9)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-around",
-          backdropFilter: "blur(20px)",
-          borderTop: "1px solid rgba(255,255,255,0.1)",
-          ...style,
-        }}
+        style={style}
         {...props}
       >
         {items.map((item, index) => (
-          <button
+          <FallbackButton
             key={item.id || index}
-            style={{
-              background: "none",
-              border: "none",
-              color: index === currentActiveIndex ? "#007AFF" : "white",
-              fontSize: "24px",
-              padding: "8px",
-              borderRadius: "8px",
-              minWidth: "44px",
-              minHeight: "44px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "color 0.2s ease",
-            }}
+            isActive={index === currentActiveIndex}
             onClick={() => {
               setCurrentActiveIndex(index);
 
@@ -379,13 +343,13 @@ const NativeNavBar = ({
               }
             }}
           >
-            <div style={{ fontSize: "20px", marginBottom: "2px" }}>
+            <FallbackItemIcon>
               {item.icon}
-            </div>
-            <div style={{ fontSize: "10px", fontWeight: "500" }}>
+            </FallbackItemIcon>
+            <FallbackItemText>
               {item.label}
-            </div>
-          </button>
+            </FallbackItemText>
+          </FallbackButton>
         ))}
 
         <div style={{
@@ -401,7 +365,7 @@ const NativeNavBar = ({
         </div>
 
 
-      </div>
+      </FallbackContainer>
     );
 };
 

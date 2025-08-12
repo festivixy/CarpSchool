@@ -76,14 +76,34 @@ export const StatusText = styled.div`
 `;
 
 export const FallbackContainer = styled.div`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 83px;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+export const FallbackButton = styled.button`
+  background: none;
+  border: none;
+  color: ${props => props.isActive ? "#007AFF" : "white"};
+  font-size: 24px;
+  padding: 8px;
+  border-radius: 8px;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  background: rgba(249, 249, 249, 0.9);
-  border-radius: 12px;
-  margin: 16px;
+  cursor: pointer;
+  transition: color 0.2s ease;
 `;
 
 export const FallbackItemContainer = styled.div`
