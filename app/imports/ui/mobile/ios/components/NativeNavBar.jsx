@@ -208,11 +208,15 @@ const NativeNavBar = ({
   useEffect(() => {
     if (navBarId && items.length > 0) {
       console.log("[NativeNavBar] 🔄 Updating navbar items");
-      setNavBarItems(navBarId, items).catch((error) => {
+      setNavBarItems(navBarId, items).then(() => {
+        // Restore the current active state after updating items
+        console.log("[NativeNavBar] 🔄 Restoring active item after items update:", currentActiveIndex);
+        return setActiveItem(navBarId, currentActiveIndex);
+      }).catch((error) => {
         console.error("[NativeNavBar] ❌ Failed to update items:", error);
       });
     }
-  }, [navBarId, items, setNavBarItems]);
+  }, [navBarId, items, setNavBarItems, setActiveItem, currentActiveIndex]);
 
   // Handle visibility changes
   useEffect(() => {
