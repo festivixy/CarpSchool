@@ -17,7 +17,7 @@ export const InputLabel = styled.label`
   font-weight: 600;
   color: #1C1C1E;
   margin-bottom: 8px;
-  
+
   ${props => props.disabled && css`
     color: #8E8E93;
   `}
@@ -78,7 +78,7 @@ export const InputWrapper = styled.div`
   ${props => props.hasError && css`
     border-color: #FF3B30;
     background-color: rgba(255, 59, 48, 0.05);
-    
+
     ${props.isFocused && css`
       box-shadow: 0 0 0 1px rgba(255, 59, 48, 0.3);
     `}
@@ -116,7 +116,7 @@ export const StyledInput = styled.input`
   font-size: 16px;
   font-family: inherit;
   color: #1C1C1E;
-  
+
   /* Size-based padding */
   ${props => props.size === "small" && css`
     padding: 8px 12px;
@@ -192,11 +192,11 @@ export const InputIcon = styled.span`
   justify-content: center;
   color: #8E8E93;
   font-size: 16px;
-  
+
   ${props => props.position === "left" && css`
     margin-right: 8px;
   `}
-  
+
   ${props => props.position === "right" && css`
     margin-left: 8px;
   `}
@@ -218,7 +218,7 @@ export const ErrorMessage = styled.div`
   font-weight: 500;
   display: flex;
   align-items: flex-start;
-  
+
   &:before {
     content: "⚠️";
     margin-right: 4px;
@@ -238,9 +238,13 @@ export const CharacterCount = styled.div`
   color: #8E8E93;
   margin-top: 4px;
   text-align: right;
-  
+
   ${props => props.isOverLimit && css`
     color: #FF3B30;
     font-weight: 600;
   `}
+`;
+
+export const MessageContainer = styled.div`
+  /* Container for error, helper text and character count */
 `;

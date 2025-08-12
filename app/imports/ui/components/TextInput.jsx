@@ -10,6 +10,7 @@ import {
   HelperText,
   CharacterCount,
   RequiredIndicator,
+  MessageContainer,
 } from "../styles/TextInput";
 
 /**
@@ -156,7 +157,7 @@ const TextInput = ({
       </InputWrapper>
 
       {(error || helperText || showCharacterCount) && (
-        <div>
+        <MessageContainer>
           {error && (
             <ErrorMessage id={errorId} role="alert">
               {error}
@@ -174,7 +175,7 @@ const TextInput = ({
               {characterCount}/{maxLength}
             </CharacterCount>
           )}
-        </div>
+        </MessageContainer>
       )}
     </InputContainer>
   );
