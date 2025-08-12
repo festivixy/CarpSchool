@@ -151,7 +151,7 @@ const CreateRide = ({ history, currentUser }) => {
           </p>
 
           {/* Form Fields */}
-          <div style={{ marginBottom: "20px" }}>
+          <FormField>
             <label style={{
               display: "block",
               fontSize: "14px",
@@ -181,9 +181,9 @@ const CreateRide = ({ history, currentUser }) => {
               onFocus={(e) => e.target.style.borderColor = "#007AFF"}
               onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
             />
-          </div>
+          </FormField>
 
-          <div style={{ marginBottom: "20px" }}>
+          <FormField>
             <label style={{
               display: "block",
               fontSize: "14px",
@@ -213,10 +213,10 @@ const CreateRide = ({ history, currentUser }) => {
               onFocus={(e) => e.target.style.borderColor = "#007AFF"}
               onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
             />
-          </div>
+          </FormField>
 
-          <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
-            <div style={{ flex: 1 }}>
+          <DateTimeRow>
+            <FlexField>
               <label style={{
                 display: "block",
                 fontSize: "14px",
@@ -245,9 +245,9 @@ const CreateRide = ({ history, currentUser }) => {
                 onFocus={(e) => e.target.style.borderColor = "#007AFF"}
                 onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
               />
-            </div>
+            </FlexField>
 
-            <div style={{ flex: 1 }}>
+            <FlexField>
               <label style={{
                 display: "block",
                 fontSize: "14px",
@@ -276,10 +276,10 @@ const CreateRide = ({ history, currentUser }) => {
                 onFocus={(e) => e.target.style.borderColor = "#007AFF"}
                 onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
               />
-            </div>
-          </div>
+            </FlexField>
+          </DateTimeRow>
 
-          <div style={{ marginBottom: "20px" }}>
+          <FormField>
             <label style={{
               display: "block",
               fontSize: "14px",
@@ -315,9 +315,9 @@ const CreateRide = ({ history, currentUser }) => {
               <option value="6">6 seats</option>
               <option value="7">7 seats</option>
             </select>
-          </div>
+          </FormField>
 
-          <div style={{ marginBottom: "20px" }}>
+          <FormField>
             <label style={{
               display: "block",
               fontSize: "14px",
@@ -349,7 +349,7 @@ const CreateRide = ({ history, currentUser }) => {
               onFocus={(e) => e.target.style.borderColor = "#007AFF"}
               onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
             />
-          </div>
+          </FormField>
 
           {error && (
             <div style={{

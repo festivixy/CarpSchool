@@ -273,3 +273,9 @@ export const MobileMenu = styled.div`
     display: none;
   }
 `;
+
+export const ActionGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;

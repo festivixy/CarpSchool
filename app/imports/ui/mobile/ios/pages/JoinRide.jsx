@@ -4,6 +4,28 @@ import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import BackButton from "../../components/BackButton";
+import {
+  SuccessOverlay,
+  SuccessModal,
+  SuccessIcon,
+  SuccessTitle,
+  SuccessMessage,
+  PageContainer,
+  Content,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  SubmitButton,
+  LoadingSpinner,
+  ErrorMessage,
+  JoinRidePageContainer,
+  JoinRideHeader,
+  JoinRideHeaderTitle,
+  JoinRideContent,
+  JoinRideForm,
+  CodeContainer,
+} from "../styles/JoinRide";
 
 /**
  * iOS-specific Join Ride page
@@ -85,18 +107,7 @@ const JoinRide = ({ history, currentUser }) => {
 
   if (success) {
     return (
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "#f5f5f5",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px"
-      }}>
+      <SuccessOverlay>
         <div style={{
           backgroundColor: "white",
           borderRadius: "16px",
@@ -129,7 +140,7 @@ const JoinRide = ({ history, currentUser }) => {
             You've successfully joined the ride. Redirecting to your rides...
           </p>
         </div>
-      </div>
+      </SuccessOverlay>
     );
   }
 

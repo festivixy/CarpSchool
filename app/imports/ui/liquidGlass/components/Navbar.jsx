@@ -17,6 +17,7 @@ import {
   UserName,
   MobileMenuButton,
   MobileMenu,
+  ActionGroup,
 } from "../styles/Navbar";
 
 /**
@@ -103,7 +104,7 @@ function LiquidGlassNavbar({
 
         {/* Desktop Navigation */}
         <NavSection>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <ActionGroup>
             {user && (
               <>
                 <LiquidGlassButton
@@ -136,7 +137,7 @@ function LiquidGlassNavbar({
                 width="140px"
               />
             )}
-          </div>
+          </ActionGroup>
         </NavSection>
 
         {/* User Section */}
