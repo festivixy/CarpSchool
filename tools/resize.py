@@ -76,3 +76,23 @@ for icon, size in data.items():
     newImage.save(f"resources/splash/{icon}", "PNG")
     print(f"Saved {icon} with size {size[0]}x{size[1]}")
     print(f"  '{icon}': 'resources/splash/{icon}', // {size[0]}x{size[1]} pixels")
+
+data = {
+    "ios_universal_dark.png": [1024, 1024]
+}
+
+maxres = Image.open("resources/maxres_splash_dark.png")
+maxres = maxres.convert("RGBA")
+
+for icon, size in data.items():
+    resized = maxres.resize(
+        (min(size[0], size[1]), min(size[0], size[1])), Image.ANTIALIAS
+    )
+    newImage = Image.new("RGBA", size, (255, 255, 255, 0))
+    # paste the resized image onto the new image in the center
+    newImage.paste(
+        resized, ((size[0] - resized.size[0]) // 2, (size[1] - resized.size[1]) // 2)
+    )
+    newImage.save(f"resources/splash/{icon}", "PNG")
+    print(f"Saved {icon} with size {size[0]}x{size[1]}")
+    print(f"  '{icon}': 'resources/splash/{icon}', // {size[0]}x{size[1]} pixels")

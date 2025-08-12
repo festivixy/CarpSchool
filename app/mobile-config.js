@@ -95,7 +95,7 @@ App.launchScreens({
     // iOS Universal - supports all devices with single asset
     ios_universal: {
         src: "resources/splash/ios_universal.png",
-        srcDarkMode: "resources/splash/ios_universal.png",
+        srcDarkMode: "resources/splash/ios_universal_dark.png",
     },
     // Android Universal
     android_universal: "resources/splash/android_universal.png", // 288x288 pixels
