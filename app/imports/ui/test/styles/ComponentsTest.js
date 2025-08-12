@@ -144,3 +144,151 @@ export const InfoValue = styled.span`
   font-size: 0.875rem;
   font-family: "SF Mono", "Monaco", "Consolas", monospace;
 `;
+
+export const PageContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f5f5f5;
+  padding-top: 60px;
+  padding-bottom: 100px;
+  overflow-y: auto;
+`;
+
+export const FixedHeader = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+`;
+
+export const HeaderTitle = styled.h1`
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+`;
+
+export const ContentPadding = styled.div`
+  padding: 20px;
+`;
+
+export const MainCard = styled.div`
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+export const MainTitle = styled.h2`
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+`;
+
+export const MainDescription = styled.p`
+  margin: 0;
+  font-size: 16px;
+  color: #666;
+  line-height: 1.4;
+`;
+
+export const TestGrid = styled.div`
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+`;
+
+export const TestButton = styled.button`
+  background-color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+export const TestIcon = styled.div`
+  font-size: 24px;
+  min-width: 32px;
+  text-align: center;
+  user-select: none;
+`;
+
+export const TestContent = styled.div`
+  flex: 1;
+`;
+
+export const TestName = styled.div`
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+`;
+
+export const TestDescription = styled.div`
+  font-size: 14px;
+  color: #666;
+  line-height: 1.3;
+`;
+
+export const TestArrow = styled.div`
+  font-size: 20px;
+  color: #999;
+  user-select: none;
+`;
+
+export const UserInfoCard = styled.div`
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+export const UserInfoTitle = styled.h3`
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+`;
+
+export const UserInfoItem = styled.div`
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+`;
+
+export const UserRoleBadge = styled.div`
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #007AFF;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+`;

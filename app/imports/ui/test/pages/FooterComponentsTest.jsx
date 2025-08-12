@@ -5,20 +5,21 @@ import FooterVerbose from "../../desktop/components/FooterVerbose";
 import LiquidGlassFooter from "../../liquidGlass/components/Footer";
 import BackButton from "../../mobile/components/BackButton";
 import {
-  Container,
-  Content,
-  Section,
-  SectionTitle,
-  SectionContent,
-  ComponentContainer,
-  ControlsGrid,
-  ControlItem,
-  Label,
-  InfoCard,
-  InfoItem,
-  InfoLabel,
-  InfoValue,
-} from "../styles/ComponentsTest";
+  TestPageContainer,
+  TestPageHeader,
+  TestPageTitle,
+  TestPageContent,
+  TestControlsCard,
+  TestControlsTitle,
+  TestControlsGrid,
+  TestControlLabel,
+  TestComponentsGrid,
+  TestComponentCard,
+  TestComponentHeader,
+  TestComponentTitle,
+  TestComponentDescription,
+  TestComponentDemo,
+} from "../styles/FooterComponentsTest";
 
 /**
  * Test page for Footer components - Admin only
@@ -30,34 +31,17 @@ const FooterComponentsTest = ({ history }) => {
   const [compactMode, setCompactMode] = useState(false);
 
   return (
-    <Container>
+    <TestPageContainer>
       <BackButton />
-      
-      {/* Fixed Header */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "60px",
-        backgroundColor: "white",
-        borderBottom: "1px solid #e0e0e0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 99
-      }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: "18px",
-          fontWeight: "600",
-          color: "#333"
-        }}>
-          Footer Components Test
-        </h1>
-      </div>
 
-      <Content style={{ paddingTop: "80px" }}>
+      {/* Fixed Header */}
+      <TestPageHeader>
+        <TestPageTitle>
+          Footer Components Test
+        </TestPageTitle>
+      </TestPageHeader>
+
+      <TestPageContent>
         {/* Footer Controls */}
         <Section>
           <SectionTitle>⚙️ Footer Configuration</SectionTitle>
@@ -109,7 +93,7 @@ const FooterComponentsTest = ({ history }) => {
               <InfoItem>
                 <InfoLabel>Current Settings</InfoLabel>
                 <InfoValue>
-                  Theme: {footerTheme}, Links: {showLinks ? "Enabled" : "Disabled"}, 
+                  Theme: {footerTheme}, Links: {showLinks ? "Enabled" : "Disabled"},
                   Mode: {compactMode ? "Compact" : "Full"}
                 </InfoValue>
               </InfoItem>
@@ -136,12 +120,12 @@ const FooterComponentsTest = ({ history }) => {
               </InfoItem>
             </InfoCard>
 
-            <ComponentContainer style={{ 
+            <ComponentContainer style={{
               backgroundColor: footerTheme === "dark" ? "#333" : "#f8f9fa",
               padding: "20px",
               borderRadius: "8px"
             }}>
-              <SimpleFooter 
+              <SimpleFooter
                 theme={footerTheme}
                 showLinks={showLinks}
                 compact={compactMode}
@@ -169,13 +153,13 @@ const FooterComponentsTest = ({ history }) => {
               </InfoItem>
             </InfoCard>
 
-            <ComponentContainer style={{ 
+            <ComponentContainer style={{
               backgroundColor: footerTheme === "dark" ? "#222" : "#ffffff",
               padding: "20px",
               borderRadius: "8px",
               border: "1px solid #e0e0e0"
             }}>
-              <FooterVerbose 
+              <FooterVerbose
                 theme={footerTheme}
                 showLinks={showLinks}
                 compact={compactMode}
@@ -203,7 +187,7 @@ const FooterComponentsTest = ({ history }) => {
               </InfoItem>
             </InfoCard>
 
-            <ComponentContainer style={{ 
+            <ComponentContainer style={{
               background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               padding: "40px 20px",
               borderRadius: "16px",
@@ -223,9 +207,9 @@ const FooterComponentsTest = ({ history }) => {
                 `,
                 zIndex: 0
               }} />
-              
+
               <div style={{ position: "relative", zIndex: 1 }}>
-                <LiquidGlassFooter 
+                <LiquidGlassFooter
                   theme={footerTheme}
                   showLinks={showLinks}
                   compact={compactMode}
@@ -277,7 +261,7 @@ const FooterComponentsTest = ({ history }) => {
                   Best for: Basic sites, minimal designs
                 </p>
               </div>
-              
+
               <div style={{
                 padding: "16px",
                 backgroundColor: "#e3f2fd",
@@ -289,7 +273,7 @@ const FooterComponentsTest = ({ history }) => {
                   Best for: Corporate sites, detailed navigation
                 </p>
               </div>
-              
+
               <div style={{
                 padding: "16px",
                 background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
@@ -305,8 +289,8 @@ const FooterComponentsTest = ({ history }) => {
             </div>
           </SectionContent>
         </Section>
-      </Content>
-    </Container>
+      </TestPageContent>
+    </TestPageContainer>
   );
 };
 
