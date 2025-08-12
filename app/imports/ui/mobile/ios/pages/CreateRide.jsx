@@ -13,6 +13,11 @@ import {
   CreateRidePageContainer,
   CreateRideHeader,
   CreateRideHeaderTitle,
+  CreateRideContent,
+  CreateRideForm,
+  FormField,
+  DateTimeRow,
+  FlexField,
   Form,
   FormGroup,
   Label,
@@ -126,13 +131,8 @@ const CreateRide = ({ history, currentUser }) => {
 
       <BackButton />
 
-      <div style={{ padding: "20px" }}>
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "16px",
-          padding: "30px",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
-        }}>
+      <CreateRideContent>
+        <CreateRideForm>
           <h2 style={{
             margin: "0 0 8px 0",
             fontSize: "24px",
@@ -384,8 +384,8 @@ const CreateRide = ({ history, currentUser }) => {
           >
             {isCreating ? "Creating Ride..." : "Create Ride"}
           </button>
-        </div>
-      </div>
+        </CreateRideForm>
+      </CreateRideContent>
     </CreateRidePageContainer>
   );
 };

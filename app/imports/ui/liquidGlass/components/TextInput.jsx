@@ -12,6 +12,7 @@ import {
   ErrorMessage,
   HelperText,
   CharacterCount,
+  FlexContainer,
 } from "../styles/TextInput";
 
 /**
@@ -175,10 +176,10 @@ function LiquidGlassTextInput({
             gap: "8px",
           }}
         >
-          <div style={{ flex: 1 }}>
+          <FlexContainer>
             {error && <ErrorMessage>{error}</ErrorMessage>}
             {!error && helperText && <HelperText>{helperText}</HelperText>}
-          </div>
+          </FlexContainer>
 
           {showCharacterCount && maxLength && (
             <CharacterCount $isOverLimit={isOverLimit}>

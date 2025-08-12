@@ -325,3 +325,7 @@ export const CharacterCount = styled.div`
   white-space: nowrap;
   flex-shrink: 0;
 `;
+
+export const FlexContainer = styled.div`
+  flex: 1;
+`;
