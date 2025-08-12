@@ -10,3 +10,9 @@ export const AppContainer = styled.div`
   /* Ensure we don't exceed viewport bounds */
   box-sizing: border-box;
 `;
+
+export const MainContent = styled.main`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;

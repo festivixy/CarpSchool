@@ -38,7 +38,7 @@ import ProtectedRoutes, {
   ProtectedRouteRequireNotEmailVerified,
 } from "./ProtectedRoutes";
 import { DesktopOnly, MobileOnly } from "./Devices";
-import { AppContainer } from "../styles/App";
+import { AppContainer, MainContent } from "../styles/App";
 import FooterVerbose from "../desktop/components/FooterVerbose";
 import MobileNavBarAuto from "../mobile/components/MobileNavBarAuto";
 import MobileNativeBlurDemo from "../test/pages/NativeBlurDemo";
@@ -56,19 +56,13 @@ const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapCom
 /** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
   render() {
-    const mainContentStyle = {
-      flex: "1",
-      display: "flex",
-      flexDirection: "column",
-    };
-
     return (
       <Router>
         <AppContainer>
           <DesktopOnly>
             <MobileNavBar />
           </DesktopOnly>
-          <main style={mainContentStyle}>
+          <MainContent>
             <Switch>
               <ProtectedRouteRequireNotLoggedIn exact path="/" component={MobileLanding} />
               <Route exact path="/404" component={MobileNotFound} />
@@ -181,7 +175,7 @@ class App extends React.Component {
               {/* Catch-all route for 404 */}
               <Redirect to="/404" />
             </Switch>
-          </main>
+          </MainContent>
           <DesktopOnly>
             <FooterVerbose />
           </DesktopOnly>
