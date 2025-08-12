@@ -25,8 +25,45 @@ meteor_build_bundle() {
     meteor build "$build_dir" --architecture "$architecture" --server-only
 }
 
+meteor_install_cordova_plugins() {
+    local pathpwd=$(pwd)
+    cd app
+    echo -e "${YELLOW}🔄 Installing Cordova plugins...${NC}"
+    meteor add "cordova:cordova-plugin-native-navbar@file://$(pwd)/plugins/cordova-plugin-native-navbar"
+    cd "$pathpwd"
+}
+
+xcode_copy_cordova_plugins() {
+    # check if pbxproj is installed
+    if ! command -v pbxproj &> /dev/null; then
+        echo -e "${RED}❌ pbxproj not found. Please install it using pip:${NC}"
+        echo "pip install pbxproj"
+        return 1
+    fi
+
+    local pathpwd=$(pwd)
+
+    # here, make sure that we are in app. (check if ./.meteor/release exists)
+    # if not, check if ./app/.meteor/release exists. if yes, cd app
+    if [ ! -f ".meteor/release" ]; then
+        if [ -f "app/.meteor/release" ]; then
+            cd app
+        else
+            echo -e "${RED}❌ Not in Carpool app directory or .meteor/release not found${NC}"
+            return 1
+        fi
+    fi
+
+    cp plugins/cordova-plugin-native-navbar/src/ios/* ../build/ios/project/CarpSchool/Plugins/
+    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/NativeNavBar.swift
+    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/NativeNavBar.m
+    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/NativeNavBar.h
+    cd "$pathpwd"
+}
+
 # Function to build iOS app
 meteor_build_ios() {
+    meteor_install_cordova_plugins
     local build_dir=${1:-"../build"}
     local server_url=${2:-"https://carp.school"}
 
@@ -68,6 +105,25 @@ meteor_build_ios() {
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ iOS build completed successfully!${NC}"
         echo -e "${GREEN}📁 Build output available at: $build_dir${NC}"
+
+        # Integrate native navbar plugin manually (workaround for Meteor 3.3.0 local plugin bug)
+        echo -e "${YELLOW}🔧 Integrating native navbar plugin...${NC}"
+
+        # Copy plugin files to Xcode project
+        cp plugins/cordova-plugin-native-navbar/src/ios/* "$build_dir/ios/project/CarpSchool/Plugins/"
+
+        # Add files to Xcode project using pbxproj
+        if command -v pbxproj &> /dev/null; then
+            pbxproj file "$build_dir/ios/project/CarpSchool.xcodeproj" "$build_dir/ios/project/CarpSchool/Plugins/NativeNavBar.swift"
+            pbxproj file "$build_dir/ios/project/CarpSchool.xcodeproj" "$build_dir/ios/project/CarpSchool/Plugins/NativeNavBar.m"
+            pbxproj file "$build_dir/ios/project/CarpSchool.xcodeproj" "$build_dir/ios/project/CarpSchool/Plugins/NativeNavBar.h"
+            echo -e "${GREEN}✅ Native navbar plugin integrated successfully!${NC}"
+        else
+            echo -e "${YELLOW}⚠️  pbxproj not found. Plugin files copied, but you'll need to add them manually in Xcode.${NC}"
+            echo -e "${YELLOW}💡 Install pbxproj with: pip install pbxproj${NC}"
+        fi
+
+        cd ..
     else
         echo -e "${RED}❌ iOS build failed${NC}"
         return 1
@@ -76,6 +132,7 @@ meteor_build_ios() {
 
 # Function to build Android app
 meteor_build_android() {
+    meteor_install_cordova_plugins
     local build_dir=${1:-"../build"}
     local server_url=${2:-"https://carp.school"}
 
@@ -140,6 +197,7 @@ meteor_run_dev() {
 
 # Function to run iOS development server
 meteor_run_ios() {
+    meteor_install_cordova_plugins
     local settings_file=${1:-"../config/settings.development.json"}
     local port=${2:-"3001"}
 
@@ -178,6 +236,7 @@ meteor_run_ios() {
 
 # Function to run Android development server
 meteor_run_android() {
+    meteor_install_cordova_plugins
     local settings_file=${1:-"../config/settings.development.json"}
     local port=${2:-"3001"}
 
