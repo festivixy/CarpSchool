@@ -472,3 +472,16 @@ export const SuccessDetails = styled.div`
     }
   }
 `;
+
+export const LoadingContainer = styled.div`
+  text-align: center;
+  padding: 2rem;
+`;
+
+export const SuccessDetailItem = styled.div`
+  margin-bottom: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;

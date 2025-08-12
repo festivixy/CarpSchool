@@ -41,6 +41,8 @@ import {
   SuccessTitle,
   SuccessMessage,
   SuccessDetails,
+  LoadingContainer,
+  SuccessDetailItem,
 } from "../styles/AddRides";
 
 /**
@@ -349,9 +351,9 @@ class AddRidesModal extends React.Component {
               <Subtitle>Share your ride with fellow students</Subtitle>
             </Header>
             <Content>
-              <div style={{ textAlign: "center", padding: "2rem" }}>
+              <LoadingContainer>
                 Loading places...
-              </div>
+              </LoadingContainer>
             </Content>
           </Modal>
         </ModalOverlay>
@@ -382,15 +384,15 @@ class AddRidesModal extends React.Component {
                   successfully.
                 </SuccessMessage>
                 <SuccessDetails>
-                  <div>
+                  <SuccessDetailItem>
                     <strong>Date:</strong> {new Date(date).toLocaleDateString()}
-                  </div>
-                  <div>
+                  </SuccessDetailItem>
+                  <SuccessDetailItem>
                     <strong>Time:</strong> {time}
-                  </div>
-                  <div>
+                  </SuccessDetailItem>
+                  <SuccessDetailItem>
                     <strong>Seats:</strong> {seats}
-                  </div>
+                  </SuccessDetailItem>
                 </SuccessDetails>
               </Success>
             ) : (

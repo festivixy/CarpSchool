@@ -18,7 +18,7 @@ export const DropdownLabel = styled.label`
   font-weight: 600;
   color: #1C1C1E;
   margin-bottom: 8px;
-  
+
   ${props => props.disabled && css`
     color: #8E8E93;
   `}
@@ -91,7 +91,7 @@ export const DropdownTrigger = styled.button`
   ${props => props.hasError && css`
     border-color: #FF3B30;
     background-color: rgba(255, 59, 48, 0.05);
-    
+
     &:focus {
       box-shadow: 0 0 0 1px rgba(255, 59, 48, 0.3);
     }
@@ -102,7 +102,7 @@ export const DropdownTrigger = styled.button`
     background-color: #F2F2F7;
     opacity: 0.6;
     cursor: not-allowed;
-    
+
     &:focus {
       border-color: transparent;
       box-shadow: none;
@@ -146,7 +146,7 @@ export const TriggerIcon = styled.span`
   font-size: 12px;
   display: flex;
   align-items: center;
-  
+
   ${props => props.isOpen && css`
     transform: rotate(180deg);
   `}
@@ -235,7 +235,7 @@ export const MenuItem = styled.div`
   ${props => props.disabled && css`
     opacity: 0.6;
     cursor: not-allowed;
-    
+
     &:hover {
       background-color: transparent;
     }
@@ -278,7 +278,7 @@ export const ErrorMessage = styled.div`
   font-weight: 500;
   display: flex;
   align-items: flex-start;
-  
+
   &:before {
     content: "⚠️";
     margin-right: 4px;
@@ -291,4 +291,14 @@ export const HelperText = styled.div`
   color: #8E8E93;
   margin-top: 4px;
   line-height: 1.4;
+`;
+
+export const ActionContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const MessageContainer = styled.div`
+  /* Container for error and helper text messages */
 `;

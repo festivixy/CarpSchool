@@ -17,6 +17,8 @@ import {
   RequiredIndicator,
   ErrorMessage,
   HelperText,
+  ActionContainer,
+  MessageContainer,
 } from "../styles/Dropdown";
 
 /**
@@ -259,7 +261,7 @@ const Dropdown = ({
           )}
         </TriggerContent>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <ActionContainer>
           {clearable && displayValue && !disabled && (
             <button
               type="button"
@@ -282,7 +284,7 @@ const Dropdown = ({
           <TriggerIcon isOpen={isOpen}>
             ▼
           </TriggerIcon>
-        </div>
+        </ActionContainer>
       </DropdownTrigger>
 
       {isOpen && (
@@ -340,7 +342,7 @@ const Dropdown = ({
       )}
 
       {(error || helperText) && (
-        <div>
+        <MessageContainer>
           {error && (
             <ErrorMessage id={errorId} role="alert">
               {error}
@@ -352,7 +354,7 @@ const Dropdown = ({
               {helperText}
             </HelperText>
           )}
-        </div>
+        </MessageContainer>
       )}
     </DropdownContainer>
   );
