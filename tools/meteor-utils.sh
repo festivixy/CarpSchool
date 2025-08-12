@@ -105,25 +105,6 @@ meteor_build_ios() {
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ iOS build completed successfully!${NC}"
         echo -e "${GREEN}📁 Build output available at: $build_dir${NC}"
-
-        # Integrate native navbar plugin manually (workaround for Meteor 3.3.0 local plugin bug)
-        echo -e "${YELLOW}🔧 Integrating native navbar plugin...${NC}"
-
-        # Copy plugin files to Xcode project
-        cp plugins/cordova-plugin-native-navbar/src/ios/* "$build_dir/ios/project/CarpSchool/Plugins/"
-
-        # Add files to Xcode project using pbxproj
-        if command -v pbxproj &> /dev/null; then
-            pbxproj file "$build_dir/ios/project/CarpSchool.xcodeproj" "$build_dir/ios/project/CarpSchool/Plugins/NativeNavBar.swift"
-            pbxproj file "$build_dir/ios/project/CarpSchool.xcodeproj" "$build_dir/ios/project/CarpSchool/Plugins/NativeNavBar.m"
-            pbxproj file "$build_dir/ios/project/CarpSchool.xcodeproj" "$build_dir/ios/project/CarpSchool/Plugins/NativeNavBar.h"
-            echo -e "${GREEN}✅ Native navbar plugin integrated successfully!${NC}"
-        else
-            echo -e "${YELLOW}⚠️  pbxproj not found. Plugin files copied, but you'll need to add them manually in Xcode.${NC}"
-            echo -e "${YELLOW}💡 Install pbxproj with: pip install pbxproj${NC}"
-        fi
-
-        cd ..
     else
         echo -e "${RED}❌ iOS build failed${NC}"
         return 1
