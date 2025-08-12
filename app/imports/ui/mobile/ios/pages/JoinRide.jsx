@@ -25,6 +25,22 @@ import {
   JoinRideContent,
   JoinRideForm,
   CodeContainer,
+  SuccessModalContainer,
+  SuccessIconContainer,
+  SuccessHeading,
+  SuccessText,
+  MainPageContainer,
+  FixedHeader,
+  HeaderTitle,
+  ContentPadding,
+  FormContainer,
+  FormTitle,
+  FormDescription,
+  CodeInputsContainer,
+  CodeInputWrapper,
+  CodeInput,
+  CodeSeparator,
+  FormErrorMessage,
 } from "../styles/JoinRide";
 
 /**
@@ -108,190 +124,77 @@ const JoinRide = ({ history, currentUser }) => {
   if (success) {
     return (
       <SuccessOverlay>
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "16px",
-          padding: "40px 30px",
-          textAlign: "center",
-          maxWidth: "320px",
-          width: "100%",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
-        }}>
-          <div style={{
-            fontSize: "48px",
-            marginBottom: "20px"
-          }}>
+        <SuccessModalContainer>
+          <SuccessIconContainer>
             ✅
-          </div>
-          <h2 style={{
-            margin: "0 0 12px 0",
-            fontSize: "22px",
-            fontWeight: "600",
-            color: "#333"
-          }}>
+          </SuccessIconContainer>
+          <SuccessHeading>
             Successfully Joined!
-          </h2>
-          <p style={{
-            margin: 0,
-            fontSize: "16px",
-            color: "#666",
-            lineHeight: "1.4"
-          }}>
+          </SuccessHeading>
+          <SuccessText>
             You've successfully joined the ride. Redirecting to your rides...
-          </p>
-        </div>
+          </SuccessText>
+        </SuccessModalContainer>
       </SuccessOverlay>
     );
   }
 
   return (
-    <div style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "#f5f5f5",
-      paddingTop: "60px",
-      paddingBottom: "100px"
-    }}>
+    <MainPageContainer>
       {/* Fixed Header */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "60px",
-        backgroundColor: "white",
-        borderBottom: "1px solid #e0e0e0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 99
-      }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: "18px",
-          fontWeight: "600",
-          color: "#333"
-        }}>
+      <FixedHeader>
+        <HeaderTitle>
           Join Ride
-        </h1>
-      </div>
+        </HeaderTitle>
+      </FixedHeader>
 
       <BackButton />
 
-      <div style={{ padding: "20px" }}>
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "16px",
-          padding: "30px",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
-        }}>
-          <h2 style={{
-            margin: "0 0 8px 0",
-            fontSize: "24px",
-            fontWeight: "700",
-            color: "#333",
-            textAlign: "center"
-          }}>
+      <ContentPadding>
+        <FormContainer>
+          <FormTitle>
             Enter Ride Code
-          </h2>
-          <p style={{
-            margin: "0 0 30px 0",
-            fontSize: "16px",
-            color: "#666",
-            textAlign: "center",
-            lineHeight: "1.4"
-          }}>
+          </FormTitle>
+          <FormDescription>
             Enter the 8-character code shared by the driver
-          </p>
+          </FormDescription>
 
           {/* Code Inputs */}
-          <div style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "8px",
-            marginBottom: "20px",
-            flexWrap: "wrap"
-          }}>
+          <CodeInputsContainer>
             {codeInputs.map((value, index) => (
-              <div key={index}>
-                <input
+              <CodeInputWrapper key={index}>
+                <CodeInput
                   ref={(el) => (inputRefs[index] = el)}
                   type="text"
                   value={value}
                   onChange={(e) => handleInputChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  style={{
-                    width: "40px",
-                    height: "50px",
-                    textAlign: "center",
-                    fontSize: "20px",
-                    fontWeight: "600",
-                    border: "2px solid #e0e0e0",
-                    borderRadius: "8px",
-                    backgroundColor: "white",
-                    color: "#333",
-                    outline: "none",
-                    transition: "border-color 0.2s ease",
-                    boxSizing: "border-box"
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = "#007AFF"}
-                  onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
                 />
                 {index === 3 && (
-                  <span style={{
-                    display: "inline-block",
-                    width: "16px",
-                    textAlign: "center",
-                    fontSize: "20px",
-                    color: "#ccc",
-                    verticalAlign: "middle"
-                  }}>
+                  <CodeSeparator>
                     -
-                  </span>
+                  </CodeSeparator>
                 )}
-              </div>
+              </CodeInputWrapper>
             ))}
-          </div>
+          </CodeInputsContainer>
 
           {error && (
-            <div style={{
-              padding: "12px 16px",
-              marginBottom: "20px",
-              backgroundColor: "#FFEBEE",
-              border: "1px solid #FFCDD2",
-              borderRadius: "8px",
-              color: "#C62828",
-              fontSize: "14px",
-              textAlign: "center"
-            }}>
+            <FormErrorMessage>
               {error}
-            </div>
+            </FormErrorMessage>
           )}
 
-          <button
+          <SubmitButton
             onClick={handleJoinRide}
             disabled={isJoining || codeInputs.join("").length < 8}
-            style={{
-              width: "100%",
-              padding: "16px",
-              backgroundColor: codeInputs.join("").length === 8 ? "#007AFF" : "#ccc",
-              border: "none",
-              borderRadius: "12px",
-              fontSize: "16px",
-              fontWeight: "600",
-              color: "white",
-              cursor: codeInputs.join("").length === 8 ? "pointer" : "not-allowed",
-              transition: "background-color 0.2s ease"
-            }}
+            enabled={codeInputs.join("").length === 8}
           >
             {isJoining ? "Joining..." : "Join Ride"}
-          </button>
-        </div>
-      </div>
-    </div>
+          </SubmitButton>
+        </FormContainer>
+      </ContentPadding>
+    </MainPageContainer>
   );
 };
 

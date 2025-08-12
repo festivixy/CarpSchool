@@ -210,3 +210,160 @@ export const CodeContainer = styled.div`
   justify-content: center;
   margin-bottom: 20px;
 `;
+
+export const SuccessModalContainer = styled.div`
+  background-color: white;
+  border-radius: 16px;
+  padding: 40px 30px;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+`;
+
+export const SuccessIconContainer = styled.div`
+  font-size: 48px;
+  margin-bottom: 20px;
+`;
+
+export const SuccessHeading = styled.h2`
+  margin: 0 0 12px 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+`;
+
+export const SuccessText = styled.p`
+  margin: 0;
+  font-size: 16px;
+  color: #666;
+  line-height: 1.4;
+`;
+
+export const MainPageContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f5f5f5;
+  padding-top: 60px;
+  padding-bottom: 100px;
+`;
+
+export const FixedHeader = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+`;
+
+export const HeaderTitle = styled.h1`
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+`;
+
+export const ContentPadding = styled.div`
+  padding: 20px;
+`;
+
+export const FormContainer = styled.div`
+  background-color: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+`;
+
+export const FormTitle = styled.h2`
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+`;
+
+export const FormDescription = styled.p`
+  margin: 0 0 30px 0;
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+  line-height: 1.4;
+`;
+
+export const CodeInputsContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+`;
+
+export const CodeInputWrapper = styled.div`
+  /* Wrapper for individual input and separator */
+`;
+
+export const CodeInput = styled.input`
+  width: 40px;
+  height: 50px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: white;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #007AFF;
+  }
+`;
+
+export const CodeSeparator = styled.span`
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+  font-size: 20px;
+  color: #ccc;
+  vertical-align: middle;
+`;
+
+export const FormErrorMessage = styled.div`
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background-color: #FFEBEE;
+  border: 1px solid #FFCDD2;
+  border-radius: 8px;
+  color: #C62828;
+  font-size: 14px;
+  text-align: center;
+`;
+
+export const SubmitButton = styled.button`
+  width: 100%;
+  padding: 16px;
+  background-color: ${props => props.enabled ? '#007AFF' : '#ccc'};
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: ${props => props.enabled ? 'pointer' : 'not-allowed'};
+  transition: background-color 0.2s ease;
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
