@@ -50,7 +50,11 @@ App.setPreference("android-installLocation", "auto");
 // Android signing preferences for release builds
 App.setPreference("android-signed", "true");
 App.setPreference("android-versionCode", "1");
-App.setPreference("CodePushDeploymentKey", "");
+
+// CodePush configuration
+App.setPreference("CodePushDeploymentKey", ""); // Will be set during build
+App.setPreference("CodePushServerURL", "https://codepush.carp.school"); // Your self-hosted server
+App.setPreference("CodePushPublicKeyURL", "https://codepush.carp.school/updateCheck");
 App.setPreference("AutoHideSplashScreen", "true", "android");
 App.setPreference("SplashMaintainAspectRatio", "true", "android");
 
