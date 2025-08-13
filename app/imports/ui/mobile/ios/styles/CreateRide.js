@@ -26,26 +26,21 @@ const successPulse = keyframes`
   }
 `;
 
-// Page container instead of modal overlay
+// Page container with normal page styling
 export const CreateRidePageContainer = styled.div`
   min-height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: #f8f9fa;
   padding: 20px;
-  backdrop-filter: blur(4px);
 `;
 
-// Page content styled like modal
+// Page content without modal container styling
 export const CreateRideContent = styled.div`
   background-color: rgba(255, 255, 255, 1);
   border-radius: 16px;
   max-width: 450px;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family:
     Inter,
     -apple-system,
