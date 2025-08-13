@@ -320,7 +320,7 @@ class ErrorBoundary extends Component {
           <ErrorActions>
             {showRetry && (
               <RetryButton onClick={this.handleGoBack}>
-                Go Back & Refresh
+                Go Back
               </RetryButton>
             )}
 
