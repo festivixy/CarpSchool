@@ -7,6 +7,7 @@ import swal from "sweetalert";
 import { ErrorReports } from "../../../api/errorReport/ErrorReport";
 import { MobileOnly } from "../../layouts/Devices";
 import { Spacer } from "../../components";
+import BackButton from "../../mobile/components/BackButton";
 import {
   Container,
   Header,
@@ -264,6 +265,7 @@ class DesktopAdminErrorReports extends React.Component {
 
     return (
       <Container>
+        <BackButton />
         <Header>
           <Title>
             <TitleIcon>🚨</TitleIcon>
