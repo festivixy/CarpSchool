@@ -32,7 +32,7 @@ import {
 /**
  * Test page for LiquidGlass components - Admin only
  */
-const LiquidGlassComponentsTest = ({ history }) => {
+const LiquidGlassComponentsTest = ({ history: _history }) => {
   // Background animation state
   const [backgroundPosition, setBackgroundPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);

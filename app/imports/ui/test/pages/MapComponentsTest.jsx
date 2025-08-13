@@ -26,13 +26,12 @@ import {
   TestPageTitle,
   FlexContainer,
   MarginContainer,
-  DynamicMapContainer,
 } from "../styles/MapComponentsTest";
 
 /**
  * Test page for Map components - Admin only
  */
-const MapComponentsTest = ({ history }) => {
+const MapComponentsTest = ({ history: _history }) => {
   // MapView state
   const [coordinates, setCoordinates] = useState([
     { lat: 49.345196, lng: -123.149805, label: "Vancouver" },
@@ -65,7 +64,7 @@ const MapComponentsTest = ({ history }) => {
   const [pathEndLat, setPathEndLat] = useState("49.35");
   const [pathEndLng, setPathEndLng] = useState("-123.155");
   const [pathMapHeight, setPathMapHeight] = useState("450px");
-  const [routingService, setRoutingService] = useState("osrm");
+  const [routingService] = useState("osrm");
 
   const handleAddPoint = () => {
     const lat = parseFloat(newPointLat);

@@ -34,26 +34,6 @@ import {
 const MobileNavBarAutoTest = ({ history }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [testLogs, setTestLogs] = useState([]);
-  const [customItems, setCustomItems] = useState([
-    {
-      id: "test1",
-      label: "Test 1",
-      icon: "/svg/home.svg",
-      action: "navigate",
-    },
-    {
-      id: "test2",
-      label: "Test 2",
-      icon: "/svg/search.svg",
-      action: "navigate",
-    },
-    {
-      id: "test3",
-      label: "Test 3",
-      icon: "/svg/plus.svg",
-      action: "navigate",
-    },
-  ]);
 
   // Environment detection info
   const getEnvironmentInfo = () => ({

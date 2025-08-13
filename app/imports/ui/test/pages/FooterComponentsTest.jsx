@@ -9,16 +9,6 @@ import {
   TestPageHeader,
   TestPageTitle,
   TestPageContent,
-  TestControlsCard,
-  TestControlsTitle,
-  TestControlsGrid,
-  TestControlLabel,
-  TestComponentsGrid,
-  TestComponentCard,
-  TestComponentHeader,
-  TestComponentTitle,
-  TestComponentDescription,
-  TestComponentDemo,
   CheckboxLabel,
   Select,
   DemoContainer,
@@ -36,7 +26,7 @@ import {
  * Test page for Footer components - Admin only
  * Tests all 3 footer variants: Classic (Simple), Verbose, and LiquidGlass
  */
-const FooterComponentsTest = ({ history }) => {
+const FooterComponentsTest = ({ history: _history }) => {
   const [footerTheme, setFooterTheme] = useState("light");
   const [showLinks, setShowLinks] = useState(true);
   const [compactMode, setCompactMode] = useState(false);
