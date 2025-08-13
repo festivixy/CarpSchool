@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { AsyncTileLayer } from "../../utils/AsyncTileLayer";
+import { AsyncTileLayer } from "../utils/AsyncTileLayer";
 import {
   MapContainer,
   MapWrapper,
@@ -14,7 +14,7 @@ import {
   ErrorMessage,
   LoadingMessage,
   MapViewContainer,
-} from "../styles/PathMapView";
+} from "../mobile/styles/PathMapView";
 
 // Fix for default markers in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;

@@ -6,7 +6,7 @@ import {
   LoadingMessage,
   LoadingSubMessage,
   SpinnerCircle,
-} from "../styles/LoadingPage";
+} from "../mobile/styles/LoadingPage";
 
 /**
  * Loading page component with animated spinner and customizable message
