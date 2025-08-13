@@ -64,6 +64,7 @@ const SharedComponentsDemo = ({ history }) => {
       onRetry={() => window.location.reload()}
     >
       <DemoContainer>
+        <BackButton />
         <DemoTitle>Shared Components Demo</DemoTitle>
         <DemoDescription>
           This page demonstrates the new shared components that can be used across both desktop and mobile platforms.
