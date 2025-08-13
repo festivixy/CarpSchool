@@ -63,6 +63,49 @@ App.accessRule("*");
 App.accessRule("https://carp.school/*");
 App.accessRule("https://*.carp.school/*");
 
+// iOS App Transport Security (ATS) Exception Domains
+App.setPreference("NSAppTransportSecurity", JSON.stringify({
+  NSAllowsArbitraryLoads: false, // Keep ATS enabled globally
+  NSExceptionDomains: {
+    "carp.school": {
+      NSExceptionAllowsInsecureHTTPLoads: true,
+      NSExceptionMinimumTLSVersion: "TLSv1.0",
+      NSExceptionRequiresForwardSecrecy: false,
+      NSIncludesSubdomains: true
+    },
+    "localhost": {
+      NSExceptionAllowsInsecureHTTPLoads: true,
+      NSExceptionMinimumTLSVersion: "TLSv1.0",
+      NSExceptionRequiresForwardSecrecy: false
+    },
+    "127.0.0.1": {
+      NSExceptionAllowsInsecureHTTPLoads: true,
+      NSExceptionMinimumTLSVersion: "TLSv1.0",
+      NSExceptionRequiresForwardSecrecy: false
+    },
+    "tileserver.carp.school": {
+      NSExceptionAllowsInsecureHTTPLoads: false,
+      NSExceptionMinimumTLSVersion: "TLSv1.2",
+      NSExceptionRequiresForwardSecrecy: true
+    },
+    "nominatim.carp.school": {
+      NSExceptionAllowsInsecureHTTPLoads: false,
+      NSExceptionMinimumTLSVersion: "TLSv1.2",
+      NSExceptionRequiresForwardSecrecy: true
+    },
+    "osrm.carp.school": {
+      NSExceptionAllowsInsecureHTTPLoads: false,
+      NSExceptionMinimumTLSVersion: "TLSv1.2",
+      NSExceptionRequiresForwardSecrecy: true
+    },
+    "codepush.carp.school": {
+      NSExceptionAllowsInsecureHTTPLoads: false,
+      NSExceptionMinimumTLSVersion: "TLSv1.2",
+      NSExceptionRequiresForwardSecrecy: true
+    }
+  }
+}), "ios");
+
 // Set up resources such as icons and launch screens.
 App.icons({
     app_store: "resources/icons/app_store.png", // 1024x1024 pixels
