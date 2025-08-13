@@ -193,22 +193,22 @@ const SharedComponentsDemo = ({ history }) => {
           <ComponentDemo>
             <ComponentTitle>LoadingSpinner Component</ComponentTitle>
             <ComponentControls>
-              <div style={{ display: "flex", gap: "20px", alignItems: "center", flexWrap: "wrap" }}>
+              <FlexContainer>
                 <LoadingSpinner size="small" text="Small" />
                 <LoadingSpinner size="medium" text="Medium" />
                 <LoadingSpinner size="large" text="Large" />
                 <LoadingSpinner size="xlarge" text="XLarge" />
-              </div>
-              <div style={{ display: "flex", gap: "20px", alignItems: "center", flexWrap: "wrap", marginTop: "20px" }}>
+              </FlexContainer>
+              <FlexContainer $marginTop="20px">
                 <LoadingSpinner variant="spinner" text="Spinner" />
                 <LoadingSpinner variant="dots" text="Dots" />
                 <LoadingSpinner variant="pulse" text="Pulse" />
                 <LoadingSpinner variant="ring" text="Ring" />
-              </div>
-              <div style={{ marginTop: "20px" }}>
+              </FlexContainer>
+              <MarginContainer>
                 <LoadingSpinner inline text="Inline spinner" />
-                <span style={{ marginLeft: "20px" }}>with other content</span>
-              </div>
+                <InlineText>with other content</InlineText>
+              </MarginContainer>
             </ComponentControls>
             <DemoCode>
 {`<LoadingSpinner size="medium" text="Loading..." />
@@ -229,7 +229,7 @@ const SharedComponentsDemo = ({ history }) => {
               >
                 {showError ? "Reset Error" : "Trigger Error"}
               </Button>
-              <div style={{ marginTop: "16px", padding: "16px", border: "1px solid #ddd", borderRadius: "8px" }}>
+              <ComponentControls>
                 <ErrorBoundary
                   title="Component Error"
                   message="This component encountered an error."
@@ -238,7 +238,7 @@ const SharedComponentsDemo = ({ history }) => {
                 >
                   <ErrorComponent />
                 </ErrorBoundary>
-              </div>
+              </ComponentControls>
             </ComponentControls>
             <DemoCode>
 {`<ErrorBoundary
@@ -275,11 +275,11 @@ import Button from '../../components/Button';`}
           </DemoCode>
         </DemoSection>
 
-        <div style={{ marginTop: "40px", textAlign: "center" }}>
+        <CenteredContainer style={{ marginTop: "40px" }}>
           <Button variant="outline" onClick={() => history.goBack()}>
             ← Back to Previous Page
           </Button>
-        </div>
+        </CenteredContainer>
       </DemoContainer>
     </ErrorBoundary>
   );

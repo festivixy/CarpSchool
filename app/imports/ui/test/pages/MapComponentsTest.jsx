@@ -159,7 +159,7 @@ const MapComponentsTest = ({ history }) => {
               </ControlItem>
               <ControlItem>
                 <Label>Actions</Label>
-                <div style={{ display: "flex", gap: "8px" }}>
+                <FlexContainer>
                   <LiquidGlassButton
                     label="Add Point"
                     onClick={handleAddPoint}
@@ -168,7 +168,7 @@ const MapComponentsTest = ({ history }) => {
                     label="Clear All"
                     onClick={handleClearPoints}
                   />
-                </div>
+                </FlexContainer>
               </ControlItem>
             </ControlsGrid>
 
@@ -195,7 +195,7 @@ const MapComponentsTest = ({ history }) => {
                 <InfoValue>
                   {coordinates.length} point(s) displayed
                   {coordinates.length > 0 && (
-                    <div style={{ marginTop: "8px" }}>
+                    <MarginContainer>
                       {coordinates.map((coord, index) => (
                         <div
                           key={index}
@@ -226,7 +226,7 @@ const MapComponentsTest = ({ history }) => {
                           </button>
                         </div>
                       ))}
-                    </div>
+                    </MarginContainer>
                   )}
                 </InfoValue>
               </InfoItem>

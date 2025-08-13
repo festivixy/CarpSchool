@@ -25,6 +25,14 @@ import {
   ToolbarToggle,
   LoadingContainer,
   LoadingText,
+  FlexContainer,
+  BlurContainer,
+  InfoText,
+  DemoGrid,
+  DemoPanel,
+  PanelContent,
+  PanelTitle,
+  PanelSubtext,
 } from "../styles/NativeBlurDemo";
 
 /**
@@ -300,7 +308,7 @@ const NativeBlurDemo = (props) => {
 
           <ControlGroup>
             <ControlLabel>Debug Logs</ControlLabel>
-            <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+            <FlexContainer>
               <StyleButton
                 active={showLogs}
                 onClick={() => setShowLogs(!showLogs)}
@@ -350,7 +358,7 @@ const NativeBlurDemo = (props) => {
 
           <ControlGroup>
             <ControlLabel>CSS Blur Demo Areas (Native Blur Disabled)</ControlLabel>
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <DemoGrid>
               <div style={{
                 width: "200px",
                 height: "100px",
