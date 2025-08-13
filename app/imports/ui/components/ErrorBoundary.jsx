@@ -188,24 +188,18 @@ class ErrorBoundary extends Component {
     }
   };
 
-  handleRetry = () => {
-    const newRetryCount = this.state.retryCount + 1;
+  handleGoBack = () => {
+    // Try to go back in browser history
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // Fallback: navigate to home page if no history
+      window.location.href = '/';
+    }
 
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      errorId: null,
-      serverErrorId: null,
-      reportStatus: null,
-      retryCount: newRetryCount,
-    });
-
-    console.log(`ErrorBoundary retry attempt #${newRetryCount}`);
-
-    // Call custom retry handler if provided
+    // Call custom retry handler if provided (for backward compatibility)
     if (this.props.onRetry) {
-      this.props.onRetry(newRetryCount);
+      this.props.onRetry();
     }
   };
 
@@ -279,7 +273,7 @@ class ErrorBoundary extends Component {
       // Use custom fallback if provided
       if (fallback) {
         if (typeof fallback === "function") {
-          return fallback(error, this.handleRetry, errorId);
+          return fallback(error, this.handleGoBack, errorId);
         }
         return fallback;
       }
@@ -316,14 +310,13 @@ class ErrorBoundary extends Component {
             <ErrorDetails>
               <summary>Technical Details</summary>
               <pre>{error.stack}</pre>
-              {retryCount > 0 && <p>Retry attempts: {retryCount}</p>}
             </ErrorDetails>
           )}
 
           <ErrorActions>
             {showRetry && (
-              <RetryButton onClick={this.handleRetry}>
-                {retryCount > 0 ? `Try Again (${retryCount + 1})` : "Try Again"}
+              <RetryButton onClick={this.handleGoBack}>
+                Go Back
               </RetryButton>
             )}
 
