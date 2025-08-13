@@ -27,9 +27,17 @@ meteor_build_bundle() {
 
 meteor_install_cordova_plugins() {
     local pathpwd=$(pwd)
-    cd app
+    if [ ! -f ".meteor/release" ]; then
+        if [ -f "app/.meteor/release" ]; then
+            cd app
+        else
+            echo -e "${RED}❌ Not in Carpool app directory or .meteor/release not found${NC}"
+            return 1
+        fi
+    fi
     echo -e "${YELLOW}🔄 Installing Cordova plugins...${NC}"
     meteor add "cordova:cordova-plugin-native-navbar@file://$(pwd)/plugins/cordova-plugin-native-navbar"
+    meteor add "cordova:cordova-plugin-transport-security@file://$(pwd)/plugins/cordova-plugin-transport-security"
     cd "$pathpwd"
 }
 
@@ -421,4 +429,120 @@ meteor_fix_gradle() {
     rm -rf app/.meteor/local/bundler-cache
 
     echo -e "${GREEN}✅ Gradle caches cleaned. Try running meteor run android again.${NC}"
+}
+
+
+# Helper function to add common domains for CarpSchool app
+ios_add_carpschool_domains() {
+    echo -e "${YELLOW}🚗 Adding CarpSchool-specific ATS domains...${NC}"
+
+    local plist_path="../build/ios/project/CarpSchool/CarpSchool-Info.plist"
+
+    # Check if plist file exists
+    if [ ! -f "$plist_path" ]; then
+        echo -e "${RED}❌ Info.plist not found at: $plist_path${NC}"
+        echo -e "${YELLOW}💡 Make sure to build the iOS app first using: meteor_build_ios${NC}"
+        return 1
+    fi
+
+    echo -e "${YELLOW}🔧 Adding CarpSchool domains with specific ATS configurations...${NC}"
+
+    # Create a backup
+    local backup_path="${plist_path}.backup.$(date +%Y%m%d_%H%M%S)"
+    cp "$plist_path" "$backup_path"
+    echo -e "${GREEN}✅ Created backup: $backup_path${NC}"
+
+    # Ensure NSAppTransportSecurity structure exists
+    if ! plutil -extract "NSAppTransportSecurity" raw "$plist_path" &> /dev/null; then
+        plutil -insert "NSAppTransportSecurity" -dictionary "$plist_path"
+        echo -e "${GREEN}✅ Created NSAppTransportSecurity structure${NC}"
+    fi
+
+    # Ensure NSExceptionDomains exists
+    if ! plutil -extract "NSAppTransportSecurity.NSExceptionDomains" raw "$plist_path" &> /dev/null; then
+        plutil -insert "NSAppTransportSecurity.NSExceptionDomains" -dictionary "$plist_path"
+        echo -e "${GREEN}✅ Created NSExceptionDomains structure${NC}"
+    fi
+
+    # Set NSAllowsArbitraryLoads to false for better security
+    plutil -replace "NSAppTransportSecurity.NSAllowsArbitraryLoads" -bool false "$plist_path"
+    echo -e "${GREEN}✅ Set NSAllowsArbitraryLoads to false${NC}"
+
+    # Domain configurations from plugin.xml (using arrays for compatibility)
+    local domains=(
+        "carp.school"
+        "tileserver.carp.school"
+        "nominatim.carp.school"
+        "osrm.carp.school"
+        "codepush.carp.school"
+        "localhost"
+        "127.0.0.1"
+        "dev.carp.school"
+    )
+
+    local configs=(
+        "subdomains,insecure,tls=1.0,forward_secrecy=false"
+        "tls=1.2,forward_secrecy=true"
+        "tls=1.2,forward_secrecy=true"
+        "tls=1.2,forward_secrecy=true"
+        "tls=1.2,forward_secrecy=true"
+        "insecure,tls=1.0,forward_secrecy=false"
+        "insecure,tls=1.0,forward_secrecy=false"
+        "insecure,tls=1.0,forward_secrecy=false"
+    )
+
+    # Process each domain with its specific configuration
+    local total_domains=${#domains[@]}
+    for ((i=0; i<total_domains; i++)); do
+        local domain="${domains[$i]}"
+        local config="${configs[$i]}"
+        echo -e "${YELLOW}🌐 Configuring domain: $domain${NC}"
+
+        # Create domain entry (always create fresh entry)
+        plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain" -dictionary "$plist_path" 2>/dev/null || \
+        plutil -remove "NSAppTransportSecurity.NSExceptionDomains.$domain" "$plist_path" 2>/dev/null && \
+        plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain" -dictionary "$plist_path"
+
+        # Parse and apply configuration
+        if [[ "$config" == *"subdomains"* ]]; then
+            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSIncludesSubdomains" -bool true "$plist_path"
+            echo -e "${GREEN}   ✓ NSIncludesSubdomains: true${NC}"
+        fi
+
+        if [[ "$config" == *"insecure"* ]]; then
+            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionAllowsInsecureHTTPLoads" -bool true "$plist_path"
+            echo -e "${GREEN}   ✓ NSExceptionAllowsInsecureHTTPLoads: true${NC}"
+        fi
+
+        if [[ "$config" == *"tls="* ]]; then
+            local tls_version=$(echo "$config" | grep -o 'tls=[^,]*' | cut -d'=' -f2)
+            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionMinimumTLSVersion" -string "TLSv$tls_version" "$plist_path"
+            echo -e "${GREEN}   ✓ NSExceptionMinimumTLSVersion: TLSv$tls_version${NC}"
+        fi
+
+        if [[ "$config" == *"forward_secrecy="* ]]; then
+            local forward_secrecy=$(echo "$config" | grep -o 'forward_secrecy=[^,]*' | cut -d'=' -f2)
+            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionRequiresForwardSecrecy" -bool "$forward_secrecy" "$plist_path"
+            echo -e "${GREEN}   ✓ NSExceptionRequiresForwardSecrecy: $forward_secrecy${NC}"
+        fi
+
+        echo -e "${GREEN}   ✅ Domain $domain configured successfully${NC}"
+    done
+
+    # Validate the resulting plist
+    if plutil -lint "$plist_path" &> /dev/null; then
+        echo -e "${GREEN}✅ Info.plist updated successfully with ${#domains[@]} CarpSchool domain(s)${NC}"
+
+        # Show the current ATS configuration
+        echo -e "${YELLOW}📋 Current ATS Exception Domains:${NC}"
+        plutil -extract "NSAppTransportSecurity.NSExceptionDomains" xml1 "$plist_path" | grep -E "<key>|<string>|<true/>|<false/>" | sed 's/^[[:space:]]*/  /'
+
+        # Remove backup since operation was successful
+        rm -f "$backup_path"
+        echo -e "${GREEN}🗑️  Backup removed (operation successful)${NC}"
+    else
+        echo -e "${RED}❌ Failed to update Info.plist - restoring backup${NC}"
+        cp "$backup_path" "$plist_path"
+        return 1
+    fi
 }
