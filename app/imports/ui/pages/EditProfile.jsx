@@ -37,6 +37,7 @@ import {
 } from "../styles/EditProfile";
 import Captcha from "../components/Captcha";
 import { Spacer } from "../components";
+import BackButton from "../mobile/components/BackButton";
 
 /**
  * Mobile EditProfile component with modern design, image upload, and CAPTCHA validation
@@ -402,6 +403,7 @@ class MobileEditProfile extends React.Component {
 
     return (
       <Container>
+        <BackButton />
         <Header>
           <AppName>Edit Profile</AppName>
         </Header>

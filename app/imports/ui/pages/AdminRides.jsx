@@ -48,6 +48,7 @@ import {
   Button,
   ErrorMessage,
 } from "../styles/AdminRides";
+import BackButton from "../mobile/components/BackButton";
 
 /**
  * Modern mobile AdminRides component for managing all rides
