@@ -52,6 +52,12 @@
     "lint": "eslint --quiet --ext .jsx --ext .js --ext .mjs ./imports ./client ./server ./plugins",
     "fixlint": "eslint --quiet --ext .jsx --ext .js --ext .mjs ./imports ./client ./server ./plugins --fix",
     "build": "meteor build ../build --architecture os.linux.x86_64 --server-only",
+    "build:server": "cd .. && ./build.sh server",
+    "build:ios": "cd .. && ./build.sh ios",
+    "build:android": "cd .. && ./build.sh android",
+    "build:all": "cd .. && ./build.sh all",
+    "build:staging": "cd .. && ./build.sh all --server-url https://staging.carp.school",
+    "build:prod": "cd .. && ./build.sh all --server-url https://carp.school",
     "prod": "cd .. && ./build-and-run.sh",
     "clean": "cd .. && ./clean.sh"
   }
