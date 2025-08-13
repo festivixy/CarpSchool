@@ -112,7 +112,7 @@ class RideInfo extends React.Component {
   };
 
   render() {
-    const { ready, ride, rideId } = this.props;
+    const { ready, ride, rideId: _rideId } = this.props;
 
     if (!ready) {
       return (

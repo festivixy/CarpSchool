@@ -19,11 +19,7 @@ const tosContent = `
 /**
  * Terms of Service page with markdown content
  */
-function MobileTOS({ history }) {
-  const handleBack = () => {
-    history.goBack();
-  };
-
+function MobileTOS({ history: _history }) {
   return (
     <Container style={{ minHeight: "100vh", paddingBottom: "40px" }}>
       <MobileOnly>

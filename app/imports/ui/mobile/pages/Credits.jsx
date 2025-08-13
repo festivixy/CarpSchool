@@ -48,11 +48,7 @@ For questions about this application or to report issues, please contact lz at k
 /**
  * Credits page with markdown content
  */
-function MobileCredits({ history }) {
-  const handleBack = () => {
-    history.goBack();
-  };
-
+function MobileCredits({ history: _history }) {
   return (
     <Container style={{ minHeight: "100vh", paddingBottom: "40px" }}>
       <MobileOnly>

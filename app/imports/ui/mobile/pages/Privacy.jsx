@@ -19,11 +19,7 @@ const privacyContent = `
 /**
  * Privacy Policy page with markdown content
  */
-function MobilePrivacy({ history }) {
-  const handleBack = () => {
-    history.goBack();
-  };
-
+function MobilePrivacy({ history: _history }) {
   return (
     <Container style={{ minHeight: "100vh", paddingBottom: "40px" }}>
       <MobileOnly>

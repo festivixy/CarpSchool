@@ -44,7 +44,6 @@ import {
   LoadingSpinner,
   ChatOverlay,
   OverlayHeader,
-  OverlayBackButton,
   OverlayTitle,
   MobileChatList,
   MobileChatListItem,
