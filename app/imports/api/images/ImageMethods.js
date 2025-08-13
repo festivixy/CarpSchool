@@ -3,7 +3,7 @@ import { check } from "meteor/check";
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
-import { fileTypeFromBuffer } from "file-type";
+import fileType from "file-type";
 import { Images, ImagesSchema } from "./Images";
 import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
 
@@ -113,7 +113,7 @@ Meteor.methods({
     const originalBinaryData = Buffer.from(imageData.base64Data, "base64");
 
     // Server-side file type validation using file signatures (magic bytes)
-    const fileType = await fileTypeFromBuffer(originalBinaryData);
+    const detectedFileType = fileType(originalBinaryData);
     const allowedMimeTypes = [
       "image/jpeg",
       "image/png",
@@ -123,7 +123,7 @@ Meteor.methods({
     const allowedExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
 
     // Validate actual file type matches detected signature
-    if (!fileType || !allowedMimeTypes.includes(fileType.mime) || !allowedExtensions.includes(fileType.ext)) {
+    if (!detectedFileType || !allowedMimeTypes.includes(detectedFileType.mime) || !allowedExtensions.includes(detectedFileType.ext)) {
       throw new Meteor.Error(
         "invalid-file-type",
         "File type not allowed. Only JPEG, PNG, GIF, and WebP images are supported.",
@@ -131,8 +131,8 @@ Meteor.methods({
     }
 
     // Additional security: Validate client-provided MIME type matches detected type
-    const mimeTypeMismatch = imageData.mimeType !== fileType.mime
-      && !(imageData.mimeType === "image/jpg" && fileType.mime === "image/jpeg");
+    const mimeTypeMismatch = imageData.mimeType !== detectedFileType.mime
+      && !(imageData.mimeType === "image/jpg" && detectedFileType.mime === "image/jpeg");
 
     if (mimeTypeMismatch) {
       throw new Meteor.Error(
