@@ -1,176 +1,274 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import { Meteor } from "meteor/meteor";
+import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import BackButton from "../../components/BackButton";
 import {
-  SuccessOverlay,
-  SubmitButton,
-  SuccessModalContainer,
-  SuccessIconContainer,
-  SuccessHeading,
-  SuccessText,
   MainPageContainer,
   FixedHeader,
   HeaderTitle,
   ContentPadding,
-  FormContainer,
-  FormTitle,
-  FormDescription,
-  CodeInputsContainer,
-  CodeInputWrapper,
+  InputSection,
+  CodeInputs,
   CodeInput,
-  CodeSeparator,
-  FormErrorMessage,
+  Dash,
+  ErrorMessage,
+  Success,
+  SuccessIcon,
+  SuccessTitle,
+  SuccessMessage,
+  Actions,
+  ButtonPrimary,
 } from "../styles/JoinRide";
 
 /**
  * iOS-specific Join Ride page
- * Wrapper that removes modal styling from JoinRideModal content
+ * Uses JoinRideModal component logic adapted for page layout
  */
-const JoinRide = ({ history, currentUser: _currentUser }) => {
-  const [codeInputs, setCodeInputs] = useState(["", "", "", "", "", "", "", ""]);
-  const [isJoining, setIsJoining] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const inputRefs = [];
+class JoinRide extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      codeInputs: ["", "", "", "", "", "", "", ""], // 8 separate inputs
+      isJoining: false,
+      error: null,
+      success: false,
+    };
+    this.inputRefs = [];
+  }
 
-  const handleInputChange = (index, value) => {
-    // Only allow alphanumeric characters and limit to 1 character
-    const sanitizedValue = value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-    if (sanitizedValue.length <= 1) {
-      const newInputs = [...codeInputs];
-      newInputs[index] = sanitizedValue;
-      setCodeInputs(newInputs);
+  componentDidMount() {
+    this.prefillCodeIfProvided();
+    // Focus first input
+    setTimeout(() => {
+      if (this.inputRefs[0]) {
+        this.inputRefs[0].focus();
+      }
+    }, 100);
+  }
 
-      // Auto-focus next input
-      if (sanitizedValue && index < 7) {
-        const nextInput = inputRefs[index + 1];
-        if (nextInput) {
-          nextInput.focus();
+  componentDidUpdate(prevProps) {
+    // If prefillCode prop changed, update the inputs
+    if (prevProps.prefillCode !== this.props.prefillCode) {
+      this.prefillCodeIfProvided();
+    }
+  }
+
+  prefillCodeIfProvided = () => {
+    const { prefillCode } = this.props;
+    if (prefillCode && prefillCode.length >= 8) {
+      // Remove dash and take first 8 characters
+      const cleanCode = prefillCode.replace(/-/g, "").slice(0, 8);
+      const newInputs = ["", "", "", "", "", "", "", ""];
+
+      for (let i = 0; i < cleanCode.length && i < 8; i++) {
+        newInputs[i] = cleanCode[i].toUpperCase();
+      }
+
+      this.setState({ codeInputs: newInputs, error: null });
+    }
+  };
+
+  handleInputChange = (index, e) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+    if (value.length <= 1) {
+      const newInputs = [...this.state.codeInputs];
+      newInputs[index] = value;
+      this.setState({ codeInputs: newInputs, error: null });
+
+      // Auto-advance to next input if character was entered
+      if (value.length === 1 && index < 7) {
+        setTimeout(() => {
+          if (this.inputRefs[index + 1]) {
+            this.inputRefs[index + 1].focus();
+          }
+        }, 50);
+      }
+    }
+  };
+
+  handleKeyDown = (index, e) => {
+    // Handle backspace to move to previous input
+    if (
+      e.key === "Backspace" &&
+      this.state.codeInputs[index] === "" &&
+      index > 0
+    ) {
+      setTimeout(() => {
+        if (this.inputRefs[index - 1]) {
+          this.inputRefs[index - 1].focus();
         }
-      }
+      }, 50);
     }
   };
 
-  const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !codeInputs[index] && index > 0) {
-      // Move to previous input on backspace if current is empty
-      const prevInput = inputRefs[index - 1];
-      if (prevInput) {
-        prevInput.focus();
+  handlePaste = (e) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData
+      .getData("text")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+
+    if (pastedText.length <= 8) {
+      const newInputs = ["", "", "", "", "", "", "", ""];
+      for (let i = 0; i < pastedText.length; i++) {
+        newInputs[i] = pastedText[i];
       }
+      this.setState({ codeInputs: newInputs, error: null });
+
+      // Focus the next empty input or the last one
+      const nextIndex = Math.min(pastedText.length, 7);
+      setTimeout(() => {
+        if (this.inputRefs[nextIndex]) {
+          this.inputRefs[nextIndex].focus();
+        }
+      }, 50);
     }
   };
 
-  const handleJoinRide = () => {
-    const rideCode = codeInputs.join("").trim();
+  handleJoinRide = () => {
+    const shareCode = this.state.codeInputs.join("");
 
-    if (rideCode.length < 8) {
-      setError("Please enter a complete 8-character ride code");
+    if (shareCode.length !== 8) {
+      this.setState({ error: "Please enter all 8 characters of the code" });
       return;
     }
 
-    setIsJoining(true);
-    setError(null);
+    // Format as XXXX-XXXX for server
+    const formattedCode = `${shareCode.slice(0, 4)}-${shareCode.slice(4)}`;
 
-    Meteor.call("rides.join", { rideCode }, (error, _result) => {
-      setIsJoining(false);
+    this.setState({ isJoining: true, error: null });
+
+    Meteor.call("rides.joinWithCode", formattedCode, (error, _result) => {
+      this.setState({ isJoining: false });
 
       if (error) {
-        setError(error.reason || "Failed to join ride");
+        this.setState({ error: error.message });
       } else {
-        setSuccess(true);
+        this.setState({
+          success: true,
+          error: null,
+        });
+
+        // Show success for 2 seconds then navigate
         setTimeout(() => {
-          history.push("/myRides");
+          this.props.history.push("/myRides");
         }, 2000);
       }
     });
   };
 
-  if (success) {
+  handleTryAgain = () => {
+    this.setState({
+      success: false,
+      error: null,
+      codeInputs: ["", "", "", "", "", "", "", ""],
+    });
+    setTimeout(() => {
+      if (this.inputRefs[0]) {
+        this.inputRefs[0].focus();
+      }
+    }, 100);
+  };
+
+  render() {
+    const { codeInputs, isJoining, error, success } = this.state;
+
+    const isComplete = codeInputs.every((input) => input.length === 1);
+
     return (
-      <SuccessOverlay>
-        <SuccessModalContainer>
-          <SuccessIconContainer>
-            ✅
-          </SuccessIconContainer>
-          <SuccessHeading>
-            Successfully Joined!
-          </SuccessHeading>
-          <SuccessText>
-            You&apos;ve successfully joined the ride. Redirecting to your rides...
-          </SuccessText>
-        </SuccessModalContainer>
-      </SuccessOverlay>
+      <MainPageContainer>
+        {/* Fixed Header */}
+        <FixedHeader>
+          <HeaderTitle>
+            Join Ride
+          </HeaderTitle>
+        </FixedHeader>
+
+        <BackButton />
+
+        <ContentPadding>
+          {success ? (
+            <Success>
+              <SuccessIcon>✓</SuccessIcon>
+              <SuccessTitle>Successfully Joined!</SuccessTitle>
+              <SuccessMessage>
+                You have been added to the ride. Check your rides page for
+                details.
+              </SuccessMessage>
+            </Success>
+          ) : (
+            <>
+              {/* Code Input Section */}
+              <InputSection>
+                <h2 style={{ 
+                  fontSize: "24px", 
+                  fontWeight: "bold", 
+                  marginBottom: "8px",
+                  textAlign: "center",
+                  color: "#333"
+                }}>
+                  Enter Ride Code
+                </h2>
+                <p style={{ 
+                  fontSize: "16px", 
+                  color: "#666", 
+                  marginBottom: "32px",
+                  textAlign: "center"
+                }}>
+                  Enter the 8-character code shared by the driver
+                </p>
+
+                <CodeInputs>
+                  {codeInputs.map((value, index) => (
+                    <React.Fragment key={index}>
+                      <CodeInput
+                        ref={(ref) => {
+                          this.inputRefs[index] = ref;
+                        }}
+                        value={value}
+                        onChange={(e) => this.handleInputChange(index, e)}
+                        onKeyDown={(e) => this.handleKeyDown(index, e)}
+                        onPaste={index === 0 ? this.handlePaste : undefined}
+                        maxLength={1}
+                        type="text"
+                        inputMode="alphanumeric"
+                        autoCapitalize="characters"
+                        autoComplete="off"
+                        spellCheck="false"
+                      />
+                      {index === 3 && <Dash>-</Dash>}
+                    </React.Fragment>
+                  ))}
+                </CodeInputs>
+
+                {error && <ErrorMessage>{error}</ErrorMessage>}
+              </InputSection>
+
+              {/* Action Buttons */}
+              <Actions>
+                <ButtonPrimary
+                  onClick={this.handleJoinRide}
+                  disabled={isJoining || !isComplete}
+                >
+                  {isJoining ? "Joining..." : "Join Ride"}
+                </ButtonPrimary>
+              </Actions>
+            </>
+          )}
+        </ContentPadding>
+      </MainPageContainer>
     );
   }
-
-  return (
-    <MainPageContainer>
-      {/* Fixed Header */}
-      <FixedHeader>
-        <HeaderTitle>
-          Join Ride
-        </HeaderTitle>
-      </FixedHeader>
-
-      <BackButton />
-
-      <ContentPadding>
-        <FormContainer>
-          <FormTitle>
-            Enter Ride Code
-          </FormTitle>
-          <FormDescription>
-            Enter the 8-character code shared by the driver
-          </FormDescription>
-
-          {/* Code Inputs */}
-          <CodeInputsContainer>
-            {codeInputs.map((value, index) => (
-              <CodeInputWrapper key={index}>
-                <CodeInput
-                  ref={(el) => (inputRefs[index] = el)}
-                  type="text"
-                  value={value}
-                  onChange={(e) => handleInputChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                />
-                {index === 3 && (
-                  <CodeSeparator>
-                    -
-                  </CodeSeparator>
-                )}
-              </CodeInputWrapper>
-            ))}
-          </CodeInputsContainer>
-
-          {error && (
-            <FormErrorMessage>
-              {error}
-            </FormErrorMessage>
-          )}
-
-          <SubmitButton
-            onClick={handleJoinRide}
-            disabled={isJoining || codeInputs.join("").length < 8}
-            enabled={codeInputs.join("").length === 8}
-          >
-            {isJoining ? "Joining..." : "Join Ride"}
-          </SubmitButton>
-        </FormContainer>
-      </ContentPadding>
-    </MainPageContainer>
-  );
-};
+}
 
 JoinRide.propTypes = {
   history: PropTypes.object.isRequired,
-  currentUser: PropTypes.object,
+  prefillCode: PropTypes.string,
 };
 
 export default withRouter(withTracker(() => ({
-  currentUser: Meteor.user(),
+  // Add any subscriptions if needed
 }))(JoinRide));
