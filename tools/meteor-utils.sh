@@ -30,7 +30,7 @@ meteor_install_cordova_plugins() {
     insure_app_dir
     echo -e "${YELLOW}🔄 Installing Cordova plugins...${NC}"
     meteor add "cordova:cordova-plugin-native-navbar@file://$(pwd)/plugins/cordova-plugin-native-navbar"
-    meteor add "cordova:cordova-plugin-transport-security@file://$(pwd)/plugins/cordova-plugin-transport-security"
+    # meteor add "cordova:cordova-plugin-transport-security@file://$(pwd)/plugins/cordova-plugin-transport-security"
     cd "$pathpwd"
 }
 
