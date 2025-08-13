@@ -60,19 +60,13 @@ const FooterComponentsTest = ({ history }) => {
             <ControlsGrid>
               <ControlItem>
                 <Label>Theme</Label>
-                <select
+                <Select
                   value={footerTheme}
                   onChange={(e) => setFooterTheme(e.target.value)}
-                  style={{
-                    padding: "8px 12px",
-                    border: "1px solid #ddd",
-                    borderRadius: "4px",
-                    backgroundColor: "white"
-                  }}
                 >
                   <option value="light">Light</option>
                   <option value="dark">Dark</option>
-                </select>
+                </Select>
               </ControlItem>
 
               <ControlItem>
@@ -89,14 +83,14 @@ const FooterComponentsTest = ({ history }) => {
 
               <ControlItem>
                 <Label>Compact Mode</Label>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <CheckboxLabel>
                   <input
                     type="checkbox"
                     checked={compactMode}
                     onChange={(e) => setCompactMode(e.target.checked)}
                   />
                   Use compact layout
-                </label>
+                </CheckboxLabel>
               </ControlItem>
             </ControlsGrid>
 
@@ -131,11 +125,7 @@ const FooterComponentsTest = ({ history }) => {
               </InfoItem>
             </InfoCard>
 
-            <ComponentContainer style={{
-              backgroundColor: footerTheme === "dark" ? "#333" : "#f8f9fa",
-              padding: "20px",
-              borderRadius: "8px"
-            }}>
+            <DemoContainer $theme={footerTheme}>
               <SimpleFooter
                 theme={footerTheme}
                 showLinks={showLinks}
