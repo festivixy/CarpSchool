@@ -331,14 +331,7 @@ const NativeBlurDemo = (props) => {
             </FlexContainer>
 
             {showLogs && (
-              <div style={{
-                width: "100%",
-                height: "300px",
-                border: "1px solid rgba(0,0,0,0.2)",
-                borderRadius: "8px",
-                overflow: "hidden",
-                background: "rgba(0,0,0,0.05)",
-              }}>
+              <BlurContainer>
                 <textarea
                   ref={logTextAreaRef}
                   readOnly
@@ -356,7 +349,7 @@ const NativeBlurDemo = (props) => {
                   }}
                   placeholder="Debug logs will appear here..."
                 />
-              </div>
+              </BlurContainer>
             )}
 
             <InfoText>
