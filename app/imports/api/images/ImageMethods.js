@@ -3,7 +3,8 @@ import { check } from "meteor/check";
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
-import { fileTypeFromBuffer } from "file-type";
+// Note: file-type v16+ is ESM-only, use dynamic import
+// import { fileTypeFromBuffer } from "file-type";
 import { Images, ImagesSchema } from "./Images";
 import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
 
@@ -113,6 +114,7 @@ Meteor.methods({
     const originalBinaryData = Buffer.from(imageData.base64Data, "base64");
 
     // Server-side file type validation using file signatures (magic bytes)
+    const { fileTypeFromBuffer } = await import("file-type");
     const fileType = await fileTypeFromBuffer(originalBinaryData);
     const allowedMimeTypes = [
       "image/jpeg",
