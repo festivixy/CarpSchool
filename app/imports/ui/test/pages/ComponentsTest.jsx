@@ -60,12 +60,6 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
       description: "Test MobileNavBarAuto component and environment detection"
     },
     {
-      path: "/_test/native-blur",
-      icon: "🌫️",
-      name: "Native Blur Demo",
-      description: "Test iOS native blur effects and backdrop filters"
-    },
-    {
       path: "/_test/shared-components",
       icon: "🧩",
       name: "Shared Components",

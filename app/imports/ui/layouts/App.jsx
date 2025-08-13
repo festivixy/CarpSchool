@@ -41,7 +41,6 @@ import { DesktopOnly, MobileOnly } from "./Devices";
 import { AppContainer, MainContent } from "../styles/App";
 import FooterVerbose from "../desktop/components/FooterVerbose";
 import MobileNavBarAuto from "../mobile/components/MobileNavBarAuto";
-import MobileNativeBlurDemo from "../test/pages/NativeBlurDemo";
 import SharedComponentsDemo from "../test/pages/SharedComponentsDemo";
 import MobileNavBarAutoTest from "../test/pages/MobileNavBarAutoTest";
 import ComponentsTest from "../test/pages/ComponentsTest";
@@ -147,10 +146,6 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/_test/liquidglass/login"
                 component={LiquidGlassSignIn}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/native-blur"
-                component={MobileNativeBlurDemo}
               />
               <ProtectedRouteRequireAdmin
                 path="/_test/shared-components"
