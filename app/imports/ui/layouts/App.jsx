@@ -13,6 +13,7 @@ import MobileAdminRides from "../pages/AdminRides";
 import MobileAdminUsers from "../pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import LoadingPage from "../components/LoadingPage";
+import ErrorBoundary from "../components/ErrorBoundary";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../pages/SignIn";
 import LiquidGlassSignIn from "../liquidGlass/pages/SignIn";
@@ -58,7 +59,8 @@ class App extends React.Component {
   render() {
     return (
       <Router>
-        <AppContainer>
+        <ErrorBoundary>
+          <AppContainer>
           <DesktopOnly>
             <NavBar />
           </DesktopOnly>
@@ -182,7 +184,8 @@ class App extends React.Component {
               <MobileNavBarAuto />
             </MobileOnly>
           )}
-        </AppContainer>
+          </AppContainer>
+        </ErrorBoundary>
       </Router>
     );
   }
