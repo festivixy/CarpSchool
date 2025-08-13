@@ -10,10 +10,8 @@ import {
   StatusText,
   FallbackContainer,
   FallbackButton,
-  FallbackItemContainer,
   FallbackItemIcon,
   FallbackItemText,
-  StatusContainer,
   NativeIndicator,
   FallbackIndicator,
 } from "../styles/NativeNavBar";
@@ -47,7 +45,6 @@ const NativeNavBar = ({
     showNavBar,
     hideNavBar,
     removeNavBar,
-    setActionHandler,
     registerActionHandler,
     unregisterActionHandler,
   } = useNativeNavBar();
@@ -59,10 +56,6 @@ const NativeNavBar = ({
   // Navigation methods - same as MobileNavBarCSS - memoized to prevent re-renders
   const handleNavigation = React.useCallback((path) => {
     history.push(path);
-  }, [history]);
-
-  const handleSignOut = React.useCallback(() => {
-    history.push("/signout");
   }, [history]);
 
   const handleJoinRideClick = React.useCallback(() => {

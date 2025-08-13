@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
@@ -6,25 +6,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import BackButton from "../../components/BackButton";
 import {
   SuccessOverlay,
-  SuccessModal,
-  SuccessIcon,
-  SuccessTitle,
-  SuccessMessage,
-  PageContainer,
-  Content,
-  Form,
-  FormGroup,
-  Label,
-  Input,
   SubmitButton,
-  LoadingSpinner,
-  ErrorMessage,
-  JoinRidePageContainer,
-  JoinRideHeader,
-  JoinRideHeaderTitle,
-  JoinRideContent,
-  JoinRideForm,
-  CodeContainer,
   SuccessModalContainer,
   SuccessIconContainer,
   SuccessHeading,

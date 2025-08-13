@@ -18,13 +18,6 @@ import {
   FormField,
   DateTimeRow,
   FlexField,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  TextArea,
-  Button,
-  LoadingSpinner,
   ErrorMessage,
   FormTitle,
   FormDescription,
@@ -35,7 +28,7 @@ import {
  * iOS-specific Create Ride page
  * Wrapper that removes modal styling from AddRidesModal content
  */
-const CreateRide = ({ history, currentUser }) => {
+const CreateRide = ({ history, currentUser: _currentUser }) => {
   const [formData, setFormData] = useState({
     origin: "",
     destination: "",
@@ -47,10 +40,6 @@ const CreateRide = ({ history, currentUser }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-
-  const handleBack = () => {
-    history.goBack();
-  };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -91,7 +80,7 @@ const CreateRide = ({ history, currentUser }) => {
       departureTime: formData.departureTime,
       availableSeats: parseInt(formData.availableSeats),
       description: formData.description.trim(),
-    }, (error, result) => {
+    }, (error, _result) => {
       setIsCreating(false);
 
       if (error) {
