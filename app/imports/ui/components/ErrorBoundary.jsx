@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { Meteor } from "meteor/meteor";
 import {
   ErrorContainer,
   ErrorIcon,
@@ -10,11 +11,13 @@ import {
   RetryButton,
   ReportButton,
   ErrorCode,
+  ReportStatus,
 } from "../styles/ErrorBoundary";
 
 /**
  * ErrorBoundary component for catching and displaying React errors gracefully
- * Provides fallback UI, error reporting, and retry functionality
+ * Provides fallback UI, automatic error reporting, and retry functionality
+ * Integrates with ErrorReport API for comprehensive error tracking
  */
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -24,6 +27,8 @@ class ErrorBoundary extends Component {
       error: null,
       errorInfo: null,
       errorId: null,
+      reportStatus: null, // null, 'reporting', 'success', 'failed'
+      retryCount: 0,
     };
   }
 
@@ -31,7 +36,8 @@ class ErrorBoundary extends Component {
     // Update state so the next render will show the fallback UI
     return {
       hasError: true,
-      errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      errorId: `CLIENT_${Date.now()}_${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+      reportStatus: null,
     };
   }
 
@@ -42,90 +48,194 @@ class ErrorBoundary extends Component {
       errorInfo,
     });
 
-    // Log to console in development
-    if (process.env.NODE_ENV === "development") {
-      console.error("ErrorBoundary caught an error:", error, errorInfo);
-    }
+    // Log to console for debugging
+    console.error("ErrorBoundary caught an error:", {
+      error: error.toString(),
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      errorId: this.state.errorId,
+    });
 
-    // Report error to external service if configured
+    // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo, this.state.errorId);
     }
 
-    // Report to Meteor if available
-    if (typeof Meteor !== "undefined" && Meteor.call) {
-      try {
-        Meteor.call("reportClientError", {
-          error: error.toString(),
-          stack: error.stack,
-          componentStack: errorInfo.componentStack,
-          errorId: this.state.errorId,
-          url: window.location.href,
-          userAgent: navigator.userAgent,
-          timestamp: new Date().toISOString(),
-        }, (meteorError) => {
-          if (meteorError) {
-            console.warn("Failed to report error to server:", meteorError);
-          }
-        });
-      } catch (meteorError) {
-        console.warn("Failed to report error to Meteor:", meteorError);
-      }
-    }
+    // Automatically report error to server
+    this.reportErrorToServer(error, errorInfo);
   }
 
+  /**
+   * Report error to server using the ErrorReport API
+   */
+  reportErrorToServer = async (error, errorInfo) => {
+    try {
+      this.setState({ reportStatus: 'reporting' });
+
+      // Gather comprehensive error data
+      const errorData = {
+        message: error?.message || error?.toString() || "Unknown error",
+        stack: error?.stack || null,
+        name: error?.name || "Error",
+        componentStack: errorInfo?.componentStack || null,
+        component: this.getComponentName(),
+        userAgent: navigator.userAgent,
+        url: window.location.href,
+        platform: this.detectPlatform(),
+        route: this.getCurrentRoute(),
+        props: this.sanitizeProps(),
+        state: this.sanitizeState(),
+      };
+
+      // Report to server using new API
+      const result = await new Promise((resolve, reject) => {
+        Meteor.call("report.client.error", errorData, (meteorError, response) => {
+          if (meteorError) {
+            reject(meteorError);
+          } else {
+            resolve(response);
+          }
+        });
+      });
+
+      this.setState({
+        reportStatus: 'success',
+        serverErrorId: result?.errorId,
+      });
+
+      console.log("Error reported successfully:", result);
+
+    } catch (reportError) {
+      console.warn("Failed to report error to server:", reportError);
+      this.setState({ reportStatus: 'failed' });
+    }
+  };
+
+  /**
+   * Get the component name where the error occurred
+   */
+  getComponentName = () => {
+    const { errorInfo } = this.state;
+    if (!errorInfo?.componentStack) return null;
+
+    // Extract component name from stack
+    const stackLines = errorInfo.componentStack.split('\n');
+    const firstLine = stackLines[1]; // Skip the first line which is usually the error boundary
+    if (firstLine) {
+      const match = firstLine.match(/in (\w+)/);
+      return match ? match[1] : null;
+    }
+    return null;
+  };
+
+  /**
+   * Detect the current platform
+   */
+  detectPlatform = () => {
+    if (typeof window !== 'undefined' && window.cordova) {
+      return window.device?.platform || "Cordova";
+    }
+    return "Web";
+  };
+
+  /**
+   * Get the current route
+   */
+  getCurrentRoute = () => {
+    if (typeof window !== 'undefined') {
+      return window.location.pathname + window.location.search;
+    }
+    return null;
+  };
+
+  /**
+   * Sanitize component props for reporting
+   */
+  sanitizeProps = () => {
+    try {
+      const props = { ...this.props };
+
+      // Remove functions and sensitive data
+      Object.keys(props).forEach(key => {
+        if (typeof props[key] === 'function') {
+          props[key] = '[Function]';
+        }
+      });
+
+      // Remove children as it can be large
+      delete props.children;
+
+      return props;
+    } catch (e) {
+      return { _error: "Failed to sanitize props" };
+    }
+  };
+
+  /**
+   * Sanitize component state for reporting
+   */
+  sanitizeState = () => {
+    try {
+      const state = { ...this.state };
+
+      // Remove sensitive or large data
+      delete state.error;
+      delete state.errorInfo;
+
+      return state;
+    } catch (e) {
+      return { _error: "Failed to sanitize state" };
+    }
+  };
+
   handleRetry = () => {
+    const newRetryCount = this.state.retryCount + 1;
+
     this.setState({
       hasError: false,
       error: null,
       errorInfo: null,
       errorId: null,
+      reportStatus: null,
+      retryCount: newRetryCount,
     });
+
+    console.log(`ErrorBoundary retry attempt #${newRetryCount}`);
 
     // Call custom retry handler if provided
     if (this.props.onRetry) {
-      this.props.onRetry();
+      this.props.onRetry(newRetryCount);
     }
   };
 
   handleReport = () => {
-    const { error, errorInfo, errorId } = this.state;
+    const { errorId, serverErrorId } = this.state;
+    const idToShare = serverErrorId || errorId;
 
-    // Create error report
-    const errorReport = {
-      errorId,
-      message: error ? error.toString() : "Unknown error",
-      stack: error ? error.stack : "No stack trace available",
-      componentStack: errorInfo ? errorInfo.componentStack : "No component stack",
-      url: window.location.href,
-      userAgent: navigator.userAgent,
-      timestamp: new Date().toISOString(),
-    };
-
-    // Copy to clipboard for manual reporting
+    // Copy error ID to clipboard for manual reporting
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(JSON.stringify(errorReport, null, 2))
+      navigator.clipboard.writeText(idToShare)
         .then(() => {
-          alert("Error details copied to clipboard. Please share with support.");
+          alert(`Error ID "${idToShare}" copied to clipboard. Please share with support.`);
         })
         .catch(() => {
-          // Fallback: show error details in alert
-          alert(`Error ID: ${errorId}\n\nPlease report this error ID to support.`);
+          // Fallback: show error ID in alert
+          alert(`Error ID: ${idToShare}\n\nPlease report this error ID to support.`);
         });
     } else {
       // Fallback for older browsers
-      alert(`Error ID: ${errorId}\n\nPlease report this error ID to support.`);
+      alert(`Error ID: ${idToShare}\n\nPlease report this error ID to support.`);
     }
 
     // Call custom report handler if provided
     if (this.props.onReport) {
-      this.props.onReport(errorReport);
+      this.props.onReport({ errorId: idToShare, clientErrorId: errorId, serverErrorId });
     }
   };
 
   render() {
     if (this.state.hasError) {
-      const { error, errorId } = this.state;
+      const { error, errorId, serverErrorId, reportStatus, retryCount } = this.state;
       const {
         fallback,
         title,
@@ -146,6 +256,7 @@ class ErrorBoundary extends Component {
 
       const errorMessage = error ? error.message : "An unexpected error occurred";
       const isProduction = process.env.NODE_ENV === "production";
+      const displayErrorId = serverErrorId || errorId;
 
       return (
         <ErrorContainer variant={variant}>
@@ -162,30 +273,43 @@ class ErrorBoundary extends Component {
             )}
           </ErrorMessage>
 
+          {/* Error reporting status */}
+          {reportStatus && (
+            <ReportStatus status={reportStatus}>
+              {reportStatus === 'reporting' && "📤 Reporting error..."}
+              {reportStatus === 'success' && "✅ Error reported successfully"}
+              {reportStatus === 'failed' && "⚠️ Failed to report error"}
+            </ReportStatus>
+          )}
+
           {showDetails && !isProduction && error && (
             <ErrorDetails>
               <summary>Technical Details</summary>
               <pre>{error.stack}</pre>
+              {retryCount > 0 && <p>Retry attempts: {retryCount}</p>}
             </ErrorDetails>
           )}
 
           <ErrorActions>
             {showRetry && (
               <RetryButton onClick={this.handleRetry}>
-                Try Again
+                {retryCount > 0 ? `Try Again (${retryCount + 1})` : "Try Again"}
               </RetryButton>
             )}
 
             {showReport && (
               <ReportButton onClick={this.handleReport}>
-                Report Issue
+                {reportStatus === 'success' ? "Copy Error ID" : "Report Issue"}
               </ReportButton>
             )}
           </ErrorActions>
 
-          {errorId && (
+          {displayErrorId && (
             <ErrorCode>
-              Error ID: {errorId}
+              Error ID: {displayErrorId}
+              {serverErrorId && serverErrorId !== errorId && (
+                <small> (Client: {errorId})</small>
+              )}
             </ErrorCode>
           )}
         </ErrorContainer>
