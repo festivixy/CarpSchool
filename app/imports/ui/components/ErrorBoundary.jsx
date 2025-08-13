@@ -215,6 +215,7 @@ class ErrorBoundary extends Component {
 
     if (!idToShare) {
       console.error('No error ID available to copy');
+      alert('❌ Error: No error ID available to copy. Please try refreshing the page.');
       return;
     }
 
@@ -223,6 +224,7 @@ class ErrorBoundary extends Component {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(idToShare);
         console.log('✅ Error ID copied to clipboard:', idToShare);
+        alert('✅ Error ID "' + idToShare + '" copied to clipboard. Please share with support.');
         return;
       }
 
@@ -241,12 +243,18 @@ class ErrorBoundary extends Component {
 
       if (successful) {
         console.log('✅ Error ID copied to clipboard:', idToShare);
+        alert('✅ Error ID "' + idToShare + '" copied to clipboard. Please share with support.');
       } else {
         throw new Error('Copy command failed');
       }
     } catch (err) {
       console.warn('Failed to copy to clipboard:', err);
       console.log('📋 Manual copy - Error ID:', idToShare);
+      // Final fallback: show error ID for manual copying
+      const message = '📋 Error ID: ' + idToShare + '\n\n' +
+                     'Please manually copy this ID and report it to support.\n\n' +
+                     'Tip: Select the ID above and use Ctrl+C (or Cmd+C on Mac) to copy.';
+      alert(message);
     }
 
     // Call custom report handler if provided
