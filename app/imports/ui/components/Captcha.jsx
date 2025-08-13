@@ -175,6 +175,10 @@ class Captcha extends Component {
             onChange={this.handleInputChange}
             disabled={disabled || isLoading}
             required
+            autoCorrect="off"
+            autoComplete="off"
+            spellCheck="false"
+            autoCapitalize="off"
           />
         )}
 
