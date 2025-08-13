@@ -20,26 +20,26 @@ function sanitizeData(data) {
   }
 
   const sanitized = { ...data };
-  
+
   // Remove sensitive fields
   const sensitiveKeys = [
     "password", "token", "secret", "key", "auth", "session",
     "credit", "card", "ssn", "social", "phone", "email"
   ];
-  
+
   Object.keys(sanitized).forEach(key => {
     const lowerKey = key.toLowerCase();
     if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
       sanitized[key] = "[REDACTED]";
     }
   });
-  
+
   // Truncate large objects
   const jsonString = JSON.stringify(sanitized);
   if (jsonString.length > 5000) {
     return { _truncated: true, _size: jsonString.length };
   }
-  
+
   return sanitized;
 }
 
@@ -48,14 +48,14 @@ function sanitizeData(data) {
  */
 function determineErrorSeverity(errorData) {
   const { message, name, componentStack } = errorData;
-  
+
   // Critical errors
-  if (name === "ChunkLoadError" || 
+  if (name === "ChunkLoadError" ||
       message?.includes("Loading chunk") ||
       message?.includes("ChunkLoadError")) {
     return "critical";
   }
-  
+
   // High severity errors
   if (message?.includes("Network Error") ||
       message?.includes("Failed to fetch") ||
@@ -63,7 +63,7 @@ function determineErrorSeverity(errorData) {
       componentStack?.includes("App")) {
     return "high";
   }
-  
+
   // Medium severity (default)
   return "medium";
 }
@@ -73,27 +73,27 @@ function determineErrorSeverity(errorData) {
  */
 function categorizeError(errorData) {
   const { message, name, stack } = errorData;
-  
+
   if (name === "ChunkLoadError" || message?.includes("Loading chunk")) {
     return "network";
   }
-  
+
   if (message?.includes("Network Error") || message?.includes("Failed to fetch")) {
     return "network";
   }
-  
+
   if (message?.includes("Authentication") || message?.includes("Unauthorized")) {
     return "auth";
   }
-  
+
   if (stack?.includes("Meteor.call") || stack?.includes("Mongo")) {
     return "database";
   }
-  
+
   if (name?.includes("Error") && (name !== "Error")) {
     return "javascript";
   }
-  
+
   return "component";
 }
 
@@ -123,38 +123,38 @@ Meteor.methods({
     }
 
     const currentUser = this.userId ? await Meteor.users.findOneAsync(this.userId) : null;
-    
+
     // Create error report document
     const errorReport = {
       errorId: generateErrorId(),
-      userId: this.userId || null,
-      username: currentUser?.username || null,
+      userId: this.userId || undefined,
+      username: currentUser?.username || undefined,
       timestamp: new Date(),
-      
+
       // Error details
       message: value.message,
-      stack: value.stack || null,
+      stack: value.stack || undefined,
       name: value.name || "Error",
-      
+
       // Component context
-      componentStack: value.componentStack || null,
-      component: value.component || null,
-      
+      componentStack: value.componentStack || undefined,
+      component: value.component || undefined,
+
       // Environment info
-      userAgent: value.userAgent || null,
-      url: value.url || null,
+      userAgent: value.userAgent || undefined,
+      url: value.url || undefined,
       platform: value.platform || "Web",
-      
+
       // App context
-      route: value.route || null,
+      route: value.route || undefined,
       props: sanitizeData(value.props),
       state: sanitizeData(value.state),
-      
+
       // Auto-categorization
       severity: determineErrorSeverity(value),
       category: categorizeError(value),
       resolved: false,
-      notes: null,
+      notes: undefined,
     };
 
     // Validate against schema
@@ -165,7 +165,7 @@ Meteor.methods({
 
     // Insert error report
     const errorId = await ErrorReports.insertAsync(errorReport);
-    
+
     // Log to server console for immediate attention
     console.error(`[ERROR REPORT ${errorReport.errorId}] ${errorReport.message}`, {
       user: errorReport.username || "anonymous",
@@ -199,7 +199,7 @@ Meteor.methods({
     // Validate updates
     const allowedFields = ["resolved", "notes", "severity", "category"];
     const sanitizedUpdates = {};
-    
+
     Object.keys(updates).forEach(key => {
       if (allowedFields.includes(key)) {
         sanitizedUpdates[key] = updates[key];
@@ -215,7 +215,7 @@ Meteor.methods({
     sanitizedUpdates.updatedBy = currentUser.username;
 
     const result = await ErrorReports.updateAsync(reportId, { $set: sanitizedUpdates });
-    
+
     if (result === 0) {
       throw new Meteor.Error("not-found", "Error report not found.");
     }
@@ -236,7 +236,7 @@ Meteor.methods({
     }
 
     const result = await ErrorReports.removeAsync(reportId);
-    
+
     if (result === 0) {
       throw new Meteor.Error("not-found", "Error report not found.");
     }
@@ -257,8 +257,8 @@ Meteor.methods({
     const totalErrors = await ErrorReports.find({}).countAsync();
     const unresolvedErrors = await ErrorReports.find({ resolved: false }).countAsync();
     const criticalErrors = await ErrorReports.find({ severity: "critical", resolved: false }).countAsync();
-    const last24Hours = await ErrorReports.find({ 
-      timestamp: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } 
+    const last24Hours = await ErrorReports.find({
+      timestamp: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
     }).countAsync();
 
     // Get error counts by category
