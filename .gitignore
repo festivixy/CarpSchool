@@ -24,3 +24,9 @@ archive/
 prompt
 *.pyc
 */tmp/*
+
+# CodePush data directories
+codepush_storage/
+codepush_tmp/
+codepush_mysql_data/
+codepush_redis_data/
