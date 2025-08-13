@@ -23,6 +23,11 @@ import {
   InfoLabel,
   InfoValue,
 } from "../styles/ComponentsTest";
+import {
+  TestPageHeader,
+  TestPageTitle,
+  FlexContainer,
+} from "../styles/LiquidGlassComponentsTest";
 
 /**
  * Test page for LiquidGlass components - Admin only
@@ -84,30 +89,13 @@ const LiquidGlassComponentsTest = ({ history }) => {
   return (
     <Container>
       <BackButton />
-      
+
       {/* Fixed Header */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "60px",
-        backgroundColor: "white",
-        borderBottom: "1px solid #e0e0e0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 99
-      }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: "18px",
-          fontWeight: "600",
-          color: "#333"
-        }}>
+      <TestPageHeader>
+        <TestPageTitle>
           LiquidGlass Components Test
-        </h1>
-      </div>
+        </TestPageTitle>
+      </TestPageHeader>
 
       {/* Animated Background */}
       <div
@@ -118,12 +106,12 @@ const LiquidGlassComponentsTest = ({ history }) => {
           width: "100%",
           height: "100%",
           background: `
-            radial-gradient(circle at ${50 + backgroundPosition.x}% ${50 + backgroundPosition.y}%, 
-              rgba(139, 69, 19, 0.1) 0%, 
-              rgba(160, 82, 45, 0.05) 50%, 
+            radial-gradient(circle at ${50 + backgroundPosition.x}% ${50 + backgroundPosition.y}%,
+              rgba(139, 69, 19, 0.1) 0%,
+              rgba(160, 82, 45, 0.05) 50%,
               transparent 100%),
-            linear-gradient(45deg, 
-              rgba(205, 133, 63, 0.03) 0%, 
+            linear-gradient(45deg,
+              rgba(205, 133, 63, 0.03) 0%,
               rgba(222, 184, 135, 0.02) 100%)
           `,
           zIndex: -1,
@@ -166,7 +154,7 @@ const LiquidGlassComponentsTest = ({ history }) => {
                   placeholder="Select an option"
                 />
               </ControlItem>
-              
+
               <ControlItem>
                 <Label>Multi Select Dropdown</Label>
                 <LiquidGlassDropdown
@@ -198,7 +186,7 @@ const LiquidGlassComponentsTest = ({ history }) => {
               <InfoItem>
                 <InfoLabel>Multi Select Values</InfoLabel>
                 <InfoValue>
-                  {multiDropdownValue.length > 0 
+                  {multiDropdownValue.length > 0
                     ? multiDropdownValue.map(v => v.label).join(", ")
                     : "None"
                   }
@@ -301,7 +289,7 @@ const LiquidGlassComponentsTest = ({ history }) => {
 
               <ControlItem>
                 <Label>Icon Buttons</Label>
-                <div style={{ display: "flex", gap: "8px" }}>
+                <FlexContainer>
                   <LiquidGlassIconButton
                     icon="��️"
                     onClick={() => alert("Heart clicked!")}
@@ -314,7 +302,7 @@ const LiquidGlassComponentsTest = ({ history }) => {
                     icon="⚙️"
                     onClick={() => alert("Settings clicked!")}
                   />
-                </div>
+                </FlexContainer>
               </ControlItem>
             </ControlsGrid>
 

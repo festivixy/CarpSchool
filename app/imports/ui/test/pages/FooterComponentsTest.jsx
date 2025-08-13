@@ -19,6 +19,17 @@ import {
   TestComponentTitle,
   TestComponentDescription,
   TestComponentDemo,
+  CheckboxLabel,
+  Select,
+  DemoContainer,
+  VerboseDemoContainer,
+  LiquidGlassDemoContainer,
+  GlassBackground,
+  RelativeContainer,
+  ComparisonGrid,
+  ComparisonCard,
+  ComparisonTitle,
+  ComparisonDescription,
 } from "../styles/FooterComponentsTest";
 
 /**
@@ -66,14 +77,14 @@ const FooterComponentsTest = ({ history }) => {
 
               <ControlItem>
                 <Label>Show Links</Label>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <CheckboxLabel>
                   <input
                     type="checkbox"
                     checked={showLinks}
                     onChange={(e) => setShowLinks(e.target.checked)}
                   />
                   Enable footer links
-                </label>
+                </CheckboxLabel>
               </ControlItem>
 
               <ControlItem>
@@ -170,7 +181,7 @@ const FooterComponentsTest = ({ history }) => {
 
         {/* LiquidGlass Footer */}
         <Section>
-          <SectionTitle>✨ LiquidGlass Footer</SectionTitle>
+          <SectionTitle>�� LiquidGlass Footer</SectionTitle>
           <SectionContent>
             <InfoCard>
               <InfoItem>

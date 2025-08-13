@@ -21,6 +21,13 @@ import {
   InfoLabel,
   InfoValue,
 } from "../styles/ComponentsTest";
+import {
+  TestPageHeader,
+  TestPageTitle,
+  FlexContainer,
+  MarginContainer,
+  DynamicMapContainer,
+} from "../styles/MapComponentsTest";
 
 /**
  * Test page for Map components - Admin only
@@ -109,30 +116,13 @@ const MapComponentsTest = ({ history }) => {
   return (
     <Container>
       <BackButton />
-      
+
       {/* Fixed Header */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "60px",
-        backgroundColor: "white",
-        borderBottom: "1px solid #e0e0e0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 99
-      }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: "18px",
-          fontWeight: "600",
-          color: "#333"
-        }}>
+      <TestPageHeader>
+        <TestPageTitle>
           Map Components Test
-        </h1>
-      </div>
+        </TestPageTitle>
+      </TestPageHeader>
 
       <Content style={{ paddingTop: "80px" }}>
         {/* MapView Component Test */}
