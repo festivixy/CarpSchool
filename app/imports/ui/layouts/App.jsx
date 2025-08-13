@@ -51,6 +51,8 @@ import FooterComponentsTest from "../test/pages/FooterComponentsTest";
 import IOSCreateRide from "../mobile/ios/pages/CreateRide";
 import IOSJoinRide from "../mobile/ios/pages/JoinRide";
 import IOSProfile from "../mobile/ios/pages/Profile";
+import AdminErrorReports from "../desktop/pages/AdminErrorReports";
+import AdminErrorReportDetail from "../desktop/pages/AdminErrorReportDetail";
 // Lazy load MapComponentsTest to improve initial load performance
 const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapComponentsTest.jsx"));
 
@@ -115,6 +117,15 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/admin/places"
                 component={MobileAdminPlaceManager}
+              />
+              <ProtectedRouteRequireAdmin
+                exact
+                path="/admin/error-reports"
+                component={AdminErrorReports}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/admin/error-report/:id"
+                component={AdminErrorReportDetail}
               />
 
               {/* Redirect /admin to 404 */}
