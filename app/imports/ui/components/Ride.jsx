@@ -6,7 +6,8 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
 import { Places } from "../../api/places/Places";
-import RouteMapView from "../mobile/components/RouteMapView";
+import RouteMapView from "./RouteMapView";
+import { MobileOnly, DesktopOnly } from "../layouts/Devices";
 import {
   RideCard,
   Header,
@@ -244,6 +245,11 @@ class Ride extends React.Component {
     this.setState({ mapModalOpen: false });
   };
 
+  handleViewRideInfo = () => {
+    // Navigate to RideInfo page for mobile
+    this.props.history.push(`/ride/${this.props.ride._id}`);
+  };
+
   parseCoordinates = (coordinateString) => {
     if (!coordinateString) return null;
     const [lat, lng] = coordinateString.split(",").map(coord => parseFloat(coord.trim()));
@@ -397,12 +403,24 @@ class Ride extends React.Component {
                 </ChatButton>
               )}
               {this.getPlaceCoordinates(ride.origin) && this.getPlaceCoordinates(ride.destination) && (
-                <MapButton
-                  onClick={this.handleOpenMap}
-                  title="Open Map"
-                >
-                  <MapIcon>🗺️</MapIcon>
-                </MapButton>
+                <>
+                  <MobileOnly>
+                    <MapButton
+                      onClick={this.handleViewRideInfo}
+                      title="View Details"
+                    >
+                      <MapIcon>📱</MapIcon>
+                    </MapButton>
+                  </MobileOnly>
+                  <DesktopOnly>
+                    <MapButton
+                      onClick={this.handleOpenMap}
+                      title="Open Map"
+                    >
+                      <MapIcon>🗺️</MapIcon>
+                    </MapButton>
+                  </DesktopOnly>
+                </>
               )}
             </Actions>
           )}
