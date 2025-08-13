@@ -48,14 +48,14 @@ class ErrorBoundary extends Component {
     this.setState({
       error,
       errorInfo,
-    });
-
-    // Log to console for debugging
-    console.error("ErrorBoundary caught an error:", {
-      error: error.toString(),
-      stack: error.stack,
-      componentStack: errorInfo.componentStack,
-      errorId: this.state.errorId,
+    }, () => {
+      // Log to console after state update (errorId should be available now)
+      console.error("ErrorBoundary caught an error:", {
+        error: error.toString(),
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+        errorId: this.state.errorId,
+      });
     });
 
     // Call custom error handler if provided
@@ -105,7 +105,8 @@ class ErrorBoundary extends Component {
         serverErrorId: result?.errorId,
       });
 
-      console.log("Error reported successfully:", result);
+      console.log("[ErrorBoundary] Error reported successfully:", result);
+      console.log("[ErrorBoundary] Server error ID set to:", result?.errorId);
 
     } catch (reportError) {
       console.warn("Failed to report error to server:", reportError);
