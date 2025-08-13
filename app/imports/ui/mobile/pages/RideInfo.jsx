@@ -129,7 +129,7 @@ class RideInfo extends React.Component {
           <ErrorContainer>
             <ErrorTitle>Ride Not Found</ErrorTitle>
             <ErrorMessage>
-              The ride you're looking for doesn't exist or has been removed.
+              The ride you&apos;re looking for doesn&apos;t exist or has been removed.
             </ErrorMessage>
             <BackButton onClick={this.handleBackClick}>
               ← Back to Rides

@@ -339,8 +339,8 @@ const MobileNavBarAutoTest = ({ history }) => {
             <InfoCard>
               <p><strong>How to test:</strong></p>
               <ol>
-                <li>Check the "Environment Detection" section to see current environment</li>
-                <li>Use "Simulate Environment" buttons to test different scenarios</li>
+                <li>Check the &quot;Environment Detection&quot; section to see current environment</li>
+                <li>Use &quot;Simulate Environment&quot; buttons to test different scenarios</li>
                 <li>Interact with the navbar above to test functionality</li>
                 <li>Check console logs for detailed debug information</li>
                 <li>Verify that the correct component is being used based on environment</li>
@@ -355,7 +355,7 @@ const MobileNavBarAutoTest = ({ history }) => {
 
               <p><strong>Debug Info:</strong></p>
               <ul>
-                <li>Check browser console for "[MobileNavBarAuto]" logs</li>
+                <li>Check browser console for &quot;[MobileNavBarAuto]&quot; logs</li>
                 <li>Environment detection info is logged on each render</li>
                 <li>Component selection reasoning is logged</li>
               </ul>

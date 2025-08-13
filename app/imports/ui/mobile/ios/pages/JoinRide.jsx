@@ -132,7 +132,7 @@ const JoinRide = ({ history, currentUser }) => {
             Successfully Joined!
           </SuccessHeading>
           <SuccessText>
-            You've successfully joined the ride. Redirecting to your rides...
+            You&apos;ve successfully joined the ride. Redirecting to your rides...
           </SuccessText>
         </SuccessModalContainer>
       </SuccessOverlay>
