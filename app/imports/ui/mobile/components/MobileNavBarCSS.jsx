@@ -237,6 +237,9 @@ class MobileNavBarCSS extends React.Component {
                       <DropdownItem onClick={() => this.handleNavigation("/admin/places")}>
                         📍 Manage Places
                       </DropdownItem>
+                      <DropdownItem onClick={() => this.handleNavigation("/admin/error-reports")}>
+                        🚨 Error Reports
+                      </DropdownItem>
                       <DropdownItem onClick={() => this.handleNavigation("/_test")}>
                         🧪 Components Test
                       </DropdownItem>

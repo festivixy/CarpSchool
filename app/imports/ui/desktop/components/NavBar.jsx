@@ -165,6 +165,12 @@ class NavBar extends React.Component {
                         Manage Places
                       </DropdownItem>
                       <DropdownItem
+                        to="/admin/error-reports"
+                        onClick={this.closeAllMenus}
+                      >
+                        🚨 Error Reports
+                      </DropdownItem>
+                      <DropdownItem
                         to="/_test/image-upload"
                         onClick={this.closeAllMenus}
                       >

@@ -172,6 +172,27 @@ const Profile = ({ history, currentUser, isAdmin }) => {
             </button>
 
             <button
+              onClick={() => handleNavigation("/admin/error-reports")}
+              style={{
+                width: "100%",
+                padding: "18px 20px",
+                backgroundColor: "transparent",
+                border: "none",
+                borderBottom: "1px solid #f0f0f0",
+                textAlign: "left",
+                fontSize: "16px",
+                color: "#333",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <MenuIcon>🚨</MenuIcon>
+              Error Reports
+              <MenuArrow>›</MenuArrow>
+            </button>
+
+            <button
               onClick={() => handleNavigation("/_test")}
               style={{
                 width: "100%",
