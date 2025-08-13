@@ -39,44 +39,44 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
       path: "/_test/map-components",
       icon: "🗺️",
       name: "Map Components",
-      description: "Test MapView, InteractiveMapPicker, and PathMapView components"
+      description: "Test MapView, InteractiveMapPicker, and PathMapView components",
     },
     {
       path: "/_test/footer-components",
       icon: "🦶",
       name: "Footer Components",
-      description: "Test Simple, Verbose, and LiquidGlass footer variants"
+      description: "Test Simple, Verbose, and LiquidGlass footer variants",
     },
     {
       path: "/_test/liquidglass-components",
       icon: "✨",
       name: "LiquidGlass Components",
-      description: "Test LiquidGlass buttons, inputs, dropdowns, and navbar components"
+      description: "Test LiquidGlass buttons, inputs, dropdowns, and navbar components",
     },
     {
       path: "/_test/mobile-navbar-auto",
       icon: "📱",
       name: "Mobile NavBar Auto",
-      description: "Test MobileNavBarAuto component and environment detection"
+      description: "Test MobileNavBarAuto component and environment detection",
     },
     {
       path: "/_test/shared-components",
       icon: "🧩",
       name: "Shared Components",
-      description: "Test Button, TextInput, Dropdown, and other shared components"
+      description: "Test Button, TextInput, Dropdown, and other shared components",
     },
     {
       path: "/_test/liquidglass/login",
       icon: "🔐",
       name: "LiquidGlass Login",
-      description: "Test LiquidGlass design system login page"
+      description: "Test LiquidGlass design system login page",
     },
     {
       path: "/_test/image-upload",
       icon: "📸",
       name: "Image Upload",
-      description: "Test image upload functionality and components"
-    }
+      description: "Test image upload functionality and components",
+    },
   ];
 
   return (

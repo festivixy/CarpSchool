@@ -273,8 +273,6 @@ const NativeNavBar = ({
     return null;
   }
 
-
-
   // Native navbar is supported and visible
   console.log("[NativeNavBar] 🍎 Rendering native navbar:", {
     navBarId,
@@ -297,7 +295,6 @@ const NativeNavBar = ({
               Native iOS
             </NativeIndicator>
           </NativeNavBarContainer>
-
 
         </>
       );
@@ -349,7 +346,6 @@ const NativeNavBar = ({
         <FallbackIndicator>
           CSS Fallback
         </FallbackIndicator>
-
 
       </FallbackContainer>
     );

@@ -31,5 +31,5 @@ export const MarginContainer = styled.div`
 `;
 
 export const DynamicMapContainer = styled.div`
-  height: ${props => props.$height || '400px'};
+  height: ${props => props.$height || "400px"};
 `;

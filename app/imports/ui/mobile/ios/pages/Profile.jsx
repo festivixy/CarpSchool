@@ -81,7 +81,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               color: "#333",
               cursor: "pointer",
               display: "flex",
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
             <MenuIcon>📝</MenuIcon>
@@ -101,7 +101,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               color: "#333",
               cursor: "pointer",
               display: "flex",
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
             <MenuIcon>📍</MenuIcon>
@@ -130,7 +130,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
                 color: "#333",
                 cursor: "pointer",
                 display: "flex",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
               <MenuIcon>👥</MenuIcon>
@@ -151,7 +151,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
                 color: "#333",
                 cursor: "pointer",
                 display: "flex",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
               <MenuIcon>🚗</MenuIcon>
@@ -172,7 +172,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
                 color: "#333",
                 cursor: "pointer",
                 display: "flex",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
             <MenuIcon>📍</MenuIcon>
@@ -192,7 +192,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
                 color: "#333",
                 cursor: "pointer",
                 display: "flex",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
               <MenuIcon>🧪</MenuIcon>
@@ -221,7 +221,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               color: "#333",
               cursor: "pointer",
               display: "flex",
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
             <MenuIcon>📄</MenuIcon>
@@ -242,7 +242,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               color: "#333",
               cursor: "pointer",
               display: "flex",
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
             <MenuIcon>🔒</MenuIcon>
@@ -262,7 +262,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
               color: "#333",
               cursor: "pointer",
               display: "flex",
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
             <MenuIcon>💰</MenuIcon>
@@ -287,7 +287,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center"
+            justifyContent: "center",
           }}
         >
           <LogoutIcon>🚪</LogoutIcon>

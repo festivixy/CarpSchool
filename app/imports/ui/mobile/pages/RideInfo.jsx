@@ -160,7 +160,7 @@ class RideInfo extends React.Component {
               justifyContent: "center",
               height: "100%",
               backgroundColor: "#f5f5f5",
-              color: "#666"
+              color: "#666",
             }}>
               Map unavailable - missing location coordinates
             </div>
@@ -219,7 +219,7 @@ class RideInfo extends React.Component {
                   <DetailValue style={{
                     fontFamily: "monospace",
                     fontWeight: "bold",
-                    color: "#007bff"
+                    color: "#007bff",
                   }}>
                     {ride.shareCode}
                   </DetailValue>

@@ -10,10 +10,10 @@
  */
 export const getImageUrl = (uuid) => {
   if (!uuid) return "";
-  
+
   // In Cordova environment, we need to use the main Meteor server URL
   // The mobile-server configuration tells us where the main server is
-  const meteorServerUrl = Meteor.absoluteUrl().replace(/\/$/, ''); // Remove trailing slash
+  const meteorServerUrl = Meteor.absoluteUrl().replace(/\/$/, ""); // Remove trailing slash
   return `${meteorServerUrl}/image/${uuid}`;
 };
 
@@ -21,6 +21,4 @@ export const getImageUrl = (uuid) => {
  * Get the base Meteor server URL for mobile apps
  * @returns {string} - Base server URL
  */
-export const getMeteorServerUrl = () => {
-  return Meteor.absoluteUrl().replace(/\/$/, '');
-};
+export const getMeteorServerUrl = () => Meteor.absoluteUrl().replace(/\/$/, "");

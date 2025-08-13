@@ -77,7 +77,7 @@ const MobileNavBarAutoTest = ({ history }) => {
       console.log("[MobileNavBarAutoTest] NavBar interaction:", { item, index, action });
 
       // Safely update state
-      if (typeof index === 'number' && index >= 0) {
+      if (typeof index === "number" && index >= 0) {
         setActiveIndex(index);
       }
 
@@ -96,7 +96,7 @@ const MobileNavBarAutoTest = ({ history }) => {
     const checkGlobalHandler = () => {
       const hasGlobalHandler = !!window.NativeNavBarActionHandler;
       const timestamp = new Date().toLocaleTimeString();
-      const logEntry = `[${timestamp}] Global handler check: ${hasGlobalHandler ? 'SET' : 'NOT SET'}`;
+      const logEntry = `[${timestamp}] Global handler check: ${hasGlobalHandler ? "SET" : "NOT SET"}`;
       setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
 
       if (hasGlobalHandler) {
@@ -114,7 +114,7 @@ const MobileNavBarAutoTest = ({ history }) => {
 
     // Override the global handler to add our own logging
     const originalHandler = window.NativeNavBarActionHandler;
-    window.NativeNavBarActionHandler = function(navBarId, action, itemIndex) {
+    window.NativeNavBarActionHandler = function (navBarId, action, itemIndex) {
       const timestamp = new Date().toLocaleTimeString();
       const logEntry = `[${timestamp}] NATIVE CALL: navBarId=${navBarId}, action=${action}, itemIndex=${itemIndex}`;
       console.log("[MobileNavBarAutoTest] 🔥 Native action handler called!", { navBarId, action, itemIndex });
@@ -123,7 +123,7 @@ const MobileNavBarAutoTest = ({ history }) => {
       setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
 
       // Call original handler if it exists
-      if (originalHandler && typeof originalHandler === 'function') {
+      if (originalHandler && typeof originalHandler === "function") {
         originalHandler(navBarId, action, itemIndex);
       }
     };
@@ -267,12 +267,12 @@ const MobileNavBarAutoTest = ({ history }) => {
                   </Button>
                   <Button onClick={() => {
                     const hasPlugin = !!window.cordova?.plugins?.NativeNavBar;
-                    const logEntry = `[${new Date().toLocaleTimeString()}] Plugin check: ${hasPlugin ? 'AVAILABLE' : 'NOT FOUND'}`;
+                    const logEntry = `[${new Date().toLocaleTimeString()}] Plugin check: ${hasPlugin ? "AVAILABLE" : "NOT FOUND"}`;
                     setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
                     console.log("[Test] Plugin status:", {
                       hasCordova: !!window.cordova,
                       hasPlugin,
-                      pluginMethods: window.cordova?.plugins?.NativeNavBar ? Object.keys(window.cordova.plugins.NativeNavBar) : 'N/A'
+                      pluginMethods: window.cordova?.plugins?.NativeNavBar ? Object.keys(window.cordova.plugins.NativeNavBar) : "N/A",
                     });
                   }}>
                     Check Plugin

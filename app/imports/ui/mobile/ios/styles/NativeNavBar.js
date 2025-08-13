@@ -92,7 +92,7 @@ export const FallbackContainer = styled.div`
 export const FallbackButton = styled.button`
   background: none;
   border: none;
-  color: ${props => props.isActive ? "#007AFF" : "white"};
+  color: ${props => (props.isActive ? "#007AFF" : "white")};
   font-size: 24px;
   padding: 8px;
   border-radius: 8px;

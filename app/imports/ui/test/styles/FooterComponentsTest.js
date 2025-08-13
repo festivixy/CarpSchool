@@ -131,7 +131,7 @@ export const Select = styled.select`
 `;
 
 export const DemoContainer = styled.div`
-  background-color: ${props => props.$theme === "dark" ? "#333" : "#f8f9fa"};
+  background-color: ${props => (props.$theme === "dark" ? "#333" : "#f8f9fa")};
   padding: 20px;
   border-radius: 8px;
   position: relative;
@@ -139,7 +139,7 @@ export const DemoContainer = styled.div`
 `;
 
 export const VerboseDemoContainer = styled.div`
-  background-color: ${props => props.$theme === "dark" ? "#222" : "#ffffff"};
+  background-color: ${props => (props.$theme === "dark" ? "#222" : "#ffffff")};
   padding: 20px;
   border-radius: 8px;
   position: relative;

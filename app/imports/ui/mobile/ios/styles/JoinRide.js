@@ -353,13 +353,13 @@ export const FormErrorMessage = styled.div`
 export const SubmitButton = styled.button`
   width: 100%;
   padding: 16px;
-  background-color: ${props => props.enabled ? '#007AFF' : '#ccc'};
+  background-color: ${props => (props.enabled ? "#007AFF" : "#ccc")};
   border: none;
   border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
   color: white;
-  cursor: ${props => props.enabled ? 'pointer' : 'not-allowed'};
+  cursor: ${props => (props.enabled ? "pointer" : "not-allowed")};
   transition: background-color 0.2s ease;
 
   &:disabled {

@@ -42,7 +42,7 @@ const CreateRide = ({ history, currentUser }) => {
     departureDate: "",
     departureTime: "",
     availableSeats: "1",
-    description: ""
+    description: "",
   });
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
@@ -55,7 +55,7 @@ const CreateRide = ({ history, currentUser }) => {
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
     // Clear error when user starts typing
     if (error) setError(null);
@@ -90,7 +90,7 @@ const CreateRide = ({ history, currentUser }) => {
       departureDate: formData.departureDate,
       departureTime: formData.departureTime,
       availableSeats: parseInt(formData.availableSeats),
-      description: formData.description.trim()
+      description: formData.description.trim(),
     }, (error, result) => {
       setIsCreating(false);
 
@@ -163,7 +163,7 @@ const CreateRide = ({ history, currentUser }) => {
                 color: "#333",
                 outline: "none",
                 transition: "border-color 0.2s ease",
-                boxSizing: "border-box"
+                boxSizing: "border-box",
               }}
               onFocus={(e) => e.target.style.borderColor = "#007AFF"}
               onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
@@ -189,7 +189,7 @@ const CreateRide = ({ history, currentUser }) => {
                 color: "#333",
                 outline: "none",
                 transition: "border-color 0.2s ease",
-                boxSizing: "border-box"
+                boxSizing: "border-box",
               }}
               onFocus={(e) => e.target.style.borderColor = "#007AFF"}
               onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
@@ -215,7 +215,7 @@ const CreateRide = ({ history, currentUser }) => {
                   color: "#333",
                   outline: "none",
                   transition: "border-color 0.2s ease",
-                  boxSizing: "border-box"
+                  boxSizing: "border-box",
                 }}
                 onFocus={(e) => e.target.style.borderColor = "#007AFF"}
                 onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
@@ -240,7 +240,7 @@ const CreateRide = ({ history, currentUser }) => {
                   color: "#333",
                   outline: "none",
                   transition: "border-color 0.2s ease",
-                  boxSizing: "border-box"
+                  boxSizing: "border-box",
                 }}
                 onFocus={(e) => e.target.style.borderColor = "#007AFF"}
                 onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
@@ -265,7 +265,7 @@ const CreateRide = ({ history, currentUser }) => {
                 color: "#333",
                 outline: "none",
                 transition: "border-color 0.2s ease",
-                boxSizing: "border-box"
+                boxSizing: "border-box",
               }}
               onFocus={(e) => e.target.style.borderColor = "#007AFF"}
               onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
@@ -301,7 +301,7 @@ const CreateRide = ({ history, currentUser }) => {
                 transition: "border-color 0.2s ease",
                 boxSizing: "border-box",
                 resize: "vertical",
-                minHeight: "80px"
+                minHeight: "80px",
               }}
               onFocus={(e) => e.target.style.borderColor = "#007AFF"}
               onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
@@ -328,7 +328,7 @@ const CreateRide = ({ history, currentUser }) => {
               color: "white",
               cursor: "pointer",
               transition: "background-color 0.2s ease",
-              opacity: isCreating ? 0.7 : 1
+              opacity: isCreating ? 0.7 : 1,
             }}
           >
             {isCreating ? "Creating Ride..." : "Create Ride"}
