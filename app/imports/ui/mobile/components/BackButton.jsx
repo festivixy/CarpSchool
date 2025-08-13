@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
+import { MobileOnly } from "../../layouts/Devices";
 import {
   BackButtonContainer,
   BackButtonCircle,
@@ -21,16 +22,18 @@ const BackButton = ({ history, onClick, style, className, ...props }) => {
   };
 
   return (
-    <BackButtonContainer
-      className={className}
-      style={style}
-      onClick={handleClick}
-      {...props}
-    >
-      <BackButtonCircle>
-        <BackIcon src="/svg/back.svg" alt="Back" />
-      </BackButtonCircle>
-    </BackButtonContainer>
+    <MobileOnly>
+      <BackButtonContainer
+        className={className}
+        style={style}
+        onClick={handleClick}
+        {...props}
+      >
+        <BackButtonCircle>
+          <BackIcon src="/svg/back.svg" alt="Back" />
+        </BackButtonCircle>
+      </BackButtonContainer>
+    </MobileOnly>
   );
 };
 
