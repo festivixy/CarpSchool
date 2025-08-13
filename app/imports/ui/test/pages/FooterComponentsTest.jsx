@@ -131,7 +131,7 @@ const FooterComponentsTest = ({ history }) => {
                 showLinks={showLinks}
                 compact={compactMode}
               />
-            </ComponentContainer>
+            </DemoContainer>
           </SectionContent>
         </Section>
 
@@ -223,23 +223,13 @@ const FooterComponentsTest = ({ history }) => {
               </InfoItem>
             </InfoCard>
 
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-              gap: "16px",
-              marginTop: "20px"
-            }}>
-              <div style={{
-                padding: "16px",
-                backgroundColor: "#f8f9fa",
-                borderRadius: "8px",
-                textAlign: "center"
-              }}>
-                <h4 style={{ margin: "0 0 8px 0", color: "#333" }}>Simple</h4>
-                <p style={{ margin: 0, fontSize: "14px", color: "#666" }}>
+            <ComparisonGrid>
+              <ComparisonCard $bgColor="#f8f9fa">
+                <ComparisonTitle>Simple</ComparisonTitle>
+                <ComparisonDescription>
                   Best for: Basic sites, minimal designs
-                </p>
-              </div>
+                </ComparisonDescription>
+              </ComparisonCard>
 
               <div style={{
                 padding: "16px",
