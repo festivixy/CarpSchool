@@ -34,11 +34,9 @@ class ErrorBoundary extends Component {
 
   static getDerivedStateFromError(_error) {
     // Update state so the next render will show the fallback UI
-    const errorId = `CLIENT_${Date.now()}_${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-    console.log('[ErrorBoundary] Generated error ID:', errorId);
     return {
       hasError: true,
-      errorId: errorId,
+      errorId: `CLIENT_${Date.now()}_${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
       reportStatus: null,
     };
   }
@@ -48,14 +46,14 @@ class ErrorBoundary extends Component {
     this.setState({
       error,
       errorInfo,
-    }, () => {
-      // Log to console after state update (errorId should be available now)
-      console.error("ErrorBoundary caught an error:", {
-        error: error.toString(),
-        stack: error.stack,
-        componentStack: errorInfo.componentStack,
-        errorId: this.state.errorId,
-      });
+    });
+
+    // Log to console for debugging
+    console.error("ErrorBoundary caught an error:", {
+      error: error.toString(),
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      errorId: this.state.errorId,
     });
 
     // Call custom error handler if provided
@@ -105,8 +103,7 @@ class ErrorBoundary extends Component {
         serverErrorId: result?.errorId,
       });
 
-      console.log("[ErrorBoundary] Error reported successfully:", result);
-      console.log("[ErrorBoundary] Server error ID set to:", result?.errorId);
+      console.log("Error reported successfully:", result);
 
     } catch (reportError) {
       console.warn("Failed to report error to server:", reportError);
@@ -214,13 +211,10 @@ class ErrorBoundary extends Component {
 
   handleReport = async () => {
     const { errorId, serverErrorId } = this.state;
-    console.log('[ErrorBoundary] handleReport called with:', { errorId, serverErrorId });
-
     const idToShare = serverErrorId || errorId;
-    console.log('[ErrorBoundary] ID to share:', idToShare);
 
     if (!idToShare) {
-      alert('❌ Error: No error ID available to copy. Please try refreshing the page.');
+      console.error('No error ID available to copy');
       return;
     }
 
@@ -228,7 +222,7 @@ class ErrorBoundary extends Component {
       // Try modern clipboard API first
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(idToShare);
-        alert('✅ Error ID "' + idToShare + '" copied to clipboard. Please share with support.');
+        console.log('✅ Error ID copied to clipboard:', idToShare);
         return;
       }
 
@@ -246,18 +240,13 @@ class ErrorBoundary extends Component {
       document.body.removeChild(textArea);
 
       if (successful) {
-        alert('✅ Error ID "' + idToShare + '" copied to clipboard. Please share with support.');
+        console.log('✅ Error ID copied to clipboard:', idToShare);
       } else {
         throw new Error('Copy command failed');
       }
     } catch (err) {
       console.warn('Failed to copy to clipboard:', err);
-      // Final fallback: show error ID for manual copying
-      const textToCopy = idToShare;
-      const message = '📋 Error ID: ' + textToCopy + '\n\n' +
-                     'Please manually copy this ID and report it to support.\n\n' +
-                     'Tip: Select the ID above and use Ctrl+C (or Cmd+C on Mac) to copy.';
-      alert(message);
+      console.log('📋 Manual copy - Error ID:', idToShare);
     }
 
     // Call custom report handler if provided
@@ -290,8 +279,6 @@ class ErrorBoundary extends Component {
       const errorMessage = error ? error.message : "An unexpected error occurred";
       const isProduction = process.env.NODE_ENV === "production";
       const displayErrorId = serverErrorId || errorId;
-
-      console.log('[ErrorBoundary] Render state:', { errorId, serverErrorId, displayErrorId });
 
       return (
         <ErrorContainer variant={variant}>
