@@ -9,7 +9,7 @@ if (typeof cordova !== "undefined" && cordova.exec) {
     exec = cordova.exec;
 } else {
     // Fallback for web builds or when cordova is not available
-    exec = function (success, error, service, action, args) {
+    exec = function (success, error, _service, _action, _args) {
         console.warn("[NativeNavBar] cordova.exec not available - running in web mode");
         if (error) {
             error(new Error("Cordova not available"));
