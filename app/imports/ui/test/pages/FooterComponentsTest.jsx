@@ -20,6 +20,18 @@ import {
   ComparisonCard,
   ComparisonTitle,
   ComparisonDescription,
+  TestControlsGrid as ControlsGrid,
+  TestControlLabel as Label,
+  TestControlsCard as Section,
+  TestControlsTitle as SectionTitle,
+  TestPageContent as SectionContent,
+  TestComponentCard as InfoCard,
+  TestComponentTitle as InfoItem,
+  TestControlLabel as InfoLabel,
+  TestComponentDescription as InfoValue,
+  ComparisonCard,
+  ComparisonTitle,
+  ComparisonDescription,
 } from "../styles/FooterComponentsTest";
 
 /**
