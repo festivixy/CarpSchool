@@ -67,8 +67,8 @@ class DesktopAdminErrorReports extends React.Component {
   }
 
   componentDidMount() {
-    // Subscribe to error reports
-    this.errorReportsHandle = Meteor.subscribe("errorReports", this.state.pageSize, this.state.page * this.state.pageSize);
+    // Subscribe to a larger set of error reports for client-side filtering
+    this.errorReportsHandle = Meteor.subscribe("errorReports", 200, 0);
     this.statsHandle = Meteor.subscribe("errorReports.count");
   }
 
@@ -87,25 +87,6 @@ class DesktopAdminErrorReports extends React.Component {
 
   handleFilterChange = (filter) => {
     this.setState({ filterBy: filter, page: 0 });
-
-    // Update subscription based on filter
-    if (this.errorReportsHandle) {
-      this.errorReportsHandle.stop();
-    }
-
-    switch (filter) {
-      case "unresolved":
-        this.errorReportsHandle = Meteor.subscribe("errorReports.unresolved", this.state.pageSize);
-        break;
-      case "critical":
-        this.errorReportsHandle = Meteor.subscribe("errorReports.critical");
-        break;
-      case "recent":
-        this.errorReportsHandle = Meteor.subscribe("errorReports.recent", 24);
-        break;
-      default:
-        this.errorReportsHandle = Meteor.subscribe("errorReports", this.state.pageSize, this.state.page * this.state.pageSize);
-    }
   };
 
   handleView = (errorReport) => {
@@ -163,9 +144,27 @@ class DesktopAdminErrorReports extends React.Component {
   };
 
   filterErrorReports = (errorReports) => {
-    const { searchQuery, sortBy, sortOrder } = this.state;
+    const { searchQuery, sortBy, sortOrder, filterBy } = this.state;
 
     let filtered = errorReports;
+
+    // Apply filter by type first
+    switch (filterBy) {
+      case "unresolved":
+        filtered = filtered.filter(report => !report.resolved);
+        break;
+      case "critical":
+        filtered = filtered.filter(report => report.severity === "critical" && !report.resolved);
+        break;
+      case "recent":
+        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(report => new Date(report.timestamp) > dayAgo);
+        break;
+      case "all":
+      default:
+        // No additional filtering for "all"
+        break;
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
