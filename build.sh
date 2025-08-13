@@ -30,6 +30,7 @@ set -e  # Exit on any error
 # Source utility modules
 source "./tools/meteor-utils.sh"
 source "./tools/ui-utils.sh"
+source "./tools/codepush-utils.sh"
 
 # Default values
 DEFAULT_BUILD_DIR="../build"
@@ -41,6 +42,9 @@ show_usage() {
   ${GREEN}ios${NC}     - Build the iOS mobile app
   ${GREEN}android${NC} - Build the Android mobile app
   ${GREEN}all${NC}     - Build all platforms (server, iOS, and Android)
+  ${GREEN}codepush-ios${NC} - Build and release iOS update to CodePush
+  ${GREEN}codepush-android${NC} - Build and release Android update to CodePush
+  ${GREEN}codepush-status${NC} - Show CodePush configuration status"
 
 Options:
   ${YELLOW}--build-dir [path]${NC}    - Specify custom build directory (default: ../build)
@@ -62,7 +66,7 @@ SERVER_URL="$DEFAULT_SERVER_URL"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        server|ios|android|all)
+        server|ios|android|all|codepush-ios|codepush-android|codepush-status)
             if [ -z "$COMMAND" ]; then
                 COMMAND="$1"
             else
@@ -131,26 +135,41 @@ case $COMMAND in
     "all")
         echo -e "${YELLOW}🚀 Building all platforms...${NC}"
         echo ""
-        
+
         # Build server bundle
         echo -e "${YELLOW}📦 Step 1/3: Building server bundle...${NC}"
         meteor_build_bundle "$BUILD_DIR" "os.linux.x86_64"
         echo -e "${GREEN}✅ Server bundle completed${NC}"
         echo ""
-        
+
         # Build iOS
         echo -e "${YELLOW}📱 Step 2/3: Building iOS application...${NC}"
         meteor_build_ios "$BUILD_DIR" "$SERVER_URL"
         echo -e "${GREEN}✅ iOS build completed${NC}"
         echo ""
-        
+
         # Build Android
         echo -e "${YELLOW}🤖 Step 3/3: Building Android application...${NC}"
         meteor_build_android "$BUILD_DIR" "$SERVER_URL"
         echo -e "${GREEN}✅ Android build completed${NC}"
         echo ""
-        
+
         ui_show_completion "All platform builds" "All builds available at: $BUILD_DIR"
+        ;;
+    "codepush-ios")
+        echo -e "${YELLOW}📱 Building and releasing iOS update to CodePush...${NC}"
+        # Example: Replace with your actual app name and deployment
+        codepush_build_and_release "ios" "CarpSchool-iOS" "Staging" "$BUILD_DIR" "$SERVER_URL" "" "iOS update from build script"
+        ui_show_completion "iOS CodePush release" "Update released to CodePush server"
+        ;;
+    "codepush-android")
+        echo -e "${YELLOW}🤖 Building and releasing Android update to CodePush...${NC}"
+        # Example: Replace with your actual app name and deployment
+        codepush_build_and_release "android" "CarpSchool-Android" "Staging" "$BUILD_DIR" "$SERVER_URL" "" "Android update from build script"
+        ui_show_completion "Android CodePush release" "Update released to CodePush server"
+        ;;
+    "codepush-status")
+        codepush_show_status
         ;;
     *)
         ui_error_exit "Unknown command '${COMMAND}'" 1
