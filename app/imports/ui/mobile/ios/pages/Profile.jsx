@@ -33,10 +33,6 @@ const Profile = ({ history, currentUser, isAdmin }) => {
     history.push("/signout");
   };
 
-  const handleBack = () => {
-    history.goBack();
-  };
-
   return (
     <ProfilePageContainer>
       {/* Fixed Header */}
