@@ -534,6 +534,10 @@ class CreateRide extends React.Component {
           )}
           </Content>
         </CreateRideContent>
+
+        <MobileOnly>
+          <Spacer />
+        </MobileOnly>
       </CreateRidePageContainer>
     );
   }
