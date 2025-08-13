@@ -609,7 +609,7 @@ class MobileEditProfile extends React.Component {
             <StyledLink to="/myRides">Back to Dashboard</StyledLink>
           </Links>
 
-          <Spacer />
+          <Spacer height={96} />
         </Content>
       </Container>
     );
