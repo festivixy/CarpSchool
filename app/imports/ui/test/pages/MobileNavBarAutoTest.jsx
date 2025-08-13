@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { withRouter } from "react-router-dom";
 import MobileNavBarAuto from "../../mobile/components/MobileNavBarAuto";
+import BackButton from "../../mobile/components/BackButton";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import {
   Container,
@@ -157,6 +158,7 @@ const MobileNavBarAutoTest = ({ history }) => {
 
   return (
     <Container>
+      <BackButton />
       <Content>
         <Header>
           <Title>MobileNavBarAuto Test Page</Title>
