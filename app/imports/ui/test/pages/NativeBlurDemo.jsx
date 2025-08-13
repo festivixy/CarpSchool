@@ -379,22 +379,17 @@ const NativeBlurDemo = (props) => {
                 </PanelContent>
               </DemoPanel>
 
-              <div style={{
-                width: "200px",
-                height: "100px",
+              <DemoPanel style={{
                 background: `rgba(255, 255, 255, ${blurIntensity * 0.7})`,
                 backdropFilter: `blur(${blurIntensity * 20}px)`,
-                borderRadius: "16px",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
               }}>
-                <div style={{ padding: "16px", textAlign: "center" }}>
-                  <div style={{ fontWeight: "bold", marginBottom: "8px" }}>CSS Blur Panel 2</div>
-                  <div style={{ fontSize: "12px", opacity: 0.8 }}>
+                <PanelContent>
+                  <PanelTitle>CSS Blur Panel 2</PanelTitle>
+                  <PanelSubtext>
                     CSS backdrop-filter blur
-                  </div>
-                </div>
-              </div>
+                  </PanelSubtext>
+                </PanelContent>
+              </DemoPanel>
             </div>
           </ControlGroup>
         </ControlsContent>
