@@ -59,6 +59,7 @@
     "build:ios:dev": "cd .. && ./build.sh ios --server-url https://dev.carp.school",
     "build:prod": "cd .. && ./build.sh all --server-url https://carp.school",
     "prod": "cd .. && ./build-and-run.sh",
-    "clean": "cd .. && ./clean.sh"
+    "clean": "cd .. && ./clean.sh",
+    "clean:all": "source ../tools/meteor-utils.sh && meteor_clean_ios"
   }
 }
