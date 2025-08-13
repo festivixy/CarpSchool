@@ -125,7 +125,7 @@ export const ErrorDetails = styled.details`
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
     background: #2C2C2E;
-    
+
     pre {
       color: #AEAEB2;
     }
@@ -240,10 +240,96 @@ export const ErrorCode = styled.div`
     padding: 4px 8px;
   }
 
+  small {
+    font-size: 10px;
+    color: #999;
+    display: block;
+    margin-top: 4px;
+  }
+
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
     background: #2C2C2E;
     border-color: #3A3A3C;
     color: #AEAEB2;
+
+    small {
+      color: #8E8E93;
+    }
+  }
+`;
+
+export const ReportStatus = styled.div`
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-align: center;
+  margin: 12px 0;
+
+  ${props => {
+    switch (props.status) {
+      case 'reporting':
+        return `
+          background-color: #fff3cd;
+          color: #856404;
+          border: 1px solid #ffeaa7;
+        `;
+      case 'success':
+        return `
+          background-color: #d4edda;
+          color: #155724;
+          border: 1px solid #c3e6cb;
+        `;
+      case 'failed':
+        return `
+          background-color: #f8d7da;
+          color: #721c24;
+          border: 1px solid #f5c6cb;
+        `;
+      default:
+        return `
+          background-color: #e2e3e5;
+          color: #6c757d;
+          border: 1px solid #d6d8db;
+        `;
+    }
+  }}
+
+  ${ErrorContainer}[data-variant="minimal"] & {
+    font-size: 12px;
+    padding: 6px 10px;
+    margin: 8px 0;
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    ${props => {
+      switch (props.status) {
+        case 'reporting':
+          return `
+            background-color: #3d3a00;
+            color: #f9e79f;
+            border-color: #b7a612;
+          `;
+        case 'success':
+          return `
+            background-color: #1b3a1f;
+            color: #a9d3ab;
+            border-color: #28a745;
+          `;
+        case 'failed':
+          return `
+            background-color: #3a1b1f;
+            color: #f5c6cb;
+            border-color: #dc3545;
+          `;
+        default:
+          return `
+            background-color: #2c2c2e;
+            color: #aeaeb2;
+            border-color: #3a3a3c;
+          `;
+      }
+    }}
   }
 `;
