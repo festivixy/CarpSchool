@@ -208,23 +208,44 @@ class ErrorBoundary extends Component {
     }
   };
 
-  handleReport = () => {
+  handleReport = async () => {
     const { errorId, serverErrorId } = this.state;
     const idToShare = serverErrorId || errorId;
 
-    // Copy error ID to clipboard for manual reporting
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(idToShare)
-        .then(() => {
-          alert(`Error ID "${idToShare}" copied to clipboard. Please share with support.`);
-        })
-        .catch(() => {
-          // Fallback: show error ID in alert
-          alert(`Error ID: ${idToShare}\n\nPlease report this error ID to support.`);
-        });
-    } else {
-      // Fallback for older browsers
-      alert(`Error ID: ${idToShare}\n\nPlease report this error ID to support.`);
+    try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(idToShare);
+        alert(`✅ Error ID "${idToShare}" copied to clipboard. Please share with support.`);
+        return;
+      }
+
+      // Fallback: try legacy execCommand method
+      const textArea = document.createElement('textarea');
+      textArea.value = idToShare;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        alert(`✅ Error ID "${idToShare}" copied to clipboard. Please share with support.`);
+      } else {
+        throw new Error('Copy command failed');
+      }
+    } catch (err) {
+      console.warn('Failed to copy to clipboard:', err);
+      // Final fallback: show error ID for manual copying
+      const textToCopy = idToShare;
+      const message = `📋 Error ID: ${textToCopy}\n\n` +
+                     `Please manually copy this ID and report it to support.\n\n` +
+                     `Tip: Select the ID above and use Ctrl+C (or Cmd+C on Mac) to copy.`;
+      alert(message);
     }
 
     // Call custom report handler if provided
