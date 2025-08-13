@@ -69,6 +69,12 @@ export const TestControlLabel = styled.label`
   cursor: pointer;
 `;
 
+export const ControlItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
 export const TestControlInput = styled.input`
   margin: 0;
 `;
