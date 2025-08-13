@@ -27,6 +27,14 @@ meteor_build_bundle() {
 
 meteor_install_cordova_plugins() {
     local pathpwd=$(pwd)
+    insure_app_dir
+    echo -e "${YELLOW}🔄 Installing Cordova plugins...${NC}"
+    meteor add "cordova:cordova-plugin-native-navbar@file://$(pwd)/plugins/cordova-plugin-native-navbar"
+    meteor add "cordova:cordova-plugin-transport-security@file://$(pwd)/plugins/cordova-plugin-transport-security"
+    cd "$pathpwd"
+}
+
+insure_app_dir() {
     if [ ! -f ".meteor/release" ]; then
         if [ -f "app/.meteor/release" ]; then
             cd app
@@ -35,10 +43,11 @@ meteor_install_cordova_plugins() {
             return 1
         fi
     fi
-    echo -e "${YELLOW}🔄 Installing Cordova plugins...${NC}"
-    meteor add "cordova:cordova-plugin-native-navbar@file://$(pwd)/plugins/cordova-plugin-native-navbar"
-    meteor add "cordova:cordova-plugin-transport-security@file://$(pwd)/plugins/cordova-plugin-transport-security"
-    cd "$pathpwd"
+}
+
+insure_root_dir() {
+    insure_app_dir
+    cd ..
 }
 
 xcode_copy_cordova_plugins() {
@@ -53,14 +62,7 @@ xcode_copy_cordova_plugins() {
 
     # here, make sure that we are in app. (check if ./.meteor/release exists)
     # if not, check if ./app/.meteor/release exists. if yes, cd app
-    if [ ! -f ".meteor/release" ]; then
-        if [ -f "app/.meteor/release" ]; then
-            cd app
-        else
-            echo -e "${RED}❌ Not in Carpool app directory or .meteor/release not found${NC}"
-            return 1
-        fi
-    fi
+    insure_app_dir
 
     # cp plugins/cordova-plugin-native-navbar/src/ios/* ../build/ios/project/CarpSchool/Plugins/
     pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.swift
@@ -82,14 +84,7 @@ meteor_build_ios() {
     echo -e "${YELLOW}🌐 Server URL: $server_url${NC}"
 
     # Check if we're in the right directory
-    if [ ! -f "app/.meteor/release" ]; then
-        if [ -f "./.meteor/release" ]; then
-            cd ..
-        else
-            echo -e "${RED}❌ Not in Carpool root directory or app/.meteor/release not found${NC}"
-            return 1
-        fi
-    fi
+    insure_root_dir
 
     # Check iOS prerequisites
     echo -e "${YELLOW}🔍 Checking iOS prerequisites...${NC}"
@@ -134,6 +129,8 @@ meteor_build_ios() {
         return 1
     fi
 
+    ios_add_carpschool_domains
+
     cd "$pathpwd"
 }
 
@@ -148,10 +145,7 @@ meteor_build_android() {
     echo -e "${YELLOW}🌐 Server URL: $server_url${NC}"
 
     # Check if we're in the right directory
-    if [ ! -f "app/.meteor/release" ]; then
-        echo -e "${RED}❌ Not in Carpool root directory or app/.meteor/release not found${NC}"
-        return 1
-    fi
+    insure_root_dir
 
     # Check Android prerequisites
     echo -e "${YELLOW}🔍 Checking Android prerequisites...${NC}"
@@ -176,7 +170,7 @@ meteor_build_android() {
     fi
 
     # Clean Cordova build cache to prevent Gradle issues
-    echo -e "${YELLOW}🧹 Cleaning Cordova build cache...${NC}"
+    echo -e "${YELLOW}���� Cleaning Cordova build cache...${NC}"
     rm -rf app/.meteor/local/cordova-build
 
     cd app
@@ -211,10 +205,7 @@ meteor_run_ios() {
     echo -e "${YELLOW}📱 Starting Meteor iOS development server...${NC}"
 
     # Check if we're in the right directory
-    if [ ! -f "app/.meteor/release" ]; then
-        echo -e "${RED}❌ Not in Carpool root directory or app/.meteor/release not found${NC}"
-        return 1
-    fi
+    insure_root_dir
 
     # Check iOS prerequisites
     echo -e "${YELLOW}🔍 Checking iOS prerequisites...${NC}"
@@ -250,10 +241,7 @@ meteor_run_android() {
     echo -e "${YELLOW}🤖 Starting Meteor Android development server...${NC}"
 
     # Check if we're in the right directory
-    if [ ! -f "app/.meteor/release" ]; then
-        echo -e "${RED}❌ Not in Carpool root directory or app/.meteor/release not found${NC}"
-        return 1
-    fi
+    insure_root_dir
 
     # Check Android prerequisites
     echo -e "${YELLOW}🔍 Checking Android prerequisites...${NC}"
@@ -313,14 +301,7 @@ meteor_clean_ios() {
     local pathpwd=$(pwd)
     # here, make sure that we are in app. (check if ./.meteor/release exists)
     # if not, check if ./app/.meteor/release exists. if yes, cd app
-    if [ ! -f ".meteor/release" ]; then
-        if [ -f "app/.meteor/release" ]; then
-            cd app
-        else
-            echo -e "${RED}❌ Not in Carpool app directory or .meteor/release not found${NC}"
-            return 1
-        fi
-    fi
+    insure_app_dir
 
     echo -e "${YELLOW}🔄 Resetting Meteor project...${NC}"
     meteor reset
@@ -436,11 +417,19 @@ meteor_fix_gradle() {
 ios_add_carpschool_domains() {
     echo -e "${YELLOW}🚗 Adding CarpSchool-specific ATS domains using Python tool...${NC}"
 
-    local plist_path="../build/ios/project/CarpSchool/CarpSchool-Info.plist"
-    local script_dir="$(dirname "${BASH_SOURCE[0]}")"
-    local python_tool="$script_dir/ios-ats-config.py"
+    local pathpwd=$(pwd)
 
-    # Check if Python tool exists
+    insure_app_dir
+
+    local plist_path="../build/ios/project/CarpSchool/CarpSchool-Info.plist"
+    local python_tool="../tools/ios-ats-config.py"
+
+    # Check if required files exist
+    if [ ! -f "$plist_path" ]; then
+        echo -e "${RED}❌ Plist file not found at: $plist_path${NC}. Please build the app first"
+        return 1
+    fi
+
     if [ ! -f "$python_tool" ]; then
         echo -e "${RED}❌ Python ATS tool not found at: $python_tool${NC}"
         return 1
@@ -452,12 +441,39 @@ ios_add_carpschool_domains() {
         return 1
     fi
 
-    # Run the Python tool
-    if python3 "$python_tool" "$plist_path"; then
-        echo -e "${GREEN}✅ ATS configuration completed successfully using Python tool!${NC}"
-        return 0
+    # Configure each domain with its specific ATS settings
+    local success=true
+
+    # carp.school - subdomains + insecure + TLS 1.0 + no forward secrecy
+    python3 "$python_tool" "$plist_path" "carp.school" --subdomains --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+
+    # tileserver.carp.school - TLS 1.2 + forward secrecy required
+    python3 "$python_tool" "$plist_path" "tileserver.carp.school" --tls-version 1.2 --forward-secrecy || success=false
+
+    # nominatim.carp.school - TLS 1.2 + forward secrecy required
+    python3 "$python_tool" "$plist_path" "nominatim.carp.school" --tls-version 1.2 --forward-secrecy || success=false
+
+    # osrm.carp.school - TLS 1.2 + forward secrecy required
+    python3 "$python_tool" "$plist_path" "osrm.carp.school" --tls-version 1.2 --forward-secrecy || success=false
+
+    # codepush.carp.school - TLS 1.2 + forward secrecy required
+    python3 "$python_tool" "$plist_path" "codepush.carp.school" --tls-version 1.2 --forward-secrecy || success=false
+
+    # localhost - insecure + TLS 1.0 + no forward secrecy
+    python3 "$python_tool" "$plist_path" "localhost" --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+
+    # 127.0.0.1 - insecure + TLS 1.0 + no forward secrecy
+    python3 "$python_tool" "$plist_path" "127.0.0.1" --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+
+    # dev.carp.school - insecure + TLS 1.0 + no forward secrecy
+    python3 "$python_tool" "$plist_path" "dev.carp.school" --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+
+    if [ "$success" = true ]; then
+        echo -e "${GREEN}✅ All CarpSchool ATS domains configured successfully!${NC}"
     else
-        echo -e "${RED}❌ Python ATS tool failed${NC}"
-        return 1
+        echo -e "${RED}❌ Some domains failed to configure${NC}"
     fi
+
+    cd "$pathpwd"
+    return $([[ "$success" = true ]] && echo 0 || echo 1)
 }

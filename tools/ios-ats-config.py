@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-iOS App Transport Security (ATS) Configuration Tool
-Adds ATS exception domains to iOS Info.plist files for CarpSchool app
+Generic iOS App Transport Security (ATS) Domain Configuration Tool
+Adds individual ATS exception domains to iOS Info.plist files
 """
 
 import sys
@@ -70,18 +70,14 @@ def ensure_ats_structure(plist_data):
     return ats
 
 
-def add_carpschool_domains(plist_path):
-    """Add CarpSchool-specific ATS domains to Info.plist"""
-    print_colored("🚗 Adding CarpSchool-specific ATS domains...", 'yellow')
+def add_domain(plist_path, domain, subdomains=False, tls_version=None, 
+               forward_secrecy=None, insecure=False, verbose=False):
+    """Add a single ATS domain exception to Info.plist"""
     
     # Check if plist file exists
     if not os.path.exists(plist_path):
         print_colored(f"❌ Info.plist not found at: {plist_path}", 'red')
-        print_colored("💡 Make sure to build the iOS app first", 'yellow')
         return False
-    
-    # Create backup
-    backup_path = create_backup(plist_path)
     
     # Load plist
     plist_data = load_plist(plist_path)
@@ -93,109 +89,100 @@ def add_carpschool_domains(plist_path):
     exception_domains = ats['NSExceptionDomains']
     
     # Set NSAllowsArbitraryLoads to false for better security
-    ats['NSAllowsArbitraryLoads'] = False
-    print_colored("✅ Set NSAllowsArbitraryLoads to false", 'green')
+    if 'NSAllowsArbitraryLoads' not in ats:
+        ats['NSAllowsArbitraryLoads'] = False
+        if verbose:
+            print_colored("✅ Set NSAllowsArbitraryLoads to false", 'green')
     
-    # Domain configurations from plugin.xml
-    domain_configs = {
-        'carp.school': {
-            'NSIncludesSubdomains': True,
-            'NSExceptionAllowsInsecureHTTPLoads': True,
-            'NSExceptionMinimumTLSVersion': 'TLSv1.0',
-            'NSExceptionRequiresForwardSecrecy': False
-        },
-        'tileserver.carp.school': {
-            'NSExceptionMinimumTLSVersion': 'TLSv1.2',
-            'NSExceptionRequiresForwardSecrecy': True
-        },
-        'nominatim.carp.school': {
-            'NSExceptionMinimumTLSVersion': 'TLSv1.2',
-            'NSExceptionRequiresForwardSecrecy': True
-        },
-        'osrm.carp.school': {
-            'NSExceptionMinimumTLSVersion': 'TLSv1.2',
-            'NSExceptionRequiresForwardSecrecy': True
-        },
-        'codepush.carp.school': {
-            'NSExceptionMinimumTLSVersion': 'TLSv1.2',
-            'NSExceptionRequiresForwardSecrecy': True
-        },
-        'localhost': {
-            'NSExceptionAllowsInsecureHTTPLoads': True,
-            'NSExceptionMinimumTLSVersion': 'TLSv1.0',
-            'NSExceptionRequiresForwardSecrecy': False
-        },
-        '127.0.0.1': {
-            'NSExceptionAllowsInsecureHTTPLoads': True,
-            'NSExceptionMinimumTLSVersion': 'TLSv1.0',
-            'NSExceptionRequiresForwardSecrecy': False
-        },
-        'dev.carp.school': {
-            'NSExceptionAllowsInsecureHTTPLoads': True,
-            'NSExceptionMinimumTLSVersion': 'TLSv1.0',
-            'NSExceptionRequiresForwardSecrecy': False
-        }
-    }
+    print_colored(f"🌐 Configuring domain: {domain}", 'yellow')
     
-    # Process each domain
-    for domain, config in domain_configs.items():
-        print_colored(f"🌐 Configuring domain: {domain}", 'yellow')
-        
-        # Create domain entry
-        exception_domains[domain] = config.copy()
-        
-        # Show what was configured
-        for key, value in config.items():
-            if key == 'NSIncludesSubdomains':
-                print_colored(f"   ✓ NSIncludesSubdomains: {value}", 'green')
-            elif key == 'NSExceptionAllowsInsecureHTTPLoads':
-                print_colored(f"   ✓ NSExceptionAllowsInsecureHTTPLoads: {value}", 'green')
-            elif key == 'NSExceptionMinimumTLSVersion':
-                print_colored(f"   ✓ NSExceptionMinimumTLSVersion: {value}", 'green')
-            elif key == 'NSExceptionRequiresForwardSecrecy':
-                print_colored(f"   ✓ NSExceptionRequiresForwardSecrecy: {value}", 'green')
-        
-        print_colored(f"   ✅ Domain {domain} configured successfully", 'green')
+    # Create domain configuration
+    domain_config = {}
+    
+    if subdomains:
+        domain_config['NSIncludesSubdomains'] = True
+        print_colored(f"   ✓ NSIncludesSubdomains: True", 'green')
+    
+    if insecure:
+        domain_config['NSExceptionAllowsInsecureHTTPLoads'] = True
+        print_colored(f"   ✓ NSExceptionAllowsInsecureHTTPLoads: True", 'green')
+    
+    if tls_version:
+        domain_config['NSExceptionMinimumTLSVersion'] = f"TLSv{tls_version}"
+        print_colored(f"   ✓ NSExceptionMinimumTLSVersion: TLSv{tls_version}", 'green')
+    
+    if forward_secrecy is not None:
+        domain_config['NSExceptionRequiresForwardSecrecy'] = forward_secrecy
+        print_colored(f"   ✓ NSExceptionRequiresForwardSecrecy: {forward_secrecy}", 'green')
+    
+    # Add domain to exception domains
+    exception_domains[domain] = domain_config
     
     # Save the updated plist
     if save_plist(plist_data, plist_path):
-        print_colored(f"✅ Info.plist updated successfully with {len(domain_configs)} CarpSchool domain(s)", 'green')
-        
-        # Show current ATS configuration
-        print_colored("📋 Current ATS Exception Domains:", 'yellow')
-        for domain in sorted(exception_domains.keys()):
-            print_colored(f"  🌐 {domain}", 'blue')
-            for key, value in exception_domains[domain].items():
-                print_colored(f"    • {key}: {value}", 'white')
-        
-        # Remove backup since operation was successful
-        os.remove(backup_path)
-        print_colored("🗑️  Backup removed (operation successful)", 'green')
+        print_colored(f"   ✅ Domain {domain} configured successfully", 'green')
         return True
     else:
-        # Restore backup on failure
-        print_colored("❌ Failed to update Info.plist - restoring backup", 'red')
-        shutil.copy2(backup_path, plist_path)
+        print_colored(f"   ❌ Failed to configure domain {domain}", 'red')
         return False
 
 
 def main():
     """Main function"""
     parser = argparse.ArgumentParser(
-        description='iOS App Transport Security (ATS) Configuration Tool',
+        description='Generic iOS App Transport Security (ATS) Domain Configuration Tool',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
-  python ios-ats-config.py ../build/ios/project/CarpSchool/CarpSchool-Info.plist
-  python ios-ats-config.py --help
+  # Add basic domain
+  python ios-ats-config.py /path/to/Info.plist example.com
+  
+  # Add domain with subdomains and insecure HTTP
+  python ios-ats-config.py /path/to/Info.plist api.example.com --subdomains --insecure
+  
+  # Add domain with specific TLS version and forward secrecy
+  python ios-ats-config.py /path/to/Info.plist secure.example.com --tls-version 1.2 --forward-secrecy
         '''
     )
     
     parser.add_argument(
         'plist_path',
-        nargs='?',
-        default='../build/ios/project/CarpSchool/CarpSchool-Info.plist',
-        help='Path to the Info.plist file (default: ../build/ios/project/CarpSchool/CarpSchool-Info.plist)'
+        help='Path to the Info.plist file'
+    )
+    
+    parser.add_argument(
+        'domain',
+        help='Domain name to add as ATS exception'
+    )
+    
+    parser.add_argument(
+        '--subdomains',
+        action='store_true',
+        help='Include subdomains (NSIncludesSubdomains)'
+    )
+    
+    parser.add_argument(
+        '--tls-version',
+        choices=['1.0', '1.1', '1.2', '1.3'],
+        help='Minimum TLS version (NSExceptionMinimumTLSVersion)'
+    )
+    
+    parser.add_argument(
+        '--forward-secrecy',
+        action='store_true',
+        help='Require forward secrecy (NSExceptionRequiresForwardSecrecy=true)'
+    )
+    
+    parser.add_argument(
+        '--no-forward-secrecy',
+        action='store_true',
+        help='Disable forward secrecy (NSExceptionRequiresForwardSecrecy=false)'
+    )
+    
+    parser.add_argument(
+        '--insecure',
+        action='store_true',
+        help='Allow insecure HTTP loads (NSExceptionAllowsInsecureHTTPLoads)'
     )
     
     parser.add_argument(
@@ -206,14 +193,30 @@ Examples:
     
     args = parser.parse_args()
     
-    # Add CarpSchool domains
-    success = add_carpschool_domains(args.plist_path)
+    # Handle forward secrecy logic
+    forward_secrecy = None
+    if args.forward_secrecy:
+        forward_secrecy = True
+    elif args.no_forward_secrecy:
+        forward_secrecy = False
+    
+    # Add domain
+    success = add_domain(
+        args.plist_path,
+        args.domain,
+        subdomains=args.subdomains,
+        tls_version=args.tls_version,
+        forward_secrecy=forward_secrecy,
+        insecure=args.insecure,
+        verbose=args.verbose
+    )
     
     if success:
-        print_colored("🎉 ATS configuration completed successfully!", 'green')
+        if args.verbose:
+            print_colored("🎉 Domain configuration completed successfully!", 'green')
         sys.exit(0)
     else:
-        print_colored("💥 ATS configuration failed!", 'red')
+        print_colored("💥 Domain configuration failed!", 'red')
         sys.exit(1)
 
 
