@@ -447,14 +447,14 @@ ios_add_carpschool_domains() {
     # carp.school - subdomains + insecure + TLS 1.0 + no forward secrecy
     python3 "$python_tool" "$plist_path" "carp.school" --subdomains --insecure --tls-version 1.0 --no-forward-secrecy || success=false
 
-    # tileserver.carp.school - TLS 1.2 + forward secrecy required
-    python3 "$python_tool" "$plist_path" "tileserver.carp.school" --tls-version 1.2 --forward-secrecy || success=false
+    # tileserver.carp.school - insecure + subdomains
+    python3 "$python_tool" "$plist_path" "tileserver.carp.school" --insecure --subdomains || success=false
 
-    # nominatim.carp.school - TLS 1.2 + forward secrecy required
-    python3 "$python_tool" "$plist_path" "nominatim.carp.school" --tls-version 1.2 --forward-secrecy || success=false
+    # nominatim.carp.school - insecure + subdomains
+    python3 "$python_tool" "$plist_path" "nominatim.carp.school" --insecure --subdomains || success=false
 
-    # osrm.carp.school - TLS 1.2 + forward secrecy required
-    python3 "$python_tool" "$plist_path" "osrm.carp.school" --tls-version 1.2 --forward-secrecy || success=false
+    # osrm.carp.school - insecure + subdomains
+    python3 "$python_tool" "$plist_path" "osrm.carp.school" --insecure --subdomains || success=false
 
     # codepush.carp.school - TLS 1.2 + forward secrecy required
     python3 "$python_tool" "$plist_path" "codepush.carp.school" --tls-version 1.2 --forward-secrecy || success=false
