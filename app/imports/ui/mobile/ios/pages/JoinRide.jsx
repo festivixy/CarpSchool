@@ -190,6 +190,18 @@ class JoinRide extends React.Component {
         <BackButton />
 
         <ContentPadding>
+          <FixedHeader>
+            <HeaderTitle>Join a Ride</HeaderTitle>
+            <div style={{
+              fontSize: "14px",
+              color: "rgba(100, 100, 100, 1)",
+              margin: "0",
+              lineHeight: "1.4"
+            }}>
+              Enter the 8-character code shared by the driver
+            </div>
+          </FixedHeader>
+
           {success ? (
             <Success>
               <SuccessIcon>✓</SuccessIcon>
@@ -203,23 +215,6 @@ class JoinRide extends React.Component {
             <>
               {/* Code Input Section */}
               <InputSection>
-                <h2 style={{ 
-                  fontSize: "24px", 
-                  fontWeight: "bold", 
-                  marginBottom: "8px",
-                  textAlign: "center",
-                  color: "#333"
-                }}>
-                  Enter Ride Code
-                </h2>
-                <p style={{ 
-                  fontSize: "16px", 
-                  color: "#666", 
-                  marginBottom: "32px",
-                  textAlign: "center"
-                }}>
-                  Enter the 8-character code shared by the driver
-                </p>
 
                 <CodeInputs>
                   {codeInputs.map((value, index) => (

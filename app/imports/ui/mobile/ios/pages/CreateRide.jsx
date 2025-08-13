@@ -11,6 +11,7 @@ import {
   CreateRideHeader,
   CreateRideHeaderTitle,
   CreateRideContent,
+  Content,
   Form,
   Section,
   SectionTitle,
@@ -318,28 +319,41 @@ class CreateRide extends React.Component {
         <BackButton />
 
         <CreateRideContent>
-          {success ? (
-            <Success>
-              <SuccessIcon>✓</SuccessIcon>
-              <SuccessTitle>Ride Created!</SuccessTitle>
-              <SuccessMessage>
-                Your ride from {this.getPlaceNameById(origin)} to{" "}
-                {this.getPlaceNameById(destination)} has been added
-                successfully.
-              </SuccessMessage>
-              <SuccessDetails>
-                <SuccessDetailItem>
-                  <strong>Date:</strong> {new Date(date).toLocaleDateString()}
-                </SuccessDetailItem>
-                <SuccessDetailItem>
-                  <strong>Time:</strong> {time}
-                </SuccessDetailItem>
-                <SuccessDetailItem>
-                  <strong>Seats:</strong> {seats}
-                </SuccessDetailItem>
-              </SuccessDetails>
-            </Success>
-          ) : (
+          <CreateRideHeader>
+            <CreateRideHeaderTitle>Create Your Ride</CreateRideHeaderTitle>
+            <p style={{
+              fontSize: "14px",
+              color: "rgba(100, 100, 100, 1)",
+              margin: "0",
+              lineHeight: "1.4"
+            }}>
+              Share your ride with fellow students
+            </p>
+          </CreateRideHeader>
+
+          <Content>
+            {success ? (
+              <Success>
+                <SuccessIcon>✓</SuccessIcon>
+                <SuccessTitle>Ride Created!</SuccessTitle>
+                <SuccessMessage>
+                  Your ride from {this.getPlaceNameById(origin)} to{" "}
+                  {this.getPlaceNameById(destination)} has been added
+                  successfully.
+                </SuccessMessage>
+                <SuccessDetails>
+                  <SuccessDetailItem>
+                    <strong>Date:</strong> {new Date(date).toLocaleDateString()}
+                  </SuccessDetailItem>
+                  <SuccessDetailItem>
+                    <strong>Time:</strong> {time}
+                  </SuccessDetailItem>
+                  <SuccessDetailItem>
+                    <strong>Seats:</strong> {seats}
+                  </SuccessDetailItem>
+                </SuccessDetails>
+              </Success>
+            ) : (
             <Form onSubmit={this.handleSubmit}>
               {/* Route Section */}
               <Section>
@@ -516,6 +530,7 @@ class CreateRide extends React.Component {
               </Actions>
             </Form>
           )}
+          </Content>
         </CreateRideContent>
       </CreateRidePageContainer>
     );
