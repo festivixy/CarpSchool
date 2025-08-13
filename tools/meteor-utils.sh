@@ -379,7 +379,7 @@ meteor_setup_android() {
     # Check for command-line tools
     if ! command -v avdmanager &> /dev/null; then
         echo -e "${RED}❌ Android SDK command-line tools not installed${NC}"
-        echo -e "${YELLOW}💡 In Android Studio:${NC}"
+        echo -e "${YELLOW}��� In Android Studio:${NC}"
         echo "1. Open SDK Manager (Tools > SDK Manager)"
         echo "2. Go to SDK Tools tab"
         echo "3. Check 'Android SDK Command-line Tools (latest)'"
@@ -452,20 +452,28 @@ ios_add_carpschool_domains() {
     cp "$plist_path" "$backup_path"
     echo -e "${GREEN}✅ Created backup: $backup_path${NC}"
 
+    # Create a working copy to avoid corruption
+    local temp_path="${plist_path}.temp"
+    cp "$plist_path" "$temp_path"
+
     # Ensure NSAppTransportSecurity structure exists
-    if ! plutil -extract "NSAppTransportSecurity" raw "$plist_path" &> /dev/null; then
-        plutil -insert "NSAppTransportSecurity" -dictionary "$plist_path"
+    if ! plutil -extract "NSAppTransportSecurity" raw "$temp_path" &> /dev/null; then
+        plutil -insert "NSAppTransportSecurity" -dictionary "$temp_path"
         echo -e "${GREEN}✅ Created NSAppTransportSecurity structure${NC}"
     fi
 
     # Ensure NSExceptionDomains exists
-    if ! plutil -extract "NSAppTransportSecurity.NSExceptionDomains" raw "$plist_path" &> /dev/null; then
-        plutil -insert "NSAppTransportSecurity.NSExceptionDomains" -dictionary "$plist_path"
+    if ! plutil -extract "NSAppTransportSecurity.NSExceptionDomains" raw "$temp_path" &> /dev/null; then
+        plutil -insert "NSAppTransportSecurity.NSExceptionDomains" -dictionary "$temp_path"
         echo -e "${GREEN}✅ Created NSExceptionDomains structure${NC}"
     fi
 
     # Set NSAllowsArbitraryLoads to false for better security
-    plutil -replace "NSAppTransportSecurity.NSAllowsArbitraryLoads" -bool false "$plist_path"
+    if plutil -extract "NSAppTransportSecurity.NSAllowsArbitraryLoads" raw "$temp_path" &> /dev/null; then
+        plutil -replace "NSAppTransportSecurity.NSAllowsArbitraryLoads" -bool false "$temp_path"
+    else
+        plutil -insert "NSAppTransportSecurity.NSAllowsArbitraryLoads" -bool false "$temp_path"
+    fi
     echo -e "${GREEN}✅ Set NSAllowsArbitraryLoads to false${NC}"
 
     # Domain configurations from plugin.xml (using arrays for compatibility)
@@ -499,38 +507,41 @@ ios_add_carpschool_domains() {
         echo -e "${YELLOW}🌐 Configuring domain: $domain${NC}"
 
         # Create domain entry (always create fresh entry)
-        plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain" -dictionary "$plist_path" 2>/dev/null || \
-        plutil -remove "NSAppTransportSecurity.NSExceptionDomains.$domain" "$plist_path" 2>/dev/null && \
-        plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain" -dictionary "$plist_path"
+        plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain" -dictionary "$temp_path" 2>/dev/null || \
+        plutil -remove "NSAppTransportSecurity.NSExceptionDomains.$domain" "$temp_path" 2>/dev/null && \
+        plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain" -dictionary "$temp_path"
 
         # Parse and apply configuration
         if [[ "$config" == *"subdomains"* ]]; then
-            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSIncludesSubdomains" -bool true "$plist_path"
+            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSIncludesSubdomains" -bool true "$temp_path"
             echo -e "${GREEN}   ✓ NSIncludesSubdomains: true${NC}"
         fi
 
         if [[ "$config" == *"insecure"* ]]; then
-            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionAllowsInsecureHTTPLoads" -bool true "$plist_path"
+            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionAllowsInsecureHTTPLoads" -bool true "$temp_path"
             echo -e "${GREEN}   ✓ NSExceptionAllowsInsecureHTTPLoads: true${NC}"
         fi
 
         if [[ "$config" == *"tls="* ]]; then
             local tls_version=$(echo "$config" | grep -o 'tls=[^,]*' | cut -d'=' -f2)
-            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionMinimumTLSVersion" -string "TLSv$tls_version" "$plist_path"
+            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionMinimumTLSVersion" -string "TLSv$tls_version" "$temp_path"
             echo -e "${GREEN}   ✓ NSExceptionMinimumTLSVersion: TLSv$tls_version${NC}"
         fi
 
         if [[ "$config" == *"forward_secrecy="* ]]; then
             local forward_secrecy=$(echo "$config" | grep -o 'forward_secrecy=[^,]*' | cut -d'=' -f2)
-            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionRequiresForwardSecrecy" -bool "$forward_secrecy" "$plist_path"
+            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionRequiresForwardSecrecy" -bool "$forward_secrecy" "$temp_path"
             echo -e "${GREEN}   ✓ NSExceptionRequiresForwardSecrecy: $forward_secrecy${NC}"
         fi
 
         echo -e "${GREEN}   ✅ Domain $domain configured successfully${NC}"
     done
 
-    # Validate the resulting plist
-    if plutil -lint "$plist_path" &> /dev/null; then
+    # Validate the resulting temp plist
+    if plutil -lint "$temp_path" &> /dev/null; then
+        # Atomically replace the original with the temp file
+        mv "$temp_path" "$plist_path"
+
         echo -e "${GREEN}✅ Info.plist updated successfully with ${#domains[@]} CarpSchool domain(s)${NC}"
 
         # Show the current ATS configuration
@@ -542,6 +553,7 @@ ios_add_carpschool_domains() {
         echo -e "${GREEN}🗑️  Backup removed (operation successful)${NC}"
     else
         echo -e "${RED}❌ Failed to update Info.plist - restoring backup${NC}"
+        rm -f "$temp_path"
         cp "$backup_path" "$plist_path"
         return 1
     fi
