@@ -359,9 +359,9 @@ const NativeBlurDemo = (props) => {
               </div>
             )}
 
-            <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+            <InfoText>
               Total logs: {logs.length} | NavBar: CSS Liquid Glass
-            </div>
+            </InfoText>
           </ControlGroup>
 
           <ControlGroup>

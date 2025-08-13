@@ -188,13 +188,7 @@ const FooterComponentsTest = ({ history }) => {
               </InfoItem>
             </InfoCard>
 
-            <ComponentContainer style={{
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              padding: "40px 20px",
-              borderRadius: "16px",
-              position: "relative",
-              overflow: "hidden"
-            }}>
+            <LiquidGlassDemoContainer>
               {/* Background pattern for glass effect */}
               <div style={{
                 position: "absolute",
