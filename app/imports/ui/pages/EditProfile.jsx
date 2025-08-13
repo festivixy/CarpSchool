@@ -4,6 +4,7 @@ import { Redirect } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Profiles } from "../../api/profile/Profile";
+import { getImageUrl } from "../mobile/utils/imageUtils";
 import {
   Container,
   Loading,
@@ -491,9 +492,7 @@ class MobileEditProfile extends React.Component {
                     <PreviewImg
                       src={
                         this.state.profileImagePreview ||
-                        (this.state.profileImage
-                          ? `/image/${this.state.profileImage}`
-                          : "")
+                        getImageUrl(this.state.profileImage)
                       }
                       alt="Profile preview"
                     />
@@ -544,9 +543,7 @@ class MobileEditProfile extends React.Component {
                     <PreviewImg
                       src={
                         this.state.rideImagePreview ||
-                        (this.state.rideImage
-                          ? `/image/${this.state.rideImage}`
-                          : "")
+                        getImageUrl(this.state.rideImage)
                       }
                       alt="Vehicle preview"
                     />

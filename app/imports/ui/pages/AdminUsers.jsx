@@ -4,6 +4,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
 import { Profiles } from "../../api/profile/Profile";
+import { getImageUrl } from "../mobile/utils/imageUtils";
 import {
   Container,
   Header,
@@ -480,7 +481,7 @@ class MobileAdminUsers extends React.Component {
                           <Label>Profile Picture</Label>
                           <ProfilePictureSection>
                             <ProfilePicture
-                              src={`/image/${userProfile.Image}`}
+                              src={getImageUrl(userProfile.Image)}
                               alt="User profile"
                               onError={(e) => {
                                 e.target.style.display = "none";
