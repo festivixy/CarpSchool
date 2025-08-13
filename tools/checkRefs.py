@@ -129,14 +129,35 @@ class RefChecker:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # Process entire content to handle multi-line imports
-            for pattern in self.import_patterns:
-                matches = re.finditer(pattern, content, re.MULTILINE | re.DOTALL)
-                for match in matches:
-                    import_path = match.group(1)
-                    # Calculate line number by counting newlines before the match
-                    line_num = content[:match.start()].count('\n') + 1
-                    imports.append((import_path, line_num))
+            # Process line by line to avoid imports in comments
+            lines = content.split('\n')
+            in_multiline_comment = False
+
+            for line_num, line in enumerate(lines, 1):
+                stripped = line.strip()
+
+                # Track multi-line comments
+                if '/*' in stripped and '*/' not in stripped:
+                    in_multiline_comment = True
+                    continue
+                elif '*/' in stripped and in_multiline_comment:
+                    in_multiline_comment = False
+                    continue
+                elif in_multiline_comment:
+                    continue
+
+                # Skip single-line comments and JSDoc lines
+                if (stripped.startswith('//') or
+                    stripped.startswith('*') or
+                    stripped.startswith('/*')):
+                    continue
+
+                # Check for import patterns in this line
+                for pattern in self.import_patterns:
+                    matches = re.finditer(pattern, line)
+                    for match in matches:
+                        import_path = match.group(1)
+                        imports.append((import_path, line_num))
 
         except Exception as e:
             self.add_error(f"Error reading {file_path}: {e}")
@@ -450,9 +471,17 @@ class RefChecker:
 
         def dfs(node, path):
             if node in rec_stack:
-                cycle_start = path.index(node)
-                cycle = path[cycle_start:] + [node]
-                cycles.append(cycle)
+                # Found a cycle - safely find the cycle start
+                try:
+                    cycle_start = path.index(node)
+                    cycle = path[cycle_start:] + [node]
+                    cycles.append(cycle)
+                except ValueError:
+                    # Node not in path - this can happen in complex graphs
+                    # Create a simple cycle notation
+                    cycle = [node, node]  # Self-referencing cycle
+                    cycles.append(cycle)
+                    self.log(f"Warning: Complex circular dependency detected involving {node}", "WARNING")
                 return
 
             if node in visited:
