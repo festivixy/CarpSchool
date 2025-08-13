@@ -46,4 +46,4 @@ else
     echo -e "${YELLOW}Skipping removal of Node.js dependencies.${NC}"
 fi
 
-ui_show_completion "Cleanup" "To rebuild and run: ./build-and-run.sh"
+ui_show_completion "Cleanup" "To rebuild and run: ./build-prod.sh"

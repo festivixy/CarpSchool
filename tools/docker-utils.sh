@@ -32,7 +32,7 @@ docker_show_status() {
     echo "📝 Useful commands:"
     echo "  View logs: docker compose logs -f app"
     echo "  Stop services: docker compose down"
-    echo "  Rebuild: ./build-and-run.sh"
+    echo "  Rebuild: ./build-prod.sh"
 }
 
 # Function to check if Docker is running

@@ -63,7 +63,7 @@ case $COMMAND in
         ;;
     "prod")
         echo -e "${YELLOW}🚀 Running production build and run...${NC}"
-        ./build-and-run.sh
+        ./build-prod.sh
         ui_show_completion "Production build and run"
         ;;
     "help" | "-h" | "--help")
