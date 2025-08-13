@@ -213,9 +213,17 @@ class RefChecker:
             exports.update(reexports)
 
             # Handle: export { ComponentName } (but not re-exports)
-            # Only process lines that don't have 'from' keyword
+            # Only process lines that don't have 'from' keyword and are not comments
             for line in content.split('\n'):
-                if line.strip().startswith('export') and '{' in line and '}' in line and 'from' not in line:
+                stripped_line = line.strip()
+                # Skip comments (both // and /* */) and JSX/template literals
+                if (stripped_line.startswith('//') or
+                    stripped_line.startswith('/*') or
+                    stripped_line.startswith('*') or
+                    '/*' in stripped_line.split('export')[0] if 'export' in stripped_line else False):
+                    continue
+
+                if stripped_line.startswith('export') and '{' in line and '}' in line and 'from' not in line:
                     # Extract content between braces
                     match = re.search(r'export\s*\{\s*([^}]+)\s*\}', line)
                     if match:
@@ -269,15 +277,23 @@ class RefChecker:
 
                         package_data = json.loads(content)
 
+                        # Validate that package_data is a dictionary
+                        if not isinstance(package_data, dict):
+                            if self.verbose:
+                                self.log(f"Warning: package.json is not a valid object: {package_json_path}")
+                            break
+
                     # Collect all types of dependencies
                     for dep_type in ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']:
                         if dep_type in package_data:
                             dep_section = package_data[dep_type]
-                            # Handle both object (normal) and list (rare edge case) formats
-                            if isinstance(dep_section, dict):
+                            # Validate dep_section is not null and handle both object (normal) and list (rare edge case) formats
+                            if dep_section is not None and isinstance(dep_section, dict):
                                 dependencies.update(dep_section.keys())
-                            elif isinstance(dep_section, list):
+                            elif dep_section is not None and isinstance(dep_section, list):
                                 dependencies.update(dep_section)
+                            elif self.verbose and dep_section is not None:
+                                self.log(f"Warning: {dep_type} section has unexpected type in {package_json_path}: {type(dep_section)}")
 
                     self.log(f"Loaded {len(dependencies)} dependencies from {package_json_path}")
                     break  # Stop once we find and process the first package.json
@@ -558,6 +574,9 @@ class RefChecker:
             # Calculate relative path
             relative_path = os.path.relpath(replacement_path, file_dir)
 
+            # Convert Windows backslashes to forward slashes for imports (always use forward slash in imports)
+            relative_path = relative_path.replace('\\', '/')
+
             # Ensure it starts with ./ or ../
             if not relative_path.startswith('.'):
                 relative_path = './' + relative_path
@@ -831,6 +850,9 @@ class RefChecker:
 
             # Calculate relative path
             relative_path = os.path.relpath(to_file, from_dir)
+
+            # Convert Windows backslashes to forward slashes for imports (always use forward slash in imports)
+            relative_path = relative_path.replace('\\', '/')
 
             # Ensure it starts with ./ or ../
             if not relative_path.startswith('.'):
