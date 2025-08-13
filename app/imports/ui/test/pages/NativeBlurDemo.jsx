@@ -390,7 +390,7 @@ const NativeBlurDemo = (props) => {
                   </PanelSubtext>
                 </PanelContent>
               </DemoPanel>
-            </div>
+            </DemoGrid>
           </ControlGroup>
         </ControlsContent>
       </ControlsContainer>
