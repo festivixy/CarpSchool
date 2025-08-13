@@ -29,9 +29,6 @@ import {
   TestComponentTitle as InfoItem,
   TestControlLabel as InfoLabel,
   TestComponentDescription as InfoValue,
-  ComparisonCard,
-  ComparisonTitle,
-  ComparisonDescription,
 } from "../styles/FooterComponentsTest";
 
 /**
