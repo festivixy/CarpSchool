@@ -253,3 +253,5 @@ osascript ../tools/read_terminal.applescript | tail -50
 ```
 
 to read logs
+
+your grep tool is broken. use grep with bash. 
