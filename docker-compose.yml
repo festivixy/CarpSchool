@@ -120,6 +120,79 @@ services:
       retries: 3
       start_period: 30s
 
+  codepush-server:
+    image: tablee/code-push-server:v0.5.2
+    container_name: codepush-server
+    environment:
+      - NODE_ENV=production
+      - DOWNLOAD_URL=https://codepush.carp.school/download
+      - MYSQL_HOST=codepush-mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USERNAME=codepush
+      - MYSQL_PASSWORD=${CODEPUSH_MYSQL_PASSWORD:-codepush123}
+      - MYSQL_DATABASE=codepush
+      - STORAGE_DIR=/data/storage
+      - DATA_DIR=/data/tmp
+      - REDIS_HOST=codepush-redis
+      - REDIS_PORT=6379
+      - JWT_ENCRYPT_KEY=${CODEPUSH_JWT_KEY:-your-secret-key-change-in-production}
+      - SESSION_SECRET=${CODEPUSH_SESSION_SECRET:-your-session-secret-change-in-production}
+    volumes:
+      - ./codepush_storage:/data/storage
+      - ./codepush_tmp:/data/tmp
+      - ./codepush-config.js:/config.js:ro
+    depends_on:
+      codepush-mysql:
+        condition: service_healthy
+      codepush-redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - carpool_network
+    healthcheck:
+      test: ["CMD", "curl", "--silent", "--show-error", "--output", "/dev/null", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  codepush-mysql:
+    image: mysql:5.7.23
+    container_name: codepush-mysql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=false
+      - MYSQL_ROOT_PASSWORD=${CODEPUSH_MYSQL_ROOT_PASSWORD:-rootpass123}
+      - MYSQL_DATABASE=codepush
+      - MYSQL_USER=codepush
+      - MYSQL_PASSWORD=${CODEPUSH_MYSQL_PASSWORD:-codepush123}
+    volumes:
+      - ./codepush_mysql_data:/var/lib/mysql
+      - ./codepush-init.sql:/docker-entrypoint-initdb.d/codepush-init.sql:ro
+    restart: unless-stopped
+    networks:
+      - carpool_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "codepush", "-p${CODEPUSH_MYSQL_PASSWORD:-codepush123}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  codepush-redis:
+    image: redis:4.0.11-alpine
+    container_name: codepush-redis
+    volumes:
+      - ./codepush_redis_data:/data
+    restart: unless-stopped
+    networks:
+      - carpool_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   service-proxy:
     image: nginx:alpine
     container_name: service-proxy
@@ -127,6 +200,7 @@ services:
       - "40060:8080"  # Nominatim
       - "40061:8082"  # Tileserver
       - "40062:8083"  # OSRM
+      - "40064:8084"  # CodePush
     volumes:
       - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -135,6 +209,8 @@ services:
       nominatim:
         condition: service_healthy
       osrm:
+        condition: service_healthy
+      codepush-server:
         condition: service_healthy
     restart: unless-stopped
     networks:
@@ -156,6 +232,13 @@ services:
 # MONGO_EXPRESS_USERNAME - Username for mongo-express (default: admin)
 # MONGO_EXPRESS_PASSWORD - Password for mongo-express (default: carpool)
 #                         CHANGE THIS IN PRODUCTION!
+#
+# CodePush Configuration:
+# CODEPUSH_MYSQL_PASSWORD - MySQL password for CodePush (default: codepush123)
+# CODEPUSH_MYSQL_ROOT_PASSWORD - MySQL root password (default: rootpass123)
+# CODEPUSH_JWT_KEY - JWT encryption key for CodePush (CHANGE IN PRODUCTION!)
+# CODEPUSH_SESSION_SECRET - Session secret for CodePush (CHANGE IN PRODUCTION!)
+#                          CHANGE ALL CODEPUSH SECRETS IN PRODUCTION!
 
 networks:
   carpool_network:
