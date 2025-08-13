@@ -46,6 +46,7 @@ import {
   SecondaryButton,
 } from "../styles/Onboarding";
 import Captcha from "../../components/Captcha";
+import { Spacer } from "../../components";
 
 /**
  * Mobile Onboarding component - Interactive profile creation flow
@@ -726,6 +727,8 @@ class MobileOnboarding extends React.Component {
               </PrimaryButton>
             )}
           </Navigation>
+
+          <Spacer />
         </Content>
       </Container>
     );

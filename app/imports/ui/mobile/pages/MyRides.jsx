@@ -7,6 +7,7 @@ import { Rides } from "../../../api/ride/Rides";
 import JoinRideModal from "../../components/JoinRideModal";
 import Ride from "../../components/Ride";
 import ConfirmFunction from "../../components/ConfirmFunction";
+import { Spacer } from "../../components";
 import "../../../api/chat/ChatMethods";
 import {
   Container,
@@ -462,6 +463,8 @@ class MobileMyRides extends React.Component {
               ? this.renderDrivingRides()
               : this.renderRidingRides()}
           </TabContent>
+
+          <Spacer />
         </Container>
 
         <JoinRideModal
