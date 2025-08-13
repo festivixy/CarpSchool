@@ -188,50 +188,65 @@ export const MapViewContainer = styled.div`
 `;
 
 export const RouteLabel = styled.div`
+  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
   font-size: 14px;
-  color: #666;
+  font-weight: 600;
+  color: #1b2228;
   margin-bottom: 4px;
-  font-weight: 500;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
 `;
 
 export const RouteValue = styled.div`
-  font-size: 16px;
-  color: #333;
-  font-weight: 600;
+  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #6c757d;
+  line-height: 1.4;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 
 export const ControlsContainer = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
   display: flex;
-  gap: 12px;
-  margin-top: 16px;
-  justify-content: flex-end;
-
-  @media (max-width: 768px) {
-    justify-content: stretch;
-  }
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1000;
 `;
 
 export const ControlButton = styled.button`
-  padding: 8px 16px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: white;
-  color: #333;
-  font-size: 14px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
 
-  &:hover {
-    background: #f8f9fa;
-    border-color: #007bff;
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
-  &:active {
-    background: #e9ecef;
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   }
 
-  @media (max-width: 768px) {
-    flex: 1;
-    padding: 12px 16px;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;

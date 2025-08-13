@@ -23,7 +23,7 @@ import {
   Label,
   Input,
   TextArea,
-  SubmitButton,
+  Button,
   LoadingSpinner,
   ErrorMessage,
   FormTitle,

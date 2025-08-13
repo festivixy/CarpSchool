@@ -250,12 +250,3 @@ export const FieldLabel = styled.label`
   color: #333;
   margin-bottom: 8px;
 `;
-
-export const SubmitButton = styled(Button)`
-  background-color: #007aff;
-  margin-top: 20px;
-
-  &:hover {
-    background-color: #0056cc;
-  }
-`;
