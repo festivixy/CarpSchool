@@ -6,6 +6,8 @@ import PropTypes from "prop-types";
 import swal from "sweetalert";
 import { ErrorReports } from "../../../api/errorReport/ErrorReport";
 import BackButton from "../../mobile/components/BackButton";
+import { MobileOnly } from "../../layouts/Devices";
+import { Spacer } from "../../components";
 import {
   Container,
   Header,
@@ -75,11 +77,11 @@ class DesktopAdminErrorReportDetail extends React.Component {
 
   handleResolve = () => {
     const { errorReport } = this.props;
-    
+
     swal({
       title: errorReport.resolved ? "Mark as Unresolved?" : "Mark as Resolved?",
-      text: errorReport.resolved 
-        ? "This will mark the error report as unresolved." 
+      text: errorReport.resolved
+        ? "This will mark the error report as unresolved."
         : "This will mark the error report as resolved.",
       icon: "info",
       buttons: {
@@ -104,7 +106,7 @@ class DesktopAdminErrorReportDetail extends React.Component {
 
   handleDelete = () => {
     const { errorReport } = this.props;
-    
+
     swal({
       title: "Delete Error Report?",
       text: "This action cannot be undone. The error report will be permanently deleted.",
@@ -133,12 +135,12 @@ class DesktopAdminErrorReportDetail extends React.Component {
   handleSaveNotes = () => {
     const { errorReport } = this.props;
     const { notes } = this.state;
-    
+
     this.setState({ savingNotes: true, notesError: "" });
-    
+
     Meteor.call("errorReports.update", errorReport._id, { notes: notes.trim() }, (error) => {
       this.setState({ savingNotes: false });
-      
+
       if (error) {
         this.setState({ notesError: error.message });
       } else {
@@ -380,6 +382,10 @@ class DesktopAdminErrorReportDetail extends React.Component {
               </SectionContent>
             </Section>
           </ErrorReportContainer>
+
+          <MobileOnly>
+            <Spacer />
+          </MobileOnly>
         </Content>
       </Container>
     );
@@ -397,7 +403,7 @@ export default withRouter(
   withTracker(({ match }) => {
     const errorReportId = match.params.id;
     const subscription = Meteor.subscribe("errorReports");
-    
+
     return {
       errorReport: ErrorReports.findOne(errorReportId),
       ready: subscription.ready(),

@@ -5,6 +5,8 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
 import { ErrorReports } from "../../../api/errorReport/ErrorReport";
+import { MobileOnly } from "../../layouts/Devices";
+import { Spacer } from "../../components";
 import {
   Container,
   Header,
@@ -84,12 +86,12 @@ class DesktopAdminErrorReports extends React.Component {
 
   handleFilterChange = (filter) => {
     this.setState({ filterBy: filter, page: 0 });
-    
+
     // Update subscription based on filter
     if (this.errorReportsHandle) {
       this.errorReportsHandle.stop();
     }
-    
+
     switch (filter) {
       case "unresolved":
         this.errorReportsHandle = Meteor.subscribe("errorReports.unresolved", this.state.pageSize);
@@ -161,13 +163,13 @@ class DesktopAdminErrorReports extends React.Component {
 
   filterErrorReports = (errorReports) => {
     const { searchQuery, sortBy, sortOrder } = this.state;
-    
+
     let filtered = errorReports;
-    
+
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(report => 
+      filtered = filtered.filter(report =>
         report.message?.toLowerCase().includes(query) ||
         report.errorId?.toLowerCase().includes(query) ||
         report.username?.toLowerCase().includes(query) ||
@@ -175,11 +177,11 @@ class DesktopAdminErrorReports extends React.Component {
         report.route?.toLowerCase().includes(query)
       );
     }
-    
+
     // Apply sorting
     filtered.sort((a, b) => {
       let aVal, bVal;
-      
+
       switch (sortBy) {
         case "severity":
           const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
@@ -195,14 +197,14 @@ class DesktopAdminErrorReports extends React.Component {
           aVal = new Date(a.timestamp);
           bVal = new Date(b.timestamp);
       }
-      
+
       if (sortOrder === "asc") {
         return aVal > bVal ? 1 : -1;
       } else {
         return aVal < bVal ? 1 : -1;
       }
     });
-    
+
     return filtered;
   };
 
@@ -213,12 +215,12 @@ class DesktopAdminErrorReports extends React.Component {
     const diffMins = Math.floor(diffMs / (1000 * 60));
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
-    
+
     return date.toLocaleDateString();
   };
 
@@ -295,25 +297,25 @@ class DesktopAdminErrorReports extends React.Component {
 
           {/* Filters */}
           <FiltersContainer>
-            <FilterButton 
+            <FilterButton
               active={filterBy === "all"}
               onClick={() => this.handleFilterChange("all")}
             >
               All Reports
             </FilterButton>
-            <FilterButton 
+            <FilterButton
               active={filterBy === "unresolved"}
               onClick={() => this.handleFilterChange("unresolved")}
             >
               Unresolved
             </FilterButton>
-            <FilterButton 
+            <FilterButton
               active={filterBy === "critical"}
               onClick={() => this.handleFilterChange("critical")}
             >
               Critical
             </FilterButton>
-            <FilterButton 
+            <FilterButton
               active={filterBy === "recent"}
               onClick={() => this.handleFilterChange("recent")}
             >
@@ -362,14 +364,14 @@ class DesktopAdminErrorReports extends React.Component {
                         View Details
                       </ViewButton>
                       {!errorReport.resolved && (
-                        <ActionButton 
+                        <ActionButton
                           color="#28a745"
                           onClick={() => this.handleResolve(errorReport._id)}
                         >
                           Resolve
                         </ActionButton>
                       )}
-                      <ActionButton 
+                      <ActionButton
                         color="#dc3545"
                         onClick={() => this.handleDelete(errorReport._id)}
                       >
@@ -416,6 +418,10 @@ class DesktopAdminErrorReports extends React.Component {
               ))}
             </ErrorReportsGrid>
           )}
+
+          <MobileOnly>
+            <Spacer />
+          </MobileOnly>
         </Content>
       </Container>
     );
