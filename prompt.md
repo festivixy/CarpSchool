@@ -55,11 +55,13 @@ relational data structure and backward compatibility for legacy schemas.
 
 - you are allowed to make multiple commits when i tell you to.
 - always check git status before committing.
-- one commit, per type of change ex: one commit per style change, one commit per component...
+- one commit, per type of features ex: one commit per style change, one commit per component...
 - use Bash command tool to run git commands.
 - commit after each change. ## IMPORTANT ##
 - `git add .` or `git add -A` is NOT ALLOWED.
 - use `git add <file> [<other files>]` to add specific files (allow multiple).
+- if the context of the change is unknown, use `git diff <file>` to see the changes
+- if a file contains changes from multiple features, use `git add -p <file>` to interactively stage changes
 
 ### COMMIT MESSAGE FORMAT
 
@@ -89,6 +91,7 @@ type(scope): brief description in present tense
 - **app**: General application changes
 - **security**: Security-related changes
 - **liquidGlass**: LiquidGlass component library changes
+- **other**: Other scopes
 
 #### **Examples from this project:**
 ```
