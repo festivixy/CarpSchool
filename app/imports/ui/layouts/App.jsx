@@ -196,8 +196,8 @@ App.propTypes = {
 };
 
 /** withTracker connects Meteor data to React components. */
-const AppContainer = withTracker(() => ({
+const AppTracker = withTracker(() => ({
   currentUser: Meteor.user(),
 }))(App);
 
-export default AppContainer;
+export default AppTracker;
