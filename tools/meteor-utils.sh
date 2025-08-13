@@ -379,7 +379,7 @@ meteor_setup_android() {
     # Check for command-line tools
     if ! command -v avdmanager &> /dev/null; then
         echo -e "${RED}❌ Android SDK command-line tools not installed${NC}"
-        echo -e "${YELLOW}��� In Android Studio:${NC}"
+        echo -e "${YELLOW}💡 In Android Studio:${NC}"
         echo "1. Open SDK Manager (Tools > SDK Manager)"
         echo "2. Go to SDK Tools tab"
         echo "3. Check 'Android SDK Command-line Tools (latest)'"
@@ -432,129 +432,32 @@ meteor_fix_gradle() {
 }
 
 
-# Helper function to add common domains for CarpSchool app
+# Helper function to add common domains for CarpSchool app using Python tool
 ios_add_carpschool_domains() {
-    echo -e "${YELLOW}🚗 Adding CarpSchool-specific ATS domains...${NC}"
+    echo -e "${YELLOW}🚗 Adding CarpSchool-specific ATS domains using Python tool...${NC}"
 
     local plist_path="../build/ios/project/CarpSchool/CarpSchool-Info.plist"
+    local script_dir="$(dirname "${BASH_SOURCE[0]}")"
+    local python_tool="$script_dir/ios-ats-config.py"
 
-    # Check if plist file exists
-    if [ ! -f "$plist_path" ]; then
-        echo -e "${RED}❌ Info.plist not found at: $plist_path${NC}"
-        echo -e "${YELLOW}💡 Make sure to build the iOS app first using: meteor_build_ios${NC}"
+    # Check if Python tool exists
+    if [ ! -f "$python_tool" ]; then
+        echo -e "${RED}❌ Python ATS tool not found at: $python_tool${NC}"
         return 1
     fi
 
-    echo -e "${YELLOW}🔧 Adding CarpSchool domains with specific ATS configurations...${NC}"
-
-    # Create a backup
-    local backup_path="${plist_path}.backup.$(date +%Y%m%d_%H%M%S)"
-    cp "$plist_path" "$backup_path"
-    echo -e "${GREEN}✅ Created backup: $backup_path${NC}"
-
-    # Create a working copy to avoid corruption
-    local temp_path="${plist_path}.temp"
-    cp "$plist_path" "$temp_path"
-
-    # Ensure NSAppTransportSecurity structure exists
-    if ! plutil -extract "NSAppTransportSecurity" raw "$temp_path" &> /dev/null; then
-        plutil -insert "NSAppTransportSecurity" -dictionary "$temp_path"
-        echo -e "${GREEN}✅ Created NSAppTransportSecurity structure${NC}"
+    # Check if Python 3 is available
+    if ! command -v python3 &> /dev/null; then
+        echo -e "${RED}❌ Python 3 not found. Please install Python 3.${NC}"
+        return 1
     fi
 
-    # Ensure NSExceptionDomains exists
-    if ! plutil -extract "NSAppTransportSecurity.NSExceptionDomains" raw "$temp_path" &> /dev/null; then
-        plutil -insert "NSAppTransportSecurity.NSExceptionDomains" -dictionary "$temp_path"
-        echo -e "${GREEN}✅ Created NSExceptionDomains structure${NC}"
-    fi
-
-    # Set NSAllowsArbitraryLoads to false for better security
-    if plutil -extract "NSAppTransportSecurity.NSAllowsArbitraryLoads" raw "$temp_path" &> /dev/null; then
-        plutil -replace "NSAppTransportSecurity.NSAllowsArbitraryLoads" -bool false "$temp_path"
+    # Run the Python tool
+    if python3 "$python_tool" "$plist_path"; then
+        echo -e "${GREEN}✅ ATS configuration completed successfully using Python tool!${NC}"
+        return 0
     else
-        plutil -insert "NSAppTransportSecurity.NSAllowsArbitraryLoads" -bool false "$temp_path"
-    fi
-    echo -e "${GREEN}✅ Set NSAllowsArbitraryLoads to false${NC}"
-
-    # Domain configurations from plugin.xml (using arrays for compatibility)
-    local domains=(
-        "carp.school"
-        "tileserver.carp.school"
-        "nominatim.carp.school"
-        "osrm.carp.school"
-        "codepush.carp.school"
-        "localhost"
-        "127.0.0.1"
-        "dev.carp.school"
-    )
-
-    local configs=(
-        "subdomains,insecure,tls=1.0,forward_secrecy=false"
-        "tls=1.2,forward_secrecy=true"
-        "tls=1.2,forward_secrecy=true"
-        "tls=1.2,forward_secrecy=true"
-        "tls=1.2,forward_secrecy=true"
-        "insecure,tls=1.0,forward_secrecy=false"
-        "insecure,tls=1.0,forward_secrecy=false"
-        "insecure,tls=1.0,forward_secrecy=false"
-    )
-
-    # Process each domain with its specific configuration
-    local total_domains=${#domains[@]}
-    for ((i=0; i<total_domains; i++)); do
-        local domain="${domains[$i]}"
-        local config="${configs[$i]}"
-        echo -e "${YELLOW}🌐 Configuring domain: $domain${NC}"
-
-        # Create domain entry (always create fresh entry)
-        plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain" -dictionary "$temp_path" 2>/dev/null || \
-        plutil -remove "NSAppTransportSecurity.NSExceptionDomains.$domain" "$temp_path" 2>/dev/null && \
-        plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain" -dictionary "$temp_path"
-
-        # Parse and apply configuration
-        if [[ "$config" == *"subdomains"* ]]; then
-            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSIncludesSubdomains" -bool true "$temp_path"
-            echo -e "${GREEN}   ✓ NSIncludesSubdomains: true${NC}"
-        fi
-
-        if [[ "$config" == *"insecure"* ]]; then
-            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionAllowsInsecureHTTPLoads" -bool true "$temp_path"
-            echo -e "${GREEN}   ✓ NSExceptionAllowsInsecureHTTPLoads: true${NC}"
-        fi
-
-        if [[ "$config" == *"tls="* ]]; then
-            local tls_version=$(echo "$config" | grep -o 'tls=[^,]*' | cut -d'=' -f2)
-            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionMinimumTLSVersion" -string "TLSv$tls_version" "$temp_path"
-            echo -e "${GREEN}   ✓ NSExceptionMinimumTLSVersion: TLSv$tls_version${NC}"
-        fi
-
-        if [[ "$config" == *"forward_secrecy="* ]]; then
-            local forward_secrecy=$(echo "$config" | grep -o 'forward_secrecy=[^,]*' | cut -d'=' -f2)
-            plutil -insert "NSAppTransportSecurity.NSExceptionDomains.$domain.NSExceptionRequiresForwardSecrecy" -bool "$forward_secrecy" "$temp_path"
-            echo -e "${GREEN}   ✓ NSExceptionRequiresForwardSecrecy: $forward_secrecy${NC}"
-        fi
-
-        echo -e "${GREEN}   ✅ Domain $domain configured successfully${NC}"
-    done
-
-    # Validate the resulting temp plist
-    if plutil -lint "$temp_path" &> /dev/null; then
-        # Atomically replace the original with the temp file
-        mv "$temp_path" "$plist_path"
-
-        echo -e "${GREEN}✅ Info.plist updated successfully with ${#domains[@]} CarpSchool domain(s)${NC}"
-
-        # Show the current ATS configuration
-        echo -e "${YELLOW}📋 Current ATS Exception Domains:${NC}"
-        plutil -extract "NSAppTransportSecurity.NSExceptionDomains" xml1 "$plist_path" | grep -E "<key>|<string>|<true/>|<false/>" | sed 's/^[[:space:]]*/  /'
-
-        # Remove backup since operation was successful
-        rm -f "$backup_path"
-        echo -e "${GREEN}🗑️  Backup removed (operation successful)${NC}"
-    else
-        echo -e "${RED}❌ Failed to update Info.plist - restoring backup${NC}"
-        rm -f "$temp_path"
-        cp "$backup_path" "$plist_path"
+        echo -e "${RED}❌ Python ATS tool failed${NC}"
         return 1
     fi
 }
