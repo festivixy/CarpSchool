@@ -56,7 +56,7 @@
     "build:ios": "cd .. && ./build.sh ios",
     "build:android": "cd .. && ./build.sh android",
     "build:all": "cd .. && ./build.sh all",
-    "build:staging": "cd .. && ./build.sh all --server-url https://staging.carp.school",
+    "build:ios:dev": "cd .. && ./build.sh ios --server-url https://dev.carp.school",
     "build:prod": "cd .. && ./build.sh all --server-url https://carp.school",
     "prod": "cd .. && ./build-and-run.sh",
     "clean": "cd .. && ./clean.sh"
