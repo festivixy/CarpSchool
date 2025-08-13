@@ -6,6 +6,8 @@ import { Meteor } from "meteor/meteor";
 import { Rides } from "../../../../api/ride/Rides";
 import { Places } from "../../../../api/places/Places";
 import BackButton from "../../components/BackButton";
+import { MobileOnly } from "../../../layouts/Devices";
+import { Spacer } from "../../../components";
 import {
   CreateRidePageContainer,
   CreateRideHeader,
