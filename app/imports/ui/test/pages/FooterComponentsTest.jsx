@@ -154,18 +154,13 @@ const FooterComponentsTest = ({ history }) => {
               </InfoItem>
             </InfoCard>
 
-            <ComponentContainer style={{
-              backgroundColor: footerTheme === "dark" ? "#222" : "#ffffff",
-              padding: "20px",
-              borderRadius: "8px",
-              border: "1px solid #e0e0e0"
-            }}>
+            <VerboseDemoContainer $theme={footerTheme}>
               <FooterVerbose
                 theme={footerTheme}
                 showLinks={showLinks}
                 compact={compactMode}
               />
-            </ComponentContainer>
+            </VerboseDemoContainer>
           </SectionContent>
         </Section>
 
@@ -190,26 +185,15 @@ const FooterComponentsTest = ({ history }) => {
 
             <LiquidGlassDemoContainer>
               {/* Background pattern for glass effect */}
-              <div style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: `
-                  radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 70%, rgba(255,255,255,0.05) 0%, transparent 50%)
-                `,
-                zIndex: 0
-              }} />
+              <GlassBackground />
 
-              <div style={{ position: "relative", zIndex: 1 }}>
+              <RelativeContainer>
                 <LiquidGlassFooter
                   theme={footerTheme}
                   showLinks={showLinks}
                   compact={compactMode}
                 />
-              </div>
+              </RelativeContainer>
             </ComponentContainer>
           </SectionContent>
         </Section>
