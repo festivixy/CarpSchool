@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
@@ -10,16 +10,11 @@ import {
   HeaderTitle,
   ContentContainer,
   ProfileHeader,
-  ProfileAvatar,
   ProfileName,
   ProfileEmail,
   LegalSection,
   Section,
   SectionTitle,
-  MenuItem,
-  MenuItemIcon,
-  MenuItemText,
-  MenuItemChevron,
   MenuIcon,
   MenuArrow,
   LogoutIcon,

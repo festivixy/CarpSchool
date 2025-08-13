@@ -29,16 +29,12 @@ import {
  * iOS-specific Join Ride page
  * Wrapper that removes modal styling from JoinRideModal content
  */
-const JoinRide = ({ history, currentUser }) => {
+const JoinRide = ({ history, currentUser: _currentUser }) => {
   const [codeInputs, setCodeInputs] = useState(["", "", "", "", "", "", "", ""]);
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const inputRefs = [];
-
-  const handleBack = () => {
-    history.goBack();
-  };
 
   const handleInputChange = (index, value) => {
     // Only allow alphanumeric characters and limit to 1 character
@@ -79,7 +75,7 @@ const JoinRide = ({ history, currentUser }) => {
     setIsJoining(true);
     setError(null);
 
-    Meteor.call("rides.join", { rideCode }, (error, result) => {
+    Meteor.call("rides.join", { rideCode }, (error, _result) => {
       setIsJoining(false);
 
       if (error) {
@@ -91,16 +87,6 @@ const JoinRide = ({ history, currentUser }) => {
         }, 2000);
       }
     });
-  };
-
-  const handleTryAgain = () => {
-    setSuccess(false);
-    setCodeInputs(["", "", "", "", "", "", "", ""]);
-    setError(null);
-    // Focus first input
-    if (inputRefs[0]) {
-      inputRefs[0].focus();
-    }
   };
 
   if (success) {
