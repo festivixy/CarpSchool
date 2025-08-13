@@ -8,41 +8,41 @@ const ErrorReports = new Mongo.Collection("ErrorReport");
 const ErrorReportSchema = Joi.object({
   _id: Joi.string().optional(),
   errorId: Joi.string().required(), // Unique identifier for this error instance
-  userId: Joi.string().optional(), // User who encountered the error (if logged in)
-  username: Joi.string().optional(), // Username who encountered the error (if logged in)
+  userId: Joi.string().allow(null).optional(), // User who encountered the error (if logged in)
+  username: Joi.string().allow(null).optional(), // Username who encountered the error (if logged in)
   timestamp: Joi.date().required(), // When the error occurred
-  
+
   // Error details
   message: Joi.string().required(), // Error message
-  stack: Joi.string().optional(), // Error stack trace
+  stack: Joi.string().allow(null).optional(), // Error stack trace
   name: Joi.string().optional(), // Error name/type
-  
+
   // Component context
-  componentStack: Joi.string().optional(), // React component stack trace
-  component: Joi.string().optional(), // Component where error occurred
-  
+  componentStack: Joi.string().allow(null).optional(), // React component stack trace
+  component: Joi.string().allow(null).optional(), // Component where error occurred
+
   // Browser/Environment info
-  userAgent: Joi.string().optional(), // Browser user agent
-  url: Joi.string().optional(), // Current page URL
+  userAgent: Joi.string().allow(null).optional(), // Browser user agent
+  url: Joi.string().allow(null).optional(), // Current page URL
   platform: Joi.string().optional(), // Device platform (iOS, Android, Web)
-  
+
   // App context
-  route: Joi.string().optional(), // Current route
+  route: Joi.string().allow(null).optional(), // Current route
   props: Joi.object().optional(), // Component props (sanitized)
   state: Joi.object().optional(), // Component state (sanitized)
-  
+
   // Additional metadata
   severity: Joi.string().valid("low", "medium", "high", "critical").default("medium"),
   category: Joi.string().valid(
-    "javascript", 
-    "component", 
-    "network", 
-    "auth", 
-    "database", 
+    "javascript",
+    "component",
+    "network",
+    "auth",
+    "database",
     "unknown"
   ).default("unknown"),
   resolved: Joi.boolean().default(false), // Admin can mark as resolved
-  notes: Joi.string().optional(), // Admin notes about the error
+  notes: Joi.string().allow(null).optional(), // Admin notes about the error
 });
 
 /** Make the collection and schema available to other code. */
