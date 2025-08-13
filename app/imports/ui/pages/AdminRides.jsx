@@ -217,6 +217,7 @@ class MobileAdminRides extends React.Component {
 
     return (
       <Container>
+        <BackButton />
         <Header>
           <Title>
             <TitleIcon>🚗</TitleIcon>

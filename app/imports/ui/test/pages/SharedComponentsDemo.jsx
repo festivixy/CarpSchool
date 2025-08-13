@@ -23,6 +23,7 @@ import {
   InlineText,
   CenteredContainer,
 } from "../styles/SharedComponentsDemo";
+import BackButton from "../../mobile/components/BackButton";
 
 /**
  * Demo page showcasing the new shared components

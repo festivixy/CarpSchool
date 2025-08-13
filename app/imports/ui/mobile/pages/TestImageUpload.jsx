@@ -23,6 +23,7 @@ import {
   InfoGrid,
   InfoItem,
 } from "../styles/TestImageUpload";
+import BackButton from "../components/BackButton";
 
 /**
  * Modern TestImageUpload page with clean design and better UX
@@ -45,6 +46,7 @@ const MobileTestImageUpload = () => {
 
   return (
     <Container>
+      <BackButton />
       <Header>
         <AppName>Image Upload Test</AppName>
       </Header>
