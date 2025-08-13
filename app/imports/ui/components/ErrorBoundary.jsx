@@ -199,6 +199,7 @@ class ErrorBoundary extends Component {
       error: null,
       errorInfo: null,
       errorId: null,
+      serverErrorId: null,
       reportStatus: null,
       retryCount: newRetryCount,
     });
@@ -289,6 +290,8 @@ class ErrorBoundary extends Component {
       const errorMessage = error ? error.message : "An unexpected error occurred";
       const isProduction = process.env.NODE_ENV === "production";
       const displayErrorId = serverErrorId || errorId;
+
+      console.log('[ErrorBoundary] Render state:', { errorId, serverErrorId, displayErrorId });
 
       return (
         <ErrorContainer variant={variant}>
