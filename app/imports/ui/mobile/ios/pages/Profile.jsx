@@ -15,6 +15,7 @@ import {
   ProfileEmail,
   LegalSection,
   Section,
+  SectionTitle,
   MenuItem,
   MenuItemIcon,
   MenuItemText,
