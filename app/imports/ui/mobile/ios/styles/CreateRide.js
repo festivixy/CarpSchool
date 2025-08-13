@@ -250,3 +250,259 @@ export const FieldLabel = styled.label`
   color: #333;
   margin-bottom: 8px;
 `;
+
+// Additional styled components from AddRides
+export const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+export const Section = styled.div`
+  margin-bottom: 24px;
+`;
+
+export const SectionTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const Field = styled.div`
+  margin-bottom: 16px;
+`;
+
+export const Label = styled.label`
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+`;
+
+export const Input = styled.input`
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: white;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #007AFF;
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+`;
+
+export const Select = styled.select`
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: white;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #007AFF;
+  }
+`;
+
+export const Textarea = styled.textarea`
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: white;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+
+  &:focus {
+    border-color: #007AFF;
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+`;
+
+export const CharCount = styled.div`
+  font-size: 12px;
+  color: #999;
+  text-align: right;
+  margin-top: 4px;
+`;
+
+export const FieldHalf = styled.div`
+  flex: 1;
+`;
+
+export const DropdownContainer = styled.div`
+  position: relative;
+`;
+
+export const DropdownTrigger = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+`;
+
+export const DropdownInput = styled.input`
+  width: 100%;
+  padding: 14px 16px;
+  padding-right: 40px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: white;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #007AFF;
+  }
+`;
+
+export const DropdownArrow = styled.div`
+  position: absolute;
+  right: 12px;
+  color: #999;
+  pointer-events: none;
+`;
+
+export const DropdownMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+`;
+
+export const DropdownItem = styled.div`
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:hover {
+    background-color: #f8f8f8;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.no-results {
+    color: #999;
+    font-style: italic;
+    cursor: default;
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+`;
+
+export const SwapContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+`;
+
+export const SwapButton = styled.button`
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #007AFF;
+    background-color: #f8f8f8;
+  }
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+`;
+
+export const ButtonPrimary = styled.button`
+  flex: 1;
+  padding: 16px;
+  background-color: #007AFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #0056CC;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+export const Success = styled.div`
+  text-align: center;
+  padding: 40px 20px;
+`;
+
+export const SuccessDetails = styled.div`
+  margin-top: 20px;
+  text-align: left;
+`;
+
+export const SuccessDetailItem = styled.div`
+  margin-bottom: 8px;
+  color: #666;
+`;
+
+export const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+`;

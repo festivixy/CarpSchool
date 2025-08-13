@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { Rides } from "../../../api/ride/Rides";
-import { Places } from "../../../api/places/Places";
+import { Rides } from "../../../../api/ride/Rides";
+import { Places } from "../../../../api/places/Places";
 import BackButton from "../../components/BackButton";
 import {
   CreateRidePageContainer,

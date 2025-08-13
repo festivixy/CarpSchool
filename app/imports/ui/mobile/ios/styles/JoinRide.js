@@ -367,3 +367,59 @@ export const SubmitButton = styled.button`
     cursor: not-allowed;
   }
 `;
+
+// Additional styled components from JoinRideModal
+export const InputSection = styled.div`
+  margin-bottom: 32px;
+`;
+
+export const CodeInputs = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+`;
+
+export const Dash = styled.span`
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+  font-size: 20px;
+  color: #ccc;
+  vertical-align: middle;
+  line-height: 50px;
+`;
+
+export const Success = styled.div`
+  text-align: center;
+  padding: 40px 20px;
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+`;
+
+export const ButtonPrimary = styled.button`
+  flex: 1;
+  padding: 16px;
+  background-color: #007AFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #0056CC;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
