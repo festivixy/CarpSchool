@@ -189,12 +189,16 @@ class ErrorBoundary extends Component {
   };
 
   handleGoBack = () => {
-    // Try to go back in browser history
+    // Try to go back in browser history and refresh
     if (window.history.length > 1) {
       window.history.back();
+      // Refresh after a short delay to ensure navigation completes
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } else {
-      // Fallback: navigate to home page if no history
-      window.location.href = '/';
+      // Fallback: refresh current page if no history
+      window.location.reload();
     }
 
     // Call custom retry handler if provided (for backward compatibility)
@@ -316,7 +320,7 @@ class ErrorBoundary extends Component {
           <ErrorActions>
             {showRetry && (
               <RetryButton onClick={this.handleGoBack}>
-                Go Back
+                Go Back & Refresh
               </RetryButton>
             )}
 
