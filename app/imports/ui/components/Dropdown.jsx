@@ -97,70 +97,6 @@ const Dropdown = ({
 
   const displayValue = getDisplayValue();
 
-  // Handle clicking outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        closeDropdown();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isOpen]);
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (!isOpen) return;
-
-      switch (event.key) {
-        case "Escape":
-          event.preventDefault();
-          closeDropdown();
-          break;
-        case "ArrowDown":
-          event.preventDefault();
-          setFocusedIndex(prev => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
-          break;
-        case "ArrowUp":
-          event.preventDefault();
-          setFocusedIndex(prev => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
-          break;
-        case "Enter":
-          event.preventDefault();
-          if (focusedIndex >= 0 && filteredOptions[focusedIndex]) {
-            handleSelect(filteredOptions[focusedIndex]);
-          }
-          break;
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      return () => document.removeEventListener("keydown", handleKeyDown);
-    }
-  }, [isOpen, focusedIndex, filteredOptions]);
-
-  const openDropdown = () => {
-    if (disabled) return;
-
-    setIsOpen(true);
-    setFocusedIndex(-1);
-    if (onOpen) onOpen();
-
-    // Focus search input if searchable
-    if (searchable) {
-      setTimeout(() => {
-        if (searchInputRef.current) {
-          searchInputRef.current.focus();
-        }
-      }, 100);
-    }
-  };
-
   const closeDropdown = () => {
     setIsOpen(false);
     setSearchTerm("");
@@ -193,7 +129,78 @@ const Dropdown = ({
     }
 
     if (onChange) {
-      onChange(newValue, option);
+      onChange(newValue);
+    }
+  };
+
+  // Handle clicking outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        closeDropdown();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return undefined;
+  }, [isOpen]);
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (!isOpen) return;
+
+      switch (event.key) {
+        case "Escape":
+          event.preventDefault();
+          closeDropdown();
+          break;
+        case "ArrowDown":
+          event.preventDefault();
+          setFocusedIndex(prev => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          setFocusedIndex(prev => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
+          break;
+        case "Enter":
+          event.preventDefault();
+          if (focusedIndex >= 0 && filteredOptions[focusedIndex]) {
+            handleSelect(filteredOptions[focusedIndex]);
+          }
+          break;
+        default:
+          // No action needed for other keys
+          break;
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+
+    return undefined;
+  }, [isOpen, focusedIndex, filteredOptions]);
+
+  const openDropdown = () => {
+    if (disabled) return;
+
+    setIsOpen(true);
+    setFocusedIndex(-1);
+    if (onOpen) onOpen();
+
+    // Focus search input if searchable
+    if (searchable) {
+      setTimeout(() => {
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
+      }, 100);
     }
   };
 
