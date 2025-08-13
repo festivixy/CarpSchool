@@ -34,9 +34,11 @@ class ErrorBoundary extends Component {
 
   static getDerivedStateFromError(_error) {
     // Update state so the next render will show the fallback UI
+    const errorId = `CLIENT_${Date.now()}_${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    console.log('[ErrorBoundary] Generated error ID:', errorId);
     return {
       hasError: true,
-      errorId: `CLIENT_${Date.now()}_${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+      errorId: errorId,
       reportStatus: null,
     };
   }
@@ -210,7 +212,15 @@ class ErrorBoundary extends Component {
 
   handleReport = async () => {
     const { errorId, serverErrorId } = this.state;
+    console.log('[ErrorBoundary] handleReport called with:', { errorId, serverErrorId });
+
     const idToShare = serverErrorId || errorId;
+    console.log('[ErrorBoundary] ID to share:', idToShare);
+
+    if (!idToShare) {
+      alert('❌ Error: No error ID available to copy. Please try refreshing the page.');
+      return;
+    }
 
     try {
       // Try modern clipboard API first
