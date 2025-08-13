@@ -63,48 +63,62 @@ App.accessRule("*");
 App.accessRule("https://carp.school/*");
 App.accessRule("https://*.carp.school/*");
 
-// iOS App Transport Security (ATS) Exception Domains
-App.setPreference("NSAppTransportSecurity", JSON.stringify({
-  NSAllowsArbitraryLoads: false, // Keep ATS enabled globally
-  NSExceptionDomains: {
-    "carp.school": {
-      NSExceptionAllowsInsecureHTTPLoads: true,
-      NSExceptionMinimumTLSVersion: "TLSv1.0",
-      NSExceptionRequiresForwardSecrecy: false,
-      NSIncludesSubdomains: true
-    },
-    "localhost": {
-      NSExceptionAllowsInsecureHTTPLoads: true,
-      NSExceptionMinimumTLSVersion: "TLSv1.0",
-      NSExceptionRequiresForwardSecrecy: false
-    },
-    "127.0.0.1": {
-      NSExceptionAllowsInsecureHTTPLoads: true,
-      NSExceptionMinimumTLSVersion: "TLSv1.0",
-      NSExceptionRequiresForwardSecrecy: false
-    },
-    "tileserver.carp.school": {
-      NSExceptionAllowsInsecureHTTPLoads: false,
-      NSExceptionMinimumTLSVersion: "TLSv1.2",
-      NSExceptionRequiresForwardSecrecy: true
-    },
-    "nominatim.carp.school": {
-      NSExceptionAllowsInsecureHTTPLoads: false,
-      NSExceptionMinimumTLSVersion: "TLSv1.2",
-      NSExceptionRequiresForwardSecrecy: true
-    },
-    "osrm.carp.school": {
-      NSExceptionAllowsInsecureHTTPLoads: false,
-      NSExceptionMinimumTLSVersion: "TLSv1.2",
-      NSExceptionRequiresForwardSecrecy: true
-    },
-    "codepush.carp.school": {
-      NSExceptionAllowsInsecureHTTPLoads: false,
-      NSExceptionMinimumTLSVersion: "TLSv1.2",
-      NSExceptionRequiresForwardSecrecy: true
-    }
-  }
-}), "ios");
+// iOS App Transport Security (ATS) - Individual domain preferences
+// Note: Meteor/Cordova has limited support for complex ATS configurations
+// Using individual preferences for better compatibility
+
+// Allow arbitrary loads globally (for development/testing)
+App.setPreference("NSAppTransportSecurity", `
+<dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <false/>
+  <key>NSExceptionDomains</key>
+  <dict>
+    <key>carp.school</key>
+    <dict>
+      <key>NSIncludesSubdomains</key>
+      <true/>
+      <key>NSExceptionAllowsInsecureHTTPLoads</key>
+      <true/>
+    </dict>
+    <key>tileserver.carp.school</key>
+    <dict>
+      <key>NSExceptionMinimumTLSVersion</key>
+      <string>TLSv1.2</string>
+    </dict>
+    <key>nominatim.carp.school</key>
+    <dict>
+      <key>NSExceptionMinimumTLSVersion</key>
+      <string>TLSv1.2</string>
+    </dict>
+    <key>osrm.carp.school</key>
+    <dict>
+      <key>NSExceptionMinimumTLSVersion</key>
+      <string>TLSv1.2</string>
+    </dict>
+    <key>codepush.carp.school</key>
+    <dict>
+      <key>NSExceptionMinimumTLSVersion</key>
+      <string>TLSv1.2</string>
+    </dict>
+    <key>localhost</key>
+    <dict>
+      <key>NSExceptionAllowsInsecureHTTPLoads</key>
+      <true/>
+    </dict>
+    <key>127.0.0.1</key>
+    <dict>
+      <key>NSExceptionAllowsInsecureHTTPLoads</key>
+      <true/>
+    </dict>
+    <key>dev.carp.school</key>
+    <dict>
+      <key>NSExceptionAllowsInsecureHTTPLoads</key>
+      <true/>
+    </dict>
+  </dict>
+</dict>
+`, "ios");
 
 // Set up resources such as icons and launch screens.
 App.icons({
