@@ -4,7 +4,7 @@ import { Route, Redirect } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Profiles } from "../../api/profile/Profile";
-import LoadingPage from "../mobile/components/LoadingPage";
+import LoadingPage from "../components/LoadingPage";
 import { RouteContainer, AuthOverlay } from "../styles/ProtectedRoutes";
 
 /**

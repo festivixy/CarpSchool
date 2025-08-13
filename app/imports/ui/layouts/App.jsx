@@ -12,7 +12,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import MobileAdminRides from "../pages/AdminRides";
 import MobileAdminUsers from "../pages/AdminUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
-import LoadingPage from "../mobile/components/LoadingPage";
+import LoadingPage from "../components/LoadingPage";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../pages/SignIn";
 import LiquidGlassSignIn from "../liquidGlass/pages/SignIn";
@@ -31,6 +31,7 @@ import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
 import MobilePlaceManager from "../mobile/pages/PlaceManager";
 import MobileAdminPlaceManager from "../pages/AdminPlaceManager";
+import MobileRideInfo from "../mobile/pages/RideInfo";
 import ProtectedRoutes, {
   ProtectedRoute,
   ProtectedRouteRequireNotLoggedIn,
@@ -87,6 +88,7 @@ class App extends React.Component {
 
               {/* Main app routes with full onboarding flow */}
               <ProtectedRoutes path="/myRides" component={MobileMyRides} />
+              <ProtectedRoutes path="/ride/:rideId" component={MobileRideInfo} />
               <ProtectedRoutes
                 path="/editProfile"
                 component={MobileEditProfile}
