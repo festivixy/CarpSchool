@@ -75,14 +75,14 @@ class ErrorBoundary extends Component {
       // Gather comprehensive error data
       const errorData = {
         message: error?.message || error?.toString() || "Unknown error",
-        stack: error?.stack || null,
+        stack: error?.stack || undefined,
         name: error?.name || "Error",
-        componentStack: errorInfo?.componentStack || null,
-        component: this.getComponentName(),
+        componentStack: errorInfo?.componentStack || undefined,
+        component: this.getComponentName() || undefined,
         userAgent: navigator.userAgent,
         url: window.location.href,
         platform: this.detectPlatform(),
-        route: this.getCurrentRoute(),
+        route: this.getCurrentRoute() || undefined,
         props: this.sanitizeProps(),
         state: this.sanitizeState(),
       };
@@ -116,16 +116,16 @@ class ErrorBoundary extends Component {
    */
   getComponentName = () => {
     const { errorInfo } = this.state;
-    if (!errorInfo?.componentStack) return null;
+    if (!errorInfo?.componentStack) return undefined;
 
     // Extract component name from stack
     const stackLines = errorInfo.componentStack.split('\n');
     const firstLine = stackLines[1]; // Skip the first line which is usually the error boundary
     if (firstLine) {
       const match = firstLine.match(/in (\w+)/);
-      return match ? match[1] : null;
+      return match ? match[1] : undefined;
     }
-    return null;
+    return undefined;
   };
 
   /**
@@ -145,7 +145,7 @@ class ErrorBoundary extends Component {
     if (typeof window !== 'undefined') {
       return window.location.pathname + window.location.search;
     }
-    return null;
+    return undefined;
   };
 
   /**
