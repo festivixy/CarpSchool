@@ -194,7 +194,7 @@ const FooterComponentsTest = ({ history }) => {
                   compact={compactMode}
                 />
               </RelativeContainer>
-            </ComponentContainer>
+            </LiquidGlassDemoContainer>
           </SectionContent>
         </Section>
 
@@ -231,31 +231,20 @@ const FooterComponentsTest = ({ history }) => {
                 </ComparisonDescription>
               </ComparisonCard>
 
-              <div style={{
-                padding: "16px",
-                backgroundColor: "#e3f2fd",
-                borderRadius: "8px",
-                textAlign: "center"
-              }}>
-                <h4 style={{ margin: "0 0 8px 0", color: "#333" }}>Verbose</h4>
-                <p style={{ margin: 0, fontSize: "14px", color: "#666" }}>
+              <ComparisonCard $bgColor="#e3f2fd">
+                <ComparisonTitle>Verbose</ComparisonTitle>
+                <ComparisonDescription>
                   Best for: Corporate sites, detailed navigation
-                </p>
-              </div>
+                </ComparisonDescription>
+              </ComparisonCard>
 
-              <div style={{
-                padding: "16px",
-                background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-                borderRadius: "8px",
-                textAlign: "center",
-                color: "white"
-              }}>
-                <h4 style={{ margin: "0 0 8px 0" }}>LiquidGlass</h4>
-                <p style={{ margin: 0, fontSize: "14px", opacity: 0.9 }}>
+              <ComparisonCard $gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+                <ComparisonTitle $color="white">LiquidGlass</ComparisonTitle>
+                <ComparisonDescription $color="white" $opacity={0.9}>
                   Best for: Modern apps, premium designs
-                </p>
-              </div>
-            </div>
+                </ComparisonDescription>
+              </ComparisonCard>
+            </ComparisonGrid>
           </SectionContent>
         </Section>
       </TestPageContent>
