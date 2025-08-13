@@ -79,6 +79,39 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
     },
   ];
 
+  const appNavigatorPages = [
+    {
+      path: "/ios/create-ride",
+      icon: "📱",
+      name: "iOS Create Ride",
+      description: "Native iOS-style create ride page (normally iOS-only)",
+    },
+    {
+      path: "/ios/join-ride",
+      icon: "🔍",
+      name: "iOS Join Ride",
+      description: "Native iOS-style join ride page (normally iOS-only)",
+    },
+    {
+      path: "/ios/profile",
+      icon: "👤",
+      name: "iOS Profile",
+      description: "Native iOS-style profile page (normally iOS-only)",
+    },
+    {
+      path: "/onboarding",
+      icon: "🚀",
+      name: "Onboarding Flow",
+      description: "User onboarding and profile setup flow",
+    },
+    {
+      path: "/admin/error-reports",
+      icon: "🚨",
+      name: "Error Reports",
+      description: "Admin error tracking and management system",
+    },
+  ];
+
   return (
     <PageContainer>
       <BackButton />
@@ -117,6 +150,41 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
                 </TestName>
                 <TestDescription>
                   {test.description}
+                </TestDescription>
+              </TestContent>
+              <TestArrow>
+                ›
+              </TestArrow>
+            </TestButton>
+          ))}
+        </TestGrid>
+
+        {/* App Navigator Section */}
+        <MainCard>
+          <MainTitle>
+            App Navigator
+          </MainTitle>
+          <MainDescription>
+            Access app sections that are normally restricted by platform or user state.
+            These links bypass normal restrictions for testing purposes.
+          </MainDescription>
+        </MainCard>
+
+        <TestGrid>
+          {appNavigatorPages.map((page, index) => (
+            <TestButton
+              key={`nav-${index}`}
+              onClick={() => handleNavigation(page.path)}
+            >
+              <TestIcon>
+                {page.icon}
+              </TestIcon>
+              <TestContent>
+                <TestName>
+                  {page.name}
+                </TestName>
+                <TestDescription>
+                  {page.description}
                 </TestDescription>
               </TestContent>
               <TestArrow>
