@@ -186,3 +186,52 @@ export const MapViewContainer = styled.div`
   width: 100%;
   height: 100%;
 `;
+
+export const RouteLabel = styled.div`
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+  font-weight: 500;
+`;
+
+export const RouteValue = styled.div`
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+`;
+
+export const ControlsContainer = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: flex-end;
+
+  @media (max-width: 768px) {
+    justify-content: stretch;
+  }
+`;
+
+export const ControlButton = styled.button`
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+  }
+
+  &:active {
+    background: #e9ecef;
+  }
+
+  @media (max-width: 768px) {
+    flex: 1;
+    padding: 12px 16px;
+  }
+`;
