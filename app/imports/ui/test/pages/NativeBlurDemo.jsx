@@ -328,7 +328,7 @@ const NativeBlurDemo = (props) => {
               >
                 Clear Logs
               </StyleButton>
-            </div>
+            </FlexContainer>
 
             {showLogs && (
               <div style={{
