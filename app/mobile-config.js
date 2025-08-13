@@ -63,62 +63,7 @@ App.accessRule("*");
 App.accessRule("https://carp.school/*");
 App.accessRule("https://*.carp.school/*");
 
-// iOS App Transport Security (ATS) - Individual domain preferences
-// Note: Meteor/Cordova has limited support for complex ATS configurations
-// Using individual preferences for better compatibility
-
-// Allow arbitrary loads globally (for development/testing)
-App.setPreference("NSAppTransportSecurity", `
-<dict>
-  <key>NSAllowsArbitraryLoads</key>
-  <false/>
-  <key>NSExceptionDomains</key>
-  <dict>
-    <key>carp.school</key>
-    <dict>
-      <key>NSIncludesSubdomains</key>
-      <true/>
-      <key>NSExceptionAllowsInsecureHTTPLoads</key>
-      <true/>
-    </dict>
-    <key>tileserver.carp.school</key>
-    <dict>
-      <key>NSExceptionMinimumTLSVersion</key>
-      <string>TLSv1.2</string>
-    </dict>
-    <key>nominatim.carp.school</key>
-    <dict>
-      <key>NSExceptionMinimumTLSVersion</key>
-      <string>TLSv1.2</string>
-    </dict>
-    <key>osrm.carp.school</key>
-    <dict>
-      <key>NSExceptionMinimumTLSVersion</key>
-      <string>TLSv1.2</string>
-    </dict>
-    <key>codepush.carp.school</key>
-    <dict>
-      <key>NSExceptionMinimumTLSVersion</key>
-      <string>TLSv1.2</string>
-    </dict>
-    <key>localhost</key>
-    <dict>
-      <key>NSExceptionAllowsInsecureHTTPLoads</key>
-      <true/>
-    </dict>
-    <key>127.0.0.1</key>
-    <dict>
-      <key>NSExceptionAllowsInsecureHTTPLoads</key>
-      <true/>
-    </dict>
-    <key>dev.carp.school</key>
-    <dict>
-      <key>NSExceptionAllowsInsecureHTTPLoads</key>
-      <true/>
-    </dict>
-  </dict>
-</dict>
-`, "ios");
+// iOS App Transport Security (ATS) configuration moved to cordova-plugin-transport-security plugin
 
 // Set up resources such as icons and launch screens.
 App.icons({
