@@ -108,36 +108,36 @@ class MobileNavBarAuto extends React.Component {
       const currentUser = Meteor.user();
       const homeLabel = currentUser ? "My Rides" : "Home";
 
-      // Native navbar items synced with CSS labels
+      // Native navbar items with emojis for SF Symbol mapping
       const defaultItems = [
         {
           id: "home",
           label: homeLabel,
-          icon: "/svg/home.svg",
+          icon: "🏠",
           action: "home",
         },
         {
           id: "search",
           label: "Join Ride",
-          icon: "/svg/search.svg",
+          icon: "🔍",
           action: "search",
         },
         {
           id: "create",
           label: "Create",
-          icon: "/svg/plus.svg",
+          icon: "➕",
           action: "create",
         },
         {
           id: "messages",
           label: "Messages",
-          icon: "/svg/message.svg",
+          icon: "💬",
           action: "messages",
         },
         {
           id: "profile",
           label: "Profile",
-          icon: "/svg/user.svg",
+          icon: "👤",
           action: "profile",
         },
       ];
