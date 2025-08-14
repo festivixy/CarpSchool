@@ -7,6 +7,7 @@ import { Rides } from "../../../../api/ride/Rides";
 import { Places } from "../../../../api/places/Places";
 import { MobileOnly } from "../../../layouts/Devices";
 import { Spacer } from "../../../components";
+import { CreateRideSkeleton } from "../../../skeleton";
 import {
   CreateRidePageContainer,
   CreateRideHeader,
@@ -294,19 +295,7 @@ class CreateRide extends React.Component {
     } = this.state;
 
     if (!ready) {
-      return (
-        <CreateRidePageContainer>
-          <CreateRideHeader>
-            <CreateRideHeaderTitle>Create Ride</CreateRideHeaderTitle>
-          </CreateRideHeader>
-          <BackButton />
-          <CreateRideContent>
-            <LoadingContainer>
-              Loading places...
-            </LoadingContainer>
-          </CreateRideContent>
-        </CreateRidePageContainer>
-      );
+      return <CreateRideSkeleton showBackButton={true} />;
     }
 
     return (
