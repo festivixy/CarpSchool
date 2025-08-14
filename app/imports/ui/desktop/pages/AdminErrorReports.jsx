@@ -63,7 +63,7 @@ class DesktopAdminErrorReports extends React.Component {
       sortOrder: "desc", // asc, desc
       page: 0,
       pageSize: 20,
-      stackingEnabled: false, // toggle for stacking functionality
+      stackingEnabled: true, // stacking always enabled
       stackingType: "message", // message, route, user
     };
   }
@@ -91,10 +91,6 @@ class DesktopAdminErrorReports extends React.Component {
     this.setState({ filterBy: filter, page: 0 });
   };
 
-  handleStackingToggle = () => {
-    this.setState({ stackingEnabled: !this.state.stackingEnabled });
-  };
-
   handleStackingTypeChange = (type) => {
     this.setState({ stackingType: type });
   };
@@ -104,10 +100,8 @@ class DesktopAdminErrorReports extends React.Component {
   };
 
   handleExpandStack = (stackedErrorReport) => {
-    // Temporarily disable stacking to show individual reports
+    // Set search to filter for this specific stack
     this.setState({
-      stackingEnabled: false,
-      // Set search to filter for this specific stack
       searchQuery: stackedErrorReport.stackKey
     });
   };
@@ -256,7 +250,7 @@ class DesktopAdminErrorReports extends React.Component {
   };
 
   filterErrorReports = (errorReports) => {
-    const { searchQuery, sortBy, sortOrder, filterBy, stackingEnabled, stackingType } = this.state;
+    const { searchQuery, sortBy, sortOrder, filterBy, stackingType } = this.state;
 
     let filtered = errorReports;
 
@@ -317,12 +311,8 @@ class DesktopAdminErrorReports extends React.Component {
       }
     });
 
-    // Apply stacking if enabled
-    if (stackingEnabled) {
-      return this.stackErrorReports(filtered, stackingType);
-    }
-
-    return filtered;
+    // Apply stacking (always enabled)
+    return this.stackErrorReports(filtered, stackingType);
   };
 
   stackErrorReports = (errorReports, stackingType) => {
@@ -419,7 +409,7 @@ class DesktopAdminErrorReports extends React.Component {
   };
 
   render() {
-    const { searchQuery, filterBy, stackingEnabled, stackingType } = this.state;
+    const { searchQuery, filterBy, stackingType } = this.state;
     const { errorReports, ready } = this.props;
 
     if (!ready) {
@@ -499,47 +489,25 @@ class DesktopAdminErrorReports extends React.Component {
 
           {/* Stacking Controls */}
           <FiltersContainer>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
-                <input
-                  type="checkbox"
-                  checked={stackingEnabled}
-                  onChange={this.handleStackingToggle}
-                  style={{
-                    width: "16px",
-                    height: "16px",
-                    accentColor: "#667eea",
-                    cursor: "pointer"
-                  }}
-                />
-                <span style={{ fontSize: "14px", fontWeight: "500", color: "#333" }}>
-                  Enable Stacking
-                </span>
-              </label>
-
-              {stackingEnabled && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "14px", color: "#666" }}>Stack by:</span>
-                  <FilterButton
-                    active={stackingType === "message"}
-                    onClick={() => this.handleStackingTypeChange("message")}
-                  >
-                    Error Message
-                  </FilterButton>
-                  <FilterButton
-                    active={stackingType === "route"}
-                    onClick={() => this.handleStackingTypeChange("route")}
-                  >
-                    Route
-                  </FilterButton>
-                  <FilterButton
-                    active={stackingType === "user"}
-                    onClick={() => this.handleStackingTypeChange("user")}
-                  >
-                    User
-                  </FilterButton>
-                </div>
-              )}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FilterButton
+                active={stackingType === "message"}
+                onClick={() => this.handleStackingTypeChange("message")}
+              >
+                💬
+              </FilterButton>
+              <FilterButton
+                active={stackingType === "route"}
+                onClick={() => this.handleStackingTypeChange("route")}
+              >
+                🛤️
+              </FilterButton>
+              <FilterButton
+                active={stackingType === "user"}
+                onClick={() => this.handleStackingTypeChange("user")}
+              >
+                👤
+              </FilterButton>
             </div>
           </FiltersContainer>
 
@@ -555,10 +523,7 @@ class DesktopAdminErrorReports extends React.Component {
           </SearchContainer>
 
           <SearchResultsCount>
-            {stackingEnabled
-              ? `${filteredReports.length} stack${filteredReports.length !== 1 ? "s" : ""} found (${filteredReports.reduce((total, report) => total + (report.stackCount || 1), 0)} total reports)`
-              : `${filteredReports.length} error report${filteredReports.length !== 1 ? "s" : ""} found`
-            }
+            {`${filteredReports.length} stack${filteredReports.length !== 1 ? "s" : ""} found (${filteredReports.reduce((total, report) => total + (report.stackCount || 1), 0)} total reports)`}
           </SearchResultsCount>
 
           {/* Error Reports Grid */}
