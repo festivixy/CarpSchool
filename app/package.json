@@ -50,7 +50,8 @@
     "start": "cd .. && ./runner.sh",
     "dev": "meteor --no-release-check --settings ../config/settings.development.json --port 3001",
     "lint": "eslint --quiet --ext .jsx --ext .js --ext .mjs ./imports ./client ./server ./plugins",
-    "fixlint": "eslint --quiet --ext .jsx --ext .js --ext .mjs ./imports ./client ./server ./plugins --fix",
+    "lint:compact": "eslint --quiet --ext .jsx --ext .js --ext .mjs --format compact ./imports ./client ./server ./plugins",
+    "lint:fix": "eslint --quiet --ext .jsx --ext .js --ext .mjs ./imports ./client ./server ./plugins --fix",
     "build": "meteor build ../build --architecture os.linux.x86_64 --server-only",
     "build:server": "cd .. && ./build-app.sh server",
     "build:ios": "cd .. && ./build-app.sh ios",
@@ -58,7 +59,7 @@
     "build:all": "cd .. && ./build-app.sh all",
     "build:ios:dev": "cd .. && ./build-app.sh ios --server-url https://dev.carp.school",
     "build:prod": "cd .. && ./build-app.sh all --server-url https://carp.school",
-    "prod": "cd .. && ./build-prod.sh",
+    "build:server:prod": "cd .. && ./build-prod.sh",
     "clean": "cd .. && ./clean.sh",
     "clean:all": "source ../tools/meteor-utils.sh && meteor_clean_ios"
   }
