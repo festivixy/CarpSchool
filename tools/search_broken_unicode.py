@@ -585,7 +585,7 @@ class BrokenUnicodeSearcher:
     def print_results(self, verbose=False):
         """Print search results"""
         if not self.results:
-            print("��� No broken unicode characters found!")
+            print("✅ No broken unicode characters found!")
             return
 
         print(f"\n🚨 Found issues in {len(self.results)} file(s):")
@@ -772,7 +772,7 @@ Common patterns searched:
     if args.no_git or args.fast:
         searcher.git_available = False
         if args.fast:
-            print("��� Fast mode: skipping git history lookups")
+            print("⚡ Fast mode: skipping git history lookups")
 
     # Add custom patterns
     if args.pattern:
@@ -794,7 +794,7 @@ Common patterns searched:
         searcher.search_directory(path, recursive=args.recursive, extensions=extensions, enable_git_history=enable_git)
 
         if args.fix and searcher.results:
-            print(f"\n���� Fixing {len(searcher.results)} files...")
+            print(f"\n🔧 Fixing {len(searcher.results)} files...")
             with tqdm(searcher.results, desc="🔧 Fixing files", disable=len(searcher.results) < 3) as pbar:
                 for result in pbar:
                     if result['issues']:

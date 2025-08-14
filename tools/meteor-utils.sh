@@ -170,7 +170,7 @@ meteor_build_android() {
     fi
 
     # Clean Cordova build cache to prevent Gradle issues
-    echo -e "${YELLOW}���� Cleaning Cordova build cache...${NC}"
+    echo -e "${YELLOW}🧹 Cleaning Cordova build cache...${NC}"
     rm -rf app/.meteor/local/cordova-build
 
     cd app

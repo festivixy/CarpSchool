@@ -589,7 +589,7 @@ class RawANSICapture:
                 else:
                     log_print(f"│ {content_repr}")
 
-            log_print("└───────────────────────────────────────���───────────────┘")
+            log_print("└──────────────────────────────────────────────────────────┘")
             log_print()
 
         # Raw output
@@ -624,7 +624,7 @@ class RawANSICapture:
         # Hex dump
         if show_hex:
             log_print("🔍 Hex Dump:")
-            log_print("┌─ Hex Dump ─────────────────────────────────────���────────┐")
+            log_print("┌─ Hex Dump ────────────────────────────────────────────────┐")
             hex_lines = self.format_hex_dump(raw_output).split('\n')
             for line in hex_lines:  # Show all hex lines
                 log_print(f"│ {line}")
@@ -636,7 +636,7 @@ class RawANSICapture:
 
         log_print()
         if show_real_terminal:
-            log_print("��� Use --hex for hex dump, --no-compare to skip comparison, --no-real-terminal to skip echo rendering")
+            log_print("💡 Use --hex for hex dump, --no-compare to skip comparison, --no-real-terminal to skip echo rendering")
         else:
             log_print("💡 Use --hex for hex dump, --no-compare to skip comparison, --real-terminal to enable echo rendering")
 
