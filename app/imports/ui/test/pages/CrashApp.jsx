@@ -41,7 +41,7 @@ class CrashApp extends React.Component {
       // This will throw an error and be caught by ErrorBoundary
       throw new Error(
         "Intentional crash triggered by CrashApp test page - " +
-        "This is expected behavior for testing ErrorBoundary functionality"
+        "This is expected behavior for testing ErrorBoundary functionality",
       );
     }
 

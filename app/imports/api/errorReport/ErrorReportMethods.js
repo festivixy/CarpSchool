@@ -162,7 +162,7 @@ Meteor.methods({
     if (schemaError) {
       throw new Meteor.Error(
         "schema-error",
-        `Error report schema validation failed: ${schemaError.details[0].message}`
+        `Error report schema validation failed: ${schemaError.details[0].message}`,
       );
     }
 

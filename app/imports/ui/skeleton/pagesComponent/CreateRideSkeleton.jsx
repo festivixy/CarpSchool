@@ -152,6 +152,4 @@ const CreateRideSkeleton = () => (
     </SkeletonPageContainer>
   );
 
-
-
 export default CreateRideSkeleton;

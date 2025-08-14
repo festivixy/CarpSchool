@@ -121,7 +121,7 @@ const NativeNavBar = ({
 
           // Handle different navigation items (fallback for standalone usage)
           console.log("[NativeNavBar] 🎯 Processing item with internal handler:", {
-            id: item.id, action: item.action, label: item.label
+            id: item.id, action: item.action, label: item.label,
           });
 
           if (item.id === "home" || item.action === "home") {
@@ -161,7 +161,7 @@ const NativeNavBar = ({
   }, [
     isSupported, navBarId, registerActionHandler, unregisterActionHandler, setActiveItem,
     currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick,
-    onItemPress, items
+    onItemPress, items,
   ]);
 
   // Create native navbar when component mounts

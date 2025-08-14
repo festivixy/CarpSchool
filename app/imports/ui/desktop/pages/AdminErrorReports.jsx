@@ -111,7 +111,7 @@ class DesktopAdminErrorReports extends React.Component {
     const latestReport = stackedErrorReport.stackedReports.reduce(
       (latest, report) => (
         new Date(report.timestamp) > new Date(latest.timestamp) ? report : latest
-      )
+      ),
     );
     this.props.history.push(`/admin/error-report/${latestReport._id}`);
   };
@@ -157,13 +157,13 @@ class DesktopAdminErrorReports extends React.Component {
                   "Partial Success",
                   `${completedCount} report${completedCount !== 1 ? "s" : ""} resolved successfully. ` +
                   `${errorCount} failed.`,
-                  "warning"
+                  "warning",
                 );
               } else {
                 swal(
                   "Success",
                   `All ${completedCount} report${completedCount !== 1 ? "s" : ""} in the stack marked as resolved!`,
-                  "success"
+                  "success",
                 );
               }
             }
@@ -207,13 +207,13 @@ class DesktopAdminErrorReports extends React.Component {
                   "Partial Success",
                   `${completedCount} report${completedCount !== 1 ? "s" : ""} deleted successfully. ` +
                   `${errorCount} failed.`,
-                  "warning"
+                  "warning",
                 );
               } else {
                 swal(
                   "Success",
                   `All ${completedCount} report${completedCount !== 1 ? "s" : ""} in the stack deleted!`,
-                  "success"
+                  "success",
                 );
               }
             }

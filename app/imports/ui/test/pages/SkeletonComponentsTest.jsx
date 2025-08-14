@@ -5,7 +5,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
 import {
-  MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton, RideInfoSkeleton
+  MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton, RideInfoSkeleton,
 } from "../../skeleton";
 import {
   PageContainer,
@@ -83,8 +83,6 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
       [key]: value,
     }));
   };
-
-
 
   const handleMobileGenericConfigChange = (key, value) => {
     setMobileGenericConfig(prev => ({
