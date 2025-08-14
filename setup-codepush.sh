@@ -29,13 +29,13 @@ start_codepush() {
     echo -e "${BLUE}🔄 Starting CodePush services...${NC}"
 
     # Start only CodePush related services
-    docker-compose up -d codepush-mysql codepush-redis codepush-server
+    docker compose up -d codepush-mysql codepush-redis codepush-server
 
     echo -e "${YELLOW}⏳ Waiting for services to be ready...${NC}"
     sleep 30
 
     # Check if services are healthy
-    if docker-compose ps codepush-server | grep -q "healthy"; then
+    if docker compose ps codepush-server | grep -q "healthy"; then
         echo -e "${GREEN}✅ CodePush server is running${NC}"
     else
         echo -e "${YELLOW}⚠️  CodePush server is starting up, please wait...${NC}"
@@ -47,7 +47,7 @@ get_deployment_keys() {
     echo -e "${BLUE}🔑 Retrieving deployment keys...${NC}"
 
     # Wait for MySQL to be ready and run query to get keys
-    docker-compose exec codepush-mysql mysql -u codepush -pcodepush123 -D codepush -e "
+    docker compose exec codepush-mysql mysql -u codepush -pcodepush123 -D codepush -e "
         SELECT
             a.name as app_name,
             a.platform,
@@ -66,7 +66,7 @@ show_status() {
 
     # Check service status
     echo -e "${YELLOW}Docker Services:${NC}"
-    docker-compose ps codepush-server codepush-mysql codepush-redis
+    docker compose ps codepush-server codepush-mysql codepush-redis
     echo ""
 
     # Check if server is accessible through proxy
@@ -75,7 +75,7 @@ show_status() {
         echo -e "${GREEN}🌐 Will be available at https://codepush.carp.school (when proxied)${NC}"
     else
         echo -e "${YELLOW}⚠️  CodePush server not accessible through proxy. Check if service-proxy is running.${NC}"
-        echo -e "${YELLOW}💡 Try: docker-compose up -d service-proxy${NC}"
+        echo -e "${YELLOW}💡 Try: docker compose up -d service-proxy${NC}"
     fi
     echo ""
 
@@ -121,12 +121,12 @@ case "${1:-status}" in
         ;;
     "stop")
         echo -e "${BLUE}🛑 Stopping CodePush services...${NC}"
-        docker-compose stop codepush-server codepush-mysql codepush-redis
+        docker compose stop codepush-server codepush-mysql codepush-redis
         echo -e "${GREEN}✅ CodePush services stopped${NC}"
         ;;
     "restart")
         echo -e "${BLUE}🔄 Restarting CodePush services...${NC}"
-        docker-compose restart codepush-server codepush-mysql codepush-redis
+        docker compose restart codepush-server codepush-mysql codepush-redis
         echo -e "${GREEN}✅ CodePush services restarted${NC}"
         ;;
     "status")
@@ -137,14 +137,14 @@ case "${1:-status}" in
         ;;
     "logs")
         echo -e "${BLUE}📋 CodePush Server Logs (Press Ctrl+C to exit)${NC}"
-        docker-compose logs -f codepush-server
+        docker compose logs -f codepush-server
         ;;
     "reset")
         echo -e "${RED}⚠️  WARNING: This will delete all CodePush data!${NC}"
         read -p "Are you sure? Type 'yes' to continue: " confirm
         if [ "$confirm" = "yes" ]; then
             echo -e "${BLUE}🗑️  Resetting CodePush data...${NC}"
-            docker-compose down codepush-server codepush-mysql codepush-redis
+            docker compose down codepush-server codepush-mysql codepush-redis
             sudo rm -rf codepush_storage codepush_tmp codepush_mysql_data codepush_redis_data
             echo -e "${GREEN}✅ CodePush data reset${NC}"
             echo -e "${YELLOW}💡 Run '$0 start' to initialize fresh services${NC}"
