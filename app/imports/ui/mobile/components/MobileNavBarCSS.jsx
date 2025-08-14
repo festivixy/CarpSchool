@@ -224,7 +224,7 @@ class MobileNavBarCSS extends React.Component {
                     📋 Edit Profile
                   </DropdownItem>
                   <DropdownItem onClick={() => this.handleNavigation("/places")}>
-                     My Places
+                    📍 My Places
                   </DropdownItem>
                   {isAdmin && (
                     <>
