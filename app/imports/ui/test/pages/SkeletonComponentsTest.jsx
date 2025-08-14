@@ -530,22 +530,24 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
           </SkeletonDescription>
 
           {/* Controls */}
-          <SkeletonControls>
-            <ConfigTitle>Configuration</ConfigTitle>
-            <ControlGrid>
-              <ControlGroup>
-                <ControlLabel>Number of Places</ControlLabel>
-                <input
-                  type="range"
-                  min="3"
-                  max="12"
-                  value={placeManagerConfig.numberOfPlaces}
-                  onChange={(e) => handlePlaceManagerConfigChange("numberOfPlaces", parseInt(e.target.value, 10))}
-                />
-                <ControlValue>{placeManagerConfig.numberOfPlaces}</ControlValue>
-              </ControlGroup>
-            </ControlGrid>
-          </SkeletonControls>
+          <ControlsCard>
+            <ControlGroup>
+              <ControlLabel>Number of Places:</ControlLabel>
+              <ControlInput
+                type="number"
+                min="3"
+                max="12"
+                value={placeManagerConfig.numberOfPlaces}
+                onChange={(e) => handlePlaceManagerConfigChange("numberOfPlaces", parseInt(e.target.value, 10))}
+              />
+            </ControlGroup>
+            <ControlButton
+              onClick={() => toggleDemo("placemanager")}
+              active={placeManagerConfig.showDemo === "placemanager"}
+            >
+              {placeManagerConfig.showDemo === "placemanager" ? "Hide Demo" : "Show Demo"}
+            </ControlButton>
+          </ControlsCard>
 
           {/* Code Example */}
           <CodeBlock>
@@ -578,11 +580,6 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
               </DemoCard>
             </SkeletonDemo>
           )}
-
-          {/* Demo Button */}
-          <DemoButton onClick={() => toggleDemo("placemanager")}>
-            {placeManagerConfig.showDemo === "placemanager" ? "Hide Demo" : "Show Demo"}
-          </DemoButton>
         </SkeletonSection>
 
         {/* Future Skeleton Components */}
