@@ -26,9 +26,11 @@ const successPulse = keyframes`
   }
 `;
 
-// Page container with gradient background like skeleton
+// Page container with gradient background limited to middle section
 export const CreateRidePageContainer = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background:
+    linear-gradient(135deg, #667eea 0%, #764ba2 100%) 0 0 / 100% 200px no-repeat,
+    #f8f9fa;
   min-height: 100vh;
   position: relative;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
