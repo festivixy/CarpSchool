@@ -51,24 +51,47 @@ const renderApp = () => {
 Meteor.startup(() => {
   // Check if running in Cordova environment
   if (Meteor.isCordova) {
-    // Add timeout fallback in case deviceready never fires
-    let deviceReadyFired = false;
+    // State management to prevent race conditions
+    let appStartupState = {
+      deviceReadyFired: false,
+      timeoutFired: false,
+      appRendered: false
+    };
+
+    // Timeout reference for cleanup
+    let fallbackTimeoutId = null;
+
+    // Safe render function that prevents double-rendering
+    const safeRenderApp = (trigger) => {
+      if (appStartupState.appRendered) {
+        console.log(`[Startup] App already rendered, ignoring ${trigger} trigger`);
+        return;
+      }
+
+      console.log(`[Startup] Rendering app triggered by: ${trigger}`);
+      appStartupState.appRendered = true;
+
+      // Clear the timeout if it exists to prevent it from firing
+      if (fallbackTimeoutId) {
+        clearTimeout(fallbackTimeoutId);
+        fallbackTimeoutId = null;
+      }
+
+      renderApp();
+    };
 
     // Wait for device ready event in Cordova
     document.addEventListener("deviceready", () => {
-      if (!deviceReadyFired) {
-        deviceReadyFired = true;
-        renderApp();
-      }
+      console.log("[Startup] deviceready event fired");
+      appStartupState.deviceReadyFired = true;
+      safeRenderApp("deviceready");
     }, false);
 
     // Fallback timeout - if deviceready doesn't fire within 10 seconds, render anyway
-    setTimeout(() => {
-      if (!deviceReadyFired) {
-        console.warn("deviceready event did not fire within 10 seconds, rendering app anyway");
-        deviceReadyFired = true;
-        renderApp();
-      }
+    fallbackTimeoutId = setTimeout(() => {
+      console.warn("[Startup] deviceready event did not fire within 10 seconds, rendering app anyway");
+      appStartupState.timeoutFired = true;
+      safeRenderApp("timeout");
     }, 10000);
   } else {
     // Normal web startup
