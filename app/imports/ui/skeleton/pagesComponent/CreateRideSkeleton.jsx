@@ -39,21 +39,7 @@ const CreateRideSkeleton = ({ showBackButton = true }) => {
         </SkeletonHeaderTitle>
       </SkeletonHeader>
 
-      {/* Back Button placeholder */}
-      {showBackButton && (
-        <div style={{ 
-          position: 'absolute', 
-          top: '20px', 
-          left: '20px', 
-          width: '40px', 
-          height: '40px', 
-          borderRadius: '20px', 
-          backgroundColor: '#f0f0f0',
-          overflow: 'hidden'
-        }}>
-          <SkeletonPulse />
-        </div>
-      )}
+
 
       <SkeletonContent>
         {/* Content Header */}
