@@ -99,7 +99,7 @@ export const useNativeNavBar = () => {
       console.log("[useNativeNavBar] 🔄 Using fallback action handler");
       actionHandlerRef.current(navBarId, action, itemIndex);
     } else {
-      console.warn("[useNativeNavBar] ��️ No action handler found for navBarId:", navBarId);
+      console.warn("[useNativeNavBar] ⚠️ No action handler found for navBarId:", navBarId);
     }
   }, []);
 
@@ -145,7 +145,7 @@ export const useNativeNavBar = () => {
   }, [masterActionHandler]);
 
   const createNavBar = useCallback(async (options = {}) => {
-    console.log("[useNativeNavBar] 🏗️ createNavBar called:", {
+    console.log("[useNativeNavBar] 🏗�� createNavBar called:", {
       isSupported,
       hasPlugin: !!window.cordova?.plugins?.NativeNavBar,
       options,

@@ -123,7 +123,7 @@ const NativeNavBar = ({
           console.log("[NativeNavBar] 🎯 Processing item with internal handler:", { id: item.id, action: item.action, label: item.label });
 
           if (item.id === "home" || item.action === "home") {
-            console.log("[NativeNavBar] ���� Home action triggered");
+            console.log("[NativeNavBar] 🏠 Home action triggered");
             const homeLink = currentUser ? "/myRides" : "/";
             handleNavigation(homeLink);
           } else if (item.id === "search" || item.action === "search") {
