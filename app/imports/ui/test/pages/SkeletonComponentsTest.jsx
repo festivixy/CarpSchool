@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
-import { MyRidesSkeleton, ChatSkeleton } from "../../skeleton";
+import { MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton } from "../../skeleton";
 import {
   PageContainer,
   FixedHeader,
@@ -52,6 +52,11 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
     showDemo: false,
   });
 
+  const [createRideConfig, setCreateRideConfig] = useState({
+    showBackButton: true,
+    showDemo: false,
+  });
+
   const handleMyRidesConfigChange = (key, value) => {
     setMyRidesConfig(prev => ({
       ...prev,
@@ -66,6 +71,13 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
     }));
   };
 
+  const handleCreateRideConfigChange = (key, value) => {
+    setCreateRideConfig(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
   const toggleDemo = (demoKey) => {
     if (demoKey === 'myrides') {
       setMyRidesConfig(prev => ({
@@ -74,6 +86,11 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
       }));
     } else if (demoKey === 'chat') {
       setChatConfig(prev => ({
+        ...prev,
+        showDemo: prev.showDemo === demoKey ? false : demoKey
+      }));
+    } else if (demoKey === 'createride') {
+      setCreateRideConfig(prev => ({
         ...prev,
         showDemo: prev.showDemo === demoKey ? false : demoKey
       }));
@@ -244,6 +261,64 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
                       numberOfChats={chatConfig.numberOfChats}
                       numberOfMessages={chatConfig.numberOfMessages}
                       showMobileLayout={chatConfig.showMobileLayout}
+                    />
+                  </SkeletonContainer>
+                </SkeletonPreview>
+              </DemoCard>
+            </SkeletonDemo>
+          )}
+        </SkeletonSection>
+
+        {/* CreateRide Skeleton */}
+        <SkeletonSection>
+          <SkeletonTitle>📱 CreateRide Skeleton (iOS)</SkeletonTitle>
+          <SkeletonDescription>
+            Skeleton loading state for the iOS CreateRide page. Shows gradient background, form sections
+            for route, date/time, and ride details with iOS-style form elements.
+          </SkeletonDescription>
+
+          {/* Controls */}
+          <ControlsCard>
+            <ControlGroup>
+              <ControlLabel>
+                <input
+                  type="checkbox"
+                  checked={createRideConfig.showBackButton}
+                  onChange={(e) => handleCreateRideConfigChange('showBackButton', e.target.checked)}
+                  style={{ marginRight: '8px' }}
+                />
+                Show Back Button
+              </ControlLabel>
+            </ControlGroup>
+            <ControlButton
+              onClick={() => toggleDemo('createride')}
+              active={createRideConfig.showDemo === 'createride'}
+            >
+              {createRideConfig.showDemo === 'createride' ? 'Hide Demo' : 'Show Demo'}
+            </ControlButton>
+          </ControlsCard>
+
+          {/* Import Code */}
+          <CodeBlock>
+            <ImportCode>
+              {`import { CreateRideSkeleton } from "../../skeleton";
+
+<CreateRideSkeleton showBackButton={${createRideConfig.showBackButton}} />`}
+            </ImportCode>
+          </CodeBlock>
+
+          {/* Demo */}
+          {createRideConfig.showDemo === 'createride' && (
+            <SkeletonDemo>
+              <DemoCard>
+                <DemoTitle>Live Demo</DemoTitle>
+                <DemoDescription>
+                  iOS CreateRide form skeleton with {createRideConfig.showBackButton ? 'back button' : 'no back button'}
+                </DemoDescription>
+                <SkeletonPreview>
+                  <SkeletonContainer>
+                    <CreateRideSkeleton
+                      showBackButton={createRideConfig.showBackButton}
                     />
                   </SkeletonContainer>
                 </SkeletonPreview>
