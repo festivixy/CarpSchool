@@ -29,7 +29,7 @@ const successPulse = keyframes`
 // Page container with gradient background like skeleton
 export const CreateRidePageContainer = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  height: 50vh;
+  min-height: 100vh;
   position: relative;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
   margin: 0;
@@ -42,16 +42,15 @@ export const CreateRidePageContainer = styled.div`
 export const CreateRideContent = styled.div`
   background: #ffffff;
   border-radius: 24px 24px 0 0;
-  min-height: calc(100vh - 50vh + 120px);
-  margin-top: -120px;
+  min-height: 100vh;
+  margin-top: 120px;
   position: relative;
   z-index: 2;
-  top: 50vh;
 
   @media (max-width: 480px) {
     border-radius: 20px 20px 0 0;
-    margin-top: -100px;
-    min-height: calc(100vh - 50vh + 100px);
+    margin-top: 100px;
+    min-height: 100vh;
   }
 `;
 
@@ -354,10 +353,12 @@ export const ButtonPrimary = styled.button`
   transition: all 0.3s ease;
   font-family: inherit;
   margin-top: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 
   &:hover:not(:disabled) {
     background: #333333;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   }
 
   &:disabled {
@@ -365,6 +366,7 @@ export const ButtonPrimary = styled.button`
     color: #adb5bd;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 `;
 
