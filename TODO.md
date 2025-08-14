@@ -36,11 +36,11 @@ setTimeout(() => {
 ## 🔒 Security Vulnerabilities
 
 ### External Service Protection
-- [ ] **Services**: nominatim.carp.school, osrm.carp.school, tileserver.carp.school
-- [ ] **Implement**: Request rate limiting and throttling
-- [ ] **Add**: API key validation system
-- [ ] **Risk**: Service abuse, potential DoS attacks
-- [ ] **Priority**: High
+- [x] ~~**IMPLEMENTED**: Rate limiting - Nominatim (30r/m), OSRM /route/* (1r/s), Tileserver (100r/s)~~
+- [x] ~~**IMPLEMENTED**: Enhanced caching - Tiles (1 week), OSRM (15m), Nominatim (5m)~~
+- [x] ~~**IMPLEMENTED**: Security headers and nginx hardening~~
+- [ ] **Future**: API key validation system (optional enhancement)
+- [x] ~~**Priority**: High~~ ✅ **COMPLETED** (4ac4897)
 
 ### Input Validation & XSS Prevention
 - [ ] **File**: `imports/api/places/Places.js`
