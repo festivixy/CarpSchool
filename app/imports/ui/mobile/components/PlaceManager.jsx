@@ -5,6 +5,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import swal from "sweetalert";
 import { Places } from "../../../api/places/Places";
 import InteractiveMapPicker from "./InteractiveMapPicker";
+import { PlaceManagerSkeleton } from "../../skeleton";
 import {
   Container,
   Header,
@@ -12,9 +13,6 @@ import {
   TitleIcon,
   AddButton,
   Content,
-  LoadingContainer,
-  LoadingSpinner,
-  LoadingText,
   EmptyState,
   EmptyStateIcon,
   EmptyStateTitle,
@@ -268,14 +266,7 @@ class PlaceManager extends React.Component {
     const { modalOpen, editingPlace, formData, errors, loading } = this.state;
 
     if (!ready) {
-      return (
-        <Container>
-          <LoadingContainer>
-            <LoadingSpinner />
-            <LoadingText>Loading places...</LoadingText>
-          </LoadingContainer>
-        </Container>
-      );
+      return <PlaceManagerSkeleton numberOfPlaces={6} />;
     }
 
     return (

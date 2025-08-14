@@ -4,3 +4,4 @@ export { default as ChatSkeleton } from "./pagesComponent/ChatSkeleton";
 export { default as CreateRideSkeleton } from "./pagesComponent/CreateRideSkeleton";
 export { default as RideInfoSkeleton } from "./pagesComponent/RideInfoSkeleton";
 export { default as MobileGenericSkeleton } from "./pagesComponent/MobileGenericSkeleton";
+export { default as PlaceManagerSkeleton } from "./pagesComponent/PlaceManagerSkeleton";

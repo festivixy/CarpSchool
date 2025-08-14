@@ -5,7 +5,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
 import {
-  MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton, RideInfoSkeleton,
+  MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton, RideInfoSkeleton, PlaceManagerSkeleton,
 } from "../../skeleton";
 import {
   PageContainer,
@@ -70,6 +70,11 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
     showDemo: false,
   });
 
+  const [placeManagerConfig, setPlaceManagerConfig] = useState({
+    numberOfPlaces: 6,
+    showDemo: false,
+  });
+
   const handleMyRidesConfigChange = (key, value) => {
     setMyRidesConfig(prev => ({
       ...prev,
@@ -98,6 +103,13 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
     }));
   };
 
+  const handlePlaceManagerConfigChange = (key, value) => {
+    setPlaceManagerConfig(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   const toggleDemo = (demoKey) => {
     if (demoKey === "myrides") {
       setMyRidesConfig(prev => ({
@@ -121,6 +133,11 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
       }));
     } else if (demoKey === "rideinfo") {
       setRideInfoConfig(prev => ({
+        ...prev,
+        showDemo: prev.showDemo === demoKey ? false : demoKey,
+      }));
+    } else if (demoKey === "placemanager") {
+      setPlaceManagerConfig(prev => ({
         ...prev,
         showDemo: prev.showDemo === demoKey ? false : demoKey,
       }));
@@ -502,6 +519,70 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
               </DemoCard>
             </SkeletonDemo>
           )}
+        </SkeletonSection>
+
+        {/* PlaceManager Skeleton */}
+        <SkeletonSection>
+          <SkeletonTitle>📍 PlaceManager Skeleton</SkeletonTitle>
+          <SkeletonDescription>
+            Skeleton loading state for the PlaceManager page. Shows header with title and add button,
+            followed by a grid of place cards with location info and action buttons.
+          </SkeletonDescription>
+
+          {/* Controls */}
+          <SkeletonControls>
+            <ConfigTitle>Configuration</ConfigTitle>
+            <ControlGrid>
+              <ControlGroup>
+                <ControlLabel>Number of Places</ControlLabel>
+                <input
+                  type="range"
+                  min="3"
+                  max="12"
+                  value={placeManagerConfig.numberOfPlaces}
+                  onChange={(e) => handlePlaceManagerConfigChange("numberOfPlaces", parseInt(e.target.value, 10))}
+                />
+                <ControlValue>{placeManagerConfig.numberOfPlaces}</ControlValue>
+              </ControlGroup>
+            </ControlGrid>
+          </SkeletonControls>
+
+          {/* Code Example */}
+          <CodeBlock>
+            <CodeTitle>Usage Example</CodeTitle>
+            <ImportCode>
+{`import { PlaceManagerSkeleton } from "../../skeleton";
+
+// Basic usage
+<PlaceManagerSkeleton numberOfPlaces={${placeManagerConfig.numberOfPlaces}} />`}
+            </ImportCode>
+          </CodeBlock>
+
+          {/* Demo */}
+          {placeManagerConfig.showDemo === "placemanager" && (
+            <SkeletonDemo>
+              <DemoCard>
+                <DemoTitle>Live Demo</DemoTitle>
+                <DemoDescription>
+                  PlaceManager page skeleton with header, add button, and {placeManagerConfig.numberOfPlaces} place card{
+                    placeManagerConfig.numberOfPlaces !== 1 ? "s" : ""
+                  }
+                </DemoDescription>
+                <SkeletonPreview>
+                  <SkeletonContainer>
+                    <PlaceManagerSkeleton
+                      numberOfPlaces={placeManagerConfig.numberOfPlaces}
+                    />
+                  </SkeletonContainer>
+                </SkeletonPreview>
+              </DemoCard>
+            </SkeletonDemo>
+          )}
+
+          {/* Demo Button */}
+          <DemoButton onClick={() => toggleDemo("placemanager")}>
+            {placeManagerConfig.showDemo === "placemanager" ? "Hide Demo" : "Show Demo"}
+          </DemoButton>
         </SkeletonSection>
 
         {/* Future Skeleton Components */}
