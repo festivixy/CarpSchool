@@ -48,6 +48,7 @@ import MobileNavBarAutoTest from "../test/pages/MobileNavBarAutoTest";
 import ComponentsTest from "../test/pages/ComponentsTest";
 import LiquidGlassComponentsTest from "../test/pages/LiquidGlassComponentsTest";
 import FooterComponentsTest from "../test/pages/FooterComponentsTest";
+import SkeletonComponentsTest from "../test/pages/SkeletonComponentsTest";
 import IOSCreateRide from "../mobile/ios/pages/CreateRide";
 import IOSJoinRide from "../mobile/ios/pages/JoinRide";
 import IOSProfile from "../mobile/pages/Profile";
@@ -172,6 +173,10 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/_test/mobile-navbar-auto"
                 component={MobileNavBarAutoTest}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/_test/skeleton-components"
+                component={SkeletonComponentsTest}
               />
               <ProtectedRouteRequireAdmin
                 path="/_test/crash-app"

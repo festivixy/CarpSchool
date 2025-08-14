@@ -78,6 +78,12 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
       description: "Test image upload functionality and components",
     },
     {
+      path: "/_test/skeleton-components",
+      icon: "🦴",
+      name: "Skeleton Components",
+      description: "Test skeleton loading states and shimmer animations",
+    },
+    {
       path: "/_test/crash-app",
       icon: "💥",
       name: "Crash App",
