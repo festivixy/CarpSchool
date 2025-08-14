@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
-import { MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton } from "../../skeleton";
+import { MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton, RideInfoSkeleton } from "../../skeleton";
 import {
   PageContainer,
   FixedHeader,
@@ -64,6 +64,11 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
     showDemo: false,
   });
 
+  const [rideInfoConfig, setRideInfoConfig] = useState({
+    showBackButton: true,
+    showDemo: false,
+  });
+
   const handleMyRidesConfigChange = (key, value) => {
     setMyRidesConfig(prev => ({
       ...prev,
@@ -92,6 +97,13 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
     }));
   };
 
+  const handleRideInfoConfigChange = (key, value) => {
+    setRideInfoConfig(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
   const toggleDemo = (demoKey) => {
     if (demoKey === 'myrides') {
       setMyRidesConfig(prev => ({
@@ -110,6 +122,11 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
       }));
     } else if (demoKey === 'mobilegeneric') {
       setMobileGenericConfig(prev => ({
+        ...prev,
+        showDemo: prev.showDemo === demoKey ? false : demoKey
+      }));
+    } else if (demoKey === 'rideinfo') {
+      setRideInfoConfig(prev => ({
         ...prev,
         showDemo: prev.showDemo === demoKey ? false : demoKey
       }));
@@ -429,6 +446,64 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
                       numberOfLines={mobileGenericConfig.numberOfLines}
                       showBackButton={mobileGenericConfig.showBackButton}
                       lineVariations={mobileGenericConfig.lineVariations}
+                    />
+                  </SkeletonContainer>
+                </SkeletonPreview>
+              </DemoCard>
+            </SkeletonDemo>
+          )}
+        </SkeletonSection>
+
+        {/* RideInfo Skeleton */}
+        <SkeletonSection>
+          <SkeletonTitle>🗺️ RideInfo Skeleton</SkeletonTitle>
+          <SkeletonDescription>
+            Skeleton loading state for the RideInfo page. Shows 50% map area, 40% ride details section
+            with route display, status badge, and ride information, plus 10% navbar clearance.
+          </SkeletonDescription>
+
+          {/* Controls */}
+          <ControlsCard>
+            <ControlGroup>
+              <ControlLabel>
+                <input
+                  type="checkbox"
+                  checked={rideInfoConfig.showBackButton}
+                  onChange={(e) => handleRideInfoConfigChange('showBackButton', e.target.checked)}
+                  style={{ marginRight: '8px' }}
+                />
+                Show Back Button
+              </ControlLabel>
+            </ControlGroup>
+            <ControlButton
+              onClick={() => toggleDemo('rideinfo')}
+              active={rideInfoConfig.showDemo === 'rideinfo'}
+            >
+              {rideInfoConfig.showDemo === 'rideinfo' ? 'Hide Demo' : 'Show Demo'}
+            </ControlButton>
+          </ControlsCard>
+
+          {/* Import Code */}
+          <CodeBlock>
+            <ImportCode>
+              {`import { RideInfoSkeleton } from "../../skeleton";
+
+<RideInfoSkeleton showBackButton={${rideInfoConfig.showBackButton}} />`}
+            </ImportCode>
+          </CodeBlock>
+
+          {/* Demo */}
+          {rideInfoConfig.showDemo === 'rideinfo' && (
+            <SkeletonDemo>
+              <DemoCard>
+                <DemoTitle>Live Demo</DemoTitle>
+                <DemoDescription>
+                  RideInfo page skeleton with map, route details, and ride information {rideInfoConfig.showBackButton ? 'with back button' : 'without back button'}
+                </DemoDescription>
+                <SkeletonPreview>
+                  <SkeletonContainer>
+                    <RideInfoSkeleton
+                      showBackButton={rideInfoConfig.showBackButton}
                     />
                   </SkeletonContainer>
                 </SkeletonPreview>
