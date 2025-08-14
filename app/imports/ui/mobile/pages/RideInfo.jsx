@@ -7,6 +7,7 @@ import { Rides } from "../../../api/ride/Rides";
 import { Places } from "../../../api/places/Places";
 import RouteMapView from "../../components/RouteMapView";
 import LoadingPage from "../../components/LoadingPage";
+import BackButton from "../components/BackButton";
 import {
   Container,
   MapSection,
@@ -36,7 +37,6 @@ import {
   ErrorContainer,
   ErrorTitle,
   ErrorMessage,
-  BackButton,
 } from "../styles/RideInfo";
 
 /**
@@ -72,10 +72,6 @@ class RideInfo extends React.Component {
       minute: "2-digit",
       hour12: true,
     });
-
-  handleBackClick = () => {
-    this.props.history.goBack();
-  };
 
   renderRideStatus = (ride) => {
     // Handle new schema with riders array
@@ -126,14 +122,12 @@ class RideInfo extends React.Component {
     if (!ride) {
       return (
         <Container>
+          <BackButton />
           <ErrorContainer>
             <ErrorTitle>Ride Not Found</ErrorTitle>
             <ErrorMessage>
               The ride you&apos;re looking for doesn&apos;t exist or has been removed.
             </ErrorMessage>
-            <BackButton onClick={this.handleBackClick}>
-              ← Back to Rides
-            </BackButton>
           </ErrorContainer>
           <NavbarClearance />
         </Container>
@@ -145,6 +139,8 @@ class RideInfo extends React.Component {
 
     return (
       <Container>
+        <BackButton />
+
         {/* Map Section - 60% */}
         <MapSection>
           {startCoord && endCoord ? (
@@ -171,9 +167,6 @@ class RideInfo extends React.Component {
         <RideInfoSection>
           <RideInfoContainer>
             <RideHeader>
-              <BackButton onClick={this.handleBackClick}>
-                ← Back
-              </BackButton>
 
               <RouteDisplay>
                 <RouteItem>
