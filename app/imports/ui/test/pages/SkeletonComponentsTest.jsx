@@ -156,16 +156,7 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
           
           <CodeBlock>
             <ImportCode style={{ color: '#666', fontStyle: 'italic' }}>
-              {`// Future components:
-// - ChatSkeleton
-// - ProfileSkeleton  
-// - RideDetailSkeleton
-// - PlaceManagerSkeleton
-// - etc.
-
-// Each following the same pattern:
-import { ComponentSkeleton } from "../../skeleton";
-<ComponentSkeleton config={...} />`}
+              {`// Future components`}
             </ImportCode>
           </CodeBlock>
         </SkeletonSection>
