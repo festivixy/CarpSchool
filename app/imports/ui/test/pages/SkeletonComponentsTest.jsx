@@ -177,7 +177,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
                 min="1"
                 max="10"
                 value={myRidesConfig.numberOfRides}
-                onChange={(e) => handleMyRidesConfigChange("numberOfRides", parseInt(e.target.value))}
+                onChange={(e) => handleMyRidesConfigChange("numberOfRides", parseInt(e.target.value, 10))}
               />
             </ControlGroup>
             <ControlButton
@@ -234,7 +234,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
                 min="1"
                 max="10"
                 value={chatConfig.numberOfChats}
-                onChange={(e) => handleChatConfigChange("numberOfChats", parseInt(e.target.value))}
+                onChange={(e) => handleChatConfigChange("numberOfChats", parseInt(e.target.value, 10))}
               />
             </ControlGroup>
             <ControlGroup>
@@ -244,7 +244,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
                 min="3"
                 max="20"
                 value={chatConfig.numberOfMessages}
-                onChange={(e) => handleChatConfigChange("numberOfMessages", parseInt(e.target.value))}
+                onChange={(e) => handleChatConfigChange("numberOfMessages", parseInt(e.target.value, 10))}
               />
             </ControlGroup>
             <ControlGroup>
@@ -368,7 +368,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
                 min="3"
                 max="50"
                 value={mobileGenericConfig.numberOfLines}
-                onChange={(e) => handleMobileGenericConfigChange("numberOfLines", parseInt(e.target.value))}
+                onChange={(e) => handleMobileGenericConfigChange("numberOfLines", parseInt(e.target.value, 10))}
               />
             </ControlGroup>
             <ControlGroup>

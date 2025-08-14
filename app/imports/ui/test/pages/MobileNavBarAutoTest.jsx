@@ -222,7 +222,7 @@ const MobileNavBarAutoTest = ({ history }) => {
                 <Label>Active Tab Index:</Label>
                 <Select
                   value={activeIndex}
-                  onChange={(e) => setActiveIndex(parseInt(e.target.value))}
+                  onChange={(e) => setActiveIndex(parseInt(e.target.value, 10))}
                 >
                   <option value={0}>Tab 0</option>
                   <option value={1}>Tab 1</option>
