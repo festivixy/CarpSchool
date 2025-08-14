@@ -51,8 +51,9 @@ export const ContentPadding = styled.div`
   animation: ${modalSlideIn} 0.3s ease-out;
 
   @media (max-width: 480px) {
+    max-width: none;
     width: calc(100% - 32px);
-    margin: 80px 16px 0 16px;
+    margin: 80px auto 0 auto;
     border-radius: 12px;
   }
 `;
