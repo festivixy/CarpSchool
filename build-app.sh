@@ -44,7 +44,7 @@ show_usage() {
   ${GREEN}all${NC}     - Build all platforms (server, iOS, and Android)
   ${GREEN}codepush-ios${NC} - Build and release iOS update to CodePush
   ${GREEN}codepush-android${NC} - Build and release Android update to CodePush
-  ${GREEN}codepush-status${NC} - Show CodePush configuration status"
+  ${GREEN}codepush-status${NC} - Show CodePush configuration status
 
 Options:
   ${YELLOW}--build-dir [path]${NC}    - Specify custom build directory (default: ../build)
