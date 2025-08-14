@@ -70,7 +70,7 @@ class ErrorBoundary extends Component {
    */
   reportErrorToServer = async (error, errorInfo) => {
     try {
-      this.setState({ reportStatus: 'reporting' });
+      this.setState({ reportStatus: "reporting" });
 
       // Gather comprehensive error data
       const errorData = {
@@ -99,7 +99,7 @@ class ErrorBoundary extends Component {
       });
 
       this.setState({
-        reportStatus: 'success',
+        reportStatus: "success",
         serverErrorId: result?.errorId,
       });
 
@@ -107,7 +107,7 @@ class ErrorBoundary extends Component {
 
     } catch (reportError) {
       console.warn("Failed to report error to server:", reportError);
-      this.setState({ reportStatus: 'failed' });
+      this.setState({ reportStatus: "failed" });
     }
   };
 
@@ -119,7 +119,7 @@ class ErrorBoundary extends Component {
     if (!errorInfo?.componentStack) return undefined;
 
     // Extract component name from stack
-    const stackLines = errorInfo.componentStack.split('\n');
+    const stackLines = errorInfo.componentStack.split("\n");
     const firstLine = stackLines[1]; // Skip the first line which is usually the error boundary
     if (firstLine) {
       const match = firstLine.match(/in (\w+)/);
@@ -132,7 +132,7 @@ class ErrorBoundary extends Component {
    * Detect the current platform
    */
   detectPlatform = () => {
-    if (typeof window !== 'undefined' && window.cordova) {
+    if (typeof window !== "undefined" && window.cordova) {
       return window.device?.platform || "Cordova";
     }
     return "Web";
@@ -142,15 +142,15 @@ class ErrorBoundary extends Component {
    * Get the current route
    */
   getCurrentRoute = () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // Check for hash-based routing first
-      if (window.location.hash && window.location.hash.startsWith('#/')) {
+      if (window.location.hash && window.location.hash.startsWith("#/")) {
         // Extract route from hash (e.g., #/route becomes /route)
         let route = window.location.hash.substring(1);
 
         // Remove dollar sign parameters (args) from the route
-        if (route.includes('$')) {
-          route = route.split('$')[0];
+        if (route.includes("$")) {
+          route = route.split("$")[0];
         }
 
         return route;
@@ -160,8 +160,8 @@ class ErrorBoundary extends Component {
       let route = window.location.pathname + window.location.search + window.location.hash;
 
       // Remove dollar sign parameters (args) from the route
-      if (route.includes('$')) {
-        route = route.split('$')[0];
+      if (route.includes("$")) {
+        route = route.split("$")[0];
       }
 
       return route;
@@ -178,8 +178,8 @@ class ErrorBoundary extends Component {
 
       // Remove functions and sensitive data
       Object.keys(props).forEach(key => {
-        if (typeof props[key] === 'function') {
-          props[key] = '[Function]';
+        if (typeof props[key] === "function") {
+          props[key] = "[Function]";
         }
       });
 
@@ -233,8 +233,8 @@ class ErrorBoundary extends Component {
     const idToShare = serverErrorId || errorId;
 
     if (!idToShare) {
-      console.error('No error ID available to copy');
-      alert('❌ Error: No error ID available to copy. Please try refreshing the page.');
+      console.error("No error ID available to copy");
+      alert("❌ Error: No error ID available to copy. Please try refreshing the page.");
       return;
     }
 
@@ -242,37 +242,37 @@ class ErrorBoundary extends Component {
       // Try modern clipboard API first
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(idToShare);
-        console.log('✅ Error ID copied to clipboard:', idToShare);
-        alert('✅ Error ID "' + idToShare + '" copied to clipboard. Please share with support.');
+        console.log("✅ Error ID copied to clipboard:", idToShare);
+        alert(`✅ Error ID "${idToShare}" copied to clipboard. Please share with support.`);
         return;
       }
 
       // Fallback: try legacy execCommand method
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = idToShare;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
 
-      const successful = document.execCommand('copy');
+      const successful = document.execCommand("copy");
       document.body.removeChild(textArea);
 
       if (successful) {
-        console.log('✅ Error ID copied to clipboard:', idToShare);
-        alert('✅ Error ID "' + idToShare + '" copied to clipboard. Please share with support.');
+        console.log("✅ Error ID copied to clipboard:", idToShare);
+        alert(`✅ Error ID "${idToShare}" copied to clipboard. Please share with support.`);
       } else {
-        throw new Error('Copy command failed');
+        throw new Error("Copy command failed");
       }
     } catch (err) {
-      console.warn('Failed to copy to clipboard:', err);
-      console.log('📋 Manual copy - Error ID:', idToShare);
+      console.warn("Failed to copy to clipboard:", err);
+      console.log("📋 Manual copy - Error ID:", idToShare);
       // Final fallback: show error ID for manual copying
-      const message = '📋 Error ID: ' + idToShare + '\n\n' +
-                     'Please manually copy this ID and report it to support.\n\n' +
-                     'Tip: Select the ID above and use Ctrl+C (or Cmd+C on Mac) to copy.';
+      const message = `📋 Error ID: ${idToShare}\n\n` +
+                     "Please manually copy this ID and report it to support.\n\n" +
+                     "Tip: Select the ID above and use Ctrl+C (or Cmd+C on Mac) to copy.";
       alert(message);
     }
 
@@ -284,7 +284,7 @@ class ErrorBoundary extends Component {
 
   render() {
     if (this.state.hasError) {
-      const { error, errorId, serverErrorId, reportStatus, retryCount } = this.state;
+      const { error, errorId, serverErrorId, reportStatus } = this.state;
       const {
         fallback,
         title,
@@ -325,9 +325,9 @@ class ErrorBoundary extends Component {
           {/* Error reporting status */}
           {reportStatus && (
             <ReportStatus status={reportStatus}>
-              {reportStatus === 'reporting' && "📤 Reporting error..."}
-              {reportStatus === 'success' && "✅ Error reported successfully"}
-              {reportStatus === 'failed' && "⚠️ Failed to report error"}
+              {reportStatus === "reporting" && "📤 Reporting error..."}
+              {reportStatus === "success" && "✅ Error reported successfully"}
+              {reportStatus === "failed" && "⚠️ Failed to report error"}
             </ReportStatus>
           )}
 
@@ -347,7 +347,7 @@ class ErrorBoundary extends Component {
 
             {showReport && (
               <ReportButton onClick={this.handleReport}>
-                {reportStatus === 'success' ? "Copy Error ID" : "Report Issue"}
+                {reportStatus === "success" ? "Copy Error ID" : "Report Issue"}
               </ReportButton>
             )}
           </ErrorActions>

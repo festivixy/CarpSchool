@@ -41,8 +41,6 @@ import {
   NoSelection,
   NoSelectionContent,
   NoSelectionIcon,
-  Loading,
-  LoadingSpinner,
   ChatOverlay,
   OverlayHeader,
   OverlayTitle,

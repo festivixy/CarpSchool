@@ -41,10 +41,8 @@ import {
   SuccessTitle,
   SuccessMessage,
   SuccessDetails,
-  LoadingContainer,
   SuccessDetailItem,
 } from "../styles/CreateRide";
-import BackButton from "../../components/BackButton";
 
 /**
  * iOS-specific Create Ride page

@@ -36,8 +36,6 @@ import {
   EmptyMessage,
   ClearSearchButton,
   JoinNewButton,
-  Loading,
-  LoadingSpinner,
 } from "../styles/MyRides";
 
 /**
