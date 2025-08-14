@@ -29,8 +29,8 @@ const NativeNavBar = {
      * Create a new native navbar
      */
     createNavBar: function (options, success, error) {
-        options = options || {};
-        exec(success, error, "NativeNavBar", "createNavBar", [options]);
+        const navBarOptions = options || {};
+        exec(success, error, "NativeNavBar", "createNavBar", [navBarOptions]);
     },
 
     /**

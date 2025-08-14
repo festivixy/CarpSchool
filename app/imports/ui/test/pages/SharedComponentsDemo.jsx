@@ -45,7 +45,9 @@ const SharedComponentsDemo = ({ history }) => {
 
   const handleAsyncAction = async () => {
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => {
+      setTimeout(resolve, 2000);
+    });
     setLoading(false);
     alert("Async action completed!");
   };
@@ -118,7 +120,7 @@ const SharedComponentsDemo = ({ history }) => {
                 label="Email Input"
                 type="email"
                 placeholder="your@email.com"
-                icon="📧"
+                icon="����"
                 required
               />
               <TextInput
