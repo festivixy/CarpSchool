@@ -5,6 +5,8 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Profiles } from "../../api/profile/Profile";
 import LoadingPage from "../components/LoadingPage";
+import { MobileGenericSkeleton } from "../skeleton";
+import { MobileOnly, DesktopOnly } from "./Devices";
 import { RouteContainer, AuthOverlay } from "../styles/ProtectedRoutes";
 
 /**
@@ -57,7 +59,12 @@ const ProtectedRoutesComponent = ({
         <Component {...props} />
         {showAuthOverlay && (
           <AuthOverlay>
-            <LoadingPage message="Authenticating..." />
+            <MobileOnly>
+              <MobileGenericSkeleton numberOfLines={35} showBackButton={true} lineVariations="default" />
+            </MobileOnly>
+            <DesktopOnly>
+              <LoadingPage message="Authenticating..." />
+            </DesktopOnly>
           </AuthOverlay>
         )}
       </RouteContainer>
@@ -115,7 +122,12 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
         <Component {...props} />
         {showAuthOverlay && (
           <AuthOverlay>
-            <LoadingPage message="Authenticating..." />
+            <MobileOnly>
+              <MobileGenericSkeleton numberOfLines={35} showBackButton={true} lineVariations="default" />
+            </MobileOnly>
+            <DesktopOnly>
+              <LoadingPage message="Authenticating..." />
+            </DesktopOnly>
           </AuthOverlay>
         )}
       </RouteContainer>
@@ -150,7 +162,16 @@ const ProtectedRouteRequireNotEmailVerifiedComponent = ({
 
     // Show loading while authentication state is being determined
     if (showLoadingOverlay) {
-      return <LoadingPage message="Authenticating..." />;
+      return (
+        <>
+          <MobileOnly>
+            <MobileGenericSkeleton numberOfLines={35} showBackButton={true} lineVariations="default" />
+          </MobileOnly>
+          <DesktopOnly>
+            <LoadingPage message="Authenticating..." />
+          </DesktopOnly>
+        </>
+      );
     }
 
     if (user) {
@@ -215,7 +236,16 @@ const ProtectedRouteRequireNotLoggedInComponent = ({
 
     // Show loading while authentication state is being determined
     if (showLoadingOverlay) {
-      return <LoadingPage message="Authenticating..." />;
+      return (
+        <>
+          <MobileOnly>
+            <MobileGenericSkeleton numberOfLines={35} showBackButton={true} lineVariations="default" />
+          </MobileOnly>
+          <DesktopOnly>
+            <LoadingPage message="Authenticating..." />
+          </DesktopOnly>
+        </>
+      );
     }
 
     if (!user) {
@@ -303,7 +333,12 @@ export const ProtectedRouteRequireAdmin = ({
         <Component {...props} />
         {showAuthOverlay && (
           <AuthOverlay>
-            <LoadingPage message="Verifying admin access..." />
+            <MobileOnly>
+              <MobileGenericSkeleton numberOfLines={35} showBackButton={true} lineVariations="default" />
+            </MobileOnly>
+            <DesktopOnly>
+              <LoadingPage message="Verifying admin access..." />
+            </DesktopOnly>
           </AuthOverlay>
         )}
       </RouteContainer>
