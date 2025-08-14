@@ -72,7 +72,7 @@ Meteor.publish("errorReports.critical", async function publishCriticalErrors() {
   }
 
   return ErrorReports.find(
-    { 
+    {
       severity: "critical",
       resolved: false,
     },
@@ -152,7 +152,7 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
 
   // This is a reactive publication that publishes counts
   const self = this;
-  
+
   // Initialize counters
   let totalCount = 0;
   let unresolvedCount = 0;
@@ -189,9 +189,9 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
     },
   });
 
-  const criticalHandle = ErrorReports.find({ 
-    severity: "critical", 
-    resolved: false 
+  const criticalHandle = ErrorReports.find({
+    severity: "critical",
+    resolved: false
   }).observeChanges({
     added: () => {
       criticalCount++;
@@ -220,8 +220,14 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
 
   // Clean up observers when subscription stops
   self.onStop(() => {
-    totalHandle.stop();
-    unresolvedHandle.stop();
-    criticalHandle.stop();
+    if (totalHandle && typeof totalHandle.stop === 'function') {
+      totalHandle.stop();
+    }
+    if (unresolvedHandle && typeof unresolvedHandle.stop === 'function') {
+      unresolvedHandle.stop();
+    }
+    if (criticalHandle && typeof criticalHandle.stop === 'function') {
+      criticalHandle.stop();
+    }
   });
 });
