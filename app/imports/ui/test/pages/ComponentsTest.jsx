@@ -99,7 +99,7 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
       description: "Native iOS-style join ride page (normally iOS-only)",
     },
     {
-      path: "/ios/profile",
+      path: "/mobile/profile",
       icon: "👤",
       name: "iOS Profile",
       description: "Native iOS-style profile page (normally iOS-only)",

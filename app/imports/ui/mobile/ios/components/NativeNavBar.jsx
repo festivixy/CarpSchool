@@ -70,7 +70,7 @@ const NativeNavBar = ({
 
   const handleProfileClick = React.useCallback(() => {
     console.log("[NativeNavBar] 👤 Navigating to iOS Profile page");
-    handleNavigation("/ios/profile");
+    handleNavigation("/mobile/profile");
   }, [handleNavigation]);
 
   // Update active index when prop changes

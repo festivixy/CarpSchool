@@ -43,6 +43,7 @@ import {
   LoadingContainer,
   SuccessDetailItem,
 } from "../styles/CreateRide";
+import { BackButton } from "../../components/BackButton";
 
 /**
  * iOS-specific Create Ride page
@@ -321,7 +322,7 @@ class CreateRide extends React.Component {
               fontSize: "14px",
               color: "rgba(100, 100, 100, 1)",
               margin: "0",
-              lineHeight: "1.4"
+              lineHeight: "1.4",
             }}>
               Share your ride with fellow students
             </p>

@@ -50,7 +50,7 @@ import LiquidGlassComponentsTest from "../test/pages/LiquidGlassComponentsTest";
 import FooterComponentsTest from "../test/pages/FooterComponentsTest";
 import IOSCreateRide from "../mobile/ios/pages/CreateRide";
 import IOSJoinRide from "../mobile/ios/pages/JoinRide";
-import IOSProfile from "../mobile/ios/pages/Profile";
+import IOSProfile from "../mobile/pages/Profile";
 import AdminErrorReports from "../desktop/pages/AdminErrorReports";
 import AdminErrorReportDetail from "../desktop/pages/AdminErrorReportDetail";
 import CrashApp from "../test/pages/CrashApp";
@@ -104,7 +104,9 @@ class App extends React.Component {
               {/* iOS-specific routes */}
               <ProtectedRoutes path="/ios/create-ride" component={IOSCreateRide} />
               <ProtectedRoutes path="/ios/join-ride" component={IOSJoinRide} />
-              <ProtectedRoutes path="/ios/profile" component={IOSProfile} />
+
+              {/* Mobile-specific routes */}
+              <ProtectedRoutes path="/mobile/profile" component={IOSProfile} />
 
               {/* Admin routes */}
               <ProtectedRouteRequireAdmin
