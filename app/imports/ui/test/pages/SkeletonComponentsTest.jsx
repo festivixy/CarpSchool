@@ -23,7 +23,6 @@ import {
   ControlButton,
   SkeletonPreview,
   SkeletonContainer,
-  SkeletonOverlay,
   CodeBlock,
   ImportCode,
   SkeletonDemo,
