@@ -5,6 +5,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Profiles } from "../../api/profile/Profile";
 import { getImageUrl } from "../mobile/utils/imageUtils";
+import { ProfileSkeleton } from "../skeleton";
 import {
   Container,
   Loading,
@@ -391,14 +392,7 @@ class MobileEditProfile extends React.Component {
     }
 
     if (!this.props.ready) {
-      return (
-        <Container>
-          <Loading>
-            <Spinner />
-            <p>Loading profile...</p>
-          </Loading>
-        </Container>
-      );
+      return <ProfileSkeleton />;
     }
 
     return (

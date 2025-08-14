@@ -5,3 +5,4 @@ export { default as CreateRideSkeleton } from "./pagesComponent/CreateRideSkelet
 export { default as RideInfoSkeleton } from "./pagesComponent/RideInfoSkeleton";
 export { default as MobileGenericSkeleton } from "./pagesComponent/MobileGenericSkeleton";
 export { default as PlaceManagerSkeleton } from "./pagesComponent/PlaceManagerSkeleton";
+export { default as ProfileSkeleton } from "./pagesComponent/ProfileSkeleton";

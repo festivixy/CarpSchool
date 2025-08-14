@@ -5,7 +5,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
 import {
-  MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton, RideInfoSkeleton, PlaceManagerSkeleton,
+  MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton, RideInfoSkeleton, PlaceManagerSkeleton, ProfileSkeleton,
 } from "../../skeleton";
 import {
   PageContainer,
@@ -75,6 +75,13 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
     showDemo: false,
   });
 
+  const [profileConfig, setProfileConfig] = useState({
+    showProfileImage: true,
+    showVehicleImage: true,
+    showCaptcha: false,
+    showDemo: false,
+  });
+
   const handleMyRidesConfigChange = (key, value) => {
     setMyRidesConfig(prev => ({
       ...prev,
@@ -110,6 +117,13 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
     }));
   };
 
+  const handleProfileConfigChange = (key, value) => {
+    setProfileConfig(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   const toggleDemo = (demoKey) => {
     if (demoKey === "myrides") {
       setMyRidesConfig(prev => ({
@@ -138,6 +152,11 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
       }));
     } else if (demoKey === "placemanager") {
       setPlaceManagerConfig(prev => ({
+        ...prev,
+        showDemo: prev.showDemo === demoKey ? false : demoKey,
+      }));
+    } else if (demoKey === "profile") {
+      setProfileConfig(prev => ({
         ...prev,
         showDemo: prev.showDemo === demoKey ? false : demoKey,
       }));
@@ -580,6 +599,82 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
           )}
         </SkeletonSection>
 
+        {/* Profile Skeleton */}
+        <SkeletonSection>
+          <SkeletonTitle>👤 Profile Skeleton</SkeletonTitle>
+          <SkeletonDescription>
+            Skeleton loading state for the EditProfile page. Shows header, form sections with
+            basic info, contact info, image uploads, and submit button.
+          </SkeletonDescription>
+
+          <ControlsCard>
+            <ControlGroup>
+              <ControlLabel>Show Profile Image</ControlLabel>
+              <input
+                type="checkbox"
+                checked={profileConfig.showProfileImage}
+                onChange={(e) => handleProfileConfigChange("showProfileImage", e.target.checked)}
+              />
+            </ControlGroup>
+            <ControlGroup>
+              <ControlLabel>Show Vehicle Image</ControlLabel>
+              <input
+                type="checkbox"
+                checked={profileConfig.showVehicleImage}
+                onChange={(e) => handleProfileConfigChange("showVehicleImage", e.target.checked)}
+              />
+            </ControlGroup>
+            <ControlGroup>
+              <ControlLabel>Show Captcha</ControlLabel>
+              <input
+                type="checkbox"
+                checked={profileConfig.showCaptcha}
+                onChange={(e) => handleProfileConfigChange("showCaptcha", e.target.checked)}
+              />
+            </ControlGroup>
+            <ControlButton
+              onClick={() => toggleDemo("profile")}
+              active={profileConfig.showDemo === "profile"}
+            >
+              {profileConfig.showDemo === "profile" ? "Hide Demo" : "Show Demo"}
+            </ControlButton>
+          </ControlsCard>
+
+          {/* Import Code */}
+          <CodeBlock>
+            <ImportCode>
+{`import { ProfileSkeleton } from "../../skeleton";
+
+<ProfileSkeleton
+  showProfileImage={${profileConfig.showProfileImage}}
+  showVehicleImage={${profileConfig.showVehicleImage}}
+  showCaptcha={${profileConfig.showCaptcha}}
+/>`}
+            </ImportCode>
+          </CodeBlock>
+
+          {/* Demo */}
+          {profileConfig.showDemo === "profile" && (
+            <SkeletonDemo>
+              <DemoCard>
+                <DemoTitle>Live Demo</DemoTitle>
+                <DemoDescription>
+                  EditProfile page skeleton with form sections{profileConfig.showProfileImage && ", profile image"}{profileConfig.showVehicleImage && ", vehicle image"}{profileConfig.showCaptcha && ", captcha"}.
+                </DemoDescription>
+                <SkeletonPreview>
+                  <SkeletonContainer>
+                    <ProfileSkeleton
+                      showProfileImage={profileConfig.showProfileImage}
+                      showVehicleImage={profileConfig.showVehicleImage}
+                      showCaptcha={profileConfig.showCaptcha}
+                    />
+                  </SkeletonContainer>
+                </SkeletonPreview>
+              </DemoCard>
+            </SkeletonDemo>
+          )}
+        </SkeletonSection>
+
         {/* Future Skeleton Components */}
         <SkeletonSection>
           <SkeletonTitle>🔮 Future Skeleton Components</SkeletonTitle>
@@ -590,7 +685,6 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
           <CodeBlock>
             <ImportCode style={{ color: "#666", fontStyle: "italic" }}>
               {`// Future components:
-// - ProfileSkeleton
 // - RideDetailSkeleton
 // - PlaceManagerSkeleton
 // - AdminTableSkeleton
