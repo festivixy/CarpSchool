@@ -30,7 +30,7 @@ const successPulse = keyframes`
 export const MainPageContainer = styled.div`
   min-height: 100vh;
   background-color: #f8f9fa;
-  padding: 20px;
+  padding: 20px 0; /* Only top/bottom padding, no left/right */
 `;
 
 // Page content without modal styling
@@ -51,7 +51,7 @@ export const ContentPadding = styled.div`
   animation: ${modalSlideIn} 0.3s ease-out;
 
   @media (max-width: 480px) {
-    margin: 10px;
+    margin: 80px 16px 0 16px;
     border-radius: 12px;
   }
 `;
