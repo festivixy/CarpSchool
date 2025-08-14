@@ -86,25 +86,48 @@ class XcodeProjectEditor:
 
             # Add file to project with special handling for .icon files
             if relative_path.endswith('.icon'):
-                # Handle .icon files as generic data files
+                # Handle .icon files as folders/bundles (they are directory bundles like .app)
+                print(f"ℹ️ Adding .icon directory as folder bundle: {relative_path}")
+                print(f"ℹ️ Checking if path exists: {os.path.exists(local_path)}")
+                print(f"ℹ️ Is directory: {os.path.isdir(local_path)}")
+
                 try:
-                    from pbxproj.pbxextensions.ProjectFiles import FileOptions
-                    file_options = FileOptions(
-                        create_build_files=False,  # Don't add to build phases
-                        weak=False
-                    )
-                    file_ref = self.project.add_file(
+                    # Try different folder addition approaches
+                    print(f"ℹ️ Attempting add_folder with recursive=True, create_groups=True")
+                    file_ref = self.project.add_folder(
                         relative_path,
                         parent=target_group,
-                        file_options=file_options
+                        recursive=True,  # Include contents
+                        create_groups=True  # Create groups for organization
                     )
-                except Exception:
-                    # Fallback: try to add as generic file
-                    file_ref = self.project.add_file(
-                        relative_path,
-                        parent=target_group,
-                        force=True
-                    )
+                    print(f"✅ Successfully added folder with recursive=True, result: {file_ref}")
+                    # add_folder returns a list, so we need to check if it's not empty
+                    if not file_ref:
+                        file_ref = True  # Mark as successful even if list is empty
+                except Exception as e:
+                    print(f"⚠️ Recursive folder addition failed: {e}")
+                    try:
+                        print(f"ℹ️ Attempting add_folder with recursive=False, create_groups=False")
+                        file_ref = self.project.add_folder(
+                            relative_path,
+                            parent=target_group,
+                            recursive=False,  # Don't include contents
+                            create_groups=False  # Treat as bundle reference
+                        )
+                        print(f"✅ Successfully added folder with recursive=False")
+                    except Exception as e2:
+                        print(f"⚠️ Non-recursive folder addition failed: {e2}")
+                        try:
+                            print(f"ℹ️ Attempting add_file with force=True")
+                            file_ref = self.project.add_file(
+                                relative_path,
+                                parent=target_group,
+                                force=True
+                            )
+                            print(f"✅ Successfully added as file with force=True")
+                        except Exception as e3:
+                            print(f"❌ All addition methods failed: {e3}")
+                            file_ref = None
             else:
                 # Regular file addition
                 file_ref = self.project.add_file(
@@ -113,7 +136,10 @@ class XcodeProjectEditor:
                 )
 
             if file_ref:
-                print(f"✅ Added file reference: {file_name} to {group_name} group")
+                if relative_path.endswith('.icon'):
+                    print(f"✅ Added folder reference: {file_name} to {group_name} group")
+                else:
+                    print(f"✅ Added file reference: {file_name} to {group_name} group")
                 return True
             else:
                 print(f"❌ Failed to add file reference: {file_name}")
