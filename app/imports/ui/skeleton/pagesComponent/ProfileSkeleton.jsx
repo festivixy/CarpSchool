@@ -31,10 +31,10 @@ import {
  * Mimics the structure and layout of the actual EditProfile component
  * with header, form sections, image uploads, and submit button
  */
-const ProfileSkeleton = ({ 
-  showProfileImage = true, 
+const ProfileSkeleton = ({
+  showProfileImage = true,
   showVehicleImage = true,
-  showCaptcha = false 
+  showCaptcha = false,
 }) => (
   <SkeletonContainer>
     {/* Header */}
@@ -64,7 +64,7 @@ const ProfileSkeleton = ({
           <SkeletonSectionTitle>
             <SkeletonPulse />
           </SkeletonSectionTitle>
-          
+
           {/* Full Name Field */}
           <SkeletonField>
             <SkeletonLabel>
@@ -101,7 +101,7 @@ const ProfileSkeleton = ({
           <SkeletonSectionTitle>
             <SkeletonPulse />
           </SkeletonSectionTitle>
-          
+
           {/* Phone Field */}
           <SkeletonField>
             <SkeletonLabel>
@@ -129,7 +129,7 @@ const ProfileSkeleton = ({
             <SkeletonSectionTitle>
               <SkeletonPulse />
             </SkeletonSectionTitle>
-            
+
             <SkeletonImagePreview>
               <SkeletonPulse />
             </SkeletonImagePreview>
@@ -166,7 +166,7 @@ const ProfileSkeleton = ({
             <SkeletonSectionTitle>
               <SkeletonPulse />
             </SkeletonSectionTitle>
-            
+
             <SkeletonImagePreview>
               <SkeletonPulse />
             </SkeletonImagePreview>

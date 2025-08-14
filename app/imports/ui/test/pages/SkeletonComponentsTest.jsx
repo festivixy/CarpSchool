@@ -5,7 +5,13 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
 import {
-  MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton, RideInfoSkeleton, PlaceManagerSkeleton, ProfileSkeleton,
+  MyRidesSkeleton,
+  ChatSkeleton,
+  CreateRideSkeleton,
+  MobileGenericSkeleton,
+  RideInfoSkeleton,
+  PlaceManagerSkeleton,
+  ProfileSkeleton,
 } from "../../skeleton";
 import {
   PageContainer,
@@ -583,7 +589,8 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
               <DemoCard>
                 <DemoTitle>Live Demo</DemoTitle>
                 <DemoDescription>
-                  PlaceManager page skeleton with header, add button, and {placeManagerConfig.numberOfPlaces} place card{
+                  PlaceManager page skeleton with header, add button, and{" "}
+                  {placeManagerConfig.numberOfPlaces} place card{
                     placeManagerConfig.numberOfPlaces !== 1 ? "s" : ""
                   }
                 </DemoDescription>
@@ -659,7 +666,10 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
               <DemoCard>
                 <DemoTitle>Live Demo</DemoTitle>
                 <DemoDescription>
-                  EditProfile page skeleton with form sections{profileConfig.showProfileImage && ", profile image"}{profileConfig.showVehicleImage && ", vehicle image"}{profileConfig.showCaptcha && ", captcha"}.
+                  EditProfile page skeleton with form sections
+                  {profileConfig.showProfileImage && ", profile image"}
+                  {profileConfig.showVehicleImage && ", vehicle image"}
+                  {profileConfig.showCaptcha && ", captcha"}.
                 </DemoDescription>
                 <SkeletonPreview>
                   <SkeletonContainer>

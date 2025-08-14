@@ -8,8 +8,6 @@ import { getImageUrl } from "../mobile/utils/imageUtils";
 import { ProfileSkeleton } from "../skeleton";
 import {
   Container,
-  Loading,
-  Spinner,
   Header,
   AppName,
   Content,
