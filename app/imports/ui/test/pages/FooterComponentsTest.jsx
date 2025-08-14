@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import SimpleFooter from "../../desktop/components/SimpleFooter";
 import FooterVerbose from "../../desktop/components/FooterVerbose";
@@ -250,6 +251,10 @@ const FooterComponentsTest = ({ history: _history }) => {
       </TestPageContent>
     </TestPageContainer>
   );
+};
+
+FooterComponentsTest.propTypes = {
+  history: PropTypes.object.isRequired,
 };
 
 export default withRouter(FooterComponentsTest);

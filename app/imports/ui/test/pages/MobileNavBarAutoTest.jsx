@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import MobileNavBarAuto from "../../mobile/components/MobileNavBarAuto";
 import BackButton from "../../mobile/components/BackButton";
@@ -350,6 +351,10 @@ const MobileNavBarAutoTest = ({ history }) => {
       </Content>
     </Container>
   );
+};
+
+MobileNavBarAutoTest.propTypes = {
+  history: PropTypes.object.isRequired,
 };
 
 export default withRouter(MobileNavBarAutoTest);

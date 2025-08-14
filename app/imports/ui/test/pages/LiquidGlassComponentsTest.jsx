@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import LiquidGlassButton from "../../liquidGlass/components/Button";
 import LiquidGlassNavbar from "../../liquidGlass/components/Navbar";
@@ -360,6 +361,10 @@ const LiquidGlassComponentsTest = ({ history: _history }) => {
       </Content>
     </Container>
   );
+};
+
+LiquidGlassComponentsTest.propTypes = {
+  history: PropTypes.object.isRequired,
 };
 
 export default withRouter(LiquidGlassComponentsTest);

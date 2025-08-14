@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import MapView from "../../components/MapView";
 import InteractiveMapPicker from "../../mobile/components/InteractiveMapPicker";
@@ -360,6 +361,10 @@ const MapComponentsTest = ({ history: _history }) => {
       </Content>
     </Container>
   );
+};
+
+MapComponentsTest.propTypes = {
+  history: PropTypes.object.isRequired,
 };
 
 export default withRouter(MapComponentsTest);
