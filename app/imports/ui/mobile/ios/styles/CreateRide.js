@@ -29,7 +29,7 @@ const successPulse = keyframes`
 // Page container with gradient background like skeleton
 export const CreateRidePageContainer = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+  height: 50vh;
   position: relative;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
   margin: 0;
@@ -42,15 +42,16 @@ export const CreateRidePageContainer = styled.div`
 export const CreateRideContent = styled.div`
   background: #ffffff;
   border-radius: 24px 24px 0 0;
-  min-height: 100vh;
-  margin-top: 120px;
+  min-height: calc(100vh - 50vh + 120px);
+  margin-top: -120px;
   position: relative;
   z-index: 2;
+  top: 50vh;
 
   @media (max-width: 480px) {
     border-radius: 20px 20px 0 0;
-    margin-top: 100px;
-    min-height: 100vh;
+    margin-top: -100px;
+    min-height: calc(100vh - 50vh + 100px);
   }
 `;
 
