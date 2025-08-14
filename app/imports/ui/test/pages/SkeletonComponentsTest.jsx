@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
-import { MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton } from "../../skeleton";
+import { MyRidesSkeleton, ChatSkeleton, CreateRideSkeleton, MobileGenericSkeleton } from "../../skeleton";
 import {
   PageContainer,
   FixedHeader,
@@ -57,6 +57,13 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
     showDemo: false,
   });
 
+  const [mobileGenericConfig, setMobileGenericConfig] = useState({
+    numberOfLines: 8,
+    showBackButton: true,
+    lineVariations: "default",
+    showDemo: false,
+  });
+
   const handleMyRidesConfigChange = (key, value) => {
     setMyRidesConfig(prev => ({
       ...prev,
@@ -78,6 +85,13 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
     }));
   };
 
+  const handleMobileGenericConfigChange = (key, value) => {
+    setMobileGenericConfig(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
   const toggleDemo = (demoKey) => {
     if (demoKey === 'myrides') {
       setMyRidesConfig(prev => ({
@@ -91,6 +105,11 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
       }));
     } else if (demoKey === 'createride') {
       setCreateRideConfig(prev => ({
+        ...prev,
+        showDemo: prev.showDemo === demoKey ? false : demoKey
+      }));
+    } else if (demoKey === 'mobilegeneric') {
+      setMobileGenericConfig(prev => ({
         ...prev,
         showDemo: prev.showDemo === demoKey ? false : demoKey
       }));
@@ -319,6 +338,97 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
                   <SkeletonContainer>
                     <CreateRideSkeleton
                       showBackButton={createRideConfig.showBackButton}
+                    />
+                  </SkeletonContainer>
+                </SkeletonPreview>
+              </DemoCard>
+            </SkeletonDemo>
+          )}
+        </SkeletonSection>
+
+        {/* Mobile Generic Skeleton */}
+        <SkeletonSection>
+          <SkeletonTitle>📱 Mobile Generic Skeleton</SkeletonTitle>
+          <SkeletonDescription>
+            Simple, reusable mobile skeleton with white top bar, back button, and content lines
+            of varying widths. Perfect for basic mobile pages with text content.
+          </SkeletonDescription>
+
+          {/* Controls */}
+          <ControlsCard>
+            <ControlGroup>
+              <ControlLabel>Number of Lines:</ControlLabel>
+              <ControlInput
+                type="number"
+                min="3"
+                max="15"
+                value={mobileGenericConfig.numberOfLines}
+                onChange={(e) => handleMobileGenericConfigChange('numberOfLines', parseInt(e.target.value))}
+              />
+            </ControlGroup>
+            <ControlGroup>
+              <ControlLabel>Line Style:</ControlLabel>
+              <select
+                value={mobileGenericConfig.lineVariations}
+                onChange={(e) => handleMobileGenericConfigChange('lineVariations', e.target.value)}
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: '4px',
+                  border: '1px solid #dee2e6',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="default">Default</option>
+                <option value="paragraph">Paragraph</option>
+                <option value="list">List</option>
+              </select>
+            </ControlGroup>
+            <ControlGroup>
+              <ControlLabel>
+                <input
+                  type="checkbox"
+                  checked={mobileGenericConfig.showBackButton}
+                  onChange={(e) => handleMobileGenericConfigChange('showBackButton', e.target.checked)}
+                  style={{ marginRight: '8px' }}
+                />
+                Show Back Button
+              </ControlLabel>
+            </ControlGroup>
+            <ControlButton
+              onClick={() => toggleDemo('mobilegeneric')}
+              active={mobileGenericConfig.showDemo === 'mobilegeneric'}
+            >
+              {mobileGenericConfig.showDemo === 'mobilegeneric' ? 'Hide Demo' : 'Show Demo'}
+            </ControlButton>
+          </ControlsCard>
+
+          {/* Import Code */}
+          <CodeBlock>
+            <ImportCode>
+              {`import { MobileGenericSkeleton } from "../../skeleton";
+
+<MobileGenericSkeleton
+  numberOfLines={${mobileGenericConfig.numberOfLines}}
+  showBackButton={${mobileGenericConfig.showBackButton}}
+  lineVariations="${mobileGenericConfig.lineVariations}"
+/>`}
+            </ImportCode>
+          </CodeBlock>
+
+          {/* Demo */}
+          {mobileGenericConfig.showDemo === 'mobilegeneric' && (
+            <SkeletonDemo>
+              <DemoCard>
+                <DemoTitle>Live Demo</DemoTitle>
+                <DemoDescription>
+                  Generic mobile skeleton with {mobileGenericConfig.numberOfLines} lines, {mobileGenericConfig.lineVariations} style, {mobileGenericConfig.showBackButton ? 'with' : 'without'} back button
+                </DemoDescription>
+                <SkeletonPreview>
+                  <SkeletonContainer>
+                    <MobileGenericSkeleton
+                      numberOfLines={mobileGenericConfig.numberOfLines}
+                      showBackButton={mobileGenericConfig.showBackButton}
+                      lineVariations={mobileGenericConfig.lineVariations}
                     />
                   </SkeletonContainer>
                 </SkeletonPreview>
