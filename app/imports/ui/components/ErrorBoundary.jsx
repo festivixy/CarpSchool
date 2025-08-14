@@ -143,7 +143,15 @@ class ErrorBoundary extends Component {
    */
   getCurrentRoute = () => {
     if (typeof window !== 'undefined') {
-      return window.location.pathname + window.location.search;
+      let route = window.location.pathname + window.location.search + window.location.hash;
+
+      // Remove dollar sign parameters (args) from the route
+      // Split by $ and take only the first part
+      if (route.includes('$')) {
+        route = route.split('$')[0];
+      }
+
+      return route;
     }
     return undefined;
   };
