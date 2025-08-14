@@ -61,8 +61,7 @@ class MobileNavBarAuto extends React.Component {
   shouldUseNativeNavBar = () =>
     // Only use native navbar if we're in native iOS environment
     // The NativeNavBar component itself handles feature detection and fallback
-     this.isNativeIOS()
-  ;
+    this.isNativeIOS();
 
   /**
    * Get environment info for debugging
@@ -76,9 +75,7 @@ class MobileNavBarAuto extends React.Component {
       shouldUseNative: this.shouldUseNativeNavBar(),
     });
 
-  constructor(props) {
-    super(props);
-  }
+
 
   render() {
     const { ...props } = this.props;

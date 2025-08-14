@@ -55,6 +55,7 @@ export const useNativeNavBar = () => {
     if (window.cordova) {
       console.log("[useNativeNavBar] 📱 Cordova available, checking support immediately");
       checkSupport();
+      return undefined; // Explicit return for consistency
     } else {
       console.log("[useNativeNavBar] ⏳ Waiting for deviceready event");
       const onDeviceReady = () => {

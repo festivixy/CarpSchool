@@ -286,10 +286,11 @@ class DesktopAdminErrorReports extends React.Component {
       case "critical":
         filtered = filtered.filter(report => report.severity === "critical" && !report.resolved);
         break;
-      case "recent":
+      case "recent": {
         const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
         filtered = filtered.filter(report => new Date(report.timestamp) > dayAgo);
         break;
+      }
       case "all":
       default:
         // No additional filtering for "all"
@@ -312,11 +313,12 @@ class DesktopAdminErrorReports extends React.Component {
 bVal;
 
       switch (sortBy) {
-        case "severity":
+        case "severity": {
           const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
           aVal = severityOrder[a.severity] || 0;
           bVal = severityOrder[b.severity] || 0;
           break;
+        }
         case "category":
           aVal = a.category || "";
           bVal = b.category || "";

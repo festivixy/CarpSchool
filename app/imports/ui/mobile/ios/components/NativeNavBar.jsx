@@ -158,6 +158,8 @@ const NativeNavBar = ({
         unregisterActionHandler(navBarId);
       };
     }
+
+    return undefined; // Explicit return for consistency
   }, [
     isSupported, navBarId, registerActionHandler, unregisterActionHandler, setActiveItem,
     currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick,
@@ -217,6 +219,7 @@ const NativeNavBar = ({
         console.log("[NativeNavBar] 🧹 Cleaning up navbar:", navBarId);
         removeNavBar(navBarId).catch((error) => {
           console.error("[NativeNavBar] ❌ Cleanup error:", error);
+          return undefined; // Explicit return in catch
         });
       }
     };

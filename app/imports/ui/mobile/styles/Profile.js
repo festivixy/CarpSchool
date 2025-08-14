@@ -53,6 +53,12 @@ export const SectionTitle = styled.div`
   background-color: #f2f2f7;
 `;
 
+export const MenuItemText = styled.div`
+  font-size: 17px;
+  color: #000000;
+  flex: 1;
+`;
+
 export const MenuItem = styled.div`
   background-color: #ffffff;
   border-bottom: 1px solid #c6c6c8;
@@ -84,12 +90,6 @@ export const MenuItemIcon = styled.div`
   margin-right: 12px;
   width: 24px;
   text-align: center;
-`;
-
-export const MenuItemText = styled.div`
-  font-size: 17px;
-  color: #000000;
-  flex: 1;
 `;
 
 export const MenuItemChevron = styled.div`

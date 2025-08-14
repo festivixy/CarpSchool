@@ -230,4 +230,6 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
       criticalHandle.stop();
     }
   });
+
+  return self.ready();
 });
