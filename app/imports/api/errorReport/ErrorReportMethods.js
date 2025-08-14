@@ -102,6 +102,9 @@ Meteor.methods({
    * Report a client-side error
    */
   async "report.client.error"(errorData) {
+    // Meteor audit-argument-checks validation
+    check(errorData, Object);
+
     // Validate input
     const schema = Joi.object({
       message: Joi.string().required().max(1000),
