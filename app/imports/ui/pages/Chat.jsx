@@ -7,6 +7,7 @@ import { Chats } from "../../api/chat/Chat";
 import "../../api/chat/ChatMethods";
 import { MobileOnly, DesktopOnly } from "../layouts/Devices";
 import BackButton from "../mobile/components/BackButton";
+import { ChatSkeleton } from "../skeleton";
 import {
   Container,
   Header,
@@ -301,14 +302,7 @@ class MobileChat extends React.Component {
 
   render() {
     if (!this.props.ready) {
-      return (
-        <Container>
-          <Loading>
-            <LoadingSpinner />
-            <p>Loading chats...</p>
-          </Loading>
-        </Container>
-      );
+      return <ChatSkeleton numberOfChats={4} numberOfMessages={8} />;
     }
 
     const {

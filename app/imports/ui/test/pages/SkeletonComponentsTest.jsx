@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
-import { MyRidesSkeleton } from "../../skeleton";
+import { MyRidesSkeleton, ChatSkeleton } from "../../skeleton";
 import {
   PageContainer,
   FixedHeader,
@@ -23,6 +23,7 @@ import {
   ControlButton,
   SkeletonPreview,
   SkeletonContainer,
+  SkeletonOverlay,
   CodeBlock,
   ImportCode,
   SkeletonDemo,
@@ -45,6 +46,13 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
     showDemo: false,
   });
 
+  const [chatConfig, setChatConfig] = useState({
+    numberOfChats: 4,
+    numberOfMessages: 8,
+    showMobileLayout: false,
+    showDemo: false,
+  });
+
   const handleMyRidesConfigChange = (key, value) => {
     setMyRidesConfig(prev => ({
       ...prev,
@@ -52,11 +60,25 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
     }));
   };
 
-  const toggleDemo = (demoKey) => {
-    setMyRidesConfig(prev => ({
+  const handleChatConfigChange = (key, value) => {
+    setChatConfig(prev => ({
       ...prev,
-      showDemo: prev.showDemo === demoKey ? false : demoKey
+      [key]: value
     }));
+  };
+
+  const toggleDemo = (demoKey) => {
+    if (demoKey === 'myrides') {
+      setMyRidesConfig(prev => ({
+        ...prev,
+        showDemo: prev.showDemo === demoKey ? false : demoKey
+      }));
+    } else if (demoKey === 'chat') {
+      setChatConfig(prev => ({
+        ...prev,
+        showDemo: prev.showDemo === demoKey ? false : demoKey
+      }));
+    }
   };
 
   return (
@@ -147,16 +169,109 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
           )}
         </SkeletonSection>
 
+        {/* Chat Skeleton */}
+        <SkeletonSection>
+          <SkeletonTitle>💬 Chat Skeleton</SkeletonTitle>
+          <SkeletonDescription>
+            Skeleton loading state for the Chat page. Shows chat list, conversation header, messages,
+            and input form with realistic desktop and mobile layouts.
+          </SkeletonDescription>
+
+          {/* Controls */}
+          <ControlsCard>
+            <ControlGroup>
+              <ControlLabel>Number of Chats:</ControlLabel>
+              <ControlInput
+                type="number"
+                min="1"
+                max="10"
+                value={chatConfig.numberOfChats}
+                onChange={(e) => handleChatConfigChange('numberOfChats', parseInt(e.target.value))}
+              />
+            </ControlGroup>
+            <ControlGroup>
+              <ControlLabel>Number of Messages:</ControlLabel>
+              <ControlInput
+                type="number"
+                min="3"
+                max="20"
+                value={chatConfig.numberOfMessages}
+                onChange={(e) => handleChatConfigChange('numberOfMessages', parseInt(e.target.value))}
+              />
+            </ControlGroup>
+            <ControlGroup>
+              <ControlLabel>
+                <input
+                  type="checkbox"
+                  checked={chatConfig.showMobileLayout}
+                  onChange={(e) => handleChatConfigChange('showMobileLayout', e.target.checked)}
+                  style={{ marginRight: '8px' }}
+                />
+                Mobile Layout
+              </ControlLabel>
+            </ControlGroup>
+            <ControlButton
+              onClick={() => toggleDemo('chat')}
+              active={chatConfig.showDemo === 'chat'}
+            >
+              {chatConfig.showDemo === 'chat' ? 'Hide Demo' : 'Show Demo'}
+            </ControlButton>
+          </ControlsCard>
+
+          {/* Import Code */}
+          <CodeBlock>
+            <ImportCode>
+              {`import { ChatSkeleton } from "../../skeleton";
+
+<ChatSkeleton
+  numberOfChats={${chatConfig.numberOfChats}}
+  numberOfMessages={${chatConfig.numberOfMessages}}
+  showMobileLayout={${chatConfig.showMobileLayout}}
+/>`}
+            </ImportCode>
+          </CodeBlock>
+
+          {/* Demo */}
+          {chatConfig.showDemo === 'chat' && (
+            <SkeletonDemo>
+              <DemoCard>
+                <DemoTitle>Live Demo</DemoTitle>
+                <DemoDescription>
+                  Interactive preview with {chatConfig.numberOfChats} chat{chatConfig.numberOfChats !== 1 ? 's' : ''} and {chatConfig.numberOfMessages} message{chatConfig.numberOfMessages !== 1 ? 's' : ''} ({chatConfig.showMobileLayout ? 'Mobile' : 'Desktop'} layout)
+                </DemoDescription>
+                <SkeletonPreview>
+                  <SkeletonContainer>
+                    <ChatSkeleton
+                      numberOfChats={chatConfig.numberOfChats}
+                      numberOfMessages={chatConfig.numberOfMessages}
+                      showMobileLayout={chatConfig.showMobileLayout}
+                    />
+                  </SkeletonContainer>
+                </SkeletonPreview>
+              </DemoCard>
+            </SkeletonDemo>
+          )}
+        </SkeletonSection>
+
         {/* Future Skeleton Components */}
         <SkeletonSection>
           <SkeletonTitle>🔮 Future Skeleton Components</SkeletonTitle>
           <SkeletonDescription>
             Additional skeleton components can be added here as they are developed:
           </SkeletonDescription>
-          
+
           <CodeBlock>
             <ImportCode style={{ color: '#666', fontStyle: 'italic' }}>
-              {`// Future components`}
+              {`// Future components:
+// - ProfileSkeleton
+// - RideDetailSkeleton
+// - PlaceManagerSkeleton
+// - AdminTableSkeleton
+// - etc.
+
+// Each following the same pattern:
+import { ComponentSkeleton } from "../../skeleton";
+<ComponentSkeleton config={...} />`}
             </ImportCode>
           </CodeBlock>
         </SkeletonSection>
@@ -167,7 +282,7 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
           <SkeletonDescription>
             Guidelines for creating and using skeleton components:
           </SkeletonDescription>
-          
+
           <CodeBlock>
             <ImportCode style={{ fontSize: '14px', lineHeight: '1.6' }}>
               {`1. Match the actual component structure exactly
