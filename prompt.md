@@ -197,6 +197,7 @@ vulnerabilities.md
 │   ├── accounts
 │   ├── captcha
 │   ├── chat
+│   ├── errorReport
 │   ├── images
 │   ├── places
 │   ├── profile
@@ -219,37 +220,28 @@ vulnerabilities.md
     │   └── styles
     ├── mobile           # Mobile-specific components
     │   ├── components   # Mobile components (includes MobileNavBarAuto)
-    │   ├── hooks        # Mobile-specific React hooks
     │   ├── ios          # Native iOS components
     │   │   ├── components
     │   │   ├── hooks
+    │   │   ├── pages
     │   │   └── styles
     │   ├── pages        # Mobile page components
     │   ├── styles       # Mobile styled-components
     │   └── utils        # Mobile utility functions
     ├── pages            # Shared pages (desktop + mobile)
     ├── styles           # Shared styled-components
-    └── test             # Test components and utilities
-        ├── pages
-        └── styles
+    ├── test             # Test components and utilities
+    │   ├── pages
+    │   └── styles
+    └── utils            # Shared utility functions
 
 ./plugins/
-├── cordova-plugin-floating-toolbar    # Native iOS 26 Liquid Glass floating toolbars
-│   ├── src
-│   │   ├── android                    # Android implementation
-│   │   └── ios                        # iOS Swift implementation
-│   └── www                           # JavaScript interface
-├── cordova-plugin-liquid-blur         # Native iOS 26 Liquid Glass blur effects
-│   ├── src
-│   │   ├── android                    # Android implementation
-│   │   └── ios                        # iOS UIVisualEffectView implementation
-│   └── www                           # JavaScript interface
-└── cordova-plugin-native-navbar       # Native iOS navigation bar
+├── cordova-plugin-native-navbar       # Native iOS navigation bar
     ├── src
     │   └── ios                        # iOS UITabBar implementation
     └── www                           # JavaScript interface
 
-# meteor is running. use
+# APPLESCRIPT tools
 
 ``` shell
 osascript ../tools/read_terminal.applescript | tail -50
@@ -263,4 +255,4 @@ to run commands in term,
 osascript ../tools/write_terminal.applescript "command"
 ```
 
-your grep tool is broken. use grep with bash. 
+your grep tool is broken. use grep with bash.
