@@ -209,7 +209,7 @@ class DesktopAdminErrorReportDetail extends React.Component {
             <NotFoundIcon>❌</NotFoundIcon>
             <NotFoundTitle>Error Report Not Found</NotFoundTitle>
             <NotFoundText>
-              The error report you're looking for doesn't exist or you don't have permission to view it.
+              The error report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </NotFoundText>
             <ActionButton onClick={() => this.props.history.push("/admin/error-reports")}>
               Back to Error Reports
