@@ -69,6 +69,11 @@ class XcodeProjectEditor:
                 print(f"⚠️ File already exists in project: {file_name}")
                 return True
 
+            # Handle unsupported file extensions
+            file_extension = Path(local_path).suffix.lower()
+            if file_extension in ['.icon']:
+                print(f"ℹ️ Adding unsupported file type {file_extension} as generic resource")
+
             # Convert to relative path from project directory
             try:
                 relative_path = os.path.relpath(local_path, self.project_path.parent)
@@ -79,11 +84,33 @@ class XcodeProjectEditor:
             # Find or create the target group
             target_group = self.project.get_or_create_group(group_name)
 
-            # Add file to project
-            file_ref = self.project.add_file(
-                relative_path,
-                parent=target_group
-            )
+            # Add file to project with special handling for .icon files
+            if relative_path.endswith('.icon'):
+                # Handle .icon files as generic data files
+                try:
+                    from pbxproj.pbxextensions.ProjectFiles import FileOptions
+                    file_options = FileOptions(
+                        create_build_files=False,  # Don't add to build phases
+                        weak=False
+                    )
+                    file_ref = self.project.add_file(
+                        relative_path,
+                        parent=target_group,
+                        file_options=file_options
+                    )
+                except Exception:
+                    # Fallback: try to add as generic file
+                    file_ref = self.project.add_file(
+                        relative_path,
+                        parent=target_group,
+                        force=True
+                    )
+            else:
+                # Regular file addition
+                file_ref = self.project.add_file(
+                    relative_path,
+                    parent=target_group
+                )
 
             if file_ref:
                 print(f"✅ Added file reference: {file_name} to {group_name} group")
