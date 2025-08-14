@@ -6,6 +6,7 @@ import swal from "sweetalert";
 import { Places } from "../../../api/places/Places";
 import InteractiveMapPicker from "./InteractiveMapPicker";
 import { PlaceManagerSkeleton } from "../../skeleton";
+import { SkeletonPulse } from "../../skeleton/styles/PlaceManagerSkeleton";
 import {
   Container,
   Header,
@@ -40,6 +41,7 @@ import {
   ErrorText,
   Button,
   LoadingButton,
+  CreatorNameSkeleton,
 } from "../styles/PlaceManager";
 
 /**
@@ -309,7 +311,11 @@ class PlaceManager extends React.Component {
                         Creator: {place.createdBy ? ( // eslint-disable-line no-nested-ternary
                           place.createdBy === Meteor.userId()
                             ? "You"
-                            : (this.state.creatorNames[place.createdBy] || "Loading...")
+                            : (this.state.creatorNames[place.createdBy] || (
+                              <CreatorNameSkeleton>
+                                <SkeletonPulse />
+                              </CreatorNameSkeleton>
+                            ))
                         ) : "Legacy user"}
                       </PlaceDate>
                     </PlaceInfo>

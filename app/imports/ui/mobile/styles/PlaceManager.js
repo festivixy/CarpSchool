@@ -506,3 +506,12 @@ export const LoadingButton = styled(Button)`
     animation: spin 1s linear infinite;
   }
 `;
+
+// Creator name skeleton loading state
+export const CreatorNameSkeleton = styled.div`
+  width: 80px;
+  height: 14px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: inline-block;
+`;
