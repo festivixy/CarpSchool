@@ -161,8 +161,10 @@ function LiquidGlassDropdown({
   // Focus search input when opened
   useEffect(() => {
     if (isOpen && searchable && searchInputRef.current) {
-      setTimeout(() => searchInputRef.current?.focus(), 100); // eslint-disable-line no-unused-expressions
+      const timeoutId = setTimeout(() => searchInputRef.current?.focus(), 100);
+      return () => clearTimeout(timeoutId);
     }
+    return undefined; // No cleanup needed when conditions not met
   }, [isOpen, searchable]);
 
   const handleToggle = () => {
