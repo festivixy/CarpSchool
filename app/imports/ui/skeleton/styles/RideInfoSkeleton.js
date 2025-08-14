@@ -72,11 +72,14 @@ export const SkeletonMapPlaceholder = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &::before {
     content: "🗺️";
     font-size: 48px;
     opacity: 0.3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
