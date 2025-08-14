@@ -188,6 +188,8 @@ export const InfoValue = styled.span`
   color: rgba(51, 51, 51, 1);
   word-break: break-word;
   line-height: 1.4;
+  user-select: text;
+  cursor: text;
 `;
 
 export const CodeBlock = styled.code`
@@ -197,6 +199,8 @@ export const CodeBlock = styled.code`
   border-radius: 4px;
   border: 1px solid rgba(225, 229, 233, 1);
   font-size: 13px;
+  user-select: text;
+  cursor: text;
 `;
 
 export const BadgeContainer = styled.div`
@@ -288,6 +292,8 @@ export const StackTrace = styled.div`
     color: rgba(51, 51, 51, 1);
     white-space: pre-wrap;
     word-break: break-word;
+    user-select: text;
+    cursor: text;
   }
 `;
 
@@ -306,6 +312,8 @@ export const ComponentStack = styled.div`
     color: rgba(51, 51, 51, 1);
     white-space: pre-wrap;
     word-break: break-word;
+    user-select: text;
+    cursor: text;
   }
 `;
 
@@ -340,6 +348,8 @@ export const JsonContent = styled.div`
     color: rgba(51, 51, 51, 1);
     white-space: pre-wrap;
     word-break: break-word;
+    user-select: text;
+    cursor: text;
   }
 `;
 
