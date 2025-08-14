@@ -37,8 +37,8 @@ export const MainPageContainer = styled.div`
 export const ContentPadding = styled.div`
   background-color: rgba(255, 255, 255, 1);
   border-radius: 16px;
-  max-width: 400px;
-  width: 100%;
+  max-width: 350px;
+  width: calc(100% - 32px);
   margin: 80px auto 0 auto;
   padding: 40px 32px 32px 32px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -51,6 +51,7 @@ export const ContentPadding = styled.div`
   animation: ${modalSlideIn} 0.3s ease-out;
 
   @media (max-width: 480px) {
+    width: calc(100% - 32px);
     margin: 80px 16px 0 16px;
     border-radius: 12px;
   }

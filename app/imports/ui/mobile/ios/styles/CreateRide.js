@@ -37,8 +37,8 @@ export const CreateRidePageContainer = styled.div`
 export const CreateRideContent = styled.div`
   background-color: rgba(255, 255, 255, 1);
   border-radius: 16px;
-  max-width: 450px;
-  width: 100%;
+  max-width: 400px;
+  width: calc(100% - 32px);
   margin: 0 auto;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family:
@@ -50,6 +50,7 @@ export const CreateRideContent = styled.div`
   animation: ${modalSlideIn} 0.3s ease-out;
 
   @media (max-width: 480px) {
+    width: calc(100% - 32px);
     margin: 0 16px;
     border-radius: 12px;
     max-height: 95vh;
