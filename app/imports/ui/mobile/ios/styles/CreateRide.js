@@ -32,6 +32,10 @@ export const CreateRidePageContainer = styled.div`
   min-height: 100vh;
   position: relative;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
 `;
 
 // Page content with modern rounded design like skeleton
@@ -41,6 +45,8 @@ export const CreateRideContent = styled.div`
   min-height: calc(100vh - 120px);
   margin-top: 120px;
   animation: ${modalSlideIn} 0.3s ease-out;
+  position: relative;
+  z-index: 2;
 
   @media (max-width: 480px) {
     border-radius: 20px 20px 0 0;
@@ -57,7 +63,8 @@ export const CreateRideHeader = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 10;
+  margin: 0;
 `;
 
 export const CreateRideHeaderTitle = styled.h2`

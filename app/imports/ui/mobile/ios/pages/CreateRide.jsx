@@ -316,26 +316,6 @@ class CreateRide extends React.Component {
         <CreateRideContent>
 
           <Content>
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <h1 style={{
-                fontSize: '24px',
-                fontWeight: '700',
-                color: 'rgba(0, 0, 0, 1)',
-                margin: '0 0 12px 0',
-                letterSpacing: '-0.3px'
-              }}>
-                Create Your Ride
-              </h1>
-              <p style={{
-                fontSize: '16px',
-                color: 'rgba(100, 100, 100, 1)',
-                margin: '0',
-                lineHeight: '1.4'
-              }}>
-                Share your ride with fellow students
-              </p>
-            </div>
-
             {success ? (
               <Success>
                 <SuccessIcon>✓</SuccessIcon>
