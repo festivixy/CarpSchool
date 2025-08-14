@@ -291,7 +291,7 @@ const LiquidGlassComponentsTest = ({ history: _history }) => {
                 <Label>Icon Buttons</Label>
                 <FlexContainer>
                   <LiquidGlassIconButton
-                    icon="��️"
+                    icon="❤️"
                     onClick={() => alert("Heart clicked!")}
                   />
                   <LiquidGlassIconButton
