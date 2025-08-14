@@ -53,6 +53,7 @@ import IOSJoinRide from "../mobile/ios/pages/JoinRide";
 import IOSProfile from "../mobile/ios/pages/Profile";
 import AdminErrorReports from "../desktop/pages/AdminErrorReports";
 import AdminErrorReportDetail from "../desktop/pages/AdminErrorReportDetail";
+import CrashApp from "../test/pages/CrashApp";
 // Lazy load MapComponentsTest to improve initial load performance
 const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapComponentsTest.jsx"));
 
@@ -169,6 +170,10 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/_test/mobile-navbar-auto"
                 component={MobileNavBarAutoTest}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/_test/crash-app"
+                component={CrashApp}
               />
               <ProtectedRouteRequireAdmin
                 exact

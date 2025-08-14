@@ -77,6 +77,12 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
       name: "Image Upload",
       description: "Test image upload functionality and components",
     },
+    {
+      path: "/_test/crash-app",
+      icon: "💥",
+      name: "Crash App",
+      description: "Test ErrorBoundary component by intentionally crashing the app",
+    },
   ];
 
   const appNavigatorPages = [
