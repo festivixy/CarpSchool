@@ -6,8 +6,8 @@ import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import { Places } from "../../../api/places/Places";
 import RouteMapView from "../../components/RouteMapView";
-import LoadingPage from "../../components/LoadingPage";
 import BackButton from "../components/BackButton";
+import { RideInfoSkeleton } from "../../skeleton";
 import {
   Container,
   MapSection,
@@ -111,12 +111,7 @@ class RideInfo extends React.Component {
     const { ready, ride } = this.props;
 
     if (!ready) {
-      return (
-        <LoadingPage
-          message="Loading ride details..."
-          subMessage="Getting route and ride information"
-        />
-      );
+      return <RideInfoSkeleton showBackButton={true} />;
     }
 
     if (!ride) {
