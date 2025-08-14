@@ -303,14 +303,6 @@ class CreateRide extends React.Component {
         {/* Gradient Header */}
         <CreateRideHeader>
           <CreateRideHeaderTitle>Create Your Ride</CreateRideHeaderTitle>
-          <p style={{
-            fontSize: "16px",
-            color: "rgba(255, 255, 255, 0.9)",
-            margin: "0",
-            lineHeight: "1.4",
-          }}>
-            Share your ride with fellow students
-          </p>
         </CreateRideHeader>
 
         <CreateRideContent>
