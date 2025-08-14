@@ -72,15 +72,15 @@ xcode_edit_project_files() {
     python ./tools/xcodeRefEditor.py rm ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.swift
 
     echo -e "${YELLOW}➕ Adding NativeNavBar files to Xcode project...${NC}"
-    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.h $pathpwd/build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.h
-    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.m $pathpwd/build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.m
-    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.swift $pathpwd/build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.swift
+    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.h $(pwd)/build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.h
+    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.m $(pwd)/build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.m
+    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.swift $(pwd)/build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.swift
 
     echo -e "${YELLOW}🎨 Adding AppIcon to Xcode project...${NC}"
-    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/AppIcon.icon $pathpwd/AppIcon.icon
+    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/CarpSchool/AppIcon.icon $(pwd)/AppIcon.icon
 
     echo -e "${YELLOW}🗑️  Removing default AppIcon.appiconset...${NC}"
-    rm -rf $pathpwd/build/ios/project/CarpSchool/Assets.xcassets/AppIcon.appiconset
+    rm -rf $(pwd)/build/ios/project/CarpSchool/Assets.xcassets/AppIcon.appiconset
 
     echo -e "${YELLOW}✅ Verifying NativeNavBar files in Xcode project...${NC}"
     python ./tools/xcodeRefEditor.py ls ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins | grep NativeNavBar
