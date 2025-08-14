@@ -42,7 +42,7 @@ export const CreateRidePageContainer = styled.div`
 export const CreateRideContent = styled.div`
   background: #ffffff;
   border-radius: 24px 24px 0 0;
-  min-height: calc(100vh - 120px);
+  min-height: 100vh;
   margin-top: 120px;
   position: relative;
   z-index: 2;
@@ -50,6 +50,7 @@ export const CreateRideContent = styled.div`
   @media (max-width: 480px) {
     border-radius: 20px 20px 0 0;
     margin-top: 100px;
+    min-height: 100vh;
   }
 `;
 
