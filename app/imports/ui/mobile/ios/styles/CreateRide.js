@@ -48,12 +48,15 @@ export const CreateRideContent = styled.div`
     Helvetica,
     sans-serif;
   animation: ${modalSlideIn} 0.3s ease-out;
+  min-height: fit-content;
+  padding-bottom: 20px;
 
   @media (max-width: 480px) {
     width: calc(100% - 32px);
     margin: 0 16px;
     border-radius: 12px;
     max-height: 95vh;
+    overflow-y: auto;
   }
 `;
 
@@ -74,6 +77,7 @@ export const CreateRideHeaderTitle = styled.h2`
 
 export const Content = styled.div`
   padding: 24px;
+  padding-bottom: 32px;
 `;
 
 export const Form = styled.form`
