@@ -361,7 +361,7 @@ const SkeletonComponentsTest = ({ history, currentUser, isAdmin }) => {
               <ControlInput
                 type="number"
                 min="3"
-                max="15"
+                max="50"
                 value={mobileGenericConfig.numberOfLines}
                 onChange={(e) => handleMobileGenericConfigChange('numberOfLines', parseInt(e.target.value))}
               />
