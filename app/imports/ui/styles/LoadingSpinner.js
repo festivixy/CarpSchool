@@ -168,8 +168,8 @@ export const DotsSpinner = styled.div`
 
   span {
     ${props => {
-      const baseSize = props.size === "small" ? "6px" :
-                     props.size === "large" ? "10px" :
+      const baseSize = props.size === "small" ? "6px" : // eslint-disable-line no-nested-ternary
+                     props.size === "large" ? "10px" : // eslint-disable-line no-nested-ternary
                      props.size === "xlarge" ? "12px" : "8px";
       return css`
         width: ${baseSize};

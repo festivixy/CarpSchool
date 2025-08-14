@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
-import useNativeNavBar from "../hooks/useNativeNavBar";
+import { useNativeNavBar } from "../hooks/useNativeNavBar";
 import {
   NativeNavBarContainer,
   LoadingIndicator,
@@ -214,6 +214,7 @@ const NativeNavBar = ({
     createNativeNavBar();
 
     // Cleanup function
+    // eslint-disable-next-line consistent-return
     return () => {
       if (navBarId) {
         console.log("[NativeNavBar] 🧹 Cleaning up navbar:", navBarId);

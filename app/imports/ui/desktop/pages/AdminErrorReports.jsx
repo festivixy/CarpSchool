@@ -643,6 +643,7 @@ bVal;
                         <DetailItem>
                           <DetailLabel>Stack Type:</DetailLabel>
                           <DetailValue>
+                            {/* eslint-disable-next-line no-nested-ternary */}
                             {stackingType === "message" ? "Error Message"
                               : stackingType === "route" ? "Route" : "User"}
                           </DetailValue>

@@ -233,7 +233,7 @@ class MobileChat extends React.Component {
         } else {
           // Fallback: try to hide common navbar IDs
           const commonNavBarIds = ["bottom-navbar", "top-navbar", "main-navbar"];
-          for (const navBarId of commonNavBarIds) {
+          for (const navBarId of commonNavBarIds) { // eslint-disable-line no-restricted-syntax
             try {
               await window.cordova.plugins.NativeNavBar.promise.hideNavBar(navBarId);
               console.log("[Chat] 🙈 Hidden iOS navbar:", navBarId);
@@ -258,7 +258,7 @@ class MobileChat extends React.Component {
         } else {
           // Fallback: try to show common navbar IDs
           const commonNavBarIds = ["bottom-navbar", "top-navbar", "main-navbar"];
-          for (const navBarId of commonNavBarIds) {
+          for (const navBarId of commonNavBarIds) { // eslint-disable-line no-restricted-syntax
             try {
               await window.cordova.plugins.NativeNavBar.promise.showNavBar(navBarId);
               console.log("[Chat] 👁️ Restored iOS navbar:", navBarId);
