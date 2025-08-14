@@ -50,7 +50,9 @@ insure_root_dir() {
     cd ..
 }
 
-xcode_copy_cordova_plugins() {
+xcode_edit_project_files() {
+    echo -e "${YELLOW}🔧 Editing Xcode project files...${NC}"
+
     # check if pbxproj is installed
     if ! command -v pbxproj &> /dev/null; then
         echo -e "${RED}❌ pbxproj not found. Please install it using pip:${NC}"
@@ -62,12 +64,28 @@ xcode_copy_cordova_plugins() {
 
     # here, make sure that we are in app. (check if ./.meteor/release exists)
     # if not, check if ./app/.meteor/release exists. if yes, cd app
-    insure_app_dir
+    insure_root_dir
 
-    # cp plugins/cordova-plugin-native-navbar/src/ios/* ../build/ios/project/CarpSchool/Plugins/
-    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.swift
-    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.m
-    pbxproj file ../build/ios/project/CarpSchool.xcodeproj ../build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.h
+    echo -e "${YELLOW}🗑️  Removing existing NativeNavBar files from Xcode project...${NC}"
+    python ./tools/xcodeRefEditor.py rm ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.h
+    python ./tools/xcodeRefEditor.py rm ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.m
+    python ./tools/xcodeRefEditor.py rm ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.swift
+
+    echo -e "${YELLOW}➕ Adding NativeNavBar files to Xcode project...${NC}"
+    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.h $pathpwd/build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.h
+    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.m $pathpwd/build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.m
+    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins/NativeNavBar.swift $pathpwd/build/ios/project/CarpSchool/Plugins/cordova-plugin-native-navbar/NativeNavBar.swift
+
+    echo -e "${YELLOW}🎨 Adding AppIcon to Xcode project...${NC}"
+    python ./tools/xcodeRefEditor.py add ./build/ios/project/CarpSchool.xcworkspace CarpSchool/AppIcon.icon $pathpwd/AppIcon.icon
+
+    echo -e "${YELLOW}🗑️  Removing default AppIcon.appiconset...${NC}"
+    rm -rf $pathpwd/build/ios/project/CarpSchool/Assets.xcassets/AppIcon.appiconset
+
+    echo -e "${YELLOW}✅ Verifying NativeNavBar files in Xcode project...${NC}"
+    python ./tools/xcodeRefEditor.py ls ./build/ios/project/CarpSchool.xcworkspace CarpSchool/Plugins | grep NativeNavBar
+
+    echo -e "${GREEN}✅ Xcode project files edited successfully!${NC}"
     cd "$pathpwd"
 }
 
@@ -118,7 +136,7 @@ meteor_build_ios() {
         # Copy Cordova plugin files to Xcode project
         echo -e "${YELLOW}🔌 Copying Cordova plugin files to Xcode project...${NC}"
         cd ..
-        xcode_copy_cordova_plugins
+        xcode_edit_project_files
         if [ $? -eq 0 ]; then
             echo -e "${GREEN}✅ Plugin files copied and added to Xcode project!${NC}"
         else
