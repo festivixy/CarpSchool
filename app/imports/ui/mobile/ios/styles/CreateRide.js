@@ -343,7 +343,7 @@ export const Actions = styled.div`
 export const ButtonPrimary = styled.button`
   width: 100%;
   height: 56px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #000000;
   color: rgba(255, 255, 255, 1);
   border: none;
   border-radius: 28px;
@@ -353,11 +353,10 @@ export const ButtonPrimary = styled.button`
   transition: all 0.3s ease;
   font-family: inherit;
   margin-top: 24px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 
   &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    background: #333333;
+    transform: translateY(-1px);
   }
 
   &:disabled {
@@ -365,7 +364,6 @@ export const ButtonPrimary = styled.button`
     color: #adb5bd;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
   }
 `;
 
