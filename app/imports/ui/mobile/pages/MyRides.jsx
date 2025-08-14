@@ -3,6 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
+import swal from "sweetalert";
 import { Rides } from "../../../api/ride/Rides";
 import JoinRideModal from "../../components/JoinRideModal";
 import Ride from "../../components/Ride";
@@ -304,7 +305,7 @@ class MobileMyRides extends React.Component {
                             }
                             style={{ backgroundColor: "#ff4757" }}
                           >
-                            Remove
+                            Remove {rider}
                           </ContactButton>
                         </div>
                       ))}
