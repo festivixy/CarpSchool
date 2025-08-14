@@ -56,26 +56,26 @@ export const useNativeNavBar = () => {
       console.log("[useNativeNavBar] 📱 Cordova available, checking support immediately");
       checkSupport();
       return undefined; // Explicit return for consistency
-    } else {
-      console.log("[useNativeNavBar] ⏳ Waiting for deviceready event");
-      const onDeviceReady = () => {
-        console.log("[useNativeNavBar] 🎉 Device ready event fired");
-        checkSupport();
-      };
-      document.addEventListener("deviceready", onDeviceReady);
-
-      // Add timeout for web environments where deviceready never fires
-      const webTimeout = setTimeout(() => {
-        console.log("[useNativeNavBar] ⏰ Web timeout - deviceready never fired, proceeding with web mode");
-        setIsSupported(false);
-        setIsLoading(false);
-      }, 2000); // 2 second timeout
-
-      return () => {
-        document.removeEventListener("deviceready", onDeviceReady);
-        clearTimeout(webTimeout);
-      };
     }
+
+    console.log("[useNativeNavBar] ⏳ Waiting for deviceready event");
+    const onDeviceReady = () => {
+      console.log("[useNativeNavBar] 🎉 Device ready event fired");
+      checkSupport();
+    };
+    document.addEventListener("deviceready", onDeviceReady);
+
+    // Add timeout for web environments where deviceready never fires
+    const webTimeout = setTimeout(() => {
+      console.log("[useNativeNavBar] ⏰ Web timeout - deviceready never fired, proceeding with web mode");
+      setIsSupported(false);
+      setIsLoading(false);
+    }, 2000); // 2 second timeout
+
+    return () => {
+      document.removeEventListener("deviceready", onDeviceReady);
+      clearTimeout(webTimeout);
+    };
   }, []);
 
   // Master action handler that routes to specific navbar handlers

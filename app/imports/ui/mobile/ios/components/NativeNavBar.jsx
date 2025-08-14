@@ -219,7 +219,6 @@ const NativeNavBar = ({
         console.log("[NativeNavBar] 🧹 Cleaning up navbar:", navBarId);
         removeNavBar(navBarId).catch((error) => {
           console.error("[NativeNavBar] ❌ Cleanup error:", error);
-          return undefined; // Explicit return in catch
         });
       }
     };
