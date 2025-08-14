@@ -145,7 +145,7 @@ export const useNativeNavBar = () => {
   }, [masterActionHandler]);
 
   const createNavBar = useCallback(async (options = {}) => {
-    console.log("[useNativeNavBar] 🏗�� createNavBar called:", {
+    console.log("[useNativeNavBar] 🏗️ createNavBar called:", {
       isSupported,
       hasPlugin: !!window.cordova?.plugins?.NativeNavBar,
       options,
