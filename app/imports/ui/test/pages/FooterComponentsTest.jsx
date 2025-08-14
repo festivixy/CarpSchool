@@ -166,7 +166,7 @@ const FooterComponentsTest = ({ history: _history }) => {
 
         {/* LiquidGlass Footer */}
         <Section>
-          <SectionTitle>�� LiquidGlass Footer</SectionTitle>
+          <SectionTitle>✨ LiquidGlass Footer</SectionTitle>
           <SectionContent>
             <InfoCard>
               <InfoItem>
