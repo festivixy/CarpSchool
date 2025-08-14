@@ -63,6 +63,8 @@ class DesktopAdminErrorReports extends React.Component {
       sortOrder: "desc", // asc, desc
       page: 0,
       pageSize: 20,
+      stackingEnabled: false, // toggle for stacking functionality
+      stackingType: "message", // message, route, user
     };
   }
 
@@ -89,8 +91,118 @@ class DesktopAdminErrorReports extends React.Component {
     this.setState({ filterBy: filter, page: 0 });
   };
 
+  handleStackingToggle = () => {
+    this.setState({ stackingEnabled: !this.state.stackingEnabled });
+  };
+
+  handleStackingTypeChange = (type) => {
+    this.setState({ stackingType: type });
+  };
+
   handleView = (errorReport) => {
     this.props.history.push(`/admin/error-report/${errorReport._id}`);
+  };
+
+  handleExpandStack = (stackedErrorReport) => {
+    // Temporarily disable stacking to show individual reports
+    this.setState({
+      stackingEnabled: false,
+      // Set search to filter for this specific stack
+      searchQuery: stackedErrorReport.stackKey
+    });
+  };
+
+  handleViewLatest = (stackedErrorReport) => {
+    // Find the most recent error report in the stack
+    const latestReport = stackedErrorReport.stackedReports.reduce((latest, report) =>
+      new Date(report.timestamp) > new Date(latest.timestamp) ? report : latest
+    );
+    this.props.history.push(`/admin/error-report/${latestReport._id}`);
+  };
+
+  handleResolveAll = (stackedErrorReport) => {
+    const unresolvedReports = stackedErrorReport.stackedReports.filter(report => !report.resolved);
+
+    if (unresolvedReports.length === 0) {
+      swal("Info", "All reports in this stack are already resolved.", "info");
+      return;
+    }
+
+    swal({
+      title: "Resolve All Reports?",
+      text: `This will mark all ${unresolvedReports.length} unresolved report${unresolvedReports.length !== 1 ? "s" : ""} in this stack as resolved.`,
+      icon: "info",
+      buttons: {
+        cancel: "Cancel",
+        confirm: {
+          text: `Resolve ${unresolvedReports.length} Report${unresolvedReports.length !== 1 ? "s" : ""}`,
+          className: "swal-button--confirm",
+        },
+      },
+    }).then((willResolve) => {
+      if (willResolve) {
+        let completedCount = 0;
+        let errorCount = 0;
+
+        unresolvedReports.forEach((report) => {
+          Meteor.call("errorReports.update", report._id, { resolved: true }, (error) => {
+            if (error) {
+              errorCount++;
+            } else {
+              completedCount++;
+            }
+
+            // Check if all calls completed
+            if (completedCount + errorCount === unresolvedReports.length) {
+              if (errorCount > 0) {
+                swal("Partial Success", `${completedCount} report${completedCount !== 1 ? "s" : ""} resolved successfully. ${errorCount} failed.`, "warning");
+              } else {
+                swal("Success", `All ${completedCount} report${completedCount !== 1 ? "s" : ""} in the stack marked as resolved!`, "success");
+              }
+            }
+          });
+        });
+      }
+    });
+  };
+
+  handleDeleteAll = (stackedErrorReport) => {
+    swal({
+      title: "Delete All Reports?",
+      text: `This action cannot be undone. All ${stackedErrorReport.stackCount} report${stackedErrorReport.stackCount !== 1 ? "s" : ""} in this stack will be permanently deleted.`,
+      icon: "warning",
+      buttons: {
+        cancel: "Cancel",
+        confirm: {
+          text: `Delete ${stackedErrorReport.stackCount} Report${stackedErrorReport.stackCount !== 1 ? "s" : ""}`,
+          className: "swal-button--danger",
+        },
+      },
+    }).then((willDelete) => {
+      if (willDelete) {
+        let completedCount = 0;
+        let errorCount = 0;
+
+        stackedErrorReport.stackedReports.forEach((report) => {
+          Meteor.call("errorReports.remove", report._id, (error) => {
+            if (error) {
+              errorCount++;
+            } else {
+              completedCount++;
+            }
+
+            // Check if all calls completed
+            if (completedCount + errorCount === stackedErrorReport.stackCount) {
+              if (errorCount > 0) {
+                swal("Partial Success", `${completedCount} report${completedCount !== 1 ? "s" : ""} deleted successfully. ${errorCount} failed.`, "warning");
+              } else {
+                swal("Success", `All ${completedCount} report${completedCount !== 1 ? "s" : ""} in the stack deleted!`, "success");
+              }
+            }
+          });
+        });
+      }
+    });
   };
 
   handleResolve = (errorReportId) => {
@@ -144,7 +256,7 @@ class DesktopAdminErrorReports extends React.Component {
   };
 
   filterErrorReports = (errorReports) => {
-    const { searchQuery, sortBy, sortOrder, filterBy } = this.state;
+    const { searchQuery, sortBy, sortOrder, filterBy, stackingEnabled, stackingType } = this.state;
 
     let filtered = errorReports;
 
@@ -205,7 +317,68 @@ class DesktopAdminErrorReports extends React.Component {
       }
     });
 
+    // Apply stacking if enabled
+    if (stackingEnabled) {
+      return this.stackErrorReports(filtered, stackingType);
+    }
+
     return filtered;
+  };
+
+  stackErrorReports = (errorReports, stackingType) => {
+    const stacks = {};
+
+    errorReports.forEach(report => {
+      let stackKey;
+
+      switch (stackingType) {
+        case "message":
+          // Group by first 100 characters of error message
+          stackKey = report.message?.substring(0, 100) || "Unknown Error";
+          break;
+        case "route":
+          stackKey = report.route || "Unknown Route";
+          break;
+        case "user":
+          stackKey = report.username || "Anonymous";
+          break;
+        default:
+          stackKey = "Unknown";
+      }
+
+      if (!stacks[stackKey]) {
+        stacks[stackKey] = {
+          ...report, // Use first report as representative
+          stackKey,
+          stackedReports: [],
+          stackCount: 0,
+          isStack: true,
+          latestTimestamp: report.timestamp,
+          unresolvedCount: 0,
+          criticalCount: 0,
+        };
+      }
+
+      stacks[stackKey].stackedReports.push(report);
+      stacks[stackKey].stackCount++;
+
+      // Update latest timestamp
+      if (new Date(report.timestamp) > new Date(stacks[stackKey].latestTimestamp)) {
+        stacks[stackKey].latestTimestamp = report.timestamp;
+      }
+
+      // Count unresolved and critical
+      if (!report.resolved) {
+        stacks[stackKey].unresolvedCount++;
+      }
+      if (report.severity === "critical") {
+        stacks[stackKey].criticalCount++;
+      }
+    });
+
+    return Object.values(stacks).sort((a, b) =>
+      new Date(b.latestTimestamp) - new Date(a.latestTimestamp)
+    );
   };
 
   formatTimestamp = (timestamp) => {
@@ -246,7 +419,7 @@ class DesktopAdminErrorReports extends React.Component {
   };
 
   render() {
-    const { searchQuery, filterBy } = this.state;
+    const { searchQuery, filterBy, stackingEnabled, stackingType } = this.state;
     const { errorReports, ready } = this.props;
 
     if (!ready) {
@@ -324,6 +497,52 @@ class DesktopAdminErrorReports extends React.Component {
             </FilterButton>
           </FiltersContainer>
 
+          {/* Stacking Controls */}
+          <FiltersContainer>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={stackingEnabled}
+                  onChange={this.handleStackingToggle}
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                    accentColor: "#667eea",
+                    cursor: "pointer"
+                  }}
+                />
+                <span style={{ fontSize: "14px", fontWeight: "500", color: "#333" }}>
+                  Enable Stacking
+                </span>
+              </label>
+
+              {stackingEnabled && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "14px", color: "#666" }}>Stack by:</span>
+                  <FilterButton
+                    active={stackingType === "message"}
+                    onClick={() => this.handleStackingTypeChange("message")}
+                  >
+                    Error Message
+                  </FilterButton>
+                  <FilterButton
+                    active={stackingType === "route"}
+                    onClick={() => this.handleStackingTypeChange("route")}
+                  >
+                    Route
+                  </FilterButton>
+                  <FilterButton
+                    active={stackingType === "user"}
+                    onClick={() => this.handleStackingTypeChange("user")}
+                  >
+                    User
+                  </FilterButton>
+                </div>
+              )}
+            </div>
+          </FiltersContainer>
+
           {/* Search */}
           <SearchContainer>
             <SearchIcon>🔍</SearchIcon>
@@ -336,7 +555,10 @@ class DesktopAdminErrorReports extends React.Component {
           </SearchContainer>
 
           <SearchResultsCount>
-            {filteredReports.length} error report{filteredReports.length !== 1 ? "s" : ""} found
+            {stackingEnabled
+              ? `${filteredReports.length} stack${filteredReports.length !== 1 ? "s" : ""} found (${filteredReports.reduce((total, report) => total + (report.stackCount || 1), 0)} total reports)`
+              : `${filteredReports.length} error report${filteredReports.length !== 1 ? "s" : ""} found`
+            }
           </SearchResultsCount>
 
           {/* Error Reports Grid */}
@@ -355,53 +577,122 @@ class DesktopAdminErrorReports extends React.Component {
                   <ErrorReportHeader>
                     <ErrorReportInfo>
                       <ErrorReportTitle>
-                        {errorReport.message?.substring(0, 100)}
-                        {errorReport.message?.length > 100 ? "..." : ""}
+                        {errorReport.isStack && (
+                          <span style={{
+                            backgroundColor: "#667eea",
+                            color: "white",
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            marginRight: "8px"
+                          }}>
+                            STACK ({errorReport.stackCount})
+                          </span>
+                        )}
+                        {errorReport.stackKey || errorReport.message?.substring(0, 100)}
+                        {(!errorReport.stackKey && errorReport.message?.length > 100) ? "..." : ""}
                       </ErrorReportTitle>
-                      <ErrorReportId>ID: {errorReport.errorId}</ErrorReportId>
+                      <ErrorReportId>
+                        {errorReport.isStack
+                          ? `Latest ID: ${errorReport.errorId} | ${errorReport.unresolvedCount} unresolved | ${errorReport.criticalCount} critical`
+                          : `ID: ${errorReport.errorId}`
+                        }
+                      </ErrorReportId>
                     </ErrorReportInfo>
                     <ActionButtons>
-                      <ViewButton onClick={() => this.handleView(errorReport)}>
-                        View Details
-                      </ViewButton>
-                      {!errorReport.resolved && (
-                        <ActionButton
-                          color="#28a745"
-                          onClick={() => this.handleResolve(errorReport._id)}
-                        >
-                          Resolve
-                        </ActionButton>
+                      {errorReport.isStack ? (
+                        <>
+                          <ViewButton onClick={() => this.handleViewLatest(errorReport)}>
+                            View Latest
+                          </ViewButton>
+                          {errorReport.unresolvedCount > 0 && (
+                            <ActionButton
+                              color="#28a745"
+                              onClick={() => this.handleResolveAll(errorReport)}
+                            >
+                              Resolve All ({errorReport.unresolvedCount})
+                            </ActionButton>
+                          )}
+                          <ActionButton
+                            color="#dc3545"
+                            onClick={() => this.handleDeleteAll(errorReport)}
+                          >
+                            Delete All ({errorReport.stackCount})
+                          </ActionButton>
+                        </>
+                      ) : (
+                        <>
+                          <ViewButton onClick={() => this.handleView(errorReport)}>
+                            View Details
+                          </ViewButton>
+                          {!errorReport.resolved && (
+                            <ActionButton
+                              color="#28a745"
+                              onClick={() => this.handleResolve(errorReport._id)}
+                            >
+                              Resolve
+                            </ActionButton>
+                          )}
+                          <ActionButton
+                            color="#dc3545"
+                            onClick={() => this.handleDelete(errorReport._id)}
+                          >
+                            Delete
+                          </ActionButton>
+                        </>
                       )}
-                      <ActionButton
-                        color="#dc3545"
-                        onClick={() => this.handleDelete(errorReport._id)}
-                      >
-                        Delete
-                      </ActionButton>
                     </ActionButtons>
                   </ErrorReportHeader>
 
                   <ErrorReportDetails>
-                    <DetailItem>
-                      <DetailLabel>User:</DetailLabel>
-                      <DetailValue>{errorReport.username || "Anonymous"}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                      <DetailLabel>Component:</DetailLabel>
-                      <DetailValue>{errorReport.component || "Unknown"}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                      <DetailLabel>Route:</DetailLabel>
-                      <DetailValue>{errorReport.route || "Unknown"}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                      <DetailLabel>Platform:</DetailLabel>
-                      <DetailValue>{errorReport.platform || "Web"}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                      <DetailLabel>Time:</DetailLabel>
-                      <DetailValue>{this.formatTimestamp(errorReport.timestamp)}</DetailValue>
-                    </DetailItem>
+                    {errorReport.isStack ? (
+                      <>
+                        <DetailItem>
+                          <DetailLabel>Stack Type:</DetailLabel>
+                          <DetailValue>{stackingType === "message" ? "Error Message" : stackingType === "route" ? "Route" : "User"}</DetailValue>
+                        </DetailItem>
+                        <DetailItem>
+                          <DetailLabel>Total Reports:</DetailLabel>
+                          <DetailValue>{errorReport.stackCount}</DetailValue>
+                        </DetailItem>
+                        <DetailItem>
+                          <DetailLabel>Unresolved:</DetailLabel>
+                          <DetailValue>{errorReport.unresolvedCount}</DetailValue>
+                        </DetailItem>
+                        <DetailItem>
+                          <DetailLabel>Critical:</DetailLabel>
+                          <DetailValue>{errorReport.criticalCount}</DetailValue>
+                        </DetailItem>
+                        <DetailItem>
+                          <DetailLabel>Latest Time:</DetailLabel>
+                          <DetailValue>{this.formatTimestamp(errorReport.latestTimestamp)}</DetailValue>
+                        </DetailItem>
+                      </>
+                    ) : (
+                      <>
+                        <DetailItem>
+                          <DetailLabel>User:</DetailLabel>
+                          <DetailValue>{errorReport.username || "Anonymous"}</DetailValue>
+                        </DetailItem>
+                        <DetailItem>
+                          <DetailLabel>Component:</DetailLabel>
+                          <DetailValue>{errorReport.component || "Unknown"}</DetailValue>
+                        </DetailItem>
+                        <DetailItem>
+                          <DetailLabel>Route:</DetailLabel>
+                          <DetailValue>{errorReport.route || "Unknown"}</DetailValue>
+                        </DetailItem>
+                        <DetailItem>
+                          <DetailLabel>Platform:</DetailLabel>
+                          <DetailValue>{errorReport.platform || "Web"}</DetailValue>
+                        </DetailItem>
+                        <DetailItem>
+                          <DetailLabel>Time:</DetailLabel>
+                          <DetailValue>{this.formatTimestamp(errorReport.timestamp)}</DetailValue>
+                        </DetailItem>
+                      </>
+                    )}
                   </ErrorReportDetails>
 
                   <BadgeContainer>
