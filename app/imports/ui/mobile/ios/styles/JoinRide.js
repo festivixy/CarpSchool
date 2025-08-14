@@ -28,12 +28,10 @@ const successPulse = keyframes`
 
 // Page container with normal page styling
 export const MainPageContainer = styled.div`
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f8f9fa;
   padding: 20px 0; /* Only top/bottom padding, no left/right */
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 `;
 
 // Page content without modal styling
@@ -42,7 +40,7 @@ export const ContentPadding = styled.div`
   border-radius: 16px;
   max-width: 350px;
   width: calc(100% - 32px);
-  margin: auto;
+  margin: 80px auto 0 auto;
   padding: 40px 32px 32px 32px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family:
@@ -52,16 +50,12 @@ export const ContentPadding = styled.div`
     Helvetica,
     sans-serif;
   animation: ${modalSlideIn} 0.3s ease-out;
-  flex-shrink: 0;
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
 
   @media (max-width: 480px) {
     max-width: none;
     width: calc(100% - 32px);
-    margin: auto;
+    margin: 80px auto 0 auto;
     border-radius: 12px;
-    max-height: calc(100vh - 40px);
   }
 `;
 
