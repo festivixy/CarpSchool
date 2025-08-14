@@ -9,6 +9,7 @@ import JoinRideModal from "../../components/JoinRideModal";
 import Ride from "../../components/Ride";
 import ConfirmFunction from "../../components/ConfirmFunction";
 import { Spacer } from "../../components";
+import { MyRidesSkeleton } from "../../skeleton";
 import "../../../api/chat/ChatMethods";
 import {
   Container,
@@ -404,14 +405,7 @@ class MobileMyRides extends React.Component {
 
   render() {
     if (!this.props.ready) {
-      return (
-        <Container>
-          <Loading>
-            <LoadingSpinner />
-            <p>Loading your rides...</p>
-          </Loading>
-        </Container>
-      );
+      return <MyRidesSkeleton numberOfRides={3} />;
     }
 
     const { activeTab, searchQuery, joinRideModalOpen, prefillCode } =
