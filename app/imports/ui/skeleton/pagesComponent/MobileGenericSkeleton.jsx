@@ -4,6 +4,7 @@ import {
   SkeletonContainer,
   SkeletonTopBar,
   SkeletonBackButton,
+  SkeletonTitle,
   SkeletonContent,
   SkeletonLine,
   SkeletonPulse,
@@ -13,7 +14,7 @@ import {
  * Generic mobile skeleton with top bar, back button, and content lines
  * Useful for simple mobile pages with text content
  */
-const MobileGenericSkeleton = ({ 
+const MobileGenericSkeleton = ({
   numberOfLines = 8,
   showBackButton = true,
   lineVariations = "default" // "default", "paragraph", "list"
@@ -32,7 +33,6 @@ const MobileGenericSkeleton = ({
   };
 
   const lineWidths = getLineWidths();
-  const linesToShow = Math.min(numberOfLines, lineWidths.length);
 
   return (
     <SkeletonContainer>
@@ -43,12 +43,15 @@ const MobileGenericSkeleton = ({
             <SkeletonPulse />
           </SkeletonBackButton>
         )}
+        <SkeletonTitle showBackButton={showBackButton}>
+          <SkeletonPulse />
+        </SkeletonTitle>
       </SkeletonTopBar>
 
       {/* Content Lines */}
       <SkeletonContent>
-        {Array.from({ length: linesToShow }).map((_, index) => (
-          <SkeletonLine key={index} width={lineWidths[index]}>
+        {Array.from({ length: numberOfLines }).map((_, index) => (
+          <SkeletonLine key={index} width={lineWidths[index % lineWidths.length]}>
             <SkeletonPulse />
           </SkeletonLine>
         ))}

@@ -44,7 +44,7 @@ export const SkeletonTopBar = styled.div`
   align-items: center;
   position: relative;
   min-height: 60px;
-  
+
   @media (max-width: 480px) {
     padding: 12px 16px;
     min-height: 56px;
@@ -62,12 +62,31 @@ export const SkeletonBackButton = styled.div`
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  
+
   @media (max-width: 480px) {
     left: 16px;
     width: 28px;
     height: 28px;
     border-radius: 14px;
+  }
+`;
+
+// Title skeleton
+export const SkeletonTitle = styled.div`
+  height: 20px;
+  width: 140px;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  overflow: hidden;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  @media (max-width: 480px) {
+    height: 18px;
+    width: 120px;
+    border-radius: 9px;
   }
 `;
 
@@ -78,7 +97,7 @@ export const SkeletonContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  
+
   @media (max-width: 480px) {
     padding: 20px 16px;
     gap: 14px;
@@ -92,11 +111,11 @@ export const SkeletonLine = styled.div`
   border-radius: 8px;
   background-color: #f0f0f0;
   overflow: hidden;
-  
+
   &:nth-child(4n) {
     margin-bottom: 8px; /* Add extra spacing after some lines to simulate paragraphs */
   }
-  
+
   @media (max-width: 480px) {
     height: 14px;
     border-radius: 7px;
