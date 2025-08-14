@@ -302,7 +302,16 @@ class MobileChat extends React.Component {
 
   render() {
     if (!this.props.ready) {
-      return <ChatSkeleton numberOfChats={4} numberOfMessages={8} />;
+      return (
+        <>
+          <MobileOnly>
+            <ChatSkeleton numberOfChats={4} numberOfMessages={8} showMobileLayout={true} />
+          </MobileOnly>
+          <DesktopOnly>
+            <ChatSkeleton numberOfChats={4} numberOfMessages={8} showMobileLayout={false} />
+          </DesktopOnly>
+        </>
+      );
     }
 
     const {
