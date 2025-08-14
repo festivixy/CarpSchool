@@ -249,12 +249,15 @@ const MobileNavBarAutoTest = ({ history }) => {
                   </Button>
                   <Button onClick={() => {
                     const hasPlugin = !!window.cordova?.plugins?.NativeNavBar;
-                    const logEntry = `[${new Date().toLocaleTimeString()}] Plugin check: ${hasPlugin ? "AVAILABLE" : "NOT FOUND"}`;
+                    const logEntry = `[${new Date().toLocaleTimeString()}] Plugin check: ${
+                      hasPlugin ? "AVAILABLE" : "NOT FOUND"
+                    }`;
                     setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
                     console.log("[Test] Plugin status:", {
                       hasCordova: !!window.cordova,
                       hasPlugin,
-                      pluginMethods: window.cordova?.plugins?.NativeNavBar ? Object.keys(window.cordova.plugins.NativeNavBar) : "N/A",
+                      pluginMethods: window.cordova?.plugins?.NativeNavBar
+                        ? Object.keys(window.cordova.plugins.NativeNavBar) : "N/A",
                     });
                   }}>
                     Check Plugin

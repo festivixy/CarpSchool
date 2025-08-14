@@ -107,7 +107,7 @@ export const SkeletonSidebarHeader = styled.div`
 export const SkeletonChatList = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: ${props => props.mobile ? '16px' : '0 0 20px 0'};
+  padding: ${props => (props.mobile ? "16px" : "0 0 20px 0")};
 `;
 
 export const SkeletonChatListItem = styled.div`
@@ -115,7 +115,7 @@ export const SkeletonChatListItem = styled.div`
   align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid #f8f9fa;
-  background: ${props => props.active ? '#f8f9fa' : 'transparent'};
+  background: ${props => (props.active ? "#f8f9fa" : "transparent")};
   cursor: pointer;
   
   &:hover {
@@ -221,9 +221,9 @@ export const SkeletonDateSeparator = styled.div`
 export const SkeletonMessage = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: ${props => props.own ? 'flex-end' : 'flex-start'};
+  align-items: ${props => (props.own ? "flex-end" : "flex-start")};
   max-width: 70%;
-  align-self: ${props => props.own ? 'flex-end' : 'flex-start'};
+  align-self: ${props => (props.own ? "flex-end" : "flex-start")};
   gap: 4px;
 `;
 
@@ -238,16 +238,16 @@ export const SkeletonMessageSender = styled.div`
 
 export const SkeletonMessageContent = styled.div`
   height: 36px;
-  width: ${props => props.long ? '200px' : '120px'};
+  width: ${props => (props.long ? "200px" : "120px")};
   border-radius: 18px;
-  background-color: ${props => props.own ? '#e3f2fd' : '#f0f0f0'};
+  background-color: ${props => (props.own ? "#e3f2fd" : "#f0f0f0")};
   overflow: hidden;
   padding: 8px 16px;
   
   ${SkeletonPulse} {
-    background: ${props => props.own 
-      ? 'linear-gradient(90deg, #d1e7dd 25%, #c3e6cb 37%, #d1e7dd 63%)'
-      : 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%)'
+    background: ${props => (props.own
+      ? "linear-gradient(90deg, #d1e7dd 25%, #c3e6cb 37%, #d1e7dd 63%)"
+      : "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%)")
     };
   }
 `;

@@ -39,7 +39,10 @@ class CrashApp extends React.Component {
     // Intentionally crash the app when shouldCrash is true
     if (this.state.shouldCrash) {
       // This will throw an error and be caught by ErrorBoundary
-      throw new Error("Intentional crash triggered by CrashApp test page - This is expected behavior for testing ErrorBoundary functionality");
+      throw new Error(
+        "Intentional crash triggered by CrashApp test page - " +
+        "This is expected behavior for testing ErrorBoundary functionality"
+      );
     }
 
     return (
@@ -59,7 +62,7 @@ class CrashApp extends React.Component {
               🚨 Application Crash Test
             </MainTitle>
             <MainDescription>
-              This page allows you to intentionally crash the application to test 
+              This page allows you to intentionally crash the application to test
               the ErrorBoundary component and error reporting functionality.
             </MainDescription>
           </MainCard>
@@ -72,9 +75,9 @@ class CrashApp extends React.Component {
               Warning
             </WarningTitle>
             <WarningDescription>
-              Clicking the crash button will throw an error that will be caught by 
-              the ErrorBoundary component. This will display the error screen and 
-              test the error reporting system. Use this to verify that error handling 
+              Clicking the crash button will throw an error that will be caught by
+              the ErrorBoundary component. This will display the error screen and
+              test the error reporting system. Use this to verify that error handling
               is working correctly.
             </WarningDescription>
           </WarningCard>

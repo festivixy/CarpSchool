@@ -52,10 +52,10 @@ Meteor.startup(() => {
   // Check if running in Cordova environment
   if (Meteor.isCordova) {
     // State management to prevent race conditions
-    let appStartupState = {
+    const appStartupState = {
       deviceReadyFired: false,
       timeoutFired: false,
-      appRendered: false
+      appRendered: false,
     };
 
     // Timeout reference for cleanup

@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import {
   SkeletonPageContainer,
   SkeletonHeader,
@@ -29,8 +28,7 @@ import {
  * Skeleton loading component for CreateRide page
  * Mimics the iOS CreateRide form structure
  */
-const CreateRideSkeleton = ({ showBackButton = true }) => {
-  return (
+const CreateRideSkeleton = () => (
     <SkeletonPageContainer>
       {/* Fixed Header */}
       <SkeletonHeader>
@@ -38,8 +36,6 @@ const CreateRideSkeleton = ({ showBackButton = true }) => {
           <SkeletonPulse />
         </SkeletonHeaderTitle>
       </SkeletonHeader>
-
-
 
       <SkeletonContent>
         {/* Content Header */}
@@ -155,10 +151,7 @@ const CreateRideSkeleton = ({ showBackButton = true }) => {
       </SkeletonContent>
     </SkeletonPageContainer>
   );
-};
 
-CreateRideSkeleton.propTypes = {
-  showBackButton: PropTypes.bool,
-};
+
 
 export default CreateRideSkeleton;

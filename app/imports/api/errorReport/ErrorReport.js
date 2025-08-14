@@ -39,7 +39,7 @@ const ErrorReportSchema = Joi.object({
     "network",
     "auth",
     "database",
-    "unknown"
+    "unknown",
   ).default("unknown"),
   resolved: Joi.boolean().default(false), // Admin can mark as resolved
   notes: Joi.string().allow(null).optional(), // Admin notes about the error

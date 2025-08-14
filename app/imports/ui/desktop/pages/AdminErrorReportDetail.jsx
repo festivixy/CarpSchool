@@ -97,7 +97,7 @@ class DesktopAdminErrorReportDetail extends React.Component {
           if (error) {
             swal("Error", error.message, "error");
           } else {
-            swal("Success", `Error report marked as ${!errorReport.resolved ? 'resolved' : 'unresolved'}!`, "success");
+            swal("Success", `Error report marked as ${!errorReport.resolved ? "resolved" : "unresolved"}!`, "success");
           }
         });
       }
@@ -149,9 +149,7 @@ class DesktopAdminErrorReportDetail extends React.Component {
     });
   };
 
-  formatTimestamp = (timestamp) => {
-    return new Date(timestamp).toLocaleString();
-  };
+  formatTimestamp = (timestamp) => new Date(timestamp).toLocaleString();
 
   getSeverityColor = (severity) => {
     switch (severity) {
@@ -175,7 +173,7 @@ class DesktopAdminErrorReportDetail extends React.Component {
   };
 
   renderJson = (data, label) => {
-    if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) {
+    if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
       return null;
     }
 

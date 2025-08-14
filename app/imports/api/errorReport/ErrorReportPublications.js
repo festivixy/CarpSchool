@@ -53,7 +53,7 @@ Meteor.publish("errorReports.unresolved", async function publishUnresolvedErrors
     {
       sort: { severity: -1, timestamp: -1 }, // Critical first, then by time
       limit: safeLimit,
-    }
+    },
   );
 });
 
@@ -79,7 +79,7 @@ Meteor.publish("errorReports.critical", async function publishCriticalErrors() {
     {
       sort: { timestamp: -1 },
       limit: 10,
-    }
+    },
   );
 });
 
@@ -104,7 +104,7 @@ Meteor.publish("errorReports.byUser", async function publishErrorsByUser(usernam
     {
       sort: { timestamp: -1 },
       limit: 30,
-    }
+    },
   );
 });
 
@@ -132,7 +132,7 @@ Meteor.publish("errorReports.recent", async function publishRecentErrors(hours =
     {
       sort: { timestamp: -1 },
       limit: 100,
-    }
+    },
   );
 });
 
@@ -191,7 +191,7 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
 
   const criticalHandle = ErrorReports.find({
     severity: "critical",
-    resolved: false
+    resolved: false,
   }).observeChanges({
     added: () => {
       criticalCount++;
@@ -220,13 +220,13 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
 
   // Clean up observers when subscription stops
   self.onStop(() => {
-    if (totalHandle && typeof totalHandle.stop === 'function') {
+    if (totalHandle && typeof totalHandle.stop === "function") {
       totalHandle.stop();
     }
-    if (unresolvedHandle && typeof unresolvedHandle.stop === 'function') {
+    if (unresolvedHandle && typeof unresolvedHandle.stop === "function") {
       unresolvedHandle.stop();
     }
-    if (criticalHandle && typeof criticalHandle.stop === 'function') {
+    if (criticalHandle && typeof criticalHandle.stop === "function") {
       criticalHandle.stop();
     }
   });

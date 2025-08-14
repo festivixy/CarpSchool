@@ -80,16 +80,16 @@ export const SkeletonTab = styled.div`
   flex: 1;
   height: 48px;
   border-radius: 8px;
-  background-color: ${props => props.active ? "#ffffff" : "transparent"};
-  box-shadow: ${props => props.active ? "0 1px 3px rgba(0, 0, 0, 0.1)" : "none"};
+  background-color: ${props => (props.active ? "#ffffff" : "transparent")};
+  box-shadow: ${props => (props.active ? "0 1px 3px rgba(0, 0, 0, 0.1)" : "none")};
   padding: 12px 16px;
   overflow: hidden;
   
   ${SkeletonPulse} {
     border-radius: 4px;
-    background: ${props => props.active 
+    background: ${props => (props.active
       ? "linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 37%, #e0e0e0 63%)"
-      : "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%)"
+      : "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%)")
     };
   }
 `;

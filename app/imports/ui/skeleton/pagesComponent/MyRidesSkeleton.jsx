@@ -33,8 +33,7 @@ import {
  * Skeleton loading component for MyRides page
  * Mimics the structure and layout of the actual MyRides component
  */
-const MyRidesSkeleton = ({ numberOfRides = 3 }) => {
-  return (
+const MyRidesSkeleton = ({ numberOfRides = 3 }) => (
     <SkeletonContainer>
       {/* Header Skeleton */}
       <SkeletonHeader>
@@ -149,7 +148,6 @@ const MyRidesSkeleton = ({ numberOfRides = 3 }) => {
       </SkeletonTabContent>
     </SkeletonContainer>
   );
-};
 
 MyRidesSkeleton.propTypes = {
   numberOfRides: PropTypes.number,

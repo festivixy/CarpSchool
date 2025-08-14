@@ -101,10 +101,10 @@ export const FiltersContainer = styled.div`
 
 export const FilterButton = styled.button`
   padding: 8px 16px;
-  border: 2px solid ${props => props.active ? "#667eea" : "#e1e5e9"};
+  border: 2px solid ${props => (props.active ? "#667eea" : "#e1e5e9")};
   border-radius: 8px;
-  background-color: ${props => props.active ? "#667eea" : "white"};
-  color: ${props => props.active ? "white" : "#333"};
+  background-color: ${props => (props.active ? "#667eea" : "white")};
+  color: ${props => (props.active ? "white" : "#333")};
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -112,7 +112,7 @@ export const FilterButton = styled.button`
 
   &:hover {
     border-color: #667eea;
-    background-color: ${props => props.active ? "#5a6fd8" : "#f8f9ff"};
+    background-color: ${props => (props.active ? "#5a6fd8" : "#f8f9ff")};
   }
 `;
 
@@ -228,12 +228,12 @@ export const ErrorReportsGrid = styled.div`
 
 export const ErrorReportCard = styled.div`
   background-color: white;
-  border: 2px solid ${props => props.resolved ? "#d4edda" : "#e1e5e9"};
+  border: 2px solid ${props => (props.resolved ? "#d4edda" : "#e1e5e9")};
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  opacity: ${props => props.resolved ? 0.7 : 1};
+  opacity: ${props => (props.resolved ? 0.7 : 1)};
 
   &:hover {
     transform: translateY(-2px);

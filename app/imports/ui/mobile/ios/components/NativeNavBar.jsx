@@ -120,7 +120,9 @@ const NativeNavBar = ({
           }
 
           // Handle different navigation items (fallback for standalone usage)
-          console.log("[NativeNavBar] 🎯 Processing item with internal handler:", { id: item.id, action: item.action, label: item.label });
+          console.log("[NativeNavBar] 🎯 Processing item with internal handler:", {
+            id: item.id, action: item.action, label: item.label
+          });
 
           if (item.id === "home" || item.action === "home") {
             console.log("[NativeNavBar] 🏠 Home action triggered");
@@ -129,10 +131,16 @@ const NativeNavBar = ({
           } else if (item.id === "search" || item.action === "search") {
             console.log("[NativeNavBar] 🔍 Search action triggered - calling handleJoinRideClick");
             handleJoinRideClick();
-          } else if (item.id === "add" || item.id === "create" || item.action === "add" || item.action === "create") {
+          } else if (
+            item.id === "add" || item.id === "create" ||
+            item.action === "add" || item.action === "create"
+          ) {
             console.log("[NativeNavBar] ➕ Create action triggered - calling handleAddRidesClick");
             handleAddRidesClick();
-          } else if (item.id === "chat" || item.id === "messages" || item.action === "chat" || item.action === "messages") {
+          } else if (
+            item.id === "chat" || item.id === "messages" ||
+            item.action === "chat" || item.action === "messages"
+          ) {
             console.log("[NativeNavBar] 💬 Messages action triggered");
             handleNavigation("/chat");
           } else if (item.id === "profile" || item.action === "profile") {
@@ -150,7 +158,11 @@ const NativeNavBar = ({
         unregisterActionHandler(navBarId);
       };
     }
-  }, [isSupported, navBarId, registerActionHandler, unregisterActionHandler, setActiveItem, currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick, onItemPress, items]);
+  }, [
+    isSupported, navBarId, registerActionHandler, unregisterActionHandler, setActiveItem,
+    currentUser, handleNavigation, handleJoinRideClick, handleAddRidesClick, handleProfileClick,
+    onItemPress, items
+  ]);
 
   // Create native navbar when component mounts
   useEffect(() => {
@@ -315,9 +327,15 @@ const NativeNavBar = ({
                 handleNavigation(homeLink);
               } else if (item.id === "search" || item.action === "search") {
                 handleJoinRideClick();
-              } else if (item.id === "add" || item.id === "create" || item.action === "add" || item.action === "create") {
+              } else if (
+                item.id === "add" || item.id === "create" ||
+                item.action === "add" || item.action === "create"
+              ) {
                 handleAddRidesClick();
-              } else if (item.id === "chat" || item.id === "messages" || item.action === "chat" || item.action === "messages") {
+              } else if (
+                item.id === "chat" || item.id === "messages" ||
+                item.action === "chat" || item.action === "messages"
+              ) {
                 handleNavigation("/chat");
             } else if (item.id === "profile" || item.action === "profile") {
               handleProfileClick();

@@ -36,10 +36,10 @@ import {
  * Skeleton loading component for Chat page
  * Mimics the desktop and mobile chat layouts
  */
-const ChatSkeleton = ({ 
-  numberOfChats = 4, 
+const ChatSkeleton = ({
+  numberOfChats = 4,
   numberOfMessages = 8,
-  showMobileLayout = false 
+  showMobileLayout = false,
 }) => {
   const renderChatListItems = () => (
     Array.from({ length: numberOfChats }).map((_, index) => (
@@ -78,7 +78,7 @@ const ChatSkeleton = ({
                 <SkeletonPulse />
               </SkeletonMessageSender>
             )}
-            <SkeletonMessageContent 
+            <SkeletonMessageContent
               own={isOwnMessage}
               long={Math.random() > 0.4}
             >

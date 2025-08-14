@@ -268,19 +268,19 @@ export const ReportStatus = styled.div`
 
   ${props => {
     switch (props.status) {
-      case 'reporting':
+      case "reporting":
         return `
           background-color: #fff3cd;
           color: #856404;
           border: 1px solid #ffeaa7;
         `;
-      case 'success':
+      case "success":
         return `
           background-color: #d4edda;
           color: #155724;
           border: 1px solid #c3e6cb;
         `;
-      case 'failed':
+      case "failed":
         return `
           background-color: #f8d7da;
           color: #721c24;
@@ -305,19 +305,19 @@ export const ReportStatus = styled.div`
   @media (prefers-color-scheme: dark) {
     ${props => {
       switch (props.status) {
-        case 'reporting':
+        case "reporting":
           return `
             background-color: #3d3a00;
             color: #f9e79f;
             border-color: #b7a612;
           `;
-        case 'success':
+        case "success":
           return `
             background-color: #1b3a1f;
             color: #a9d3ab;
             border-color: #28a745;
           `;
-        case 'failed':
+        case "failed":
           return `
             background-color: #3a1b1f;
             color: #f5c6cb;

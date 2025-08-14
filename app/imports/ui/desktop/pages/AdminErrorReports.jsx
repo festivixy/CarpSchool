@@ -102,14 +102,16 @@ class DesktopAdminErrorReports extends React.Component {
   handleExpandStack = (stackedErrorReport) => {
     // Set search to filter for this specific stack
     this.setState({
-      searchQuery: stackedErrorReport.stackKey
+      searchQuery: stackedErrorReport.stackKey,
     });
   };
 
   handleViewLatest = (stackedErrorReport) => {
     // Find the most recent error report in the stack
-    const latestReport = stackedErrorReport.stackedReports.reduce((latest, report) =>
-      new Date(report.timestamp) > new Date(latest.timestamp) ? report : latest
+    const latestReport = stackedErrorReport.stackedReports.reduce(
+      (latest, report) => (
+        new Date(report.timestamp) > new Date(latest.timestamp) ? report : latest
+      )
     );
     this.props.history.push(`/admin/error-report/${latestReport._id}`);
   };
@@ -124,7 +126,9 @@ class DesktopAdminErrorReports extends React.Component {
 
     swal({
       title: "Resolve All Reports?",
-      text: `This will mark all ${unresolvedReports.length} unresolved report${unresolvedReports.length !== 1 ? "s" : ""} in this stack as resolved.`,
+      text: `This will mark all ${unresolvedReports.length} unresolved report${
+        unresolvedReports.length !== 1 ? "s" : ""
+      } in this stack as resolved.`,
       icon: "info",
       buttons: {
         cancel: "Cancel",
@@ -149,9 +153,18 @@ class DesktopAdminErrorReports extends React.Component {
             // Check if all calls completed
             if (completedCount + errorCount === unresolvedReports.length) {
               if (errorCount > 0) {
-                swal("Partial Success", `${completedCount} report${completedCount !== 1 ? "s" : ""} resolved successfully. ${errorCount} failed.`, "warning");
+                swal(
+                  "Partial Success",
+                  `${completedCount} report${completedCount !== 1 ? "s" : ""} resolved successfully. ` +
+                  `${errorCount} failed.`,
+                  "warning"
+                );
               } else {
-                swal("Success", `All ${completedCount} report${completedCount !== 1 ? "s" : ""} in the stack marked as resolved!`, "success");
+                swal(
+                  "Success",
+                  `All ${completedCount} report${completedCount !== 1 ? "s" : ""} in the stack marked as resolved!`,
+                  "success"
+                );
               }
             }
           });
@@ -163,7 +176,9 @@ class DesktopAdminErrorReports extends React.Component {
   handleDeleteAll = (stackedErrorReport) => {
     swal({
       title: "Delete All Reports?",
-      text: `This action cannot be undone. All ${stackedErrorReport.stackCount} report${stackedErrorReport.stackCount !== 1 ? "s" : ""} in this stack will be permanently deleted.`,
+      text: `This action cannot be undone. All ${stackedErrorReport.stackCount} report${
+        stackedErrorReport.stackCount !== 1 ? "s" : ""
+      } in this stack will be permanently deleted.`,
       icon: "warning",
       buttons: {
         cancel: "Cancel",
@@ -188,9 +203,18 @@ class DesktopAdminErrorReports extends React.Component {
             // Check if all calls completed
             if (completedCount + errorCount === stackedErrorReport.stackCount) {
               if (errorCount > 0) {
-                swal("Partial Success", `${completedCount} report${completedCount !== 1 ? "s" : ""} deleted successfully. ${errorCount} failed.`, "warning");
+                swal(
+                  "Partial Success",
+                  `${completedCount} report${completedCount !== 1 ? "s" : ""} deleted successfully. ` +
+                  `${errorCount} failed.`,
+                  "warning"
+                );
               } else {
-                swal("Success", `All ${completedCount} report${completedCount !== 1 ? "s" : ""} in the stack deleted!`, "success");
+                swal(
+                  "Success",
+                  `All ${completedCount} report${completedCount !== 1 ? "s" : ""} in the stack deleted!`,
+                  "success"
+                );
               }
             }
           });
@@ -275,18 +299,17 @@ class DesktopAdminErrorReports extends React.Component {
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(report =>
-        report.message?.toLowerCase().includes(query) ||
+      filtered = filtered.filter(report => report.message?.toLowerCase().includes(query) ||
         report.errorId?.toLowerCase().includes(query) ||
         report.username?.toLowerCase().includes(query) ||
         report.component?.toLowerCase().includes(query) ||
-        report.route?.toLowerCase().includes(query)
-      );
+        report.route?.toLowerCase().includes(query));
     }
 
     // Apply sorting
     filtered.sort((a, b) => {
-      let aVal, bVal;
+      let aVal; let
+bVal;
 
       switch (sortBy) {
         case "severity":
@@ -306,9 +329,9 @@ class DesktopAdminErrorReports extends React.Component {
 
       if (sortOrder === "asc") {
         return aVal > bVal ? 1 : -1;
-      } else {
-        return aVal < bVal ? 1 : -1;
       }
+        return aVal < bVal ? 1 : -1;
+
     });
 
     // Apply stacking (always enabled)
@@ -366,9 +389,7 @@ class DesktopAdminErrorReports extends React.Component {
       }
     });
 
-    return Object.values(stacks).sort((a, b) =>
-      new Date(b.latestTimestamp) - new Date(a.latestTimestamp)
-    );
+    return Object.values(stacks).sort((a, b) => new Date(b.latestTimestamp) - new Date(a.latestTimestamp));
   };
 
   formatTimestamp = (timestamp) => {
@@ -447,7 +468,7 @@ class DesktopAdminErrorReports extends React.Component {
               <StatLabel>Unresolved</StatLabel>
             </StatCard>
             <StatCard>
-              <StatNumber>{errorReports.filter(r => r.severity === 'critical' && !r.resolved).length}</StatNumber>
+              <StatNumber>{errorReports.filter(r => r.severity === "critical" && !r.resolved).length}</StatNumber>
               <StatLabel>Critical</StatLabel>
             </StatCard>
             <StatCard>
@@ -523,7 +544,9 @@ class DesktopAdminErrorReports extends React.Component {
           </SearchContainer>
 
           <SearchResultsCount>
-            {`${filteredReports.length} stack${filteredReports.length !== 1 ? "s" : ""} found (${filteredReports.reduce((total, report) => total + (report.stackCount || 1), 0)} total reports)`}
+{`${filteredReports.length} stack${filteredReports.length !== 1 ? "s" : ""} found (${
+              filteredReports.reduce((total, report) => total + (report.stackCount || 1), 0)
+            } total reports)`}
           </SearchResultsCount>
 
           {/* Error Reports Grid */}
@@ -550,7 +573,7 @@ class DesktopAdminErrorReports extends React.Component {
                             borderRadius: "4px",
                             fontSize: "12px",
                             fontWeight: "600",
-                            marginRight: "8px"
+                            marginRight: "8px",
                           }}>
                             STACK ({errorReport.stackCount})
                           </span>
@@ -560,7 +583,9 @@ class DesktopAdminErrorReports extends React.Component {
                       </ErrorReportTitle>
                       <ErrorReportId>
                         {errorReport.isStack
-                          ? `Latest ID: ${errorReport.errorId} | ${errorReport.unresolvedCount} unresolved | ${errorReport.criticalCount} critical`
+? `Latest ID: ${errorReport.errorId} | ${errorReport.unresolvedCount} unresolved | ${
+                              errorReport.criticalCount
+                            } critical`
                           : `ID: ${errorReport.errorId}`
                         }
                       </ErrorReportId>
@@ -615,7 +640,10 @@ class DesktopAdminErrorReports extends React.Component {
                       <>
                         <DetailItem>
                           <DetailLabel>Stack Type:</DetailLabel>
-                          <DetailValue>{stackingType === "message" ? "Error Message" : stackingType === "route" ? "Route" : "User"}</DetailValue>
+                          <DetailValue>
+                            {stackingType === "message" ? "Error Message"
+                              : stackingType === "route" ? "Route" : "User"}
+                          </DetailValue>
                         </DetailItem>
                         <DetailItem>
                           <DetailLabel>Total Reports:</DetailLabel>

@@ -1,8 +1,8 @@
 import { Meteor } from "meteor/meteor";
 import Joi from "joi";
 import { check } from "meteor/check";
-import { ErrorReports, ErrorReportSchema } from "./ErrorReport";
 import { Random } from "meteor/random";
+import { ErrorReports, ErrorReportSchema } from "./ErrorReport";
 
 /**
  * Generate a unique error ID for tracking
@@ -24,7 +24,7 @@ function sanitizeData(data) {
   // Remove sensitive fields
   const sensitiveKeys = [
     "password", "token", "secret", "key", "auth", "session",
-    "credit", "card", "ssn", "social", "phone", "email"
+    "credit", "card", "ssn", "social", "phone", "email",
   ];
 
   Object.keys(sanitized).forEach(key => {
@@ -160,7 +160,10 @@ Meteor.methods({
     // Validate against schema
     const { error: schemaError } = ErrorReportSchema.validate(errorReport);
     if (schemaError) {
-      throw new Meteor.Error("schema-error", `Error report schema validation failed: ${schemaError.details[0].message}`);
+      throw new Meteor.Error(
+        "schema-error",
+        `Error report schema validation failed: ${schemaError.details[0].message}`
+      );
     }
 
     // Insert error report
@@ -258,17 +261,17 @@ Meteor.methods({
     const unresolvedErrors = await ErrorReports.find({ resolved: false }).countAsync();
     const criticalErrors = await ErrorReports.find({ severity: "critical", resolved: false }).countAsync();
     const last24Hours = await ErrorReports.find({
-      timestamp: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      timestamp: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     }).countAsync();
 
     // Get error counts by category
     const categoryCounts = await ErrorReports.rawCollection().aggregate([
-      { $group: { _id: "$category", count: { $sum: 1 } } }
+      { $group: { _id: "$category", count: { $sum: 1 } } },
     ]).toArray();
 
     // Get error counts by severity
     const severityCounts = await ErrorReports.rawCollection().aggregate([
-      { $group: { _id: "$severity", count: { $sum: 1 } } }
+      { $group: { _id: "$severity", count: { $sum: 1 } } },
     ]).toArray();
 
     return {

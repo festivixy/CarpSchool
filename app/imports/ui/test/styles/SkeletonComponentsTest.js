@@ -148,7 +148,7 @@ export const ControlInput = styled.input`
 
 export const ControlButton = styled.button`
   padding: 10px 20px;
-  background: ${props => props.active ? '#0d6efd' : '#6c757d'};
+  background: ${props => (props.active ? "#0d6efd" : "#6c757d")};
   color: white;
   border: none;
   border-radius: 6px;
@@ -158,7 +158,7 @@ export const ControlButton = styled.button`
   transition: all 0.2s ease;
   
   &:hover {
-    background: ${props => props.active ? '#0b5ed7' : '#5c636a'};
+    background: ${props => (props.active ? "#0b5ed7" : "#5c636a")};
     transform: translateY(-1px);
   }
   
@@ -257,7 +257,7 @@ export const UserInfoItem = styled.div`
 `;
 
 export const UserRoleBadge = styled.span`
-  background: ${props => props.isAdmin ? '#28a745' : '#6c757d'};
+  background: ${props => (props.isAdmin ? "#28a745" : "#6c757d")};
   color: white;
   padding: 4px 8px;
   border-radius: 12px;

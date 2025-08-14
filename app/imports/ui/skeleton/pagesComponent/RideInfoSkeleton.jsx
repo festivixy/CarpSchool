@@ -29,8 +29,7 @@ import {
  * Skeleton loading component for RideInfo page
  * Mimics the structure: 50% map, 40% ride info, 10% navbar clearance
  */
-const RideInfoSkeleton = ({ showBackButton = true }) => {
-  return (
+const RideInfoSkeleton = ({ showBackButton = true }) => (
     <SkeletonContainer>
       {/* Back Button */}
       {showBackButton && (
@@ -60,11 +59,11 @@ const RideInfoSkeleton = ({ showBackButton = true }) => {
                   <SkeletonPulse />
                 </SkeletonRouteLocation>
               </SkeletonRouteItem>
-              
+
               <SkeletonRouteArrow>
                 <SkeletonPulse />
               </SkeletonRouteArrow>
-              
+
               <SkeletonRouteItem>
                 <SkeletonRouteLabel>
                   <SkeletonPulse />
@@ -137,7 +136,6 @@ const RideInfoSkeleton = ({ showBackButton = true }) => {
       </SkeletonNavbarClearance>
     </SkeletonContainer>
   );
-};
 
 RideInfoSkeleton.propTypes = {
   showBackButton: PropTypes.bool,
