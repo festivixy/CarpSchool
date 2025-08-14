@@ -44,7 +44,6 @@ export const CreateRideContent = styled.div`
   border-radius: 24px 24px 0 0;
   min-height: calc(100vh - 120px);
   margin-top: 120px;
-  animation: ${modalSlideIn} 0.3s ease-out;
   position: relative;
   z-index: 2;
 
