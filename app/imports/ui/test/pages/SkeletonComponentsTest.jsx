@@ -549,13 +549,11 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
             </ControlButton>
           </ControlsCard>
 
-          {/* Code Example */}
+          {/* Import Code */}
           <CodeBlock>
-            <CodeTitle>Usage Example</CodeTitle>
             <ImportCode>
 {`import { PlaceManagerSkeleton } from "../../skeleton";
 
-// Basic usage
 <PlaceManagerSkeleton numberOfPlaces={${placeManagerConfig.numberOfPlaces}} />`}
             </ImportCode>
           </CodeBlock>
