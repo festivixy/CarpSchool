@@ -5,7 +5,6 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Rides } from "../../../../api/ride/Rides";
 import { Places } from "../../../../api/places/Places";
-import BackButton from "../../components/BackButton";
 import { MobileOnly } from "../../../layouts/Devices";
 import { Spacer } from "../../../components";
 import {
@@ -313,12 +312,7 @@ class CreateRide extends React.Component {
       <CreateRidePageContainer>
         {/* Fixed Header */}
         <CreateRideHeader>
-          <CreateRideHeaderTitle>
-            Create Ride
-          </CreateRideHeaderTitle>
         </CreateRideHeader>
-
-        <BackButton />
 
         <CreateRideContent>
           <CreateRideHeader>

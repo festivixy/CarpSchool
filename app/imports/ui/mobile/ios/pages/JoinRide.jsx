@@ -3,7 +3,6 @@ import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
-import BackButton from "../../components/BackButton";
 import {
   MainPageContainer,
   FixedHeader,
@@ -182,12 +181,7 @@ class JoinRide extends React.Component {
       <MainPageContainer>
         {/* Fixed Header */}
         <FixedHeader>
-          <HeaderTitle>
-            Join Ride
-          </HeaderTitle>
         </FixedHeader>
-
-        <BackButton />
 
         <ContentPadding>
           <FixedHeader>
