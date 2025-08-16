@@ -105,7 +105,7 @@ export default class MobileSignIn extends React.Component {
     return (
       <Container>
         <Header>
-          <AppName>carp.school</AppName>
+          <AppName>CarpSchool</AppName>
         </Header>
 
         <Content>

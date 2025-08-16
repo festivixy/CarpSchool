@@ -109,7 +109,7 @@ class NavBar extends React.Component {
           <NavBarInner>
             {/* Logo */}
             <Logo to={homeLink} onClick={this.closeAllMenus}>
-              <LogoImg src="/staticimages/carp.school.png" alt="carp.school" />
+              <LogoImg src="/staticimages/carp.school.png" alt="CarpSchool" />
             </Logo>
 
             {/* Desktop Navigation */}

@@ -25,7 +25,7 @@ import {
  */
 function LiquidGlassNavbar({
   logo = "/staticimages/carp.school.png",
-  logoText = "carp.school",
+  logoText = "CarpSchool",
   user = null,
   isAdmin = false,
   notifications = 0,

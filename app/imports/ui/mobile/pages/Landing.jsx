@@ -31,7 +31,7 @@ export default class MobileLanding extends React.Component {
         <Hero>
           <HeroContent>
             <LogoSection>
-              <AppName>carp.school</AppName>
+              <AppName>CarpSchool</AppName>
             </LogoSection>
 
             <CtaSection>
@@ -44,19 +44,19 @@ export default class MobileLanding extends React.Component {
         {/* What is carp.school Section */}
         <Features>
           <SectionHeader>
-            <SectionTitle>What is carp.school?</SectionTitle>
+            <SectionTitle>What is CarpSchool?</SectionTitle>
           </SectionHeader>
 
           <Content>
             <Paragraph>
-              The carp.school website provides a space for students traveling
+              The CarpSchool website provides a space for students traveling
               to/from the school campus to easily coordinate ride shares.
             </Paragraph>
 
             <Paragraph>
               The use of school email/school ID numbers ensures that each user
               is a verified school student; this system also prohibits banned
-              users from continuing to use the carp.school website.
+              users from continuing to use the CarpSchool website.
             </Paragraph>
           </Content>
         </Features>
@@ -64,12 +64,12 @@ export default class MobileLanding extends React.Component {
         {/* How to Use carp.school Section */}
         <HowItWorks>
           <SectionHeader>
-            <SectionTitle>How to Use carp.school</SectionTitle>
+            <SectionTitle>How to Use CarpSchool</SectionTitle>
           </SectionHeader>
 
           <Content>
             <Paragraph>
-              After signing up for carp.school with your school email, users can
+              After signing up for CarpSchool with your school email, users can
               sign in to look through a list of future rides or create a new
               ride. After creating a new ride or signing up for a ride, users
               can view their scheduled rides on their calendar.

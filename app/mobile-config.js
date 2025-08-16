@@ -3,7 +3,7 @@ App.info({
     id: "carp.school.app",
     name: "CarpSchool",
     description: "Get CarpSchool power in one button click",
-    author: "carp.school team",
+    author: "CarpSchool team",
     email: "contact@carp.school",
     website: "https://carp.school",
 });

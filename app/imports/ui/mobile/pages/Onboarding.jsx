@@ -369,7 +369,7 @@ class MobileOnboarding extends React.Component {
       } else {
         this.setState({
           success:
-            "Welcome to carp.school! Your profile has been created successfully!",
+            "Welcome to CarpSchool! Your profile has been created successfully!",
           redirectToReferer: true,
         });
       }
@@ -395,7 +395,7 @@ class MobileOnboarding extends React.Component {
   renderStep1 = () => (
     <Step>
       <StepIcon>👋</StepIcon>
-      <StepTitle>Welcome to carp.school!</StepTitle>
+      <StepTitle>Welcome to CarpSchool!</StepTitle>
       <StepSubtitle>
         Let&apos;s start by getting your name. This helps other users identify
         you.
@@ -678,7 +678,7 @@ class MobileOnboarding extends React.Component {
     return (
       <Container>
         <Header>
-          <AppName>carp.school</AppName>
+          <AppName>CarpSchool</AppName>
           {this.renderProgressBar()}
         </Header>
 

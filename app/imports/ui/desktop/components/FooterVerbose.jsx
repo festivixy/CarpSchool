@@ -33,7 +33,7 @@ import {
  */
 function FooterVerbose({
   logo = "/staticimages/carp.school.png",
-  companyName = "carp.school",
+  companyName = "CarpSchool",
   description = "Making transportation easier, greener, and more connected for everyone. " +
     "Join thousands of users who are already sharing rides to save money and reduce their environmental impact.",
   email = "contact@carp.school",

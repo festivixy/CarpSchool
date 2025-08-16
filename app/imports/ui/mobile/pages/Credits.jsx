@@ -42,7 +42,7 @@ For questions about this application or to report issues, please contact lz at k
 
 ---
 
-*Built with ❤️ for the student community by carp.school team*
+*Built with ❤️ for the student community by CarpSchool team*
 `;
 
 /**

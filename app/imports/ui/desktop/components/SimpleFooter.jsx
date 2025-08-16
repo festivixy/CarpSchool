@@ -19,7 +19,7 @@ export default function SimpleFooter() {
     <FooterContainer>
       <FooterContent>
         <FooterLogo>
-          <AppName>carp.school</AppName>
+          <AppName>CarpSchool</AppName>
         </FooterLogo>
         <FooterLinks>
           <FooterLink to="/tos">Terms</FooterLink>
@@ -29,7 +29,7 @@ export default function SimpleFooter() {
             Support
           </FooterLinkExternal>
         </FooterLinks>
-        <Copyright>© 2025 carp.school. All rights reserved.</Copyright>
+        <Copyright>© 2025 CarpSchool. All rights reserved.</Copyright>
       </FooterContent>
     </FooterContainer>
   );

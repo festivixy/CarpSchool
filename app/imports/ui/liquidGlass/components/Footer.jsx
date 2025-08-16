@@ -33,7 +33,7 @@ import {
  */
 function LiquidGlassFooter({
   logo = "/staticimages/carp.school.png",
-  companyName = "carp.school",
+  companyName = "CarpSchool",
   description = "Making transportation easier, greener, and more connected for everyone.",
   email = "contact@carp.school",
   phone = "+1 (555) 123-4567",
