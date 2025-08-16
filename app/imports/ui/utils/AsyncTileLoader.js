@@ -91,8 +91,6 @@ class AsyncTileLoader {
       this.worker = null;
     }
   }
-}
-
 
   /**
    * Initialise IndexedDB for persistent tile caching
@@ -145,8 +143,7 @@ class AsyncTileLoader {
       if (cached.expires > Date.now()) {
         return cached.imageUrl;
       }
-        this.cache.delete(tileId);
-
+      this.cache.delete(tileId);
     }
 
     // Check if already loading
@@ -187,7 +184,7 @@ class AsyncTileLoader {
     if (this.worker) {
       return this.fetchTileWithWorker(tileUrl, tileId);
     }
-      return this.fetchTileMainThread(tileUrl, tileId);
+    return this.fetchTileMainThread(tileUrl, tileId);
 
   }
 
