@@ -24,7 +24,7 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
     // Configuration
     const EDGE_THRESHOLD = 20; // Pixels from edge to start gesture
     const MIN_SWIPE_DISTANCE = 30; // Minimum distance for valid swipe
-    const MAX_SWIPE_DISTANCE = 100; // Maximum distance for valid swipe
+    const MAX_SWIPE_DISTANCE = 250; // Maximum distance for valid swipe
     const MAX_SWIPE_TIME = 500; // Maximum time for gesture (ms)
     const MAX_VERTICAL_DRIFT = 100; // Maximum vertical movement allowed
 
@@ -86,9 +86,9 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
       }
 
       // Update blob based on distance ranges
-      if (deltaX <= 100) {
-        // 1-100px: Keep blob displayed
-        const progress = Math.min(deltaX / 100, 1);
+      if (deltaX <= 250) {
+        // 1-250px: Keep blob displayed
+        const progress = Math.min(deltaX / 250, 1);
         setBlobState({
           visible: true,
           x: currentX,
@@ -96,7 +96,7 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
           progress: progress
         });
       } else {
-        // Over 100px: Remove blob and stop everything
+        // Over 250px: Remove blob and stop everything
         isSwipingRef.current = false;
         setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
         document.body.style.userSelect = '';
@@ -127,10 +127,10 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
       isSwipingRef.current = false;
       document.body.style.userSelect = '';
 
-      // Check if this qualifies as a back gesture (30-100px range, under 500ms)
+      // Check if this qualifies as a back gesture (30-250px range, under 500ms)
       const isValidSwipe =
         deltaX >= 30 &&
-        deltaX <= 100 &&
+        deltaX <= 250 &&
         deltaY <= MAX_VERTICAL_DRIFT &&
         swipeTime <= MAX_SWIPE_TIME;
 
