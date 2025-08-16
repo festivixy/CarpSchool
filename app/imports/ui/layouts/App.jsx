@@ -43,6 +43,7 @@ import { DesktopOnly, MobileOnly } from "./Devices";
 import { AppContainer, MainContent } from "../styles/App";
 import FooterVerbose from "../desktop/components/FooterVerbose";
 import MobileNavBarAuto from "../mobile/components/MobileNavBarAuto";
+import EdgeSwipeBack from "../mobile/components/EdgeSwipeBack";
 import SharedComponentsDemo from "../test/pages/SharedComponentsDemo";
 import MobileNavBarAutoTest from "../test/pages/MobileNavBarAutoTest";
 import ComponentsTest from "../test/pages/ComponentsTest";
@@ -207,6 +208,10 @@ class App extends React.Component {
               <MobileNavBarAuto />
             </MobileOnly>
           )}
+          {/* Edge swipe back gesture - mobile only */}
+          <MobileOnly>
+            <EdgeSwipeBack />
+          </MobileOnly>
           </AppContainer>
         </ErrorBoundary>
       </Router>
