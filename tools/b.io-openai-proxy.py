@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-OpenAI to Builder.io API Proxy
-Translates OpenAI ChatCompletions requests to Builder.io codegen completion API
+OpenAI to Builder.io Chat Proxy
+Translates OpenAI ChatCompletions requests to Builder.io completion API for chat-only usage
 
-This proxy allows using OpenAI-compatible apps/clients to talk to Builder.io's backend.
-You can use ChatGPT desktop apps, API clients, etc. with Builder.io's Claude/models.
+This proxy allows using OpenAI-compatible chat apps/clients with Builder.io's Claude backend.
+You can use ChatGPT desktop apps, API clients, etc. to chat with Claude via Builder.io.
+No file operations or tools - pure chat interface.
 
 Usage:
     python b.io-openai-proxy.py --port 8080 --builder-url https://api.builder.io --builder-key YOUR_KEY
@@ -60,52 +61,35 @@ class OpenAIBuilderIOProxy:
 
         user_prompt = self.extract_user_prompt(openai_request)
 
-        # Build Builder.io request format
+        # Build Builder.io request format (chat-only, no file/tool context)
         builder_request = {
-            "position": "cli",
-            "eventName": "openai proxy",
-            "maxPages": 2,
-            "autoContinue": 1,
-            "codeGenMode": "quality-v3",
+            "position": "chat",
+            "eventName": "openai chat proxy",
+            "maxPages": 1,
+            "autoContinue": 0,
+            "codeGenMode": "chat",
             "userContext": {
-                "client": "openai-proxy",
-                "clientVersion": "1.0.0",
-                "nodeVersion": "proxy",
-                "frameworks": ["react"],  # Default assumption
-                "systemPlatform": "proxy",
-                "systemEOL": "\n",
-                "systemArch": "proxy",
-                "inGitRepo": True,
-                "systemShell": "proxy"
+                "client": "openai-chat-proxy",
+                "clientVersion": "1.0.0"
             },
-            "files": [],  # No file context from OpenAI
             "mcpServers": False,
             "attachments": [],
             "customInstructions": [
-                "You are Claude 3.5 Sonnet, made by Anthropic. You are a helpful, harmless, and honest AI assistant specialized in software development."
+                "You are Claude 3.5 Sonnet, made by Anthropic. You are a helpful, harmless, and honest AI assistant."
             ],
-            "sessionId": f"proxy-{int(time.time())}",
+            "sessionId": f"chat-proxy-{int(time.time())}",
             "userPrompt": user_prompt,
             "pingEvents": True,
-            "workingDirectory": "/proxy",
-            "toolResults": [],
             "role": "user",
             "user": {
-                "source": "openai-proxy",
+                "source": "openai-chat-proxy",
                 "userId": self.builder_user_id,
                 "role": "user"
             },
-            "enabledTools": [
-                "write_file",
-                "search_replace_file",
-                "view_path",
-                "bash",
-                "grep_search"
-            ],
             "searchResponse": None
         }
 
-        logger.info(f"Built Builder.io request for: {user_prompt[:100]}...")
+        logger.info(f"Built Builder.io chat request for: {user_prompt[:100]}...")
         return builder_request
 
     async def call_builder_api(self, builder_request: Dict[str, Any]) -> aiohttp.ClientResponse:
@@ -274,7 +258,11 @@ async def create_app(builder_base_url: str, builder_api_key: str, builder_user_i
 
     # Health check
     async def health_check(request):
-        return web.json_response({"status": "ok", "proxy": "openai -> builder.io"})
+        return web.json_response({
+            "status": "ok",
+            "proxy": "openai chat -> builder.io",
+            "mode": "chat-only"
+        })
 
     app.router.add_get('/health', health_check)
     app.router.add_get('/', health_check)
@@ -299,10 +287,11 @@ def main():
 
     args = parser.parse_args()
 
-    logger.info(f"Starting OpenAI -> Builder.io proxy")
+    logger.info(f"Starting OpenAI -> Builder.io chat proxy (no files/tools)")
     logger.info(f"Server: http://{args.host}:{args.port}/v1")
     logger.info(f"Builder.io URL: {args.builder_url}")
     logger.info(f"User ID: {args.builder_user}")
+    logger.info(f"Mode: Chat-only (no file operations or tools)")
 
     async def init():
         app = await create_app(args.builder_url, args.builder_key, args.builder_user)
