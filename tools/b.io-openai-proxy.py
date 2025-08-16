@@ -8,7 +8,7 @@ You can use ChatGPT desktop apps, API clients, etc. to chat with Claude via Buil
 No file operations or tools - pure chat interface.
 
 Usage:
-    python b.io-openai-proxy.py --port 8080 --builder-url https://api.builder.io --builder-key YOUR_KEY
+    python b.io-openai-proxy.py --port 8080 --builder-public-key PUBLIC_KEY --builder-private-key PRIVATE_KEY --user-id USER_ID
 
 Then configure your OpenAI app to use: http://localhost:8080/v1
 """
@@ -29,10 +29,11 @@ logger = logging.getLogger(__name__)
 
 
 class OpenAIBuilderIOProxy:
-    def __init__(self, builder_base_url: str, builder_api_key: str, builder_user_id: str = "proxy-user"):
+    def __init__(self, builder_base_url: str, builder_public_key: str, builder_private_key: str, user_id: str):
         self.builder_base_url = builder_base_url.rstrip('/')
-        self.builder_api_key = builder_api_key
-        self.builder_user_id = builder_user_id
+        self.builder_public_key = builder_public_key
+        self.builder_private_key = builder_private_key
+        self.user_id = user_id
         self.session: Optional[ClientSession] = None
 
     async def start(self):
@@ -91,7 +92,7 @@ class OpenAIBuilderIOProxy:
             "role": "user",
             "user": {
                 "source": "builder.io",
-                "userId": self.builder_user_id,
+                "userId": self.user_id,
                 "role": "user"
             },
             "enabledTools": [],
@@ -104,16 +105,16 @@ class OpenAIBuilderIOProxy:
     async def call_builder_api(self, builder_request: Dict[str, Any]) -> aiohttp.ClientResponse:
         """Make request to Builder.io API (disguised as CLI)"""
         headers = {
-            'Authorization': f'Bearer {self.builder_api_key}',
+            'Authorization': f'Bearer {self.builder_private_key}',
             'Content-Type': 'application/json',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) builder-cli/1.7.28',
             'Sec-Ch-Ua-Platform': '"macOS"'
         }
 
-        # Build URL with query parameters like the original
+        # Build URL with query parameters
         params = {
-            'apiKey': self.builder_api_key,
-            'userId': self.builder_user_id
+            'apiKey': self.builder_public_key,
+            'userId': self.user_id
         }
 
         url = f"{self.builder_base_url}/codegen/completion"
@@ -238,9 +239,9 @@ class OpenAIBuilderIOProxy:
         )
 
 
-async def create_app(builder_base_url: str, builder_api_key: str, builder_user_id: str) -> web.Application:
+async def create_app(builder_base_url: str, builder_public_key: str, builder_private_key: str, user_id: str) -> web.Application:
     """Create the web application"""
-    proxy = OpenAIBuilderIOProxy(builder_base_url, builder_api_key, builder_user_id)
+    proxy = OpenAIBuilderIOProxy(builder_base_url, builder_public_key, builder_private_key, user_id)
     await proxy.start()
 
     app = web.Application()
@@ -292,19 +293,20 @@ def main():
     parser.add_argument('--host', default='localhost', help='Host to bind to')
     parser.add_argument('--builder-url', default='https://api.builder.io',
                        help='Builder.io API base URL')
-    parser.add_argument('--builder-key', required=True, help='Builder.io API key')
-    parser.add_argument('--builder-user', default='proxy-user', help='Builder.io user ID')
+    parser.add_argument('--builder-public-key', required=True, help='Builder.io public API key (apiKey param)')
+    parser.add_argument('--builder-private-key', required=True, help='Builder.io private key (Authorization header)')
+    parser.add_argument('--user-id', required=True, help='Builder.io user ID (userId param)')
 
     args = parser.parse_args()
 
     logger.info(f"Starting OpenAI-compatible Builder.io interface")
     logger.info(f"Server: http://{args.host}:{args.port}/v1")
     logger.info(f"Builder.io URL: {args.builder_url}")
-    logger.info(f"User ID: {args.builder_user}")
+    logger.info(f"User ID: {args.user_id}")
     logger.info(f"Mode: CLI-compatible requests")
 
     async def init():
-        app = await create_app(args.builder_url, args.builder_key, args.builder_user)
+        app = await create_app(args.builder_url, args.builder_public_key, args.builder_private_key, args.user_id)
         return app
 
     web.run_app(init(), host=args.host, port=args.port)
