@@ -26,12 +26,29 @@ class AsyncTileLoader {
    */
   initWorker() {
     try {
+      // Define allowed tile domains (prevent hijacking from untrusted sources)
+      const ALLOWED_DOMAINS = ["tileserver.carp.school", "cdn.carp.school"];
+
       // Create inline worker to avoid separate file dependency
       const workerScript = `
         self.onmessage = async function(e) {
           const { tileUrl, tileId } = e.data;
 
           try {
+            // Validate URL format
+            let parsedUrl;
+            try {
+              parsedUrl = new URL(tileUrl);
+            } catch (err) {
+              throw new Error("Invalid URL");
+            }
+
+            // Enforce allowlist: only trusted domains allowed
+            const allowedDomains = ${JSON.stringify(ALLOWED_DOMAINS)};
+            if (!allowedDomains.includes(parsedUrl.hostname)) {
+              throw new Error("Untrusted tile domain: " + parsedUrl.hostname);
+            }
+
             const response = await fetch(tileUrl);
             if (!response.ok) {
               throw new Error(\`HTTP \${response.status}\`);
@@ -74,9 +91,11 @@ class AsyncTileLoader {
       this.worker = null;
     }
   }
+}
+
 
   /**
-   * Initialize IndexedDB for persistent tile caching
+   * Initialise IndexedDB for persistent tile caching
    */
   async initIndexedDB() {
     try {
