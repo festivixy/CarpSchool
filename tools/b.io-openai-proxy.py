@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Builder.io to OpenAI API Proxy
-Translates Builder.io codegen completion requests to OpenAI ChatCompletions API
+OpenAI to Builder.io API Proxy
+Translates OpenAI ChatCompletions requests to Builder.io codegen completion API
 
-This proxy allows using OpenAI models (GPT-4, Claude via OpenAI-compatible APIs)
-as a backend for Builder.io code generation requests.
+This proxy allows using OpenAI-compatible apps/clients to talk to Builder.io's backend.
+You can use ChatGPT desktop apps, API clients, etc. with Builder.io's Claude/models.
 
 Usage:
-    python b.io-openai-proxy.py --port 8080 --openai-url https://api.openai.com/v1 --openai-key sk-...
-    
-Then configure Builder.io to use: http://localhost:8080
+    python b.io-openai-proxy.py --port 8080 --builder-url https://api.builder.io --builder-key YOUR_KEY
+
+Then configure your OpenAI app to use: http://localhost:8080/v1
 """
 
 import json
@@ -27,241 +27,207 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-class BuilderIOOpenAIProxy:
-    def __init__(self, openai_base_url: str, openai_api_key: str, model: str = "gpt-4"):
-        self.openai_base_url = openai_base_url.rstrip('/')
-        self.openai_api_key = openai_api_key
-        self.model = model
+class OpenAIBuilderIOProxy:
+    def __init__(self, builder_base_url: str, builder_api_key: str, builder_user_id: str = "proxy-user"):
+        self.builder_base_url = builder_base_url.rstrip('/')
+        self.builder_api_key = builder_api_key
+        self.builder_user_id = builder_user_id
         self.session: Optional[ClientSession] = None
-        
+
     async def start(self):
         """Initialize the HTTP client session"""
         timeout = ClientTimeout(total=300)  # 5 minute timeout
         self.session = ClientSession(timeout=timeout)
-        
+
     async def stop(self):
         """Clean up the HTTP client session"""
         if self.session:
             await self.session.close()
 
-    def build_system_prompt(self, builder_request: Dict[str, Any]) -> str:
-        """Build system prompt from Builder.io request context"""
-        
-        # Extract context
-        user_context = builder_request.get('userContext', {})
-        frameworks = user_context.get('frameworks', [])
-        working_dir = builder_request.get('workingDirectory', '')
-        
-        # Build system prompt
-        system_prompt = """You are VCP, a software development assistant built by Builder.io, specialized in frontend software development and integration.
+    def extract_user_prompt(self, openai_request: Dict[str, Any]) -> str:
+        """Extract user prompt from OpenAI messages"""
+        messages = openai_request.get('messages', [])
 
-You have the skills of a senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices.
-You always write reusable and idiomatic code.
-You are diligent and tireless!
-You NEVER leave comments describing code without implementing it!
-Do not add comments in the code such as "{/* Rest of the sections... */}" and {/* The complete implementation would include all sections from the design */}" in place of writing the full code.
-You always COMPLETELY IMPLEMENT the needed code!"""
+        # Find the last user message
+        for message in reversed(messages):
+            if message.get('role') == 'user':
+                return message.get('content', '')
 
-        # Add context about the project
-        if frameworks:
-            system_prompt += f"\n\nProject uses: {', '.join(frameworks)}"
-            
-        if working_dir:
-            system_prompt += f"\nWorking directory: {working_dir}"
-            
-        # Add file context if available
-        files = builder_request.get('files', [])
-        if files:
-            system_prompt += "\n\nProject context includes these files:"
-            for file_info in files[:10]:  # Limit to first 10 files
-                file_path = file_info.get('filePath', '')
-                importance = file_info.get('importance', 0)
-                if importance >= 4:  # Only mention important files
-                    system_prompt += f"\n- {file_path}"
-                    
-        system_prompt += "\n\nGenerate production-ready code that follows best practices and integrates well with the existing codebase."
-        
-        return system_prompt
-        
-    def build_user_prompt(self, builder_request: Dict[str, Any]) -> str:
-        """Extract user prompt from Builder.io request"""
-        return builder_request.get('userPrompt', 'Please help with code generation.')
+        return 'Hello Claude'
 
-    def build_openai_request(self, builder_request: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert Builder.io request to OpenAI ChatCompletions format"""
-        
-        system_prompt = self.build_system_prompt(builder_request)
-        user_prompt = self.build_user_prompt(builder_request)
-        
-        # Build OpenAI request
-        openai_request = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+    def build_builder_request(self, openai_request: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert OpenAI ChatCompletions request to Builder.io format"""
+
+        user_prompt = self.extract_user_prompt(openai_request)
+
+        # Build Builder.io request format
+        builder_request = {
+            "position": "cli",
+            "eventName": "openai proxy",
+            "maxPages": 2,
+            "autoContinue": 1,
+            "codeGenMode": "quality-v3",
+            "userContext": {
+                "client": "openai-proxy",
+                "clientVersion": "1.0.0",
+                "nodeVersion": "proxy",
+                "frameworks": ["react"],  # Default assumption
+                "systemPlatform": "proxy",
+                "systemEOL": "\n",
+                "systemArch": "proxy",
+                "inGitRepo": True,
+                "systemShell": "proxy"
+            },
+            "files": [],  # No file context from OpenAI
+            "mcpServers": False,
+            "attachments": [],
+            "customInstructions": [
+                "You are Claude 3.5 Sonnet, made by Anthropic. You are a helpful, harmless, and honest AI assistant specialized in software development."
             ],
-            "temperature": 0.7,
-            "max_tokens": 4000,
-            "stream": True  # Enable streaming to match Builder.io format
+            "sessionId": f"proxy-{int(time.time())}",
+            "userPrompt": user_prompt,
+            "pingEvents": True,
+            "workingDirectory": "/proxy",
+            "toolResults": [],
+            "role": "user",
+            "user": {
+                "source": "openai-proxy",
+                "userId": self.builder_user_id,
+                "role": "user"
+            },
+            "enabledTools": [
+                "write_file",
+                "search_replace_file",
+                "view_path",
+                "bash",
+                "grep_search"
+            ],
+            "searchResponse": None
         }
-        
-        logger.info(f"Built OpenAI request for user prompt: {user_prompt[:100]}...")
-        return openai_request
 
-    async def call_openai_api(self, openai_request: Dict[str, Any]) -> aiohttp.ClientResponse:
-        """Make request to OpenAI API"""
+        logger.info(f"Built Builder.io request for: {user_prompt[:100]}...")
+        return builder_request
+
+    async def call_builder_api(self, builder_request: Dict[str, Any]) -> aiohttp.ClientResponse:
+        """Make request to Builder.io API"""
         headers = {
-            'Authorization': f'Bearer {self.openai_api_key}',
-            'Content-Type': 'application/json'
+            'Authorization': f'Bearer {self.builder_api_key}',
+            'Content-Type': 'application/json',
+            'User-Agent': 'OpenAI-Proxy/1.0.0'
         }
-        
-        url = f"{self.openai_base_url}/chat/completions"
-        
-        logger.info(f"Calling OpenAI API: {url}")
-        response = await self.session.post(url, json=openai_request, headers=headers)
-        
+
+        # Build URL with query parameters like the original
+        params = {
+            'apiKey': self.builder_api_key,
+            'userId': self.builder_user_id
+        }
+
+        url = f"{self.builder_base_url}/codegen/completion"
+
+        logger.info(f"Calling Builder.io API: {url}")
+        response = await self.session.post(url, json=builder_request, headers=headers, params=params)
+
         if response.status != 200:
             error_text = await response.text()
-            logger.error(f"OpenAI API error {response.status}: {error_text}")
-            raise Exception(f"OpenAI API error: {response.status} - {error_text}")
-            
+            logger.error(f"Builder.io API error {response.status}: {error_text}")
+            raise Exception(f"Builder.io API error: {response.status} - {error_text}")
+
         return response
 
-    def format_builder_response_line(self, line_type: str, content: str = "", **kwargs) -> str:
-        """Format a line in Builder.io JSONL response format"""
-        data = {"type": line_type, **kwargs}
+    def format_openai_response_line(self, content: str = "", finish_reason: str = None) -> str:
+        """Format a line in OpenAI streaming response format"""
+        chunk = {
+            "id": f"chatcmpl-proxy-{int(time.time())}",
+            "object": "chat.completion.chunk",
+            "created": int(time.time()),
+            "model": "claude-3.5-sonnet",
+            "choices": [
+                {
+                    "index": 0,
+                    "delta": {},
+                    "finish_reason": finish_reason
+                }
+            ]
+        }
+
         if content:
-            data["content"] = content
-        return json.dumps(data) + "\n"
+            chunk["choices"][0]["delta"]["content"] = content
 
-    async def stream_openai_to_builder(self, openai_response: aiohttp.ClientResponse, 
-                                     builder_request: Dict[str, Any], 
+        return f"data: {json.dumps(chunk)}\n\n"
+
+    async def stream_builder_to_openai(self, builder_response: aiohttp.ClientResponse,
                                      response: StreamResponse):
-        """Stream OpenAI response in Builder.io format"""
-        
-        # Send initial metadata
-        user_info = builder_request.get('user', {})
-        session_id = builder_request.get('sessionId', 'proxy-session')
-        
-        # Send user message info
-        await response.write(self.format_builder_response_line(
-            "user",
-            id=f"proxy-{int(time.time())}",
-            displayPrompt=builder_request.get('userPrompt', ''),
-            user=user_info,
-            role="user",
-            compacting=False
-        ).encode())
-        
-        # Send thinking indicator
-        await response.write(self.format_builder_response_line(
-            "thinking", 
-            content="",
-            synthetic=True
-        ).encode())
-        
-        # Process OpenAI stream
-        full_content = ""
-        async for line in openai_response.content:
-            line_text = line.decode('utf-8').strip()
-            if not line_text or not line_text.startswith('data: '):
-                continue
-                
-            if line_text == 'data: [DONE]':
-                break
-                
-            try:
-                # Parse OpenAI streaming response
-                json_str = line_text[6:]  # Remove 'data: ' prefix
-                chunk = json.loads(json_str)
-                
-                if 'choices' in chunk and len(chunk['choices']) > 0:
-                    delta = chunk['choices'][0].get('delta', {})
-                    content = delta.get('content', '')
-                    
-                    if content:
-                        full_content += content
-                        # Send as Builder.io delta
-                        await response.write(self.format_builder_response_line(
-                            "delta",
-                            content=content
-                        ).encode())
-                        
-                    # Send periodic pings
-                    if len(full_content) % 200 == 0:  # Every ~200 chars
-                        await response.write(self.format_builder_response_line("ping").encode())
-                        
-            except json.JSONDecodeError as e:
-                logger.warning(f"Failed to parse OpenAI chunk: {line_text[:100]}... Error: {e}")
-                continue
-        
-        # Send completion metadata
-        completion_id = f"cgen-proxy-{int(time.time())}"
-        await response.write(self.format_builder_response_line(
-            "done",
-            id=completion_id,
-            stopReason="end_turn",
-            actions=[{
-                "type": "text",
-                "id": "0", 
-                "content": full_content
-            }],
-            actionTitle=f"completionId: {completion_id}",
-            unixTime=int(time.time() * 1000),
-            content=full_content,
-            suggestions=[],
-            creditsUsed=0.1,
-            messageIndex=1,
-            nextUrl=f"cgen://completion/{completion_id}",
-            sessionUsage=0.1,
-            needsPagination=False,
-            autoContinue=False
-        ).encode())
-        
-        # Send final continue message
-        await response.write(self.format_builder_response_line(
-            "continue",
-            id=completion_id,
-            nextUrl=f"cgen://completion/{completion_id}",
-            autoContinue=False
-        ).encode())
+        """Stream Builder.io response in OpenAI format"""
 
-    async def handle_completion_request(self, request: Request) -> StreamResponse:
-        """Handle Builder.io codegen completion requests"""
+        # Process Builder.io JSONL stream
+        async for line in builder_response.content:
+            line_text = line.decode('utf-8').strip()
+            if not line_text:
+                continue
+
+            try:
+                # Parse Builder.io JSONL response
+                chunk = json.loads(line_text)
+                chunk_type = chunk.get('type', '')
+
+                if chunk_type == 'delta':
+                    content = chunk.get('content', '')
+                    if content:
+                        # Send as OpenAI delta
+                        await response.write(self.format_openai_response_line(content).encode())
+
+                elif chunk_type == 'done':
+                    # Send completion indicator
+                    await response.write(self.format_openai_response_line(finish_reason="stop").encode())
+                    break
+
+                # Ignore other types (user, thinking, ping, continue)
+
+            except json.JSONDecodeError as e:
+                logger.warning(f"Failed to parse Builder.io chunk: {line_text[:100]}... Error: {e}")
+                continue
+
+        # Send final [DONE]
+        await response.write("data: [DONE]\n\n".encode())
+
+    async def handle_chat_completions(self, request: Request) -> StreamResponse:
+        """Handle OpenAI ChatCompletions requests"""
         try:
-            # Parse Builder.io request
-            builder_request = await request.json()
-            logger.info(f"Received Builder.io request: {builder_request.get('userPrompt', '')[:100]}...")
-            
-            # Convert to OpenAI format
-            openai_request = self.build_openai_request(builder_request)
-            
+            # Parse OpenAI request
+            openai_request = await request.json()
+            user_prompt = self.extract_user_prompt(openai_request)
+            logger.info(f"Received OpenAI request: {user_prompt[:100]}...")
+
+            # Convert to Builder.io format
+            builder_request = self.build_builder_request(openai_request)
+
             # Set up streaming response
             response = StreamResponse(
                 status=200,
                 reason='OK',
                 headers={
-                    'Content-Type': 'application/jsonl; charset=utf-8',
-                    'X-Powered-By': 'Builder.io-OpenAI Proxy',
+                    'Content-Type': 'text/plain; charset=utf-8',
+                    'Cache-Control': 'no-cache',
+                    'Connection': 'keep-alive',
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type, Authorization, sentry-trace, baggage',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
                     'Transfer-Encoding': 'chunked'
                 }
             )
-            
+
             await response.prepare(request)
-            
-            # Call OpenAI and stream response
-            openai_response = await self.call_openai_api(openai_request)
-            await self.stream_openai_to_builder(openai_response, builder_request, response)
-            
+
+            # Call Builder.io and stream response
+            builder_response = await self.call_builder_api(builder_request)
+            await self.stream_builder_to_openai(builder_response, response)
+
             logger.info("Successfully completed request")
             return response
-            
+
         except Exception as e:
             logger.error(f"Error handling request: {e}")
             return web.json_response(
-                {"error": str(e)}, 
+                {"error": {"message": str(e), "type": "proxy_error"}},
                 status=500,
                 headers={'Access-Control-Allow-Origin': '*'}
             )
@@ -278,53 +244,70 @@ You always COMPLETELY IMPLEMENT the needed code!"""
         )
 
 
-async def create_app(openai_base_url: str, openai_api_key: str, model: str) -> web.Application:
+async def create_app(builder_base_url: str, builder_api_key: str, builder_user_id: str) -> web.Application:
     """Create the web application"""
-    proxy = BuilderIOOpenAIProxy(openai_base_url, openai_api_key, model)
+    proxy = OpenAIBuilderIOProxy(builder_base_url, builder_api_key, builder_user_id)
     await proxy.start()
-    
+
     app = web.Application()
-    
-    # Routes
-    app.router.add_post('/codegen/completion', proxy.handle_completion_request)
-    app.router.add_options('/codegen/completion', proxy.handle_options)
-    
+
+    # OpenAI-compatible routes
+    app.router.add_post('/v1/chat/completions', proxy.handle_chat_completions)
+    app.router.add_options('/v1/chat/completions', proxy.handle_options)
+
+    # Model listing (for compatibility)
+    async def list_models(request):
+        return web.json_response({
+            "object": "list",
+            "data": [
+                {
+                    "id": "claude-3.5-sonnet",
+                    "object": "model",
+                    "created": int(time.time()),
+                    "owned_by": "builder.io"
+                }
+            ]
+        })
+
+    app.router.add_get('/v1/models', list_models)
+    app.router.add_options('/v1/models', proxy.handle_options)
+
     # Health check
     async def health_check(request):
-        return web.json_response({"status": "ok", "proxy": "builder.io -> openai"})
-    
+        return web.json_response({"status": "ok", "proxy": "openai -> builder.io"})
+
     app.router.add_get('/health', health_check)
     app.router.add_get('/', health_check)
-    
+
     # Cleanup on shutdown
     async def cleanup(app):
         await proxy.stop()
-    
+
     app.on_cleanup.append(cleanup)
-    
+
     return app
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Builder.io to OpenAI API Proxy')
+    parser = argparse.ArgumentParser(description='OpenAI to Builder.io API Proxy')
     parser.add_argument('--port', type=int, default=8080, help='Port to run proxy on')
     parser.add_argument('--host', default='localhost', help='Host to bind to')
-    parser.add_argument('--openai-url', default='https://api.openai.com/v1', 
-                       help='OpenAI API base URL')
-    parser.add_argument('--openai-key', required=True, help='OpenAI API key')
-    parser.add_argument('--model', default='gpt-4', help='OpenAI model to use')
-    
+    parser.add_argument('--builder-url', default='https://api.builder.io',
+                       help='Builder.io API base URL')
+    parser.add_argument('--builder-key', required=True, help='Builder.io API key')
+    parser.add_argument('--builder-user', default='proxy-user', help='Builder.io user ID')
+
     args = parser.parse_args()
-    
-    logger.info(f"Starting Builder.io -> OpenAI proxy")
-    logger.info(f"Server: http://{args.host}:{args.port}")
-    logger.info(f"OpenAI URL: {args.openai_url}")
-    logger.info(f"Model: {args.model}")
-    
+
+    logger.info(f"Starting OpenAI -> Builder.io proxy")
+    logger.info(f"Server: http://{args.host}:{args.port}/v1")
+    logger.info(f"Builder.io URL: {args.builder_url}")
+    logger.info(f"User ID: {args.builder_user}")
+
     async def init():
-        app = await create_app(args.openai_url, args.openai_key, args.model)
+        app = await create_app(args.builder_url, args.builder_key, args.builder_user)
         return app
-    
+
     web.run_app(init(), host=args.host, port=args.port)
 
 
