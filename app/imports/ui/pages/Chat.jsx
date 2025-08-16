@@ -224,52 +224,28 @@ class MobileChat extends React.Component {
 
   // Helper to hide/show iOS native navbars
   hideIOSNavBars = async () => {
-    if (window.cordova?.plugins?.NativeNavBar) {
+    if (window.cordova?.plugins?.NativeNavBar?.promise?.hideAllNavBars) {
       try {
-        // Call global hide function if available
-        if (window.cordova.plugins.NativeNavBar.promise.hideAllNavBars) {
-          await window.cordova.plugins.NativeNavBar.promise.hideAllNavBars();
-          console.log("[Chat] 🙈 Hidden all iOS navbars");
-        } else {
-          // Fallback: try to hide common navbar IDs
-          const commonNavBarIds = ["bottom-navbar", "top-navbar", "main-navbar"];
-          for (const navBarId of commonNavBarIds) { // eslint-disable-line no-restricted-syntax
-            try {
-              await window.cordova.plugins.NativeNavBar.promise.hideNavBar(navBarId);
-              console.log("[Chat] 🙈 Hidden iOS navbar:", navBarId);
-            } catch (error) {
-              // Silently fail - navbar might not exist
-            }
-          }
-        }
+        const result = await window.cordova.plugins.NativeNavBar.promise.hideAllNavBars();
+        console.log("[Chat] 🙈 Hidden all iOS navbars:", result);
       } catch (error) {
         console.warn("[Chat] ⚠️ Error hiding iOS navbars:", error);
       }
+    } else {
+      console.log("[Chat] ℹ️ Native navbar plugin not available or hideAllNavBars not supported");
     }
   };
 
   showIOSNavBars = async () => {
-    if (window.cordova?.plugins?.NativeNavBar) {
+    if (window.cordova?.plugins?.NativeNavBar?.promise?.showAllNavBars) {
       try {
-        // Call global show function if available
-        if (window.cordova.plugins.NativeNavBar.promise.showAllNavBars) {
-          await window.cordova.plugins.NativeNavBar.promise.showAllNavBars();
-          console.log("[Chat] 👁️ Restored all iOS navbars");
-        } else {
-          // Fallback: try to show common navbar IDs
-          const commonNavBarIds = ["bottom-navbar", "top-navbar", "main-navbar"];
-          for (const navBarId of commonNavBarIds) { // eslint-disable-line no-restricted-syntax
-            try {
-              await window.cordova.plugins.NativeNavBar.promise.showNavBar(navBarId);
-              console.log("[Chat] 👁️ Restored iOS navbar:", navBarId);
-            } catch (error) {
-              // Silently fail - navbar might not exist
-            }
-          }
-        }
+        const result = await window.cordova.plugins.NativeNavBar.promise.showAllNavBars();
+        console.log("[Chat] 👁️ Restored all iOS navbars:", result);
       } catch (error) {
         console.warn("[Chat] ⚠️ Error restoring iOS navbars:", error);
       }
+    } else {
+      console.log("[Chat] ℹ️ Native navbar plugin not available or showAllNavBars not supported");
     }
   };
 

@@ -213,7 +213,7 @@ export const useNativeNavBar = () => {
   }, []);
 
   const showNavBar = useCallback(async (navBarId) => {
-    console.log("[useNativeNavBar] 👁️ showNavBar called:", navBarId);
+    console.log("[useNativeNavBar] ����️ showNavBar called:", navBarId);
 
     if (!window.cordova?.plugins?.NativeNavBar) {
       throw new Error("Plugin not available");
@@ -261,6 +261,40 @@ export const useNativeNavBar = () => {
     }
   }, []);
 
+  const hideAllNavBars = useCallback(async () => {
+    console.log("[useNativeNavBar] 🙈 hideAllNavBars called");
+
+    if (!window.cordova?.plugins?.NativeNavBar) {
+      throw new Error("Plugin not available");
+    }
+
+    try {
+      const result = await window.cordova.plugins.NativeNavBar.promise.hideAllNavBars();
+      console.log("[useNativeNavBar] ✅ All navbars hidden:", result);
+      return result;
+    } catch (error) {
+      console.error("[useNativeNavBar] ❌ Hide all navbars error:", error);
+      throw error;
+    }
+  }, []);
+
+  const showAllNavBars = useCallback(async () => {
+    console.log("[useNativeNavBar] 👁️ showAllNavBars called");
+
+    if (!window.cordova?.plugins?.NativeNavBar) {
+      throw new Error("Plugin not available");
+    }
+
+    try {
+      const result = await window.cordova.plugins.NativeNavBar.promise.showAllNavBars();
+      console.log("[useNativeNavBar] ✅ All navbars shown:", result);
+      return result;
+    } catch (error) {
+      console.error("[useNativeNavBar] ❌ Show all navbars error:", error);
+      throw error;
+    }
+  }, []);
+
   return {
     // State
     isSupported,
@@ -275,6 +309,10 @@ export const useNativeNavBar = () => {
     hideNavBar,
     removeNavBar,
     setActionHandler,
+
+    // Global navbar methods
+    hideAllNavBars,
+    showAllNavBars,
 
     // New centralized action handler methods
     registerActionHandler,

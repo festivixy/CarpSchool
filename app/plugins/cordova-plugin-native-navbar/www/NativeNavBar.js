@@ -78,6 +78,20 @@ const NativeNavBar = {
     },
 
     /**
+     * Hide all active navbars
+     */
+    hideAllNavBars: function (success, error) {
+        exec(success, error, "NativeNavBar", "hideAllNavBars", []);
+    },
+
+    /**
+     * Show all active navbars
+     */
+    showAllNavBars: function (success, error) {
+        exec(success, error, "NativeNavBar", "showAllNavBars", []);
+    },
+
+    /**
      * Get iOS version
      */
     getIOSVersion: function (success, error) {
@@ -132,6 +146,18 @@ NativeNavBar.promise = {
     setActionHandler: function (handler) {
         return new Promise(function (resolve, reject) {
             NativeNavBar.setActionHandler(handler, resolve, reject);
+        });
+    },
+
+    hideAllNavBars: function () {
+        return new Promise(function (resolve, reject) {
+            NativeNavBar.hideAllNavBars(resolve, reject);
+        });
+    },
+
+    showAllNavBars: function () {
+        return new Promise(function (resolve, reject) {
+            NativeNavBar.showAllNavBars(resolve, reject);
         });
     },
 

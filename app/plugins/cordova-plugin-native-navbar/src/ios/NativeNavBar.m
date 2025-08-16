@@ -235,6 +235,50 @@
     // Keep callback for future use - don't send result yet
 }
 
+- (void)hideAllNavBars:(CDVInvokedUrlCommand*)command {
+    NSLog(@"[NativeNavBar] Hiding all navbars - count: %lu", (unsigned long)[self.navBars count]);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUInteger hiddenCount = 0;
+        for (NSString *navBarId in self.navBars) {
+            UITabBar *tabBar = [self.navBars objectForKey:navBarId];
+            if (tabBar && !tabBar.hidden) {
+                tabBar.hidden = YES;
+                hiddenCount++;
+                NSLog(@"[NativeNavBar] Hidden navbar: %@", navBarId);
+            }
+        }
+
+        NSLog(@"[NativeNavBar] Hidden %lu navbars total", (unsigned long)hiddenCount);
+
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                                              messageAsString:[NSString stringWithFormat:@"Hidden %lu navbars", (unsigned long)hiddenCount]];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    });
+}
+
+- (void)showAllNavBars:(CDVInvokedUrlCommand*)command {
+    NSLog(@"[NativeNavBar] Showing all navbars - count: %lu", (unsigned long)[self.navBars count]);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUInteger shownCount = 0;
+        for (NSString *navBarId in self.navBars) {
+            UITabBar *tabBar = [self.navBars objectForKey:navBarId];
+            if (tabBar && tabBar.hidden) {
+                tabBar.hidden = NO;
+                shownCount++;
+                NSLog(@"[NativeNavBar] Shown navbar: %@", navBarId);
+            }
+        }
+
+        NSLog(@"[NativeNavBar] Shown %lu navbars total", (unsigned long)shownCount);
+
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                                              messageAsString:[NSString stringWithFormat:@"Shown %lu navbars", (unsigned long)shownCount]];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    });
+}
+
 - (void)getIOSVersion:(CDVInvokedUrlCommand*)command {
     NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
     NSLog(@"[NativeNavBar] iOS Version: %@", systemVersion);
