@@ -57,47 +57,57 @@ class OpenAIBuilderIOProxy:
         return 'Hello Claude'
 
     def build_builder_request(self, openai_request: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert OpenAI ChatCompletions request to Builder.io format"""
+        """Convert OpenAI ChatCompletions request to Builder.io format (disguised as CLI)"""
 
         user_prompt = self.extract_user_prompt(openai_request)
 
-        # Build Builder.io request format (chat-only, no file/tool context)
+        # Build Builder.io request format (disguised as official CLI)
         builder_request = {
-            "position": "chat",
-            "eventName": "openai chat proxy",
-            "maxPages": 1,
-            "autoContinue": 0,
-            "codeGenMode": "chat",
+            "position": "cli",
+            "eventName": "cli code",
+            "maxPages": 2,
+            "autoContinue": 1,
+            "codeGenMode": "quality-v3",
             "userContext": {
-                "client": "openai-chat-proxy",
-                "clientVersion": "1.0.0"
+                "client": "@builder.io/dev-tools",
+                "clientVersion": "1.7.28",
+                "nodeVersion": "v20.0.0",
+                "frameworks": ["react"],
+                "systemPlatform": "darwin",
+                "systemEOL": "\n",
+                "systemArch": "arm64",
+                "inGitRepo": True,
+                "systemShell": "/bin/zsh"
             },
+            "files": [],
             "mcpServers": False,
             "attachments": [],
-            "customInstructions": [
-                "You are Claude 3.5 Sonnet, made by Anthropic. You are a helpful, harmless, and honest AI assistant."
-            ],
-            "sessionId": f"chat-proxy-{int(time.time())}",
+            "customInstructions": [],
+            "sessionId": f"session-{int(time.time())}",
             "userPrompt": user_prompt,
             "pingEvents": True,
+            "workingDirectory": "/app",
+            "toolResults": [],
             "role": "user",
             "user": {
-                "source": "openai-chat-proxy",
+                "source": "builder.io",
                 "userId": self.builder_user_id,
                 "role": "user"
             },
+            "enabledTools": [],
             "searchResponse": None
         }
 
-        logger.info(f"Built Builder.io chat request for: {user_prompt[:100]}...")
+        logger.info(f"Built Builder.io CLI request for: {user_prompt[:100]}...")
         return builder_request
 
     async def call_builder_api(self, builder_request: Dict[str, Any]) -> aiohttp.ClientResponse:
-        """Make request to Builder.io API"""
+        """Make request to Builder.io API (disguised as CLI)"""
         headers = {
             'Authorization': f'Bearer {self.builder_api_key}',
             'Content-Type': 'application/json',
-            'User-Agent': 'OpenAI-Proxy/1.0.0'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) builder-cli/1.7.28',
+            'Sec-Ch-Ua-Platform': '"macOS"'
         }
 
         # Build URL with query parameters like the original
@@ -287,11 +297,11 @@ def main():
 
     args = parser.parse_args()
 
-    logger.info(f"Starting OpenAI -> Builder.io chat proxy (no files/tools)")
+    logger.info(f"Starting OpenAI-compatible Builder.io interface")
     logger.info(f"Server: http://{args.host}:{args.port}/v1")
     logger.info(f"Builder.io URL: {args.builder_url}")
     logger.info(f"User ID: {args.builder_user}")
-    logger.info(f"Mode: Chat-only (no file operations or tools)")
+    logger.info(f"Mode: CLI-compatible requests")
 
     async def init():
         app = await create_app(args.builder_url, args.builder_key, args.builder_user)
