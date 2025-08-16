@@ -47,97 +47,62 @@ export const EdgeSwipeBackContainer = styled.div`
 `;
 
 export const SwipeBlob = styled.div`
-  /* Position absolutely based on touch coordinates */
+  /* Independent overlay positioned on top of everything */
   position: fixed;
   left: 0;
   top: 0;
 
-  /* Blob appearance - made extremely visible for testing */
-  width: 80px;
-  height: 80px;
+  /* Production blob appearance */
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 
-  /* Dynamic styling - solid bright colors for testing */
-  background: ${props => {
-    const progress = props.progress;
-    if (progress >= 1) return '#00FF00'; // Solid green when complete
-    if (progress >= 0.7) return '#FFA500'; // Solid orange when close
-    return '#FF0000'; // Solid red for maximum visibility
-  }};
+  /* Always iOS blue */
+  background: rgba(0, 122, 255, 0.9);
 
-  /* Add thick border for visibility testing */
-  border: 4px solid #FFFFFF;
-  box-shadow: 0 0 0 2px #000000; /* Black outline for contrast */
+  /* Position and scale transform */
+  transform: translate(${props => props.x - 20}px, ${props => props.y - 20}px) scale(${props => 0.6 + (props.progress * 0.4)});
 
-  /* Size based on progress - combine with position transform */
-  transform: translate(${props => props.x - 30}px, ${props => props.y - 30}px) scale(${props => 0.5 + (props.progress * 0.5)});
-
-  /* Visibility and animation */
+  /* Visibility control */
+  display: ${props => props.visible ? 'block' : 'none'};
   opacity: ${props => props.visible ? 1 : 0};
-  visibility: ${props => props.visible ? 'visible' : 'hidden'};
-  transition: opacity 0.1s ease-out;
+
+  /* Smooth animations */
+  transition: opacity 0.15s ease-out;
 
   /* Force hardware acceleration */
   will-change: transform, opacity;
+  backface-visibility: hidden;
 
-  /* Pointer events */
+  /* Completely non-interactive overlay */
   pointer-events: none;
   user-select: none;
+  touch-action: none;
 
-  /* Layer above everything to ensure visibility */
+  /* High z-index to ensure visibility */
   z-index: 9999;
 
-  /* Add subtle glow effect */
+  /* Subtle blue glow effect */
   box-shadow:
-    0 0 20px ${props => {
-      const progress = props.progress;
-      if (progress >= 1) return 'rgba(0, 255, 0, 0.4)';
-      if (progress >= 0.7) return 'rgba(255, 165, 0, 0.4)';
-      return 'rgba(0, 122, 255, 0.4)';
-    }},
-    0 0 40px ${props => {
-      const progress = props.progress;
-      if (progress >= 1) return 'rgba(0, 255, 0, 0.2)';
-      if (progress >= 0.7) return 'rgba(255, 165, 0, 0.2)';
-      return 'rgba(0, 122, 255, 0.2)';
-    }};
+    0 2px 12px rgba(0, 122, 255, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
 
   /* Pulse animation when complete */
   ${props => props.progress >= 1 && css`
     animation: ${pulseAnimation} 0.3s ease-in-out;
   `}
 
-  /* Add inner highlight for depth */
+  /* Inner highlight for depth */
   &::before {
     content: '';
     position: absolute;
-    top: 6px;
-    left: 6px;
-    width: 12px;
-    height: 12px;
+    top: 8px;
+    left: 8px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.7);
     pointer-events: none;
   }
 
-  /* Add progress indicator around the edge */
-  &::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    border-top-color: ${props => {
-      const progress = props.progress;
-      if (progress >= 1) return 'rgba(0, 255, 0, 1)';
-      if (progress >= 0.7) return 'rgba(255, 165, 0, 1)';
-      return 'rgba(0, 122, 255, 1)';
-    }};
-    transform: rotate(${props => props.progress * 360}deg);
-    transition: transform 0.1s ease-out;
-    pointer-events: none;
-  }
 `;

@@ -23,7 +23,8 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
 
     // Configuration
     const EDGE_THRESHOLD = 20; // Pixels from edge to start gesture
-    const MIN_SWIPE_DISTANCE = 100; // Minimum distance to trigger back
+    const MIN_SWIPE_DISTANCE = 30; // Minimum distance for valid swipe
+    const MAX_SWIPE_DISTANCE = 100; // Maximum distance for valid swipe
     const MAX_SWIPE_TIME = 500; // Maximum time for gesture (ms)
     const MAX_VERTICAL_DRIFT = 100; // Maximum vertical movement allowed
 
@@ -42,19 +43,17 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
         isSwipingRef.current = true;
 
         // Show blob at starting position
-        const newBlobState = {
+        setBlobState({
           visible: true,
           x: startX,
           y: startY,
           progress: 0
-        };
-        setBlobState(newBlobState);
-        console.log('[EdgeSwipeBack] 🔵 Blob shown:', newBlobState);
+        });
 
         // Add visual feedback
         document.body.style.userSelect = 'none';
 
-        console.log('[EdgeSwipeBack] 👆 Edge swipe started at:', { x: startX, y: startY });
+        // Edge swipe gesture started
       }
     };
 
@@ -73,34 +72,35 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
       // Cancel if too much vertical movement
       if (deltaY > MAX_VERTICAL_DRIFT) {
         isSwipingRef.current = false;
-        setBlobState(prev => ({ ...prev, visible: false }));
+        setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
         document.body.style.userSelect = '';
-        console.log('[EdgeSwipeBack] ❌ Cancelled due to vertical drift');
         return;
       }
 
       // Cancel if swiping backwards (left)
       if (deltaX < 0) {
         isSwipingRef.current = false;
-        setBlobState(prev => ({ ...prev, visible: false }));
+        setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
         document.body.style.userSelect = '';
-        console.log('[EdgeSwipeBack] ❌ Cancelled due to wrong direction');
         return;
       }
 
-      // Update blob position and progress
-      const progress = Math.min(deltaX / MIN_SWIPE_DISTANCE, 1);
-      const newBlobState = {
-        visible: true,
-        x: currentX,
-        y: currentY,
-        progress: progress
-      };
-      setBlobState(newBlobState);
-
-      // Debug log every 50px of movement
-      if (Math.floor(deltaX / 50) !== Math.floor((deltaX - 10) / 50)) {
-        console.log('[EdgeSwipeBack] 🔵 Blob updated:', newBlobState);
+      // Update blob based on distance ranges
+      if (deltaX <= 100) {
+        // 1-100px: Keep blob displayed
+        const progress = Math.min(deltaX / 100, 1);
+        setBlobState({
+          visible: true,
+          x: currentX,
+          y: currentY,
+          progress: progress
+        });
+      } else {
+        // Over 100px: Remove blob and stop everything
+        isSwipingRef.current = false;
+        setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
+        document.body.style.userSelect = '';
+        return;
       }
 
       // Only prevent default for horizontal swipes to preserve app responsiveness
@@ -127,55 +127,31 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
       isSwipingRef.current = false;
       document.body.style.userSelect = '';
 
-      // Check if this qualifies as a back gesture
+      // Check if this qualifies as a back gesture (30-100px range, under 500ms)
       const isValidSwipe =
-        deltaX >= MIN_SWIPE_DISTANCE &&
+        deltaX >= 30 &&
+        deltaX <= 100 &&
         deltaY <= MAX_VERTICAL_DRIFT &&
         swipeTime <= MAX_SWIPE_TIME;
 
       if (isValidSwipe) {
-        console.log('[EdgeSwipeBack] ✅ Valid back gesture detected:', {
-          distance: deltaX,
-          time: swipeTime,
-          vertical: deltaY
-        });
+        // Remove blob and navigate back
+        setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
 
-        // Show completion animation before hiding
-        setBlobState(prev => ({ ...prev, progress: 1 }));
-
-        // Hide blob after brief delay and navigate
-        setTimeout(() => {
-          setBlobState(prev => ({ ...prev, visible: false }));
-
-          // Trigger back navigation
-          if (history.length > 1) {
-            history.goBack();
-            console.log('[EdgeSwipeBack] 🔙 Navigated back');
-          } else {
-            console.log('[EdgeSwipeBack] ℹ️ No history to go back to');
-          }
-        }, 150);
-
+        // Trigger back navigation
+        if (history.length > 1) {
+          history.goBack();
+        }
       } else {
-        // Hide blob immediately for invalid swipe
-        setBlobState(prev => ({ ...prev, visible: false }));
-
-        console.log('[EdgeSwipeBack] ❌ Invalid swipe:', {
-          distance: deltaX,
-          time: swipeTime,
-          vertical: deltaY,
-          minDistance: MIN_SWIPE_DISTANCE,
-          maxTime: MAX_SWIPE_TIME,
-          maxVertical: MAX_VERTICAL_DRIFT
-        });
+        // Invalid swipe - just hide blob, do nothing
+        setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
       }
     };
 
     const handleTouchCancel = () => {
       isSwipingRef.current = false;
-      setBlobState(prev => ({ ...prev, visible: false }));
+      setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
       document.body.style.userSelect = '';
-      console.log('[EdgeSwipeBack] 🚫 Touch cancelled');
     };
 
     // Add event listeners to document to avoid blocking app interactions
@@ -203,17 +179,18 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
   }
 
   return (
-    <EdgeSwipeBackContainer
-      ref={containerRef}
-      disabled={disabled}
-    >
+    <>
+      <EdgeSwipeBackContainer
+        ref={containerRef}
+        disabled={disabled}
+      />
       <SwipeBlob
         visible={blobState.visible}
         x={blobState.x}
         y={blobState.y}
         progress={blobState.progress}
       />
-    </EdgeSwipeBackContainer>
+    </>
   );
 };
 
