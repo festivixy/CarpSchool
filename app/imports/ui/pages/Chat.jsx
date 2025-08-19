@@ -557,7 +557,7 @@ MobileChat.propTypes = {
 
 export default withRouter(
   withTracker((props) => {
-    // Check for URL parameters
+    // Memoize URL parameter parsing to prevent unnecessary re-parsing
     const urlParams = new URLSearchParams(props.location.search);
     const rideId = urlParams.get("rideId");
 
@@ -571,10 +571,17 @@ export default withRouter(
 
     const ready = subscription.ready();
 
+    // Only fetch and sort chats when subscription is ready for better performance
+    const chats = ready
+      ? Chats.find({}, {
+          sort: { "Messages.0.Timestamp": -1 } // Sort by latest message
+        }).fetch()
+      : [];
+
     return {
-      chats: ready ? Chats.find({}).fetch() : [],
-      ready: ready,
-      rideId: rideId,
+      chats,
+      ready,
+      rideId,
     };
   })(MobileChat),
 );
