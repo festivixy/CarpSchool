@@ -1,6 +1,6 @@
 /**
  * Optimized map service utilities with debouncing, caching, and request management
- * 
+ *
  * This module provides efficient access to Nominatim search and OSRM routing services
  * with automatic caching, request debouncing, and deduplication.
  */
@@ -12,6 +12,10 @@ const routeCache = new Map();
 // Pending requests to prevent duplicates
 const pendingSearchRequests = new Map();
 const pendingRouteRequests = new Map();
+
+// Active AbortControllers for canceling requests
+const activeSearchControllers = new Map();
+const activeRouteControllers = new Map();
 
 // Cache configuration
 const CACHE_CONFIG = {
@@ -53,13 +57,13 @@ const CacheManager = {
   get(cache, key, ttl) {
     const item = cache.get(key);
     if (!item) return null;
-    
+
     const isExpired = Date.now() - item.timestamp > ttl;
     if (isExpired) {
       cache.delete(key);
       return null;
     }
-    
+
     return item.data;
   },
 
@@ -72,7 +76,7 @@ const CacheManager = {
       const firstKey = cache.keys().next().value;
       cache.delete(firstKey);
     }
-    
+
     cache.set(key, {
       data,
       timestamp: Date.now(),
@@ -112,10 +116,20 @@ const searchLocations = async (query, options = {}) => {
     return cachedResult;
   }
 
+  // Cancel any existing search for this query (for rapid typing)
+  if (activeSearchControllers.has(normalizedQuery)) {
+    activeSearchControllers.get(normalizedQuery).abort();
+    activeSearchControllers.delete(normalizedQuery);
+  }
+
   // Check if request is already pending
   if (pendingSearchRequests.has(cacheKey)) {
     return pendingSearchRequests.get(cacheKey);
   }
+
+  // Create abort controller for this request
+  const controller = new AbortController();
+  activeSearchControllers.set(normalizedQuery, controller);
 
   // Create new request
   const requestPromise = (async () => {
@@ -134,7 +148,9 @@ const searchLocations = async (query, options = {}) => {
       searchUrl.searchParams.set('countrycodes', countrycodes);
 
       console.log('[MapServices] Fetching search results for:', normalizedQuery);
-      const response = await fetch(searchUrl.toString());
+
+      // Use fetch with timeout and cancellation (5 second timeout for search)
+      const response = await fetchWithTimeout(searchUrl.toString(), 5000, controller);
 
       if (!response.ok) {
         throw new Error(`Nominatim search failed: ${response.status}`);
@@ -159,8 +175,9 @@ const searchLocations = async (query, options = {}) => {
       console.error('[MapServices] Search error:', error);
       throw error;
     } finally {
-      // Remove from pending requests
+      // Remove from pending requests and cleanup controller
       pendingSearchRequests.delete(cacheKey);
+      activeSearchControllers.delete(normalizedQuery);
     }
   })();
 
@@ -176,7 +193,37 @@ const searchLocations = async (query, options = {}) => {
 export const debouncedSearch = debounce(searchLocations, 300);
 
 /**
- * Optimized OSRM routing with caching
+ * Create a fetch request with timeout and cancellation
+ * @param {string} url - URL to fetch
+ * @param {number} timeout - Timeout in milliseconds
+ * @param {AbortController} externalController - Optional external controller for cancellation
+ * @returns {Promise} - Fetch promise with timeout
+ */
+const fetchWithTimeout = (url, timeout = 10000, externalController = null) => {
+  const controller = externalController || new AbortController();
+  const signal = controller.signal;
+
+  // Set up timeout
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, timeout);
+
+  return fetch(url, { signal })
+    .then(response => {
+      clearTimeout(timeoutId);
+      return response;
+    })
+    .catch(error => {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        throw new Error(`Request timeout after ${timeout}ms`);
+      }
+      throw error;
+    });
+};
+
+/**
+ * Optimized OSRM routing with caching and timeout handling
  * @param {object} startCoord - Start coordinates {lat, lng}
  * @param {object} endCoord - End coordinates {lat, lng}
  * @param {object} options - Routing options
@@ -204,17 +251,19 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
     return pendingRouteRequests.get(cacheKey);
   }
 
-  // Create new request
+  // Create new request with timeout handling
   const requestPromise = (async () => {
     try {
-      const { service = 'driving' } = options;
-      
+      const { service = 'driving', timeout = 8000 } = options;
+
       const baseUrl = 'https://osrm.carp.school/route/v1';
       const coords = `${startCoord.lng},${startCoord.lat};${endCoord.lng},${endCoord.lat}`;
       const routeUrl = `${baseUrl}/${service}/${coords}?overview=full&geometries=geojson`;
 
-      console.log('[MapServices] Fetching route from OSRM');
-      const response = await fetch(routeUrl);
+      console.log('[MapServices] Fetching route from OSRM with timeout:', timeout);
+
+      // Use fetch with timeout to prevent hanging
+      const response = await fetchWithTimeout(routeUrl, timeout);
 
       if (!response.ok) {
         throw new Error(`OSRM routing failed: ${response.status}`);
@@ -240,10 +289,10 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
       }
     } catch (error) {
       console.error('[MapServices] Route error:', error);
-      
-      // Fallback to straight line if routing fails
+
+      // Fallback to straight line if routing fails or times out
       const straightLineRoute = createStraightLineRoute(startCoord, endCoord);
-      console.warn('[MapServices] Using straight line fallback');
+      console.warn('[MapServices] Using straight line fallback due to:', error.message);
       return straightLineRoute;
     } finally {
       // Remove from pending requests
@@ -302,14 +351,26 @@ const calculateDistance = (start, end) => {
  */
 export const MapServiceCache = {
   /**
-   * Clear all caches
+   * Clear all caches and cancel pending requests
    */
   clearAll() {
+    // Cancel all active requests
+    for (const controller of activeSearchControllers.values()) {
+      controller.abort();
+    }
+    for (const controller of activeRouteControllers.values()) {
+      controller.abort();
+    }
+
+    // Clear all caches and maps
     searchCache.clear();
     routeCache.clear();
     pendingSearchRequests.clear();
     pendingRouteRequests.clear();
-    console.log('[MapServices] All caches cleared');
+    activeSearchControllers.clear();
+    activeRouteControllers.clear();
+
+    console.log('[MapServices] All caches cleared and requests canceled');
   },
 
   /**
