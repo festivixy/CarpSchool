@@ -7,6 +7,7 @@ import { Chats } from "../../api/chat/Chat";
 import "../../api/chat/ChatMethods";
 import { MobileOnly, DesktopOnly } from "../layouts/Devices";
 import BackButton from "../mobile/components/BackButton";
+import ChatMessage from "../components/ChatMessage";
 import { ChatSkeleton } from "../skeleton";
 import {
   Container,
