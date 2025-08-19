@@ -32,11 +32,15 @@ import {
   JoinButton,
   ChatButton,
   StartRideButton,
+  ConfirmPickupButton,
+  ShowCodeButton,
   MapButton,
   ShareIcon,
   JoinIcon,
   ChatIcon,
   StartRideIcon,
+  ConfirmPickupIcon,
+  ShowCodeIcon,
   MapIcon,
   Spinner,
   ModalOverlay,
@@ -53,6 +57,22 @@ import {
   ModalActions,
   CopyButton,
   DoneButton,
+  PickupOverlay,
+  PickupModal,
+  PickupModalHeader,
+  PickupModalTitle,
+  RiderList,
+  RiderItem,
+  RiderName,
+  RiderStatus,
+  CodeInputSection,
+  CodeDisplay,
+  CodeDigit,
+  CodeInput,
+  VerifyButton,
+  CodeModalContent,
+  FullCodeDisplay,
+  CodeInstructions,
 } from "../styles/Ride";
 
 /** Ride component with clean design and join functionality */
@@ -65,6 +85,13 @@ class Ride extends React.Component {
       isGenerating: false,
       isExistingCode: false,
       mapModalOpen: false,
+      pickupModalOpen: false,
+      codeModalOpen: false,
+      selectedRiderId: null,
+      codeInput: "",
+      verifyingCode: false,
+      riderCodes: {}, // Store code hints for riders
+      fullCode: null, // For rider's code display
     };
   }
 
@@ -252,6 +279,160 @@ class Ride extends React.Component {
     });
   };
 
+  canConfirmPickup = () => {
+    const { ride, rideSessions } = this.props;
+
+    // Must be the driver
+    if (!this.isCurrentUserDriver()) {
+      return false;
+    }
+
+    // Find the active session for this ride
+    const session = rideSessions.find(session =>
+      session.rideId === ride._id &&
+      (session.status === "active" || session.status === "created") &&
+      !session.finished
+    );
+
+    if (!session) {
+      return false;
+    }
+
+    // Check if there are unpicked riders
+    const unpickedRiders = session.riders.filter(riderId => {
+      const progress = session.progress[riderId];
+      return progress && !progress.pickedUp && !progress.codeError;
+    });
+
+    return unpickedRiders.length > 0;
+  };
+
+  canShowCode = () => {
+    const { ride, rideSessions } = this.props;
+    const currentUser = Meteor.user();
+
+    if (!currentUser) return false;
+
+    // Find the active session for this ride
+    const session = rideSessions.find(session =>
+      session.rideId === ride._id &&
+      (session.status === "active" || session.status === "created") &&
+      !session.finished
+    );
+
+    if (!session) {
+      return false;
+    }
+
+    // User must be a rider in this session
+    return session.riders.includes(currentUser.username);
+  };
+
+  handleConfirmPickup = () => {
+    this.setState({ pickupModalOpen: true });
+    this.loadRiderCodes();
+  };
+
+  handleShowCode = () => {
+    const { ride } = this.props;
+    const currentUser = Meteor.user();
+
+    if (!currentUser) return;
+
+    Meteor.call("rideSessions.getPickupCodeHint", this.getSessionId(), currentUser.username, (error, result) => {
+      if (error) {
+        swal("Error", error.reason || error.message, "error");
+      } else {
+        this.setState({
+          codeModalOpen: true,
+          fullCode: result.fullCode
+        });
+      }
+    });
+  };
+
+  getSessionId = () => {
+    const { ride, rideSessions } = this.props;
+    const session = rideSessions.find(session =>
+      session.rideId === ride._id &&
+      !session.finished
+    );
+    return session ? session._id : null;
+  };
+
+  loadRiderCodes = () => {
+    const sessionId = this.getSessionId();
+    if (!sessionId) return;
+
+    const { rideSessions } = this.props;
+    const session = rideSessions.find(s => s._id === sessionId);
+    if (!session) return;
+
+    const riderCodes = {};
+    session.riders.forEach(riderId => {
+      Meteor.call("rideSessions.getPickupCodeHint", sessionId, riderId, (error, result) => {
+        if (!error && result) {
+          this.setState(prev => ({
+            riderCodes: {
+              ...prev.riderCodes,
+              [riderId]: result
+            }
+          }));
+        }
+      });
+    });
+  };
+
+  handleRiderSelect = (riderId) => {
+    this.setState({
+      selectedRiderId: riderId,
+      codeInput: ""
+    });
+  };
+
+  handleCodeVerification = () => {
+    const { selectedRiderId, codeInput } = this.state;
+    const sessionId = this.getSessionId();
+
+    if (!sessionId || !selectedRiderId || codeInput.length !== 2) return;
+
+    this.setState({ verifyingCode: true });
+
+    Meteor.call("rideSessions.verifyPickupCode", sessionId, selectedRiderId, codeInput, (error, result) => {
+      this.setState({ verifyingCode: false });
+
+      if (error) {
+        swal("Verification Failed", error.reason || error.message, "error");
+        // Reload rider codes to get updated attempt count
+        this.loadRiderCodes();
+      } else {
+        swal("Success!", result.message, "success");
+        this.setState({
+          pickupModalOpen: false,
+          selectedRiderId: null,
+          codeInput: "",
+          riderCodes: {}
+        });
+      }
+    });
+  };
+
+  closePickupModal = () => {
+    this.setState({
+      pickupModalOpen: false,
+      selectedRiderId: null,
+      codeInput: "",
+      riderCodes: {}
+    });
+  };
+
+  closeCodeModal = () => {
+    this.setState({
+      codeModalOpen: false,
+      fullCode: null
+    });
+  };
+
   handleJoinRide = () => {
     const { ride } = this.props;
 
@@ -408,6 +589,8 @@ class Ride extends React.Component {
           {(this.canShareRide() ||
             this.canJoinRide() ||
             this.canStartRide() ||
+            this.canConfirmPickup() ||
+            this.canShowCode() ||
             this.canAccessChat() ||
             (this.getPlaceCoordinates(ride.origin) &&
              this.getPlaceCoordinates(ride.destination))) && (
@@ -453,6 +636,22 @@ class Ride extends React.Component {
                     <StartRideIcon>🚀</StartRideIcon>
                   )}
                 </StartRideButton>
+              )}
+              {this.canConfirmPickup() && (
+                <ConfirmPickupButton
+                  onClick={this.handleConfirmPickup}
+                  title="Confirm Pickup"
+                >
+                  <ConfirmPickupIcon>✅</ConfirmPickupIcon>
+                </ConfirmPickupButton>
+              )}
+              {this.canShowCode() && (
+                <ShowCodeButton
+                  onClick={this.handleShowCode}
+                  title="Show Pickup Code"
+                >
+                  <ShowCodeIcon>🔢</ShowCodeIcon>
+                </ShowCodeButton>
               )}
               {this.canAccessChat() && (
                 <ChatButton
@@ -556,7 +755,118 @@ class Ride extends React.Component {
                 </ModalContent>
 
                 <ModalActions>
-                  <DoneButton onClick={this.closeMapModal}>✓ Close</DoneButton>
+                  <DoneButton onClick={this.closeMapModal}>��� Close</DoneButton>
+                </ModalActions>
+              </Modal>
+            </ModalOverlay>,
+            document.body,
+          )}
+
+        {/* Pickup Confirmation Modal - Rendered via Portal */}
+        {this.state.pickupModalOpen &&
+          ReactDOM.createPortal(
+            <PickupOverlay onClick={this.closePickupModal}>
+              <PickupModal onClick={(e) => e.stopPropagation()}>
+                <PickupModalHeader>
+                  <PickupModalTitle>
+                    ✅ Confirm Pickup
+                  </PickupModalTitle>
+                  <ModalClose onClick={this.closePickupModal}>✕</ModalClose>
+                </PickupModalHeader>
+
+                <RiderList>
+                  {this.props.rideSessions
+                    .find(session => session.rideId === ride._id && !session.finished)
+                    ?.riders
+                    .filter(riderId => {
+                      const session = this.props.rideSessions.find(s => s.rideId === ride._id && !s.finished);
+                      const progress = session?.progress[riderId];
+                      return progress && !progress.pickedUp;
+                    })
+                    .map(riderId => {
+                      const session = this.props.rideSessions.find(s => s.rideId === ride._id && !s.finished);
+                      const progress = session?.progress[riderId];
+                      const riderCodeData = this.state.riderCodes[riderId];
+                      const isSelected = this.state.selectedRiderId === riderId;
+                      const isDisabled = progress?.codeError;
+
+                      return (
+                        <RiderItem
+                          key={riderId}
+                          error={isDisabled}
+                          disabled={isDisabled}
+                          onClick={() => !isDisabled && this.handleRiderSelect(riderId)}
+                        >
+                          <RiderName>{riderId}</RiderName>
+                          <RiderStatus error={isDisabled}>
+                            {isDisabled
+                              ? "Code verification disabled (too many attempts)"
+                              : `Attempts remaining: ${riderCodeData?.attemptsRemaining ?? 5}`
+                            }
+                          </RiderStatus>
+
+                          {isSelected && !isDisabled && riderCodeData && (
+                            <CodeInputSection>
+                              <CodeDisplay>
+                                <CodeDigit filled>{riderCodeData.hint?.[0] || "?"}</CodeDigit>
+                                <CodeDigit filled>{riderCodeData.hint?.[1] || "?"}</CodeDigit>
+                                <CodeDigit>_</CodeDigit>
+                                <CodeDigit>_</CodeDigit>
+                              </CodeDisplay>
+                              <div style={{ display: "flex", alignItems: "center" }}>
+                                <CodeInput
+                                  type="text"
+                                  maxLength="2"
+                                  placeholder="??"
+                                  value={this.state.codeInput}
+                                  onChange={(e) => this.setState({ codeInput: e.target.value.replace(/\D/g, '') })}
+                                  disabled={this.state.verifyingCode}
+                                />
+                                <VerifyButton
+                                  onClick={this.handleCodeVerification}
+                                  disabled={this.state.verifyingCode || this.state.codeInput.length !== 2}
+                                >
+                                  {this.state.verifyingCode ? "..." : "Verify"}
+                                </VerifyButton>
+                              </div>
+                            </CodeInputSection>
+                          )}
+                        </RiderItem>
+                      );
+                    })}
+                </RiderList>
+              </PickupModal>
+            </PickupOverlay>,
+            document.body,
+          )}
+
+        {/* Code Display Modal for Riders - Rendered via Portal */}
+        {this.state.codeModalOpen &&
+          ReactDOM.createPortal(
+            <ModalOverlay onClick={this.closeCodeModal}>
+              <Modal onClick={(e) => e.stopPropagation()}>
+                <ModalHeader>
+                  <ModalTitle>
+                    <ModalIcon>🔢</ModalIcon>
+                    Your Pickup Code
+                  </ModalTitle>
+                  <ModalClose onClick={this.closeCodeModal}>✕</ModalClose>
+                </ModalHeader>
+
+                <CodeModalContent>
+                  <CodeInstructions>
+                    Show this code to your driver for pickup verification:
+                  </CodeInstructions>
+                  <FullCodeDisplay>
+                    {this.state.fullCode}
+                  </FullCodeDisplay>
+                  <CodeInstructions>
+                    The driver will ask for the last 2 digits only.
+                  </CodeInstructions>
+                </CodeModalContent>
+
+                <ModalActions>
+                  <DoneButton onClick={this.closeCodeModal}>✓ Got it</DoneButton>
                 </ModalActions>
               </Modal>
             </ModalOverlay>,
