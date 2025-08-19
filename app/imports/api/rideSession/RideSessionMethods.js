@@ -21,7 +21,7 @@ Meteor.methods({
     check(riders, [String]);
 
     const userId = this.userId;
-    
+
     // Safety validation
     const validation = await canCreateRideSession(userId, rideId, driverId, riders);
     if (!validation.allowed) {
@@ -64,7 +64,7 @@ Meteor.methods({
     }
 
     const sessionId = await RideSessions.insertAsync(value);
-    
+
     // Log creation event
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "rideCreated", {
       location: { lat: 0, lng: 0 }, // TODO: Get actual location
@@ -80,7 +80,7 @@ Meteor.methods({
     check(location, { lat: Number, lng: Number });
 
     const userId = this.userId;
-    
+
     // Safety validation
     const validation = await canStartRideSession(userId, sessionId);
     if (!validation.allowed) {
@@ -93,7 +93,7 @@ Meteor.methods({
     };
 
     await RideSessions.updateAsync(sessionId, { $set: updateData });
-    
+
     // Log start event
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "rideStarted", {
       location,
@@ -109,7 +109,7 @@ Meteor.methods({
     check(location, { lat: Number, lng: Number });
 
     const userId = this.userId;
-    
+
     // Safety validation
     const validation = await canFinishRideSession(userId, sessionId);
     if (!validation.allowed) {
@@ -123,7 +123,7 @@ Meteor.methods({
     };
 
     await RideSessions.updateAsync(sessionId, { $set: updateData });
-    
+
     // Log completion event
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "rideCompleted", {
       location,
@@ -140,7 +140,7 @@ Meteor.methods({
     check(location, { lat: Number, lng: Number });
 
     const userId = this.userId;
-    
+
     // Safety validation
     const validation = await canCancelRideSession(userId, sessionId, reason);
     if (!validation.allowed) {
@@ -154,7 +154,7 @@ Meteor.methods({
     };
 
     await RideSessions.updateAsync(sessionId, { $set: updateData });
-    
+
     // Log cancellation event
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "rideCancelled", {
       location,
@@ -172,7 +172,7 @@ Meteor.methods({
     check(location, { lat: Number, lng: Number });
 
     const userId = this.userId;
-    
+
     // Safety validations
     const canPickup = await canPickupRider(userId, sessionId, riderId, location);
     if (!canPickup.allowed) {
@@ -195,7 +195,7 @@ Meteor.methods({
     };
 
     await RideSessions.updateAsync(sessionId, { $set: updateData });
-    
+
     // Log pickup event
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "riderPickedUp", {
       location,
@@ -213,7 +213,7 @@ Meteor.methods({
     check(location, { lat: Number, lng: Number });
 
     const userId = this.userId;
-    
+
     // Safety validations
     const canDropoff = await canDropoffRider(userId, sessionId, riderId, location);
     if (!canDropoff.allowed) {
@@ -232,7 +232,7 @@ Meteor.methods({
     };
 
     await RideSessions.updateAsync(sessionId, updateData);
-    
+
     // Log dropoff event
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "riderDroppedOff", {
       location,
@@ -256,7 +256,7 @@ Meteor.methods({
     });
 
     const userId = this.userId;
-    
+
     // Basic permission check - only participants can log events
     const session = await RideSessions.findOneAsync(sessionId);
     if (!session) {
@@ -288,7 +288,7 @@ Meteor.methods({
     });
 
     const userId = this.userId;
-    
+
     // Safety validation
     const validation = await canModifyRideSession(userId, sessionId);
     if (!validation.allowed) {
@@ -308,7 +308,7 @@ Meteor.methods({
     check(sessionId, String);
 
     const userId = this.userId;
-    
+
     // Check if user is admin
     const user = await Meteor.users.findOneAsync(userId);
     if (!user || !user.roles || !user.roles.includes("admin")) {

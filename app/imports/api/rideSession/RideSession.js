@@ -17,7 +17,7 @@ const RideSessionSchema = Joi.object({
       pickedUp: Joi.boolean().default(false),
       dropoffTime: Joi.date().optional().allow(null),
       pickupTime: Joi.date().optional().allow(null),
-    })
+    }),
   ).default({}),
   finished: Joi.boolean().default(false).label("Ride Finished"),
   timeline: Joi.object({
@@ -37,7 +37,7 @@ const RideSessionSchema = Joi.object({
       by: Joi.string().required(),
       riderId: Joi.string().optional(),
       reason: Joi.string().optional(),
-    })
+    }),
   ).default({}),
   createdBy: Joi.string().required().label("Created By User ID"),
   status: Joi.string().valid("created", "active", "completed", "cancelled").default("created"),
