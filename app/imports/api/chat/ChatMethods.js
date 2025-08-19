@@ -108,10 +108,17 @@ Meteor.methods({
   async "chats.sendMessage"(chatId, content) {
     check(chatId, String);
     check(content, String);
-    // Validate input
+    // Validate input with XSS prevention
+    const { createSafeStringSchema } = require("../../../ui/utils/validation");
     const schema = Joi.object({
       chatId: Joi.string().required(),
-      content: Joi.string().min(1).required(),
+      content: createSafeStringSchema({
+        pattern: 'chatMessage',
+        min: 1,
+        max: 1000,
+        label: 'Message Content',
+        patternMessage: 'Message contains invalid characters',
+      }),
     });
 
     const { error } = schema.validate({ chatId, content });

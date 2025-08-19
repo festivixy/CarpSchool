@@ -1,5 +1,6 @@
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
+import { createSafeStringSchema } from "../../ui/utils/validation";
 
 /** Define a Mongo collection to hold the data. */
 const Chats = new Mongo.Collection("Chat");
@@ -13,7 +14,13 @@ const ChatSchema = Joi.object({
     .items(
       Joi.object({
         Sender: Joi.string().required(),
-        Content: Joi.string().required(),
+        Content: createSafeStringSchema({
+          pattern: 'chatMessage',
+          min: 1,
+          max: 1000,
+          label: 'Message Content',
+          patternMessage: 'Message contains invalid characters',
+        }),
         Timestamp: Joi.date().required(),
       }),
     )

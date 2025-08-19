@@ -1,5 +1,6 @@
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
+import { createSafeStringSchema } from "../../ui/utils/validation";
 
 /** Define a Mongo collection to hold the data. */
 const Rides = new Mongo.Collection("Rides");
@@ -14,7 +15,14 @@ const RidesSchema = Joi.object({
   seats: Joi.number().integer().min(1).max(7)
 .required(), // Number of available seats
   shareCode: Joi.string().optional(),
-  notes: Joi.string().allow("").optional(), // Optional notes from driver
+  notes: createSafeStringSchema({
+    pattern: 'generalText',
+    min: 0,
+    max: 500,
+    required: false,
+    allowEmpty: true,
+    label: 'Ride Notes',
+  }),
   createdAt: Joi.date().optional(),
 });
 
