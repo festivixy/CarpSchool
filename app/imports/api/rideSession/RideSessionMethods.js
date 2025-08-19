@@ -359,8 +359,10 @@ Meteor.methods({
     }
 
     const updateData = {
-      [`progress.${riderId}.droppedOff`]: true,
-      [`progress.${riderId}.dropoffTime`]: new Date(),
+      $set: {
+        [`progress.${riderId}.droppedOff`]: true,
+        [`progress.${riderId}.dropoffTime`]: new Date(),
+      },
       $pull: { activeRiders: riderId },
     };
 
