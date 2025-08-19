@@ -323,6 +323,56 @@ export const ChatButton = styled.button`
   }
 `;
 
+export const StartRideButton = styled.button`
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 152, 0, 1);
+  color: rgba(255, 255, 255, 1);
+  width: 44px;
+  height: 44px;
+  position: relative;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(245, 124, 0, 1);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &.loading {
+    opacity: 0.8;
+  }
+
+  @media (min-width: 769px) {
+    &:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+  }
+`;
+
 export const MapButton = styled.button`
   border: none;
   border-radius: 8px;
@@ -375,6 +425,11 @@ export const ShareIcon = styled.span`
 `;
 
 export const JoinIcon = styled.span`
+  font-size: 18px;
+  display: block;
+`;
+
+export const StartRideIcon = styled.span`
   font-size: 18px;
   display: block;
 `;
