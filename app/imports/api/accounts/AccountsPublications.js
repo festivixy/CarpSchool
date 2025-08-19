@@ -1,4 +1,5 @@
 import { Meteor } from "meteor/meteor";
+import { check } from "meteor/check";
 
 /** Publish user roles for the current user */
 Meteor.publish(null, function () {
@@ -28,4 +29,24 @@ Meteor.publish("AllUsers", async function () {
     }
   }
   return this.ready();
+});
+
+/** Publish specific users by their IDs (for ride session participants) */
+Meteor.publish("users.byIds", function (userIds) {
+  check(userIds, [String]);
+
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  // Only return basic user info (username and profile) for security
+  return Meteor.users.find(
+    { _id: { $in: userIds } },
+    {
+      fields: {
+        username: 1,
+        profile: 1,
+      },
+    },
+  );
 });
