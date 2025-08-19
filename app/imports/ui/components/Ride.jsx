@@ -6,6 +6,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
 import { Places } from "../../api/places/Places";
+import { RideSessions } from "../../api/rideSession/RideSession";
 import RouteMapView from "./RouteMapView";
 import { MobileOnly, DesktopOnly } from "../layouts/Devices";
 import {
@@ -30,10 +31,12 @@ import {
   ShareButton,
   JoinButton,
   ChatButton,
+  StartRideButton,
   MapButton,
   ShareIcon,
   JoinIcon,
   ChatIcon,
+  StartRideIcon,
   MapIcon,
   Spinner,
   ModalOverlay,
@@ -207,6 +210,48 @@ class Ride extends React.Component {
     return rider === currentUser.username;
   };
 
+  canStartRide = () => {
+    const { ride, rideSessions } = this.props;
+    const currentUser = Meteor.user();
+
+    // Must be the driver
+    if (!this.isCurrentUserDriver()) {
+      return false;
+    }
+
+    // Check if ride already has a session
+    const existingSession = rideSessions.find(session => session.rideId === ride._id);
+    if (existingSession) {
+      return false;
+    }
+
+    // Check if ride is in the future (upcoming ride)
+    const now = new Date();
+    const rideDate = new Date(ride.date);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const rideDateOnly = new Date(rideDate.getFullYear(), rideDate.getMonth(), rideDate.getDate());
+
+    return rideDateOnly >= today;
+  };
+
+  handleStartRide = () => {
+    const { ride } = this.props;
+
+    this.setState({ isGenerating: true });
+
+    // Get riders for the session
+    const riders = ride.riders && Array.isArray(ride.riders) ? ride.riders : [];
+
+    Meteor.call("rideSessions.create", ride._id, Meteor.userId(), riders, (error, sessionId) => {
+      this.setState({ isGenerating: false });
+      if (error) {
+        swal("Error", error.reason || error.message, "error");
+      } else {
+        swal("Success", "Ride session created successfully! You can now start tracking your ride.", "success");
+      }
+    });
+  };
+
   handleJoinRide = () => {
     const { ride } = this.props;
 
@@ -362,6 +407,7 @@ class Ride extends React.Component {
 
           {(this.canShareRide() ||
             this.canJoinRide() ||
+            this.canStartRide() ||
             this.canAccessChat() ||
             (this.getPlaceCoordinates(ride.origin) &&
              this.getPlaceCoordinates(ride.destination))) && (
@@ -393,6 +439,20 @@ class Ride extends React.Component {
                     <JoinIcon>🚗</JoinIcon>
                   )}
                 </JoinButton>
+              )}
+              {this.canStartRide() && (
+                <StartRideButton
+                  className={isGenerating ? "loading" : ""}
+                  onClick={this.handleStartRide}
+                  disabled={isGenerating}
+                  title="Start Ride Session"
+                >
+                  {isGenerating ? (
+                    <Spinner />
+                  ) : (
+                    <StartRideIcon>🚀</StartRideIcon>
+                  )}
+                </StartRideButton>
               )}
               {this.canAccessChat() && (
                 <ChatButton
@@ -510,14 +570,17 @@ class Ride extends React.Component {
 Ride.propTypes = {
   ride: PropTypes.object.isRequired,
   places: PropTypes.array.isRequired,
+  rideSessions: PropTypes.array.isRequired,
   history: PropTypes.object.isRequired,
 };
 
 export default withRouter(
   withTracker(() => {
     Meteor.subscribe("places.options");
+    Meteor.subscribe("rideSessions");
     return {
       places: Places.find({}).fetch(),
+      rideSessions: RideSessions.find({}).fetch(),
     };
   })(Ride),
 );
