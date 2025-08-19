@@ -835,6 +835,57 @@ export const DropoffIcon = styled.span`
   display: block;
 `;
 
+export const ViewHistoryButton = styled.button`
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(103, 58, 183, 1);
+  color: rgba(255, 255, 255, 1);
+  width: 44px;
+  height: 44px;
+  position: relative;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(81, 45, 168, 1);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  @media (min-width: 769px) {
+    &:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+  }
+`;
+
+export const ViewHistoryIcon = styled.span`
+  font-size: 18px;
+  display: block;
+`;
+
 export const PickupOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -998,4 +1049,127 @@ export const CodeInstructions = styled.p`
   color: rgba(100, 100, 100, 1);
   margin: 16px 0;
   line-height: 1.5;
+`;
+
+export const HistoryModalContent = styled.div`
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 8px 0;
+`;
+
+export const HistorySection = styled.div`
+  margin-bottom: 24px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+export const HistorySectionTitle = styled.h4`
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(224, 224, 224, 1);
+`;
+
+export const TimelineItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-left: 3px solid ${props => props.completed ? 'rgba(76, 175, 80, 1)' : 'rgba(224, 224, 224, 1)'};
+  padding-left: 12px;
+  margin-left: 8px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: ${props => props.completed ? 'rgba(76, 175, 80, 1)' : 'rgba(224, 224, 224, 1)'};
+  }
+`;
+
+export const TimelineInfo = styled.div`
+  flex: 1;
+`;
+
+export const TimelineTitle = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 2px;
+`;
+
+export const TimelineTime = styled.div`
+  font-size: 12px;
+  color: rgba(100, 100, 100, 1);
+`;
+
+export const RiderProgressItem = styled.div`
+  padding: 12px;
+  border: 1px solid rgba(224, 224, 224, 1);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background-color: rgba(249, 249, 249, 1);
+`;
+
+export const RiderProgressHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+export const RiderProgressName = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+`;
+
+export const RiderProgressStatus = styled.div`
+  font-size: 12px;
+  color: ${props => props.completed ? 'rgba(76, 175, 80, 1)' : 'rgba(255, 152, 0, 1)'};
+  font-weight: 600;
+`;
+
+export const RiderProgressDetails = styled.div`
+  font-size: 12px;
+  color: rgba(100, 100, 100, 1);
+  line-height: 1.4;
+
+  div {
+    margin-bottom: 2px;
+  }
+`;
+
+export const EventItem = styled.div`
+  padding: 8px 12px;
+  border-left: 3px solid rgba(33, 150, 243, 1);
+  margin-bottom: 8px;
+  background-color: rgba(245, 245, 245, 1);
+  border-radius: 0 4px 4px 0;
+`;
+
+export const EventTitle = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 4px;
+`;
+
+export const EventDetails = styled.div`
+  font-size: 11px;
+  color: rgba(100, 100, 100, 1);
+  line-height: 1.3;
+
+  div {
+    margin-bottom: 1px;
+  }
 `;
