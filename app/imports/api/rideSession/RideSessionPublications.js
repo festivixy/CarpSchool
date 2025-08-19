@@ -1,0 +1,171 @@
+import { Meteor } from "meteor/meteor";
+import { RideSessions } from "./RideSession";
+import { canViewRideSession } from "./RideSessionsSafety";
+
+/** Publish ride sessions where user is participant (driver or rider) */
+Meteor.publish("rideSessions", async function publish() {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  const currentUser = await Meteor.users.findOneAsync(this.userId);
+  if (!currentUser) {
+    return this.ready();
+  }
+
+  const isAdmin = currentUser.roles && currentUser.roles.includes("admin");
+
+  // Admin users can see all sessions
+  if (isAdmin) {
+    return RideSessions.find({});
+  }
+
+  // Regular users can only see sessions where they are driver or rider
+  return RideSessions.find({
+    $or: [
+      { driverId: this.userId },
+      { riders: this.userId },
+    ],
+  });
+});
+
+/** Publish a specific ride session by ID with permission checking */
+Meteor.publish("rideSession", async function publish(sessionId) {
+  check(sessionId, String);
+  
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  // Use safety validation to check access permissions
+  const validation = await canViewRideSession(this.userId, sessionId);
+  if (!validation.allowed) {
+    return this.ready();
+  }
+
+  return RideSessions.find({ _id: sessionId });
+});
+
+/** Publish active ride sessions for a specific ride */
+Meteor.publish("rideSessionsByRide", async function publish(rideId) {
+  check(rideId, String);
+  
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  const currentUser = await Meteor.users.findOneAsync(this.userId);
+  if (!currentUser) {
+    return this.ready();
+  }
+
+  const isAdmin = currentUser.roles && currentUser.roles.includes("admin");
+
+  // Find sessions for this ride where user has access
+  const query = { rideId };
+  
+  if (!isAdmin) {
+    // Non-admin users can only see sessions where they participate
+    query.$or = [
+      { driverId: this.userId },
+      { riders: this.userId },
+    ];
+  }
+
+  return RideSessions.find(query);
+});
+
+/** Publish active ride sessions for real-time tracking */
+Meteor.publish("activeRideSessions", async function publish() {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  const currentUser = await Meteor.users.findOneAsync(this.userId);
+  if (!currentUser) {
+    return this.ready();
+  }
+
+  const isAdmin = currentUser.roles && currentUser.roles.includes("admin");
+
+  // Query for active sessions
+  const query = {
+    status: { $in: ["active"] },
+    finished: false,
+  };
+
+  if (!isAdmin) {
+    // Non-admin users can only see their own active sessions
+    query.$or = [
+      { driverId: this.userId },
+      { riders: this.userId },
+    ];
+  }
+
+  return RideSessions.find(query, {
+    sort: { "timeline.started": -1 },
+  });
+});
+
+/** Publish ride sessions for admin management */
+Meteor.publish("adminRideSessions", async function publish(options = {}) {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  const currentUser = await Meteor.users.findOneAsync(this.userId);
+  if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
+    return this.ready();
+  }
+
+  const {
+    status,
+    limit = 50,
+    skip = 0,
+    sortBy = "timeline.created",
+    sortOrder = -1,
+  } = options;
+
+  const query = {};
+  
+  if (status) {
+    query.status = status;
+  }
+
+  const sortOptions = {};
+  sortOptions[sortBy] = sortOrder;
+
+  return RideSessions.find(query, {
+    sort: sortOptions,
+    limit,
+    skip,
+  });
+});
+
+/** Publish session events for real-time updates */
+Meteor.publish("rideSessionEvents", async function publish(sessionId) {
+  check(sessionId, String);
+  
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  // Use safety validation to check access permissions
+  const validation = await canViewRideSession(this.userId, sessionId);
+  if (!validation.allowed) {
+    return this.ready();
+  }
+
+  // Return only the events field for the specific session
+  return RideSessions.find(
+    { _id: sessionId },
+    { 
+      fields: { 
+        events: 1,
+        timeline: 1,
+        status: 1,
+        progress: 1,
+      },
+    }
+  );
+});
