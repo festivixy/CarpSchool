@@ -288,3 +288,31 @@ export const LoadingSpinner = styled.div`
   animation: ${spin} 1s linear infinite;
   margin-bottom: 16px;
 `;
+
+export const SectionHeader = styled.div`
+  margin: 24px 0 16px 0;
+  padding: 0 8px;
+`;
+
+export const SectionTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.2px;
+`;
+
+export const SectionSubtitle = styled.p`
+  font-size: 14px;
+  color: rgba(100, 100, 100, 1);
+  margin: 0;
+  line-height: 1.3;
+`;
+
+export const SectionContainer = styled.div`
+  margin-bottom: 32px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
