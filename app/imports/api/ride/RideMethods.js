@@ -39,8 +39,8 @@ Meteor.methods({
       );
     }
 
-    // Only update fields that exist in the schema
-    const allowedFields = {
+    // Prepare update data with proper types
+    const fieldsToUpdate = {
       driver: updateData.driver,
       riders: updateData.riders,
       origin: updateData.origin,
@@ -48,9 +48,21 @@ Meteor.methods({
       date: new Date(updateData.date),
       seats: parseInt(updateData.seats, 10),
       notes: updateData.notes,
+      _id: rideId, // Include _id for schema validation context
     };
 
-    await Rides.updateAsync(rideId, { $set: allowedFields });
+    // Import and validate with schema for data logic validation
+    const { RidesSchema } = require("./Rides");
+    const { error } = RidesSchema.validate(fieldsToUpdate);
+
+    if (error) {
+      throw new Meteor.Error("validation-error", error.details[0].message);
+    }
+
+    // Remove _id from fields before updating (not needed for update)
+    delete fieldsToUpdate._id;
+
+    await Rides.updateAsync(rideId, { $set: fieldsToUpdate });
   },
   async "rides.generateShareCode"(rideId) {
     check(rideId, String);
@@ -162,25 +174,12 @@ Meteor.methods({
       throw new Meteor.Error("invalid-code", "Invalid share code");
     }
 
-    // Check if ride is full
-    if (ride.riders.length >= ride.seats) {
-      throw new Meteor.Error("ride-full", "This ride is full");
-    }
+    // Use centralized validation
+    const { validateUserCanJoinRide } = require("./RideValidation");
+    const validation = validateUserCanJoinRide(ride, user);
 
-    // Check if user is already a rider
-    if (ride.riders.includes(user.username)) {
-      throw new Meteor.Error(
-        "already-joined",
-        "You are already a rider on this trip",
-      );
-    }
-
-    // Check if user is trying to join their own ride
-    if (ride.driver === user.username) {
-      throw new Meteor.Error(
-        "invalid-operation",
-        "You cannot join your own ride",
-      );
+    if (!validation.isValid) {
+      throw new Meteor.Error("validation-error", validation.error);
     }
 
     // Add user to riders array
@@ -202,37 +201,14 @@ Meteor.methods({
     check(rideId, String);
 
     const user = await Meteor.userAsync();
-    if (!user) {
-      throw new Meteor.Error(
-        "not-authorized",
-        "You must be logged in to join a ride",
-      );
-    }
-
     const ride = await Rides.findOneAsync(rideId);
-    if (!ride) {
-      throw new Meteor.Error("not-found", "Ride not found");
-    }
 
-    // Check if ride is full
-    if (ride.riders.length >= ride.seats) {
-      throw new Meteor.Error("ride-full", "This ride is full");
-    }
+    // Use centralized validation
+    const { validateUserCanJoinRide } = require("./RideValidation");
+    const validation = validateUserCanJoinRide(ride, user);
 
-    // Check if user is already a rider
-    if (ride.riders.includes(user.username)) {
-      throw new Meteor.Error(
-        "already-joined",
-        "You are already a rider on this trip",
-      );
-    }
-
-    // Check if user is trying to join their own ride
-    if (ride.driver === user.username) {
-      throw new Meteor.Error(
-        "invalid-operation",
-        "You cannot join your own ride",
-      );
+    if (!validation.isValid) {
+      throw new Meteor.Error("validation-error", validation.error);
     }
 
     // Add user to riders array
@@ -277,32 +253,14 @@ Meteor.methods({
     check(riderUsername, String);
 
     const user = await Meteor.userAsync();
-    if (!user) {
-      throw new Meteor.Error(
-        "not-authorized",
-        "You must be logged in to remove riders",
-      );
-    }
-
     const ride = await Rides.findOneAsync(rideId);
-    if (!ride) {
-      throw new Meteor.Error("not-found", "Ride not found");
-    }
 
-    const isAdmin = user.roles && user.roles.includes("admin");
-    const isDriver = ride.driver === user.username;
+    // Use centralized validation
+    const { validateUserCanRemoveRider } = require("./RideValidation");
+    const validation = validateUserCanRemoveRider(ride, user, riderUsername);
 
-    // Only driver or admin can remove riders
-    if (!isDriver && !isAdmin) {
-      throw new Meteor.Error(
-        "access-denied",
-        "You can only remove riders from your own rides",
-      );
-    }
-
-    // Check if the user to remove is actually a rider
-    if (!ride.riders.includes(riderUsername)) {
-      throw new Meteor.Error("not-a-rider", "User is not a rider on this trip");
+    if (!validation.isValid) {
+      throw new Meteor.Error("validation-error", validation.error);
     }
 
     // Remove rider from the ride
