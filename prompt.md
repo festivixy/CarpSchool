@@ -256,3 +256,7 @@ osascript ../tools/write_terminal.applescript "command"
 ```
 
 your grep tool is broken. use grep with bash.
+
+# LINT
+
+follow .eslintrc
