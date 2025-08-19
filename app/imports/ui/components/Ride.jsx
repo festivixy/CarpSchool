@@ -35,6 +35,7 @@ import {
   StartRideButton,
   ConfirmPickupButton,
   ShowCodeButton,
+  CompleteRideButton,
   MapButton,
   ShareIcon,
   JoinIcon,
@@ -42,6 +43,7 @@ import {
   StartRideIcon,
   ConfirmPickupIcon,
   ShowCodeIcon,
+  CompleteRideIcon,
   MapIcon,
   Spinner,
   ModalOverlay,
@@ -330,6 +332,34 @@ class Ride extends React.Component {
     return unpickedRiders.length > 0;
   };
 
+  canCompleteRide = () => {
+    const { ride, rideSessions } = this.props;
+
+    // Must be the driver
+    if (!this.isCurrentUserDriver()) {
+      return false;
+    }
+
+    // Find the active session for this ride
+    const session = rideSessions.find(session =>
+      session.rideId === ride._id &&
+      session.status === "active" &&
+      !session.finished
+    );
+
+    if (!session) {
+      return false;
+    }
+
+    // Check if all riders have been picked up (and optionally dropped off)
+    const allRidersPickedUp = session.riders.every(riderId => {
+      const progress = session.progress[riderId];
+      return progress && progress.pickedUp;
+    });
+
+    return allRidersPickedUp;
+  };
+
   canShowCode = () => {
     const { ride, rideSessions } = this.props;
     const currentUser = Meteor.user();
@@ -368,6 +398,47 @@ class Ride extends React.Component {
           swal("Error", error.reason || error.message, "error");
         } else {
           swal("Success!", "Ride started successfully! You can now confirm rider pickups.", "success");
+        }
+      });
+    } catch (error) {
+      this.setState({ isGenerating: false });
+      swal("Error", "Failed to get location: " + error.message, "error");
+    }
+  };
+
+  handleCompleteRide = async () => {
+    const sessionId = this.getSessionId();
+    if (!sessionId) return;
+
+    // Confirm before completing
+    const willComplete = await swal({
+      title: "Complete Ride?",
+      text: "Are you sure you want to complete this ride? This action cannot be undone.",
+      icon: "warning",
+      buttons: {
+        cancel: "Cancel",
+        confirm: {
+          text: "Complete Ride",
+          className: "swal-button--confirm",
+        },
+      },
+    });
+
+    if (!willComplete) return;
+
+    this.setState({ isGenerating: true });
+
+    try {
+      // Get current location
+      const location = await getCurrentLocation();
+
+      // Complete the ride session
+      Meteor.call("rideSessions.finish", sessionId, location, (error) => {
+        this.setState({ isGenerating: false });
+        if (error) {
+          swal("Error", error.reason || error.message, "error");
+        } else {
+          swal("Success!", "Ride completed successfully! Thank you for driving.", "success");
         }
       });
     } catch (error) {
@@ -650,6 +721,7 @@ class Ride extends React.Component {
             this.canStartRide() ||
             this.canStartActiveRide() ||
             this.canConfirmPickup() ||
+            this.canCompleteRide() ||
             this.canShowCode() ||
             this.canAccessChat() ||
             (this.getPlaceCoordinates(ride.origin) &&
@@ -718,6 +790,20 @@ class Ride extends React.Component {
                 >
                   <ConfirmPickupIcon>✅</ConfirmPickupIcon>
                 </ConfirmPickupButton>
+              )}
+              {this.canCompleteRide() && (
+                <CompleteRideButton
+                  className={isGenerating ? "loading" : ""}
+                  onClick={this.handleCompleteRide}
+                  disabled={isGenerating}
+                  title="Complete Ride"
+                >
+                  {isGenerating ? (
+                    <Spinner />
+                  ) : (
+                    <CompleteRideIcon>🏁</CompleteRideIcon>
+                  )}
+                </CompleteRideButton>
               )}
               {this.canShowCode() && (
                 <ShowCodeButton
