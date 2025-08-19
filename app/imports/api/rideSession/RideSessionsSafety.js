@@ -173,9 +173,10 @@ export const canDropoffRider = async (userId, sessionId, riderId, location) => {
   const user = await Meteor.users.findOneAsync(userId);
   const isAdmin = user?.roles?.includes("admin");
   const isDriver = session.driverId === userId;
+  const isRider = userId === riderId; // Allow rider to dropoff themselves
 
-  if (!isDriver && !isAdmin) {
-    return { allowed: false, reason: "Only the driver or admin can dropoff riders" };
+  if (!isDriver && !isRider && !isAdmin) {
+    return { allowed: false, reason: "Only the driver, rider, or admin can dropoff riders" };
   }
 
   if (!session.riders.includes(riderId)) {
