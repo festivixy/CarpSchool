@@ -589,12 +589,9 @@ class Ride extends React.Component {
   };
 
   getUsernameFromId = (userId) => {
-    // This would ideally come from a subscription, but for now we'll use the current user
-    // In a real app, you'd want to subscribe to user data or have usernames in the session
-    if (userId === Meteor.userId()) {
-      return Meteor.user()?.username || userId;
-    }
-    return userId; // Fallback to ID if username not available
+    const { users } = this.props;
+    const user = users?.find(u => u._id === userId);
+    return user?.username || userId; // Fallback to ID if username not available
   };
 
 
@@ -1257,16 +1254,42 @@ Ride.propTypes = {
   ride: PropTypes.object.isRequired,
   places: PropTypes.array.isRequired,
   rideSessions: PropTypes.array.isRequired,
+  users: PropTypes.array.isRequired,
+  ready: PropTypes.bool.isRequired,
   history: PropTypes.object.isRequired,
 };
 
 export default withRouter(
-  withTracker(() => {
+  withTracker((props) => {
     Meteor.subscribe("places.options");
-    Meteor.subscribe("rideSessions");
+    const rideSessionsSubscription = Meteor.subscribe("rideSessions");
+    const rideSessions = RideSessions.find({}).fetch();
+
+    // Get all user IDs from ride sessions for username resolution
+    const allUserIds = [];
+    rideSessions.forEach(session => {
+      if (session.rideId === props.ride?._id) {
+        allUserIds.push(session.driverId, session.createdBy, ...session.riders);
+        // Add user IDs from events
+        Object.values(session.events || {}).forEach(event => {
+          if (event.by) allUserIds.push(event.by);
+          if (event.riderId) allUserIds.push(event.riderId);
+        });
+      }
+    });
+
+    // Remove duplicates and subscribe to user data
+    const uniqueUserIds = [...new Set(allUserIds)].filter(Boolean);
+    let usersSubscription = { ready: () => true };
+    if (uniqueUserIds.length > 0) {
+      usersSubscription = Meteor.subscribe("users.byIds", uniqueUserIds);
+    }
+
     return {
       places: Places.find({}).fetch(),
-      rideSessions: RideSessions.find({}).fetch(),
+      rideSessions,
+      users: Meteor.users.find({}).fetch(),
+      ready: rideSessionsSubscription.ready() && usersSubscription.ready(),
     };
   })(Ride),
 );
