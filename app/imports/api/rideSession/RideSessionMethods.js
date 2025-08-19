@@ -1,6 +1,11 @@
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
 import { RideSessions, RideSessionSchema } from "./RideSession";
+
+// Helper function to generate 4-digit pickup codes
+const generatePickupCode = () => {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+};
 import {
   canCreateRideSession,
   canStartRideSession,
@@ -28,7 +33,7 @@ Meteor.methods({
       throw new Meteor.Error("access-denied", validation.reason);
     }
 
-    // Initialize progress for all riders
+    // Initialize progress for all riders with pickup codes
     const progress = {};
     riders.forEach(riderId => {
       progress[riderId] = {
@@ -36,6 +41,9 @@ Meteor.methods({
         pickedUp: false,
         dropoffTime: null,
         pickupTime: null,
+        code: generatePickupCode(),
+        codeAttempts: 0,
+        codeError: false,
       };
     });
 
@@ -166,6 +174,78 @@ Meteor.methods({
     return true;
   },
 
+  async "rideSessions.verifyPickupCode"(sessionId, riderId, lastTwoDigits) {
+    check(sessionId, String);
+    check(riderId, String);
+    check(lastTwoDigits, String);
+
+    const userId = this.userId;
+
+    // Get session and validate access
+    const session = await RideSessions.findOneAsync(sessionId);
+    if (!session) {
+      throw new Meteor.Error("not-found", "Session not found");
+    }
+
+    const canPickup = await canPickupRider(userId, sessionId, riderId, { lat: 0, lng: 0 }); // Location not needed for verification
+    if (!canPickup.allowed) {
+      throw new Meteor.Error("access-denied", canPickup.reason);
+    }
+
+    const riderProgress = session.progress[riderId];
+    if (!riderProgress) {
+      throw new Meteor.Error("not-found", "Rider not found in session");
+    }
+
+    if (riderProgress.codeError) {
+      throw new Meteor.Error("verification-failed", "Code verification disabled after too many failed attempts");
+    }
+
+    if (riderProgress.pickedUp) {
+      throw new Meteor.Error("already-picked-up", "Rider has already been picked up");
+    }
+
+    // Validate last two digits
+    const fullCode = riderProgress.code;
+    const expectedLastTwo = fullCode.slice(-2);
+
+    if (lastTwoDigits !== expectedLastTwo) {
+      // Increment attempt counter
+      const newAttempts = (riderProgress.codeAttempts || 0) + 1;
+      const updateData = {
+        [`progress.${riderId}.codeAttempts`]: newAttempts,
+      };
+
+      // Mark as error if 5 attempts reached
+      if (newAttempts >= 5) {
+        updateData[`progress.${riderId}.codeError`] = true;
+        await RideSessions.updateAsync(sessionId, { $set: updateData });
+        throw new Meteor.Error("verification-failed", "Too many failed attempts. Code verification disabled for this rider.");
+      }
+
+      await RideSessions.updateAsync(sessionId, { $set: updateData });
+      throw new Meteor.Error("verification-failed", `Invalid code. ${5 - newAttempts} attempts remaining.`);
+    }
+
+    // Code is correct - mark as picked up
+    const updateData = {
+      [`progress.${riderId}.pickedUp`]: true,
+      [`progress.${riderId}.pickupTime`]: new Date(),
+    };
+
+    await RideSessions.updateAsync(sessionId, { $set: updateData });
+
+    // Log pickup event
+    await Meteor.callAsync("rideSessions.logEvent", sessionId, "riderPickedUp", {
+      location: { lat: 0, lng: 0 }, // TODO: Get actual location from driver
+      time: new Date(),
+      by: userId,
+      riderId,
+    });
+
+    return { success: true, message: "Rider pickup confirmed successfully!" };
+  },
+
   async "rideSessions.pickupRider"(sessionId, riderId, location) {
     check(sessionId, String);
     check(riderId, String);
@@ -205,6 +285,50 @@ Meteor.methods({
     });
 
     return true;
+  },
+
+  async "rideSessions.getPickupCodeHint"(sessionId, riderId) {
+    check(sessionId, String);
+    check(riderId, String);
+
+    const userId = this.userId;
+
+    // Get session and validate access
+    const session = await RideSessions.findOneAsync(sessionId);
+    if (!session) {
+      throw new Meteor.Error("not-found", "Session not found");
+    }
+
+    // Check if user is driver or the specific rider
+    const user = await Meteor.users.findOneAsync(userId);
+    const isAdmin = user?.roles?.includes("admin");
+    const isDriver = session.driverId === userId;
+    const isRider = session.riders.includes(userId) && riderId === userId;
+
+    if (!isDriver && !isRider && !isAdmin) {
+      throw new Meteor.Error("access-denied", "You don't have permission to access this code");
+    }
+
+    const riderProgress = session.progress[riderId];
+    if (!riderProgress || !riderProgress.code) {
+      throw new Meteor.Error("not-found", "Code not found for this rider");
+    }
+
+    // Return different information based on user type
+    if (isDriver) {
+      // Driver gets first two digits as hint
+      const fullCode = riderProgress.code;
+      return {
+        hint: fullCode.slice(0, 2),
+        attemptsRemaining: Math.max(0, 5 - (riderProgress.codeAttempts || 0)),
+        codeError: riderProgress.codeError || false,
+      };
+    } else if (isRider || isAdmin) {
+      // Rider gets full code
+      return {
+        fullCode: riderProgress.code,
+      };
+    }
   },
 
   async "rideSessions.dropoffRider"(sessionId, riderId, location) {
