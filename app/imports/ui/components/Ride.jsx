@@ -37,6 +37,7 @@ import {
   ShowCodeButton,
   CompleteRideButton,
   DropoffButton,
+  ViewHistoryButton,
   MapButton,
   ShareIcon,
   JoinIcon,
@@ -46,6 +47,7 @@ import {
   ShowCodeIcon,
   CompleteRideIcon,
   DropoffIcon,
+  ViewHistoryIcon,
   MapIcon,
   Spinner,
   ModalOverlay,
@@ -78,6 +80,21 @@ import {
   CodeModalContent,
   FullCodeDisplay,
   CodeInstructions,
+  HistoryModalContent,
+  HistorySection,
+  HistorySectionTitle,
+  TimelineItem,
+  TimelineInfo,
+  TimelineTitle,
+  TimelineTime,
+  RiderProgressItem,
+  RiderProgressHeader,
+  RiderProgressName,
+  RiderProgressStatus,
+  RiderProgressDetails,
+  EventItem,
+  EventTitle,
+  EventDetails,
 } from "../styles/Ride";
 
 /** Ride component with clean design and join functionality */
@@ -92,11 +109,13 @@ class Ride extends React.Component {
       mapModalOpen: false,
       pickupModalOpen: false,
       codeModalOpen: false,
+      historyModalOpen: false,
       selectedRiderId: null,
       codeInput: "",
       verifyingCode: false,
       riderCodes: {}, // Store code hints for riders
       fullCode: null, // For rider's code display
+      rideHistory: null, // Store ride session history
     };
   }
 
@@ -410,6 +429,48 @@ class Ride extends React.Component {
     return riderProgress && riderProgress.pickedUp && !riderProgress.droppedOff;
   };
 
+  canViewHistory = () => {
+    const { ride, rideSessions } = this.props;
+    const currentUser = Meteor.user();
+
+    if (!currentUser) return false;
+
+    // Find any completed session for this ride
+    const session = rideSessions.find(session =>
+      session.rideId === ride._id &&
+      (session.finished || session.status === "completed" || session.status === "cancelled")
+    );
+
+    if (!session) {
+      return false;
+    }
+
+    // User must be driver, rider, or admin
+    const user = Meteor.users.findOne(currentUser._id);
+    const isAdmin = user?.roles?.includes("admin");
+    const isDriver = session.driverId === currentUser._id;
+    const isRider = session.riders.includes(currentUser._id);
+
+    return isDriver || isRider || isAdmin;
+  };
+
+  handleViewHistory = () => {
+    const { ride, rideSessions } = this.props;
+
+    // Find the completed session for this ride
+    const session = rideSessions.find(session =>
+      session.rideId === ride._id &&
+      (session.finished || session.status === "completed" || session.status === "cancelled")
+    );
+
+    if (session) {
+      this.setState({
+        historyModalOpen: true,
+        rideHistory: session
+      });
+    }
+  };
+
   handleStartActiveRide = async () => {
     const sessionId = this.getSessionId();
     if (!sessionId) return;
@@ -635,6 +696,13 @@ class Ride extends React.Component {
     });
   };
 
+  closeHistoryModal = () => {
+    this.setState({
+      historyModalOpen: false,
+      rideHistory: null
+    });
+  };
+
   handleJoinRide = () => {
     const { ride } = this.props;
 
@@ -796,6 +864,7 @@ class Ride extends React.Component {
             this.canCompleteRide() ||
             this.canShowCode() ||
             this.canConfirmDropoff() ||
+            this.canViewHistory() ||
             this.canAccessChat() ||
             (this.getPlaceCoordinates(ride.origin) &&
              this.getPlaceCoordinates(ride.destination))) && (
@@ -899,6 +968,14 @@ class Ride extends React.Component {
                     <DropoffIcon>📍</DropoffIcon>
                   )}
                 </DropoffButton>
+              )}
+              {this.canViewHistory() && (
+                <ViewHistoryButton
+                  onClick={this.handleViewHistory}
+                  title="View Ride History"
+                >
+                  <ViewHistoryIcon>📋</ViewHistoryIcon>
+                </ViewHistoryButton>
               )}
               {this.canAccessChat() && (
                 <ChatButton
@@ -1192,6 +1269,134 @@ class Ride extends React.Component {
 
                 <ModalActions>
                   <DoneButton onClick={this.closeCodeModal}>✓ Got it</DoneButton>
+                </ModalActions>
+              </Modal>
+            </ModalOverlay>,
+            document.body,
+          )}
+
+        {/* Ride History Modal - Rendered via Portal */}
+        {this.state.historyModalOpen && this.state.rideHistory &&
+          ReactDOM.createPortal(
+            <ModalOverlay onClick={this.closeHistoryModal}>
+              <Modal onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px", maxHeight: "80vh" }}>
+                <ModalHeader>
+                  <ModalTitle>
+                    <ModalIcon>📋</ModalIcon>
+                    Ride History
+                  </ModalTitle>
+                  <ModalClose onClick={this.closeHistoryModal}>✕</ModalClose>
+                </ModalHeader>
+
+                <HistoryModalContent>
+                  {/* Timeline Section */}
+                  <HistorySection>
+                    <HistorySectionTitle>Timeline</HistorySectionTitle>
+                    <TimelineItem completed={true}>
+                      <TimelineInfo>
+                        <TimelineTitle>Ride Session Created</TimelineTitle>
+                        <TimelineTime>
+                          {this.state.rideHistory.timeline.created ?
+                            new Date(this.state.rideHistory.timeline.created).toLocaleString() :
+                            'Not available'
+                          }
+                        </TimelineTime>
+                      </TimelineInfo>
+                    </TimelineItem>
+
+                    {this.state.rideHistory.timeline.started && (
+                      <TimelineItem completed={true}>
+                        <TimelineInfo>
+                          <TimelineTitle>Ride Started</TimelineTitle>
+                          <TimelineTime>
+                            {new Date(this.state.rideHistory.timeline.started).toLocaleString()}
+                          </TimelineTime>
+                        </TimelineInfo>
+                      </TimelineItem>
+                    )}
+
+                    {this.state.rideHistory.timeline.arrived && (
+                      <TimelineItem completed={true}>
+                        <TimelineInfo>
+                          <TimelineTitle>Driver Arrived</TimelineTitle>
+                          <TimelineTime>
+                            {new Date(this.state.rideHistory.timeline.arrived).toLocaleString()}
+                          </TimelineTime>
+                        </TimelineInfo>
+                      </TimelineItem>
+                    )}
+
+                    {this.state.rideHistory.timeline.ended && (
+                      <TimelineItem completed={true}>
+                        <TimelineInfo>
+                          <TimelineTitle>
+                            {this.state.rideHistory.status === "cancelled" ? "Ride Cancelled" : "Ride Completed"}
+                          </TimelineTitle>
+                          <TimelineTime>
+                            {new Date(this.state.rideHistory.timeline.ended).toLocaleString()}
+                          </TimelineTime>
+                        </TimelineInfo>
+                      </TimelineItem>
+                    )}
+                  </HistorySection>
+
+                  {/* Rider Progress Section */}
+                  <HistorySection>
+                    <HistorySectionTitle>Rider Progress</HistorySectionTitle>
+                    {this.state.rideHistory.riders.map(riderId => {
+                      const progress = this.state.rideHistory.progress[riderId];
+                      return (
+                        <RiderProgressItem key={riderId}>
+                          <RiderProgressHeader>
+                            <RiderProgressName>{this.getUsernameFromId(riderId)}</RiderProgressName>
+                            <RiderProgressStatus completed={progress?.droppedOff}>
+                              {progress?.droppedOff ? "Completed" : progress?.pickedUp ? "Picked Up" : "Not Picked"}
+                            </RiderProgressStatus>
+                          </RiderProgressHeader>
+                          <RiderProgressDetails>
+                            {progress?.pickupTime && (
+                              <div>Pickup: {new Date(progress.pickupTime).toLocaleString()}</div>
+                            )}
+                            {progress?.dropoffTime && (
+                              <div>Dropoff: {new Date(progress.dropoffTime).toLocaleString()}</div>
+                            )}
+                            {progress?.codeAttempts > 0 && (
+                              <div>Code attempts: {progress.codeAttempts}</div>
+                            )}
+                          </RiderProgressDetails>
+                        </RiderProgressItem>
+                      );
+                    })}
+                  </HistorySection>
+
+                  {/* Events Section */}
+                  {this.state.rideHistory.events && Object.keys(this.state.rideHistory.events).length > 0 && (
+                    <HistorySection>
+                      <HistorySectionTitle>Events</HistorySectionTitle>
+                      {Object.entries(this.state.rideHistory.events)
+                        .sort(([,a], [,b]) => new Date(a.time) - new Date(b.time))
+                        .map(([eventKey, event]) => (
+                          <EventItem key={eventKey}>
+                            <EventTitle>
+                              {eventKey.replace(/_\d+$/, '').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                            </EventTitle>
+                            <EventDetails>
+                              <div>Time: {new Date(event.time).toLocaleString()}</div>
+                              <div>By: {this.getUsernameFromId(event.by)}</div>
+                              {event.riderId && <div>Rider: {this.getUsernameFromId(event.riderId)}</div>}
+                              {event.reason && <div>Reason: {event.reason}</div>}
+                              {event.location && (
+                                <div>Location: {event.location.lat.toFixed(6)}, {event.location.lng.toFixed(6)}</div>
+                              )}
+                            </EventDetails>
+                          </EventItem>
+                        ))}
+                    </HistorySection>
+                  )}
+                </HistoryModalContent>
+
+                <ModalActions>
+                  <DoneButton onClick={this.closeHistoryModal}>✓ Close</DoneButton>
                 </ModalActions>
               </Modal>
             </ModalOverlay>,
