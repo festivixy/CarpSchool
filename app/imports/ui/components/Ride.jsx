@@ -8,6 +8,7 @@ import swal from "sweetalert";
 import { Places } from "../../api/places/Places";
 import { RideSessions } from "../../api/rideSession/RideSession";
 import RouteMapView from "./RouteMapView";
+import { getCurrentLocation } from "../utils/geolocation";
 import { MobileOnly, DesktopOnly } from "../layouts/Devices";
 import {
   RideCard,
@@ -279,6 +280,28 @@ class Ride extends React.Component {
     });
   };
 
+  canStartActiveRide = () => {
+    const { ride, rideSessions } = this.props;
+
+    // Must be the driver
+    if (!this.isCurrentUserDriver()) {
+      return false;
+    }
+
+    // Find the session for this ride
+    const session = rideSessions.find(session =>
+      session.rideId === ride._id &&
+      !session.finished
+    );
+
+    if (!session) {
+      return false;
+    }
+
+    // Can start if session is created but not yet started
+    return session.status === "created" && !session.timeline.started;
+  };
+
   canConfirmPickup = () => {
     const { ride, rideSessions } = this.props;
 
@@ -290,7 +313,7 @@ class Ride extends React.Component {
     // Find the active session for this ride
     const session = rideSessions.find(session =>
       session.rideId === ride._id &&
-      (session.status === "active" || session.status === "created") &&
+      session.status === "active" &&
       !session.finished
     );
 
@@ -328,9 +351,29 @@ class Ride extends React.Component {
     return session.riders.includes(currentUser._id);
   };
 
-  handleConfirmPickup = () => {
-    this.setState({ pickupModalOpen: true });
-    this.loadRiderCodes();
+  handleStartActiveRide = async () => {
+    const sessionId = this.getSessionId();
+    if (!sessionId) return;
+
+    this.setState({ isGenerating: true });
+
+    try {
+      // Get current location
+      const location = await getCurrentLocation();
+
+      // Start the ride session
+      Meteor.call("rideSessions.start", sessionId, location, (error) => {
+        this.setState({ isGenerating: false });
+        if (error) {
+          swal("Error", error.reason || error.message, "error");
+        } else {
+          swal("Success!", "Ride started successfully! You can now confirm rider pickups.", "success");
+        }
+      });
+    } catch (error) {
+      this.setState({ isGenerating: false });
+      swal("Error", "Failed to get location: " + error.message, "error");
+    }
   };
 
   handleShowCode = () => {
@@ -367,6 +410,13 @@ class Ride extends React.Component {
       return Meteor.user()?.username || userId;
     }
     return userId; // Fallback to ID if username not available
+  };
+
+
+
+  handleConfirmPickup = () => {
+    this.setState({ pickupModalOpen: true });
+    this.loadRiderCodes();
   };
 
   loadRiderCodes = () => {
@@ -598,6 +648,7 @@ class Ride extends React.Component {
           {(this.canShareRide() ||
             this.canJoinRide() ||
             this.canStartRide() ||
+            this.canStartActiveRide() ||
             this.canConfirmPickup() ||
             this.canShowCode() ||
             this.canAccessChat() ||
@@ -643,6 +694,20 @@ class Ride extends React.Component {
                     <Spinner />
                   ) : (
                     <StartRideIcon>🚀</StartRideIcon>
+                  )}
+                </StartRideButton>
+              )}
+              {this.canStartActiveRide() && (
+                <StartRideButton
+                  className={isGenerating ? "loading" : ""}
+                  onClick={this.handleStartActiveRide}
+                  disabled={isGenerating}
+                  title="Start Active Ride"
+                >
+                  {isGenerating ? (
+                    <Spinner />
+                  ) : (
+                    <StartRideIcon>▶️</StartRideIcon>
                   )}
                 </StartRideButton>
               )}
@@ -768,6 +833,84 @@ class Ride extends React.Component {
                 </ModalActions>
               </Modal>
             </ModalOverlay>,
+            document.body,
+          )}
+
+        {/* Pickup Confirmation Modal - Rendered via Portal */}
+        {this.state.pickupModalOpen &&
+          ReactDOM.createPortal(
+            <PickupOverlay onClick={this.closePickupModal}>
+              <PickupModal onClick={(e) => e.stopPropagation()}>
+                <PickupModalHeader>
+                  <PickupModalTitle>
+                    ✅ Confirm Pickup
+                  </PickupModalTitle>
+                  <ModalClose onClick={this.closePickupModal}>✕</ModalClose>
+                </PickupModalHeader>
+
+                <RiderList>
+                  {this.props.rideSessions
+                    .find(session => session.rideId === ride._id && !session.finished)
+                    ?.riders
+                    .filter(riderId => {
+                      const session = this.props.rideSessions.find(s => s.rideId === ride._id && !s.finished);
+                      const progress = session?.progress[riderId];
+                      return progress && !progress.pickedUp;
+                    })
+                    .map(riderId => {
+                      const session = this.props.rideSessions.find(s => s.rideId === ride._id && !s.finished);
+                      const progress = session?.progress[riderId];
+                      const riderCodeData = this.state.riderCodes[riderId];
+                      const isSelected = this.state.selectedRiderId === riderId;
+                      const isDisabled = progress?.codeError;
+
+                      return (
+                        <RiderItem
+                          key={riderId}
+                          error={isDisabled}
+                          disabled={isDisabled}
+                          onClick={() => !isDisabled && this.handleRiderSelect(riderId)}
+                        >
+                          <RiderName>{this.getUsernameFromId(riderId)}</RiderName>
+                          <RiderStatus error={isDisabled}>
+                            {isDisabled
+                              ? "Code verification disabled (too many attempts)"
+                              : `Attempts remaining: ${riderCodeData?.attemptsRemaining ?? 5}`
+                            }
+                          </RiderStatus>
+
+                          {isSelected && !isDisabled && riderCodeData && (
+                            <CodeInputSection>
+                              <CodeDisplay>
+                                <CodeDigit filled>{riderCodeData.hint?.[0] || "?"}</CodeDigit>
+                                <CodeDigit filled>{riderCodeData.hint?.[1] || "?"}</CodeDigit>
+                                <CodeDigit>_</CodeDigit>
+                                <CodeDigit>_</CodeDigit>
+                              </CodeDisplay>
+                              <div style={{ display: "flex", alignItems: "center" }}>
+                                <CodeInput
+                                  type="text"
+                                  maxLength="2"
+                                  placeholder="??"
+                                  value={this.state.codeInput}
+                                  onChange={(e) => this.setState({ codeInput: e.target.value.replace(/\D/g, '') })}
+                                  disabled={this.state.verifyingCode}
+                                />
+                                <VerifyButton
+                                  onClick={this.handleCodeVerification}
+                                  disabled={this.state.verifyingCode || this.state.codeInput.length !== 2}
+                                >
+                                  {this.state.verifyingCode ? "..." : "Verify"}
+                                </VerifyButton>
+                              </div>
+                            </CodeInputSection>
+                          )}
+                        </RiderItem>
+                      );
+                    })}
+                </RiderList>
+              </PickupModal>
+            </PickupOverlay>,
             document.body,
           )}
 
