@@ -36,6 +36,10 @@ import {
   EmptyMessage,
   ClearSearchButton,
   JoinNewButton,
+  SectionHeader,
+  SectionTitle,
+  SectionSubtitle,
+  SectionContainer,
 } from "../styles/MyRides";
 
 /**
@@ -49,6 +53,10 @@ class MobileMyRides extends React.Component {
       searchQuery: "",
       filteredDrivingRides: [],
       filteredRidingRides: [],
+      activeDrivingRides: [],
+      pastDrivingRides: [],
+      activeRidingRides: [],
+      pastRidingRides: [],
       joinRideModalOpen: false,
       prefillCode: "",
       showConfirmModal: false,
@@ -96,6 +104,8 @@ class MobileMyRides extends React.Component {
     const { rides } = this.props;
     const { searchQuery } = this.state;
     const currentUser = Meteor.user()?.username;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     // Filter driving rides (where user is the driver)
     let drivingRides = rides.filter((ride) => ride.driver === currentUser);
@@ -110,11 +120,32 @@ class MobileMyRides extends React.Component {
       return ride.rider === currentUser;
     });
 
+    // Separate into active and past rides based on date
+    const separateByDate = (rideList) => {
+      const active = [];
+      const past = [];
+
+      rideList.forEach((ride) => {
+        const rideDate = new Date(ride.date);
+        const rideDateOnly = new Date(rideDate.getFullYear(), rideDate.getMonth(), rideDate.getDate());
+
+        if (rideDateOnly >= today) {
+          active.push(ride);
+        } else {
+          past.push(ride);
+        }
+      });
+
+      return { active, past };
+    };
+
+    const drivingCategories = separateByDate(drivingRides);
+    const ridingCategories = separateByDate(ridingRides);
+
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
 
-      // Filter driving rides
-      drivingRides = drivingRides.filter(
+      const filterBySearch = (rideList) => rideList.filter(
         (ride) => ride.origin.toLowerCase().includes(query) ||
           ride.destination.toLowerCase().includes(query) ||
           (ride.riders &&
@@ -122,20 +153,26 @@ class MobileMyRides extends React.Component {
             ride.riders.some((rider) => rider.toLowerCase().includes(query))) ||
           (ride.rider &&
             ride.rider !== "TBD" &&
-            ride.rider.toLowerCase().includes(query)),
-      );
-
-      // Filter riding rides
-      ridingRides = ridingRides.filter(
-        (ride) => ride.origin.toLowerCase().includes(query) ||
-          ride.destination.toLowerCase().includes(query) ||
+            ride.rider.toLowerCase().includes(query)) ||
           ride.driver.toLowerCase().includes(query),
       );
+
+      // Filter driving rides
+      drivingCategories.active = filterBySearch(drivingCategories.active);
+      drivingCategories.past = filterBySearch(drivingCategories.past);
+
+      // Filter riding rides
+      ridingCategories.active = filterBySearch(ridingCategories.active);
+      ridingCategories.past = filterBySearch(ridingCategories.past);
     }
 
     this.setState({
-      filteredDrivingRides: drivingRides,
-      filteredRidingRides: ridingRides,
+      filteredDrivingRides: [...drivingCategories.active, ...drivingCategories.past],
+      filteredRidingRides: [...ridingCategories.active, ...ridingCategories.past],
+      activeDrivingRides: drivingCategories.active,
+      pastDrivingRides: drivingCategories.past,
+      activeRidingRides: ridingCategories.active,
+      pastRidingRides: ridingCategories.past,
     });
   };
 
@@ -240,8 +277,77 @@ class MobileMyRides extends React.Component {
     this.setState({ joinRideModalOpen: true, prefillCode: "" });
   };
 
+  renderRideSection = (rides, sectionTitle, sectionSubtitle, isDriving = true) => {
+    if (rides.length === 0) {
+      return null;
+    }
+
+    return (
+      <SectionContainer>
+        <SectionHeader>
+          <SectionTitle>{sectionTitle}</SectionTitle>
+          <SectionSubtitle>{sectionSubtitle}</SectionSubtitle>
+        </SectionHeader>
+        <RidesContainer>
+          {rides.map((ride) => (
+            <RideWrapper key={ride._id}>
+              <Ride ride={ride} />
+              <AdditionalActions>
+                {isDriving ? (
+                  <>
+                    {/* Handle new schema with riders array */}
+                    {ride.riders && ride.riders.length > 0 && (
+                      <div>
+                        {ride.riders.map((rider) => (
+                          <div
+                            key={rider}
+                            style={{
+                              display: "flex",
+                              gap: "8px",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <ContactButton
+                              onClick={() => this.handleRemoveRider(ride._id, rider)}
+                              style={{ backgroundColor: "#ff4757" }}
+                            >
+                              Remove {rider}
+                            </ContactButton>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <CancelButton onClick={() => this.handleCancelRide(ride._id)}>
+                      Cancel Ride
+                    </CancelButton>
+                  </>
+                ) : (
+                  <>
+                    <ContactButton
+                      onClick={() => this.handleContactDriver(ride.driver)}
+                    >
+                      Contact Driver
+                    </ContactButton>
+                    <LeaveButton onClick={() => this.handleLeaveRide(ride._id)}>
+                      Leave Ride
+                    </LeaveButton>
+                  </>
+                )}
+              </AdditionalActions>
+            </RideWrapper>
+          ))}
+        </RidesContainer>
+      </SectionContainer>
+    );
+  };
+
   renderDrivingRides = () => {
-    const { filteredDrivingRides, searchQuery } = this.state;
+    const {
+      filteredDrivingRides,
+      activeDrivingRides,
+      pastDrivingRides,
+      searchQuery
+    } = this.state;
 
     return (
       <>
@@ -261,80 +367,52 @@ class MobileMyRides extends React.Component {
           )}
         </Summary>
 
-        <RidesContainer>
-          {filteredDrivingRides.length === 0 ? (
-            <Empty>
-              <EmptyIcon>🚗</EmptyIcon>
-              <EmptyTitle>
-                {searchQuery ? "No rides found" : "No rides as driver"}
-              </EmptyTitle>
-              <EmptyMessage>
-                {searchQuery
-                  ? "Try adjusting your search terms"
-                  : "Create a new ride to start driving other students"}
-              </EmptyMessage>
-              {searchQuery && (
-                <ClearSearchButton
-                  onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
-                  }
-                >
-                  Clear Search
-                </ClearSearchButton>
-              )}
-            </Empty>
-          ) : (
-            filteredDrivingRides.map((ride) => (
-              <RideWrapper key={ride._id}>
-                <Ride ride={ride} />
-                <AdditionalActions>
-                  {/* Handle new schema with riders array */}
-                  {ride.riders && ride.riders.length > 0 && (
-                    <div>
-                      {ride.riders.map((rider) => (
-                        <div
-                          key={rider}
-                          style={{
-                            display: "flex",
-                            gap: "8px",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <ContactButton
-                            onClick={() => this.handleRemoveRider(ride._id, rider)
-                            }
-                            style={{ backgroundColor: "#ff4757" }}
-                          >
-                            Remove {rider}
-                          </ContactButton>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {/* Handle legacy schema with single rider */}
-                  {!ride.riders && ride.rider && ride.rider !== "TBD" && (
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "8px",
-                        marginBottom: "8px",
-                      }}
-                    >
-                    </div>
-                  )}
-                  <CancelButton onClick={() => this.handleCancelRide(ride._id)}>
-                    Cancel Ride
-                  </CancelButton>
-                </AdditionalActions>
-              </RideWrapper>
-            ))
-          )}
-        </RidesContainer>
+        {filteredDrivingRides.length === 0 ? (
+          <Empty>
+            <EmptyIcon>🚗</EmptyIcon>
+            <EmptyTitle>
+              {searchQuery ? "No rides found" : "No rides as driver"}
+            </EmptyTitle>
+            <EmptyMessage>
+              {searchQuery
+                ? "Try adjusting your search terms"
+                : "Create a new ride to start driving other students"}
+            </EmptyMessage>
+            {searchQuery && (
+              <ClearSearchButton
+                onClick={() => this.setState({ searchQuery: "" }, this.filterRides)}
+              >
+                Clear Search
+              </ClearSearchButton>
+            )}
+          </Empty>
+        ) : (
+          <>
+            {this.renderRideSection(
+              activeDrivingRides,
+              "Active Rides",
+              `${activeDrivingRides.length} upcoming ride${activeDrivingRides.length !== 1 ? "s" : ""}`,
+              true
+            )}
+            {this.renderRideSection(
+              pastDrivingRides,
+              "Past Rides",
+              `${pastDrivingRides.length} completed ride${pastDrivingRides.length !== 1 ? "s" : ""}`,
+              true
+            )}
+          </>
+        )}
       </>
     );
   };
 
   renderRidingRides = () => {
-    const { filteredRidingRides, searchQuery } = this.state;
+    const {
+      filteredRidingRides,
+      activeRidingRides,
+      pastRidingRides,
+      searchQuery
+    } = this.state;
 
     return (
       <>
@@ -354,49 +432,45 @@ class MobileMyRides extends React.Component {
           )}
         </Summary>
 
-        <RidesContainer>
-          {filteredRidingRides.length === 0 ? (
-            <Empty>
-              <EmptyIcon>🚗</EmptyIcon>
-              <EmptyTitle>
-                {searchQuery ? "No rides found" : "No rides as rider"}
-              </EmptyTitle>
-              <EmptyMessage>
-                {searchQuery
-                  ? "Try adjusting your search terms"
-                  : "Join a ride to get started"}
-              </EmptyMessage>
-              {searchQuery ? (
-                <ClearSearchButton
-                  onClick={() => this.setState({ searchQuery: "" }, this.filterRides)
-                  }
-                >
-                  Clear Search
-                </ClearSearchButton>
-              ) : (
-                <JoinNewButton onClick={this.handleJoinNewRide}>
-                  Join a Ride
-                </JoinNewButton>
-              )}
-            </Empty>
-          ) : (
-            filteredRidingRides.map((ride) => (
-              <RideWrapper key={ride._id}>
-                <Ride ride={ride} />
-                <AdditionalActions>
-                  <ContactButton
-                    onClick={() => this.handleContactDriver(ride.driver)}
-                  >
-                    Contact Driver
-                  </ContactButton>
-                  <LeaveButton onClick={() => this.handleLeaveRide(ride._id)}>
-                    Leave Ride
-                  </LeaveButton>
-                </AdditionalActions>
-              </RideWrapper>
-            ))
-          )}
-        </RidesContainer>
+        {filteredRidingRides.length === 0 ? (
+          <Empty>
+            <EmptyIcon>🚗</EmptyIcon>
+            <EmptyTitle>
+              {searchQuery ? "No rides found" : "No rides as rider"}
+            </EmptyTitle>
+            <EmptyMessage>
+              {searchQuery
+                ? "Try adjusting your search terms"
+                : "Join a ride to get started"}
+            </EmptyMessage>
+            {searchQuery ? (
+              <ClearSearchButton
+                onClick={() => this.setState({ searchQuery: "" }, this.filterRides)}
+              >
+                Clear Search
+              </ClearSearchButton>
+            ) : (
+              <JoinNewButton onClick={this.handleJoinNewRide}>
+                Join a Ride
+              </JoinNewButton>
+            )}
+          </Empty>
+        ) : (
+          <>
+            {this.renderRideSection(
+              activeRidingRides,
+              "Active Rides",
+              `${activeRidingRides.length} upcoming ride${activeRidingRides.length !== 1 ? "s" : ""}`,
+              false
+            )}
+            {this.renderRideSection(
+              pastRidingRides,
+              "Past Rides",
+              `${pastRidingRides.length} completed ride${pastRidingRides.length !== 1 ? "s" : ""}`,
+              false
+            )}
+          </>
+        )}
       </>
     );
   };
@@ -423,13 +497,13 @@ class MobileMyRides extends React.Component {
               active={activeTab === "driving"}
               onClick={() => this.handleTabChange("driving")}
             >
-              🚗 I&apos;m Driving ({this.state.filteredDrivingRides.length})
+              🚗 I&apos;m Driving ({(this.state.activeDrivingRides?.length || 0) + (this.state.pastDrivingRides?.length || 0)})
             </Tab>
             <Tab
               active={activeTab === "riding"}
               onClick={() => this.handleTabChange("riding")}
             >
-              🎒 I&apos;m Riding ({this.state.filteredRidingRides.length})
+              🎒 I&apos;m Riding ({(this.state.activeRidingRides?.length || 0) + (this.state.pastRidingRides?.length || 0)})
             </Tab>
           </TabsContainer>
 
