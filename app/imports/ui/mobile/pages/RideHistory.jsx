@@ -39,12 +39,9 @@ import {
  */
 class RideHistory extends React.Component {
   getUsernameFromId = (userId) => {
-    // This would ideally come from a subscription, but for now we'll use the current user
-    // In a real app, you'd want to subscribe to user data or have usernames in the session
-    if (userId === Meteor.userId()) {
-      return Meteor.user()?.username || userId;
-    }
-    return userId; // Fallback to ID if username not available
+    const { users } = this.props;
+    const user = users.find(u => u._id === userId);
+    return user?.username || userId; // Fallback to ID if username not available
   };
 
   handleBack = () => {
@@ -54,7 +51,7 @@ class RideHistory extends React.Component {
   canViewSession = () => {
     const { session } = this.props;
     const currentUser = Meteor.user();
-    
+
     if (!currentUser || !session) return false;
 
     // User must be driver, rider, or admin
@@ -114,14 +111,14 @@ class RideHistory extends React.Component {
               <TimelineInfo>
                 <TimelineTitle>Ride Session Created</TimelineTitle>
                 <TimelineTime>
-                  {session.timeline.created ? 
-                    new Date(session.timeline.created).toLocaleString() : 
+                  {session.timeline.created ?
+                    new Date(session.timeline.created).toLocaleString() :
                     'Not available'
                   }
                 </TimelineTime>
               </TimelineInfo>
             </TimelineItem>
-            
+
             {session.timeline.started && (
               <TimelineItem completed={true}>
                 <TimelineInfo>
@@ -132,7 +129,7 @@ class RideHistory extends React.Component {
                 </TimelineInfo>
               </TimelineItem>
             )}
-            
+
             {session.timeline.arrived && (
               <TimelineItem completed={true}>
                 <TimelineInfo>
@@ -143,7 +140,7 @@ class RideHistory extends React.Component {
                 </TimelineInfo>
               </TimelineItem>
             )}
-            
+
             {session.timeline.ended && (
               <TimelineItem completed={true}>
                 <TimelineInfo>
@@ -242,6 +239,7 @@ RideHistory.propTypes = {
   ready: PropTypes.bool.isRequired,
   session: PropTypes.object,
   ride: PropTypes.object,
+  users: PropTypes.array.isRequired,
   history: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,
 };
@@ -251,14 +249,31 @@ export default withRouter(
     const sessionId = match.params.id;
     const sessionsSubscription = Meteor.subscribe("rideSession", sessionId);
     const ridesSubscription = Meteor.subscribe("Rides");
-    
+
     const session = RideSessions.findOne(sessionId);
     const ride = session ? Rides.findOne(session.rideId) : null;
-    
+
+    // Subscribe to user data for all participants in the session
+    let usersSubscription = { ready: () => true };
+    if (session) {
+      const allUserIds = [
+        session.driverId,
+        session.createdBy,
+        ...session.riders,
+        // Get user IDs from events
+        ...Object.values(session.events || {}).map(event => event.by).filter(Boolean),
+      ].filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
+
+      if (allUserIds.length > 0) {
+        usersSubscription = Meteor.subscribe("users.byIds", allUserIds);
+      }
+    }
+
     return {
-      ready: sessionsSubscription.ready() && ridesSubscription.ready(),
+      ready: sessionsSubscription.ready() && ridesSubscription.ready() && usersSubscription.ready(),
       session,
       ride,
+      users: Meteor.users.find({}).fetch(),
     };
   })(RideHistory),
 );
