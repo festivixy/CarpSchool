@@ -33,6 +33,7 @@ import MobileCredits from "../mobile/pages/Credits";
 import MobilePlaceManager from "../mobile/pages/PlaceManager";
 import MobileAdminPlaceManager from "../pages/AdminPlaceManager";
 import MobileRideInfo from "../mobile/pages/RideInfo";
+import RideHistory from "../mobile/pages/RideHistory";
 import ProtectedRoutes, {
   ProtectedRoute,
   ProtectedRouteRequireNotLoggedIn,
@@ -96,6 +97,7 @@ class App extends React.Component {
               {/* Main app routes with full onboarding flow */}
               <ProtectedRoutes path="/myRides" component={MobileMyRides} />
               <ProtectedRoutes path="/ride/:rideId" component={MobileRideInfo} />
+              <ProtectedRoutes path="/rideHistory/:id" component={RideHistory} />
               <ProtectedRoutes
                 path="/editProfile"
                 component={MobileEditProfile}
