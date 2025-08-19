@@ -1,6 +1,6 @@
 /**
  * Performance monitoring utilities for React components
- * 
+ *
  * This module provides tools for measuring and optimizing component performance
  * in development and production environments.
  */
@@ -44,13 +44,13 @@ export const withPerformanceProfiler = (componentName, WrappedComponent) => {
  */
 export const usePerformanceMeasure = (operationName) => {
   const startTime = React.useRef(null);
-  
+
   const startMeasure = React.useCallback(() => {
     if (process.env.NODE_ENV === 'development') {
       startTime.current = performance.now();
     }
   }, []);
-  
+
   const endMeasure = React.useCallback(() => {
     if (process.env.NODE_ENV === 'development' && startTime.current !== null) {
       const duration = performance.now() - startTime.current;
@@ -60,7 +60,7 @@ export const usePerformanceMeasure = (operationName) => {
       startTime.current = null;
     }
   }, [operationName]);
-  
+
   return { startMeasure, endMeasure };
 };
 
@@ -74,29 +74,29 @@ export const usePerformanceMeasure = (operationName) => {
 export const useMemoWithPerf = (factory, deps, name = 'unknown') => {
   const [value, setValue] = React.useState(() => factory());
   const prevDeps = React.useRef(deps);
-  
+
   React.useEffect(() => {
     const depsChanged = !deps.every((dep, index) => dep === prevDeps.current[index]);
-    
+
     if (depsChanged) {
       if (process.env.NODE_ENV === 'development') {
         const startTime = performance.now();
         const newValue = factory();
         const duration = performance.now() - startTime;
-        
+
         if (duration > 1) { // Log expensive computations >1ms
           console.log(`🧮 [Performance] useMemo(${name}) recalculated in ${duration.toFixed(2)}ms`);
         }
-        
+
         setValue(newValue);
       } else {
         setValue(factory());
       }
-      
+
       prevDeps.current = deps;
     }
   }, deps);
-  
+
   return value;
 };
 
@@ -109,21 +109,21 @@ export const useMemoWithPerf = (factory, deps, name = 'unknown') => {
  */
 export const useCallbackWithPerf = (callback, deps, name = 'unknown') => {
   const memoizedCallback = React.useCallback(callback, deps);
-  
+
   if (process.env.NODE_ENV === 'development') {
     return React.useCallback((...args) => {
       const startTime = performance.now();
       const result = memoizedCallback(...args);
       const duration = performance.now() - startTime;
-      
+
       if (duration > 5) { // Log expensive callbacks >5ms
         console.log(`🔄 [Performance] useCallback(${name}) executed in ${duration.toFixed(2)}ms`);
       }
-      
+
       return result;
     }, [memoizedCallback, name]);
   }
-  
+
   return memoizedCallback;
 };
 
@@ -135,12 +135,12 @@ export const useCallbackWithPerf = (callback, deps, name = 'unknown') => {
 export const useRenderTracking = (componentName, props = {}) => {
   const renderCount = React.useRef(0);
   const lastRenderTime = React.useRef(Date.now());
-  
+
   React.useEffect(() => {
     renderCount.current += 1;
     const now = Date.now();
     const timeSinceLastRender = now - lastRenderTime.current;
-    
+
     if (process.env.NODE_ENV === 'development') {
       if (renderCount.current > 1 && timeSinceLastRender < 100) {
         console.warn(`🔥 [Performance] ${componentName} rendered ${renderCount.current} times (last render ${timeSinceLastRender}ms ago)`, {
@@ -149,7 +149,7 @@ export const useRenderTracking = (componentName, props = {}) => {
         });
       }
     }
-    
+
     lastRenderTime.current = now;
   });
 };
@@ -172,42 +172,18 @@ export const useMemoryTracking = (componentName) => {
 };
 
 /**
- * List virtualization helper for large lists
- * @param {Array} items - Array of items to virtualize
- * @param {number} containerHeight - Height of the visible container
- * @param {number} itemHeight - Height of each item
- * @param {number} overscan - Number of items to render outside visible area
- * @returns {object} - Virtualization data
+ * Simple scroll optimization helper
+ * @param {Function} callback - Callback to throttle
+ * @param {number} delay - Throttle delay in milliseconds
+ * @returns {Function} - Throttled callback
  */
-export const useListVirtualization = (items, containerHeight, itemHeight, overscan = 3) => {
-  const [scrollTop, setScrollTop] = React.useState(0);
-  
-  const visibleRange = React.useMemo(() => {
-    const visibleCount = Math.ceil(containerHeight / itemHeight);
-    const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
-    const endIndex = Math.min(items.length - 1, startIndex + visibleCount + overscan * 2);
-    
-    return { startIndex, endIndex };
-  }, [scrollTop, containerHeight, itemHeight, items.length, overscan]);
-  
-  const visibleItems = React.useMemo(() => {
-    return items.slice(visibleRange.startIndex, visibleRange.endIndex + 1).map((item, index) => ({
-      item,
-      index: visibleRange.startIndex + index,
-      top: (visibleRange.startIndex + index) * itemHeight,
-    }));
-  }, [items, visibleRange, itemHeight]);
-  
-  const totalHeight = items.length * itemHeight;
-  
-  const handleScroll = React.useCallback((event) => {
-    setScrollTop(event.target.scrollTop);
-  }, []);
-  
-  return {
-    visibleItems,
-    totalHeight,
-    handleScroll,
-    visibleRange,
-  };
+export const useThrottledScroll = (callback, delay = 100) => {
+  const lastRun = React.useRef(Date.now());
+
+  return React.useCallback((...args) => {
+    if (Date.now() - lastRun.current >= delay) {
+      callback(...args);
+      lastRun.current = Date.now();
+    }
+  }, [callback, delay]);
 };
