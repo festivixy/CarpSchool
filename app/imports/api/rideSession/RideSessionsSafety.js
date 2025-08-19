@@ -30,11 +30,20 @@ export const canCreateRideSession = async (userId, rideId, driverId, riders = []
     return { allowed: false, reason: "A session already exists for this ride" };
   }
 
-  // Validate riders are part of the original ride
-  const invalidRiders = riders.filter(riderId => !ride.riders.includes(riderId));
-  if (invalidRiders.length > 0) {
-    return { allowed: false, reason: "Some riders are not part of the original ride" };
-  }
+    // Convert rider usernames to user IDs for validation
+    const riderUserIds = [];
+    for (const username of ride.riders) {
+      const user = await Meteor.users.findOneAsync({ username });
+      if (user) {
+        riderUserIds.push(user._id);
+      }
+    }
+
+    // Validate riders are part of the original ride
+    const invalidRiders = riders.filter(riderId => !riderUserIds.includes(riderId));
+    if (invalidRiders.length > 0) {
+      return { allowed: false, reason: "Some riders are not part of the original ride" };
+    }
 
   return { allowed: true };
 };
@@ -88,7 +97,7 @@ export const canFinishRideSession = async (userId, sessionId) => {
     return {
       allowed: false,
       reason: "Cannot finish session while riders are still active",
-      warnings: [`${activeRiders.length} riders still need to be dropped off`],
+      warnings: [`${activeRiders.length} riders still need to be dropped off`]
     };
   }
 
@@ -260,7 +269,7 @@ export const validateSessionState = async (sessionId, requiredState) => {
   if (session.status !== requiredState) {
     return {
       allowed: false,
-      reason: `Session must be in '${requiredState}' state, currently '${session.status}'`,
+      reason: `Session must be in '${requiredState}' state, currently '${session.status}'`
     };
   }
 
@@ -293,7 +302,7 @@ export const validateTimeConstraints = async (sessionId, action) => {
   if (timeDiff > maxSessionAge) {
     return {
       allowed: false,
-      reason: "Session is too old for this action. Sessions expire after 24 hours.",
+      reason: "Session is too old for this action. Sessions expire after 24 hours."
     };
   }
 

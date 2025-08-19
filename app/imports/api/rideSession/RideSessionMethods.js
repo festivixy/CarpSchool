@@ -20,22 +20,31 @@ import {
 } from "./RideSessionsSafety";
 
 Meteor.methods({
-  async "rideSessions.create"(rideId, driverId, riders = []) {
+  async "rideSessions.create"(rideId, driverId, riderUsernames = []) {
     check(rideId, String);
     check(driverId, String);
-    check(riders, [String]);
+    check(riderUsernames, [String]);
 
     const userId = this.userId;
 
+    // Convert rider usernames to user IDs
+    const riderIds = [];
+    for (const username of riderUsernames) {
+      const user = await Meteor.users.findOneAsync({ username });
+      if (user) {
+        riderIds.push(user._id);
+      }
+    }
+
     // Safety validation
-    const validation = await canCreateRideSession(userId, rideId, driverId, riders);
+    const validation = await canCreateRideSession(userId, rideId, driverId, riderIds);
     if (!validation.allowed) {
       throw new Meteor.Error("access-denied", validation.reason);
     }
 
-    // Initialize progress for all riders with pickup codes
+    // Initialize progress for all riders with pickup codes (using user IDs as keys)
     const progress = {};
-    riders.forEach(riderId => {
+    riderIds.forEach(riderId => {
       progress[riderId] = {
         droppedOff: false,
         pickedUp: false,
@@ -50,8 +59,8 @@ Meteor.methods({
     const sessionData = {
       rideId,
       driverId,
-      riders,
-      activeRiders: [...riders], // Copy riders array
+      riders: riderIds,
+      activeRiders: [...riderIds], // Copy rider IDs array
       progress,
       finished: false,
       timeline: {
