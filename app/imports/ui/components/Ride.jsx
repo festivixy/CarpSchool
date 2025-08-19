@@ -325,7 +325,7 @@ class Ride extends React.Component {
     }
 
     // User must be a rider in this session
-    return session.riders.includes(currentUser.username);
+    return session.riders.includes(currentUser._id);
   };
 
   handleConfirmPickup = () => {
@@ -339,7 +339,7 @@ class Ride extends React.Component {
 
     if (!currentUser) return;
 
-    Meteor.call("rideSessions.getPickupCodeHint", this.getSessionId(), currentUser.username, (error, result) => {
+    Meteor.call("rideSessions.getPickupCodeHint", this.getSessionId(), currentUser._id, (error, result) => {
       if (error) {
         swal("Error", error.reason || error.message, "error");
       } else {
@@ -358,6 +358,15 @@ class Ride extends React.Component {
       !session.finished
     );
     return session ? session._id : null;
+  };
+
+  getUsernameFromId = (userId) => {
+    // This would ideally come from a subscription, but for now we'll use the current user
+    // In a real app, you'd want to subscribe to user data or have usernames in the session
+    if (userId === Meteor.userId()) {
+      return Meteor.user()?.username || userId;
+    }
+    return userId; // Fallback to ID if username not available
   };
 
   loadRiderCodes = () => {
@@ -797,7 +806,7 @@ class Ride extends React.Component {
                           disabled={isDisabled}
                           onClick={() => !isDisabled && this.handleRiderSelect(riderId)}
                         >
-                          <RiderName>{riderId}</RiderName>
+                          <RiderName>{this.getUsernameFromId(riderId)}</RiderName>
                           <RiderStatus error={isDisabled}>
                             {isDisabled
                               ? "Code verification disabled (too many attempts)"
