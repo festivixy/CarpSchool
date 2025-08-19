@@ -149,8 +149,8 @@ const searchLocations = async (query, options = {}) => {
 
       console.log('[MapServices] Fetching search results for:', normalizedQuery);
 
-      // Use fetch with timeout and cancellation (5 second timeout for search)
-      const response = await fetchWithTimeout(searchUrl.toString(), 5000, controller);
+      // Use fetch with timeout and cancellation (3 second timeout for search)
+      const response = await fetchWithTimeout(searchUrl.toString(), 3000, controller);
 
       if (!response.ok) {
         throw new Error(`Nominatim search failed: ${response.status}`);
@@ -227,6 +227,7 @@ const fetchWithTimeout = (url, timeout = 10000, externalController = null) => {
  * @param {object} startCoord - Start coordinates {lat, lng}
  * @param {object} endCoord - End coordinates {lat, lng}
  * @param {object} options - Routing options
+ * @param {boolean} options.useWorker - Whether to use Web Worker for heavy calculations
  * @returns {Promise<object>} - Route data
  */
 export const getRoute = async (startCoord, endCoord, options = {}) => {
@@ -254,7 +255,23 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
   // Create new request with timeout handling
   const requestPromise = (async () => {
     try {
-      const { service = 'driving', timeout = 8000 } = options;
+      const { service = 'driving', timeout = 3000, useWorker = false } = options; // Reduced to 3 seconds
+
+      // Use Web Worker for heavy calculations if requested
+      if (useWorker && typeof Worker !== 'undefined') {
+        try {
+          const { calculateRouteInWorker } = await import('./mapWorker');
+          const workerResult = await calculateRouteInWorker(startCoord, endCoord, timeout);
+
+          // Cache the result
+          CacheManager.set(routeCache, cacheKey, workerResult);
+
+          return workerResult;
+        } catch (workerError) {
+          console.warn('[MapServices] Worker route calculation failed, using main thread:', workerError);
+          // Continue with main thread calculation
+        }
+      }
 
       const baseUrl = 'https://osrm.carp.school/route/v1';
       const coords = `${startCoord.lng},${startCoord.lat};${endCoord.lng},${endCoord.lat}`;

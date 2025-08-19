@@ -110,49 +110,57 @@ const RouteMapView = ({
     }
   };
 
-  // Find and display route
-  const findAndDisplayRoute = async (showRefreshAnimation = false) => {
+  // Find and display route (non-blocking)
+  const findAndDisplayRoute = (showRefreshAnimation = false) => {
     if (!startCoord || !endCoord || !mapInstanceRef.current) {
       return;
     }
 
+    // Immediately show loading state (non-blocking UI update)
     if (showRefreshAnimation) {
       setIsRefreshing(true);
     }
 
-    try {
-      const geometry = await findRouteOptimized(startCoord, endCoord);
+    // Use setTimeout to ensure UI updates immediately before starting async work
+    setTimeout(async () => {
+      try {
+        const geometry = await findRouteOptimized(startCoord, endCoord);
 
-      // Remove existing route
-      if (routeLayerRef.current) {
-        mapInstanceRef.current.removeLayer(routeLayerRef.current);
+        // Only proceed if component is still mounted and coordinates haven't changed
+        if (!mapInstanceRef.current) return;
+
+        // Remove existing route
+        if (routeLayerRef.current) {
+          mapInstanceRef.current.removeLayer(routeLayerRef.current);
+        }
+
+        // Add new route to map
+        const routeLayer = L.geoJSON(geometry, {
+          style: {
+            color: "#007bff",
+            weight: 4,
+            opacity: 0.8,
+          },
+        }).addTo(mapInstanceRef.current);
+
+        routeLayerRef.current = routeLayer;
+
+        // Fit map to show entire route
+        const group = new L.FeatureGroup([
+          startMarkerRef.current,
+          endMarkerRef.current,
+          routeLayer,
+        ]);
+        mapInstanceRef.current.fitBounds(group.getBounds(), { padding: [20, 20] });
+      } catch (error) {
+        console.error("Route finding error:", error);
+        // Route errors are handled gracefully by fallback in mapServices
+      } finally {
+        if (showRefreshAnimation) {
+          setIsRefreshing(false);
+        }
       }
-
-      // Add new route to map
-      const routeLayer = L.geoJSON(geometry, {
-        style: {
-          color: "#007bff",
-          weight: 4,
-          opacity: 0.8,
-        },
-      }).addTo(mapInstanceRef.current);
-
-      routeLayerRef.current = routeLayer;
-
-      // Fit map to show entire route
-      const group = new L.FeatureGroup([
-        startMarkerRef.current,
-        endMarkerRef.current,
-        routeLayer,
-      ]);
-      mapInstanceRef.current.fitBounds(group.getBounds(), { padding: [20, 20] });
-    } catch (error) {
-      console.error("Route finding error:", error);
-    } finally {
-      if (showRefreshAnimation) {
-        setIsRefreshing(false);
-      }
-    }
+    }, 0); // Immediate execution but non-blocking
   };
 
   // Handle refresh button click

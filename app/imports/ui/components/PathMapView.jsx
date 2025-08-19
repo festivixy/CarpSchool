@@ -177,64 +177,75 @@ const PathMapView = ({
 
   };
 
-  // Find and display route
-  const findRoute = async () => {
+  // Find and display route (non-blocking)
+  const findRoute = () => {
     if (!startCoord || !endCoord) {
       setError("Both start and end coordinates are required");
       return;
     }
 
+    // Immediately show loading state (non-blocking UI update)
     setIsLoading(true);
     setError(null);
 
-    try {
-      let route;
+    // Use setTimeout to ensure UI updates immediately before starting async work
+    setTimeout(async () => {
+      try {
+        let route;
 
-      if (routingService === "osrm") {
-        try {
-          route = await findRouteOptimized(startCoord, endCoord);
-        } catch (routingError) {
-          console.warn("Optimized routing failed, using fallback:", routingError);
+        if (routingService === "osrm") {
+          try {
+            route = await findRouteOptimized(startCoord, endCoord);
+          } catch (routingError) {
+            console.warn("Optimized routing failed, using fallback:", routingError);
+            if (routingError.message.includes('timeout')) {
+              setError("Route calculation timed out, showing direct path");
+            }
+            route = createStraightLineRoute(startCoord, endCoord);
+          }
+        } else {
+          // Default to straight line
           route = createStraightLineRoute(startCoord, endCoord);
         }
-      } else {
-        // Default to straight line
-        route = createStraightLineRoute(startCoord, endCoord);
+
+        setRouteData(route);
+
+        // Add route to map
+        if (mapInstanceRef.current && routeLayerRef.current) {
+          mapInstanceRef.current.removeLayer(routeLayerRef.current);
+        }
+
+        if (mapInstanceRef.current) {
+          const routeLayer = L.geoJSON(route.geometry, {
+            style: {
+              color: route.service === "Straight Line" ? "#ffc107" : "#007bff",
+              weight: 4,
+              opacity: 0.8,
+              dashArray: route.service === "Straight Line" ? "10, 5" : null,
+            },
+          }).addTo(mapInstanceRef.current);
+
+          routeLayerRef.current = routeLayer;
+
+          // Fit map to show entire route
+          const group = new L.FeatureGroup([
+            startMarkerRef.current,
+            endMarkerRef.current,
+            routeLayer,
+          ]);
+          mapInstanceRef.current.fitBounds(group.getBounds(), { padding: [20, 20] });
+        }
+      } catch (routeError) {
+        console.error("Route finding error:", routeError);
+        if (routeError.message.includes('timeout')) {
+          setError("Route calculation timed out. Please try again.");
+        } else {
+          setError(`Route finding failed: ${routeError.message}`);
+        }
+      } finally {
+        setIsLoading(false);
       }
-
-      setRouteData(route);
-
-      // Add route to map
-      if (mapInstanceRef.current && routeLayerRef.current) {
-        mapInstanceRef.current.removeLayer(routeLayerRef.current);
-      }
-
-      if (mapInstanceRef.current) {
-        const routeLayer = L.geoJSON(route.geometry, {
-          style: {
-            color: route.service === "Straight Line" ? "#ffc107" : "#007bff",
-            weight: 4,
-            opacity: 0.8,
-            dashArray: route.service === "Straight Line" ? "10, 5" : null,
-          },
-        }).addTo(mapInstanceRef.current);
-
-        routeLayerRef.current = routeLayer;
-
-        // Fit map to show entire route
-        const group = new L.FeatureGroup([
-          startMarkerRef.current,
-          endMarkerRef.current,
-          routeLayer,
-        ]);
-        mapInstanceRef.current.fitBounds(group.getBounds(), { padding: [20, 20] });
-      }
-    } catch (routeError) {
-      console.error("Route finding error:", routeError);
-      setError(`Route finding failed: ${routeError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
+    }, 0); // Immediate execution but non-blocking
   };
 
   // Initialize map

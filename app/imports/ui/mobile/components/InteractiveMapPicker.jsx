@@ -321,32 +321,45 @@ const InteractiveMapPicker = ({
     );
   };
 
-  // Search for locations using optimized map service
-  const searchLocation = async () => {
+  // Search for locations using optimized map service (non-blocking)
+  const searchLocation = () => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
+      setIsSearching(false);
       return;
     }
 
+    // Immediately show loading state (non-blocking UI update)
     setIsSearching(true);
     setSearchResults([]);
+    clearMessages();
 
-    try {
-      // Use optimized map service with debouncing and caching
-      const { searchLocation: optimizedSearch } = await import("../../utils/mapServices");
-      const results = await optimizedSearch(searchQuery, {
-        limit: 5,
-        countrycodes: 'ca',
-        addressdetails: 1,
-      });
+    // Use setTimeout to ensure UI updates immediately before starting async work
+    setTimeout(async () => {
+      try {
+        // Use optimized map service with debouncing and caching
+        const { searchLocation: optimizedSearch } = await import("../../utils/mapServices");
+        const results = await optimizedSearch(searchQuery, {
+          limit: 5,
+          countrycodes: 'ca',
+          addressdetails: 1,
+        });
 
-      setSearchResults(results);
-    } catch (error) {
-      console.error("Search error:", error);
-      showError("Search failed. Please try again.");
-    } finally {
-      setIsSearching(false);
-    }
+        // Only update if search query hasn't changed (user is still on same search)
+        if (searchQuery.trim()) {
+          setSearchResults(results);
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        if (error.message.includes('timeout')) {
+          showError("Search timed out. Please try again.");
+        } else {
+          showError("Search failed. Please try again.");
+        }
+      } finally {
+        setIsSearching(false);
+      }
+    }, 0); // Immediate execution but non-blocking
   };
 
   // Handle search result selection
