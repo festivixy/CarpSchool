@@ -7,12 +7,13 @@ set -e  # Exit on any error
 
 # Source utility modules
 source "./tools/ui-utils.sh"
+source "./tools/meteor-utils.sh"
 
 echo "📦 Installing Carpool app dependencies..."
 
 # Step 1: Navigate to app directory and install dependencies
 echo -e "${YELLOW}📁 Changing to app directory...${NC}"
-cd app
+insure_app_dir
 
 echo -e "${YELLOW}⬇️  Installing npm dependencies...${NC}"
 meteor npm install --save
