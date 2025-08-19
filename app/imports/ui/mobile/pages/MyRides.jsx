@@ -5,6 +5,7 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
 import { Rides } from "../../../api/ride/Rides";
+import { RideSessions } from "../../../api/rideSession/RideSession";
 import JoinRideModal from "../../components/JoinRideModal";
 import Ride from "../../components/Ride";
 import ConfirmFunction from "../../components/ConfirmFunction";
@@ -53,10 +54,16 @@ class MobileMyRides extends React.Component {
       searchQuery: "",
       filteredDrivingRides: [],
       filteredRidingRides: [],
-      activeDrivingRides: [],
-      pastDrivingRides: [],
-      activeRidingRides: [],
-      pastRidingRides: [],
+      // Driving categories
+      pastDrivingRides: [], // past rides with finished sessions
+      activeDrivingRides: [], // rides with active sessions
+      upcomingDrivingRides: [], // future rides without sessions
+      missedDrivingRides: [], // past rides without sessions
+      // Riding categories
+      pastRidingRides: [], // past rides with finished sessions
+      activeRidingRides: [], // rides with active sessions
+      upcomingRidingRides: [], // future rides without sessions
+      missedRidingRides: [], // past rides without sessions
       joinRideModalOpen: false,
       prefillCode: "",
       showConfirmModal: false,
@@ -99,13 +106,19 @@ class MobileMyRides extends React.Component {
   };
 
   filterRides = () => {
-    if (!this.props.ready || !this.props.rides) return;
+    if (!this.props.ready || !this.props.rides || !this.props.rideSessions) return;
 
-    const { rides } = this.props;
+    const { rides, rideSessions } = this.props;
     const { searchQuery } = this.state;
     const currentUser = Meteor.user()?.username;
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Create a map of ride sessions by rideId for easy lookup
+    const sessionMap = {};
+    rideSessions.forEach(session => {
+      sessionMap[session.rideId] = session;
+    });
 
     // Filter driving rides (where user is the driver)
     let drivingRides = rides.filter((ride) => ride.driver === currentUser);
@@ -120,27 +133,46 @@ class MobileMyRides extends React.Component {
       return ride.rider === currentUser;
     });
 
-    // Separate into active and past rides based on date
-    const separateByDate = (rideList) => {
-      const active = [];
-      const past = [];
+    // Categorize rides based on date and session status
+    const categorizeRides = (rideList) => {
+      const past = []; // past rides with finished sessions
+      const active = []; // rides with active sessions
+      const upcoming = []; // future rides without sessions
+      const missed = []; // past rides without sessions
 
       rideList.forEach((ride) => {
         const rideDate = new Date(ride.date);
         const rideDateOnly = new Date(rideDate.getFullYear(), rideDate.getMonth(), rideDate.getDate());
+        const session = sessionMap[ride._id];
+        const isPastDate = rideDateOnly < today;
+        const isFutureDate = rideDateOnly >= today;
 
-        if (rideDateOnly >= today) {
-          active.push(ride);
+        if (session) {
+          // Ride has a session
+          if (session.finished || session.status === "completed" || session.status === "cancelled") {
+            // Session is finished
+            past.push(ride);
+          } else {
+            // Session is active/ongoing
+            active.push(ride);
+          }
         } else {
-          past.push(ride);
+          // Ride has no session
+          if (isPastDate) {
+            // Past ride without session (missed)
+            missed.push(ride);
+          } else {
+            // Future ride without session (upcoming)
+            upcoming.push(ride);
+          }
         }
       });
 
-      return { active, past };
+      return { past, active, upcoming, missed };
     };
 
-    const drivingCategories = separateByDate(drivingRides);
-    const ridingCategories = separateByDate(ridingRides);
+    const drivingCategories = categorizeRides(drivingRides);
+    const ridingCategories = categorizeRides(ridingRides);
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -157,22 +189,39 @@ class MobileMyRides extends React.Component {
           ride.driver.toLowerCase().includes(query),
       );
 
-      // Filter driving rides
-      drivingCategories.active = filterBySearch(drivingCategories.active);
-      drivingCategories.past = filterBySearch(drivingCategories.past);
+      // Apply search filter to all categories
+      Object.keys(drivingCategories).forEach(category => {
+        drivingCategories[category] = filterBySearch(drivingCategories[category]);
+      });
 
-      // Filter riding rides
-      ridingCategories.active = filterBySearch(ridingCategories.active);
-      ridingCategories.past = filterBySearch(ridingCategories.past);
+      Object.keys(ridingCategories).forEach(category => {
+        ridingCategories[category] = filterBySearch(ridingCategories[category]);
+      });
     }
 
     this.setState({
-      filteredDrivingRides: [...drivingCategories.active, ...drivingCategories.past],
-      filteredRidingRides: [...ridingCategories.active, ...ridingCategories.past],
-      activeDrivingRides: drivingCategories.active,
+      filteredDrivingRides: [
+        ...drivingCategories.active,
+        ...drivingCategories.upcoming,
+        ...drivingCategories.past,
+        ...drivingCategories.missed
+      ],
+      filteredRidingRides: [
+        ...ridingCategories.active,
+        ...ridingCategories.upcoming,
+        ...ridingCategories.past,
+        ...ridingCategories.missed
+      ],
+      // Driving categories
       pastDrivingRides: drivingCategories.past,
-      activeRidingRides: ridingCategories.active,
+      activeDrivingRides: drivingCategories.active,
+      upcomingDrivingRides: drivingCategories.upcoming,
+      missedDrivingRides: drivingCategories.missed,
+      // Riding categories
       pastRidingRides: ridingCategories.past,
+      activeRidingRides: ridingCategories.active,
+      upcomingRidingRides: ridingCategories.upcoming,
+      missedRidingRides: ridingCategories.missed,
     });
   };
 
@@ -345,7 +394,9 @@ class MobileMyRides extends React.Component {
     const {
       filteredDrivingRides,
       activeDrivingRides,
+      upcomingDrivingRides,
       pastDrivingRides,
+      missedDrivingRides,
       searchQuery
     } = this.state;
 
@@ -391,13 +442,25 @@ class MobileMyRides extends React.Component {
             {this.renderRideSection(
               activeDrivingRides,
               "Active Rides",
-              `${activeDrivingRides.length} upcoming ride${activeDrivingRides.length !== 1 ? "s" : ""}`,
+              `${activeDrivingRides.length} ongoing ride${activeDrivingRides.length !== 1 ? "s" : ""} with active sessions`,
+              true
+            )}
+            {this.renderRideSection(
+              upcomingDrivingRides,
+              "Upcoming Rides",
+              `${upcomingDrivingRides.length} scheduled ride${upcomingDrivingRides.length !== 1 ? "s" : ""} without sessions yet`,
               true
             )}
             {this.renderRideSection(
               pastDrivingRides,
               "Past Rides",
-              `${pastDrivingRides.length} completed ride${pastDrivingRides.length !== 1 ? "s" : ""}`,
+              `${pastDrivingRides.length} completed ride${pastDrivingRides.length !== 1 ? "s" : ""} with finished sessions`,
+              true
+            )}
+            {this.renderRideSection(
+              missedDrivingRides,
+              "Missed Rides",
+              `${missedDrivingRides.length} past ride${missedDrivingRides.length !== 1 ? "s" : ""} without sessions`,
               true
             )}
           </>
@@ -410,7 +473,9 @@ class MobileMyRides extends React.Component {
     const {
       filteredRidingRides,
       activeRidingRides,
+      upcomingRidingRides,
       pastRidingRides,
+      missedRidingRides,
       searchQuery
     } = this.state;
 
@@ -460,13 +525,25 @@ class MobileMyRides extends React.Component {
             {this.renderRideSection(
               activeRidingRides,
               "Active Rides",
-              `${activeRidingRides.length} upcoming ride${activeRidingRides.length !== 1 ? "s" : ""}`,
+              `${activeRidingRides.length} ongoing ride${activeRidingRides.length !== 1 ? "s" : ""} with active sessions`,
+              false
+            )}
+            {this.renderRideSection(
+              upcomingRidingRides,
+              "Upcoming Rides",
+              `${upcomingRidingRides.length} scheduled ride${upcomingRidingRides.length !== 1 ? "s" : ""} without sessions yet`,
               false
             )}
             {this.renderRideSection(
               pastRidingRides,
               "Past Rides",
-              `${pastRidingRides.length} completed ride${pastRidingRides.length !== 1 ? "s" : ""}`,
+              `${pastRidingRides.length} completed ride${pastRidingRides.length !== 1 ? "s" : ""} with finished sessions`,
+              false
+            )}
+            {this.renderRideSection(
+              missedRidingRides,
+              "Missed Rides",
+              `${missedRidingRides.length} past ride${missedRidingRides.length !== 1 ? "s" : ""} without sessions`,
               false
             )}
           </>
@@ -497,13 +574,23 @@ class MobileMyRides extends React.Component {
               active={activeTab === "driving"}
               onClick={() => this.handleTabChange("driving")}
             >
-              🚗 I&apos;m Driving ({(this.state.activeDrivingRides?.length || 0) + (this.state.pastDrivingRides?.length || 0)})
+              🚗 I&apos;m Driving ({
+                (this.state.activeDrivingRides?.length || 0) +
+                (this.state.upcomingDrivingRides?.length || 0) +
+                (this.state.pastDrivingRides?.length || 0) +
+                (this.state.missedDrivingRides?.length || 0)
+              })
             </Tab>
             <Tab
               active={activeTab === "riding"}
               onClick={() => this.handleTabChange("riding")}
             >
-              🎒 I&apos;m Riding ({(this.state.activeRidingRides?.length || 0) + (this.state.pastRidingRides?.length || 0)})
+              🎒 I&apos;m Riding ({
+                (this.state.activeRidingRides?.length || 0) +
+                (this.state.upcomingRidingRides?.length || 0) +
+                (this.state.pastRidingRides?.length || 0) +
+                (this.state.missedRidingRides?.length || 0)
+              })
             </Tab>
           </TabsContainer>
 
@@ -563,6 +650,7 @@ class MobileMyRides extends React.Component {
 
 MobileMyRides.propTypes = {
   rides: PropTypes.array.isRequired,
+  rideSessions: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
   location: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
@@ -570,10 +658,12 @@ MobileMyRides.propTypes = {
 
 export default withRouter(
   withTracker(() => {
-    const subscription = Meteor.subscribe("Rides");
+    const ridesSubscription = Meteor.subscribe("Rides");
+    const rideSessionsSubscription = Meteor.subscribe("rideSessions");
     return {
       rides: Rides.find({}).fetch(),
-      ready: subscription.ready(),
+      rideSessions: RideSessions.find({}).fetch(),
+      ready: ridesSubscription.ready() && rideSessionsSubscription.ready(),
     };
   })(MobileMyRides),
 );
