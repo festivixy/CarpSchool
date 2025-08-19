@@ -11,30 +11,30 @@ import {
  * Memoized Chat Message component for optimal performance
  * Only re-renders when message content actually changes
  */
-const ChatMessage = memo(({ 
-  message, 
-  isCurrentUser, 
+const ChatMessage = memo(({
+  message,
+  isCurrentUser,
   showSender = true,
-  timeFormat = "short" 
+  timeFormat = "short"
 }) => {
   // Memoize expensive time formatting
   const formattedTime = useMemo(() => {
     const date = new Date(message.Timestamp);
-    
+
     if (timeFormat === "short") {
-      return date.toLocaleTimeString([], { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      return date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
       });
     }
-    
+
     return date.toLocaleTimeString();
   }, [message.Timestamp, timeFormat]);
 
   // Memoize sender display
   const senderDisplay = useMemo(() => {
     if (!showSender) return null;
-    
+
     // Extract username from email if needed
     const sender = message.Sender;
     if (sender.includes('@')) {
@@ -43,12 +43,16 @@ const ChatMessage = memo(({
     return sender;
   }, [message.Sender, showSender]);
 
+  const isSystem = message.Sender === "System";
+
   return (
-    <Message $isCurrentUser={isCurrentUser}>
-      {showSender && !isCurrentUser && (
+    <Message own={isCurrentUser} system={isSystem}>
+      {showSender && !isCurrentUser && !isSystem && (
         <MessageSender>{senderDisplay}</MessageSender>
       )}
-      <MessageContent>{message.Content}</MessageContent>
+      <MessageContent own={isCurrentUser} system={isSystem}>
+        {message.Content}
+      </MessageContent>
       <MessageTime>{formattedTime}</MessageTime>
     </Message>
   );
