@@ -36,6 +36,7 @@ import {
   ConfirmPickupButton,
   ShowCodeButton,
   CompleteRideButton,
+  DropoffButton,
   MapButton,
   ShareIcon,
   JoinIcon,
@@ -44,6 +45,7 @@ import {
   ConfirmPickupIcon,
   ShowCodeIcon,
   CompleteRideIcon,
+  DropoffIcon,
   MapIcon,
   Spinner,
   ModalOverlay,
@@ -381,6 +383,33 @@ class Ride extends React.Component {
     return session.riders.includes(currentUser._id);
   };
 
+  canConfirmDropoff = () => {
+    const { ride, rideSessions } = this.props;
+    const currentUser = Meteor.user();
+
+    if (!currentUser) return false;
+
+    // Find the active session for this ride
+    const session = rideSessions.find(session =>
+      session.rideId === ride._id &&
+      session.status === "active" &&
+      !session.finished
+    );
+
+    if (!session) {
+      return false;
+    }
+
+    // User must be a rider in this session
+    if (!session.riders.includes(currentUser._id)) {
+      return false;
+    }
+
+    // Check if rider has been picked up but not dropped off
+    const riderProgress = session.progress[currentUser._id];
+    return riderProgress && riderProgress.pickedUp && !riderProgress.droppedOff;
+  };
+
   handleStartActiveRide = async () => {
     const sessionId = this.getSessionId();
     if (!sessionId) return;
@@ -463,6 +492,49 @@ class Ride extends React.Component {
         });
       }
     });
+  };
+
+  handleConfirmDropoff = async () => {
+    const sessionId = this.getSessionId();
+    const currentUser = Meteor.user();
+
+    if (!sessionId || !currentUser) return;
+
+    // Confirm before marking as dropped off
+    const willConfirm = await swal({
+      title: "Confirm Drop-off?",
+      text: "Are you sure you want to mark yourself as dropped off at this location?",
+      icon: "info",
+      buttons: {
+        cancel: "Cancel",
+        confirm: {
+          text: "Confirm Drop-off",
+          className: "swal-button--confirm",
+        },
+      },
+    });
+
+    if (!willConfirm) return;
+
+    this.setState({ isGenerating: true });
+
+    try {
+      // Get current location
+      const location = await getCurrentLocation();
+
+      // Mark rider as dropped off
+      Meteor.call("rideSessions.dropoffRider", sessionId, currentUser._id, location, (error) => {
+        this.setState({ isGenerating: false });
+        if (error) {
+          swal("Error", error.reason || error.message, "error");
+        } else {
+          swal("Success!", "You have been marked as dropped off. Thank you for riding!", "success");
+        }
+      });
+    } catch (error) {
+      this.setState({ isGenerating: false });
+      swal("Error", "Failed to get location: " + error.message, "error");
+    }
   };
 
   getSessionId = () => {
@@ -723,6 +795,7 @@ class Ride extends React.Component {
             this.canConfirmPickup() ||
             this.canCompleteRide() ||
             this.canShowCode() ||
+            this.canConfirmDropoff() ||
             this.canAccessChat() ||
             (this.getPlaceCoordinates(ride.origin) &&
              this.getPlaceCoordinates(ride.destination))) && (
@@ -812,6 +885,20 @@ class Ride extends React.Component {
                 >
                   <ShowCodeIcon>🔢</ShowCodeIcon>
                 </ShowCodeButton>
+              )}
+              {this.canConfirmDropoff() && (
+                <DropoffButton
+                  className={isGenerating ? "loading" : ""}
+                  onClick={this.handleConfirmDropoff}
+                  disabled={isGenerating}
+                  title="Confirm Drop-off"
+                >
+                  {isGenerating ? (
+                    <Spinner />
+                  ) : (
+                    <DropoffIcon>📍</DropoffIcon>
+                  )}
+                </DropoffButton>
               )}
               {this.canAccessChat() && (
                 <ChatButton
