@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { withRouter } from 'react-router-dom';
-import { EdgeSwipeBackContainer, SwipeBlob } from '../styles/EdgeSwipeBack';
+import React, { useEffect, useRef, useState } from "react";
+import { withRouter } from "react-router-dom";
+import { EdgeSwipeBackContainer, SwipeBlob } from "../styles/EdgeSwipeBack";
 
 const EdgeSwipeBack = ({ history, disabled = false }) => {
   const containerRef = useRef(null);
@@ -12,7 +12,7 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
     visible: false,
     x: 0,
     y: 0,
-    progress: 0 // 0-1 representing swipe progress
+    progress: 0, // 0-1 representing swipe progress
   });
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
         touchStartRef.current = {
           x: startX,
           y: startY,
-          time: Date.now()
+          time: Date.now(),
         };
         isSwipingRef.current = true;
 
@@ -47,11 +47,11 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
           visible: true,
           x: startX,
           y: startY,
-          progress: 0
+          progress: 0,
         });
 
         // Add visual feedback
-        document.body.style.userSelect = 'none';
+        document.body.style.userSelect = "none";
 
         // Edge swipe gesture started
       }
@@ -73,7 +73,7 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
       if (deltaY > MAX_VERTICAL_DRIFT) {
         isSwipingRef.current = false;
         setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
-        document.body.style.userSelect = '';
+        document.body.style.userSelect = "";
         return;
       }
 
@@ -81,7 +81,7 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
       if (deltaX < 0) {
         isSwipingRef.current = false;
         setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
-        document.body.style.userSelect = '';
+        document.body.style.userSelect = "";
         return;
       }
 
@@ -93,13 +93,13 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
           visible: true,
           x: currentX,
           y: currentY,
-          progress: progress
+          progress: progress,
         });
       } else {
         // Over 250px: Remove blob and stop everything
         isSwipingRef.current = false;
         setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
-        document.body.style.userSelect = '';
+        document.body.style.userSelect = "";
         return;
       }
 
@@ -125,7 +125,7 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
 
       // Reset state
       isSwipingRef.current = false;
-      document.body.style.userSelect = '';
+      document.body.style.userSelect = "";
 
       // Check if this qualifies as a back gesture (30-250px range, under 500ms)
       const isValidSwipe =
@@ -151,27 +151,27 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
     const handleTouchCancel = () => {
       isSwipingRef.current = false;
       setBlobState({ visible: false, x: 0, y: 0, progress: 0 });
-      document.body.style.userSelect = '';
+      document.body.style.userSelect = "";
     };
 
     // Add event listeners to document to avoid blocking app interactions
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
-    document.addEventListener('touchcancel', handleTouchCancel, { passive: true });
+    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd, { passive: true });
+    document.addEventListener("touchcancel", handleTouchCancel, { passive: true });
 
     // Cleanup
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-      document.removeEventListener('touchcancel', handleTouchCancel);
-      document.body.style.userSelect = '';
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+      document.removeEventListener("touchcancel", handleTouchCancel);
+      document.body.style.userSelect = "";
     };
   }, [history, disabled]);
 
   // Only render on mobile devices
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (!isMobile) {
       return null;

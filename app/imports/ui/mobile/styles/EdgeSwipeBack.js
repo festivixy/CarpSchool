@@ -1,4 +1,4 @@
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes, css } from "styled-components";
 
 const pulseAnimation = keyframes`
   0% { transform: scale(1); opacity: 0.8; }
@@ -64,8 +64,8 @@ export const SwipeBlob = styled.div`
   transform: translate(${props => props.x - 20}px, ${props => props.y - 20}px) scale(${props => 0.6 + (props.progress * 0.4)});
 
   /* Visibility control */
-  display: ${props => props.visible ? 'block' : 'none'};
-  opacity: ${props => props.visible ? 1 : 0};
+  display: ${props => (props.visible ? "block" : "none")};
+  opacity: ${props => (props.visible ? 1 : 0)};
 
   /* Smooth animations */
   transition: opacity 0.15s ease-out;
