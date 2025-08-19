@@ -32,10 +32,6 @@ import {
   ConversationParticipants,
   Messages,
   DateSeparator,
-  Message,
-  MessageSender,
-  MessageContent,
-  MessageTime,
   InputForm,
   Input,
   SendButton,
@@ -394,20 +390,12 @@ class MobileChat extends React.Component {
                                 {this.formatDate(message.Timestamp)}
                               </DateSeparator>
                             )}
-                            <Message own={isCurrentUser} system={isSystem}>
-                              {!isCurrentUser && !isSystem && (
-                                <MessageSender>{message.Sender}</MessageSender>
-                              )}
-                              <MessageContent
-                                own={isCurrentUser}
-                                system={isSystem}
-                              >
-                                {message.Content}
-                              </MessageContent>
-                              <MessageTime>
-                                {this.formatTime(message.Timestamp)}
-                              </MessageTime>
-                            </Message>
+                            <ChatMessage
+                              message={message}
+                              isCurrentUser={isCurrentUser}
+                              showSender={!isCurrentUser && !isSystem}
+                              timeFormat="short"
+                            />
                           </React.Fragment>
                         );
                       })}
@@ -511,20 +499,12 @@ class MobileChat extends React.Component {
                         {this.formatDate(message.Timestamp)}
                       </DateSeparator>
                     )}
-                    <Message own={isCurrentUser} system={isSystem}>
-                      {!isCurrentUser && !isSystem && (
-                        <MessageSender>{message.Sender}</MessageSender>
-                      )}
-                      <MessageContent
-                        own={isCurrentUser}
-                        system={isSystem}
-                      >
-                        {message.Content}
-                      </MessageContent>
-                      <MessageTime>
-                        {this.formatTime(message.Timestamp)}
-                      </MessageTime>
-                    </Message>
+                    <ChatMessage
+                      message={message}
+                      isCurrentUser={isCurrentUser}
+                      showSender={!isCurrentUser && !isSystem}
+                      timeFormat="short"
+                    />
                   </React.Fragment>
                 );
               })}
