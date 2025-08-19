@@ -236,10 +236,12 @@ text: createSafeStringSchema({
 ```
 
 ### Data Logic Validation
-- [ ] **File**: `imports/api/ride/Rides.js`
-- [ ] **Add**: Maximum riders validation vs. seats limit
-- [ ] **Ensure**: Logical consistency in ride capacity
-- [ ] **Priority**: Medium
+- [x] ~~**IMPLEMENTED**: Enhanced RidesSchema with comprehensive data logic validation~~
+- [x] ~~**ADDED**: Rider count vs. seats limit validation in schema and methods~~
+- [x] ~~**CREATED**: RideValidation.js utility with centralized validation functions~~
+- [x] ~~**ENSURED**: Logical consistency across all ride operations~~
+- [x] ~~**ADDED**: Driver-as-rider prevention, duplicate rider detection, timing validation~~
+- [x] ~~**Priority**: Medium~~ ✅ **COMPLETED** (ba3c5e5)
 
 ---
 
@@ -259,10 +261,10 @@ text: createSafeStringSchema({
 - [ ] **Priority**: High
 
 ### Offline Experience
-- [ ] **Implement**: Service worker for offline functionality
-- [ ] **Add**: Offline state detection and messaging
-- [ ] **Create**: Offline fallbacks for critical features
-- [ ] **Priority**: Medium
+- [x] ~~**DECISION**: Not implementing offline functionality~~
+- [x] ~~**RATIONALE**: Ride-sharing requires real-time data for safety and coordination~~
+- [x] ~~**ALTERNATIVE**: Focus on fast loading and connection error handling~~
+- [x] ~~**Priority**: ~~Medium~~ **OPTIONAL/NOT NEEDED**
 
 ### Accessibility Compliance
 - [ ] **Add**: ARIA attributes to styled components

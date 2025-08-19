@@ -107,34 +107,21 @@ const PathMapView = ({
       iconAnchor: [15, 15],
     });
 
-  // Find route using OSRM (Open Source Routing Machine)
-  const findRouteOSRM = async (start, end) => {
+  // Find route using optimized routing service
+  const findRouteOptimized = async (start, end) => {
     try {
-      // Use OSRM service endpoint
-      const baseUrl = "https://osrm.carp.school/route/v1/driving";
-      const coords = `${start.lng},${start.lat};${end.lng},${end.lat}`;
-      const osrmUrl = `${baseUrl}/${coords}?overview=full&geometries=geojson`;
-      const response = await fetch(osrmUrl);
+      // Use optimized routing service with caching
+      const { getRoute } = await import("../utils/mapServices");
+      const routeData = await getRoute(start, end, { service: 'driving' });
 
-      if (!response.ok) {
-        throw new Error(`OSRM routing failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.routes && data.routes.length > 0) {
-        const route = data.routes[0];
-        return {
-          geometry: route.geometry,
-          distance: route.distance, // meters
-          duration: route.duration, // seconds
-          service: "OSRM (Local)",
-        };
-      }
-        throw new Error("No route found");
-
+      return {
+        geometry: routeData.geometry,
+        distance: routeData.distance,
+        duration: routeData.duration,
+        service: routeData.service,
+      };
     } catch (routingError) {
-      console.error("OSRM routing error:", routingError);
+      console.error("Optimized routing error:", routingError);
       throw routingError;
     }
   };
@@ -205,9 +192,9 @@ const PathMapView = ({
 
       if (routingService === "osrm") {
         try {
-          route = await findRouteOSRM(startCoord, endCoord);
-        } catch (osrmError) {
-          console.warn("OSRM failed, falling back to straight line:", osrmError);
+          route = await findRouteOptimized(startCoord, endCoord);
+        } catch (routingError) {
+          console.warn("Optimized routing failed, using fallback:", routingError);
           route = createStraightLineRoute(startCoord, endCoord);
         }
       } else {

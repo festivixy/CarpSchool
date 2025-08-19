@@ -321,38 +321,28 @@ const InteractiveMapPicker = ({
     );
   };
 
-  // Search for locations using local Nominatim proxy
+  // Search for locations using optimized map service
   const searchLocation = async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
 
     setIsSearching(true);
     setSearchResults([]);
 
     try {
-      // Use Nominatim service
-      const response = await fetch(
-        `https://nominatim.carp.school/search?q=${encodeURIComponent(
-          searchQuery,
-        )}&format=json&limit=5&addressdetails=1&countrycodes=ca`,
-      );
+      // Use optimized map service with debouncing and caching
+      const { searchLocation: optimizedSearch } = await import("../../utils/mapServices");
+      const results = await optimizedSearch(searchQuery, {
+        limit: 5,
+        countrycodes: 'ca',
+        addressdetails: 1,
+      });
 
-      if (!response.ok) {
-        throw new Error(`Nominatim search returned ${response.status}`);
-      }
-
-      const results = await response.json();
-
-      // Nominatim response format
-      const formattedResults = results.map((result) => ({
-        id: result.place_id,
-        display_name: result.display_name,
-        lat: parseFloat(result.lat),
-        lng: parseFloat(result.lon),
-      }));
-
-      setSearchResults(formattedResults);
+      setSearchResults(results);
     } catch (error) {
-      console.error("Nominatim search error:", error);
+      console.error("Search error:", error);
       showError("Search failed. Please try again.");
     } finally {
       setIsSearching(false);
@@ -414,7 +404,11 @@ const InteractiveMapPicker = ({
           type="text"
           placeholder="Search for a location..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            // Trigger optimized search automatically as user types
+            searchLocation();
+          }}
           onKeyPress={(e) => e.key === "Enter" && searchLocation()}
         />
         <SearchButton onClick={searchLocation} disabled={isSearching}>
