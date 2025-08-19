@@ -136,10 +136,13 @@ export default function MapView({ coordinates, tileServerUrl }) {
         };
       } catch (error) {
         console.warn("Error in map useEffect:", error);
+        // Return empty cleanup function even if there was an error
+        return () => {};
       }
     }
 
-    return undefined; // No cleanup needed if mapRef.current is null
+    // Return empty cleanup function if mapRef.current is null
+    return () => {};
   }, [coordinates, tileServerUrl]);
 
   return (

@@ -115,6 +115,9 @@ const MobileNavBarAutoTest = ({ history }) => {
       // Restore original handler
       if (originalHandler) {
         window.NativeNavBarActionHandler = originalHandler;
+      } else {
+        // If no original handler, remove our override
+        delete window.NativeNavBarActionHandler;
       }
     };
   }, []);

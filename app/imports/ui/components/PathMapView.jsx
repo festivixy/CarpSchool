@@ -272,13 +272,18 @@ const PathMapView = ({
     mapInstanceRef.current = map;
 
     // Cleanup function
-    return () => { // eslint-disable-line consistent-return
+    return () => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-        startMarkerRef.current = null;
-        endMarkerRef.current = null;
-        routeLayerRef.current = null;
+        try {
+          mapInstanceRef.current.remove();
+        } catch (error) {
+          console.warn("Error removing map instance:", error);
+        } finally {
+          mapInstanceRef.current = null;
+          startMarkerRef.current = null;
+          endMarkerRef.current = null;
+          routeLayerRef.current = null;
+        }
       }
     };
   }, []);

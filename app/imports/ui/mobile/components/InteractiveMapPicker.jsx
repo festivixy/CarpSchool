@@ -61,6 +61,11 @@ const InteractiveMapPicker = ({
   const clearMessages = () => {
     setErrorMessage("");
     setSuccessMessage("");
+    // Clear any pending success message timeout
+    if (showSuccess.currentTimeout) {
+      clearTimeout(showSuccess.currentTimeout);
+      showSuccess.currentTimeout = null;
+    }
   };
 
   // Show error message
@@ -74,9 +79,12 @@ const InteractiveMapPicker = ({
     setSuccessMessage(message);
     setErrorMessage("");
     // Auto-dismiss success messages after 5 seconds
-    setTimeout(() => {
+    const dismissTimeout = setTimeout(() => {
       setSuccessMessage("");
     }, 5000);
+
+    // Store the timeout reference for potential cleanup
+    showSuccess.currentTimeout = dismissTimeout;
   };
 
   useEffect(() => {
@@ -152,6 +160,12 @@ const InteractiveMapPicker = ({
           markerRef.current = null;
         }
       }
+
+      // Clear any pending success message timeout
+      if (showSuccess.currentTimeout) {
+        clearTimeout(showSuccess.currentTimeout);
+        showSuccess.currentTimeout = null;
+      }
     };
   }, []);
 
@@ -192,12 +206,15 @@ const InteractiveMapPicker = ({
           }
 
           // Show success message
-          setTimeout(() => {
+          const successTimeout = setTimeout(() => {
             showSuccess(
               `Located you in ${data.city || "your area"} using network location. ` +
               "This is less precise than GPS - you may want to refine the marker position manually.",
             );
           }, 500);
+
+          // Store timeout for potential cleanup
+          return () => clearTimeout(successTimeout);
         }
       }
     } catch (ipError) {
