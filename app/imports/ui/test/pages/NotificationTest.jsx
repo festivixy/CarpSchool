@@ -355,6 +355,15 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
     try {
       addLog('��� Checking notification permissions...', 'info');
 
+      // Detect iOS Safari
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+      const isIOSSafari = isIOS && isSafari;
+
+      if (isIOSSafari) {
+        addLog('📱 iOS Safari detected', 'info');
+      }
+
       // Check secure context
       const isSecure = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost';
       addLog(`🔒 Secure context: ${isSecure ? 'Yes' : 'No'} (${location.protocol}//${location.hostname})`, isSecure ? 'success' : 'error');
@@ -365,9 +374,38 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
         return;
       }
 
-      // Check browser permission
+      // Check browser permission with iOS Safari handling
       if (typeof Notification !== 'undefined') {
         addLog(`🌐 Browser permission: ${Notification.permission}`, 'info');
+
+        if (isIOSSafari) {
+          // iOS Safari specific checks
+          addLog('📱 iOS Safari notification support:', 'info');
+
+          // Check if running as PWA
+          const isPWA = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+          addLog(`  - PWA mode: ${isPWA ? 'Yes' : 'No'}`, isPWA ? 'success' : 'warning');
+
+          if (!isPWA) {
+            addLog('💡 iOS Safari: Notifications work best when added to Home Screen (PWA)', 'warning');
+            addLog('💡 Or use OneSignal which has better iOS Safari support', 'info');
+          }
+
+          // Check iOS version (rough estimate)
+          const iosVersion = navigator.userAgent.match(/OS (\d+)_/);
+          if (iosVersion) {
+            const version = parseInt(iosVersion[1]);
+            addLog(`  - iOS version: ~${version}`, version >= 12 ? 'success' : 'warning');
+            if (version < 12) {
+              addLog('⚠️ iOS 12+ recommended for better notification support', 'warning');
+            }
+          }
+        }
+      } else {
+        addLog('❌ Notification API not supported in this browser', 'error');
+        if (isIOSSafari) {
+          addLog('💡 iOS Safari: Try adding to Home Screen or use OneSignal integration', 'info');
+        }
       }
 
       // Check notification manager status
@@ -465,7 +503,14 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
           <div>👤 User: {currentUser?.username || 'Not logged in'}</div>
           <div>🔔 Notifications: {notifications.length} total, {notifications.filter(n => n.status !== 'read').length} unread</div>
           <div>📱 Push Tokens: {pushTokens.length} active</div>
-          <div>🌐 Browser Permission: {typeof Notification !== 'undefined' ? Notification.permission : 'Not supported'}</div>
+          <div>🌐 Browser Permission: {(() => {
+            if (typeof Notification === 'undefined') {
+              const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+              const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+              return isIOS && isSafari ? 'iOS Safari (Limited)' : 'Not supported';
+            }
+            return Notification.permission;
+          })()}</div>
         </StatusDisplay>
       </Section>
 
@@ -615,6 +660,24 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
           <p style={{ marginTop: '12px', padding: '8px', backgroundColor: '#f7fafc', borderRadius: '4px' }}>
             💡 <strong>Tip:</strong> Open browser console (F12) to see additional debug information
           </p>
+          {(() => {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+            if (isIOS && isSafari) {
+              return (
+                <div style={{ marginTop: '12px', padding: '8px', backgroundColor: '#fff3cd', borderRadius: '4px', border: '1px solid #ffeaa7' }}>
+                  <strong>📱 iOS Safari Users:</strong>
+                  <ul style={{ marginTop: '8px', marginBottom: '8px', paddingLeft: '20px' }}>
+                    <li><strong>Add to Home Screen:</strong> Tap Share → Add to Home Screen for better notification support</li>
+                    <li><strong>Use OneSignal:</strong> OneSignal tests work better than native browser notifications</li>
+                    <li><strong>PWA Mode:</strong> Notifications work best when running as a Progressive Web App</li>
+                    <li><strong>iOS 12+:</strong> Requires iOS 12 or later for full notification support</li>
+                  </ul>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
       </Section>
     </Container>
