@@ -4,7 +4,7 @@ import { PushTokens, Notifications, NOTIFICATION_STATUS } from "../../api/notifi
 /**
  * OneSignal Push Notification Service
  * Handles sending push notifications via OneSignal API
- * 
+ *
  * Setup Instructions:
  * 1. Create account at https://onesignal.com
  * 2. Create new app in OneSignal dashboard
@@ -34,7 +34,7 @@ class OneSignalServiceClass {
       ];
 
       const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-      
+
       if (missingVars.length > 0) {
         console.warn(`[OneSignal] Missing environment variables: ${missingVars.join(', ')}`);
         console.warn('[OneSignal] Push notifications will not be functional');
@@ -55,7 +55,7 @@ class OneSignalServiceClass {
 
       this.isInitialized = true;
       console.log('[OneSignal] Service initialized successfully');
-      
+
     } catch (error) {
       console.error('[OneSignal] Failed to initialize service:', error);
       this.isInitialized = false;
@@ -109,7 +109,7 @@ class OneSignalServiceClass {
 
     } catch (error) {
       console.error(`[OneSignal] Failed to send notification to user ${userId}:`, error);
-      
+
       // Update notification status on error
       if (notification.notificationId) {
         await this.updateNotificationStatus(notification.notificationId, null, false, error.message);
@@ -225,10 +225,11 @@ class OneSignalServiceClass {
     // iOS specific settings
     baseNotification.ios_badgeType = 'Increase';
     baseNotification.ios_badgeCount = 1;
-    
+
     // Android specific settings
-    baseNotification.android_channel_id = 'carp-school-notifications';
-    baseNotification.small_icon = 'ic_notification';
+    baseNotification.android_channel_id = 'default';
+    baseNotification.existing_android_channel_id = 'default';
+    baseNotification.small_icon = 'ic_stat_onesignal_default';
     baseNotification.large_icon = 'https://carp.school/icon-large.png';
 
     // Web push settings
@@ -414,7 +415,7 @@ class OneSignalServiceClass {
   async cleanupInactiveDevices() {
     try {
       const cutoffDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days
-      
+
       const result = await PushTokens.removeAsync({
         platform: 'onesignal',
         isActive: false,
@@ -451,7 +452,7 @@ export const OneSignalService = new OneSignalServiceClass();
 // Setup periodic cleanup (run every 6 hours)
 if (Meteor.isServer) {
   const CLEANUP_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours
-  
+
   Meteor.setInterval(() => {
     OneSignalService.cleanupInactiveDevices();
   }, CLEANUP_INTERVAL);
