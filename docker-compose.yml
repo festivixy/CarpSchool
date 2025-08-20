@@ -8,6 +8,18 @@ services:
       - ROOT_URL=http://localhost:3000
       - MONGO_URL=mongodb://mongo:27017/carpool
       - PORT=3000
+      # Push Notification Configuration
+      - NOTIFICATION_BACKEND=${NOTIFICATION_BACKEND:-firebase}
+      # Firebase Configuration
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
+      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
+      # OneSignal Configuration
+      - ONESIGNAL_APP_ID=${ONESIGNAL_APP_ID}
+      - ONESIGNAL_API_KEY=${ONESIGNAL_API_KEY}
+      # Web Push Configuration
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
     volumes:
       - ./build/app.tar.gz:/bundle/bundle.tar.gz
     depends_on:
@@ -239,6 +251,16 @@ services:
 # CODEPUSH_JWT_KEY - JWT encryption key for CodePush (CHANGE IN PRODUCTION!)
 # CODEPUSH_SESSION_SECRET - Session secret for CodePush (CHANGE IN PRODUCTION!)
 #                          CHANGE ALL CODEPUSH SECRETS IN PRODUCTION!
+#
+# Push Notification Configuration:
+# NOTIFICATION_BACKEND - Choose 'firebase' or 'onesignal' (default: firebase)
+# FIREBASE_PROJECT_ID - Firebase project ID for push notifications
+# FIREBASE_CLIENT_EMAIL - Firebase service account email
+# FIREBASE_PRIVATE_KEY - Firebase service account private key
+# ONESIGNAL_APP_ID - OneSignal application ID
+# ONESIGNAL_API_KEY - OneSignal REST API key
+# VAPID_PUBLIC_KEY - VAPID public key for web push notifications
+# VAPID_PRIVATE_KEY - VAPID private key for web push notifications
 
 networks:
   carpool_network:
