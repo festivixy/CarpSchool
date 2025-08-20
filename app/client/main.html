@@ -7,6 +7,22 @@
   />
   <!-- CSP headers set via server for OneSignal support -->
   <title>CarpSchool</title>
+
+  <!-- OneSignal Web SDK (Official Setup) -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "a1f06572-fc69-4ec0-9402-b6e8a56bf14c",
+        safari_web_id: "web.onesignal.auto.313afc18-65a3-4cb5-bd8a-eabd69c6e4d8",
+        notifyButton: {
+          enable: false, // We handle permissions manually in our test interface
+        },
+        allowLocalhostAsSecureOrigin: true,
+      });
+    });
+  </script>
 </head>
 
 <body style="background: #fff">

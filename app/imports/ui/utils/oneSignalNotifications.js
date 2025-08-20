@@ -24,69 +24,81 @@ class OneSignalManager {
    */
   async initialize() {
     try {
-      // Wait a moment for SDK to load if it's still loading
+      // Wait for OneSignal SDK to load (v16 uses deferred loading)
       let attempts = 0;
-      while (!window.OneSignal && attempts < 50) {
+      while (!window.OneSignal && !window.OneSignalDeferred && attempts < 100) {
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
       }
 
-      // Check if OneSignal is supported
-      if (!window.OneSignal) {
+      // Check if OneSignal is available (v16 SDK)
+      if (!window.OneSignal && !window.OneSignalDeferred) {
         console.warn('[OneSignal] OneSignal SDK not available (blocked or failed to load)');
         console.log('[OneSignal] Server-side push notifications will still function');
         return;
       }
 
+      // Wait for OneSignal to be ready
+      if (window.OneSignalDeferred) {
+        await new Promise(resolve => {
+          window.OneSignalDeferred.push(function(OneSignal) {
+            window.OneSignal = OneSignal;
+            resolve();
+          });
+        });
+      }
+
       this.isSupported = true;
 
-      const appId = Meteor.settings.public?.oneSignal?.appId;
-      if (!appId) {
-        console.warn('[OneSignal] App ID not configured in Meteor settings');
-        return;
-      }
+      // OneSignal v16 SDK is now initialized via official script in HTML
+      // No need to call init() again as it's handled by OneSignalDeferred
+      console.log('[OneSignal] Using official v16 SDK initialization');
 
-      // Initialize OneSignal
+      // Get user ID when available (try both v16 and legacy methods)
       try {
-        await window.OneSignal.init({
-          appId: appId,
-          notifyButton: {
-            enable: false // We'll handle permissions manually
-          },
-          welcomeNotification: {
-            disable: true
-          }
-        });
-      } catch (initError) {
-        if (initError.message.includes('web platforms enabled')) {
-          console.warn('[OneSignal] Web platform not enabled for this app ID');
-          console.log('[OneSignal] To fix: Enable web platform in OneSignal dashboard');
-          console.log('[OneSignal] Server-side notifications will continue working');
-          this.isSupported = false;
-          return;
-        }
-        throw initError;
-      }
-
-      // Get user ID when available
-      window.OneSignal.getUserId().then((userId) => {
-        if (userId) {
-          this.playerId = userId;
+        if (window.OneSignal.User?.PushSubscription?.id) {
+          // v16 SDK method
+          this.playerId = window.OneSignal.User.PushSubscription.id;
           this.registerWithServer();
-        }
-      });
-
-      // Listen for user ID changes
-      window.OneSignal.on('subscriptionChange', (isSubscribed) => {
-        if (isSubscribed) {
+        } else if (window.OneSignal.getUserId) {
+          // Legacy method fallback
           window.OneSignal.getUserId().then((userId) => {
-            if (userId && userId !== this.playerId) {
+            if (userId) {
               this.playerId = userId;
               this.registerWithServer();
             }
           });
         }
-      });
+      } catch (error) {
+        console.log('[OneSignal] User ID not available yet:', error.message);
+      }
+
+      // Listen for subscription changes (try v16 first, then legacy)
+      try {
+        if (window.OneSignal.User?.PushSubscription?.addEventListener) {
+          // v16 SDK event listener
+          window.OneSignal.User.PushSubscription.addEventListener('change', (event) => {
+            if (event.current?.id && event.current.id !== this.playerId) {
+              this.playerId = event.current.id;
+              this.registerWithServer();
+            }
+          });
+        } else if (window.OneSignal.on) {
+          // Legacy event listener
+          window.OneSignal.on('subscriptionChange', (isSubscribed) => {
+            if (isSubscribed && window.OneSignal.getUserId) {
+              window.OneSignal.getUserId().then((userId) => {
+                if (userId && userId !== this.playerId) {
+                  this.playerId = userId;
+                  this.registerWithServer();
+                }
+              });
+            }
+          });
+        }
+      } catch (error) {
+        console.log('[OneSignal] Event listener setup failed:', error.message);
+      }
 
       this.isInitialized = true;
       console.log('[OneSignal] Client manager initialized');
