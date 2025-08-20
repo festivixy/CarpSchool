@@ -31,7 +31,10 @@ const vancouverCoordinates = [
 
 var template = {
   public: {
-    enableDebugMode: true
+    enableDebugMode: true,
+    "oneSignal": {
+      "appId": "your-app-id-here"
+    }
   },
   defaultAccounts: [
     {

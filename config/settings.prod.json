@@ -1,6 +1,9 @@
 {
   "public": {
-    "enableDebugMode": false
+    "enableDebugMode": false,
+    "oneSignal": {
+      "appId": "your-app-id-here"
+    }
   },
   "defaultAccounts": [
     {
