@@ -11,7 +11,6 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
 
     if (isDevelopment && process.env.DISABLE_CSP === 'true') {
       // Completely disable CSP for development testing
-      console.log('[CSP] Disabled for development testing');
     } else {
       const cspHeader = [
         "default-src 'self'",

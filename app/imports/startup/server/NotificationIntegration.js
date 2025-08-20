@@ -44,11 +44,11 @@ if (Meteor.isServer) {
         }
 
         // Ride details updated (but not riders)
-        if (oldRide.riders.length === newRide.riders.length && 
+        if (oldRide.riders.length === newRide.riders.length &&
             (oldRide.date.getTime() !== newRide.date.getTime() ||
              oldRide.origin !== newRide.origin ||
              oldRide.destination !== newRide.destination)) {
-          
+
           await Meteor.callAsync(
             "notifications.sendToRideParticipants",
             newRide._id,
@@ -73,7 +73,7 @@ if (Meteor.isServer) {
         // Ride cancelled/deleted
         if (removedRide.riders && removedRide.riders.length > 0) {
           await NotificationUtils.sendRideCancellation(
-            removedRide._id, 
+            removedRide._id,
             "This ride has been cancelled"
           );
         }
@@ -90,11 +90,11 @@ if (Meteor.isServer) {
         // New message added
         if (newChat.Messages.length > oldChat.Messages.length) {
           const newMessages = newChat.Messages.slice(oldChat.Messages.length);
-          
+
           for (const message of newMessages) {
             // Skip system messages
             if (message.Sender === "System") continue;
-            
+
             // Send notification to offline participants
             await NotificationUtils.sendChatMessage(
               newChat._id,
@@ -112,18 +112,14 @@ if (Meteor.isServer) {
 
   // Cleanup observers on server shutdown
   process.on('SIGTERM', () => {
-    console.log('[Notifications] Cleaning up observers...');
     rideObserver.stop();
     chatObserver.stop();
   });
 
   process.on('SIGINT', () => {
-    console.log('[Notifications] Cleaning up observers...');
     rideObserver.stop();
     chatObserver.stop();
   });
-
-  console.log('[Notifications] Integration hooks setup complete');
 }
 
 // Utility functions for manual notification triggers
@@ -134,7 +130,6 @@ export const NotificationTriggers = {
   async sendRideStarting(rideId, estimatedTime) {
     try {
       await NotificationUtils.sendRideStarting(rideId, estimatedTime);
-      console.log(`[Notifications] Ride starting notification sent for ${rideId}`);
     } catch (error) {
       console.error(`[Notifications] Failed to send ride starting notification:`, error);
       throw error;
@@ -157,7 +152,6 @@ export const NotificationTriggers = {
           action: "view_ride"
         }
       );
-      console.log(`[Notifications] Ride completed notification sent for ${rideId}`);
     } catch (error) {
       console.error(`[Notifications] Failed to send ride completed notification:`, error);
       throw error;
@@ -170,7 +164,6 @@ export const NotificationTriggers = {
   async sendEmergency(rideId, message, priority = "urgent") {
     try {
       await NotificationUtils.sendEmergency(rideId, message, priority);
-      console.log(`[Notifications] Emergency notification sent for ${rideId}`);
     } catch (error) {
       console.error(`[Notifications] Failed to send emergency notification:`, error);
       throw error;
@@ -183,7 +176,7 @@ export const NotificationTriggers = {
   async sendSystemNotification(title, message, targetUsers = null) {
     try {
       let recipients;
-      
+
       if (targetUsers) {
         recipients = targetUsers;
       } else {
@@ -196,7 +189,6 @@ export const NotificationTriggers = {
       }
 
       if (recipients.length === 0) {
-        console.log('[Notifications] No recipients for system notification');
         return;
       }
 
@@ -210,8 +202,6 @@ export const NotificationTriggers = {
           priority: "normal"
         }
       );
-
-      console.log(`[Notifications] System notification sent to ${recipients.length} users`);
     } catch (error) {
       console.error(`[Notifications] Failed to send system notification:`, error);
       throw error;

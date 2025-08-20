@@ -54,7 +54,6 @@ class OneSignalServiceClass {
       }
 
       this.isInitialized = true;
-      console.log('[OneSignal] Service initialized successfully');
 
     } catch (error) {
       console.error('[OneSignal] Failed to initialize service:', error);
@@ -104,7 +103,6 @@ class OneSignalServiceClass {
         await this.updateNotificationStatus(notification.notificationId, response, true);
       }
 
-      console.log(`[OneSignal] Successfully sent to user ${userId}:`, response.id);
       return { success: true, response };
 
     } catch (error) {
@@ -142,7 +140,6 @@ class OneSignalServiceClass {
 
       const response = await this.client.createNotification(oneSignalNotification);
 
-      console.log(`[OneSignal] Successfully sent to external user ID ${userId}:`, response.id);
       return { success: true, response };
 
     } catch (error) {
@@ -177,7 +174,6 @@ class OneSignalServiceClass {
 
       const response = await this.client.createNotification(oneSignalNotification);
 
-      console.log(`[OneSignal] Batch notification sent to ${userIds.length} users:`, response.id);
       return { success: true, response, userCount: userIds.length };
 
     } catch (error) {
@@ -202,7 +198,6 @@ class OneSignalServiceClass {
 
       const response = await this.client.createNotification(oneSignalNotification);
 
-      console.log(`[OneSignal] Segment notification sent:`, response.id);
       return { success: true, response };
 
     } catch (error) {
@@ -363,7 +358,6 @@ class OneSignalServiceClass {
 
       const tokenId = await PushTokens.insertAsync(tokenData);
 
-      console.log(`[OneSignal] Registered player ${playerId} for user ${userId}`);
       return tokenId;
 
     } catch (error) {
@@ -382,7 +376,6 @@ class OneSignalServiceClass {
 
     try {
       await this.client.editDevice(playerId, { tags });
-      console.log(`[OneSignal] Tags set for player ${playerId}:`, tags);
       return true;
 
     } catch (error) {
@@ -443,7 +436,6 @@ class OneSignalServiceClass {
         lastUsedAt: { $lt: cutoffDate }
       });
 
-      console.log(`[OneSignal] Cleaned up ${result} inactive devices`);
       return result;
 
     } catch (error) {

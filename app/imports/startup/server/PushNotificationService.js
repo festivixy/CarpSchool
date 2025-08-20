@@ -72,7 +72,6 @@ class PushNotificationServiceClass {
       }
 
       this.isInitialized = true;
-      console.log('[Push] Firebase Admin SDK initialized successfully');
 
     } catch (error) {
       console.error('[Push] Failed to initialize push notification service:', error);
@@ -103,7 +102,6 @@ class PushNotificationServiceClass {
       }).fetchAsync();
 
       if (tokens.length === 0) {
-        console.log(`[Push] No active tokens found for user ${userId}`);
         return { success: false, error: 'No active tokens' };
       }
 
@@ -179,7 +177,6 @@ class PushNotificationServiceClass {
 
       const response = await this.admin.messaging().send(message);
 
-      console.log(`[Push] Successfully sent to ${tokenDoc.platform} device:`, response);
       return { success: true, response };
 
     } catch (error) {
@@ -189,7 +186,7 @@ class PushNotificationServiceClass {
       if (error.code === 'messaging/registration-token-not-registered' ||
           error.code === 'messaging/invalid-registration-token') {
 
-        console.log(`[Push] Deactivating invalid token: ${tokenDoc.token}`);
+
         await PushTokens.updateAsync(tokenDoc._id, {
           $set: { isActive: false }
         });
@@ -328,7 +325,6 @@ class PushNotificationServiceClass {
         lastUsedAt: { $lt: cutoffDate }
       });
 
-      console.log(`[Push] Cleaned up ${result} inactive tokens`);
       return result;
 
     } catch (error) {
