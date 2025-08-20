@@ -1,9 +1,10 @@
 import { Meteor } from "meteor/meteor";
+import { Random } from "meteor/random";
 import { check, Match } from "meteor/check";
-import { 
-  Notifications, 
+import {
+  Notifications,
   PushTokens,
-  NotificationsSchema, 
+  NotificationsSchema,
   PushTokenSchema,
   NOTIFICATION_TYPES,
   NOTIFICATION_PRIORITY,
@@ -49,7 +50,7 @@ Meteor.methods({
       });
 
       const tokenId = await PushTokens.insertAsync(pushTokenData);
-      
+
       console.log(`[Push] Registered token for user ${this.userId} on ${platform}`);
       return tokenId;
 
@@ -175,8 +176,8 @@ Meteor.methods({
 
       // Get all participants except the sender (unless explicitly included)
       const recipients = [ride.driver, ...ride.riders];
-      const filteredRecipients = options.includeSender 
-        ? recipients 
+      const filteredRecipients = options.includeSender
+        ? recipients
         : recipients.filter(userId => userId !== this.userId);
 
       // Set ride-specific options
@@ -211,13 +212,13 @@ Meteor.methods({
 
     try {
       const result = await Notifications.updateAsync(
-        { 
-          _id: notificationId, 
+        {
+          _id: notificationId,
           userId: this.userId,
           status: { $ne: NOTIFICATION_STATUS.READ }
         },
-        { 
-          $set: { 
+        {
+          $set: {
             status: NOTIFICATION_STATUS.READ,
             readAt: new Date()
           }
@@ -227,7 +228,7 @@ Meteor.methods({
       if (result) {
         console.log(`[Notifications] Marked notification ${notificationId} as read`);
       }
-      
+
       return result;
 
     } catch (error) {
@@ -246,12 +247,12 @@ Meteor.methods({
 
     try {
       const result = await Notifications.updateAsync(
-        { 
+        {
           userId: this.userId,
           status: { $ne: NOTIFICATION_STATUS.READ }
         },
-        { 
-          $set: { 
+        {
+          $set: {
             status: NOTIFICATION_STATUS.READ,
             readAt: new Date()
           }
@@ -282,7 +283,7 @@ Meteor.methods({
 
     try {
       const cutoffDate = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000);
-      
+
       const result = await Notifications.removeAsync({
         $or: [
           { createdAt: { $lt: cutoffDate } },
@@ -381,8 +382,8 @@ export const NotificationUtils = {
    */
   async sendRideStarting(rideId, estimatedTime) {
     const title = "Ride Starting Soon";
-    const body = estimatedTime 
-      ? `Your ride is starting in ${estimatedTime}` 
+    const body = estimatedTime
+      ? `Your ride is starting in ${estimatedTime}`
       : "Your ride is starting soon";
 
     return await Meteor.callAsync(
@@ -407,7 +408,7 @@ export const NotificationUtils = {
 
     // Only send to offline users
     const offlineParticipants = []; // TODO: Implement offline user detection
-    
+
     if (offlineParticipants.length > 0) {
       return await Meteor.callAsync(
         "notifications.send",
