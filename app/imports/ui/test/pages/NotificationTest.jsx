@@ -101,11 +101,16 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
     }
   };
 
-  // Test 3: Debug Ride Notification Setup
+  // Test 3: Debug Ride Notification Setup (Client-side)
   const debugRideNotification = async () => {
     setIsLoading(true);
     try {
       addLog('🔍 Debugging ride notification setup...', 'info');
+
+      // Get current user info
+      const currentUser = Meteor.user();
+      addLog(`👤 Current user: ${currentUser?.username || 'Unknown'} (${currentUser?._id || 'No ID'})`, 'info');
+      addLog(`🔑 User roles: [${currentUser?.roles?.join(', ') || 'None'}]`, 'info');
 
       // Get user's rides
       const rides = await Meteor.callAsync('rides.getUserRides') || [];
@@ -113,29 +118,54 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
 
       if (rides.length === 0) {
         addLog('⚠️ No rides found. Create a ride first to test ride notifications.', 'warning');
+        addLog('💡 Go to the rides page and create a ride, or join an existing ride', 'info');
         return;
       }
 
       const testRide = rides[0];
       addLog(`🎯 Using ride: ${testRide._id}`, 'info');
-      addLog(`  Driver: ${testRide.driver}`, 'info');
-      addLog(`  Riders: [${testRide.riders.join(', ')}]`, 'info');
+      addLog(`  📅 Date: ${new Date(testRide.date).toLocaleDateString()}`, 'info');
+      addLog(`  🚗 Driver: ${testRide.driver}`, 'info');
+      addLog(`  👥 Riders: [${testRide.riders?.join(', ') || 'None'}]`, 'info');
+      addLog(`  🎯 From: ${testRide.origin} → To: ${testRide.destination}`, 'info');
 
-      // Get debug info
-      const debugInfo = await Meteor.callAsync('notifications.debugRideNotification', testRide._id);
+      // Analyze permissions
+      const isDriver = testRide.driver === currentUser?.username;
+      const isRider = testRide.riders?.includes(currentUser?.username);
+      const isAdmin = currentUser?.roles?.includes('admin');
 
-      addLog(`👤 Current user: ${debugInfo.user.username} (${debugInfo.user.id})`, 'info');
-      addLog(`🔑 Permissions:`, 'info');
-      addLog(`  - Is Driver: ${debugInfo.permissions.isDriver}`, 'info');
-      addLog(`  - Is Rider: ${debugInfo.permissions.isRider}`, 'info');
-      addLog(`  - Is Admin: ${debugInfo.permissions.isAdmin}`, 'info');
+      addLog(`🔑 Permissions analysis:`, 'info');
+      addLog(`  - Is Driver: ${isDriver} (${testRide.driver} === ${currentUser?.username})`, isDriver ? 'success' : 'info');
+      addLog(`  - Is Rider: ${isRider}`, isRider ? 'success' : 'info');
+      addLog(`  - Is Admin: ${isAdmin}`, isAdmin ? 'success' : 'info');
 
-      if (debugInfo.notifications) {
-        addLog(`📬 Would send notifications to: [${debugInfo.notifications.wouldSendTo.join(', ')}]`, 'info');
+      const hasPermission = isDriver || isRider || isAdmin;
+      addLog(`  - Can send notifications: ${hasPermission}`, hasPermission ? 'success' : 'error');
+
+      if (!hasPermission) {
+        addLog('❌ No permission to send notifications for this ride', 'error');
+        addLog('💡 You must be the driver, a rider, or an admin to send ride notifications', 'warning');
+        return;
+      }
+
+      // Show who would receive notifications
+      const allParticipants = [testRide.driver, ...(testRide.riders || [])];
+      const recipients = allParticipants.filter(username => username !== currentUser?.username);
+
+      addLog(`📬 Notification recipients:`, 'info');
+      addLog(`  - All participants: [${allParticipants.join(', ')}]`, 'info');
+      addLog(`  - Will send to: [${recipients.join(', ')}] (excluding sender)`, 'info');
+
+      if (recipients.length === 0) {
+        addLog('⚠️ No recipients! You are the only participant in this ride.', 'warning');
+        addLog('💡 Add riders to the ride to test notifications', 'info');
+      } else {
+        addLog(`✅ Ready to send notifications to ${recipients.length} recipient(s)`, 'success');
       }
 
     } catch (error) {
       addLog(`❌ Debug failed: ${error.reason || error.message}`, 'error');
+      addLog('💡 Try refreshing the page or check browser console for more details', 'warning');
     } finally {
       setIsLoading(false);
     }
