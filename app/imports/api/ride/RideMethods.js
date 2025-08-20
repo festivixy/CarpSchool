@@ -270,4 +270,27 @@ Meteor.methods({
 
     return { message: "Rider removed successfully!" };
   },
+
+  /**
+   * Get rides for current user (as driver or rider)
+   */
+  async "rides.getUserRides"() {
+    const user = await Meteor.userAsync();
+    if (!user) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to get your rides");
+    }
+
+    // Find rides where user is driver or rider
+    const rides = await Rides.find({
+      $or: [
+        { driver: user.username },
+        { riders: user.username }
+      ]
+    }, {
+      sort: { date: -1 },
+      limit: 50
+    }).fetchAsync();
+
+    return rides;
+  },
 });

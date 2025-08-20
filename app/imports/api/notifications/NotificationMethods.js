@@ -337,6 +337,35 @@ Meteor.methods({
       console.error("[Notifications] Get stats failed:", error);
       throw new Meteor.Error("stats-failed", "Failed to get notification statistics");
     }
+  },
+
+  /**
+   * Get notifications for current user
+   */
+  async "notifications.getUserNotifications"(limit = 50) {
+    check(limit, Number);
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "Must be logged in");
+    }
+
+    try {
+      const safeLimit = Math.min(limit, 100); // Max 100 notifications
+
+      const notifications = await Notifications.find(
+        { userId: this.userId },
+        {
+          sort: { createdAt: -1 },
+          limit: safeLimit
+        }
+      ).fetchAsync();
+
+      return notifications;
+
+    } catch (error) {
+      console.error("[Notifications] Get user notifications failed:", error);
+      throw new Meteor.Error("get-notifications-failed", "Failed to get user notifications");
+    }
   }
 });
 
