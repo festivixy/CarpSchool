@@ -109,7 +109,7 @@ Meteor.methods({
     check(chatId, String);
     check(content, String);
     // Validate input with XSS prevention
-    const { createSafeStringSchema } = require("../../../ui/utils/validation");
+    const { createSafeStringSchema } = require("../../ui/utils/validation");
     const schema = Joi.object({
       chatId: Joi.string().required(),
       content: createSafeStringSchema({

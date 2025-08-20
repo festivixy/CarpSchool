@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
-import { Notifications, PushTokens } from "../../api/notifications/Notifications";
+import { Notifications, PushTokens } from "../../../api/notifications/Notifications";
 import { NotificationHelpers, notificationManager } from "../../utils/notifications";
 import { OneSignalHelpers, oneSignalManager } from "../../utils/oneSignalNotifications";
 import {

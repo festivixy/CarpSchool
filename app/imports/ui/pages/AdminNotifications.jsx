@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
-import { Notifications, NOTIFICATION_TYPES, NOTIFICATION_PRIORITY } from "../api/notifications/Notifications";
-import { NotificationTriggers } from "../startup/server/NotificationIntegration";
+import { Notifications, NOTIFICATION_TYPES, NOTIFICATION_PRIORITY } from "../../api/notifications/Notifications";
+import { NotificationTriggers } from "../../startup/server/NotificationIntegration";
 import {
   Container,
   Header,
