@@ -58,10 +58,21 @@ App.setPreference("CodePushPublicKeyURL", "https://codepush.carp.school/updateCh
 App.setPreference("AutoHideSplashScreen", "true", "android");
 App.setPreference("SplashMaintainAspectRatio", "true", "android");
 
+// OneSignal Configuration
+App.setPreference('ONESIGNAL_APP_ID', 'a1f06572-fc69-4ec0-9402-b6e8a56bf14c');
+
+// iOS OneSignal Configuration
+App.setPreference('ONESIGNAL_IOS_SETTINGS', JSON.stringify({
+  kOSSettingsKeyAutoPrompt: false,
+  kOSSettingsKeyInAppLaunchURL: false
+}));
+
 // Access origins for external resources
 App.accessRule("*");
 App.accessRule("https://carp.school/*");
 App.accessRule("https://*.carp.school/*");
+App.accessRule("https://onesignal.com/*");
+App.accessRule("https://*.onesignal.com/*");
 
 // iOS App Transport Security (ATS) configuration moved to cordova-plugin-transport-security plugin
 

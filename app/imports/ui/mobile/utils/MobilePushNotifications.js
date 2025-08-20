@@ -4,7 +4,7 @@ import { Tracker } from "meteor/tracker";
 /**
  * Mobile Push Notification Manager for Cordova Apps
  * Handles both Firebase and OneSignal native mobile push notifications
- * 
+ *
  * Supported Platforms: iOS, Android
  * Supported Backends: Firebase FCM, OneSignal
  */
@@ -17,7 +17,7 @@ class MobilePushNotificationManager {
     this.backend = 'firebase'; // default
     this.pushPlugin = null;
     this.oneSignalPlugin = null;
-    
+
     // Initialize only in Cordova environment
     if (window.cordova) {
       this.initializeWhenReady();
@@ -31,9 +31,9 @@ class MobilePushNotificationManager {
     document.addEventListener('deviceready', () => {
       this.platform = device.platform.toLowerCase();
       this.backend = Meteor.settings.public?.notifications?.backend || 'firebase';
-      
+
       console.log(`[MobilePush] Initializing for ${this.platform} with ${this.backend} backend`);
-      
+
       if (this.backend === 'onesignal') {
         this.initializeOneSignal();
       } else {
@@ -207,6 +207,12 @@ class MobilePushNotificationManager {
         this.handleNotificationAction(result.notification, result.action);
       });
 
+      // iOS specific configuration
+      if (this.platform === 'ios') {
+        oneSignal.inFocusDisplaying(oneSignal.OSInFocusDisplayOption.Notification);
+        oneSignal.setSubscription(true);
+      }
+
       // Complete initialization
       oneSignal.endInit();
 
@@ -215,6 +221,13 @@ class MobilePushNotificationManager {
         console.log('[MobilePush] OneSignal player ID:', ids.userId);
         this.pushToken = ids.userId;
         this.registerTokenWithServer(ids.userId, 'onesignal');
+
+        // iOS: Request permission after initialization
+        if (this.platform === 'ios') {
+          oneSignal.promptForPushNotificationsWithUserResponse((accepted) => {
+            console.log('[MobilePush] iOS push permission:', accepted ? 'granted' : 'denied');
+          });
+        }
       });
 
       // Set external user ID when user logs in
@@ -241,7 +254,7 @@ class MobilePushNotificationManager {
       }
 
       const deviceInfo = this.getDeviceInfo();
-      
+
       if (backend === 'onesignal') {
         // Register OneSignal player ID
         await Meteor.callAsync('notifications.registerOneSignalPlayer', token, deviceInfo);
@@ -307,7 +320,7 @@ class MobilePushNotificationManager {
   handleNotificationAction(notification, action = null) {
     try {
       const data = notification.data || notification.additionalData || {};
-      
+
       console.log('[MobilePush] Handling notification action:', action, data);
 
       // Navigate based on notification data
@@ -454,13 +467,13 @@ class MobilePushNotificationManager {
       } else if (this.platform === 'ios' && window.FCMPlugin) {
         // Request FCM permission
         return new Promise((resolve) => {
-          FCMPlugin.requestPushPermission({}, 
-            () => resolve(true), 
+          FCMPlugin.requestPushPermission({},
+            () => resolve(true),
             () => resolve(false)
           );
         });
       }
-      
+
       // Android doesn't need explicit permission request
       return true;
 
@@ -530,10 +543,10 @@ if (Meteor.isClient) {
       if (mobilePushManager.backend === 'onesignal' && mobilePushManager.oneSignalPlugin) {
         mobilePushManager.oneSignalPlugin.setExternalUserId(user._id);
       }
-      
+
       // Re-register token with current user
       mobilePushManager.registerTokenWithServer(
-        mobilePushManager.pushToken, 
+        mobilePushManager.pushToken,
         mobilePushManager.backend
       );
     }
