@@ -504,6 +504,45 @@ export const NotificationUtils = {
   },
 
   /**
+   * Deactivate all push tokens for current user (called on logout)
+   */
+  async "notifications.deactivateUserTokens"() {
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "Must be logged in");
+    }
+
+    try {
+      // Deactivate all active push tokens for this user
+      const result = await PushTokens.updateAsync(
+        {
+          userId: this.userId,
+          isActive: true
+        },
+        {
+          $set: {
+            isActive: false,
+            deactivatedAt: new Date(),
+            deactivationReason: 'user_logout'
+          }
+        },
+        { multi: true }
+      );
+
+      console.log(`[Logout] Deactivated ${result} push tokens for user ${this.userId}`);
+
+      return {
+        success: true,
+        deactivatedTokens: result,
+        userId: this.userId
+      };
+
+    } catch (error) {
+      console.error("[Logout] Failed to deactivate user tokens:", error);
+      throw new Meteor.Error("token-deactivation-failed", error.reason || "Failed to deactivate tokens");
+    }
+  },
+
+  /**
    * Send emergency notification
    */
   async sendEmergency(rideId, message, priority = NOTIFICATION_PRIORITY.URGENT) {
