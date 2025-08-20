@@ -89,6 +89,18 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
       name: "Crash App",
       description: "Test ErrorBoundary component by intentionally crashing the app",
     },
+    {
+      path: "/_test/notifications",
+      icon: "🔔",
+      name: "Push Notifications",
+      description: "Test web push notifications, OneSignal, and Firebase integration",
+    },
+    {
+      path: "/_test/mobile-push",
+      icon: "📱",
+      name: "Mobile Push Notifications",
+      description: "Test native iOS/Android push notifications in Cordova apps",
+    },
   ];
 
   const appNavigatorPages = [

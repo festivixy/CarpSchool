@@ -57,6 +57,8 @@ import IOSProfile from "../mobile/pages/Profile";
 import AdminErrorReports from "../desktop/pages/AdminErrorReports";
 import AdminErrorReportDetail from "../desktop/pages/AdminErrorReportDetail";
 import CrashApp from "../test/pages/CrashApp";
+import NotificationTest from "../test/pages/NotificationTest";
+import MobilePushTest from "../test/pages/MobilePushTest";
 // Lazy load MapComponentsTest to improve initial load performance
 const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapComponentsTest.jsx"));
 
@@ -184,6 +186,14 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/_test/crash-app"
                 component={CrashApp}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/_test/notifications"
+                component={NotificationTest}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/_test/mobile-push"
+                component={MobilePushTest}
               />
               <ProtectedRouteRequireAdmin
                 exact
