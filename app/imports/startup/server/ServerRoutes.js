@@ -19,7 +19,7 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
         "img-src 'self' data: https: http: https://onesignal.com https://*.onesignal.com",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' data: https: https://fonts.gstatic.com",
-        "worker-src 'self' blob:",
+        "worker-src 'self' blob: https://cdn.onesignal.com",
         "frame-src https://onesignal.com https://*.onesignal.com",
         "object-src 'none'",
         "base-uri 'self'"
@@ -84,29 +84,6 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
     res.writeHead(500, { "Content-Type": "text/plain" });
     res.end("Internal Server Error");
   }
-});
-
-// OneSignal service worker redirects with preserved query parameters
-WebApp.connectHandlers.use("/OneSignalSDKWorker.js", (req, res, _next) => {
-  const queryParams = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
-  const redirectUrl = `https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js${queryParams}`;
-
-  res.writeHead(301, {
-    'Location': redirectUrl,
-    'Cache-Control': 'public, max-age=3600' // Cache redirect for 1 hour
-  });
-  res.end();
-});
-
-WebApp.connectHandlers.use("/OneSignalSDKUpdaterWorker.js", (req, res, _next) => {
-  const queryParams = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
-  const redirectUrl = `https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js${queryParams}`;
-
-  res.writeHead(301, {
-    'Location': redirectUrl,
-    'Cache-Control': 'public, max-age=3600' // Cache redirect for 1 hour
-  });
-  res.end();
 });
 
 // Health check endpoint
