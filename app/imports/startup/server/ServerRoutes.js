@@ -1,6 +1,37 @@
 import { WebApp } from "meteor/webapp";
 import { Images } from "../../api/images/Images";
 
+// Set Content Security Policy headers for OneSignal support
+WebApp.connectHandlers.use("/", (req, res, next) => {
+  // Only set CSP for HTML responses to avoid breaking API responses
+  if (req.url === '/' || req.url.endsWith('.html') || !req.url.includes('.')) {
+
+    // In development, use a more permissive CSP for easier testing
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+
+    if (isDevelopment && process.env.DISABLE_CSP === 'true') {
+      // Completely disable CSP for development testing
+      console.log('[CSP] Disabled for development testing');
+    } else {
+      const cspHeader = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://onesignal.com",
+        "connect-src 'self' https://onesignal.com https://*.onesignal.com https://api.onesignal.com https://cdn.onesignal.com wss: ws: https://nominatim.carp.school https://tileserver.carp.school https://osrm.carp.school",
+        "img-src 'self' data: https: http: https://onesignal.com https://*.onesignal.com",
+        "style-src 'self' 'unsafe-inline'",
+        "font-src 'self' data: https:",
+        "worker-src 'self' blob:",
+        "frame-src https://onesignal.com https://*.onesignal.com",
+        "object-src 'none'",
+        "base-uri 'self'"
+      ].join('; ');
+
+      res.setHeader('Content-Security-Policy', cspHeader);
+    }
+  }
+  next();
+});
+
 // Create endpoint to serve images directly: /image/<uuid>
 WebApp.connectHandlers.use("/image", async (req, res, _next) => {
   try {
