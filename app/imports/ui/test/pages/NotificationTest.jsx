@@ -158,7 +158,11 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       addLog(`📱 Active push tokens: ${userTokens.length}`, 'info');
 
       userTokens.forEach((token, index) => {
-        addLog(`  ${index + 1}. ${token.platform} - ${token.token.substring(0, 20)}...`, 'info');
+        const tokenValue = token.token || token.playerId || token._id || 'No token';
+        const displayToken = typeof tokenValue === 'string' && tokenValue.length > 20
+          ? tokenValue.substring(0, 20) + '...'
+          : tokenValue;
+        addLog(`  ${index + 1}. ${token.platform || 'Unknown'} - ${displayToken}`, 'info');
       });
 
       // Get service status if admin
