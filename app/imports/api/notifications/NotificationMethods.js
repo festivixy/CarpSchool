@@ -454,6 +454,56 @@ export const NotificationUtils = {
   },
 
   /**
+   * Debug ride notification setup - helps troubleshoot ride notification issues
+   */
+  async "notifications.debugRideNotification"(rideId) {
+    check(rideId, String);
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "Must be logged in");
+    }
+
+    try {
+      const currentUser = await Meteor.users.findOneAsync(this.userId);
+      const ride = await Rides.findOneAsync(rideId);
+
+      const debugInfo = {
+        user: {
+          id: this.userId,
+          username: currentUser?.username,
+          roles: currentUser?.roles || []
+        },
+        ride: ride ? {
+          id: ride._id,
+          driver: ride.driver,
+          riders: ride.riders || [],
+          participants: [ride.driver, ...ride.riders],
+        } : null,
+        permissions: {
+          rideExists: !!ride,
+          isDriver: ride ? ride.driver === this.userId : false,
+          isRider: ride ? ride.riders.includes(this.userId) : false,
+          isAdmin: currentUser?.roles?.includes("admin") || false
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      if (ride) {
+        debugInfo.notifications = {
+          wouldSendTo: [ride.driver, ...ride.riders].filter(userId => userId !== this.userId),
+          allParticipants: [ride.driver, ...ride.riders]
+        };
+      }
+
+      return debugInfo;
+
+    } catch (error) {
+      console.error("[Notifications] Debug failed:", error);
+      throw new Meteor.Error("debug-failed", error.reason || "Debug failed");
+    }
+  },
+
+  /**
    * Send emergency notification
    */
   async sendEmergency(rideId, message, priority = NOTIFICATION_PRIORITY.URGENT) {

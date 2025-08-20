@@ -101,7 +101,47 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
     }
   };
 
-  // Test 3: Test Ride Notification (if user has rides)
+  // Test 3: Debug Ride Notification Setup
+  const debugRideNotification = async () => {
+    setIsLoading(true);
+    try {
+      addLog('🔍 Debugging ride notification setup...', 'info');
+
+      // Get user's rides
+      const rides = await Meteor.callAsync('rides.getUserRides') || [];
+      addLog(`📋 Found ${rides.length} rides for current user`, 'info');
+
+      if (rides.length === 0) {
+        addLog('⚠️ No rides found. Create a ride first to test ride notifications.', 'warning');
+        return;
+      }
+
+      const testRide = rides[0];
+      addLog(`🎯 Using ride: ${testRide._id}`, 'info');
+      addLog(`  Driver: ${testRide.driver}`, 'info');
+      addLog(`  Riders: [${testRide.riders.join(', ')}]`, 'info');
+
+      // Get debug info
+      const debugInfo = await Meteor.callAsync('notifications.debugRideNotification', testRide._id);
+
+      addLog(`👤 Current user: ${debugInfo.user.username} (${debugInfo.user.id})`, 'info');
+      addLog(`🔑 Permissions:`, 'info');
+      addLog(`  - Is Driver: ${debugInfo.permissions.isDriver}`, 'info');
+      addLog(`  - Is Rider: ${debugInfo.permissions.isRider}`, 'info');
+      addLog(`  - Is Admin: ${debugInfo.permissions.isAdmin}`, 'info');
+
+      if (debugInfo.notifications) {
+        addLog(`📬 Would send notifications to: [${debugInfo.notifications.wouldSendTo.join(', ')}]`, 'info');
+      }
+
+    } catch (error) {
+      addLog(`❌ Debug failed: ${error.reason || error.message}`, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Test 4: Test Ride Notification (if user has rides)
   const testRideNotification = async () => {
     setIsLoading(true);
     try {
@@ -432,6 +472,9 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
           </TestButton>
           <TestButton onClick={testSelfNotification} disabled={isLoading}>
             📤 Send to Self
+          </TestButton>
+          <TestButton onClick={debugRideNotification} disabled={isLoading}>
+            🔍 Debug Ride Setup
           </TestButton>
           <TestButton onClick={testRideNotification} disabled={isLoading}>
             🚗 Test Ride Notification
