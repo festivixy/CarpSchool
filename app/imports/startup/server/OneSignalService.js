@@ -349,16 +349,50 @@ class OneSignalServiceClass {
         createdAt: new Date()
       };
 
-      // Deactivate old tokens for this user
-      await PushTokens.updateAsync(
-        { userId, platform: 'onesignal', isActive: true },
-        { $set: { isActive: false } },
-        { multi: true }
-      );
+      // Check if this exact token already exists for this user
+      const existingToken = await PushTokens.findOneAsync({
+        token: playerId,
+        userId,
+        platform: 'onesignal'
+      });
 
-      const tokenId = await PushTokens.insertAsync(tokenData);
+      if (existingToken) {
+        // Update existing token to be active and update metadata
+        await PushTokens.updateAsync(
+          { _id: existingToken._id },
+          {
+            $set: {
+              isActive: true,
+              deviceInfo,
+              updatedAt: new Date()
+            }
+          }
+        );
 
-      return tokenId;
+        // Deactivate other tokens for this user
+        await PushTokens.updateAsync(
+          {
+            userId,
+            platform: 'onesignal',
+            isActive: true,
+            _id: { $ne: existingToken._id }
+          },
+          { $set: { isActive: false } },
+          { multi: true }
+        );
+
+        return existingToken._id;
+      } else {
+        // Deactivate old tokens for this user
+        await PushTokens.updateAsync(
+          { userId, platform: 'onesignal', isActive: true },
+          { $set: { isActive: false } },
+          { multi: true }
+        );
+
+        const tokenId = await PushTokens.insertAsync(tokenData);
+        return tokenId;
+      }
 
     } catch (error) {
       console.error('[OneSignal] Player registration failed:', error);
