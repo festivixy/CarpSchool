@@ -47,15 +47,26 @@ class OneSignalManager {
       }
 
       // Initialize OneSignal
-      await window.OneSignal.init({
-        appId: appId,
-        notifyButton: {
-          enable: false // We'll handle permissions manually
-        },
-        welcomeNotification: {
-          disable: true
+      try {
+        await window.OneSignal.init({
+          appId: appId,
+          notifyButton: {
+            enable: false // We'll handle permissions manually
+          },
+          welcomeNotification: {
+            disable: true
+          }
+        });
+      } catch (initError) {
+        if (initError.message.includes('web platforms enabled')) {
+          console.warn('[OneSignal] Web platform not enabled for this app ID');
+          console.log('[OneSignal] To fix: Enable web platform in OneSignal dashboard');
+          console.log('[OneSignal] Server-side notifications will continue working');
+          this.isSupported = false;
+          return;
         }
-      });
+        throw initError;
+      }
 
       // Get user ID when available
       window.OneSignal.getUserId().then((userId) => {
