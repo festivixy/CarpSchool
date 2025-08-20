@@ -2,10 +2,12 @@ import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
 import { Notifications, PushTokens, NOTIFICATION_STATUS } from "./Notifications";
 
-/**
- * Publication for user's notifications
- */
-Meteor.publish("notifications", function(limit = 50, offset = 0) {
+// Server-side publications
+if (Meteor.isServer) {
+  /**
+   * Publication for user's notifications
+   */
+  Meteor.publish("notifications", function(limit = 50, offset = 0) {
   check(limit, Number);
   check(offset, Number);
 
@@ -58,15 +60,15 @@ Meteor.publish("notifications.unreadCount", function() {
   const self = this;
 
   const handle = Notifications.find(
-    { 
+    {
       userId: this.userId,
       status: { $ne: NOTIFICATION_STATUS.READ }
     }
   ).observeChanges({
     added: function() {
       if (!initializing) {
-        self.changed("notificationCounts", self.userId, { 
-          unreadCount: Notifications.find({ 
+        self.changed("notificationCounts", self.userId, {
+          unreadCount: Notifications.find({
             userId: self.userId,
             status: { $ne: NOTIFICATION_STATUS.READ }
           }).count()
@@ -74,16 +76,16 @@ Meteor.publish("notifications.unreadCount", function() {
       }
     },
     removed: function() {
-      self.changed("notificationCounts", self.userId, { 
-        unreadCount: Notifications.find({ 
+      self.changed("notificationCounts", self.userId, {
+        unreadCount: Notifications.find({
           userId: self.userId,
           status: { $ne: NOTIFICATION_STATUS.READ }
         }).count()
       });
     },
     changed: function() {
-      self.changed("notificationCounts", self.userId, { 
-        unreadCount: Notifications.find({ 
+      self.changed("notificationCounts", self.userId, {
+        unreadCount: Notifications.find({
           userId: self.userId,
           status: { $ne: NOTIFICATION_STATUS.READ }
         }).count()
@@ -92,10 +94,10 @@ Meteor.publish("notifications.unreadCount", function() {
   });
 
   initializing = false;
-  
+
   // Send initial count
-  self.added("notificationCounts", self.userId, { 
-    unreadCount: Notifications.find({ 
+  self.added("notificationCounts", self.userId, {
+    unreadCount: Notifications.find({
       userId: self.userId,
       status: { $ne: NOTIFICATION_STATUS.READ }
     }).count()
@@ -123,7 +125,7 @@ Meteor.publish("notifications.recent", function() {
   console.log(`[Pub] Publishing recent notifications for user ${this.userId}`);
 
   return Notifications.find(
-    { 
+    {
       userId: this.userId,
       createdAt: { $gte: yesterday }
     },
@@ -159,7 +161,7 @@ Meteor.publish("notifications.forRide", function(rideId) {
   console.log(`[Pub] Publishing ride notifications for user ${this.userId}, ride: ${rideId}`);
 
   return Notifications.find(
-    { 
+    {
       userId: this.userId,
       "data.rideId": rideId
     },
@@ -193,7 +195,7 @@ Meteor.publish("notifications.pushTokens", function() {
   console.log(`[Pub] Publishing push tokens for user ${this.userId}`);
 
   return PushTokens.find(
-    { 
+    {
       userId: this.userId,
       isActive: true
     },
@@ -237,23 +239,23 @@ Meteor.publish("notifications.admin", function(filters = {}, options = {}) {
 
   // Build query from filters
   const query = {};
-  
+
   if (filters.userId) {
     query.userId = filters.userId;
   }
-  
+
   if (filters.type) {
     query.type = filters.type;
   }
-  
+
   if (filters.status) {
     query.status = filters.status;
   }
-  
+
   if (filters.priority) {
     query.priority = filters.priority;
   }
-  
+
   if (filters.dateFrom || filters.dateTo) {
     query.createdAt = {};
     if (filters.dateFrom) {
@@ -293,15 +295,15 @@ Meteor.publish("notifications.adminTokens", function(filters = {}) {
 
   // Build query from filters
   const query = {};
-  
+
   if (filters.userId) {
     query.userId = filters.userId;
   }
-  
+
   if (filters.platform) {
     query.platform = filters.platform;
   }
-  
+
   if (filters.isActive !== undefined) {
     query.isActive = filters.isActive;
   }
@@ -313,6 +315,8 @@ Meteor.publish("notifications.adminTokens", function(filters = {}) {
     limit: 1000
   });
 });
+
+} // End server-only block
 
 // Collection for reactive notification counts (client-side only)
 if (Meteor.isClient) {
