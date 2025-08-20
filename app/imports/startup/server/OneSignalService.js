@@ -306,23 +306,23 @@ class OneSignalServiceClass {
    */
   async updateNotificationStatus(notificationId, response, success, errorMessage = null) {
     try {
-      const updateFields = {
+      const setFields = {
         status: success ? NOTIFICATION_STATUS.SENT : NOTIFICATION_STATUS.FAILED,
         sentAt: success ? new Date() : undefined,
-        errorMessage: errorMessage,
-        $inc: { attempts: 1 }
+        errorMessage: errorMessage
       };
 
       if (response) {
-        updateFields.externalId = response.id;
-        updateFields.externalData = {
+        setFields.externalId = response.id;
+        setFields.externalData = {
           oneSignalId: response.id,
           recipients: response.recipients || 0
         };
       }
 
       await Notifications.updateAsync(notificationId, {
-        $set: updateFields
+        $set: setFields,
+        $inc: { attempts: 1 }
       });
 
     } catch (error) {
