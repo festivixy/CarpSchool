@@ -2,6 +2,8 @@ import React from "react";
 import { render } from "react-dom";
 import { Meteor } from "meteor/meteor";
 import App from "../../ui/layouts/App";
+// Initialize mobile push notifications for Cordova apps
+import "../../ui/mobile/utils/MobilePushNotifications";
 
 // Suppress React lifecycle warnings from third-party packages
 const originalConsoleWarn = console.warn;
