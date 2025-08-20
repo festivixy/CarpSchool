@@ -12,7 +12,7 @@ class OneSignalManager {
     this.isInitialized = false;
     this.playerId = null;
     this.lastRegistrationAttempt = null;
-    
+
     // Initialize on client only
     if (Meteor.isClient) {
       this.initialize();
@@ -24,9 +24,17 @@ class OneSignalManager {
    */
   async initialize() {
     try {
+      // Wait a moment for SDK to load if it's still loading
+      let attempts = 0;
+      while (!window.OneSignal && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+
       // Check if OneSignal is supported
       if (!window.OneSignal) {
-        console.warn('[OneSignal] OneSignal SDK not loaded');
+        console.warn('[OneSignal] OneSignal SDK not available (blocked or failed to load)');
+        console.log('[OneSignal] Server-side push notifications will still function');
         return;
       }
 
@@ -87,7 +95,7 @@ class OneSignalManager {
 
     try {
       const permission = await window.OneSignal.showNativePrompt();
-      
+
       if (permission) {
         // Get the player ID after permission granted
         const userId = await window.OneSignal.getUserId();
@@ -194,6 +202,24 @@ class OneSignalManager {
   getPlayerId() {
     return this.playerId;
   }
+
+  /**
+   * Check OneSignal SDK status for debugging
+   */
+  getSDKStatus() {
+    return {
+      sdkLoaded: !!window.OneSignal,
+      isSupported: this.isSupported,
+      isInitialized: this.isInitialized,
+      playerId: this.playerId,
+      userAgent: navigator.userAgent,
+      protocol: window.location.protocol,
+      isSecureContext: window.isSecureContext,
+      serviceWorkerSupported: 'serviceWorker' in navigator,
+      pushManagerSupported: 'PushManager' in window,
+      currentUrl: window.location.href
+    };
+  }
 }
 
 // Create singleton instance
@@ -222,7 +248,7 @@ export const OneSignalHelpers = {
 
     // Could show a custom modal explaining why notifications are needed
     const granted = await oneSignalManager.requestPermission();
-    
+
     if (!granted) {
       console.log('User denied OneSignal notification permission');
     }
@@ -276,10 +302,45 @@ export const OneSignalHelpers = {
   }
 };
 
-// Load OneSignal SDK if not already loaded
+// Load OneSignal SDK with proper error handling
 if (Meteor.isClient && !window.OneSignal) {
-  const script = document.createElement('script');
-  script.src = 'https://cdn.onesignal.com/sdks/OneSignalSDK.js';
-  script.async = true;
-  document.head.appendChild(script);
+  const loadOneSignalSDK = () => {
+    return new Promise((resolve, reject) => {
+      // Check if already loaded
+      if (window.OneSignal) {
+        resolve(window.OneSignal);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://cdn.onesignal.com/sdks/OneSignalSDK.js';
+      script.async = true;
+
+      script.onload = () => {
+        console.log('[OneSignal] SDK loaded successfully');
+        resolve(window.OneSignal);
+      };
+
+      script.onerror = (error) => {
+        console.warn('[OneSignal] SDK failed to load:', error);
+        console.warn('[OneSignal] Falling back to server-only push notifications');
+        reject(new Error('OneSignal SDK blocked or failed to load'));
+      };
+
+      document.head.appendChild(script);
+
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        if (!window.OneSignal) {
+          reject(new Error('OneSignal SDK load timeout'));
+        }
+      }, 10000);
+    });
+  };
+
+  // Attempt to load SDK
+  loadOneSignalSDK().catch(error => {
+    console.warn('[OneSignal] Web SDK unavailable:', error.message);
+    console.log('[OneSignal] Server-side notifications will still work');
+  });
 }

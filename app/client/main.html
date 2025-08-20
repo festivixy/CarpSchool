@@ -5,6 +5,11 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
+  <!-- Allow OneSignal and other external resources -->
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com; connect-src 'self' https://onesignal.com https://*.onesignal.com https://api.onesignal.com wss: ws: https://nominatim.carp.school https://tileserver.carp.school https://osrm.carp.school; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline'; font-src 'self' data: https:; worker-src 'self' blob:;"
+  />
   <title>CarpSchool</title>
 </head>
 
