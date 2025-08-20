@@ -42,6 +42,34 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
     setLogs([]);
   };
 
+  const copyLogs = async () => {
+    try {
+      const logText = logs.map(log => `[${log.timestamp}] ${log.message}`).join('\n');
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(logText);
+        addLog('📋 Logs copied to clipboard!', 'success');
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = logText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        addLog('📋 Logs copied to clipboard (fallback method)!', 'success');
+      }
+    } catch (error) {
+      addLog(`❌ Failed to copy logs: ${error.message}`, 'error');
+
+      // Show logs in a new window as fallback
+      const logText = logs.map(log => `[${log.timestamp}] ${log.message}`).join('\n');
+      const newWindow = window.open('', '_blank');
+      newWindow.document.write(`<pre style="font-family: monospace; white-space: pre-wrap;">${logText}</pre>`);
+      addLog('📋 Logs opened in new window (copy manually)', 'info');
+    }
+  };
+
   // Test 1: Register Push Token
   const testTokenRegistration = async () => {
     setIsLoading(true);
@@ -268,7 +296,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       addLog(`📱 Current player ID: ${playerId || 'None'}`, 'info');
 
       if (!isSupported) {
-        addLog('⚠️ OneSignal not supported or not loaded', 'warning');
+        addLog('⚠�� OneSignal not supported or not loaded', 'warning');
         return;
       }
 
@@ -528,8 +556,29 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       <Section>
         <h3>
           📋 Test Logs
-          <button onClick={clearLogs} style={{ marginLeft: '16px', fontSize: '12px' }}>
-            Clear
+          <button
+            onClick={copyLogs}
+            disabled={logs.length === 0}
+            style={{
+              marginLeft: '16px',
+              fontSize: '12px',
+              opacity: logs.length === 0 ? 0.5 : 1,
+              cursor: logs.length === 0 ? 'not-allowed' : 'pointer'
+            }}
+          >
+            📋 Copy
+          </button>
+          <button
+            onClick={clearLogs}
+            disabled={logs.length === 0}
+            style={{
+              marginLeft: '8px',
+              fontSize: '12px',
+              opacity: logs.length === 0 ? 0.5 : 1,
+              cursor: logs.length === 0 ? 'not-allowed' : 'pointer'
+            }}
+          >
+            🗑️ Clear
           </button>
         </h3>
         <LogOutput>
