@@ -1,21 +1,30 @@
 import { Meteor } from "meteor/meteor";
 import { PushTokens, Notifications, NOTIFICATION_STATUS } from "../../api/notifications/Notifications";
+import { OneSignalService } from "./OneSignalService";
 
 /**
  * Push Notification Service
- * Handles sending push notifications via Firebase Cloud Messaging (FCM) and Apple Push Notification service (APNs)
- * 
- * Note: This is a framework implementation. To make it functional, you need to:
+ * Unified service that supports multiple backends: Firebase FCM and OneSignal
+ *
+ * Backend Selection:
+ * Set NOTIFICATION_BACKEND environment variable to:
+ * - 'firebase' (default) - Uses Firebase Cloud Messaging
+ * - 'onesignal' - Uses OneSignal service
+ *
+ * Firebase Setup:
  * 1. Install firebase-admin: meteor npm install firebase-admin
- * 2. Set up Firebase project and download service account key
- * 3. Configure environment variables for Firebase
- * 4. Set up APNs certificates for iOS
+ * 2. Set environment variables: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
+ *
+ * OneSignal Setup:
+ * 1. Install onesignal-node: meteor npm install onesignal-node
+ * 2. Set environment variables: ONESIGNAL_APP_ID, ONESIGNAL_API_KEY
  */
 
 class PushNotificationServiceClass {
   constructor() {
     this.isInitialized = false;
     this.admin = null;
+    this.backend = process.env.NOTIFICATION_BACKEND || 'firebase';
     this.initializeService();
   }
 
@@ -27,12 +36,12 @@ class PushNotificationServiceClass {
       // Check if required environment variables are set
       const requiredEnvVars = [
         'FIREBASE_PROJECT_ID',
-        'FIREBASE_CLIENT_EMAIL', 
+        'FIREBASE_CLIENT_EMAIL',
         'FIREBASE_PRIVATE_KEY'
       ];
 
       const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-      
+
       if (missingVars.length > 0) {
         console.warn(`[Push] Missing environment variables: ${missingVars.join(', ')}`);
         console.warn('[Push] Push notifications will not be functional');
@@ -64,7 +73,7 @@ class PushNotificationServiceClass {
 
       this.isInitialized = true;
       console.log('[Push] Firebase Admin SDK initialized successfully');
-      
+
     } catch (error) {
       console.error('[Push] Failed to initialize push notification service:', error);
       this.isInitialized = false;
@@ -75,8 +84,14 @@ class PushNotificationServiceClass {
    * Send push notification to a specific user
    */
   async sendToUser(userId, notification) {
+    // Route to appropriate backend
+    if (this.backend === 'onesignal') {
+      return await OneSignalService.sendToUser(userId, notification);
+    }
+
+    // Firebase implementation
     if (!this.isInitialized) {
-      console.warn('[Push] Service not initialized, skipping notification');
+      console.warn('[Push] Firebase service not initialized, skipping notification');
       return { success: false, error: 'Service not initialized' };
     }
 
@@ -98,8 +113,8 @@ class PushNotificationServiceClass {
       for (const tokenDoc of tokens) {
         try {
           const result = await this.sendToToken(tokenDoc, notification);
-          results.push({ 
-            platform: tokenDoc.platform, 
+          results.push({
+            platform: tokenDoc.platform,
             success: result.success,
             error: result.error
           });
@@ -113,10 +128,10 @@ class PushNotificationServiceClass {
 
         } catch (error) {
           console.error(`[Push] Failed to send to token ${tokenDoc._id}:`, error);
-          results.push({ 
-            platform: tokenDoc.platform, 
-            success: false, 
-            error: error.message 
+          results.push({
+            platform: tokenDoc.platform,
+            success: false,
+            error: error.message
           });
         }
       }
@@ -139,7 +154,7 @@ class PushNotificationServiceClass {
 
     } catch (error) {
       console.error(`[Push] Failed to send notification to user ${userId}:`, error);
-      
+
       // Update notification status on error
       if (notification.notificationId) {
         await Notifications.updateAsync(notification.notificationId, {
@@ -161,9 +176,9 @@ class PushNotificationServiceClass {
   async sendToToken(tokenDoc, notification) {
     try {
       const message = this.buildMessage(tokenDoc, notification);
-      
+
       const response = await this.admin.messaging().send(message);
-      
+
       console.log(`[Push] Successfully sent to ${tokenDoc.platform} device:`, response);
       return { success: true, response };
 
@@ -173,7 +188,7 @@ class PushNotificationServiceClass {
       // Handle invalid token errors
       if (error.code === 'messaging/registration-token-not-registered' ||
           error.code === 'messaging/invalid-registration-token') {
-        
+
         console.log(`[Push] Deactivating invalid token: ${tokenDoc.token}`);
         await PushTokens.updateAsync(tokenDoc._id, {
           $set: { isActive: false }
@@ -252,20 +267,26 @@ class PushNotificationServiceClass {
    * Send notification to multiple users in batch
    */
   async sendToUsers(userIds, notification) {
+    // Route to appropriate backend
+    if (this.backend === 'onesignal') {
+      return await OneSignalService.sendToUsers(userIds, notification);
+    }
+
+    // Firebase implementation
     const results = [];
-    
+
     // Send in batches to avoid overwhelming the service
     const batchSize = 10;
-    
+
     for (let i = 0; i < userIds.length; i += batchSize) {
       const batch = userIds.slice(i, i + batchSize);
-      
-      const batchPromises = batch.map(userId => 
+
+      const batchPromises = batch.map(userId =>
         this.sendToUser(userId, notification)
       );
-      
+
       const batchResults = await Promise.allSettled(batchPromises);
-      
+
       batchResults.forEach((result, index) => {
         results.push({
           userId: batch[index],
@@ -301,7 +322,7 @@ class PushNotificationServiceClass {
   async cleanupInactiveTokens() {
     try {
       const cutoffDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days
-      
+
       const result = await PushTokens.removeAsync({
         isActive: false,
         lastUsedAt: { $lt: cutoffDate }
@@ -320,8 +341,21 @@ class PushNotificationServiceClass {
    * Get service status
    */
   getStatus() {
+    const baseStatus = {
+      backend: this.backend,
+      initialized: this.isInitialized
+    };
+
+    if (this.backend === 'onesignal') {
+      return {
+        ...baseStatus,
+        ...OneSignalService.getStatus()
+      };
+    }
+
+    // Firebase status
     return {
-      initialized: this.isInitialized,
+      ...baseStatus,
       hasFirebase: !!this.admin,
       environment: {
         hasProjectId: !!process.env.FIREBASE_PROJECT_ID,
@@ -338,7 +372,7 @@ export const PushNotificationService = new PushNotificationServiceClass();
 // Setup periodic cleanup (run every 6 hours)
 if (Meteor.isServer) {
   const CLEANUP_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours
-  
+
   Meteor.setInterval(() => {
     PushNotificationService.cleanupInactiveTokens();
   }, CLEANUP_INTERVAL);

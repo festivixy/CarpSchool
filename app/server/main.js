@@ -28,6 +28,7 @@ import "../imports/api/places/PlacesMethods";
 import "../imports/api/rateLimit/RateLimitMethods";
 import "../imports/api/errorReport/ErrorReportMethods";
 import "../imports/api/notifications/NotificationMethods";
+import "../imports/api/notifications/OneSignalMethods";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers";
@@ -35,4 +36,5 @@ import "../imports/api/accounts/AccountsConfig";
 
 // Push Notifications
 import "../imports/startup/server/PushNotificationService";
+import "../imports/startup/server/OneSignalService";
 import "../imports/startup/server/NotificationIntegration";
