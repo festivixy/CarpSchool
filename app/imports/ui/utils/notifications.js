@@ -152,8 +152,18 @@ class NotificationManager {
         throw new Error(error);
       }
 
-      // Web push permission request
-      const permission = await Notification.requestPermission();
+      // Web push permission request - must be synchronous from user action
+      const permission = await new Promise((resolve) => {
+        // Call immediately, not in async chain
+        const result = Notification.requestPermission();
+        if (result && typeof result.then === 'function') {
+          // Modern promise-based API
+          result.then(resolve);
+        } else {
+          // Legacy callback-based API
+          resolve(result);
+        }
+      });
       this.hasPermission = permission === 'granted';
 
       if (this.hasPermission) {

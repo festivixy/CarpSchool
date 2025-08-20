@@ -116,7 +116,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       }
 
       const testRide = rides[0];
-      addLog(`🎯 Using ride: ${testRide._id}`, 'info');
+      addLog(`��� Using ride: ${testRide._id}`, 'info');
 
       const result = await Meteor.callAsync(
         'notifications.sendToRideParticipants',
@@ -255,7 +255,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const checkPermissions = async () => {
     setIsLoading(true);
     try {
-      addLog('🔐 Checking notification permissions...', 'info');
+      addLog('��� Checking notification permissions...', 'info');
 
       // Check secure context
       const isSecure = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost';
@@ -284,16 +284,55 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
         addLog(`⚠️ No active token`, 'warning');
       }
 
-      // Try to request permission
+      // Try to request permission (must be synchronous from user action)
       if (!notificationManager.hasPermission) {
         addLog('🔔 Requesting notification permission...', 'info');
-        const granted = await notificationManager.requestPermission();
-        addLog(`${granted ? '✅' : '❌'} Permission ${granted ? 'granted' : 'denied'}`,
-               granted ? 'success' : 'error');
+        try {
+          const granted = await notificationManager.requestPermission();
+          addLog(`${granted ? '✅' : '❌'} Permission ${granted ? 'granted' : 'denied'}`,
+                 granted ? 'success' : 'error');
+        } catch (permError) {
+          addLog(`❌ Permission request failed: ${permError.message}`, 'error');
+          addLog('💡 Try clicking "Check Permissions" again - permission must be from direct user action', 'warning');
+        }
       }
 
     } catch (error) {
       addLog(`❌ Permission check failed: ${error.message}`, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Dedicated permission request (must be from direct user action)
+  const requestNotificationPermission = async () => {
+    setIsLoading(true);
+    try {
+      addLog('🔔 Requesting notification permission...', 'info');
+
+      if (typeof Notification === 'undefined') {
+        addLog('❌ Notifications not supported in this browser', 'error');
+        return;
+      }
+
+      // Direct permission request from user action
+      const permission = Notification.requestPermission();
+      const result = await (permission.then ? permission : Promise.resolve(permission));
+
+      addLog(`${result === 'granted' ? '✅' : '❌'} Permission ${result}`,
+             result === 'granted' ? 'success' : 'error');
+
+      if (result === 'granted') {
+        addLog('🎉 You can now receive push notifications!', 'success');
+        // Update manager state
+        notificationManager.hasPermission = true;
+      } else if (result === 'denied') {
+        addLog('💡 To enable notifications, go to browser settings and allow notifications for this site', 'warning');
+      }
+
+    } catch (error) {
+      addLog(`❌ Permission request failed: ${error.message}`, 'error');
+      addLog('💡 Permission requests must come from direct user interactions (button clicks)', 'warning');
     } finally {
       setIsLoading(false);
     }
@@ -384,6 +423,9 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
           <TestButton onClick={checkPermissions} disabled={isLoading}>
             🔐 Check Permissions
+          </TestButton>
+          <TestButton onClick={requestNotificationPermission} disabled={isLoading}>
+            🔔 Request Permission
           </TestButton>
           <TestButton onClick={testTokenRegistration} disabled={isLoading}>
             📱 Register Token
