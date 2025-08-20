@@ -86,6 +86,29 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
   }
 });
 
+// OneSignal service worker redirects with preserved query parameters
+WebApp.connectHandlers.use("/OneSignalSDKWorker.js", (req, res, _next) => {
+  const queryParams = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+  const redirectUrl = `https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js${queryParams}`;
+
+  res.writeHead(301, {
+    'Location': redirectUrl,
+    'Cache-Control': 'public, max-age=3600' // Cache redirect for 1 hour
+  });
+  res.end();
+});
+
+WebApp.connectHandlers.use("/OneSignalSDKUpdaterWorker.js", (req, res, _next) => {
+  const queryParams = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+  const redirectUrl = `https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js${queryParams}`;
+
+  res.writeHead(301, {
+    'Location': redirectUrl,
+    'Cache-Control': 'public, max-age=3600' // Cache redirect for 1 hour
+  });
+  res.end();
+});
+
 // Health check endpoint
 WebApp.connectHandlers.use("/health", (req, res, _next) => {
   res.writeHead(200, { "Content-Type": "text/plain" });
