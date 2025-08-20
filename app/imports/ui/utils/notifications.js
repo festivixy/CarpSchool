@@ -15,7 +15,7 @@ class NotificationManager {
     this.pushToken = new ReactiveVar(null);
     this.isInitialized = false;
     this.lastRegistrationAttempt = null;
-    
+
     // Initialize on client only
     if (Meteor.isClient) {
       this.initialize();
@@ -33,10 +33,10 @@ class NotificationManager {
       } else {
         await this.initializeWeb();
       }
-      
+
       this.isInitialized = true;
       console.log('[Notifications] Manager initialized');
-      
+
     } catch (error) {
       console.error('[Notifications] Initialization failed:', error);
     }
@@ -57,7 +57,7 @@ class NotificationManager {
           }
 
           this.isSupported = true;
-          
+
           // Initialize push notification plugin
           const push = window.PushNotification.init({
             android: {
@@ -143,6 +143,13 @@ class NotificationManager {
       if (window.cordova) {
         // Cordova handles permissions automatically
         return this.hasPermission;
+      }
+
+      // Check secure context requirement
+      if (!window.isSecureContext && location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        const error = `Push notifications require HTTPS or localhost. Current URL: ${window.location.href}`;
+        console.error('[Notifications]', error);
+        throw new Error(error);
       }
 
       // Web push permission request
@@ -309,7 +316,7 @@ class NotificationManager {
     // This could integrate with a toast/banner system
     // For now, just log it
     console.log('[Push] In-app notification:', data.message);
-    
+
     // You could emit a custom event that UI components listen to
     if (window.dispatchEvent) {
       const event = new CustomEvent('inAppNotification', {
@@ -408,7 +415,7 @@ export const NotificationHelpers = {
   getUnreadCount() {
     const subscription = Meteor.subscribe('notifications.unreadCount');
     if (!subscription.ready()) return 0;
-    
+
     const countDoc = NotificationCounts?.findOne(Meteor.userId());
     return countDoc?.unreadCount || 0;
   },
@@ -419,7 +426,7 @@ export const NotificationHelpers = {
   getRecentNotifications() {
     const subscription = Meteor.subscribe('notifications.recent');
     if (!subscription.ready()) return [];
-    
+
     return Notifications.find({}, { sort: { createdAt: -1 } }).fetch();
   },
 
@@ -455,7 +462,7 @@ export const NotificationHelpers = {
 
     // Could show a custom modal explaining why notifications are needed
     const granted = await notificationManager.requestPermission();
-    
+
     if (!granted) {
       console.log('User denied notification permission');
       // Could show instructions on how to enable in settings

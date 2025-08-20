@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
-import { Notifications, PushTokens } from "../../../api/notifications/Notifications";
+import { Notifications, PushTokens } from "../../api/notifications/Notifications";
 import { NotificationHelpers, notificationManager } from "../../utils/notifications";
 import { OneSignalHelpers, oneSignalManager } from "../../utils/oneSignalNotifications";
 import {
@@ -252,6 +252,16 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
     setIsLoading(true);
     try {
       addLog('🔐 Checking notification permissions...', 'info');
+
+      // Check secure context
+      const isSecure = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost';
+      addLog(`🔒 Secure context: ${isSecure ? 'Yes' : 'No'} (${location.protocol}//${location.hostname})`, isSecure ? 'success' : 'error');
+
+      if (!isSecure) {
+        addLog('❌ Push notifications require HTTPS or localhost', 'error');
+        addLog('💡 Solutions: Use ngrok, Chrome flags, or access via localhost', 'warning');
+        return;
+      }
 
       // Check browser permission
       if (typeof Notification !== 'undefined') {
