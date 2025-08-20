@@ -213,7 +213,7 @@ export const useNativeNavBar = () => {
   }, []);
 
   const showNavBar = useCallback(async (navBarId) => {
-    console.log("[useNativeNavBar] ����️ showNavBar called:", navBarId);
+    console.log("[useNativeNavBar] ✅️ showNavBar called:", navBarId);
 
     if (!window.cordova?.plugins?.NativeNavBar) {
       throw new Error("Plugin not available");

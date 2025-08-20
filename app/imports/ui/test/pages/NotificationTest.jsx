@@ -214,7 +214,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       }
 
       const testRide = rides[0];
-      addLog(`��� Using ride: ${testRide._id}`, 'info');
+      addLog(`📱 Using ride: ${testRide._id}`, 'info');
 
       const result = await Meteor.callAsync(
         'notifications.sendToRideParticipants',
@@ -296,7 +296,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       addLog(`📱 Current player ID: ${playerId || 'None'}`, 'info');
 
       if (!isSupported) {
-        addLog('⚠�� OneSignal not supported or not loaded', 'warning');
+        addLog('❌ OneSignal not supported or not loaded', 'warning');
         return;
       }
 
@@ -353,7 +353,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const checkPermissions = async () => {
     setIsLoading(true);
     try {
-      addLog('��� Checking notification permissions...', 'info');
+      addLog('📱 Checking notification permissions...', 'info');
 
       // Detect iOS Safari
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;

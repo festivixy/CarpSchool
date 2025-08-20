@@ -1050,7 +1050,7 @@ class Ride extends React.Component {
                 </ModalContent>
 
                 <ModalActions>
-                  <DoneButton onClick={this.closeMapModal}>��� Close</DoneButton>
+                  <DoneButton onClick={this.closeMapModal}>✅ Close</DoneButton>
                 </ModalActions>
               </Modal>
             </ModalOverlay>,
