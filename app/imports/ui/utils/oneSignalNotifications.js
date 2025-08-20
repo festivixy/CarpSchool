@@ -117,11 +117,19 @@ class OneSignalManager {
     }
 
     try {
-      const permission = await window.OneSignal.showNativePrompt();
+      const permission = await window.OneSignal.Notifications.requestPermission();
 
       if (permission) {
         // Get the player ID after permission granted
-        const userId = await window.OneSignal.getUserId();
+        // For v16, we need to wait for the subscription to be ready
+        let userId = window.OneSignal.User?.PushSubscription?.id;
+
+        // If not available immediately, wait a moment and try again
+        if (!userId) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          userId = window.OneSignal.User?.PushSubscription?.id;
+        }
+
         if (userId) {
           this.playerId = userId;
           await this.registerWithServer();
@@ -158,7 +166,7 @@ class OneSignalManager {
       console.log(`[OneSignal] Player registered with server: ${this.playerId}`);
 
       // Set external user ID
-      await window.OneSignal.setExternalUserId(Meteor.userId());
+      await window.OneSignal.login(Meteor.userId());
 
     } catch (error) {
       console.error('[OneSignal] Server registration failed:', error);
@@ -174,7 +182,7 @@ class OneSignalManager {
     }
 
     try {
-      await window.OneSignal.sendTags(tags);
+      await window.OneSignal.User.addTags(tags);
       console.log('[OneSignal] Tags set:', tags);
       return true;
 
@@ -212,7 +220,7 @@ class OneSignalManager {
     }
 
     try {
-      const permission = await window.OneSignal.getNotificationPermission();
+      const permission = await window.OneSignal.Notifications.permission;
       return permission === 'granted';
     } catch (error) {
       return false;
