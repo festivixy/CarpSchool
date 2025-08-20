@@ -543,6 +543,41 @@ export const NotificationUtils = {
   },
 
   /**
+   * Deactivate all push tokens for a specific user (server-side utility)
+   */
+  async deactivateUserTokens(userId) {
+    try {
+      // Deactivate all active push tokens for this user
+      const result = await PushTokens.updateAsync(
+        {
+          userId: userId,
+          isActive: true
+        },
+        {
+          $set: {
+            isActive: false,
+            deactivatedAt: new Date(),
+            deactivationReason: 'user_logout'
+          }
+        },
+        { multi: true }
+      );
+
+      console.log(`[Logout] Deactivated ${result} push tokens for user ${userId}`);
+
+      return {
+        success: true,
+        deactivatedTokens: result,
+        userId: userId
+      };
+
+    } catch (error) {
+      console.error("[Logout] Failed to deactivate user tokens:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Send emergency notification
    */
   async sendEmergency(rideId, message, priority = NOTIFICATION_PRIORITY.URGENT) {

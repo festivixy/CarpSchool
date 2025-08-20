@@ -2,6 +2,7 @@ import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { check } from "meteor/check";
 import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
+import { NotificationUtils } from "../notifications/NotificationMethods";
 
 /* eslint-disable no-console */
 
@@ -48,4 +49,20 @@ Accounts.validateNewUser(async (user) => {
   // Remove captchaSessionId from user object before storing
   delete user.captchaSessionId;  // eslint-disable-line
   return true;
+});
+
+// Handle user logout - deactivate push tokens for privacy
+Accounts.onLogout((loginHandle) => {
+  if (loginHandle.userId) {
+    console.log(`[Logout] User ${loginHandle.userId} logged out, deactivating push tokens...`);
+
+    // Call the NotificationUtils method to deactivate tokens
+    NotificationUtils.deactivateUserTokens(loginHandle.userId)
+      .then((result) => {
+        console.log(`[Logout] Successfully deactivated ${result.deactivatedTokens} tokens for user ${loginHandle.userId}`);
+      })
+      .catch((error) => {
+        console.error(`[Logout] Failed to deactivate tokens for user ${loginHandle.userId}:`, error);
+      });
+  }
 });

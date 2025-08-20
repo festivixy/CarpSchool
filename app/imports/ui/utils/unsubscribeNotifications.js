@@ -8,7 +8,7 @@ import { notificationManager } from "./notifications";
  */
 export const unsubscribeOnLogout = async () => {
   console.log('[Logout] Starting notification unsubscription...');
-  
+
   try {
     const promises = [];
 
@@ -16,23 +16,23 @@ export const unsubscribeOnLogout = async () => {
     if (oneSignalManager.isSupported && window.OneSignal) {
       try {
         console.log('[Logout] Unsubscribing from OneSignal...');
-        
+
         // Get current player ID before logout
         const playerId = oneSignalManager.getPlayerId();
-        
+
         if (playerId) {
           // Set external user ID to null (logout from OneSignal)
           await window.OneSignal.logout();
           console.log('[Logout] OneSignal logout successful');
         }
-        
+
         // Optionally unsubscribe from push notifications entirely
         // This removes the subscription but keeps the user able to re-subscribe
         if (window.OneSignal.User?.PushSubscription?.optOut) {
           await window.OneSignal.User.PushSubscription.optOut();
           console.log('[Logout] OneSignal push subscription opted out');
         }
-        
+
       } catch (oneSignalError) {
         console.warn('[Logout] OneSignal unsubscription failed:', oneSignalError);
       }
@@ -42,17 +42,20 @@ export const unsubscribeOnLogout = async () => {
     if (Meteor.userId()) {
       try {
         console.log('[Logout] Deactivating server push tokens...');
-        
+
+        // Try the Meteor method first (if available)
         const deactivatePromise = Meteor.callAsync('notifications.deactivateUserTokens')
           .then(() => {
-            console.log('[Logout] Server tokens deactivated');
+            console.log('[Logout] Server tokens deactivated via Meteor method');
           })
           .catch((error) => {
-            console.warn('[Logout] Server token deactivation failed:', error);
+            console.warn('[Logout] Meteor method failed, this is expected if server not restarted:', error.reason || error.message);
+            // The NotificationUtils.deactivateUserTokens will be called from server-side during logout
+            // This is acceptable since the server-side Meteor.logout() should trigger cleanup
           });
-        
+
         promises.push(deactivatePromise);
-        
+
       } catch (serverError) {
         console.warn('[Logout] Server token deactivation failed:', serverError);
       }
@@ -62,17 +65,17 @@ export const unsubscribeOnLogout = async () => {
     if (notificationManager) {
       try {
         console.log('[Logout] Clearing local notification state...');
-        
+
         // Clear stored tokens
         if (notificationManager.clearToken) {
           notificationManager.clearToken();
         }
-        
+
         // Reset manager state
         if (notificationManager.reset) {
           notificationManager.reset();
         }
-        
+
         console.log('[Logout] Local notification state cleared');
       } catch (localError) {
         console.warn('[Logout] Local notification cleanup failed:', localError);
