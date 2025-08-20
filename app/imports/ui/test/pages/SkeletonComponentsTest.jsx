@@ -701,8 +701,8 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
 // - etc.
 
 // Each following the same pattern:
-import { ComponentSkeleton } from "../../skeleton";
-<ComponentSkeleton config={...} />`}
+import { MyRidesSkeleton } from "../../skeleton";
+<MyRidesSkeleton config={...} />`}
             </ImportCode>
           </CodeBlock>
         </SkeletonSection>
