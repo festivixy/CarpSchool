@@ -10,7 +10,6 @@ import { NotificationUtils } from "../../api/notifications/NotificationMethods";
  */
 
 if (Meteor.isServer) {
-  console.log('[Notifications] Setting up integration hooks...');
 
   // Hook into ride collection changes
   const rideObserver = Rides.find({}).observe({
@@ -112,13 +111,29 @@ if (Meteor.isServer) {
 
   // Cleanup observers on server shutdown
   process.on('SIGTERM', () => {
-    rideObserver.stop();
-    chatObserver.stop();
+    try {
+      if (rideObserver && typeof rideObserver.stop === 'function') {
+        rideObserver.stop();
+      }
+      if (chatObserver && typeof chatObserver.stop === 'function') {
+        chatObserver.stop();
+      }
+    } catch (error) {
+      console.error('[Notifications] Error stopping observers:', error);
+    }
   });
 
   process.on('SIGINT', () => {
-    rideObserver.stop();
-    chatObserver.stop();
+    try {
+      if (rideObserver && typeof rideObserver.stop === 'function') {
+        rideObserver.stop();
+      }
+      if (chatObserver && typeof chatObserver.stop === 'function') {
+        chatObserver.stop();
+      }
+    } catch (error) {
+      console.error('[Notifications] Error stopping observers:', error);
+    }
   });
 }
 
