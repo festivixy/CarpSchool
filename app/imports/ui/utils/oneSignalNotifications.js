@@ -199,7 +199,12 @@ class OneSignalManager {
     const info = {
       userAgent: navigator.userAgent,
       platform: 'web',
-      oneSignalPlayerId: this.playerId
+      oneSignalPlayerId: this.playerId,
+      browserName: this.getBrowserName(),
+      deviceType: this.getDeviceType(),
+      registeredAt: new Date().toISOString(),
+      url: window.location.href,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     };
 
     // Add browser info
@@ -208,7 +213,35 @@ class OneSignalManager {
       info.mobile = navigator.userAgentData.mobile;
     }
 
+    // Add screen info
+    if (screen) {
+      info.screenResolution = `${screen.width}x${screen.height}`;
+    }
+
     return info;
+  }
+
+  /**
+   * Get browser name for device identification
+   */
+  getBrowserName() {
+    const userAgent = navigator.userAgent;
+    if (userAgent.includes('Chrome')) return 'Chrome';
+    if (userAgent.includes('Firefox')) return 'Firefox';
+    if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
+    if (userAgent.includes('Edge')) return 'Edge';
+    if (userAgent.includes('Opera')) return 'Opera';
+    return 'Unknown';
+  }
+
+  /**
+   * Get device type for identification
+   */
+  getDeviceType() {
+    const userAgent = navigator.userAgent;
+    if (/tablet|ipad/i.test(userAgent)) return 'tablet';
+    if (/mobile|android|iphone/i.test(userAgent)) return 'mobile';
+    return 'desktop';
   }
 
   /**
@@ -329,6 +362,67 @@ export const OneSignalHelpers = {
     } catch (error) {
       console.error('Test notification failed:', error);
       return false;
+    }
+  },
+
+  /**
+   * Get user's registered devices
+   */
+  async getUserDevices() {
+    try {
+      return await Meteor.callAsync('notifications.getUserDevices');
+    } catch (error) {
+      console.error('Failed to get user devices:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Deactivate a specific device
+   */
+  async deactivateDevice(playerId) {
+    try {
+      return await Meteor.callAsync('notifications.deactivateDevice', playerId);
+    } catch (error) {
+      console.error('Failed to deactivate device:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get info about current device
+   */
+  getCurrentDeviceInfo() {
+    return {
+      playerId: oneSignalManager.getPlayerId(),
+      deviceInfo: oneSignalManager.getDeviceInfo(),
+      isCurrentDevice: true,
+      isEnabled: oneSignalManager.isEnabled()
+    };
+  },
+
+  /**
+   * Get status for multi-device setup
+   */
+  async getMultiDeviceStatus() {
+    try {
+      const devices = await this.getUserDevices();
+      const currentDevice = this.getCurrentDeviceInfo();
+
+      return {
+        totalDevices: devices.length,
+        currentDevice,
+        otherDevices: devices.filter(d => d.playerId !== currentDevice.playerId),
+        canReceiveNotifications: devices.length > 0 || currentDevice.isEnabled
+      };
+    } catch (error) {
+      console.error('Failed to get multi-device status:', error);
+      return {
+        totalDevices: 0,
+        currentDevice: this.getCurrentDeviceInfo(),
+        otherDevices: [],
+        canReceiveNotifications: false
+      };
     }
   }
 };
