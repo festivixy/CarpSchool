@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import "semantic-ui-css/semantic.css";
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Route,
   Switch,
   Redirect,
