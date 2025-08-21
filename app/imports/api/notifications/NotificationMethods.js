@@ -14,8 +14,9 @@ import {
 import { Rides } from "../ride/Rides";
 import { Chats } from "../chat/Chat";
 
-// Push notification service (to be implemented with Firebase/APNs)
+// Push notification services
 import { PushNotificationService } from "../../startup/server/PushNotificationService";
+import { WebPushService } from "../../startup/server/WebPushService";
 
 Meteor.methods({
   /**
@@ -404,6 +405,37 @@ Meteor.methods({
     } catch (error) {
       console.error("[Logout] Failed to deactivate user tokens:", error);
       throw new Meteor.Error("token-deactivation-failed", error.reason || "Failed to deactivate tokens");
+    }
+  },
+
+  /**
+   * Get VAPID public key for web push subscription
+   */
+  async "notifications.getVapidPublicKey"() {
+    try {
+      // Get from WebPushService
+      const webPushKey = WebPushService.getVapidPublicKey();
+      if (webPushKey) {
+        return { publicKey: webPushKey, source: 'webpush' };
+      }
+
+      // Fallback to Meteor settings
+      const settingsKey = Meteor.settings.public?.vapid?.publicKey;
+      if (settingsKey) {
+        return { publicKey: settingsKey, source: 'settings' };
+      }
+
+      // Fallback to environment variable
+      const envKey = process.env.VAPID_PUBLIC_KEY;
+      if (envKey) {
+        return { publicKey: envKey, source: 'env' };
+      }
+
+      throw new Meteor.Error("vapid-not-configured", "VAPID public key not configured");
+
+    } catch (error) {
+      console.error("[VAPID] Failed to get public key:", error);
+      throw new Meteor.Error("vapid-failed", error.reason || "Failed to get VAPID public key");
     }
   }
 });

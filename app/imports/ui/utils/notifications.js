@@ -184,9 +184,27 @@ class NotificationManager {
    */
   async subscribeWebPush(registration) {
     try {
-      const vapidPublicKey = Meteor.settings.public?.vapid?.publicKey;
+      let vapidPublicKey = null;
+
+      // Try to get VAPID key from multiple sources
+      try {
+        // First, try to get from server
+        const vapidData = await Meteor.callAsync('notifications.getVapidPublicKey');
+        vapidPublicKey = vapidData.publicKey;
+        console.log(`[Push] VAPID key loaded from ${vapidData.source}`);
+      } catch (error) {
+        console.warn('[Push] Failed to get VAPID key from server:', error.reason);
+
+        // Fallback to client settings
+        vapidPublicKey = Meteor.settings.public?.vapid?.publicKey;
+        if (vapidPublicKey) {
+          console.log('[Push] Using VAPID key from client settings');
+        }
+      }
+
       if (!vapidPublicKey) {
         console.warn('[Push] VAPID public key not configured');
+        console.warn('[Push] Configure VAPID_PUBLIC_KEY environment variable or Meteor settings');
         return;
       }
 
@@ -198,6 +216,8 @@ class NotificationManager {
       const token = JSON.stringify(subscription);
       this.pushToken.set(token);
       this.registerTokenWithServer(token, 'web');
+
+      console.log('[Push] Web push subscription successful');
 
     } catch (error) {
       console.error('[Push] Web push subscription failed:', error);
