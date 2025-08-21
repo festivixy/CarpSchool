@@ -23,7 +23,7 @@ export const usePWAInstall = () => {
    */
   const checkInstallHash = () => {
     const hash = window.location.hash;
-    return hash.startsWith('#pwa');
+    return hash.startsWith('#pwa'); // Includes #pwa-install, #pwa-auto-show, etc.
   };
 
   /**
@@ -140,6 +140,36 @@ export const usePWAInstall = () => {
       hideInstallPrompt();
     }
   }, [isRunningAsPWA]);
+
+  /**
+   * Auto-show prompt for first-time mobile users
+   */
+  useEffect(() => {
+    console.log('[PWA Auto-Show Debug]', {
+      isMobile,
+      isRunningAsPWA,
+      hasBeenShown,
+      shouldAutoShow: isMobile && !isRunningAsPWA && !hasBeenShown
+    });
+
+    // Only auto-show for mobile users who haven't seen it and aren't running as PWA
+    if (isMobile && !isRunningAsPWA && !hasBeenShown) {
+      console.log('[PWA] Auto-showing install prompt for first-time mobile user in 3 seconds...');
+
+      // Delay the auto-show slightly to avoid showing too early
+      const autoShowTimeout = setTimeout(() => {
+        console.log('[PWA] Triggering auto-show now');
+        setIsVisible(true);
+        markAsShown();
+        window.location.hash = '#pwa-auto-show';
+      }, 3000); // 3 second delay after page load
+
+      return () => {
+        console.log('[PWA] Auto-show timeout cleared');
+        clearTimeout(autoShowTimeout);
+      };
+    }
+  }, [isMobile, isRunningAsPWA, hasBeenShown]);
 
   /**
    * Listen for beforeinstallprompt to determine installability (mobile only)
