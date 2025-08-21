@@ -484,6 +484,42 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
     }
   };
 
+  // Test 7: Multi-Device Status
+  const checkMultiDeviceStatus = async () => {
+    setIsLoading(true);
+    try {
+      addLog('📱 Checking multi-device status...', 'info');
+
+      const status = await OneSignalHelpers.getMultiDeviceStatus();
+
+      addLog(`📊 Multi-Device Status:`, 'info');
+      addLog(`  - Total registered devices: ${status.totalDevices}`, 'info');
+      addLog(`  - Current device ID: ${status.currentDevice.playerId || 'Not registered'}`, 'info');
+      addLog(`  - Other devices: ${status.otherDevices.length}`, 'info');
+      addLog(`  - Can receive notifications: ${status.canReceiveNotifications}`, status.canReceiveNotifications ? 'success' : 'warning');
+
+      if (status.currentDevice.deviceInfo) {
+        const info = status.currentDevice.deviceInfo;
+        addLog(`  - Current device: ${info.browserName} on ${info.deviceType} (${info.screenResolution})`, 'info');
+      }
+
+      if (status.otherDevices.length > 0) {
+        addLog(`📱 Other registered devices:`, 'info');
+        status.otherDevices.forEach((device, index) => {
+          const info = device.deviceInfo || {};
+          const deviceName = `${info.browserName || 'Unknown'} on ${info.deviceType || 'Unknown'}`;
+          const lastUsed = device.lastUsed ? new Date(device.lastUsed).toLocaleString() : 'Unknown';
+          addLog(`  ${index + 1}. ${deviceName} (Last used: ${lastUsed})`, 'info');
+        });
+      }
+
+    } catch (error) {
+      addLog(`❌ Multi-device status check failed: ${error.message}`, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleFormChange = (field, value) => {
     setTestForm(prev => ({ ...prev, [field]: value }));
   };
@@ -580,7 +616,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
             🔍 Debug Ride Setup
           </TestButton>
           <TestButton onClick={testRideNotification} disabled={isLoading}>
-            🚗 Test Ride Notification
+            ��� Test Ride Notification
           </TestButton>
           <TestButton onClick={checkNotificationStatus} disabled={isLoading}>
             📊 Check Status
@@ -590,6 +626,9 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
           </TestButton>
           <TestButton onClick={testOneSignalNotification} disabled={isLoading}>
             🚀 OneSignal Test
+          </TestButton>
+          <TestButton onClick={checkMultiDeviceStatus} disabled={isLoading}>
+            📱 Multi-Device Status
           </TestButton>
           <TestButton onClick={markAllAsRead} disabled={isLoading}>
             ✅ Mark All Read
