@@ -60,6 +60,7 @@ import CrashApp from "../test/pages/CrashApp";
 import NotificationTest from "../test/pages/NotificationTest";
 import MobilePushTest from "../test/pages/MobilePushTest";
 import AutoSubscribeNotification from "../components/AutoSubscribeNotification";
+import PWAInstallPrompt from "../mobile/components/PWAInstallPrompt";
 // Lazy load MapComponentsTest to improve initial load performance
 const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapComponentsTest.jsx"));
 
@@ -72,6 +73,8 @@ class App extends React.Component {
           <AppContainer>
           {/* Auto-subscribe to notifications on every page visit */}
           <AutoSubscribeNotification />
+          {/* PWA install prompt */}
+          <PWAInstallPrompt />
           <DesktopOnly>
             <NavBar />
           </DesktopOnly>
