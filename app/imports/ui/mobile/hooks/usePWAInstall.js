@@ -64,6 +64,15 @@ export const usePWAInstall = () => {
   };
 
   /**
+   * Force show the install prompt (for testing/debugging)
+   */
+  const forceShowInstallPrompt = () => {
+    console.log('[PWA] Force showing install prompt');
+    setIsVisible(true);
+    window.location.hash = '#pwa-install';
+  };
+
+  /**
    * Hide the install prompt
    */
   const hideInstallPrompt = () => {
@@ -81,23 +90,33 @@ export const usePWAInstall = () => {
   }, []);
 
   /**
-   * Handle hash changes to show/hide prompt (kept for compatibility but restricted)
+   * Handle hash changes to show/hide prompt (hash overrides show-once logic)
    */
   useEffect(() => {
     const handleHashChange = () => {
       const hashIndicatesShow = checkInstallHash();
 
-      // Only show if mobile, not PWA, not shown before, and hash indicates show
-      const shouldShow = hashIndicatesShow &&
-                        isMobile &&
-                        !isRunningAsPWA &&
-                        !hasBeenShown;
+      console.log('[PWA Debug]', {
+        hash: window.location.hash,
+        hashIndicatesShow,
+        isMobile,
+        isRunningAsPWA,
+        hasBeenShown
+      });
 
-      if (shouldShow) {
-        markAsShown();
+      if (hashIndicatesShow) {
+        // Hash overrides all restrictions except PWA check
+        const shouldShow = !isRunningAsPWA;
+        console.log('[PWA Debug] Hash detected, showing:', shouldShow);
+        setIsVisible(shouldShow);
+
+        // Mark as shown for future auto-shows (but hash can still override)
+        if (shouldShow && isMobile) {
+          markAsShown();
+        }
+      } else {
+        setIsVisible(false);
       }
-
-      setIsVisible(shouldShow);
     };
 
     // Check initial hash
@@ -109,7 +128,7 @@ export const usePWAInstall = () => {
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
-  }, [isMobile, isRunningAsPWA, hasBeenShown]);
+  }, [isMobile, isRunningAsPWA]);
 
   /**
    * Check if PWA is already installed
@@ -157,6 +176,11 @@ export const usePWAInstall = () => {
     };
   }, [isMobile, isIOS, isRunningAsPWA]);
 
+  // Expose force show function globally for testing
+  if (typeof window !== 'undefined') {
+    window.forcePWAPrompt = forceShowInstallPrompt;
+  }
+
   return {
     isVisible,
     canInstall,
@@ -167,7 +191,8 @@ export const usePWAInstall = () => {
     isMobile,
     isRunningAsPWA,
     showInstallPrompt,
-    hideInstallPrompt
+    hideInstallPrompt,
+    forceShowInstallPrompt
   };
 };
 

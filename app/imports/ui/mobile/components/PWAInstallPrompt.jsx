@@ -143,8 +143,13 @@ const PWAInstallPrompt = () => {
     e.stopPropagation();
   };
 
-  // Don't render if not mobile, running as PWA, or already shown
-  if (!isMobile || isRunningAsPWA || hasBeenShown) {
+  // Don't render if running as PWA, but allow hash to override mobile/shown restrictions
+  if (isRunningAsPWA) {
+    return null;
+  }
+
+  // If not visible (which includes hash and mobile checks), don't render
+  if (!isVisible) {
     return null;
   }
 
