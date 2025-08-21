@@ -74,15 +74,22 @@ const AutoSubscribeNotification = () => {
   };
 
   /**
-   * Attempt to automatically subscribe user to notifications
+   * Attempt to automatically subscribe user to notifications with retry logic
    */
-  const attemptAutoSubscribe = async () => {
-    if (isProcessing) {
+  const attemptAutoSubscribe = async (retryCount = 0) => {
+    const maxRetries = 3;
+
+    if (isProcessing && retryCount === 0) {
       console.log('[AutoSub] Already processing, skipping...');
       return;
     }
 
-    setIsProcessing(true);
+    if (retryCount === 0) {
+      setIsProcessing(true);
+    }
+
+    const currentAttempt = retryCount + 1;
+    console.log(`[AutoSub] Starting auto-subscription attempt ${currentAttempt}/${maxRetries}...`);
 
     try {
       console.log('[AutoSub] Starting auto-subscription process...');
@@ -151,27 +158,63 @@ const AutoSubscribeNotification = () => {
         }
       }
 
-      // Update status
-      setSubscriptionStatus({
-        checked: true,
-        subscribed: subscriptionSuccess,
-        method: subscriptionMethod || 'failed'
-      });
-
       if (subscriptionSuccess) {
-        console.log(`[AutoSub] Auto-subscription completed via ${subscriptionMethod}`);
+        // Update status on success
+        setSubscriptionStatus({
+          checked: true,
+          subscribed: true,
+          method: subscriptionMethod
+        });
+        console.log(`[AutoSub] Auto-subscription completed via ${subscriptionMethod} on attempt ${currentAttempt}`);
 
         // Set a timestamp to avoid re-subscribing too frequently
         localStorage.setItem('autoSubscribeLastSuccess', Date.now().toString());
       } else {
-        console.log('[AutoSub] Auto-subscription failed - user may need to manually enable notifications');
+        console.log(`[AutoSub] Auto-subscription attempt ${currentAttempt} failed`);
+
+        // Retry if we haven't reached max retries
+        if (retryCount < maxRetries - 1) {
+          console.log(`[AutoSub] Retrying subscription in 2 seconds... (${retryCount + 2}/${maxRetries})`);
+
+          // Wait 2 seconds before retry
+          setTimeout(() => {
+            attemptAutoSubscribe(retryCount + 1);
+          }, 2000);
+
+          return; // Don't set final status yet, we're retrying
+        } else {
+          console.log(`[AutoSub] All ${maxRetries} subscription attempts failed - user may need to manually enable notifications`);
+
+          // Set final failed status
+          setSubscriptionStatus({
+            checked: true,
+            subscribed: false,
+            method: 'failed-after-retries'
+          });
+        }
       }
 
     } catch (error) {
-      console.error('[AutoSub] Auto-subscription process failed:', error);
-      setSubscriptionStatus({ checked: true, subscribed: false, method: 'error' });
+      console.error(`[AutoSub] Auto-subscription attempt ${currentAttempt} process failed:`, error);
+
+      // Retry on error if we haven't reached max retries
+      if (retryCount < maxRetries - 1) {
+        console.log(`[AutoSub] Retrying after error in 2 seconds... (${retryCount + 2}/${maxRetries})`);
+
+        setTimeout(() => {
+          attemptAutoSubscribe(retryCount + 1);
+        }, 2000);
+
+        return; // Don't set final status yet, we're retrying
+      } else {
+        console.error(`[AutoSub] All ${maxRetries} attempts failed with errors`);
+        setSubscriptionStatus({ checked: true, subscribed: false, method: 'error' });
+      }
     } finally {
-      setIsProcessing(false);
+      // Only set processing to false on final attempt (success or max retries reached)
+      if (subscriptionSuccess || retryCount >= maxRetries - 1) {
+        setIsProcessing(false);
+      }
     }
   };
 
