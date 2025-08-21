@@ -126,7 +126,7 @@ const NativeNavBar = ({
 
           if (item.id === "home" || item.action === "home") {
             console.log("[NativeNavBar] 🏠 Home action triggered");
-            const homeLink = currentUser ? "/myRides" : "/";
+            const homeLink = currentUser ? "/my-rides" : "/";
             handleNavigation(homeLink);
           } else if (item.id === "search" || item.action === "search") {
             console.log("[NativeNavBar] 🔍 Search action triggered - calling handleJoinRideClick");
@@ -326,7 +326,7 @@ const NativeNavBar = ({
 
               // Handle different navigation items
               if (item.id === "home" || item.action === "home") {
-                const homeLink = currentUser ? "/myRides" : "/";
+                const homeLink = currentUser ? "/my-rides" : "/";
                 handleNavigation(homeLink);
               } else if (item.id === "search" || item.action === "search") {
                 handleJoinRideClick();

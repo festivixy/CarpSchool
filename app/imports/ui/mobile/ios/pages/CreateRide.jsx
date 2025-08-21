@@ -260,7 +260,7 @@ class CreateRide extends React.Component {
 
         // Redirect after showing success
         setTimeout(() => {
-          this.props.history.push("/myRides");
+          this.props.history.push("/my-rides");
         }, 2000);
       }
     });

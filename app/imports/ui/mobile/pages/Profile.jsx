@@ -57,7 +57,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
         {/* Profile Options */}
         <Section>
           <button
-            onClick={() => handleNavigation("/editProfile")}
+            onClick={() => handleNavigation("/edit-profile")}
             style={{
               width: "100%",
               padding: "18px 20px",
@@ -218,7 +218,7 @@ const Profile = ({ history, currentUser, isAdmin }) => {
           </SectionTitle>
 
           <button
-            onClick={() => handleNavigation("/tos")}
+            onClick={() => handleNavigation("/terms")}
             style={{
               width: "100%",
               padding: "18px 20px",

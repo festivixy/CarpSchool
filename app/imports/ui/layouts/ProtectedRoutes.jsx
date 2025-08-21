@@ -40,7 +40,7 @@ const ProtectedRoutesComponent = ({
 
     // If not logged in, redirect to signin
     if (!loggedIn && userLoaded) {
-      return <Redirect to="/signin" />;
+      return <Redirect to="/login" />;
     }
 
     // If email not verified, redirect to verify email page
@@ -106,7 +106,7 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
     if (!user && !isLoggingIn) {
       return (
         <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
+          to={{ pathname: "/login", state: { from: props.location } }}
         />
       );
     }
@@ -190,7 +190,7 @@ const ProtectedRouteRequireNotEmailVerifiedComponent = ({
     }
     return (
       <Redirect
-        to={{ pathname: "/signin", state: { from: props.location } }}
+        to={{ pathname: "/login", state: { from: props.location } }}
       />
     );
   };
@@ -256,7 +256,7 @@ const ProtectedRouteRequireNotLoggedInComponent = ({
         to={
           props.location.state && props.location.state.from
             ? props.location.state.from.pathname
-            : "/myRides"
+            : "/my-rides"
         }
       />
     );
@@ -313,7 +313,7 @@ export const ProtectedRouteRequireAdmin = ({
     if (!userId) {
       return (
         <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
+          to={{ pathname: "/login", state: { from: props.location } }}
         />
       );
     }
@@ -322,7 +322,7 @@ export const ProtectedRouteRequireAdmin = ({
     if (userLoaded && !isAdmin) {
       return (
         <Redirect
-          to={{ pathname: "/signin", state: { from: props.location } }}
+          to={{ pathname: "/login", state: { from: props.location } }}
         />
       );
     }

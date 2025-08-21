@@ -91,7 +91,7 @@ export default class LiquidGlassSignIn extends React.Component {
   render() {
     // if correct authentication, redirect to page instead of login screen
     if (this.state.redirectToReferer) {
-      return <Redirect to={"/myRides"} />;
+      return <Redirect to={"/my-rides"} />;
     }
 
     return (
@@ -164,7 +164,7 @@ export default class LiquidGlassSignIn extends React.Component {
 
           <Legal>
             By signing in, you agree to our{" "}
-            <LegalLink to="/tos">Terms of Service</LegalLink> and{" "}
+            <LegalLink to="/terms">Terms of Service</LegalLink> and{" "}
             <LegalLink to="/privacy">Privacy Policy</LegalLink>
           </Legal>
         </Content>

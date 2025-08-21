@@ -36,7 +36,7 @@ export default class MobileLanding extends React.Component {
 
             <CtaSection>
               <CtaPrimary to="/signup">Get Started</CtaPrimary>
-              <CtaSecondary to="/signin">Sign In</CtaSecondary>
+              <CtaSecondary to="/login">Sign In</CtaSecondary>
             </CtaSection>
           </HeroContent>
         </Hero>
@@ -89,7 +89,7 @@ export default class MobileLanding extends React.Component {
             <CtaTitle>Ready to Start Ride Sharing?</CtaTitle>
             <CtaButtons>
               <CtaPrimary to="/signup">Create Account</CtaPrimary>
-              <CtaSecondary to="/signin">Sign In</CtaSecondary>
+              <CtaSecondary to="/login">Sign In</CtaSecondary>
             </CtaButtons>
           </CtaContent>
         </FinalCta>

@@ -98,7 +98,7 @@ export default class MobileSignup extends React.Component {
   /** Render the signup form. */
   render() {
     const { from } = this.props.location?.state || {
-      from: { pathname: "/myRides" },
+      from: { pathname: "/my-rides" },
     };
     // if correct authentication, redirect to from: page instead of signup screen
     if (this.state.redirectToReferer) {
@@ -159,14 +159,14 @@ export default class MobileSignup extends React.Component {
           </Divider>
 
           <Links>
-            <StyledLink to="/signin">
+            <StyledLink to="/login">
               Already have an account? Sign in
             </StyledLink>
           </Links>
 
           <Legal>
             By creating an account, you agree to our{" "}
-            <LegalLink to="/tos">Terms of Service</LegalLink> and{" "}
+            <LegalLink to="/terms">Terms of Service</LegalLink> and{" "}
             <LegalLink to="/privacy">Privacy Policy</LegalLink>
           </Legal>
         </Content>

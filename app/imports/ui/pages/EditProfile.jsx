@@ -386,7 +386,7 @@ class MobileEditProfile extends React.Component {
 
   render() {
     if (this.state.redirectToReferer) {
-      return <Redirect to="/myRides" />;
+      return <Redirect to="/my-rides" />;
     }
 
     if (!this.props.ready) {
@@ -600,7 +600,7 @@ class MobileEditProfile extends React.Component {
           )}
 
           <Links>
-            <StyledLink to="/myRides">Back to Dashboard</StyledLink>
+            <StyledLink to="/my-rides">Back to Dashboard</StyledLink>
           </Links>
 
           <Spacer height={96} />

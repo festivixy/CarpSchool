@@ -138,7 +138,7 @@ class Ride extends React.Component {
     const { shareCode } = this.state;
     if (shareCode) {
       // eslint-disable-next-line no-undef
-      const inviteLink = `${window.location.origin}/#/myRides?code=${shareCode.replace("-", "")}`;
+      const inviteLink = `${window.location.origin}/#/my-rides?code=${shareCode.replace("-", "")}`;
 
       // Copy to clipboard
       // eslint-disable-next-line no-undef
@@ -448,7 +448,7 @@ class Ride extends React.Component {
 
     if (session) {
       // Navigate to the RideHistory page
-      this.props.history.push(`/rideHistory/${session._id}`);
+      this.props.history.push(`/ride-history/${session._id}`);
     }
   };
 

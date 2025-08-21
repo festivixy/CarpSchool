@@ -102,7 +102,7 @@ class MobileMyRides extends React.Component {
   handleJoinRideClose = () => {
     this.setState({ joinRideModalOpen: false, prefillCode: "" });
     // Clear the URL parameter
-    this.props.history.replace("/myRides");
+    this.props.history.replace("/my-rides");
   };
 
   filterRides = () => {

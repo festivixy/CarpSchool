@@ -300,7 +300,7 @@ class AddRidesModal extends React.Component {
         // Close modal and redirect after showing success
         setTimeout(() => {
           this.handleClose();
-          this.props.history.push("/myRides");
+          this.props.history.push("/my-rides");
         }, 2000);
       }
     });

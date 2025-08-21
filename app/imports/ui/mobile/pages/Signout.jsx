@@ -57,7 +57,7 @@ export default class MobileSignout extends React.Component {
               <Title>You are signed out.</Title>
 
               <Actions>
-                <ButtonPrimary to="/signin">Sign In Again</ButtonPrimary>
+                <ButtonPrimary to="/login">Sign In Again</ButtonPrimary>
                 <ButtonSecondary to="/">Go to Home</ButtonSecondary>
               </Actions>
             </SuccessSection>

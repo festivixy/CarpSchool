@@ -103,7 +103,7 @@ export default class MobileVerifyEmail extends React.Component {
           </Copy>
 
           <Actions>
-            <ActionLink to="/signin">Back to Sign In</ActionLink>
+            <ActionLink to="/login">Back to Sign In</ActionLink>
             <ActionLink to="/signout">Sign Out</ActionLink>
           </Actions>
 
@@ -142,7 +142,7 @@ export default class MobileVerifyEmail extends React.Component {
 
           <Legal>
             By using our service, you agree to our{" "}
-            <LegalLink to="/tos">Terms of Service</LegalLink> and{" "}
+            <LegalLink to="/terms">Terms of Service</LegalLink> and{" "}
             <LegalLink to="/privacy">Privacy Policy</LegalLink>
           </Legal>
         </Content>

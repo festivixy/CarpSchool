@@ -77,7 +77,7 @@ class App extends React.Component {
               <ProtectedRouteRequireNotLoggedIn exact path="/" component={MobileLanding} />
               <Route exact path="/404" component={MobileNotFound} />
               <ProtectedRouteRequireNotLoggedIn
-                path="/signin"
+                path="/login"
                 component={MobileSignIn}
               />
               <ProtectedRouteRequireNotLoggedIn
@@ -97,11 +97,11 @@ class App extends React.Component {
               <ProtectedRoute path="/onboarding" component={MobileOnboarding} />
 
               {/* Main app routes with full onboarding flow */}
-              <ProtectedRoutes path="/myRides" component={MobileMyRides} />
+              <ProtectedRoutes path="/my-rides" component={MobileMyRides} />
               <ProtectedRoutes path="/ride/:rideId" component={MobileRideInfo} />
-              <ProtectedRoutes path="/rideHistory/:id" component={RideHistory} />
+              <ProtectedRoutes path="/ride-history/:id" component={RideHistory} />
               <ProtectedRoutes
-                path="/editProfile"
+                path="/edit-profile"
                 component={MobileEditProfile}
               />
               <ProtectedRoutes path="/chat" component={MobileChat} />
@@ -203,7 +203,7 @@ class App extends React.Component {
               <ProtectedRoute path="/signout" component={MobileSignout} />
 
               {/* Public pages */}
-              <Route exact path="/tos" component={MobileTOS} />
+              <Route exact path="/terms" component={MobileTOS} />
               <Route exact path="/privacy" component={MobilePrivacy} />
               <Route exact path="/credits" component={MobileCredits} />
 

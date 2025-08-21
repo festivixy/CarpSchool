@@ -153,7 +153,7 @@ class JoinRide extends React.Component {
 
         // Show success for 2 seconds then navigate
         setTimeout(() => {
-          this.props.history.push("/myRides");
+          this.props.history.push("/my-rides");
         }, 2000);
       }
     });

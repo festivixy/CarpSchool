@@ -107,7 +107,7 @@ class MobileNavBarCSS extends React.Component {
 
   render() {
     const { currentUser, isAdmin } = this.props;
-    const homeLink = currentUser ? "/myRides" : "/";
+    const homeLink = currentUser ? "/my-rides" : "/";
 
     // Calculate total notifications (placeholder for now)
     const totalNotifications = 5; // This would come from real notification system
@@ -220,7 +220,7 @@ class MobileNavBarCSS extends React.Component {
             <DropdownMenu $isOpen={this.state.userMenuOpen}>
               {currentUser ? (
                 <>
-                  <DropdownItem onClick={() => this.handleNavigation("/editProfile")}>
+                  <DropdownItem onClick={() => this.handleNavigation("/edit-profile")}>
                     📋 Edit Profile
                   </DropdownItem>
                   <DropdownItem onClick={() => this.handleNavigation("/places")}>
@@ -251,7 +251,7 @@ class MobileNavBarCSS extends React.Component {
                 </>
               ) : (
                 <>
-                  <DropdownItem onClick={() => this.handleNavigation("/signin")}>
+                  <DropdownItem onClick={() => this.handleNavigation("/login")}>
                     👤 Sign In
                   </DropdownItem>
                   <DropdownItem onClick={() => this.handleNavigation("/signup")}>

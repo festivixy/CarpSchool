@@ -22,7 +22,7 @@ export default function SimpleFooter() {
           <AppName>CarpSchool</AppName>
         </FooterLogo>
         <FooterLinks>
-          <FooterLink to="/tos">Terms</FooterLink>
+          <FooterLink to="/terms">Terms</FooterLink>
           <FooterLink to="/privacy">Privacy</FooterLink>
           <FooterLink to="/credits">Credits</FooterLink>
           <FooterLinkExternal href="mailto:contact@carp.school">

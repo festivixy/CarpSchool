@@ -101,7 +101,7 @@ class NavBar extends React.Component {
   };
 
   render() {
-    const homeLink = this.props.currentUser ? "/myRides" : "/";
+    const homeLink = this.props.currentUser ? "/my-rides" : "/";
 
     return (
       <>
@@ -117,7 +117,7 @@ class NavBar extends React.Component {
               {this.props.isLoggedInAndEmailVerified ? (
                 <>
                   {/* My Rides */}
-                  <NavItem to="/myRides" onClick={this.closeAllMenus}>
+                  <NavItem to="/my-rides" onClick={this.closeAllMenus}>
                     🚗 My Rides
                   </NavItem>
 
@@ -194,7 +194,7 @@ class NavBar extends React.Component {
                   </DropdownTrigger>
                   {this.state.userMenuOpen && (
                     <DropdownMenu className="right">
-                      <DropdownItem to="/signin" onClick={this.closeAllMenus}>
+                      <DropdownItem to="/login" onClick={this.closeAllMenus}>
                         👤 Sign In
                       </DropdownItem>
                       <DropdownItem to="/signup" onClick={this.closeAllMenus}>
@@ -217,7 +217,7 @@ class NavBar extends React.Component {
                         💬 Messages
                       </DropdownItem>
                       <DropdownItem
-                        to="/editProfile"
+                        to="/edit-profile"
                         onClick={this.closeAllMenus}
                       >
                         📋 Edit Profile
@@ -243,7 +243,7 @@ class NavBar extends React.Component {
               {this.props.isLoggedInAndEmailVerified ? (
                 <>
                   <MobileSection>
-                    <MobileItem to="/myRides" onClick={this.closeAllMenus}>
+                    <MobileItem to="/my-rides" onClick={this.closeAllMenus}>
                       🚗 My Rides
                     </MobileItem>
                   </MobileSection>
@@ -295,7 +295,7 @@ class NavBar extends React.Component {
                     <MobileItem to="/chat" onClick={this.closeAllMenus}>
                       💬 Messages
                     </MobileItem>
-                    <MobileItem to="/editProfile" onClick={this.closeAllMenus}>
+                    <MobileItem to="/edit-profile" onClick={this.closeAllMenus}>
                       📋 Edit Profile
                     </MobileItem>
                     <MobileItem to="/signout" onClick={this.closeAllMenus}>
@@ -305,7 +305,7 @@ class NavBar extends React.Component {
                 </>
               ) : (
                 <MobileSection>
-                  <MobileItem to="/signin" onClick={this.closeAllMenus}>
+                  <MobileItem to="/login" onClick={this.closeAllMenus}>
                     👤 Sign In
                   </MobileItem>
                   <MobileItem to="/signup" onClick={this.closeAllMenus}>

@@ -173,7 +173,7 @@ export default class MobileForgotPassword extends React.Component {
           </Divider>
 
           <Links>
-            <StyledLink to="/signin">Back to Sign In</StyledLink>
+            <StyledLink to="/login">Back to Sign In</StyledLink>
             <StyledLink to="/signup">
               Don&apos;t have an account? Sign up
             </StyledLink>
@@ -181,7 +181,7 @@ export default class MobileForgotPassword extends React.Component {
 
           <Legal>
             By using our service, you agree to our{" "}
-            <LegalLink to="/tos">Terms of Service</LegalLink> and{" "}
+            <LegalLink to="/terms">Terms of Service</LegalLink> and{" "}
             <LegalLink to="/privacy">Privacy Policy</LegalLink>
           </Legal>
         </Content>
