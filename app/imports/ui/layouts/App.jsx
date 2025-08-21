@@ -59,6 +59,7 @@ import AdminErrorReportDetail from "../desktop/pages/AdminErrorReportDetail";
 import CrashApp from "../test/pages/CrashApp";
 import NotificationTest from "../test/pages/NotificationTest";
 import MobilePushTest from "../test/pages/MobilePushTest";
+import AutoSubscribeNotification from "../components/AutoSubscribeNotification";
 // Lazy load MapComponentsTest to improve initial load performance
 const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapComponentsTest.jsx"));
 
@@ -69,6 +70,8 @@ class App extends React.Component {
       <Router>
         <ErrorBoundary>
           <AppContainer>
+          {/* Auto-subscribe to notifications on every page visit */}
+          <AutoSubscribeNotification />
           <DesktopOnly>
             <NavBar />
           </DesktopOnly>
