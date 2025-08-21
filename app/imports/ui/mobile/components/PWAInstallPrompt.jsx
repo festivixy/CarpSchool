@@ -156,7 +156,7 @@ const PWAInstallPrompt = () => {
   return (
     <ModalOverlay
       ref={modalRef}
-      isVisible={isVisible}
+      $isVisible={isVisible}
       onClick={handleOverlayClick}
     >
       <ModalContent onClick={handleContentClick}>

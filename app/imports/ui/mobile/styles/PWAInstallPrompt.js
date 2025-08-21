@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const ModalOverlay = styled.div`
-  display: ${props => props.isVisible ? 'flex' : 'none'};
+  display: ${props => props.$isVisible ? 'flex' : 'none'};
   position: fixed;
   top: 0;
   left: 0;
@@ -11,7 +11,7 @@ export const ModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 99999;
-  
+
   * {
     box-sizing: border-box;
   }
@@ -24,7 +24,7 @@ export const ModalContent = styled.div`
   border-radius: 10px;
   padding: 20px;
   position: relative;
-  
+
   h1 {
     font-size: 18px;
     margin-top: 0;
@@ -68,11 +68,11 @@ export const InstallButton = styled.button`
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   opacity: ${props => props.disabled ? 0.7 : 1};
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: ${props => props.disabled ? '#ccc' : '#0056b3'};
   }
-  
+
   &:active {
     transform: ${props => props.disabled ? 'none' : 'scale(0.98)'};
   }
@@ -89,7 +89,7 @@ export const SkipButton = styled.button`
   text-decoration: underline;
   margin-top: 20px;
   padding: 10px;
-  
+
   &:hover {
     color: #666;
   }
@@ -101,10 +101,10 @@ export const IOSInstructions = styled.div`
     padding: 0;
     margin-left: 20px;
   }
-  
+
   li {
     margin-bottom: 8px;
-    
+
     p {
       margin-block: 4px;
     }
@@ -114,7 +114,7 @@ export const IOSInstructions = styled.div`
 export const ShareIcon = styled.span`
   vertical-align: middle;
   margin: 0 4px;
-  
+
   svg {
     fill: currentColor;
   }

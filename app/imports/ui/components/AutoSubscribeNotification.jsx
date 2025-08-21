@@ -91,6 +91,9 @@ const AutoSubscribeNotification = () => {
     const currentAttempt = retryCount + 1;
     console.log(`[AutoSub] Starting auto-subscription attempt ${currentAttempt}/${maxRetries}...`);
 
+    let subscriptionSuccess = false;
+    let subscriptionMethod = null;
+
     try {
       console.log('[AutoSub] Starting auto-subscription process...');
 
@@ -118,8 +121,6 @@ const AutoSubscribeNotification = () => {
       }
 
       // Attempt auto-subscription
-      let subscriptionSuccess = false;
-      let subscriptionMethod = null;
 
       // Method 1: Try OneSignal if available
       if (oneSignalManager.isSupported && !status.oneSignalSubscribed) {
