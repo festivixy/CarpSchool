@@ -63,21 +63,21 @@
       "name": "My Rides",
       "short_name": "My Rides",
       "description": "View your current rides",
-      "url": "/#/mobile/my-rides",
+      "url": "/mobile/my-rides",
       "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Chat",
       "short_name": "Chat",
       "description": "Open ride chat",
-      "url": "/#/chat",
+      "url": "/chat",
       "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Profile",
       "short_name": "Profile",
       "description": "View and edit your profile",
-      "url": "/#/edit-profile",
+      "url": "/edit-profile",
       "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
     }
   ],
