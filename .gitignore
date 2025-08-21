@@ -32,3 +32,4 @@ codepush_mysql_data/
 codepush_redis_data/
 
 config/settings.development.json
+settings.json
