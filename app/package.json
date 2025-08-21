@@ -60,6 +60,7 @@
     "build:server": "cd .. && ./build-app.sh server",
     "build:ios": "cd .. && ./build-app.sh ios",
     "build:android": "cd .. && ./build-app.sh android",
+    "build:android:dev": "cd .. && ./build-app.sh android --server-url https://dev.carp.school",
     "build:all": "cd .. && ./build-app.sh all",
     "build:ios:dev": "cd .. && ./build-app.sh ios --server-url https://dev.carp.school",
     "build:prod": "cd .. && ./build-app.sh all --server-url https://carp.school",
