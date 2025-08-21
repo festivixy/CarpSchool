@@ -32,7 +32,8 @@
     "svg-captcha": "^1.4.0",
     "sweetalert": "^2.1.2",
     "uniforms": "^4.0.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
