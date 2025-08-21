@@ -33,7 +33,7 @@ Meteor.methods({
         // Don't fail registration if tagging fails
       }
 
-      // console.log(`[OneSignal] Registered player ${playerId} for user ${this.userId}`);
+      console.log(`[OneSignal] Registered player ${playerId} for user ${this.userId}`);
       return tokenId;
 
     } catch (error) {
@@ -76,7 +76,7 @@ Meteor.methods({
         }
       }
 
-      // console.log(`[OneSignal] Set tags for user ${this.userId}:`, tags);
+      console.log(`[OneSignal] Set tags for user ${this.userId}:`, tags);
       return results;
 
     } catch (error) {
@@ -116,7 +116,7 @@ Meteor.methods({
 
       const result = await OneSignalService.sendToSegment(filters, notification);
 
-      // console.log(`[OneSignal] Segment notification sent by admin ${this.userId}`);
+      console.log(`[OneSignal] Segment notification sent by admin ${this.userId}`);
       return result;
 
     } catch (error) {
@@ -182,7 +182,7 @@ Meteor.methods({
         throw new Meteor.Error("device-not-found", "Device not found or already deactivated");
       }
 
-      // console.log(`[OneSignal] Deactivated device ${playerId} for user ${this.userId}`);
+      console.log(`[OneSignal] Deactivated device ${playerId} for user ${this.userId}`);
       return { success: true, deactivated: result };
 
     } catch (error) {
@@ -253,12 +253,35 @@ Meteor.methods({
     try {
       const result = await OneSignalService.sendTestNotification(targetUserId);
 
-      // console.log(`[OneSignal] Test notification sent to user ${targetUserId}`);
+      console.log(`[OneSignal] Test notification sent to user ${targetUserId}`);
       return result;
 
     } catch (error) {
       console.error("[OneSignal] Test notification failed:", error);
       throw new Meteor.Error("test-failed", error.reason || "Failed to send test notification");
+    }
+  },
+
+  /**
+   * Get OneSignal configuration from environment variables
+   */
+  async "oneSignal.getConfig"() {
+    try {
+      const config = {
+        appId: process.env.ONESIGNAL_APP_ID,
+        safariWebId: process.env.ONESIGNAL_SAFARI_WEB_ID
+      };
+
+      // Only return if we have at least the app ID
+      if (config.appId) {
+        return config;
+      }
+
+      throw new Meteor.Error("config-not-found", "OneSignal environment variables not configured");
+
+    } catch (error) {
+      console.error("[OneSignal] Failed to get config:", error);
+      throw new Meteor.Error("config-failed", error.reason || "Failed to get OneSignal configuration");
     }
   }
 });
