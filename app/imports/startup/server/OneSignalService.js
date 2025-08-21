@@ -92,6 +92,11 @@ class OneSignalServiceClass {
         return await this.sendUsingExternalUserId(userId, notification);
       }
 
+      // Log multi-device detection
+      if (playerIds.length > 1) {
+        console.log(`[OneSignal] Sending to ${playerIds.length} devices for user ${userId}`);
+      }
+
       const oneSignalNotification = this.buildOneSignalNotification(notification, {
         include_player_ids: playerIds
       });
@@ -364,32 +369,15 @@ class OneSignalServiceClass {
             $set: {
               isActive: true,
               deviceInfo,
+              lastUsedAt: new Date(),
               updatedAt: new Date()
             }
           }
         );
 
-        // Deactivate other tokens for this user
-        await PushTokens.updateAsync(
-          {
-            userId,
-            platform: 'onesignal',
-            isActive: true,
-            _id: { $ne: existingToken._id }
-          },
-          { $set: { isActive: false } },
-          { multi: true }
-        );
-
         return existingToken._id;
       } else {
-        // Deactivate old tokens for this user
-        await PushTokens.updateAsync(
-          { userId, platform: 'onesignal', isActive: true },
-          { $set: { isActive: false } },
-          { multi: true }
-        );
-
+        // Insert new token (keep all tokens active for multi-device support)
         const tokenId = await PushTokens.insertAsync(tokenData);
         return tokenId;
       }

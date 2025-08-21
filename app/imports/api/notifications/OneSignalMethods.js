@@ -21,7 +21,7 @@ Meteor.methods({
 
     try {
       const tokenId = await OneSignalService.registerPlayerForUser(this.userId, playerId, deviceInfo);
-      
+
       // Also set external user ID in OneSignal
       try {
         await OneSignalService.setUserTags(playerId, {
@@ -148,6 +148,87 @@ Meteor.methods({
   },
 
   /**
+   * Deactivate a specific OneSignal device token
+   */
+  async "notifications.deactivateDevice"(playerId) {
+    check(playerId, String);
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "Must be logged in to deactivate devices");
+    }
+
+    try {
+      const { PushTokens } = await import("./Notifications");
+
+      // Find and deactivate the token (only allow users to deactivate their own devices)
+      const result = await PushTokens.updateAsync(
+        {
+          userId: this.userId,
+          $or: [
+            { token: playerId },
+            { 'deviceInfo.oneSignalPlayerId': playerId }
+          ],
+          isActive: true
+        },
+        {
+          $set: {
+            isActive: false,
+            deactivatedAt: new Date()
+          }
+        }
+      );
+
+      if (result === 0) {
+        throw new Meteor.Error("device-not-found", "Device not found or already deactivated");
+      }
+
+      console.log(`[OneSignal] Deactivated device ${playerId} for user ${this.userId}`);
+      return { success: true, deactivated: result };
+
+    } catch (error) {
+      console.error("[OneSignal] Device deactivation failed:", error);
+      throw new Meteor.Error("deactivation-failed", error.reason || "Failed to deactivate device");
+    }
+  },
+
+  /**
+   * Get user's active devices
+   */
+  async "notifications.getUserDevices"() {
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "Must be logged in to get devices");
+    }
+
+    try {
+      const { PushTokens } = await import("./Notifications");
+
+      const devices = await PushTokens.find({
+        userId: this.userId,
+        isActive: true,
+        platform: 'onesignal'
+      }, {
+        fields: {
+          token: 1,
+          deviceInfo: 1,
+          createdAt: 1,
+          lastUsedAt: 1
+        }
+      }).fetchAsync();
+
+      return devices.map(device => ({
+        playerId: device.token,
+        deviceInfo: device.deviceInfo || {},
+        registeredAt: device.createdAt,
+        lastUsed: device.lastUsedAt
+      }));
+
+    } catch (error) {
+      console.error("[OneSignal] Get user devices failed:", error);
+      throw new Meteor.Error("get-devices-failed", error.reason || "Failed to get user devices");
+    }
+  },
+
+  /**
    * Send test OneSignal notification
    */
   async "notifications.testOneSignal"(userId = null) {
@@ -161,7 +242,7 @@ Meteor.methods({
 
     // Allow testing for self or admin testing for others
     const targetUserId = userId || this.userId;
-    
+
     if (userId && userId !== this.userId) {
       const currentUser = await Meteor.users.findOneAsync(this.userId);
       if (!currentUser?.roles?.includes("admin")) {
@@ -171,7 +252,7 @@ Meteor.methods({
 
     try {
       const result = await OneSignalService.sendTestNotification(targetUserId);
-      
+
       console.log(`[OneSignal] Test notification sent to user ${targetUserId}`);
       return result;
 
@@ -222,7 +303,7 @@ export const OneSignalUtils = {
     const filters = [
       { field: 'tag', key: 'city', relation: '=', value: city }
     ];
-    
+
     return await Meteor.callAsync('notifications.sendToSegment', filters, title, message);
   },
 
@@ -233,7 +314,7 @@ export const OneSignalUtils = {
     const filters = [
       { field: 'tag', key: 'hasActiveRide', relation: '=', value: 'true' }
     ];
-    
+
     return await Meteor.callAsync('notifications.sendToSegment', filters, title, message);
   }
 };
