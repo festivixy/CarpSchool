@@ -5,7 +5,7 @@ import { oneSignalManager, OneSignalHelpers } from '../utils/oneSignalNotificati
 
 /**
  * AutoSubscribeNotification Component
- * 
+ *
  * Invisible component that automatically handles notification subscription
  * - Runs on every page visit/refresh
  * - Checks if user is subscribed to notifications
@@ -29,7 +29,7 @@ const AutoSubscribeNotification = () => {
     try {
       // Check browser notification permission
       const browserPermission = Notification?.permission;
-      
+
       // Check OneSignal subscription status
       let oneSignalSubscribed = false;
       if (oneSignalManager.isSupported && window.OneSignal) {
@@ -52,7 +52,7 @@ const AutoSubscribeNotification = () => {
       }
 
       const isSubscribed = browserPermission === 'granted' && (oneSignalSubscribed || hasServerTokens);
-      
+
       console.log('[AutoSub] Subscription status check:', {
         browserPermission,
         oneSignalSubscribed,
@@ -96,7 +96,7 @@ const AutoSubscribeNotification = () => {
 
       // Check current status first
       const status = await checkSubscriptionStatus();
-      
+
       if (status.isSubscribed) {
         console.log('[AutoSub] User already subscribed');
         setSubscriptionStatus({ checked: true, subscribed: true, method: 'already-subscribed' });
@@ -118,10 +118,10 @@ const AutoSubscribeNotification = () => {
       if (oneSignalManager.isSupported && !status.oneSignalSubscribed) {
         try {
           console.log('[AutoSub] Attempting OneSignal subscription...');
-          
+
           // Request permission through OneSignal
           const granted = await oneSignalManager.requestPermission();
-          
+
           if (granted) {
             console.log('[AutoSub] OneSignal subscription successful');
             subscriptionSuccess = true;
@@ -137,9 +137,9 @@ const AutoSubscribeNotification = () => {
       if (!subscriptionSuccess && status.browserPermission === 'default') {
         try {
           console.log('[AutoSub] Attempting browser native subscription...');
-          
+
           const permission = await Notification.requestPermission();
-          
+
           if (permission === 'granted') {
             console.log('[AutoSub] Browser native subscription successful');
             subscriptionSuccess = true;
@@ -160,7 +160,7 @@ const AutoSubscribeNotification = () => {
 
       if (subscriptionSuccess) {
         console.log(`[AutoSub] Auto-subscription completed via ${subscriptionMethod}`);
-        
+
         // Set a timestamp to avoid re-subscribing too frequently
         localStorage.setItem('autoSubscribeLastSuccess', Date.now().toString());
       } else {
@@ -195,13 +195,7 @@ const AutoSubscribeNotification = () => {
       }
     }
 
-    // Check if we already attempted in this session
-    const sessionKey = 'autoSubscribeAttempted_' + Meteor.userId();
-    if (sessionStorage.getItem(sessionKey)) {
-      console.log('[AutoSub] Already attempted in this session, skipping');
-      return false;
-    }
-
+    // Attempt subscription every session (removed session-based throttling)
     return true;
   };
 
@@ -220,10 +214,6 @@ const AutoSubscribeNotification = () => {
         setLastCheck(new Date());
 
         if (shouldAttemptSubscription()) {
-          // Mark as attempted for this session
-          const sessionKey = 'autoSubscribeAttempted_' + Meteor.userId();
-          sessionStorage.setItem(sessionKey, 'true');
-
           await attemptAutoSubscribe();
         } else {
           // Still check status even if we don't attempt subscription
