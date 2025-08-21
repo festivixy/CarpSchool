@@ -120,7 +120,7 @@ const SharedComponentsDemo = ({ history }) => {
                 label="Email Input"
                 type="email"
                 placeholder="your@email.com"
-                icon="����"
+                icon="📧"
                 required
               />
               <TextInput

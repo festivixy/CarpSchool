@@ -616,7 +616,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
             🔍 Debug Ride Setup
           </TestButton>
           <TestButton onClick={testRideNotification} disabled={isLoading}>
-            ��� Test Ride Notification
+            🚗 Test Ride Notification
           </TestButton>
           <TestButton onClick={checkNotificationStatus} disabled={isLoading}>
             📊 Check Status
