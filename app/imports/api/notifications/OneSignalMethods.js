@@ -33,7 +33,7 @@ Meteor.methods({
         // Don't fail registration if tagging fails
       }
 
-      console.log(`[OneSignal] Registered player ${playerId} for user ${this.userId}`);
+      // console.log(`[OneSignal] Registered player ${playerId} for user ${this.userId}`);
       return tokenId;
 
     } catch (error) {
@@ -76,7 +76,7 @@ Meteor.methods({
         }
       }
 
-      console.log(`[OneSignal] Set tags for user ${this.userId}:`, tags);
+      // console.log(`[OneSignal] Set tags for user ${this.userId}:`, tags);
       return results;
 
     } catch (error) {
@@ -116,7 +116,7 @@ Meteor.methods({
 
       const result = await OneSignalService.sendToSegment(filters, notification);
 
-      console.log(`[OneSignal] Segment notification sent by admin ${this.userId}`);
+      // console.log(`[OneSignal] Segment notification sent by admin ${this.userId}`);
       return result;
 
     } catch (error) {
@@ -182,7 +182,7 @@ Meteor.methods({
         throw new Meteor.Error("device-not-found", "Device not found or already deactivated");
       }
 
-      console.log(`[OneSignal] Deactivated device ${playerId} for user ${this.userId}`);
+      // console.log(`[OneSignal] Deactivated device ${playerId} for user ${this.userId}`);
       return { success: true, deactivated: result };
 
     } catch (error) {
@@ -253,7 +253,7 @@ Meteor.methods({
     try {
       const result = await OneSignalService.sendTestNotification(targetUserId);
 
-      console.log(`[OneSignal] Test notification sent to user ${targetUserId}`);
+      // console.log(`[OneSignal] Test notification sent to user ${targetUserId}`);
       return result;
 
     } catch (error) {

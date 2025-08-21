@@ -54,12 +54,12 @@ Accounts.validateNewUser(async (user) => {
 // Handle user logout - deactivate push tokens for privacy
 Accounts.onLogout((loginHandle) => {
   if (loginHandle.userId) {
-    console.log(`[Logout] User ${loginHandle.userId} logged out, deactivating push tokens...`);
+    // console.log(`[Logout] User ${loginHandle.userId} logged out, deactivating push tokens...`);
 
     // Call the NotificationUtils method to deactivate tokens
     NotificationUtils.deactivateUserTokens(loginHandle.userId)
       .then((result) => {
-        console.log(`[Logout] Successfully deactivated ${result.deactivatedTokens} tokens for user ${loginHandle.userId}`);
+        // console.log(`[Logout] Successfully deactivated ${result.deactivatedTokens} tokens for user ${loginHandle.userId}`);
       })
       .catch((error) => {
         console.error(`[Logout] Failed to deactivate tokens for user ${loginHandle.userId}:`, error);

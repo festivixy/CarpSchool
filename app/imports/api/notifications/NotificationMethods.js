@@ -51,7 +51,7 @@ Meteor.methods({
 
       const tokenId = await PushTokens.insertAsync(pushTokenData);
 
-      console.log(`[Push] Registered token for user ${this.userId} on ${platform}`);
+      // console.log(`[Push] Registered token for user ${this.userId} on ${platform}`);
       return tokenId;
 
     } catch (error) {
@@ -76,7 +76,7 @@ Meteor.methods({
         { $set: { isActive: false } }
       );
 
-      console.log(`[Push] Unregistered token for user ${this.userId}`);
+      // console.log(`[Push] Unregistered token for user ${this.userId}`);
       return result;
 
     } catch (error) {
@@ -136,7 +136,7 @@ Meteor.methods({
         }
       }
 
-      console.log(`[Notifications] Sent ${notifications.length} notifications in batch ${batchId}`);
+      // console.log(`[Notifications] Sent ${notifications.length} notifications in batch ${batchId}`);
       return { batchId, notificationIds: notifications };
 
     } catch (error) {
@@ -226,7 +226,7 @@ Meteor.methods({
       );
 
       if (result) {
-        console.log(`[Notifications] Marked notification ${notificationId} as read`);
+        // console.log(`[Notifications] Marked notification ${notificationId} as read`);
       }
 
       return result;
@@ -260,7 +260,7 @@ Meteor.methods({
         { multi: true }
       );
 
-      console.log(`[Notifications] Marked ${result} notifications as read for user ${this.userId}`);
+      // console.log(`[Notifications] Marked ${result} notifications as read for user ${this.userId}`);
       return result;
 
     } catch (error) {
@@ -291,7 +291,7 @@ Meteor.methods({
         ]
       });
 
-      console.log(`[Notifications] Cleaned up ${result} old notifications`);
+      // console.log(`[Notifications] Cleaned up ${result} old notifications`);
       return result;
 
     } catch (error) {
@@ -393,7 +393,7 @@ Meteor.methods({
         { multi: true }
       );
 
-      console.log(`[Logout] Deactivated ${result} push tokens for user ${this.userId}`);
+      // console.log(`[Logout] Deactivated ${result} push tokens for user ${this.userId}`);
 
       return {
         success: true,
@@ -563,7 +563,7 @@ export const NotificationUtils = {
         { multi: true }
       );
 
-      console.log(`[Logout] Deactivated ${result} push tokens for user ${userId}`);
+      // console.log(`[Logout] Deactivated ${result} push tokens for user ${userId}`);
 
       return {
         success: true,

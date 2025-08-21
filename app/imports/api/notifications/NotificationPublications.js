@@ -20,7 +20,7 @@ if (Meteor.isServer) {
   const maxLimit = 100;
   const safeLimit = Math.min(limit, maxLimit);
 
-  console.log(`[Pub] Publishing notifications for user ${this.userId}, limit: ${safeLimit}, offset: ${offset}`);
+  // console.log(`[Pub] Publishing notifications for user ${this.userId}, limit: ${safeLimit}, offset: ${offset}`);
 
   return Notifications.find(
     { userId: this.userId },
@@ -122,7 +122,7 @@ Meteor.publish("notifications.recent", function() {
 
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  console.log(`[Pub] Publishing recent notifications for user ${this.userId}`);
+  // console.log(`[Pub] Publishing recent notifications for user ${this.userId}`);
 
   return Notifications.find(
     {
@@ -158,7 +158,7 @@ Meteor.publish("notifications.forRide", function(rideId) {
     return;
   }
 
-  console.log(`[Pub] Publishing ride notifications for user ${this.userId}, ride: ${rideId}`);
+  // console.log(`[Pub] Publishing ride notifications for user ${this.userId}, ride: ${rideId}`);
 
   return Notifications.find(
     {
@@ -192,7 +192,7 @@ Meteor.publish("notifications.pushTokens", function() {
     return;
   }
 
-  console.log(`[Pub] Publishing push tokens for user ${this.userId}`);
+  // console.log(`[Pub] Publishing push tokens for user ${this.userId}`);
 
   return PushTokens.find(
     {
@@ -266,7 +266,7 @@ Meteor.publish("notifications.admin", function(filters = {}, options = {}) {
     }
   }
 
-  console.log(`[Pub] Admin notifications query:`, query, { limit, skip, sort });
+  // console.log(`[Pub] Admin notifications query:`, query, { limit, skip, sort });
 
   return Notifications.find(query, {
     sort,
@@ -308,7 +308,7 @@ Meteor.publish("notifications.adminTokens", function(filters = {}) {
     query.isActive = filters.isActive;
   }
 
-  console.log(`[Pub] Admin push tokens query:`, query);
+  // console.log(`[Pub] Admin push tokens query:`, query);
 
   return PushTokens.find(query, {
     sort: { lastUsedAt: -1 },
