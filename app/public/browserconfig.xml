@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+  <msapplication>
+    <!-- Windows tile configuration -->
+    <tile>
+      <!-- Tile background color and icons -->
+      <square70x70logo src="/icon-72x72.png"/>
+      <square150x150logo src="/icon-152x152.png"/>
+      <wide310x150logo src="/icon-192x192.png"/>
+      <square310x310logo src="/icon-192x192.png"/>
+      <TileColor>#007bff</TileColor>
+    </tile>
+
+    <!-- App identity -->
+    <application>
+      <applicationname>CarpSchool</applicationname>
+      <tooltip>CarpSchool - Rideshare Application</tooltip>
+      <starturl>/</starturl>
+    </application>
+
+    <!-- Jump list for taskbar -->
+    <jumplist>
+      <task>
+        <name>My Rides</name>
+        <description>View your current rides</description>
+        <category>Tasks</category>
+        <url>/mobile/my-rides</url>
+        <icon>/icon-48x48.png</icon>
+      </task>
+      <task>
+        <name>Find Rides</name>
+        <description>Search for available rides</description>
+        <category>Tasks</category>
+        <url>/mobile/rides</url>
+        <icon>/icon-48x48.png</icon>
+      </task>
+      <task>
+        <name>Create Ride</name>
+        <description>Create a new ride</description>
+        <category>Tasks</category>
+        <url>/mobile/create-ride</url>
+        <icon>/icon-48x48.png</icon>
+      </task>
+    </jumplist>
+
+    <!-- Notifications (if supported) -->
+    <notifications>
+      <frequentlyused>true</frequentlyused>
+      <requiressquare150x150logo>false</requiressquare150x150logo>
+    </notifications>
+  </msapplication>
+</browserconfig>
