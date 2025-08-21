@@ -143,21 +143,8 @@ class ErrorBoundary extends Component {
    */
   getCurrentRoute = () => {
     if (typeof window !== "undefined") {
-      // Check for hash-based routing first
-      if (window.location.hash && window.location.hash.startsWith("#/")) {
-        // Extract route from hash (e.g., #/route becomes /route)
-        let route = window.location.hash.substring(1);
-
-        // Remove dollar sign parameters (args) from the route
-        if (route.includes("$")) {
-          route = route.split("$")[0];
-        }
-
-        return route;
-      }
-
-      // Fallback to pathname + search + hash for non-hash routing
-      let route = window.location.pathname + window.location.search + window.location.hash;
+      // Use pathname for BrowserRouter (clean URLs)
+      let route = window.location.pathname;
 
       // Remove dollar sign parameters (args) from the route
       if (route.includes("$")) {
@@ -166,6 +153,7 @@ class ErrorBoundary extends Component {
 
       return route;
     }
+
     return undefined;
   };
 
