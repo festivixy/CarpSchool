@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#007bff" rx="64"/>
+  
+  <!-- Car Icon -->
+  <g fill="white" transform="translate(128, 128)">
+    <!-- Car body -->
+    <rect x="32" y="144" width="192" height="64" rx="16"/>
+    <!-- Car top -->
+    <rect x="64" y="112" width="128" height="32" rx="16"/>
+    <!-- Wheels -->
+    <circle cx="64" cy="192" r="24" fill="#333"/>
+    <circle cx="192" cy="192" r="24" fill="#333"/>
+    <!-- Wheel centers -->
+    <circle cx="64" cy="192" r="12" fill="white"/>
+    <circle cx="192" cy="192" r="12" fill="white"/>
+    <!-- Headlights -->
+    <circle cx="224" cy="160" r="8" fill="#ffeb3b"/>
+    <!-- Windows -->
+    <rect x="72" y="120" width="112" height="16" rx="8" fill="#87ceeb"/>
+  </g>
+  
+  <!-- App name -->
+  <text x="256" y="400" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="48" font-weight="bold">
+    CARP
+  </text>
+  <text x="256" y="440" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="32">
+    SCHOOL
+  </text>
+</svg>
