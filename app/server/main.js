@@ -46,6 +46,7 @@ import "../imports/api/notifications/NotificationMethods";
 import "../imports/api/notifications/OneSignalMethods";
 import "../imports/api/system/SystemMethods";
 import "../imports/api/schools/SchoolsMethods";
+import "../imports/api/accounts/AdminMethods";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers";

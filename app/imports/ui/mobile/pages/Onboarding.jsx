@@ -46,6 +46,7 @@ import {
   SecondaryButton,
 } from "../styles/Onboarding";
 import Captcha from "../../components/Captcha";
+import SchoolSelector from "../../components/SchoolSelector";
 import { Spacer } from "../../components";
 
 /**
@@ -62,7 +63,8 @@ class MobileOnboarding extends React.Component {
       totalSteps: 4, // Reduced from 5 since we removed the captcha step
       // Profile data
       name: "",
-      location: "",
+      selectedSchoolId: "",
+      selectedSchoolName: "",
       userType: "Both",
       phone: "",
       other: "",
@@ -343,15 +345,36 @@ class MobileOnboarding extends React.Component {
     });
   };
 
+  handleSchoolSelect = (schoolId, school) => {
+    this.setState({
+      selectedSchoolId: schoolId,
+      selectedSchoolName: school.name,
+      error: "" // Clear any previous errors
+    });
+  };
+
+  renderSchoolSelector = () => {
+    const userEmail = this.props.currentUser?.emails?.[0]?.address;
+
+    return (
+      <SchoolSelector
+        userEmail={userEmail}
+        selectedSchoolId={this.state.selectedSchoolId}
+        onSchoolSelect={this.handleSchoolSelect}
+      />
+    );
+  };
+
   handleFinish = () => {
-    const { name, location, userType, phone, other, profileImage, rideImage } =
+    const { name, selectedSchoolId, selectedSchoolName, userType, phone, other, profileImage, rideImage } =
       this.state;
 
     this.setState({ isSubmitting: true, error: "", success: "" });
 
     const profileData = {
       Name: name,
-      Location: location,
+      School: selectedSchoolName,
+      SchoolId: selectedSchoolId,
       Image: profileImage,
       Ride: rideImage,
       Phone: phone,
@@ -420,24 +443,16 @@ class MobileOnboarding extends React.Component {
 
   renderStep2 = () => (
     <Step>
-      <StepIcon>📍</StepIcon>
-      <StepTitle>Where are you located?</StepTitle>
+      <StepIcon>🏫</StepIcon>
+      <StepTitle>Select Your School</StepTitle>
       <StepSubtitle>
-        This helps us connect you with nearby rides and ride sharers.
+        Choose your educational institution to connect with fellow students.
       </StepSubtitle>
 
-      <InputGroup>
-        <Label>Your home city *</Label>
-        <Input
-          type="text"
-          name="location"
-          placeholder="e.g., Honolulu, Hawaii"
-          value={this.state.location}
-          onChange={this.handleChange}
-          maxLength="100"
-        />
-        <InputHint>Enter your city and state/country</InputHint>
-      </InputGroup>
+      <div style={{ marginTop: "20px" }}>
+        {/* School selection will be rendered here */}
+        {this.renderSchoolSelector()}
+      </div>
     </Step>
   );
 
@@ -737,17 +752,18 @@ class MobileOnboarding extends React.Component {
 
 MobileOnboarding.propTypes = {
   profileData: PropTypes.object,
-  ready: PropTypes.bool.isRequired,
-  currentUser: PropTypes.string,
+  currentUser: PropTypes.object,
+  loading: PropTypes.bool.isRequired,
 };
 
 export default withTracker(() => {
-  const subscription = Meteor.subscribe("Profiles");
-  const userId = Meteor.userId();
+  const profileSubscription = Meteor.subscribe("profiles.mine");
+  const profileData = Profiles.findOne({ Owner: Meteor.userId() });
+  const currentUser = Meteor.user();
 
   return {
-    profileData: Profiles.findOne({ Owner: userId }),
-    currentUser: Meteor.user() ? Meteor.user()._id : "",
-    ready: subscription.ready(),
+    profileData,
+    currentUser,
+    loading: !profileSubscription.ready(),
   };
 })(MobileOnboarding);
