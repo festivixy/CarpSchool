@@ -1,3 +1,15 @@
+// Email configuration
+import { Meteor } from "meteor/meteor";
+
+// Configure SMTP for iCloud+ custom domain
+if (Meteor.isServer) {
+  Meteor.startup(() => {
+    // iCloud SMTP Configuration
+    process.env.MAIL_URL = process.env.MAIL_URL ||
+      `smtps://${encodeURIComponent(process.env.SMTP_USERNAME || "contact@carp.school")}:${encodeURIComponent(process.env.SMTP_PASSWORD || "your-app-specific-password")}@${process.env.SMTP_SERVER || "smtp.mail.me.com"}:587`;
+  });
+}
+
 // First run setup
 import "../imports/startup/server/FirstRun";
 
@@ -31,6 +43,7 @@ import "../imports/api/errorReport/ErrorReportMethods";
 import "../imports/api/notifications/NotificationMethods";
 import "../imports/api/notifications/OneSignalMethods";
 import "../imports/api/system/SystemMethods";
+import "../imports/api/accounts/EmailTestMethods";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers";
