@@ -11,6 +11,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import MobileAdminRides from "../pages/AdminRides";
 import MobileAdminUsers from "../pages/AdminUsers";
+import AdminSchools from "../pages/AdminSchools";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import LoadingPage from "../components/LoadingPage";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -134,6 +135,10 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/admin/places"
                 component={MobileAdminPlaceManager}
+              />
+              <ProtectedRouteRequireSystem
+                path="/admin/schools"
+                component={AdminSchools}
               />
               <ProtectedRouteRequireAdmin
                 exact

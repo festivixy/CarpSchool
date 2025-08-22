@@ -210,6 +210,12 @@ class NavBar extends React.Component {
                       >
                         🛠️ System Content
                       </DropdownItem>
+                      <DropdownItem
+                        to="/admin/schools"
+                        onClick={this.closeAllMenus}
+                      >
+                        🏫 Manage Schools
+                      </DropdownItem>
                     </DropdownMenu>
                   )}
                 </Dropdown>
@@ -326,6 +332,9 @@ class NavBar extends React.Component {
                       <MobileSectionTitle>System</MobileSectionTitle>
                       <MobileItem to="/system" onClick={this.closeAllMenus}>
                         🛠️ System Content
+                      </MobileItem>
+                      <MobileItem to="/admin/schools" onClick={this.closeAllMenus}>
+                        🏫 Manage Schools
                       </MobileItem>
                     </MobileSection>
                   )}
