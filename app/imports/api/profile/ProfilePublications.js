@@ -1,11 +1,9 @@
 import { Meteor } from "meteor/meteor";
 import { Profiles } from "./Profile";
 
-Meteor.publish("Profiles", async function publish() {
+Meteor.publish("Profiles", function publish() {
   if (this.userId) {
-    const user = await Meteor.users.findOneAsync(this.userId);
-    const username = user._id;
-    return Profiles.find({ Owner: username });
+    return Profiles.find({ Owner: this.userId });
   }
   return this.ready();
 });
