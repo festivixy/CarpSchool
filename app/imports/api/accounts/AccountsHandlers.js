@@ -51,7 +51,7 @@ Accounts.validateNewUser(async (user) => {
   return true;
 });
 
-// Automatically send verification email on user creation
+// Configure user creation with proper profile structure
 Accounts.onCreateUser((options, user) => {
   // Create user with default profile structure
   const newUser = {
@@ -64,21 +64,22 @@ Accounts.onCreateUser((options, user) => {
     roles: options.roles || [],
   };
 
-  // Schedule verification email to be sent after user creation
-  Meteor.defer(() => {
+  // Send verification email after user is saved to database
+  const userEmail = newUser.emails[0].address;
+  Meteor.setTimeout(() => {
     try {
-      // Only send verification email if email is configured
-      if (process.env.MAIL_URL) {
-        Accounts.sendVerificationEmail(newUser._id);
-        console.log(`📧 Verification email sent to ${newUser.emails[0].address}`);
-      } else {
-        console.warn(`⚠️  MAIL_URL not configured - skipping verification email for ${newUser.emails[0].address}`);
+      // Find the newly created user by email to get the proper _id
+      const savedUser = Meteor.users.findOne({ "emails.address": userEmail });
+      if (savedUser && process.env.MAIL_URL) {
+        Accounts.sendVerificationEmail(savedUser._id);
+        console.log(`📧 Verification email sent to ${userEmail}`);
+      } else if (!process.env.MAIL_URL) {
+        console.warn(`⚠️  MAIL_URL not configured - skipping verification email for ${userEmail}`);
       }
     } catch (error) {
-      // Log error but don't crash the server
-      console.error(`❌ Failed to send verification email to ${newUser.emails[0]?.address || 'unknown'}:`, error.message || error);
+      console.error(`❌ Failed to send verification email to ${userEmail}:`, error.message || error);
     }
-  });
+  }, 2000); // 2 second delay to ensure user is fully saved to database
 
   return newUser;
 });
