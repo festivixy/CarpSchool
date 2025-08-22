@@ -43,8 +43,11 @@ if (Meteor.isServer) {
         }
 
         // Ride details updated (but not riders)
+        const oldDate = oldRide.date instanceof Date ? oldRide.date : new Date(oldRide.date);
+        const newDate = newRide.date instanceof Date ? newRide.date : new Date(newRide.date);
+
         if (oldRide.riders.length === newRide.riders.length &&
-            (oldRide.date.getTime() !== newRide.date.getTime() ||
+            (oldDate.getTime() !== newDate.getTime() ||
              oldRide.origin !== newRide.origin ||
              oldRide.destination !== newRide.destination)) {
 
