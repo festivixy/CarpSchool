@@ -30,7 +30,8 @@ This application was built with dedication and care by our development team.
 
 ## Special Thanks
 
-- None yet
+- **Beef Ramen** 🍜 - For powering the ref checker tool and countless debugging sessions
+- **Coffee** ☕ - For fueling late-night coding sessions and morning deployments
 
 ## Map Data
 
