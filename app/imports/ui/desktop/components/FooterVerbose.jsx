@@ -191,8 +191,8 @@ function FooterVerbose({
             <LegalLink to="/terms" onClick={(e) => handleLinkClick("terms", e)}>
               Terms of Service
             </LegalLink>
-            <LegalLink to="/cookies" onClick={(e) => handleLinkClick("cookies", e)}>
-              Cookie Policy
+            <LegalLink to="/credits" onClick={(e) => handleLinkClick("credits", e)}>
+              Credits
             </LegalLink>
             <LegalLinkExternal
               href="mailto:contact@carp.school"
