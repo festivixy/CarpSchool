@@ -20,6 +20,10 @@ services:
       # Web Push Configuration
       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      # Email Configuration (SMTP)
+      - SMTP_SERVER=${SMTP_SERVER:-smtp.mail.me.com}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
     volumes:
       - ./build/app.tar.gz:/bundle/bundle.tar.gz
     depends_on:
