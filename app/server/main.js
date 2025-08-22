@@ -4,15 +4,9 @@ import { Meteor } from "meteor/meteor";
 // Configure SMTP for iCloud+ custom domain
 if (Meteor.isServer) {
   Meteor.startup(() => {
-    // Debug email configuration
-    console.log("📧 Email Config Debug:");
-    console.log("MAIL_URL set:", !!process.env.MAIL_URL ? "✅ YES" : "❌ NO");
-    if (process.env.MAIL_URL) {
-      // Show MAIL_URL with password hidden
-      const mailUrl = process.env.MAIL_URL.replace(/:([^:@]+)@/, ':***@');
-      console.log("MAIL_URL:", mailUrl);
-    } else {
-      console.log("❌ MAIL_URL not set - email will not work");
+    // Email configuration check
+    if (!process.env.MAIL_URL) {
+      console.warn("⚠️  MAIL_URL not set - email functionality will not work");
     }
   });
 }
