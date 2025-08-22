@@ -9,7 +9,7 @@ const SchoolsSchema = Joi.object({
   _id: Joi.string().optional(),
   name: Joi.string().required().min(2).max(100), // e.g., "Simon Fraser University"
   shortName: Joi.string().required().min(2).max(20), // e.g., "SFU"
-  domain: Joi.string().email().optional(), // e.g., "sfu.ca" for email verification
+  domain: Joi.string().pattern(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).optional(), // e.g., "sfu.ca" for email verification
   code: Joi.string().required().min(2).max(10).uppercase(), // e.g., "SFU", "UBC"
   location: Joi.object({
     city: Joi.string().required(),
