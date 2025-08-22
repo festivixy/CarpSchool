@@ -1,6 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
-import { Rides } from "./Rides";
+import { Rides, RidesSchema } from "./Rides";
 import { getSchoolFilter, validateSchoolAccess, getCurrentUserSchool } from "../accounts/AccountsSchoolUtils";
 
 /**
@@ -24,7 +24,7 @@ Meteor.methods({
     }
 
     // Validate ride data with school
-    const { error, value } = Rides.attachedSchema().validate({
+    const { error, value } = RidesSchema.validate({
       ...rideData,
       schoolId: user.schoolId, // Automatically set to user's school
       driver: userId,
@@ -37,13 +37,13 @@ Meteor.methods({
 
     // Validate that origin and destination belong to the same school
     const { Places } = await import("../places/Places");
-    const origin = await Places.findOneAsync({ 
-      _id: value.origin, 
-      schoolId: user.schoolId 
+    const origin = await Places.findOneAsync({
+      _id: value.origin,
+      schoolId: user.schoolId
     });
-    const destination = await Places.findOneAsync({ 
-      _id: value.destination, 
-      schoolId: user.schoolId 
+    const destination = await Places.findOneAsync({
+      _id: value.destination,
+      schoolId: user.schoolId
     });
 
     if (!origin) {
@@ -62,7 +62,7 @@ Meteor.methods({
    */
   async "rides.join.school"(rideId) {
     check(rideId, String);
-    
+
     const userId = Meteor.userId();
     if (!userId) {
       throw new Meteor.Error("not-logged-in", "Please log in first");
@@ -108,7 +108,7 @@ Meteor.methods({
     }
 
     const schoolFilter = await getSchoolFilter(userId);
-    
+
     const query = {
       ...schoolFilter,
       ...filters,

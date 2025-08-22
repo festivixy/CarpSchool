@@ -1,6 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
-import { Schools } from "./Schools";
+import { Schools, SchoolsSchema } from "./Schools";
 
 Meteor.methods({
   /**
@@ -13,7 +13,7 @@ Meteor.methods({
     }
 
     // Validate school data
-    const { error, value } = Schools.attachedSchema().validate({
+    const { error, value } = SchoolsSchema.validate({
       ...schoolData,
       createdBy: currentUser._id,
       createdAt: new Date(),
@@ -46,16 +46,16 @@ Meteor.methods({
    */
   async "schools.getByCode"(schoolCode) {
     check(schoolCode, String);
-    
-    const school = await Schools.findOneAsync({ 
+
+    const school = await Schools.findOneAsync({
       code: schoolCode.toUpperCase(),
-      isActive: true 
+      isActive: true
     });
-    
+
     if (!school) {
       throw new Meteor.Error("school-not-found", `School with code '${schoolCode}' not found`);
     }
-    
+
     return school;
   },
 
@@ -64,17 +64,17 @@ Meteor.methods({
    */
   async "schools.getByDomain"(email) {
     check(email, String);
-    
+
     const domain = email.split('@')[1]?.toLowerCase();
     if (!domain) {
       throw new Meteor.Error("invalid-email", "Invalid email format");
     }
-    
-    const school = await Schools.findOneAsync({ 
+
+    const school = await Schools.findOneAsync({
       domain: domain,
-      isActive: true 
+      isActive: true
     });
-    
+
     return school; // May be null if no school found
   },
 
@@ -84,12 +84,12 @@ Meteor.methods({
   async "schools.list"() {
     const schools = await Schools.find(
       { isActive: true },
-      { 
+      {
         sort: { name: 1 },
         fields: { name: 1, shortName: 1, code: 1, location: 1 }
       }
     ).fetchAsync();
-    
+
     return schools;
   },
 
@@ -98,7 +98,7 @@ Meteor.methods({
    */
   async "schools.update"(schoolId, updateData) {
     check(schoolId, String);
-    
+
     const currentUser = await Meteor.userAsync();
     if (!currentUser || !currentUser.roles?.includes("admin")) {
       throw new Meteor.Error("access-denied", "Only administrators can update schools");
@@ -110,7 +110,7 @@ Meteor.methods({
     }
 
     // Validate update data
-    const { error, value } = Schools.attachedSchema().validate({
+    const { error, value } = SchoolsSchema.validate({
       ...school,
       ...updateData,
     });
@@ -133,20 +133,20 @@ Meteor.methods({
    */
   async "schools.deactivate"(schoolId) {
     check(schoolId, String);
-    
+
     const currentUser = await Meteor.userAsync();
     if (!currentUser || !currentUser.roles?.includes("admin")) {
       throw new Meteor.Error("access-denied", "Only administrators can deactivate schools");
     }
 
-    const result = await Schools.updateAsync(schoolId, { 
-      $set: { isActive: false } 
+    const result = await Schools.updateAsync(schoolId, {
+      $set: { isActive: false }
     });
-    
+
     if (result === 0) {
       throw new Meteor.Error("school-not-found", "School not found");
     }
-    
+
     return true;
   },
 });

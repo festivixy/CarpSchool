@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
 
@@ -30,13 +31,14 @@ const SchoolsSchema = Joi.object({
   createdBy: Joi.string().required(), // Admin who created the school
 });
 
-Schools.attachSchema(SchoolsSchema);
-
-// Create indexes for performance
+// Create indexes for performance (server-side only)
 if (Meteor.isServer) {
-  Schools.createIndex({ code: 1 }, { unique: true });
-  Schools.createIndex({ domain: 1 }, { sparse: true });
-  Schools.createIndex({ isActive: 1 });
+  Meteor.startup(() => {
+    Schools.createIndex({ code: 1 }, { unique: true });
+    Schools.createIndex({ domain: 1 }, { sparse: true });
+    Schools.createIndex({ isActive: 1 });
+  });
 }
 
+/** Make the collection and schema available to other code. */
 export { Schools, SchoolsSchema };
