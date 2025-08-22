@@ -50,7 +50,6 @@ import "../imports/api/errorReport/ErrorReportMethods";
 import "../imports/api/notifications/NotificationMethods";
 import "../imports/api/notifications/OneSignalMethods";
 import "../imports/api/system/SystemMethods";
-import "../imports/api/accounts/EmailTestMethods";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers";
