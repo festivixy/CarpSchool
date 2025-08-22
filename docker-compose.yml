@@ -5,7 +5,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - ROOT_URL=http://localhost:3000
+      - ROOT_URL=${ROOT_URL:-http://localhost:3000}
       - MONGO_URL=mongodb://mongo:27017/carpool
       - PORT=3000
       # Push Notification Configuration
@@ -243,6 +243,11 @@ services:
       start_period: 30s
 
 # Environment Variables:
+# ROOT_URL - Application URL for email links and client routing
+#           Development: http://localhost:3000 (default)
+#           Production: https://carp.school
+#           Example: ROOT_URL=https://carp.school docker compose up
+#
 # REGION - Sets the region name for data files (default: british-columbia)
 #          Should match your PBF and OSRM data filenames
 #          Example: REGION=alberta docker compose up
@@ -267,6 +272,12 @@ services:
 # ONESIGNAL_API_KEY - OneSignal REST API key
 # VAPID_PUBLIC_KEY - VAPID public key for web push notifications
 # VAPID_PRIVATE_KEY - VAPID private key for web push notifications
+#
+# Email Configuration:
+# MAIL_URL - Complete SMTP URL for email sending
+#           Example: smtp://user%40icloud.com:app-password@smtp.mail.me.com:587
+#           For iCloud+: smtp://main-email%40icloud.com:app-password@smtp.mail.me.com:587
+#           Remember to URL encode @ as %40 in email addresses
 
 networks:
   carpool_network:
