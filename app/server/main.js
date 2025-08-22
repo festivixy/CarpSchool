@@ -13,6 +13,7 @@ import "../imports/api/places/PlacesPublications";
 import "../imports/api/rateLimit/RateLimitPublications";
 import "../imports/api/errorReport/ErrorReportPublications";
 import "../imports/api/notifications/NotificationPublications";
+import "../imports/api/system/SystemPublications";
 
 // Routes
 import "../imports/startup/server/ServerRoutes";
@@ -29,6 +30,7 @@ import "../imports/api/rateLimit/RateLimitMethods";
 import "../imports/api/errorReport/ErrorReportMethods";
 import "../imports/api/notifications/NotificationMethods";
 import "../imports/api/notifications/OneSignalMethods";
+import "../imports/api/system/SystemMethods";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers";
