@@ -747,7 +747,7 @@ export default withTracker(() => {
 
   return {
     profileData: Profiles.findOne({ Owner: userId }),
-    currentUser: Meteor.user() ? Meteor.user().username : "",
+    currentUser: Meteor.user() ? Meteor.user()._id : "",
     ready: subscription.ready(),
   };
 })(MobileOnboarding);

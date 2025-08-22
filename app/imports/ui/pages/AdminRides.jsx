@@ -348,7 +348,7 @@ class MobileAdminRides extends React.Component {
                         <option value="">Select Driver</option>
                         <option value="TBD">TBD</option>
                         {users.map((user) => (
-                          <option key={user._id} value={user.username}>
+                          <option key={user._id} value={user._id}>
                             {this.formatUserOption(user)}
                           </option>
                         ))}
@@ -366,7 +366,7 @@ class MobileAdminRides extends React.Component {
                         <option value="">Select Rider</option>
                         <option value="TBD">TBD</option>
                         {users.map((user) => (
-                          <option key={user._id} value={user.username}>
+                          <option key={user._id} value={user._id}>
                             {this.formatUserOption(user)}
                           </option>
                         ))}

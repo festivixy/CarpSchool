@@ -110,7 +110,7 @@ class MobileMyRides extends React.Component {
 
     const { rides, rideSessions } = this.props;
     const { searchQuery } = this.state;
-    const currentUser = Meteor.user()?.username;
+    const currentUser = Meteor.user()?._id;
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 

@@ -20,21 +20,12 @@ import {
 } from "./RideSessionsSafety";
 
 Meteor.methods({
-  async "rideSessions.create"(rideId, driverId, riderUsernames = []) {
+  async "rideSessions.create"(rideId, driverId, riderIds = []) {
     check(rideId, String);
     check(driverId, String);
-    check(riderUsernames, [String]);
+    check(riderIds, [String]);
 
     const userId = this.userId;
-
-    // Convert rider usernames to user IDs
-    const riderIds = [];
-    for (const username of riderUsernames) {
-      const user = await Meteor.users.findOneAsync({ username });
-      if (user) {
-        riderIds.push(user._id);
-      }
-    }
 
     // Safety validation
     const validation = await canCreateRideSession(userId, rideId, driverId, riderIds);

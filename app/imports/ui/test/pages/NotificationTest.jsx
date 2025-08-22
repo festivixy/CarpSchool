@@ -158,12 +158,12 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       addLog(`  🎯 From: ${testRide.origin} → To: ${testRide.destination}`, 'info');
 
       // Analyze permissions
-      const isDriver = testRide.driver === currentUser?.username;
-      const isRider = testRide.riders?.includes(currentUser?.username);
+      const isDriver = testRide.driver === currentUser?._id;
+      const isRider = testRide.riders?.includes(currentUser?._id);
       const isAdmin = currentUser?.roles?.includes('admin');
 
       addLog(`🔑 Permissions analysis:`, 'info');
-      addLog(`  - Is Driver: ${isDriver} (${testRide.driver} === ${currentUser?.username})`, isDriver ? 'success' : 'info');
+      addLog(`  - Is Driver: ${isDriver} (${testRide.driver} === ${currentUser?._id})`, isDriver ? 'success' : 'info');
       addLog(`  - Is Rider: ${isRider}`, isRider ? 'success' : 'info');
       addLog(`  - Is Admin: ${isAdmin}`, isAdmin ? 'success' : 'info');
 
@@ -178,7 +178,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
 
       // Show who would receive notifications
       const allParticipants = [testRide.driver, ...(testRide.riders || [])];
-      const recipients = allParticipants.filter(username => username !== currentUser?.username);
+      const recipients = allParticipants.filter(userId => userId !== currentUser?._id);
 
       addLog(`📬 Notification recipients:`, 'info');
       addLog(`  - All participants: [${allParticipants.join(', ')}]`, 'info');

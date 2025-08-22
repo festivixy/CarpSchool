@@ -18,7 +18,7 @@ export const canCreateRideSession = async (userId, rideId, driverId, riders = []
   // Check if user is the driver or an admin
   const user = await Meteor.users.findOneAsync(userId);
   const isAdmin = user?.roles?.includes("admin");
-  const isDriver = ride.driver === user?.username || driverId === userId;
+  const isDriver = ride.driver === userId || driverId === userId;
 
   if (!isDriver && !isAdmin) {
     return { allowed: false, reason: "Only the driver or admin can create a ride session" };

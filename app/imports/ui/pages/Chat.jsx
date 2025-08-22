@@ -195,7 +195,7 @@ class MobileChat extends React.Component {
         });
     };
 
-    getCurrentUser = () => Meteor.user()?.username;
+    getCurrentUser = () => Meteor.user()?._id;
 
     getSelectedChat = () =>
         this.props.chats?.find((chat) => chat._id === this.state.selectedChatId);
