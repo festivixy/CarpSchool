@@ -20,7 +20,7 @@ App.setPreference("ShowSplashScreenSpinner", "false");
 // iOS specific preferences
 App.setPreference("Orientation", "portrait", "ios");
 App.setPreference("EnableViewportScale", "true", "ios");
-App.setPreference("MediaPlaybackRequiresUserAction", "false", "ios");
+App.setPreference("MediaTypesRequiringUserActionForPlayback", "none", "ios");
 App.setPreference("AllowInlineMediaPlaybook", "true", "ios");
 App.setPreference("BackupWebStorage", "cloud", "ios");
 App.setPreference("TopActivityIndicator", "gray", "ios");
