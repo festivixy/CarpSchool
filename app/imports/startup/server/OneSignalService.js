@@ -354,33 +354,29 @@ class OneSignalServiceClass {
         createdAt: new Date()
       };
 
-      // Check if this exact token already exists for this user
-      const existingToken = await PushTokens.findOneAsync({
-        token: playerId,
-        userId,
-        platform: 'onesignal'
-      });
-
-      if (existingToken) {
-        // Update existing token to be active and update metadata
-        await PushTokens.updateAsync(
-          { _id: existingToken._id },
-          {
-            $set: {
-              isActive: true,
-              deviceInfo,
-              lastUsedAt: new Date(),
-              updatedAt: new Date()
-            }
+      // Use upsert to handle both insert and update cases
+      // This prevents duplicate key errors on the unique token index
+      const result = await PushTokens.upsertAsync(
+        { token: playerId }, // Find by token only (since token has unique index)
+        {
+          $set: {
+            userId, // Update userId (handles case where same device switches users)
+            platform: 'onesignal',
+            deviceInfo: {
+              ...deviceInfo,
+              oneSignalPlayerId: playerId
+            },
+            isActive: true,
+            lastUsedAt: new Date(),
+            updatedAt: new Date()
+          },
+          $setOnInsert: {
+            createdAt: new Date()
           }
-        );
+        }
+      );
 
-        return existingToken._id;
-      } else {
-        // Insert new token (keep all tokens active for multi-device support)
-        const tokenId = await PushTokens.insertAsync(tokenData);
-        return tokenId;
-      }
+      return result.insertedId || result.upsertedId;
 
     } catch (error) {
       console.error('[OneSignal] Player registration failed:', error);
