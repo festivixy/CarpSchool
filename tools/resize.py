@@ -157,3 +157,28 @@ for source_icon, target_path in public_icon_mapping.items():
             print(f"Failed to copy {source_icon} -> {target}: {e}")
 
 print(f"\n✅ Updated {len([t for targets in public_icon_mapping.values() for t in (targets if isinstance(targets, list) else [targets])])} public PWA icons")
+
+# Generate favicon.ico (16x16)
+print("\n# Favicon Generation")
+try:
+    # Generate 16x16 favicon from source
+    favicon_source = Image.open("resources/maxres.png")
+    favicon_source = favicon_source.convert("RGBA")
+
+    # Create white background for favicon
+    favicon_bg = Image.new("RGBA", (16, 16), (255, 255, 255, 255))
+
+    # Resize logo to fit 16x16 with some padding (12x12 actual logo)
+    favicon_logo = favicon_source.resize((12, 12), Image.LANCZOS)
+
+    # Center the 12x12 logo on 16x16 background
+    favicon_bg.paste(favicon_logo, (2, 2), favicon_logo)
+
+    # Save as ICO format
+    favicon_bg.save("public/favicon.ico", format="ICO", sizes=[(16, 16)])
+    print(f"Generated favicon.ico (16x16)")
+
+except Exception as e:
+    print(f"Failed to generate favicon.ico: {e}")
+
+print(f"\n🎯 Complete asset pipeline updated: icons, splash screens, PWA icons, and favicon!")
