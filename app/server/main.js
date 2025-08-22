@@ -11,9 +11,9 @@ if (Meteor.isServer) {
     console.log("Password length:", (process.env.SMTP_PASSWORD || "default-password").length);
     console.log("Password set:", !!process.env.SMTP_PASSWORD ? "✅ YES" : "❌ NO");
 
-    // iCloud SMTP Configuration (Apple's official settings: port 587 with STARTTLS)
+    // iCloud SMTP Configuration (Apple's official settings: port 587 with TLS)
     process.env.MAIL_URL = process.env.MAIL_URL ||
-      `smtp://${encodeURIComponent(process.env.SMTP_USERNAME || "contact@carp.school")}:${encodeURIComponent(process.env.SMTP_PASSWORD || "your-app-specific-password")}@${process.env.SMTP_SERVER || "smtp.mail.me.com"}:587`;
+      `smtps://${encodeURIComponent(process.env.SMTP_USERNAME || "contact@carp.school")}:${encodeURIComponent(process.env.SMTP_PASSWORD || "your-app-specific-password")}@${process.env.SMTP_SERVER || "smtp.mail.me.com"}:587`;
 
     console.log("📧 Final MAIL_URL configured (password hidden)");
   });
