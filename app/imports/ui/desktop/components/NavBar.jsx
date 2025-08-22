@@ -36,6 +36,7 @@ class NavBar extends React.Component {
       mobileMenuOpen: false,
       userMenuOpen: false,
       adminMenuOpen: false,
+      systemMenuOpen: false,
     };
   }
 
@@ -60,6 +61,7 @@ class NavBar extends React.Component {
       mobileMenuOpen: !prevState.mobileMenuOpen,
       userMenuOpen: false,
       adminMenuOpen: false,
+      systemMenuOpen: false,
     }));
   };
 
@@ -67,6 +69,7 @@ class NavBar extends React.Component {
     this.setState((prevState) => ({
       userMenuOpen: !prevState.userMenuOpen,
       adminMenuOpen: false,
+      systemMenuOpen: false,
     }));
   };
 
@@ -74,6 +77,15 @@ class NavBar extends React.Component {
     this.setState((prevState) => ({
       adminMenuOpen: !prevState.adminMenuOpen,
       userMenuOpen: false,
+      systemMenuOpen: false,
+    }));
+  };
+
+  toggleSystemMenu = () => {
+    this.setState((prevState) => ({
+      systemMenuOpen: !prevState.systemMenuOpen,
+      userMenuOpen: false,
+      adminMenuOpen: false,
     }));
   };
 
@@ -82,6 +94,7 @@ class NavBar extends React.Component {
       mobileMenuOpen: false,
       userMenuOpen: false,
       adminMenuOpen: false,
+      systemMenuOpen: false,
     });
   };
 
@@ -178,6 +191,24 @@ class NavBar extends React.Component {
                       </DropdownItem>
                       <DropdownItem to="/_test" onClick={this.closeAllMenus}>
                         Components Test
+                      </DropdownItem>
+                    </DropdownMenu>
+                  )}
+                </Dropdown>
+              )}
+
+              {this.props.isSystem && (
+                <Dropdown>
+                  <DropdownTrigger onClick={this.toggleSystemMenu}>
+                    System ▼
+                  </DropdownTrigger>
+                  {this.state.systemMenuOpen && (
+                    <DropdownMenu>
+                      <DropdownItem
+                        to="/system"
+                        onClick={this.closeAllMenus}
+                      >
+                        🛠️ System Content
                       </DropdownItem>
                     </DropdownMenu>
                   )}
@@ -290,6 +321,15 @@ class NavBar extends React.Component {
                     </MobileSection>
                   )}
 
+                  {this.props.isSystem && (
+                    <MobileSection>
+                      <MobileSectionTitle>System</MobileSectionTitle>
+                      <MobileItem to="/system" onClick={this.closeAllMenus}>
+                        🛠️ System Content
+                      </MobileItem>
+                    </MobileSection>
+                  )}
+
                   <MobileSection>
                     <MobileSectionTitle>Account</MobileSectionTitle>
                     <MobileItem to="/chat" onClick={this.closeAllMenus}>
@@ -346,6 +386,9 @@ const MobileNavBarContainer = withTracker(() => ({
   currentId: Meteor.user() ? Meteor.user()._id : "",
   isAdmin: Meteor.user()
     ? Meteor.user().roles && Meteor.user().roles.includes("admin")
+    : false,
+  isSystem: Meteor.user()
+    ? Meteor.user().roles && Meteor.user().roles.includes("system")
     : false,
   isLoggedInAndEmailVerified: Meteor.user()
     ? Meteor.user().emails &&
