@@ -67,10 +67,16 @@ Accounts.onCreateUser((options, user) => {
   // Schedule verification email to be sent after user creation
   Meteor.defer(() => {
     try {
-      Accounts.sendVerificationEmail(newUser._id);
-      console.log(`📧 Verification email sent to ${newUser.emails[0].address}`);
+      // Only send verification email if email is configured
+      if (process.env.MAIL_URL) {
+        Accounts.sendVerificationEmail(newUser._id);
+        console.log(`📧 Verification email sent to ${newUser.emails[0].address}`);
+      } else {
+        console.warn(`⚠️  MAIL_URL not configured - skipping verification email for ${newUser.emails[0].address}`);
+      }
     } catch (error) {
-      console.error(`❌ Failed to send verification email to ${newUser.emails[0].address}:`, error);
+      // Log error but don't crash the server
+      console.error(`❌ Failed to send verification email to ${newUser.emails[0]?.address || 'unknown'}:`, error.message || error);
     }
   });
 
