@@ -4,9 +4,9 @@ import { Meteor } from "meteor/meteor";
 // Configure SMTP for iCloud+ custom domain
 if (Meteor.isServer) {
   Meteor.startup(() => {
-    // iCloud SMTP Configuration
+    // iCloud SMTP Configuration (uses STARTTLS on port 587)
     process.env.MAIL_URL = process.env.MAIL_URL ||
-      `smtps://${encodeURIComponent(process.env.SMTP_USERNAME || "contact@carp.school")}:${encodeURIComponent(process.env.SMTP_PASSWORD || "your-app-specific-password")}@${process.env.SMTP_SERVER || "smtp.mail.me.com"}:587`;
+      `smtp://${encodeURIComponent(process.env.SMTP_USERNAME || "contact@carp.school")}:${encodeURIComponent(process.env.SMTP_PASSWORD || "your-app-specific-password")}@${process.env.SMTP_SERVER || "smtp.mail.me.com"}:587`;
   });
 }
 
