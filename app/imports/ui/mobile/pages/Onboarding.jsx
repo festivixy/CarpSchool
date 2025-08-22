@@ -129,7 +129,7 @@ class MobileOnboarding extends React.Component {
       case 1:
         return this.state.name.trim().length >= 2;
       case 2:
-        return this.state.location.trim().length >= 2;
+        return this.state.selectedSchoolId.trim().length > 0;
       case 3:
         return true; // User type selection is optional
       case 4:
