@@ -19,7 +19,7 @@ Meteor.methods({
       await Email.sendAsync({
         to: to,
         from: "CarpSchool Test <no-reply@carp.school>",
-        subject: "CarpSchool Email Test",
+        subject: "🚗 CarpSchool Email Test - SUCCESS!",
         html: `
           <h2>🚗 CarpSchool Email Test</h2>
           <p>This is a test email from your CarpSchool application!</p>
