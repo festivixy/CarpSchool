@@ -66,10 +66,10 @@ Accounts.onCreateUser((options, user) => {
 
   // Send verification email after user is saved to database
   const userEmail = newUser.emails[0].address;
-  Meteor.setTimeout(() => {
+  Meteor.setTimeout(async () => {
     try {
       // Find the newly created user by email to get the proper _id
-      const savedUser = Meteor.users.findOne({ "emails.address": userEmail });
+      const savedUser = await Meteor.users.findOneAsync({ "emails.address": userEmail });
       if (savedUser && process.env.MAIL_URL) {
         Accounts.sendVerificationEmail(savedUser._id);
         console.log(`📧 Verification email sent to ${userEmail}`);
