@@ -7,6 +7,7 @@ const Rides = new Mongo.Collection("Rides");
 
 const RidesSchema = Joi.object({
   _id: Joi.string().optional(),
+  schoolId: Joi.string().required(), // School this ride belongs to
   driver: Joi.string().required(), // User ID of the driver
   riders: Joi.array().items(Joi.string()).default([]), // Array of rider user IDs
   origin: Joi.string().required(), // Now validated against dynamic places collection

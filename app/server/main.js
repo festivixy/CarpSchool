@@ -27,6 +27,7 @@ import "../imports/api/rateLimit/RateLimitPublications";
 import "../imports/api/errorReport/ErrorReportPublications";
 import "../imports/api/notifications/NotificationPublications";
 import "../imports/api/system/SystemPublications";
+import "../imports/api/schools/SchoolsPublications";
 
 // Routes
 import "../imports/startup/server/ServerRoutes";
@@ -44,9 +45,11 @@ import "../imports/api/errorReport/ErrorReportMethods";
 import "../imports/api/notifications/NotificationMethods";
 import "../imports/api/notifications/OneSignalMethods";
 import "../imports/api/system/SystemMethods";
+import "../imports/api/schools/SchoolsMethods";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers";
+import "../imports/api/accounts/AccountsSchoolHandlers";
 import "../imports/api/accounts/AccountsConfig";
 
 // Push Notifications

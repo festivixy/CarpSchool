@@ -7,6 +7,7 @@ const Places = new Mongo.Collection("Places");
 
 const PlacesSchema = Joi.object({
   _id: Joi.string().optional(),
+  schoolId: Joi.string().required().label("School ID"), // School this place belongs to
   text: createSafeStringSchema({
     pattern: 'location',
     min: 1,
