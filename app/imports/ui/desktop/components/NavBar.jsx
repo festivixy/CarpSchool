@@ -377,6 +377,7 @@ NavBar.propTypes = {
   currentUser: PropTypes.string,
   currentId: PropTypes.string,
   isAdmin: PropTypes.bool,
+  isSystem: PropTypes.bool,
   isLoggedInAndEmailVerified: PropTypes.bool,
 };
 
