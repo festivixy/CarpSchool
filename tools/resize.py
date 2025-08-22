@@ -119,3 +119,41 @@ for icon, size in data.items():
     newImage.save(f"resources/splash/{icon}", "PNG")
     print(f"Saved {icon} with size {size[0]}x{size[1]} (logo: {logo_size}x{logo_size})")
     print(f"  '{icon}': 'resources/splash/{icon}', // {size[0]}x{size[1]} pixels")
+
+# Public PWA Icons - Copy from resources/icons to public/ directory
+
+public_icon_mapping = {
+    # Source file from resources/icons -> Target file in public/
+    "app_store.png": "public/icon-1024x1024.png",
+    "iphone_3x.png": ["public/icon-180x180.png", "public/apple-touch-icon.png"],
+    "ipad_2x.png": "public/icon-152x152.png",
+    "android_xxxhdpi.png": "public/icon-192x192.png",
+    "iphone_2x.png": "public/icon-120x120.png",
+    "android_xxhdpi.png": "public/icon-144x144.png",
+    "android_xhdpi.png": "public/icon-96x96.png",
+    "ios_spotlight_2x.png": "public/icon-80x80.png",
+    "ipad_app_legacy.png": "public/icon-72x72.png",
+    "ios_settings_2x.png": "public/icon-58x58.png",
+    "iphone_legacy.png": "public/icon-57x57.png",
+    "android_mdpi.png": "public/icon-48x48.png",
+    "ios_spotlight.png": "public/icon-40x40.png",
+    "ios_settings.png": "public/icon-29x29.png"
+}
+
+print("\n# Public PWA Icons")
+for source_icon, target_path in public_icon_mapping.items():
+    source_path = f"resources/icons/{source_icon}"
+
+    # Handle multiple target files (like apple-touch-icon.png)
+    target_paths = target_path if isinstance(target_path, list) else [target_path]
+
+    for target in target_paths:
+        try:
+            # Copy file using PIL to ensure consistency
+            img = Image.open(source_path)
+            img.save(target, "PNG")
+            print(f"Copied {source_icon} -> {target}")
+        except Exception as e:
+            print(f"Failed to copy {source_icon} -> {target}: {e}")
+
+print(f"\n✅ Updated {len([t for targets in public_icon_mapping.values() for t in (targets if isinstance(targets, list) else [targets])])} public PWA icons")
