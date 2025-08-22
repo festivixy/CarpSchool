@@ -43,7 +43,7 @@ maxres = maxres.convert("RGBA")
 for icon, size in data.items():
     print(f"Processing {icon} with size {size}")
     resized = maxres.resize(
-        (min(size[0], size[1]), min(size[0], size[1])), Image.ANTIALIAS
+        (min(size[0], size[1]), min(size[0], size[1])), Image.LANCZOS
     )
     newImage = Image.new("RGBA", size, (255, 255, 255, 0))
     # paste the resized image onto the new image in the center
@@ -54,7 +54,7 @@ for icon, size in data.items():
     print(f"Saved {icon} with size {size[0]}x{size[1]}")
     print(f"  '{icon}': 'resources/icons/{icon}', // {size[0]}x{size[1]} pixels")
 
-# Splash
+# Splash - Handle splash screens differently than icons
 
 data = {
     "ios_universal.png": [2732, 2732],
@@ -64,17 +64,29 @@ data = {
 maxres = Image.open("resources/maxres_splash.png")
 maxres = maxres.convert("RGBA")
 
+# Splash screen configuration
+splash_logo_scale = 0.25  # Logo should be 25% of screen size
+background_color = (255, 255, 255, 255)  # White background (RGBA)
+
 for icon, size in data.items():
-    resized = maxres.resize(
-        (min(size[0], size[1]), min(size[0], size[1])), Image.ANTIALIAS
-    )
-    newImage = Image.new("RGBA", size, (255, 255, 255, 0))
-    # paste the resized image onto the new image in the center
-    newImage.paste(
-        resized, ((size[0] - resized.size[0]) // 2, (size[1] - resized.size[1]) // 2)
-    )
+    # Calculate logo size (25% of the smallest dimension)
+    logo_size = int(min(size[0], size[1]) * splash_logo_scale)
+
+    # Resize logo to appropriate size for splash screen
+    resized_logo = maxres.resize((logo_size, logo_size), Image.LANCZOS)
+
+    # Create background with solid color
+    newImage = Image.new("RGBA", size, background_color)
+
+    # Center the logo on the background
+    paste_x = (size[0] - logo_size) // 2
+    paste_y = (size[1] - logo_size) // 2
+
+    # Paste logo with transparency support
+    newImage.paste(resized_logo, (paste_x, paste_y), resized_logo)
+
     newImage.save(f"resources/splash/{icon}", "PNG")
-    print(f"Saved {icon} with size {size[0]}x{size[1]}")
+    print(f"Saved {icon} with size {size[0]}x{size[1]} (logo: {logo_size}x{logo_size})")
     print(f"  '{icon}': 'resources/splash/{icon}', // {size[0]}x{size[1]} pixels")
 
 data = {
@@ -84,15 +96,26 @@ data = {
 maxres = Image.open("resources/maxres_splash_dark.png")
 maxres = maxres.convert("RGBA")
 
+# Dark mode splash screen configuration
+dark_background_color = (0, 0, 0, 255)  # Black background for dark mode (RGBA)
+
 for icon, size in data.items():
-    resized = maxres.resize(
-        (min(size[0], size[1]), min(size[0], size[1])), Image.ANTIALIAS
-    )
-    newImage = Image.new("RGBA", size, (255, 255, 255, 0))
-    # paste the resized image onto the new image in the center
-    newImage.paste(
-        resized, ((size[0] - resized.size[0]) // 2, (size[1] - resized.size[1]) // 2)
-    )
+    # Calculate logo size (25% of the smallest dimension)
+    logo_size = int(min(size[0], size[1]) * splash_logo_scale)
+
+    # Resize logo to appropriate size for splash screen
+    resized_logo = maxres.resize((logo_size, logo_size), Image.LANCZOS)
+
+    # Create dark background
+    newImage = Image.new("RGBA", size, dark_background_color)
+
+    # Center the logo on the background
+    paste_x = (size[0] - logo_size) // 2
+    paste_y = (size[1] - logo_size) // 2
+
+    # Paste logo with transparency support
+    newImage.paste(resized_logo, (paste_x, paste_y), resized_logo)
+
     newImage.save(f"resources/splash/{icon}", "PNG")
-    print(f"Saved {icon} with size {size[0]}x{size[1]}")
+    print(f"Saved {icon} with size {size[0]}x{size[1]} (logo: {logo_size}x{logo_size})")
     print(f"  '{icon}': 'resources/splash/{icon}', // {size[0]}x{size[1]} pixels")
