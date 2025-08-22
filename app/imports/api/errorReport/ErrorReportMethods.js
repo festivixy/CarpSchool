@@ -218,7 +218,7 @@ Meteor.methods({
 
     // Add update timestamp
     sanitizedUpdates.updatedAt = new Date();
-    sanitizedUpdates.updatedBy = currentUser.username;
+    sanitizedUpdates.updatedBy = currentUser._id;
 
     const result = await ErrorReports.updateAsync(reportId, { $set: sanitizedUpdates });
 

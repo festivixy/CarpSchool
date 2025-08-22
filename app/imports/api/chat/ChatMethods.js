@@ -52,7 +52,7 @@ Meteor.methods({
 
     // Get current user
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser || !currentUser.username) {
+    if (!currentUser) {
       throw new Meteor.Error("user-error", "Unable to find current user.");
     }
 
@@ -63,8 +63,8 @@ Meteor.methods({
     }
 
     // Check if user is part of this ride (driver or rider)
-    const isDriver = ride.driver === currentUser.username;
-    const isRider = ride.riders && ride.riders.includes(currentUser.username);
+    const isDriver = ride.driver === currentUser._id;
+    const isRider = ride.riders && ride.riders.includes(currentUser._id);
 
     if (!isDriver && !isRider) {
       throw new Meteor.Error(
@@ -92,7 +92,7 @@ Meteor.methods({
       Messages: [
         {
           Sender: "System",
-          Content: `Ride chat created. Members: ${participants.join(", ")}`,
+          Content: `Ride chat created. Members: ${participants.length}`,
           Timestamp: new Date(),
         },
       ],
@@ -135,7 +135,7 @@ Meteor.methods({
     }
 
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser || !currentUser.username) {
+    if (!currentUser) {
       throw new Meteor.Error("user-error", "Unable to find current user.");
     }
 
@@ -145,7 +145,7 @@ Meteor.methods({
     }
 
     // Check if user is a participant
-    if (!chat.Participants.includes(currentUser.username)) {
+    if (!chat.Participants.includes(currentUser._id)) {
       throw new Meteor.Error(
         "not-authorized",
         "You are not a participant in this chat.",
@@ -162,7 +162,7 @@ Meteor.methods({
 
     // Add message to chat
     const message = {
-      Sender: currentUser.username,
+      Sender: currentUser._id,
       Content: sanitizedContent,
       Timestamp: new Date(),
     };

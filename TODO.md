@@ -1,5 +1,74 @@
 # 🔧 **Username to User ID Conversion Plan**
 
+## ✅ **COMPLETED ITEMS (Latest Session)**
+
+### **🚗 Ride System - DONE**
+- ✅ **`imports/api/ride/Rides.js`** - Updated schema comments for user IDs
+- ✅ **`imports/api/ride/RideMethods.js`** - Converted all methods to use user._id
+- ✅ **`imports/api/ride/RidePublications.js`** - Updated to filter by user ID
+- ✅ **`imports/api/ride/RideValidation.js`** - Updated validation functions for user IDs
+- ✅ **`imports/ui/components/AddRides.jsx`** - Updated driver assignment to user._id
+- ✅ **`imports/ui/mobile/ios/pages/CreateRide.jsx`** - Updated driver assignment to user._id
+
+### **💬 Chat System - DONE**
+- ✅ **`imports/api/chat/Chat.js`** - Updated schema comments for user IDs
+- ✅ **`imports/api/chat/ChatMethods.js`** - Converted participant checks and sender to use user._id
+- ✅ **`imports/api/chat/ChatPublications.js`** - Updated to filter by user ID for participants
+
+### **📍 Places System - DONE**
+- ✅ **`imports/api/places/PlacesPublications.js`** - Updated ride filtering to use user IDs
+
+### **🎯 UI Components - DONE**
+- ✅ **`imports/ui/components/Ride.jsx`** - Updated driver checks and rider verification to use user IDs
+
+### **📊 Error Reporting - DONE**
+- ✅ **`imports/api/errorReport/ErrorReportMethods.js`** - Updated updatedBy field to use user ID
+
+---
+
+# 🎓 **School Registration Simplification Plan**
+
+## **Current Problems:**
+- **Complex onboarding** with 4 steps + image uploads + captcha per image
+- **No .edu email validation** (just placeholder text)
+- **Generic "rideshare" language** instead of school-focused
+- **Too many optional fields** confusing for students
+
+## **Simplified Registration Steps:**
+
+### **Step 1: School Email Verification** 🎓
+- **Email field**: Enforce `.edu` domain validation
+- **Institution detection**: Auto-detect school from email domain
+- **Simple password**: Standard password requirements
+- **Single captcha**: One verification for entire signup
+
+### **Step 2: Student Profile** 👤
+- **Full name**: Required (matches student ID)
+- **School year**: Dropdown (Freshman, Sophomore, Junior, Senior, Graduate)
+- **Major/Department**: Text field (optional)
+- **Campus location**: Dropdown of common campus areas
+
+### **Step 3: Ride Preferences** 🚗
+- **I am a**: Driver / Rider / Both (simple radio buttons)
+- **Contact preference**: Phone number OR preferred contact method
+- **Profile photo**: Optional, single upload (no vehicle photo initially)
+
+### **Benefits:**
+- ✅ **3 steps instead of 4** with clearer school focus
+- ✅ **Single captcha** instead of multiple
+- ✅ **School validation** via .edu email
+- ✅ **Student-specific language** throughout
+- ✅ **Faster onboarding** for student users
+
+## **Implementation Priority:**
+1. **Add .edu email validation** to signup process
+2. **Simplify onboarding** to 3 focused steps
+3. **Add school/university detection** from email domains
+4. **Update copy** to be student/school focused
+5. **Remove complex image upload flow** from initial registration
+
+---
+
 ## **Files and Features Requiring Conversion**
 
 ### **🚗 Ride System**

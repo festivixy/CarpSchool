@@ -192,7 +192,7 @@ class Ride extends React.Component {
     document.body.removeChild(textArea);
   };
 
-  isCurrentUserDriver = () => Meteor.user() && this.props.ride.driver === Meteor.user().username;
+  isCurrentUserDriver = () => Meteor.user() && this.props.ride.driver === Meteor.user()._id;
 
   getPlaceName = (placeId) => {
     const place = this.props.places.find((p) => p._id === placeId);
@@ -218,7 +218,7 @@ class Ride extends React.Component {
         !this.isCurrentUserDriver() &&
         riders.length < seats &&
         currentUser &&
-        !riders.includes(currentUser.username)
+        !riders.includes(currentUser._id)
       );
     }
     // Handle legacy schema
@@ -237,11 +237,11 @@ class Ride extends React.Component {
 
     // Handle new schema - check if user is a rider
     if (riders !== undefined) {
-      return riders.includes(currentUser.username);
+      return riders.includes(currentUser._id);
     }
 
     // Handle legacy schema - check if user is the rider
-    return rider === currentUser.username;
+    return rider === currentUser._id;
   };
 
   canStartRide = () => {
@@ -766,8 +766,8 @@ class Ride extends React.Component {
             {/* Only show status if current user is not a rider */}
             {!(
               Meteor.user() &&
-              ((ride.riders && ride.riders.includes(Meteor.user().username)) ||
-                ride.rider === Meteor.user().username)
+              ((ride.riders && ride.riders.includes(Meteor.user()._id)) ||
+                ride.rider === Meteor.user()._id)
             ) && (
               <Status>
                 {/* Handle new schema */}

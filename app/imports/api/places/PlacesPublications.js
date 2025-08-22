@@ -21,11 +21,9 @@ Meteor.publish("places.mine", async function publishMyPlaces() {
     return;
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
-
   // Find rides where user is driver or rider
   const userRides = await Rides.find({
-    $or: [{ driver: currentUser.username }, { riders: currentUser.username }],
+    $or: [{ driver: this.userId }, { riders: this.userId }],
   }).fetchAsync();
 
   // Extract unique place IDs from origin and destination
@@ -104,7 +102,7 @@ Meteor.publish("places.options", async function publishPlaceOptions() {
   } else {
     // Find rides where user is driver or rider
     const userRides = await Rides.find({
-      $or: [{ driver: currentUser.username }, { riders: currentUser.username }],
+      $or: [{ driver: this.userId }, { riders: this.userId }],
     }).fetchAsync();
 
     // Extract unique place IDs from origin and destination
