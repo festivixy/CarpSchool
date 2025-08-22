@@ -81,7 +81,7 @@ Meteor.methods({
       throw new Meteor.Error("not-found", "Ride not found");
     }
 
-    if (ride.driver !== user.username) {
+    if (ride.driver !== user._id) {
       throw new Meteor.Error(
         "access-denied",
         "You can only generate share codes for rides you are driving",
@@ -184,7 +184,7 @@ Meteor.methods({
 
     // Add user to riders array
     await Rides.updateAsync(ride._id, {
-      $push: { riders: user.username },
+      $push: { riders: user._id },
     });
 
     // If ride is now full, remove the share code
@@ -213,7 +213,7 @@ Meteor.methods({
 
     // Add user to riders array
     await Rides.updateAsync(rideId, {
-      $push: { riders: user.username },
+      $push: { riders: user._id },
     });
 
     return { message: "Successfully joined ride!" };
@@ -236,28 +236,28 @@ Meteor.methods({
     }
 
     // Check if user is a rider on this trip
-    if (!ride.riders.includes(user.username)) {
+    if (!ride.riders.includes(user._id)) {
       throw new Meteor.Error("not-a-rider", "You are not a rider on this trip");
     }
 
     // Remove user from riders array
     await Rides.updateAsync(rideId, {
-      $pull: { riders: user.username },
+      $pull: { riders: user._id },
     });
 
     return { message: "Successfully left ride!" };
   },
 
-  async "rides.removeRider"(rideId, riderUsername) {
+  async "rides.removeRider"(rideId, riderUserId) {
     check(rideId, String);
-    check(riderUsername, String);
+    check(riderUserId, String);
 
     const user = await Meteor.userAsync();
     const ride = await Rides.findOneAsync(rideId);
 
     // Use centralized validation
     const { validateUserCanRemoveRider } = require("./RideValidation");
-    const validation = validateUserCanRemoveRider(ride, user, riderUsername);
+    const validation = validateUserCanRemoveRider(ride, user, riderUserId);
 
     if (!validation.isValid) {
       throw new Meteor.Error("validation-error", validation.error);
@@ -265,7 +265,7 @@ Meteor.methods({
 
     // Remove rider from the ride
     await Rides.updateAsync(rideId, {
-      $pull: { riders: riderUsername },
+      $pull: { riders: riderUserId },
     });
 
     return { message: "Rider removed successfully!" };
@@ -283,8 +283,8 @@ Meteor.methods({
     // Find rides where user is driver or rider
     const rides = await Rides.find({
       $or: [
-        { driver: user.username },
-        { riders: user.username }
+        { driver: user._id },
+        { riders: user._id }
       ]
     }, {
       sort: { date: -1 },

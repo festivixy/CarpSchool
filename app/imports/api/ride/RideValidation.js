@@ -1,6 +1,6 @@
 /**
  * Ride-specific validation utilities for runtime operations
- * 
+ *
  * These functions provide reusable validation logic for ride operations
  * that need to be performed at runtime (beyond schema validation).
  */
@@ -24,19 +24,19 @@ export const validateUserCanJoinRide = (ride, user) => {
 
   // Check if ride is full
   if (ride.riders.length >= ride.seats) {
-    return { 
-      isValid: false, 
-      error: `This ride is full (${ride.riders.length}/${ride.seats} seats taken)` 
+    return {
+      isValid: false,
+      error: `This ride is full (${ride.riders.length}/${ride.seats} seats taken)`
     };
   }
 
   // Check if user is already a rider
-  if (ride.riders.includes(user.username)) {
+  if (ride.riders.includes(user._id)) {
     return { isValid: false, error: "You are already a rider on this trip" };
   }
 
   // Check if user is trying to join their own ride
-  if (ride.driver === user.username) {
+  if (ride.driver === user._id) {
     return { isValid: false, error: "You cannot join your own ride as a rider" };
   }
 
@@ -44,11 +44,11 @@ export const validateUserCanJoinRide = (ride, user) => {
   const now = new Date();
   const rideDate = new Date(ride.date);
   const bufferTime = 30 * 60 * 1000; // 30 minutes buffer
-  
+
   if (rideDate.getTime() < (now.getTime() - bufferTime)) {
-    return { 
-      isValid: false, 
-      error: "You cannot join rides that have already started or passed" 
+    return {
+      isValid: false,
+      error: "You cannot join rides that have already started or passed"
     };
   }
 
@@ -59,7 +59,7 @@ export const validateUserCanJoinRide = (ride, user) => {
  * Validates if a user can be removed from a ride
  * @param {Object} ride - The ride document
  * @param {Object} currentUser - The user performing the removal
- * @param {string} riderToRemove - Username of rider to remove
+ * @param {string} riderToRemove - User ID of rider to remove
  * @returns {Object} - { isValid: boolean, error: string|null }
  */
 export const validateUserCanRemoveRider = (ride, currentUser, riderToRemove) => {
@@ -80,12 +80,12 @@ export const validateUserCanRemoveRider = (ride, currentUser, riderToRemove) => 
 
   // Check permissions - only driver or admin can remove riders
   const isAdmin = currentUser.roles && currentUser.roles.includes("admin");
-  const isDriver = ride.driver === currentUser.username;
+  const isDriver = ride.driver === currentUser._id;
 
   if (!isDriver && !isAdmin) {
-    return { 
-      isValid: false, 
-      error: "You can only remove riders from your own rides" 
+    return {
+      isValid: false,
+      error: "You can only remove riders from your own rides"
     };
   }
 
@@ -99,7 +99,7 @@ export const validateUserCanRemoveRider = (ride, currentUser, riderToRemove) => 
  */
 export const validateRideCapacity = (ride) => {
   const warnings = [];
-  
+
   // Check if ride exists
   if (!ride) {
     return { isValid: false, error: "Ride data is missing", warnings: [] };
@@ -107,8 +107,8 @@ export const validateRideCapacity = (ride) => {
 
   // Check basic capacity constraint
   if (ride.riders.length > ride.seats) {
-    return { 
-      isValid: false, 
+    return {
+      isValid: false,
       error: `Ride is overbooked: ${ride.riders.length} riders for ${ride.seats} seats`,
       warnings: []
     };
@@ -151,14 +151,14 @@ export const validateRideCapacity = (ride) => {
  */
 export const validateRideTiming = (ride, isUpdate = false) => {
   const warnings = [];
-  
+
   if (!ride || !ride.date) {
     return { isValid: false, error: "Ride date is required", warnings: [] };
   }
 
   const now = new Date();
   const rideDate = new Date(ride.date);
-  
+
   // For new rides, don't allow past dates (with 5-minute buffer)
   if (!isUpdate) {
     const bufferTime = 5 * 60 * 1000; // 5 minutes
@@ -170,10 +170,10 @@ export const validateRideTiming = (ride, isUpdate = false) => {
       };
     }
   }
-  
+
   // Add warnings for timing concerns
   const hoursDiff = (rideDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-  
+
   if (hoursDiff < 2) {
     warnings.push("Ride is scheduled within 2 hours");
   } else if (hoursDiff > 24 * 30) { // 30 days
