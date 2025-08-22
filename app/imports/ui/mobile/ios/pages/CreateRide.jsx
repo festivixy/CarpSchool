@@ -238,7 +238,7 @@ class CreateRide extends React.Component {
     this.setState({ isSubmitting: true, error: "" });
 
     const rideData = {
-      driver: Meteor.user().username,
+      driver: Meteor.user()._id,
       riders: [], // Start with empty riders array
       origin: origin.trim(),
       destination: destination.trim(),
