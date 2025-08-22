@@ -32,6 +32,7 @@ import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
 import MobilePlaceManager from "../mobile/pages/PlaceManager";
 import MobileAdminPlaceManager from "../pages/AdminPlaceManager";
+import SystemAdmin from "../pages/System";
 import MobileRideInfo from "../mobile/pages/RideInfo";
 import RideHistory from "../mobile/pages/RideHistory";
 import ProtectedRoutes, {
@@ -141,6 +142,11 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/admin/error-report/:id"
                 component={AdminErrorReportDetail}
+              />
+              <ProtectedRouteRequireAdmin
+                exact
+                path="/system"
+                component={SystemAdmin}
               />
 
               {/* Redirect /admin to 404 */}

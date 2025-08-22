@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
+import { withTracker } from "meteor/react-meteor-data";
+import { Meteor } from "meteor/meteor";
 import ReactMarkdown from "react-markdown";
 import {
   Container,
@@ -11,6 +13,8 @@ import {
 import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
 import { HeaderWithBack } from "../styles/Credits";
 import BackButton from "../components/BackButton";
+import { SystemContent } from "../../api/system/System";
+import LoadingPage from "../../components/LoadingPage";
 
 const creditsContent = `
 ## Development Team
@@ -47,9 +51,15 @@ For questions about this application or to report issues, please contact lz at k
 `;
 
 /**
- * Credits page with markdown content
+ * Credits page with markdown content from database
  */
-function MobileCredits({ history: _history }) {
+function MobileCredits({ history: _history, creditsData, ready }) {
+  const content = creditsData?.content || creditsContent;
+
+  if (!ready) {
+    return <LoadingPage message="Loading Credits..." />;
+  }
+
   return (
     <Container style={{ minHeight: "100vh", paddingBottom: "40px" }}>
       <MobileOnly>
@@ -64,7 +74,7 @@ function MobileCredits({ history: _history }) {
         </SectionHeader>
       </DesktopOnly>
       <Content>
-        <ReactMarkdown>{creditsContent}</ReactMarkdown>
+        <ReactMarkdown>{content}</ReactMarkdown>
       </Content>
     </Container>
   );
@@ -74,6 +84,18 @@ MobileCredits.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
   }).isRequired,
+  creditsData: PropTypes.object,
+  ready: PropTypes.bool.isRequired,
 };
 
-export default withRouter(MobileCredits);
+export default withRouter(
+  withTracker(() => {
+    const subscription = Meteor.subscribe("systemContent.byType", "credits");
+    const creditsData = SystemContent.findOne({ type: "credits" });
+
+    return {
+      creditsData,
+      ready: subscription.ready(),
+    };
+  })(MobileCredits)
+);
