@@ -51,6 +51,32 @@ Accounts.validateNewUser(async (user) => {
   return true;
 });
 
+// Automatically send verification email on user creation
+Accounts.onCreateUser((options, user) => {
+  // Create user with default profile structure
+  const newUser = {
+    ...user,
+    profile: {
+      firstName: options.profile?.firstName || "",
+      lastName: options.profile?.lastName || "",
+      ...options.profile,
+    },
+    roles: options.roles || [],
+  };
+
+  // Schedule verification email to be sent after user creation
+  Meteor.defer(() => {
+    try {
+      Accounts.sendVerificationEmail(newUser._id);
+      console.log(`📧 Verification email sent to ${newUser.emails[0].address}`);
+    } catch (error) {
+      console.error(`❌ Failed to send verification email to ${newUser.emails[0].address}:`, error);
+    }
+  });
+
+  return newUser;
+});
+
 // Handle user logout - deactivate push tokens for privacy
 Accounts.onLogout((loginHandle) => {
   if (loginHandle.userId) {
