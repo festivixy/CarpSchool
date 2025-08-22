@@ -20,7 +20,9 @@ services:
       # Web Push Configuration
       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
-      # Email Configuration (SMTP)
+      # Email Configuration
+      - MAIL_URL=${MAIL_URL}
+      # Legacy SMTP variables (not used if MAIL_URL is set)
       - SMTP_SERVER=${SMTP_SERVER:-smtp.mail.me.com}
       - SMTP_USERNAME=${SMTP_USERNAME}
       - SMTP_PASSWORD=${SMTP_PASSWORD}

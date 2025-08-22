@@ -4,18 +4,16 @@ import { Meteor } from "meteor/meteor";
 // Configure SMTP for iCloud+ custom domain
 if (Meteor.isServer) {
   Meteor.startup(() => {
-    // Debug SMTP environment variables
-    console.log("🔧 SMTP Config Debug:");
-    console.log("Server:", process.env.SMTP_SERVER || "DEFAULT: smtp.mail.me.com");
-    console.log("Username:", process.env.SMTP_USERNAME || "DEFAULT: contact@carp.school");
-    console.log("Password length:", (process.env.SMTP_PASSWORD || "default-password").length);
-    console.log("Password set:", !!process.env.SMTP_PASSWORD ? "✅ YES" : "❌ NO");
-
-    // iCloud SMTP Configuration (direct SSL on port 465)
-    process.env.MAIL_URL = process.env.MAIL_URL ||
-      `smtps://${encodeURIComponent(process.env.SMTP_USERNAME || "lz@carp.school")}:${encodeURIComponent(process.env.SMTP_PASSWORD || "your-app-specific-password")}@${process.env.SMTP_SERVER || "smtp.mail.me.com"}:465`;
-
-    console.log("📧 Final MAIL_URL configured (password hidden)");
+    // Debug email configuration
+    console.log("📧 Email Config Debug:");
+    console.log("MAIL_URL set:", !!process.env.MAIL_URL ? "✅ YES" : "❌ NO");
+    if (process.env.MAIL_URL) {
+      // Show MAIL_URL with password hidden
+      const mailUrl = process.env.MAIL_URL.replace(/:([^:@]+)@/, ':***@');
+      console.log("MAIL_URL:", mailUrl);
+    } else {
+      console.log("❌ MAIL_URL not set - email will not work");
+    }
   });
 }
 
