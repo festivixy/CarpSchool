@@ -13,7 +13,7 @@ import {
 import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
 import { HeaderWithBack } from "../styles/TOS";
 import BackButton from "../components/BackButton";
-import { SystemContent } from "../../api/system/System";
+import { SystemContent } from "../../../api/system/System";
 import LoadingPage from "../../components/LoadingPage";
 
 const defaultContent = `
