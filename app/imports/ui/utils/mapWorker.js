@@ -1,6 +1,6 @@
 /**
  * Web Worker utility for offloading heavy map calculations
- * 
+ *
  * This module provides a clean interface to use Web Workers for route calculations
  * and other heavy map operations, keeping the main thread responsive.
  */
@@ -16,14 +16,14 @@ const initWorker = () => {
   if (!worker && typeof Worker !== 'undefined') {
     try {
       worker = new Worker('/mapWorker.js');
-      
+
       worker.onmessage = (e) => {
         const { id, success, result, error } = e.data;
-        
+
         if (pendingMessages.has(id)) {
           const { resolve, reject } = pendingMessages.get(id);
           pendingMessages.delete(id);
-          
+
           if (success) {
             resolve(result);
           } else {
@@ -31,13 +31,13 @@ const initWorker = () => {
           }
         }
       };
-      
+
       worker.onerror = (error) => {
         console.error('[MapWorker] Worker error:', error);
         // Fallback to main thread if worker fails
         worker = null;
       };
-      
+
       console.log('[MapWorker] Web Worker initialized');
     } catch (error) {
       console.warn('[MapWorker] Failed to initialize worker:', error);
@@ -55,12 +55,12 @@ const sendWorkerMessage = (type, data, timeout = 5000) => {
       reject(new Error('Web Worker not available'));
       return;
     }
-    
+
     const id = ++messageId;
-    
+
     // Store promise handlers
     pendingMessages.set(id, { resolve, reject });
-    
+
     // Set timeout for worker response
     const timeoutId = setTimeout(() => {
       if (pendingMessages.has(id)) {
@@ -68,11 +68,11 @@ const sendWorkerMessage = (type, data, timeout = 5000) => {
         reject(new Error(`Worker timeout after ${timeout}ms`));
       }
     }, timeout);
-    
+
     // Clear timeout when promise resolves/rejects
     const originalResolve = resolve;
     const originalReject = reject;
-    
+
     pendingMessages.set(id, {
       resolve: (result) => {
         clearTimeout(timeoutId);
@@ -83,7 +83,7 @@ const sendWorkerMessage = (type, data, timeout = 5000) => {
         originalReject(error);
       }
     });
-    
+
     // Send message to worker
     worker.postMessage({ id, type, data });
   });
@@ -98,13 +98,13 @@ const sendWorkerMessage = (type, data, timeout = 5000) => {
  */
 export const calculateRouteInWorker = async (startCoord, endCoord, timeout = 3000) => {
   initWorker();
-  
+
   if (!worker) {
     // Fallback to main thread if worker not available
-    const { getRoute } = await import('./mapServices');
-    return getRoute(startCoord, endCoord, { timeout });
+    const { calculateCoreRoute } = await import('./mapCore');
+    return calculateCoreRoute(startCoord, endCoord, { timeout });
   }
-  
+
   try {
     return await sendWorkerMessage('CALCULATE_ROUTE', {
       startCoord,
@@ -114,8 +114,8 @@ export const calculateRouteInWorker = async (startCoord, endCoord, timeout = 300
   } catch (error) {
     console.warn('[MapWorker] Worker calculation failed, falling back to main thread:', error);
     // Fallback to main thread
-    const { getRoute } = await import('./mapServices');
-    return getRoute(startCoord, endCoord, { timeout });
+    const { calculateCoreRoute } = await import('./mapCore');
+    return calculateCoreRoute(startCoord, endCoord, { timeout });
   }
 };
 
@@ -127,7 +127,7 @@ export const calculateRouteInWorker = async (startCoord, endCoord, timeout = 300
  */
 export const calculateDistanceInWorker = async (startCoord, endCoord) => {
   initWorker();
-  
+
   if (!worker) {
     // Fallback calculation in main thread
     const R = 6371;
@@ -140,7 +140,7 @@ export const calculateDistanceInWorker = async (startCoord, endCoord) => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
-  
+
   try {
     return await sendWorkerMessage('CALCULATE_DISTANCE', {
       startCoord,
@@ -171,11 +171,11 @@ export const cleanupWorker = () => {
       reject(new Error('Worker cleanup - operation cancelled'));
     }
     pendingMessages.clear();
-    
+
     // Terminate worker
     worker.terminate();
     worker = null;
-    
+
     console.log('[MapWorker] Worker terminated and cleaned up');
   }
 };

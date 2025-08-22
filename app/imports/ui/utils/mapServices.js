@@ -261,7 +261,7 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
       if (useWorker && typeof Worker !== 'undefined') {
         try {
           const { calculateRouteInWorker } = await import('./mapWorker');
-          const workerResult = await calculateRouteInWorker(startCoord, endCoord, timeout);
+          const workerResult = await calculateRouteInWorker(startCoord, endCoord, { timeout });
 
           // Cache the result
           CacheManager.set(routeCache, cacheKey, workerResult);
@@ -273,37 +273,24 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
         }
       }
 
-      const baseUrl = 'https://osrm.carp.school/route/v1';
-      const coords = `${startCoord.lng},${startCoord.lat};${endCoord.lng},${endCoord.lat}`;
-      const routeUrl = `${baseUrl}/${service}/${coords}?overview=full&geometries=geojson`;
-
+      // Use core route calculation
+      const { calculateCoreRoute } = await import('./mapCore');
       console.log('[MapServices] Fetching route from OSRM with timeout:', timeout);
 
-      // Use fetch with timeout to prevent hanging
-      const response = await fetchWithTimeout(routeUrl, timeout);
+      const routeData = await calculateCoreRoute(startCoord, endCoord, { service, timeout });
 
-      if (!response.ok) {
-        throw new Error(`OSRM routing failed: ${response.status}`);
-      }
+      // Add service identifier and convert units to match existing format
+      const formattedResult = {
+        geometry: routeData.geometry,
+        distance: routeData.distance * 1000, // Convert back to meters for compatibility
+        duration: routeData.duration * 60, // Convert back to seconds for compatibility
+        service: 'OSRM',
+      };
 
-      const data = await response.json();
+      // Cache the route
+      CacheManager.set(routeCache, cacheKey, formattedResult);
 
-      if (data.routes && data.routes.length > 0) {
-        const route = data.routes[0];
-        const routeData = {
-          geometry: route.geometry,
-          distance: route.distance, // meters
-          duration: route.duration, // seconds
-          service: 'OSRM',
-        };
-
-        // Cache the route
-        CacheManager.set(routeCache, cacheKey, routeData);
-
-        return routeData;
-      } else {
-        throw new Error('No route found');
-      }
+      return formattedResult;
     } catch (error) {
       console.error('[MapServices] Route error:', error);
 
