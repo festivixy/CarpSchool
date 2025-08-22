@@ -128,7 +128,7 @@ meteor_build_ios() {
 
     cd app
     echo -e "${YELLOW}🚀 Starting iOS build process...${NC}"
-    meteor build "$build_dir" --platforms ios --server "$server_url" --mobile-settings "../config/settings.prod.json" --verbose
+    meteor build "$build_dir" --platforms ios --server "$server_url" --mobile-settings "../config/settings.json" --verbose
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ iOS build completed successfully!${NC}"
@@ -194,7 +194,7 @@ meteor_build_android() {
 
     cd app
     echo -e "${YELLOW}🚀 Starting Android build process...${NC}"
-    meteor build "$build_dir" --platforms android --server "$server_url" --mobile-settings "../config/settings.prod.json"
+    meteor build "$build_dir" --platforms android --server "$server_url" --mobile-settings "../config/settings.json"
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ Android build completed successfully!${NC}"
