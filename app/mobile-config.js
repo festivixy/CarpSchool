@@ -10,11 +10,11 @@ App.info({
 
 // Set PhoneGap/Cordova preferences
 App.setPreference("BackupWebStorage", "cloud");
-App.setPreference("SplashScreen", "none");
-App.setPreference("SplashScreenDelay", "0");
+App.setPreference("SplashScreen", "CDVLaunchScreen");
+App.setPreference("SplashScreenDelay", "3000");
 App.setPreference("AutoHideSplashScreen", "true");
-App.setPreference("FadeSplashScreen", "false");
-App.setPreference("FadeSplashScreenDuration", "0");
+App.setPreference("FadeSplashScreen", "true");
+App.setPreference("FadeSplashScreenDuration", "300");
 App.setPreference("ShowSplashScreenSpinner", "false");
 
 // iOS specific preferences
@@ -57,6 +57,7 @@ App.setPreference("CodePushServerURL", "https://codepush.carp.school"); // Your 
 App.setPreference("CodePushPublicKeyURL", "https://codepush.carp.school/updateCheck");
 App.setPreference("AutoHideSplashScreen", "true", "android");
 App.setPreference("SplashMaintainAspectRatio", "true", "android");
+App.setPreference("SplashScreenDelay", "3000", "android");
 
 // OneSignal Configuration
 App.setPreference('ONESIGNAL_APP_ID', 'a1f06572-fc69-4ec0-9402-b6e8a56bf14c');
@@ -106,4 +107,12 @@ App.icons({
     android_xxxhdpi: "resources/icons/android_xxxhdpi.png", // 192x192 pixels
 });
 
-// Splash screen disabled - no launch screens configured
+// Universal Splash Screens - modern approach using single universal images
+App.launchScreens({
+    ios_universal: "resources/splash/ios_universal.png", // 2732x2732 pixels - Universal iOS splash
+    android_universal: "resources/splash/android_universal.png", // 288x288 pixels - Universal Android splash
+});
+
+// iOS splash screen specific preferences
+App.setPreference("SplashMaintainAspectRatio", "true", "ios");
+App.setPreference("SplashShowOnlyFirstTime", "false", "ios");
