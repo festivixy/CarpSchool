@@ -213,6 +213,42 @@ export const ProtectedRouteRequireNotEmailVerified = withTracker(() => {
   };
 })(ProtectedRouteRequireNotEmailVerifiedComponent);
 
+/** Component for routes that require system role only */
+const ProtectedRouteRequireSystemComponent = ({ component: Component, ...rest }) => {
+  const SystemWrapper = (props) => {
+    const user = Meteor.user();
+
+    if (!user) {
+      return <Redirect to="/login" />;
+    }
+
+    if (!user.roles || !user.roles.includes("system")) {
+      return <Redirect to="/404" />;
+    }
+
+    return <Component {...props} />;
+  };
+
+  return (
+    <Route
+      {...rest}
+      render={(props) => <SystemWrapper {...props} />}
+    />
+  );
+};
+
+ProtectedRouteRequireSystemComponent.propTypes = {
+  component: PropTypes.oneOfType([PropTypes.object, PropTypes.func]).isRequired,
+};
+
+export const ProtectedRouteRequireSystem = withTracker(() => {
+  const user = Meteor.user();
+
+  return {
+    hasSystemRole: user && user.roles && user.roles.includes("system"),
+  };
+})(ProtectedRouteRequireSystemComponent);
+
 /**
  * Route that requires user to NOT be logged in
  */

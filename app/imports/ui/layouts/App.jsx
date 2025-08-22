@@ -40,6 +40,7 @@ import ProtectedRoutes, {
   ProtectedRouteRequireNotLoggedIn,
   ProtectedRouteRequireAdmin,
   ProtectedRouteRequireNotEmailVerified,
+  ProtectedRouteRequireSystem,
 } from "./ProtectedRoutes";
 import { DesktopOnly, MobileOnly } from "./Devices";
 import { AppContainer, MainContent } from "../styles/App";
@@ -143,7 +144,7 @@ class App extends React.Component {
                 path="/admin/error-report/:id"
                 component={AdminErrorReportDetail}
               />
-              <ProtectedRouteRequireAdmin
+              <ProtectedRouteRequireSystem
                 exact
                 path="/system"
                 component={SystemAdmin}

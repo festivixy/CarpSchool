@@ -48,7 +48,26 @@ class SystemAdmin extends React.Component {
 
   componentDidMount() {
     this.loadContentFromProps();
+    this.initializeDefaultContent();
   }
+
+  initializeDefaultContent = () => {
+    Meteor.call("system.initializeDefaults", (error, result) => {
+      if (error) {
+        console.error("Failed to initialize default content:", error);
+      } else {
+        console.log("Default content initialization:", result);
+        // Reload content if any defaults were created
+        const createdAny = result.some(r => r.created);
+        if (createdAny) {
+          // Force re-subscription to get the newly created content
+          setTimeout(() => {
+            this.loadContentFromProps();
+          }, 500);
+        }
+      }
+    });
+  };
 
   componentDidUpdate(prevProps) {
     if (prevProps.systemContent !== this.props.systemContent) {
@@ -58,7 +77,7 @@ class SystemAdmin extends React.Component {
 
   loadContentFromProps = () => {
     const { systemContent } = this.props;
-    
+
     const tosDoc = systemContent.find(doc => doc.type === "tos");
     const privacyDoc = systemContent.find(doc => doc.type === "privacy");
     const creditsDoc = systemContent.find(doc => doc.type === "credits");
@@ -79,7 +98,7 @@ class SystemAdmin extends React.Component {
 
   handleSave = (type) => {
     const content = this.state[`${type}Content`];
-    
+
     if (!content.trim()) {
       this.setState({
         statusMessage: "Content cannot be empty",
@@ -92,7 +111,7 @@ class SystemAdmin extends React.Component {
 
     Meteor.call("system.updateContent", type, content, (error, result) => {
       this.setState({ loading: false });
-      
+
       if (error) {
         this.setState({
           statusMessage: error.reason || "Failed to save content",
@@ -103,7 +122,7 @@ class SystemAdmin extends React.Component {
           statusMessage: `${type.toUpperCase()} content saved successfully!`,
           statusType: "success",
         });
-        
+
         // Clear message after 3 seconds
         setTimeout(() => {
           this.setState({ statusMessage: "", statusType: "" });
@@ -136,7 +155,7 @@ class SystemAdmin extends React.Component {
   getCharacterCount = (content) => {
     const count = content.length;
     const maxLength = 50000;
-    
+
     return {
       count,
       warning: count > maxLength * 0.8,
@@ -155,7 +174,7 @@ class SystemAdmin extends React.Component {
           <SectionIcon>{icon}</SectionIcon>
           {title}
         </SectionTitle>
-        
+
         <FormField>
           <Label htmlFor={`${type}Content`}>
             Content (Markdown supported)
@@ -167,8 +186,8 @@ class SystemAdmin extends React.Component {
             placeholder={`Enter ${title.toLowerCase()} content using Markdown...`}
             disabled={this.state.loading}
           />
-          <CharacterCount 
-            warning={charInfo.warning} 
+          <CharacterCount
+            warning={charInfo.warning}
             error={charInfo.error}
           >
             {charInfo.count.toLocaleString()} / 50,000 characters
@@ -219,7 +238,7 @@ class SystemAdmin extends React.Component {
         <Container>
           <Header>
             <Title>Access Denied</Title>
-            <Subtitle>You need admin or system permissions to access this page.</Subtitle>
+            <Subtitle>You need system role to access this page.</Subtitle>
           </Header>
         </Container>
       );
@@ -249,7 +268,7 @@ class SystemAdmin extends React.Component {
             <PreviewContent onClick={(e) => e.stopPropagation()}>
               <PreviewHeader>
                 <PreviewTitle>
-                  Preview: {previewType === "tos" ? "Terms of Service" : 
+                  Preview: {previewType === "tos" ? "Terms of Service" :
                            previewType === "privacy" ? "Privacy Policy" : "Credits"}
                 </PreviewTitle>
                 <CloseButton onClick={this.closePreview}>✕</CloseButton>
@@ -274,11 +293,11 @@ SystemAdmin.propTypes = {
 export default withTracker(() => {
   const subscription = Meteor.subscribe("systemContent.admin");
   const systemContent = SystemContent.find({}).fetch();
-  
-  // Check if user has permission
+
+  // Check if user has system permission
   const currentUser = Meteor.user();
-  const hasPermission = currentUser && currentUser.roles && 
-    (currentUser.roles.includes("admin") || currentUser.roles.includes("system"));
+  const hasPermission = currentUser && currentUser.roles &&
+    currentUser.roles.includes("system");
 
   return {
     systemContent,

@@ -32,8 +32,8 @@ Meteor.publish("systemContent.admin", async function publishAllSystemContent() {
     return this.ready();
   }
 
-  // Check if user has admin or system role
-  const hasPermission = currentUser.roles.includes("admin") || currentUser.roles.includes("system");
+  // Check if user has system role
+  const hasPermission = currentUser.roles.includes("system");
   if (!hasPermission) {
     return this.ready();
   }
