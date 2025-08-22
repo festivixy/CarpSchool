@@ -49,8 +49,8 @@ import "../imports/api/schools/SchoolsMethods";
 import "../imports/api/accounts/AdminMethods";
 
 // Accounts
-import "../imports/api/accounts/AccountsHandlers";
-import "../imports/api/accounts/AccountsSchoolHandlers";
+import "../imports/api/accounts/AccountsHandlers"; // Login validation and logout handlers
+import "../imports/api/accounts/AccountsSchoolHandlers"; // User creation with school assignment
 import "../imports/api/accounts/AccountsConfig";
 
 // Push Notifications

@@ -51,38 +51,8 @@ Accounts.validateNewUser(async (user) => {
   return true;
 });
 
-// Configure user creation with proper profile structure
-Accounts.onCreateUser((options, user) => {
-  // Create user with default profile structure
-  const newUser = {
-    ...user,
-    profile: {
-      firstName: options.profile?.firstName || "",
-      lastName: options.profile?.lastName || "",
-      ...options.profile,
-    },
-    roles: options.roles || [],
-  };
-
-  // Send verification email after user is saved to database
-  const userEmail = newUser.emails[0].address;
-  Meteor.setTimeout(async () => {
-    try {
-      // Find the newly created user by email to get the proper _id
-      const savedUser = await Meteor.users.findOneAsync({ "emails.address": userEmail });
-      if (savedUser && process.env.MAIL_URL) {
-        Accounts.sendVerificationEmail(savedUser._id);
-        console.log(`📧 Verification email sent to ${userEmail}`);
-      } else if (!process.env.MAIL_URL) {
-        console.warn(`⚠️  MAIL_URL not configured - skipping verification email for ${userEmail}`);
-      }
-    } catch (error) {
-      console.error(`❌ Failed to send verification email to ${userEmail}:`, error.message || error);
-    }
-  }, 2000); // 2 second delay to ensure user is fully saved to database
-
-  return newUser;
-});
+// NOTE: onCreateUser moved to AccountsSchoolHandlers.js to include school assignment
+// This avoids "Can only call onCreateUser once" error
 
 // Handle user logout - deactivate push tokens for privacy
 Accounts.onLogout((loginHandle) => {
