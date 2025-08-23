@@ -26,7 +26,7 @@ Meteor.publish("schools.active", function publishActiveSchools() {
  */
 Meteor.publish("schools.all", async function publishAllSchools() {
   const user = await Meteor.users.findOneAsync(this.userId);
-  if (!user || !user.roles?.includes("admin")) {
+  if (!user || !user.roles?.includes("system")) {
     return this.ready();
   }
 

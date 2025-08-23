@@ -8,8 +8,8 @@ Meteor.methods({
    */
   async "schools.create"(schoolData) {
     const currentUser = await Meteor.userAsync();
-    if (!currentUser || !currentUser.roles?.includes("admin")) {
-      throw new Meteor.Error("access-denied", "Only administrators can create schools");
+    if (!currentUser || !currentUser.roles?.includes("system")) {
+      throw new Meteor.Error("access-denied", "Only system administrators can create schools");
     }
 
     // Validate school data
@@ -100,8 +100,8 @@ Meteor.methods({
     check(schoolId, String);
 
     const currentUser = await Meteor.userAsync();
-    if (!currentUser || !currentUser.roles?.includes("admin")) {
-      throw new Meteor.Error("access-denied", "Only administrators can update schools");
+    if (!currentUser || !currentUser.roles?.includes("system")) {
+      throw new Meteor.Error("access-denied", "Only system administrators can update schools");
     }
 
     const school = await Schools.findOneAsync(schoolId);
@@ -135,8 +135,8 @@ Meteor.methods({
     check(schoolId, String);
 
     const currentUser = await Meteor.userAsync();
-    if (!currentUser || !currentUser.roles?.includes("admin")) {
-      throw new Meteor.Error("access-denied", "Only administrators can deactivate schools");
+    if (!currentUser || !currentUser.roles?.includes("system")) {
+      throw new Meteor.Error("access-denied", "Only system administrators can deactivate schools");
     }
 
     const result = await Schools.updateAsync(schoolId, {
