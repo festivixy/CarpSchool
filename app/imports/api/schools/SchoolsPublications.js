@@ -24,8 +24,8 @@ Meteor.publish("schools.active", function publishActiveSchools() {
 /**
  * Publish all schools (admin only)
  */
-Meteor.publish("schools.all", function publishAllSchools() {
-  const user = Meteor.users.findOne(this.userId);
+Meteor.publish("schools.all", async function publishAllSchools() {
+  const user = await Meteor.users.findOneAsync(this.userId);
   if (!user || !user.roles?.includes("admin")) {
     return this.ready();
   }
@@ -38,7 +38,7 @@ Meteor.publish("schools.all", function publishAllSchools() {
  */
 Meteor.publish("schools.byId", function publishSchoolById(schoolId) {
   check(schoolId, String);
-  
+
   return Schools.find(
     { _id: schoolId, isActive: true },
     {
