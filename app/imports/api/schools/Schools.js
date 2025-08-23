@@ -12,14 +12,15 @@ const SchoolsSchema = Joi.object({
   domain: Joi.string().pattern(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).optional(), // e.g., "sfu.ca" for email verification
   code: Joi.string().required().min(2).max(10).uppercase(), // e.g., "SFU", "UBC"
   location: Joi.object({
-    city: Joi.string().required(),
-    province: Joi.string().required(),
+    city: Joi.string().optional(),
+    province: Joi.string().optional(),
     country: Joi.string().default("Canada"),
+    address: Joi.string().optional(),
     coordinates: Joi.object({
       lat: Joi.number().required(),
       lng: Joi.number().required(),
-    }).optional(),
-  }).required(),
+    }).required(),
+  }).optional(),
   settings: Joi.object({
     allowPublicRegistration: Joi.boolean().default(true),
     requireEmailVerification: Joi.boolean().default(true),

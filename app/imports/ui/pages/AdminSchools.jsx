@@ -51,7 +51,6 @@ import {
   FormRow,
   Label,
   Input,
-  TextArea,
   SwitchContainer,
   SwitchLabel,
   Switch,
@@ -62,6 +61,7 @@ import {
   StatusMessage,
 } from "../styles/AdminSchools";
 import BackButton from "../mobile/components/BackButton";
+import InteractiveMapPicker from "../mobile/components/InteractiveMapPicker";
 
 /**
  * AdminSchools component for managing schools (System admins only)
@@ -88,7 +88,7 @@ class AdminSchools extends React.Component {
     shortName: "",
     code: "",
     domain: "",
-    address: "",
+    selectedLocation: null,
     allowRegistration: true,
     requireEmailVerification: true,
   });
@@ -110,7 +110,7 @@ class AdminSchools extends React.Component {
         shortName: school.shortName || "",
         code: school.code || "",
         domain: school.domain || "",
-        address: school.location?.address || "",
+        selectedLocation: school.location?.coordinates || null,
         allowRegistration: school.settings?.allowRegistration ?? true,
         requireEmailVerification: school.settings?.requireEmailVerification ?? true,
       },
@@ -124,7 +124,7 @@ class AdminSchools extends React.Component {
 
     swal({
       title: `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} School?`,
-      text: school.isActive 
+      text: school.isActive
         ? `This will deactivate ${school.name}. Users won't be able to register and existing rides will be affected.`
         : `This will reactivate ${school.name} and allow new registrations.`,
       icon: "warning",
@@ -143,7 +143,7 @@ class AdminSchools extends React.Component {
     }).then((willProceed) => {
       if (willProceed) {
         this.setState({ loading: true, error: "" });
-        
+
         if (school.isActive) {
           Meteor.call("schools.deactivate", school._id, (error) => {
             this.setState({ loading: false });
@@ -186,6 +186,18 @@ class AdminSchools extends React.Component {
     });
   };
 
+  handleCreateLocationSelect = (location) => {
+    this.setState({
+      createForm: { ...this.state.createForm, selectedLocation: location },
+    });
+  };
+
+  handleEditLocationSelect = (location) => {
+    this.setState({
+      editForm: { ...this.state.editForm, selectedLocation: location },
+    });
+  };
+
   handleCreateSubmit = (e) => {
     e.preventDefault();
     const { createForm } = this.state;
@@ -207,9 +219,11 @@ class AdminSchools extends React.Component {
       shortName: createForm.shortName.trim() || createForm.name.trim(),
       code: createForm.code.trim().toUpperCase(),
       domain: createForm.domain.trim() || undefined,
-      location: createForm.address.trim() ? {
-        address: createForm.address.trim(),
-        coordinates: null // Could be enhanced with geocoding
+      location: createForm.selectedLocation ? {
+        coordinates: {
+          lat: createForm.selectedLocation.lat,
+          lng: createForm.selectedLocation.lng,
+        }
       } : undefined,
       settings: {
         allowRegistration: createForm.allowRegistration,
@@ -229,7 +243,7 @@ class AdminSchools extends React.Component {
           statusMessage: `School "${schoolData.name}" created successfully!`,
           statusType: "success",
         });
-        
+
         // Clear success message after 3 seconds
         setTimeout(() => {
           this.setState({ statusMessage: "", statusType: "" });
@@ -259,9 +273,11 @@ class AdminSchools extends React.Component {
       shortName: editForm.shortName.trim() || editForm.name.trim(),
       code: editForm.code.trim().toUpperCase(),
       domain: editForm.domain.trim() || undefined,
-      location: editForm.address.trim() ? {
-        address: editForm.address.trim(),
-        coordinates: editingSchool.location?.coordinates || null
+      location: editForm.selectedLocation ? {
+        coordinates: {
+          lat: editForm.selectedLocation.lat,
+          lng: editForm.selectedLocation.lng,
+        }
       } : editingSchool.location,
       settings: {
         allowRegistration: editForm.allowRegistration,
@@ -281,7 +297,7 @@ class AdminSchools extends React.Component {
           statusMessage: `School "${updateData.name}" updated successfully!`,
           statusType: "success",
         });
-        
+
         // Clear success message after 3 seconds
         setTimeout(() => {
           this.setState({ statusMessage: "", statusType: "" });
@@ -313,8 +329,7 @@ class AdminSchools extends React.Component {
         (school.name && school.name.toLowerCase().includes(query)) ||
         (school.shortName && school.shortName.toLowerCase().includes(query)) ||
         (school.code && school.code.toLowerCase().includes(query)) ||
-        (school.domain && school.domain.toLowerCase().includes(query)) ||
-        (school.location?.address && school.location.address.toLowerCase().includes(query))
+        (school.domain && school.domain.toLowerCase().includes(query))
       );
     });
   };
@@ -352,7 +367,7 @@ class AdminSchools extends React.Component {
   renderPage() {
     const { schools, hasPermission } = this.props;
     const { searchQuery, statusMessage, statusType } = this.state;
-    
+
     if (!hasPermission) {
       return (
         <Container>
@@ -392,7 +407,7 @@ class AdminSchools extends React.Component {
               <SearchIcon>🔍</SearchIcon>
               <SearchInput
                 type="text"
-                placeholder="Search schools by name, code, domain, or address..."
+                placeholder="Search schools by name, code, or domain..."
                 value={searchQuery}
                 onChange={this.handleSearchChange}
               />
@@ -481,8 +496,13 @@ class AdminSchools extends React.Component {
                           </DetailValue>
                         </DetailItem>
                         <DetailItem>
-                          <DetailLabel>Address</DetailLabel>
-                          <DetailValue>{school.location?.address || "Not set"}</DetailValue>
+                          <DetailLabel>Location</DetailLabel>
+                          <DetailValue>
+                            {school.location?.coordinates
+                              ? `${school.location.coordinates.lat.toFixed(4)}, ${school.location.coordinates.lng.toFixed(4)}`
+                              : "Not set"
+                            }
+                          </DetailValue>
                         </DetailItem>
                         <DetailItem>
                           <DetailLabel>Email Verification</DetailLabel>
@@ -564,14 +584,13 @@ class AdminSchools extends React.Component {
                     </FormRow>
 
                     <FormField>
-                      <Label htmlFor="address">Address</Label>
-                      <TextArea
-                        id="address"
-                        name="address"
-                        value={this.state.createForm.address}
-                        onChange={this.handleCreateFormChange}
-                        placeholder="123 School Street, Springfield, IL 62701"
-                        disabled={this.state.loading}
+                      <Label>School Location</Label>
+                      <InteractiveMapPicker
+                        onLocationSelect={this.handleCreateLocationSelect}
+                        selectedLocation={this.state.createForm.selectedLocation}
+                        height="300px"
+                        initialLat={49.345196}
+                        initialLng={-123.149805}
                       />
                     </FormField>
 
@@ -705,14 +724,13 @@ class AdminSchools extends React.Component {
                     </FormRow>
 
                     <FormField>
-                      <Label htmlFor="editAddress">Address</Label>
-                      <TextArea
-                        id="editAddress"
-                        name="address"
-                        value={this.state.editForm.address}
-                        onChange={this.handleEditFormChange}
-                        placeholder="123 School Street, Springfield, IL 62701"
-                        disabled={this.state.loading}
+                      <Label>School Location</Label>
+                      <InteractiveMapPicker
+                        onLocationSelect={this.handleEditLocationSelect}
+                        selectedLocation={this.state.editForm.selectedLocation}
+                        height="300px"
+                        initialLat={this.state.editingSchool?.location?.coordinates?.lat || 49.345196}
+                        initialLng={this.state.editingSchool?.location?.coordinates?.lng || -123.149805}
                       />
                     </FormField>
 
