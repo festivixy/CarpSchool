@@ -22,7 +22,7 @@ Meteor.publish("schools.active", function publishActiveSchools() {
 });
 
 /**
- * Publish all schools (admin only)
+ * Publish all schools (system admins only)
  */
 Meteor.publish("schools.all", async function publishAllSchools() {
   const user = await Meteor.users.findOneAsync(this.userId);
