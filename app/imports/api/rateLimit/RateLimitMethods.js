@@ -1,6 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { RateLimit } from "./RateLimit";
+import { isSystemAdmin, isSchoolAdmin } from "../accounts/RoleUtils";
 
 Meteor.methods({
   /**
@@ -144,8 +145,8 @@ Meteor.methods({
   async "rateLimit.cleanup"(olderThanDays = 30) {
     check(olderThanDays, Number);
 
-    // Only allow admins to run cleanup
-    if (!this.userId || !Meteor.user().isAdmin) {
+    // Only allow system or school admins to run cleanup
+    if (!this.userId || (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId))) {
       throw new Meteor.Error("not-authorized", "Only admins can run rate limit cleanup");
     }
 

@@ -2,6 +2,7 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { RateLimit } from "./RateLimit";
+import { isSystemAdminSync, isSchoolAdminSync } from "../accounts/RoleUtils";
 
 /**
  * Publication rate limiting cache
@@ -126,8 +127,7 @@ Meteor.publish("rateLimit.admin", function rateLimitAdmin() { // eslint-disable-
     return;
   }
 
-  const user = Meteor.users.findOne(this.userId);
-  if (!user || !user.isAdmin) {
+  if (!isSystemAdminSync(this.userId) && !isSchoolAdminSync(this.userId)) {
     this.ready();
     return;
   }
@@ -160,8 +160,7 @@ Meteor.publish("rateLimit.stats", function rateLimitStats() {
     return;
   }
 
-  const user = Meteor.users.findOne(this.userId);
-  if (!user || !user.isAdmin) {
+  if (!isSystemAdminSync(this.userId) && !isSchoolAdminSync(this.userId)) {
     this.ready();
     return;
   }
