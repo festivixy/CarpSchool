@@ -17,7 +17,8 @@ export const canCreateRideSession = async (userId, rideId, driverId, riders = []
 
   // Check if user is the driver or an admin
   const user = await Meteor.users.findOneAsync(userId);
-  const isAdmin = user?.roles?.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = ride.driver === userId || driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -46,7 +47,8 @@ export const canStartRideSession = async (userId, sessionId) => {
   if (!session) return { allowed: false, reason: "Session not found" };
 
   const user = await Meteor.users.findOneAsync(userId);
-  const isAdmin = user?.roles?.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -71,7 +73,8 @@ export const canFinishRideSession = async (userId, sessionId) => {
   if (!session) return { allowed: false, reason: "Session not found" };
 
   const user = await Meteor.users.findOneAsync(userId);
-  const isAdmin = user?.roles?.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -102,7 +105,8 @@ export const canCancelRideSession = async (userId, sessionId, reason) => {
   if (!session) return { allowed: false, reason: "Session not found" };
 
   const user = await Meteor.users.findOneAsync(userId);
-  const isAdmin = user?.roles?.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -128,7 +132,8 @@ export const canPickupRider = async (userId, sessionId, riderId, location) => {
   if (!session) return { allowed: false, reason: "Session not found" };
 
   const user = await Meteor.users.findOneAsync(userId);
-  const isAdmin = user?.roles?.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -162,7 +167,8 @@ export const canDropoffRider = async (userId, sessionId, riderId, location) => {
   if (!session) return { allowed: false, reason: "Session not found" };
 
   const user = await Meteor.users.findOneAsync(userId);
-  const isAdmin = user?.roles?.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
   const isRider = userId === riderId; // Allow rider to dropoff themselves
 
@@ -198,7 +204,8 @@ export const canViewRideSession = async (userId, sessionId) => {
   if (!session) return { allowed: false, reason: "Session not found" };
 
   const user = await Meteor.users.findOneAsync(userId);
-  const isAdmin = user?.roles?.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
   const isRider = session.riders.includes(userId);
 
@@ -216,7 +223,8 @@ export const canModifyRideSession = async (userId, sessionId) => {
   if (!session) return { allowed: false, reason: "Session not found" };
 
   const user = await Meteor.users.findOneAsync(userId);
-  const isAdmin = user?.roles?.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
