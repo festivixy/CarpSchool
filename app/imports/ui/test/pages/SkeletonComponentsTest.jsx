@@ -4,6 +4,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
+import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import {
   MyRidesSkeleton,
   ChatSkeleton,
@@ -740,7 +741,7 @@ SkeletonComponentsTest.propTypes = {
 export default withRouter(
   withTracker(() => {
     const currentUser = Meteor.user();
-    const isAdmin = currentUser?.profile?.role === "admin";
+    const isAdmin = isAdminRole(currentUser);
 
     return {
       currentUser,
