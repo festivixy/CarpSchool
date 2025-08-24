@@ -1,4 +1,5 @@
 import { Meteor } from "meteor/meteor";
+import { Schools } from "../schools/Schools";
 
 /**
  * School-aware role management utilities
@@ -213,7 +214,6 @@ export function getUserAdminSchoolsSync(userId = null) {
 
   // System admins can admin all schools
   if (user.roles.includes("system")) {
-    const { Schools } = require("../schools/Schools");
     const allSchools = Schools.find({ isActive: true }).fetch();
     return allSchools.map(school => school._id);
   }

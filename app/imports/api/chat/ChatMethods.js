@@ -5,6 +5,7 @@ import DOMPurify from "dompurify";
 import { Chats } from "./Chat";
 import { Rides } from "../ride/Rides";
 import { isEmailVerified } from "../accounts/Accounts";
+import { createSafeStringSchema } from "../../ui/utils/validation";
 
 // Set up DOMPurify for server-side use
 let createDOMPurify;
@@ -109,7 +110,6 @@ Meteor.methods({
     check(chatId, String);
     check(content, String);
     // Validate input with XSS prevention
-    const { createSafeStringSchema } = require("../../ui/utils/validation");
     const schema = Joi.object({
       chatId: Joi.string().required(),
       content: createSafeStringSchema({

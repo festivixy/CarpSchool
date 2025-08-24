@@ -1,6 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
-import { Rides } from "./Rides";
+import { Rides, RidesSchema } from "./Rides";
+import { validateUserCanJoinRide, validateUserCanRemoveRider } from "./RideValidation";
 
 Meteor.methods({
   async "rides.remove"(rideId) {
@@ -56,7 +57,6 @@ Meteor.methods({
     };
 
     // Import and validate with schema for data logic validation
-    const { RidesSchema } = require("./Rides");
     const { error } = RidesSchema.validate(fieldsToUpdate);
 
     if (error) {
@@ -179,7 +179,6 @@ Meteor.methods({
     }
 
     // Use centralized validation
-    const { validateUserCanJoinRide } = require("./RideValidation");
     const validation = validateUserCanJoinRide(ride, user);
 
     if (!validation.isValid) {
@@ -208,7 +207,6 @@ Meteor.methods({
     const ride = await Rides.findOneAsync(rideId);
 
     // Use centralized validation
-    const { validateUserCanJoinRide } = require("./RideValidation");
     const validation = validateUserCanJoinRide(ride, user);
 
     if (!validation.isValid) {
@@ -260,7 +258,6 @@ Meteor.methods({
     const ride = await Rides.findOneAsync(rideId);
 
     // Use centralized validation
-    const { validateUserCanRemoveRider } = require("./RideValidation");
     const validation = validateUserCanRemoveRider(ride, user, riderUserId);
 
     if (!validation.isValid) {

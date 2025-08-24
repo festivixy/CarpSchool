@@ -521,6 +521,7 @@ export { Notifications } from "../../api/notifications/Notifications";
 // Client-only exports - handled at module level
 let NotificationCounts;
 if (Meteor.isClient) {
+  // eslint-disable-next-line global-require
   const { NotificationCounts: ClientCounts } = require("../../api/notifications/NotificationPublications");
   NotificationCounts = ClientCounts;
 }

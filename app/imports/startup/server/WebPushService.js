@@ -41,6 +41,7 @@ class WebPushServiceClass {
 
       // Dynamic import of web-push (install with: meteor npm install web-push)
       try {
+        // eslint-disable-next-line global-require
         this.webpush = require("web-push");
       } catch (error) {
         console.warn("[WebPush] web-push package not installed. Run: meteor npm install web-push");

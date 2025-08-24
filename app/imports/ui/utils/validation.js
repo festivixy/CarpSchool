@@ -5,6 +5,8 @@
  * to prevent XSS attacks and ensure input safety across the application.
  */
 
+import Joi from "joi";
+
 // Common XSS patterns to check against
 const XSS_PATTERNS = [
   /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
@@ -90,7 +92,7 @@ export const createSafeStringSchema = ({
   label = "Input",
   patternMessage = null,
 } = {}) => {
-  let schema = require("joi").string();
+  let schema = Joi.string();
 
   if (required) {
     schema = schema.required();
@@ -152,7 +154,7 @@ export const createSafeUriSchema = ({
   max = 500,
   label = "URL",
 } = {}) => {
-  let schema = require("joi").string();
+  let schema = Joi.string();
 
   if (required) {
     schema = schema.required();

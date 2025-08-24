@@ -43,6 +43,7 @@ class OneSignalServiceClass {
 
       // Dynamic import of onesignal-node (install with: meteor npm install onesignal-node)
       try {
+        // eslint-disable-next-line global-require
         const OneSignal = require("onesignal-node");
         this.client = new OneSignal.Client(
           process.env.ONESIGNAL_APP_ID,

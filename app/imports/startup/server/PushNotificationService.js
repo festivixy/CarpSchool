@@ -50,6 +50,7 @@ class PushNotificationServiceClass {
 
       // Dynamic import of firebase-admin (install with: meteor npm install firebase-admin)
       try {
+        // eslint-disable-next-line global-require
         this.admin = require("firebase-admin");
       } catch (error) {
         console.warn("[Push] firebase-admin package not installed. Run: meteor npm install firebase-admin");
