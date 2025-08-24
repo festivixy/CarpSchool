@@ -185,7 +185,8 @@ Meteor.methods({
       throw new Meteor.Error("not-found", "Session not found");
     }
 
-    const canPickup = await canPickupRider(userId, sessionId, riderId, { lat: 0, lng: 0 }); // Location not needed for verification
+    // Location not needed for verification
+    const canPickup = await canPickupRider(userId, sessionId, riderId, { lat: 0, lng: 0 });
     if (!canPickup.allowed) {
       throw new Meteor.Error("access-denied", canPickup.reason);
     }
@@ -218,7 +219,10 @@ Meteor.methods({
       if (newAttempts >= 5) {
         updateData[`progress.${riderId}.codeError`] = true;
         await RideSessions.updateAsync(sessionId, { $set: updateData });
-        throw new Meteor.Error("verification-failed", "Too many failed attempts. Code verification disabled for this rider.");
+        throw new Meteor.Error(
+          "verification-failed",
+          "Too many failed attempts. Code verification disabled for this rider."
+        );
       }
 
       await RideSessions.updateAsync(sessionId, { $set: updateData });

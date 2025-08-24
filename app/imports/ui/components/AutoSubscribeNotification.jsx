@@ -184,7 +184,9 @@ const AutoSubscribeNotification = () => {
 
            // Don't set final status yet, we're retrying
         } else {
-          console.log(`[AutoSub] All ${maxRetries} subscription attempts failed - user may need to manually enable notifications`);
+          console.log(
+            `[AutoSub] All ${maxRetries} subscription attempts failed - user may need to manually enable notifications`
+          );
 
           // Set final failed status
           setSubscriptionStatus({

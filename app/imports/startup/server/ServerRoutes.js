@@ -14,8 +14,11 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
     } else {
       const cspHeader = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://onesignal.com https://api.onesignal.com",
-        "connect-src 'self' https://onesignal.com https://*.onesignal.com https://api.onesignal.com https://cdn.onesignal.com wss: ws: https://nominatim.carp.school https://tileserver.carp.school https://osrm.carp.school",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
+        "https://cdn.onesignal.com https://onesignal.com https://api.onesignal.com",
+        "connect-src 'self' https://onesignal.com https://*.onesignal.com " +
+        "https://api.onesignal.com https://cdn.onesignal.com wss: ws: " +
+        "https://nominatim.carp.school https://tileserver.carp.school https://osrm.carp.school",
         "img-src 'self' data: https: http: https://onesignal.com https://*.onesignal.com",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' data: https: https://fonts.gstatic.com",

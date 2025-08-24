@@ -62,7 +62,9 @@ Accounts.onLogout((loginHandle) => {
     // Call the NotificationUtils method to deactivate tokens
     NotificationUtils.deactivateUserTokens(loginHandle.userId)
       .then((result) => {
-        // console.log(`[Logout] Successfully deactivated ${result.deactivatedTokens} tokens for user ${loginHandle.userId}`);
+        // console.log(
+        //   `[Logout] Successfully deactivated ${result.deactivatedTokens} tokens for user ${loginHandle.userId}`
+        // );
       })
       .catch((error) => {
         console.error(`[Logout] Failed to deactivate tokens for user ${loginHandle.userId}:`, error);

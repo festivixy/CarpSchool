@@ -119,7 +119,12 @@ class OneSignalServiceClass {
 
         // Update notification as sent with warning
         if (notification.notificationId) {
-          await this.updateNotificationStatus(notification.notificationId, { id: "channel-warning" }, true, "Android channel not configured");
+          await this.updateNotificationStatus(
+            notification.notificationId,
+            { id: "channel-warning" },
+            true,
+            "Android channel not configured"
+          );
         }
 
         return { success: true, warning: "Android channel not configured", response: { id: "channel-warning" } };
