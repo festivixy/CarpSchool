@@ -11,24 +11,24 @@
  * @returns {Promise<object>} Route data with geometry and distance
  */
 export const calculateCoreRoute = async (startCoord, endCoord, options = {}) => {
-  const { 
-    service = 'driving',
-    timeout = 10000
+  const {
+    service = "driving",
+    timeout = 10000,
   } = options;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const baseUrl = 'https://osrm.carp.school/route/v1';
+    const baseUrl = "https://osrm.carp.school/route/v1";
     const coords = `${startCoord.lng},${startCoord.lat};${endCoord.lng},${endCoord.lat}`;
     const routeUrl = `${baseUrl}/${service}/${coords}?overview=full&geometries=geojson`;
 
     const response = await fetch(routeUrl, {
       signal: controller.signal,
       headers: {
-        'Accept': 'application/json',
-      }
+        Accept: "application/json",
+      },
     });
 
     if (!response.ok) {
@@ -36,22 +36,22 @@ export const calculateCoreRoute = async (startCoord, endCoord, options = {}) => 
     }
 
     const data = await response.json();
-    
+
     if (!data.routes || data.routes.length === 0) {
-      throw new Error('No route found');
+      throw new Error("No route found");
     }
 
     const route = data.routes[0];
-    
+
     return {
       geometry: route.geometry,
       distance: route.distance / 1000, // Convert to kilometers
       duration: route.duration / 60, // Convert to minutes
-      legs: route.legs || []
+      legs: route.legs || [],
     };
 
   } catch (error) {
-    if (error.name === 'AbortError') {
+    if (error.name === "AbortError") {
       throw new Error(`Route calculation timeout after ${timeout}ms`);
     }
     throw error;
@@ -70,13 +70,13 @@ export const calculateHaversineDistance = (coord1, coord2) => {
   const R = 6371; // Earth's radius in kilometers
   const dLat = toRadians(coord2.lat - coord1.lat);
   const dLng = toRadians(coord2.lng - coord1.lng);
-  
+
   const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(toRadians(coord1.lat)) * Math.cos(toRadians(coord2.lat)) *
             Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  
+
   return R * c;
 };
 

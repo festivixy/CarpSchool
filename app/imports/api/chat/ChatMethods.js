@@ -113,11 +113,11 @@ Meteor.methods({
     const schema = Joi.object({
       chatId: Joi.string().required(),
       content: createSafeStringSchema({
-        pattern: 'chatMessage',
+        pattern: "chatMessage",
         min: 1,
         max: 1000,
-        label: 'Message Content',
-        patternMessage: 'Message contains invalid characters',
+        label: "Message Content",
+        patternMessage: "Message contains invalid characters",
       }),
     });
 

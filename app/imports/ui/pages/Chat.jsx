@@ -133,7 +133,7 @@ class MobileChat extends React.Component {
             await Meteor.callAsync(
                 "chats.sendMessage",
                 selectedChatId,
-                messageToSend
+                messageToSend,
             );
             // Scroll to bottom after message is sent
             setTimeout(() => this.scrollToBottom(), 100);
@@ -169,8 +169,7 @@ class MobileChat extends React.Component {
         }
     };
 
-    formatTime = (timestamp) =>
-        new Date(timestamp).toLocaleTimeString("en-US", {
+    formatTime = (timestamp) => new Date(timestamp).toLocaleTimeString("en-US", {
             hour: "numeric",
             minute: "2-digit",
             hour12: true,
@@ -197,8 +196,7 @@ class MobileChat extends React.Component {
 
     getCurrentUser = () => Meteor.user()?._id;
 
-    getSelectedChat = () =>
-        this.props.chats?.find((chat) => chat._id === this.state.selectedChatId);
+    getSelectedChat = () => this.props.chats?.find((chat) => chat._id === this.state.selectedChatId);
 
     getChatDisplayName = (chat) => {
         const currentUser = this.getCurrentUser();
@@ -210,7 +208,7 @@ class MobileChat extends React.Component {
 
         // Fallback for any legacy data
         const otherParticipants = chat.Participants.filter(
-            (p) => p !== currentUser
+            (p) => p !== currentUser,
         );
 
         if (otherParticipants.length === 0) {
@@ -219,8 +217,7 @@ class MobileChat extends React.Component {
         return otherParticipants[0];
     };
 
-    getChatStatus = (chat) =>
-        chat.Participants.length === 1 ? "Waiting for participant" : "Active";
+    getChatStatus = (chat) => (chat.Participants.length === 1 ? "Waiting for participant" : "Active");
 
     // Helper to hide/show iOS native navbars
     hideIOSNavBars = async () => {
@@ -234,7 +231,7 @@ class MobileChat extends React.Component {
             }
         } else {
             console.log(
-                "[Chat] ℹ️ Native navbar plugin not available or hideAllNavBars not supported"
+                "[Chat] ℹ️ Native navbar plugin not available or hideAllNavBars not supported",
             );
         }
     };
@@ -250,7 +247,7 @@ class MobileChat extends React.Component {
             }
         } else {
             console.log(
-                "[Chat] ℹ️ Native navbar plugin not available or showAllNavBars not supported"
+                "[Chat] ℹ️ Native navbar plugin not available or showAllNavBars not supported",
             );
         }
     };
@@ -334,8 +331,7 @@ class MobileChat extends React.Component {
                                             <ChatListItem
                                                 key={chat._id}
                                                 active={selectedChatId === chat._id}
-                                                onClick={() =>
-                                                    this.setState({ selectedChatId: chat._id })
+                                                onClick={() => this.setState({ selectedChatId: chat._id })
                                                 }
                                             >
                                                 <ChatListItemContent>
@@ -389,7 +385,7 @@ class MobileChat extends React.Component {
                                                     index === 0 ||
                                                     this.formatDate(message.Timestamp) !==
                                                     this.formatDate(
-                                                        selectedChat.Messages[index - 1].Timestamp
+                                                        selectedChat.Messages[index - 1].Timestamp,
                                                     );
 
                                                 return (
@@ -419,8 +415,7 @@ class MobileChat extends React.Component {
                                                 type="text"
                                                 placeholder="Type a message..."
                                                 value={messageInput}
-                                                onChange={(e) =>
-                                                    this.setState({ messageInput: e.target.value })
+                                                onChange={(e) => this.setState({ messageInput: e.target.value })
                                                 }
                                             />
                                             <SendButton type="submit" disabled={!messageInput.trim()}>
@@ -526,8 +521,7 @@ class MobileChat extends React.Component {
                                 type="text"
                                 placeholder="Type a message..."
                                 value={messageInput}
-                                onChange={(e) =>
-                                    this.setState({ messageInput: e.target.value })
+                                onChange={(e) => this.setState({ messageInput: e.target.value })
                                 }
                             />
                             <SendButton type="submit" disabled={!messageInput.trim()}>
@@ -569,7 +563,7 @@ export default withRouter(
                 {},
                 {
                     sort: { "Messages.0.Timestamp": -1 }, // Sort by latest message
-                }
+                },
             ).fetch()
             : [];
 
@@ -578,5 +572,5 @@ export default withRouter(
             ready,
             rideId,
         };
-    })(MobileChat)
+    })(MobileChat),
 );

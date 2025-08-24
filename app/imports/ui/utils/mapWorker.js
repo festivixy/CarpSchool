@@ -13,9 +13,9 @@ const pendingMessages = new Map();
  * Initialize the Web Worker
  */
 const initWorker = () => {
-  if (!worker && typeof Worker !== 'undefined') {
+  if (!worker && typeof Worker !== "undefined") {
     try {
-      worker = new Worker('/mapWorker.js');
+      worker = new Worker("/mapWorker.js");
 
       worker.onmessage = (e) => {
         const { id, success, result, error } = e.data;
@@ -33,14 +33,14 @@ const initWorker = () => {
       };
 
       worker.onerror = (error) => {
-        console.error('[MapWorker] Worker error:', error);
+        console.error("[MapWorker] Worker error:", error);
         // Fallback to main thread if worker fails
         worker = null;
       };
 
-      console.log('[MapWorker] Web Worker initialized');
+      console.log("[MapWorker] Web Worker initialized");
     } catch (error) {
-      console.warn('[MapWorker] Failed to initialize worker:', error);
+      console.warn("[MapWorker] Failed to initialize worker:", error);
       worker = null;
     }
   }
@@ -49,10 +49,9 @@ const initWorker = () => {
 /**
  * Send message to worker and get promise for result
  */
-const sendWorkerMessage = (type, data, timeout = 5000) => {
-  return new Promise((resolve, reject) => {
+const sendWorkerMessage = (type, data, timeout = 5000) => new Promise((resolve, reject) => {
     if (!worker) {
-      reject(new Error('Web Worker not available'));
+      reject(new Error("Web Worker not available"));
       return;
     }
 
@@ -81,13 +80,12 @@ const sendWorkerMessage = (type, data, timeout = 5000) => {
       reject: (error) => {
         clearTimeout(timeoutId);
         originalReject(error);
-      }
+      },
     });
 
     // Send message to worker
     worker.postMessage({ id, type, data });
   });
-};
 
 /**
  * Calculate route using Web Worker (non-blocking)
@@ -101,20 +99,20 @@ export const calculateRouteInWorker = async (startCoord, endCoord, timeout = 300
 
   if (!worker) {
     // Fallback to main thread if worker not available
-    const { calculateCoreRoute } = await import('./mapCore');
+    const { calculateCoreRoute } = await import("./mapCore");
     return calculateCoreRoute(startCoord, endCoord, { timeout });
   }
 
   try {
-    return await sendWorkerMessage('CALCULATE_ROUTE', {
+    return await sendWorkerMessage("CALCULATE_ROUTE", {
       startCoord,
       endCoord,
-      timeout
+      timeout,
     }, timeout + 1000); // Add buffer for worker timeout
   } catch (error) {
-    console.warn('[MapWorker] Worker calculation failed, falling back to main thread:', error);
+    console.warn("[MapWorker] Worker calculation failed, falling back to main thread:", error);
     // Fallback to main thread
-    const { calculateCoreRoute } = await import('./mapCore');
+    const { calculateCoreRoute } = await import("./mapCore");
     return calculateCoreRoute(startCoord, endCoord, { timeout });
   }
 };
@@ -142,12 +140,12 @@ export const calculateDistanceInWorker = async (startCoord, endCoord) => {
   }
 
   try {
-    return await sendWorkerMessage('CALCULATE_DISTANCE', {
+    return await sendWorkerMessage("CALCULATE_DISTANCE", {
       startCoord,
-      endCoord
+      endCoord,
     });
   } catch (error) {
-    console.warn('[MapWorker] Distance calculation failed in worker, using fallback');
+    console.warn("[MapWorker] Distance calculation failed in worker, using fallback");
     // Fallback calculation
     const R = 6371;
     const dLat = ((endCoord.lat - startCoord.lat) * Math.PI) / 180;
@@ -168,7 +166,7 @@ export const cleanupWorker = () => {
   if (worker) {
     // Cancel all pending messages
     for (const { reject } of pendingMessages.values()) {
-      reject(new Error('Worker cleanup - operation cancelled'));
+      reject(new Error("Worker cleanup - operation cancelled"));
     }
     pendingMessages.clear();
 
@@ -176,11 +174,11 @@ export const cleanupWorker = () => {
     worker.terminate();
     worker = null;
 
-    console.log('[MapWorker] Worker terminated and cleaned up');
+    console.log("[MapWorker] Worker terminated and cleaned up");
   }
 };
 
 // Cleanup worker when page unloads
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', cleanupWorker);
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeunload", cleanupWorker);
 }

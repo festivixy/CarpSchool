@@ -34,14 +34,14 @@ Accounts.onCreateUser(async (options, user) => {
     const school = await Schools.findOneAsync({ _id: schoolId, isActive: true });
     if (school) {
       newUser.schoolId = schoolId;
-      
+
       // Check if school requires email domain verification
       if (school.settings?.requireDomainMatch && school.domain) {
-        const emailDomain = userEmail.split('@')[1].toLowerCase();
+        const emailDomain = userEmail.split("@")[1].toLowerCase();
         if (emailDomain !== school.domain.toLowerCase()) {
           throw new Meteor.Error(
-            "invalid-email-domain", 
-            `Email must be from ${school.domain} domain to join ${school.name}`
+            "invalid-email-domain",
+            `Email must be from ${school.domain} domain to join ${school.name}`,
           );
         }
       }
@@ -51,8 +51,8 @@ Accounts.onCreateUser(async (options, user) => {
   } else {
     // If no school could be determined, require manual selection
     throw new Meteor.Error(
-      "school-required", 
-      "Please select a school or use an email address associated with your institution"
+      "school-required",
+      "Please select a school or use an email address associated with your institution",
     );
   }
 

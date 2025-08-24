@@ -33,15 +33,15 @@ class OneSignalManager {
 
       // Check if OneSignal is available (v16 SDK)
       if (!window.OneSignal && !window.OneSignalDeferred) {
-        console.warn('[OneSignal] OneSignal SDK not available (blocked or failed to load)');
-        console.log('[OneSignal] Server-side push notifications will still function');
+        console.warn("[OneSignal] OneSignal SDK not available (blocked or failed to load)");
+        console.log("[OneSignal] Server-side push notifications will still function");
         return;
       }
 
       // Wait for OneSignal to be ready
       if (window.OneSignalDeferred) {
         await new Promise(resolve => {
-          window.OneSignalDeferred.push(function(OneSignal) {
+          window.OneSignalDeferred.push(function (OneSignal) {
             window.OneSignal = OneSignal;
             resolve();
           });
@@ -52,7 +52,7 @@ class OneSignalManager {
 
       // OneSignal v16 SDK is now initialized via official script in HTML
       // No need to call init() again as it's handled by OneSignalDeferred
-      console.log('[OneSignal] Using official v16 SDK initialization');
+      console.log("[OneSignal] Using official v16 SDK initialization");
 
       // Get user ID when available (try both v16 and legacy methods)
       try {
@@ -70,14 +70,14 @@ class OneSignalManager {
           });
         }
       } catch (error) {
-        console.log('[OneSignal] User ID not available yet:', error.message);
+        console.log("[OneSignal] User ID not available yet:", error.message);
       }
 
       // Listen for subscription changes (try v16 first, then legacy)
       try {
         if (window.OneSignal.User?.PushSubscription?.addEventListener) {
           // v16 SDK event listener
-          window.OneSignal.User.PushSubscription.addEventListener('change', (event) => {
+          window.OneSignal.User.PushSubscription.addEventListener("change", (event) => {
             if (event.current?.id && event.current.id !== this.playerId) {
               this.playerId = event.current.id;
               this.registerWithServer();
@@ -85,7 +85,7 @@ class OneSignalManager {
           });
         } else if (window.OneSignal.on) {
           // Legacy event listener
-          window.OneSignal.on('subscriptionChange', (isSubscribed) => {
+          window.OneSignal.on("subscriptionChange", (isSubscribed) => {
             if (isSubscribed && window.OneSignal.getUserId) {
               window.OneSignal.getUserId().then((userId) => {
                 if (userId && userId !== this.playerId) {
@@ -97,14 +97,14 @@ class OneSignalManager {
           });
         }
       } catch (error) {
-        console.log('[OneSignal] Event listener setup failed:', error.message);
+        console.log("[OneSignal] Event listener setup failed:", error.message);
       }
 
       this.isInitialized = true;
-      console.log('[OneSignal] Client manager initialized');
+      console.log("[OneSignal] Client manager initialized");
 
     } catch (error) {
-      console.error('[OneSignal] Initialization failed:', error);
+      console.error("[OneSignal] Initialization failed:", error);
     }
   }
 
@@ -139,7 +139,7 @@ class OneSignalManager {
       return permission;
 
     } catch (error) {
-      console.error('[OneSignal] Permission request failed:', error);
+      console.error("[OneSignal] Permission request failed:", error);
       return false;
     }
   }
@@ -162,14 +162,14 @@ class OneSignalManager {
       // Get device info
       const deviceInfo = this.getDeviceInfo();
 
-      await Meteor.callAsync('notifications.registerOneSignalPlayer', this.playerId, deviceInfo);
+      await Meteor.callAsync("notifications.registerOneSignalPlayer", this.playerId, deviceInfo);
       console.log(`[OneSignal] Player registered with server: ${this.playerId}`);
 
       // Set external user ID
       await window.OneSignal.login(Meteor.userId());
 
     } catch (error) {
-      console.error('[OneSignal] Server registration failed:', error);
+      console.error("[OneSignal] Server registration failed:", error);
     }
   }
 
@@ -183,11 +183,11 @@ class OneSignalManager {
 
     try {
       await window.OneSignal.User.addTags(tags);
-      console.log('[OneSignal] Tags set:', tags);
+      console.log("[OneSignal] Tags set:", tags);
       return true;
 
     } catch (error) {
-      console.error('[OneSignal] Set tags failed:', error);
+      console.error("[OneSignal] Set tags failed:", error);
       return false;
     }
   }
@@ -198,13 +198,13 @@ class OneSignalManager {
   getDeviceInfo() {
     const info = {
       userAgent: navigator.userAgent,
-      platform: 'web',
+      platform: "web",
       oneSignalPlayerId: this.playerId,
       browserName: this.getBrowserName(),
       deviceType: this.getDeviceType(),
       registeredAt: new Date().toISOString(),
       url: window.location.href,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
 
     // Add browser info
@@ -226,12 +226,12 @@ class OneSignalManager {
    */
   getBrowserName() {
     const userAgent = navigator.userAgent;
-    if (userAgent.includes('Chrome')) return 'Chrome';
-    if (userAgent.includes('Firefox')) return 'Firefox';
-    if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
-    if (userAgent.includes('Edge')) return 'Edge';
-    if (userAgent.includes('Opera')) return 'Opera';
-    return 'Unknown';
+    if (userAgent.includes("Chrome")) return "Chrome";
+    if (userAgent.includes("Firefox")) return "Firefox";
+    if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) return "Safari";
+    if (userAgent.includes("Edge")) return "Edge";
+    if (userAgent.includes("Opera")) return "Opera";
+    return "Unknown";
   }
 
   /**
@@ -239,9 +239,9 @@ class OneSignalManager {
    */
   getDeviceType() {
     const userAgent = navigator.userAgent;
-    if (/tablet|ipad/i.test(userAgent)) return 'tablet';
-    if (/mobile|android|iphone/i.test(userAgent)) return 'mobile';
-    return 'desktop';
+    if (/tablet|ipad/i.test(userAgent)) return "tablet";
+    if (/mobile|android|iphone/i.test(userAgent)) return "mobile";
+    return "desktop";
   }
 
   /**
@@ -254,7 +254,7 @@ class OneSignalManager {
 
     try {
       const permission = await window.OneSignal.Notifications.permission;
-      return permission === 'granted';
+      return permission === "granted";
     } catch (error) {
       return false;
     }
@@ -279,9 +279,9 @@ class OneSignalManager {
       userAgent: navigator.userAgent,
       protocol: window.location.protocol,
       isSecureContext: window.isSecureContext,
-      serviceWorkerSupported: 'serviceWorker' in navigator,
-      pushManagerSupported: 'PushManager' in window,
-      currentUrl: window.location.href
+      serviceWorkerSupported: "serviceWorker" in navigator,
+      pushManagerSupported: "PushManager" in window,
+      currentUrl: window.location.href,
     };
   }
 }
@@ -314,7 +314,7 @@ export const OneSignalHelpers = {
     const granted = await oneSignalManager.requestPermission();
 
     if (!granted) {
-      console.log('User denied OneSignal notification permission');
+      console.log("User denied OneSignal notification permission");
     }
 
     return granted;
@@ -326,8 +326,8 @@ export const OneSignalHelpers = {
   async setRideTags(rideId) {
     return await oneSignalManager.setTags({
       currentRide: rideId,
-      hasActiveRide: 'true',
-      lastRideUpdate: new Date().toISOString()
+      hasActiveRide: "true",
+      lastRideUpdate: new Date().toISOString(),
     });
   },
 
@@ -336,8 +336,8 @@ export const OneSignalHelpers = {
    */
   async clearRideTags() {
     return await oneSignalManager.setTags({
-      currentRide: '',
-      hasActiveRide: 'false'
+      currentRide: "",
+      hasActiveRide: "false",
     });
   },
 
@@ -346,9 +346,9 @@ export const OneSignalHelpers = {
    */
   async setLocationTags(city, state, country) {
     return await oneSignalManager.setTags({
-      city: city || '',
-      state: state || '',
-      country: country || ''
+      city: city || "",
+      state: state || "",
+      country: country || "",
     });
   },
 
@@ -357,10 +357,10 @@ export const OneSignalHelpers = {
    */
   async sendTestNotification() {
     try {
-      await Meteor.callAsync('notifications.testOneSignal');
+      await Meteor.callAsync("notifications.testOneSignal");
       return true;
     } catch (error) {
-      console.error('Test notification failed:', error);
+      console.error("Test notification failed:", error);
       return false;
     }
   },
@@ -370,9 +370,9 @@ export const OneSignalHelpers = {
    */
   async getUserDevices() {
     try {
-      return await Meteor.callAsync('notifications.getUserDevices');
+      return await Meteor.callAsync("notifications.getUserDevices");
     } catch (error) {
-      console.error('Failed to get user devices:', error);
+      console.error("Failed to get user devices:", error);
       return [];
     }
   },
@@ -382,9 +382,9 @@ export const OneSignalHelpers = {
    */
   async deactivateDevice(playerId) {
     try {
-      return await Meteor.callAsync('notifications.deactivateDevice', playerId);
+      return await Meteor.callAsync("notifications.deactivateDevice", playerId);
     } catch (error) {
-      console.error('Failed to deactivate device:', error);
+      console.error("Failed to deactivate device:", error);
       throw error;
     }
   },
@@ -397,7 +397,7 @@ export const OneSignalHelpers = {
       playerId: oneSignalManager.getPlayerId(),
       deviceInfo: oneSignalManager.getDeviceInfo(),
       isCurrentDevice: true,
-      isEnabled: oneSignalManager.isEnabled()
+      isEnabled: oneSignalManager.isEnabled(),
     };
   },
 
@@ -413,43 +413,42 @@ export const OneSignalHelpers = {
         totalDevices: devices.length,
         currentDevice,
         otherDevices: devices.filter(d => d.playerId !== currentDevice.playerId),
-        canReceiveNotifications: devices.length > 0 || currentDevice.isEnabled
+        canReceiveNotifications: devices.length > 0 || currentDevice.isEnabled,
       };
     } catch (error) {
-      console.error('Failed to get multi-device status:', error);
+      console.error("Failed to get multi-device status:", error);
       return {
         totalDevices: 0,
         currentDevice: this.getCurrentDeviceInfo(),
         otherDevices: [],
-        canReceiveNotifications: false
+        canReceiveNotifications: false,
       };
     }
-  }
+  },
 };
 
 // Load OneSignal SDK with proper error handling
 if (Meteor.isClient && !window.OneSignal) {
-  const loadOneSignalSDK = () => {
-    return new Promise((resolve, reject) => {
+  const loadOneSignalSDK = () => new Promise((resolve, reject) => {
       // Check if already loaded
       if (window.OneSignal) {
         resolve(window.OneSignal);
         return;
       }
 
-      const script = document.createElement('script');
-      script.src = 'https://cdn.onesignal.com/sdks/OneSignalSDK.js';
+      const script = document.createElement("script");
+      script.src = "https://cdn.onesignal.com/sdks/OneSignalSDK.js";
       script.async = true;
 
       script.onload = () => {
-        console.log('[OneSignal] SDK loaded successfully');
+        console.log("[OneSignal] SDK loaded successfully");
         resolve(window.OneSignal);
       };
 
       script.onerror = (error) => {
-        console.warn('[OneSignal] SDK failed to load:', error);
-        console.warn('[OneSignal] Falling back to server-only push notifications');
-        reject(new Error('OneSignal SDK blocked or failed to load'));
+        console.warn("[OneSignal] SDK failed to load:", error);
+        console.warn("[OneSignal] Falling back to server-only push notifications");
+        reject(new Error("OneSignal SDK blocked or failed to load"));
       };
 
       document.head.appendChild(script);
@@ -457,15 +456,14 @@ if (Meteor.isClient && !window.OneSignal) {
       // Timeout after 10 seconds
       setTimeout(() => {
         if (!window.OneSignal) {
-          reject(new Error('OneSignal SDK load timeout'));
+          reject(new Error("OneSignal SDK load timeout"));
         }
       }, 10000);
     });
-  };
 
   // Attempt to load SDK
   loadOneSignalSDK().catch(error => {
-    console.warn('[OneSignal] Web SDK unavailable:', error.message);
-    console.log('[OneSignal] Server-side notifications will still work');
+    console.warn("[OneSignal] Web SDK unavailable:", error.message);
+    console.log("[OneSignal] Server-side notifications will still work");
   });
 }

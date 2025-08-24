@@ -15,7 +15,7 @@ const ChatMessage = memo(({
   message,
   isCurrentUser,
   showSender = true,
-  timeFormat = "short"
+  timeFormat = "short",
 }) => {
   // Memoize expensive time formatting
   const formattedTime = useMemo(() => {
@@ -23,8 +23,8 @@ const ChatMessage = memo(({
 
     if (timeFormat === "short") {
       return date.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
+        hour: "2-digit",
+        minute: "2-digit",
       });
     }
 
@@ -37,8 +37,8 @@ const ChatMessage = memo(({
 
     // Extract username from email if needed
     const sender = message.Sender;
-    if (sender.includes('@')) {
-      return sender.split('@')[0];
+    if (sender.includes("@")) {
+      return sender.split("@")[0];
     }
     return sender;
   }, [message.Sender, showSender]);
@@ -56,17 +56,16 @@ const ChatMessage = memo(({
       <MessageTime>{formattedTime}</MessageTime>
     </Message>
   );
-}, (prevProps, nextProps) => {
+}, (prevProps, nextProps) =>
   // Custom comparison for optimal memoization
-  return (
+   (
     prevProps.message._id === nextProps.message._id &&
     prevProps.message.Content === nextProps.message.Content &&
     prevProps.message.Timestamp === nextProps.message.Timestamp &&
     prevProps.isCurrentUser === nextProps.isCurrentUser &&
     prevProps.showSender === nextProps.showSender &&
     prevProps.timeFormat === nextProps.timeFormat
-  );
-});
+  ));
 
 ChatMessage.propTypes = {
   message: PropTypes.shape({
@@ -77,9 +76,9 @@ ChatMessage.propTypes = {
   }).isRequired,
   isCurrentUser: PropTypes.bool,
   showSender: PropTypes.bool,
-  timeFormat: PropTypes.oneOf(['short', 'long']),
+  timeFormat: PropTypes.oneOf(["short", "long"]),
 };
 
-ChatMessage.displayName = 'ChatMessage';
+ChatMessage.displayName = "ChatMessage";
 
 export default ChatMessage;

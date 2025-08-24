@@ -18,9 +18,10 @@ const RideSessionSchema = Joi.object({
       dropoffTime: Joi.date().optional().allow(null),
       pickupTime: Joi.date().optional().allow(null),
       code: Joi.string().length(4).optional(), // 4-digit pickup verification code
-      codeAttempts: Joi.number().integer().min(0).max(5).default(0), // Failed verification attempts
+      codeAttempts: Joi.number().integer().min(0).max(5)
+.default(0), // Failed verification attempts
       codeError: Joi.boolean().default(false), // Marked as error after 5 failed attempts
-    })
+    }),
   ).default({}),
   finished: Joi.boolean().default(false).label("Ride Finished"),
   timeline: Joi.object({
@@ -40,7 +41,7 @@ const RideSessionSchema = Joi.object({
       by: Joi.string().required(),
       riderId: Joi.string().optional(),
       reason: Joi.string().optional(),
-    })
+    }),
   ).default({}),
   createdBy: Joi.string().required().label("Created By User ID"),
   status: Joi.string().valid("created", "active", "completed", "cancelled").default("created"),

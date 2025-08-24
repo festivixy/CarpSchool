@@ -43,9 +43,9 @@ class SchoolSelector extends Component {
     try {
       const result = await Meteor.callAsync("schools.getByDomain", email);
       if (result) {
-        this.setState({ 
+        this.setState({
           autoDetectedSchool: result,
-          selectedSchoolId: result._id 
+          selectedSchoolId: result._id,
         });
         if (this.props.onSchoolSelect) {
           this.props.onSchoolSelect(result._id, result);
@@ -70,16 +70,14 @@ class SchoolSelector extends Component {
   getFilteredSchools = () => {
     const { schools } = this.props;
     const { searchTerm } = this.state;
-    
+
     if (!searchTerm) return schools;
-    
+
     const term = searchTerm.toLowerCase();
-    return schools.filter(school => 
-      school.name.toLowerCase().includes(term) ||
+    return schools.filter(school => school.name.toLowerCase().includes(term) ||
       school.shortName.toLowerCase().includes(term) ||
       school.code.toLowerCase().includes(term) ||
-      school.location.city.toLowerCase().includes(term)
-    );
+      school.location.city.toLowerCase().includes(term));
   };
 
   render() {
@@ -114,14 +112,14 @@ class SchoolSelector extends Component {
         </SelectorHeader>
 
         {autoDetectedSchool && (
-          <div style={{ 
-            background: "#e8f5e8", 
-            padding: "12px", 
-            borderRadius: "8px", 
+          <div style={{
+            background: "#e8f5e8",
+            padding: "12px",
+            borderRadius: "8px",
             marginBottom: "16px",
-            border: "1px solid #4caf50"
+            border: "1px solid #4caf50",
           }}>
-            ✅ <strong>Auto-detected:</strong> {autoDetectedSchool.name} 
+            ✅ <strong>Auto-detected:</strong> {autoDetectedSchool.name}
             (based on your email domain)
           </div>
         )}

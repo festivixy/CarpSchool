@@ -6,10 +6,10 @@
  * Get current location coordinates
  * @returns {Promise<{lat: number, lng: number}>} Location coordinates
  */
-export const getCurrentLocation = async () => {
+export const getCurrentLocation = async () =>
   // Return dummy coordinates for now
-  return { lat: 0, lng: 0 };
-};
+   ({ lat: 0, lng: 0 })
+;
 
 /**
  * Watch position changes
@@ -22,7 +22,7 @@ export const watchLocation = (onSuccess, onError) => {
   const watchId = setInterval(() => {
     onSuccess({ lat: 0, lng: 0 });
   }, 5000);
-  
+
   return watchId;
 };
 

@@ -83,15 +83,15 @@ export const SchoolItem = styled.div`
   border-bottom: 1px solid #e0e0e0;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: ${props => props.selected ? "#667eea" : "#ffffff"};
-  color: ${props => props.selected ? "#ffffff" : "#333"};
+  background-color: ${props => (props.selected ? "#667eea" : "#ffffff")};
+  color: ${props => (props.selected ? "#ffffff" : "#333")};
 
   &:last-child {
     border-bottom: none;
   }
 
   &:hover {
-    background-color: ${props => props.selected ? "#5a6fd8" : "#f0f0f0"};
+    background-color: ${props => (props.selected ? "#5a6fd8" : "#f0f0f0")};
     transform: translateY(-1px);
   }
 
@@ -123,8 +123,8 @@ export const SchoolLocation = styled.div`
 `;
 
 export const SchoolCode = styled.div`
-  background-color: ${props => props.theme?.selected ? "rgba(255, 255, 255, 0.2)" : "#f0f0f0"};
-  color: ${props => props.theme?.selected ? "#ffffff" : "#666"};
+  background-color: ${props => (props.theme?.selected ? "rgba(255, 255, 255, 0.2)" : "#f0f0f0")};
+  color: ${props => (props.theme?.selected ? "#ffffff" : "#666")};
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;

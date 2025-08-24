@@ -17,12 +17,12 @@ const RidesSchema = Joi.object({
 .required(), // Number of available seats
   shareCode: Joi.string().optional(),
   notes: createSafeStringSchema({
-    pattern: 'generalText',
+    pattern: "generalText",
     min: 0,
     max: 500,
     required: false,
     allowEmpty: true,
-    label: 'Ride Notes',
+    label: "Ride Notes",
   }),
   createdAt: Joi.date().optional(),
 }).custom((obj, helpers) => {
@@ -30,7 +30,7 @@ const RidesSchema = Joi.object({
 
   // 1. Ensure rider count doesn't exceed available seats
   if (obj.riders && obj.seats && obj.riders.length > obj.seats) {
-    return helpers.error('ride.capacity', {
+    return helpers.error("ride.capacity", {
       riderCount: obj.riders.length,
       seatCount: obj.seats,
     });
@@ -38,7 +38,7 @@ const RidesSchema = Joi.object({
 
   // 2. Ensure driver is not in riders array
   if (obj.driver && obj.riders && obj.riders.includes(obj.driver)) {
-    return helpers.error('ride.driverAsRider', {
+    return helpers.error("ride.driverAsRider", {
       driver: obj.driver,
     });
   }
@@ -47,7 +47,7 @@ const RidesSchema = Joi.object({
   if (obj.riders && obj.riders.length > 0) {
     const uniqueRiders = [...new Set(obj.riders)];
     if (uniqueRiders.length !== obj.riders.length) {
-      return helpers.error('ride.duplicateRiders', {
+      return helpers.error("ride.duplicateRiders", {
         originalCount: obj.riders.length,
         uniqueCount: uniqueRiders.length,
       });
@@ -56,7 +56,7 @@ const RidesSchema = Joi.object({
 
   // 4. Ensure origin and destination are different
   if (obj.origin && obj.destination && obj.origin === obj.destination) {
-    return helpers.error('ride.sameLocation', {
+    return helpers.error("ride.sameLocation", {
       location: obj.origin,
     });
   }
@@ -69,7 +69,7 @@ const RidesSchema = Joi.object({
     const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
 
     if (rideDate.getTime() < (now.getTime() - bufferTime)) {
-      return helpers.error('ride.pastDate', {
+      return helpers.error("ride.pastDate", {
         rideDate: rideDate.toISOString(),
         currentDate: now.toISOString(),
       });
@@ -77,12 +77,12 @@ const RidesSchema = Joi.object({
   }
 
   return obj;
-}, 'Ride data logic validation').messages({
-  'ride.capacity': 'Ride has {{#riderCount}} riders but only {{#seatCount}} seats available',
-  'ride.driverAsRider': 'Driver {{#driver}} cannot also be a rider',
-  'ride.duplicateRiders': 'Ride contains duplicate riders ({{#originalCount}} riders, {{#uniqueCount}} unique)',
-  'ride.sameLocation': 'Origin and destination cannot be the same location: {{#location}}',
-  'ride.pastDate': 'Ride date cannot be in the past ({{#rideDate}} is before {{#currentDate}})',
+}, "Ride data logic validation").messages({
+  "ride.capacity": "Ride has {{#riderCount}} riders but only {{#seatCount}} seats available",
+  "ride.driverAsRider": "Driver {{#driver}} cannot also be a rider",
+  "ride.duplicateRiders": "Ride contains duplicate riders ({{#originalCount}} riders, {{#uniqueCount}} unique)",
+  "ride.sameLocation": "Origin and destination cannot be the same location: {{#location}}",
+  "ride.pastDate": "Ride date cannot be in the past ({{#rideDate}} is before {{#currentDate}})",
 });
 
 /** Make the collection available to other code. */

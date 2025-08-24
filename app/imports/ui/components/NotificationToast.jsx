@@ -8,21 +8,21 @@ import {
   ToastText,
   ToastTitle,
   ToastBody,
-  ToastClose
+  ToastClose,
 } from "../styles/NotificationBadge";
 
 /**
  * In-App Notification Toast
  * Shows when app is in foreground and receives push notification
  */
-const NotificationToastComponent = ({ 
-  title, 
-  body, 
-  type, 
-  data, 
-  onClose, 
+const NotificationToastComponent = ({
+  title,
+  body,
+  type,
+  data,
+  onClose,
   onAction,
-  autoClose = 5000 
+  autoClose = 5000,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -39,14 +39,14 @@ const NotificationToastComponent = ({
   const getIcon = (notificationType) => {
     const icons = {
       ride_update: "🚗",
-      ride_cancelled: "❌", 
+      ride_cancelled: "❌",
       rider_joined: "👋",
       rider_left: "👋",
       chat_message: "💬",
       ride_starting: "🚦",
       ride_completed: "✅",
       emergency: "🚨",
-      system: "ℹ️"
+      system: "ℹ️",
     };
     return icons[notificationType] || "📬";
   };
@@ -86,7 +86,7 @@ const NotificationToastComponent = ({
         </ToastClose>
       </ToastContent>
     </NotificationToast>,
-    document.body
+    document.body,
   );
 };
 
@@ -97,7 +97,7 @@ NotificationToastComponent.propTypes = {
   data: PropTypes.object,
   onClose: PropTypes.func,
   onAction: PropTypes.func,
-  autoClose: PropTypes.number
+  autoClose: PropTypes.number,
 };
 
 // Toast Manager for handling multiple toasts
@@ -105,10 +105,10 @@ class ToastManager {
   constructor() {
     this.toasts = new Map();
     this.toastId = 0;
-    
+
     // Listen for custom events from notification manager
-    if (typeof window !== 'undefined') {
-      window.addEventListener('inAppNotification', this.handleInAppNotification.bind(this));
+    if (typeof window !== "undefined") {
+      window.addEventListener("inAppNotification", this.handleInAppNotification.bind(this));
     }
   }
 
@@ -126,13 +126,13 @@ class ToastManager {
       data: options.data,
       autoClose: options.autoClose !== undefined ? options.autoClose : 5000,
       onClose: () => this.remove(id),
-      onAction: options.onAction || this.defaultAction
+      onAction: options.onAction || this.defaultAction,
     };
 
     // Create and render toast
     const toastElement = React.createElement(NotificationToastComponent, {
       key: id,
-      ...toastProps
+      ...toastProps,
     });
 
     this.toasts.set(id, toastElement);
@@ -149,9 +149,9 @@ class ToastManager {
   defaultAction(data) {
     // Default navigation action
     if (data?.rideId && window.FlowRouter) {
-      window.FlowRouter.go('/mobile/ride-info', { rideId: data.rideId });
+      window.FlowRouter.go("/mobile/ride-info", { rideId: data.rideId });
     } else if (data?.chatId && window.FlowRouter) {
-      window.FlowRouter.go('/chat', {}, { chatId: data.chatId });
+      window.FlowRouter.go("/chat", {}, { chatId: data.chatId });
     }
   }
 

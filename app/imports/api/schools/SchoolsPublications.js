@@ -17,7 +17,7 @@ Meteor.publish("schools.active", function publishActiveSchools() {
         settings: 1,
       },
       sort: { name: 1 },
-    }
+    },
   );
 });
 
@@ -49,6 +49,6 @@ Meteor.publish("schools.byId", function publishSchoolById(schoolId) {
         location: 1,
         settings: 1,
       },
-    }
+    },
   );
 });

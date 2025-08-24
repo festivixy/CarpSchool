@@ -71,5 +71,5 @@ export default withRouter(
       tosContent,
       ready: subscription.ready(),
     };
-  })(MobileTOS)
+  })(MobileTOS),
 );

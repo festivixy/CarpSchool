@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes } from "styled-components";
 
 const fadeIn = keyframes`
   from {
@@ -23,7 +23,7 @@ const slideUp = keyframes`
 `;
 
 export const ModalOverlay = styled.div`
-  display: ${props => props.$isVisible ? 'flex' : 'none'};
+  display: ${props => (props.$isVisible ? "flex" : "none")};
   position: fixed;
   top: 0;
   left: 0;
@@ -129,21 +129,21 @@ export const AppName = styled.h2`
 
 export const InstallButton = styled.button`
   width: 100%;
-  background: ${props => props.disabled
-    ? 'linear-gradient(135deg, #e2e8f0, #cbd5e0)'
-    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};
-  color: ${props => props.disabled ? '#718096' : '#ffffff'};
+  background: ${props => (props.disabled
+    ? "linear-gradient(135deg, #e2e8f0, #cbd5e0)"
+    : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)")};
+  color: ${props => (props.disabled ? "#718096" : "#ffffff")};
   border: none;
   border-radius: 16px;
   font-size: 16px;
   font-weight: 600;
   padding: 16px 24px;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  opacity: ${props => props.disabled ? 0.6 : 1};
+  cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
+  opacity: ${props => (props.disabled ? 0.6 : 1)};
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-  box-shadow: ${props => props.disabled
-    ? 'none'
-    : '0 8px 16px rgba(102, 126, 234, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1)'};
+  box-shadow: ${props => (props.disabled
+    ? "none"
+    : "0 8px 16px rgba(102, 126, 234, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1)")};
   position: relative;
   overflow: hidden;
   letter-spacing: -0.01em;

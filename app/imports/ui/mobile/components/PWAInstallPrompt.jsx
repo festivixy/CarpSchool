@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   ModalOverlay,
   ModalContent,
@@ -8,9 +8,9 @@ import {
   InstallButton,
   SkipButton,
   IOSInstructions,
-  ShareIcon
-} from '../styles/PWAInstallPrompt';
-import { usePWAInstall } from '../hooks/usePWAInstall';
+  ShareIcon,
+} from "../styles/PWAInstallPrompt";
+import { usePWAInstall } from "../hooks/usePWAInstall";
 
 /**
  * PWA Install Prompt Component
@@ -26,28 +26,26 @@ const PWAInstallPrompt = () => {
     isIOS,
     isMobile,
     isRunningAsPWA,
-    hideInstallPrompt
+    hideInstallPrompt,
   } = usePWAInstall();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInstallable, setIsInstallable] = useState(false);
-  const [buttonText, setButtonText] = useState('Loading app info...');
+  const [buttonText, setButtonText] = useState("Loading app info...");
   const [buttonDisabled, setButtonDisabled] = useState(true);
-  const [appInfo, setAppInfo] = useState({ name: '', logo: '' });
+  const [appInfo, setAppInfo] = useState({ name: "", logo: "" });
   const modalRef = useRef(null);
-
-
 
   /**
    * Get favicon URL for app logo
    */
   const getFaviconHref = () => {
-    const linkElements = document.getElementsByTagName('link');
+    const linkElements = document.getElementsByTagName("link");
     for (let i = 0; i < linkElements.length; i++) {
-      if (linkElements[i].getAttribute('rel') === 'icon') {
-        return linkElements[i].getAttribute('href');
+      if (linkElements[i].getAttribute("rel") === "icon") {
+        return linkElements[i].getAttribute("href");
       }
     }
-    return '/icon-192x192.png'; // Fallback to PWA icon
+    return "/icon-192x192.png"; // Fallback to PWA icon
   };
 
   /**
@@ -55,8 +53,8 @@ const PWAInstallPrompt = () => {
    */
   useEffect(() => {
     setAppInfo({
-      name: document.title || 'CarpSchool',
-      logo: getFaviconHref()
+      name: document.title || "CarpSchool",
+      logo: getFaviconHref(),
     });
   }, []);
 
@@ -74,32 +72,32 @@ const PWAInstallPrompt = () => {
       e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
-      setButtonText('Install as an app');
+      setButtonText("Install as an app");
       setButtonDisabled(false);
       beforeInstallPromptFired = true;
     };
 
     const handleAppInstalled = () => {
-      console.log('[PWA] App was installed');
+      console.log("[PWA] App was installed");
       setDeferredPrompt(null);
       setIsInstallable(false);
       onClose();
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     // Give browser time to fire beforeinstallprompt
     const timeout = setTimeout(() => {
       if (!beforeInstallPromptFired) {
-        setButtonText('The app is already installed or your environment doesn\'t support installation.');
+        setButtonText("The app is already installed or your environment doesn't support installation.");
         setButtonDisabled(true);
       }
     }, 1000);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
       clearTimeout(timeout);
     };
   }, [isMobile, isIOS, isRunningAsPWA, hideInstallPrompt]);
@@ -114,16 +112,16 @@ const PWAInstallPrompt = () => {
       deferredPrompt.prompt();
       const choiceResult = await deferredPrompt.userChoice;
 
-      if (choiceResult.outcome === 'accepted') {
-        console.log('[PWA] User accepted the install prompt');
+      if (choiceResult.outcome === "accepted") {
+        console.log("[PWA] User accepted the install prompt");
         hideInstallPrompt();
       } else {
-        console.log('[PWA] User dismissed the install prompt');
+        console.log("[PWA] User dismissed the install prompt");
       }
 
       setDeferredPrompt(null);
     } catch (error) {
-      console.error('[PWA] Install prompt error:', error);
+      console.error("[PWA] Install prompt error:", error);
     }
   };
 
@@ -161,7 +159,7 @@ const PWAInstallPrompt = () => {
     >
       <ModalContent onClick={handleContentClick}>
         <ModalBody>
-          <h1>{isIOS ? 'iOS App Installation Method' : 'Install as PWA?'}</h1>
+          <h1>{isIOS ? "iOS App Installation Method" : "Install as PWA?"}</h1>
           <AppLogo src={appInfo.logo} alt="App logo" />
           <AppName>{appInfo.name}</AppName>
         </ModalBody>

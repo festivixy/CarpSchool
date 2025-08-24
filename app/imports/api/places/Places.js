@@ -9,10 +9,10 @@ const PlacesSchema = Joi.object({
   _id: Joi.string().optional(),
   schoolId: Joi.string().required().label("School ID"), // School this place belongs to
   text: createSafeStringSchema({
-    pattern: 'location',
+    pattern: "location",
     min: 1,
     max: 100,
-    label: 'Location Name',
+    label: "Location Name",
   }),
   value: Joi.string()
     .required()

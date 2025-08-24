@@ -71,5 +71,5 @@ export default withRouter(
       privacyContent,
       ready: subscription.ready(),
     };
-  })(MobilePrivacy)
+  })(MobilePrivacy),
 );

@@ -319,18 +319,18 @@ export const ActionButton = styled.button`
   transition: all 0.2s ease;
   background: ${props => {
     switch (props.variant) {
-      case 'edit': return 'rgba(59, 130, 246, 0.1)';
-      case 'deactivate': return 'rgba(239, 68, 68, 0.1)';
-      case 'activate': return 'rgba(34, 197, 94, 0.1)';
-      default: return 'rgba(0, 0, 0, 0.05)';
+      case "edit": return "rgba(59, 130, 246, 0.1)";
+      case "deactivate": return "rgba(239, 68, 68, 0.1)";
+      case "activate": return "rgba(34, 197, 94, 0.1)";
+      default: return "rgba(0, 0, 0, 0.05)";
     }
   }};
   color: ${props => {
     switch (props.variant) {
-      case 'edit': return 'rgba(59, 130, 246, 1)';
-      case 'deactivate': return 'rgba(239, 68, 68, 1)';
-      case 'activate': return 'rgba(34, 197, 94, 1)';
-      default: return 'rgba(0, 0, 0, 0.7)';
+      case "edit": return "rgba(59, 130, 246, 1)";
+      case "deactivate": return "rgba(239, 68, 68, 1)";
+      case "activate": return "rgba(34, 197, 94, 1)";
+      default: return "rgba(0, 0, 0, 0.7)";
     }
   }};
 
@@ -338,10 +338,10 @@ export const ActionButton = styled.button`
     transform: scale(1.05);
     background: ${props => {
       switch (props.variant) {
-        case 'edit': return 'rgba(59, 130, 246, 0.2)';
-        case 'deactivate': return 'rgba(239, 68, 68, 0.2)';
-        case 'activate': return 'rgba(34, 197, 94, 0.2)';
-        default: return 'rgba(0, 0, 0, 0.1)';
+        case "edit": return "rgba(59, 130, 246, 0.2)";
+        case "deactivate": return "rgba(239, 68, 68, 0.2)";
+        case "activate": return "rgba(34, 197, 94, 0.2)";
+        default: return "rgba(0, 0, 0, 0.1)";
       }
     }};
   }
@@ -404,8 +404,8 @@ export const StatusBadge = styled.span`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  background: ${props => props.isActive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'};
-  color: ${props => props.isActive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'};
+  background: ${props => (props.isActive ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)")};
+  color: ${props => (props.isActive ? "rgba(34, 197, 94, 1)" : "rgba(239, 68, 68, 1)")};
 `;
 
 export const UserCountBadge = styled.span`
@@ -576,11 +576,11 @@ export const Switch = styled.label`
   display: inline-block;
   width: 44px;
   height: 24px;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  opacity: ${props => props.disabled ? 0.5 : 1};
+  cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
+  opacity: ${props => (props.disabled ? 0.5 : 1)};
 `;
 
-export const SwitchInput = styled.input.attrs({ type: 'checkbox' })`
+export const SwitchInput = styled.input.attrs({ type: "checkbox" })`
   opacity: 0;
   width: 0;
   height: 0;
@@ -630,7 +630,7 @@ export const Button = styled.button`
 
   ${props => {
     switch (props.variant) {
-      case 'primary':
+      case "primary":
         return `
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
@@ -640,7 +640,7 @@ export const Button = styled.button`
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
           }
         `;
-      case 'danger':
+      case "danger":
         return `
           background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
           color: white;
@@ -696,7 +696,7 @@ export const StatusMessage = styled.div`
   margin-bottom: 24px;
   text-align: center;
 
-  ${props => props.type === 'success' ? `
+  ${props => (props.type === "success" ? `
     background: rgba(34, 197, 94, 0.1);
     color: rgba(34, 197, 94, 1);
     border: 1px solid rgba(34, 197, 94, 0.2);
@@ -704,5 +704,5 @@ export const StatusMessage = styled.div`
     background: rgba(239, 68, 68, 0.1);
     color: rgba(239, 68, 68, 1);
     border: 1px solid rgba(239, 68, 68, 0.2);
-  `}
+  `)}
 `;

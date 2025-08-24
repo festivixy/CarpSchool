@@ -24,7 +24,7 @@ class PushNotificationServiceClass {
   constructor() {
     this.isInitialized = false;
     this.admin = null;
-    this.backend = process.env.NOTIFICATION_BACKEND || 'firebase';
+    this.backend = process.env.NOTIFICATION_BACKEND || "firebase";
     this.initializeService();
   }
 
@@ -35,24 +35,24 @@ class PushNotificationServiceClass {
     try {
       // Check if required environment variables are set
       const requiredEnvVars = [
-        'FIREBASE_PROJECT_ID',
-        'FIREBASE_CLIENT_EMAIL',
-        'FIREBASE_PRIVATE_KEY'
+        "FIREBASE_PROJECT_ID",
+        "FIREBASE_CLIENT_EMAIL",
+        "FIREBASE_PRIVATE_KEY",
       ];
 
       const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
       if (missingVars.length > 0) {
-        console.warn(`[Push] Missing environment variables: ${missingVars.join(', ')}`);
-        console.warn('[Push] Push notifications will not be functional');
+        console.warn(`[Push] Missing environment variables: ${missingVars.join(", ")}`);
+        console.warn("[Push] Push notifications will not be functional");
         return;
       }
 
       // Dynamic import of firebase-admin (install with: meteor npm install firebase-admin)
       try {
-        this.admin = require('firebase-admin');
+        this.admin = require("firebase-admin");
       } catch (error) {
-        console.warn('[Push] firebase-admin package not installed. Run: meteor npm install firebase-admin');
+        console.warn("[Push] firebase-admin package not installed. Run: meteor npm install firebase-admin");
         return;
       }
 
@@ -62,7 +62,7 @@ class PushNotificationServiceClass {
           type: "service_account",
           project_id: process.env.FIREBASE_PROJECT_ID,
           client_email: process.env.FIREBASE_CLIENT_EMAIL,
-          private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
         };
 
         this.admin.initializeApp({
@@ -74,7 +74,7 @@ class PushNotificationServiceClass {
       this.isInitialized = true;
 
     } catch (error) {
-      console.error('[Push] Failed to initialize push notification service:', error);
+      console.error("[Push] Failed to initialize push notification service:", error);
       this.isInitialized = false;
     }
   }
@@ -84,25 +84,25 @@ class PushNotificationServiceClass {
    */
   async sendToUser(userId, notification) {
     // Route to appropriate backend
-    if (this.backend === 'onesignal') {
+    if (this.backend === "onesignal") {
       return await OneSignalService.sendToUser(userId, notification);
     }
 
     // Firebase implementation
     if (!this.isInitialized) {
-      console.warn('[Push] Firebase service not initialized, skipping notification');
-      return { success: false, error: 'Service not initialized' };
+      console.warn("[Push] Firebase service not initialized, skipping notification");
+      return { success: false, error: "Service not initialized" };
     }
 
     try {
       // Get user's active push tokens
       const tokens = await PushTokens.find({
         userId,
-        isActive: true
+        isActive: true,
       }).fetchAsync();
 
       if (tokens.length === 0) {
-        return { success: false, error: 'No active tokens' };
+        return { success: false, error: "No active tokens" };
       }
 
       const results = [];
@@ -114,13 +114,13 @@ class PushNotificationServiceClass {
           results.push({
             platform: tokenDoc.platform,
             success: result.success,
-            error: result.error
+            error: result.error,
           });
 
           // Update token last used time on successful send
           if (result.success) {
             await PushTokens.updateAsync(tokenDoc._id, {
-              $set: { lastUsedAt: new Date() }
+              $set: { lastUsedAt: new Date() },
             });
           }
 
@@ -129,7 +129,7 @@ class PushNotificationServiceClass {
           results.push({
             platform: tokenDoc.platform,
             success: false,
-            error: error.message
+            error: error.message,
           });
         }
       }
@@ -141,10 +141,10 @@ class PushNotificationServiceClass {
           $set: {
             status: hasSuccess ? NOTIFICATION_STATUS.SENT : NOTIFICATION_STATUS.FAILED,
             sentAt: hasSuccess ? new Date() : undefined,
-            errorMessage: hasSuccess ? undefined : results.map(r => r.error).join(', '),
-            deviceTokens: tokens.map(t => t.token)
+            errorMessage: hasSuccess ? undefined : results.map(r => r.error).join(", "),
+            deviceTokens: tokens.map(t => t.token),
           },
-          $inc: { attempts: 1 }
+          $inc: { attempts: 1 },
         });
       }
 
@@ -158,9 +158,9 @@ class PushNotificationServiceClass {
         await Notifications.updateAsync(notification.notificationId, {
           $set: {
             status: NOTIFICATION_STATUS.FAILED,
-            errorMessage: error.message
+            errorMessage: error.message,
           },
-          $inc: { attempts: 1 }
+          $inc: { attempts: 1 },
         });
       }
 
@@ -183,12 +183,11 @@ class PushNotificationServiceClass {
       console.error(`[Push] Failed to send to ${tokenDoc.platform} token:`, error);
 
       // Handle invalid token errors
-      if (error.code === 'messaging/registration-token-not-registered' ||
-          error.code === 'messaging/invalid-registration-token') {
-
+      if (error.code === "messaging/registration-token-not-registered" ||
+          error.code === "messaging/invalid-registration-token") {
 
         await PushTokens.updateAsync(tokenDoc._id, {
-          $set: { isActive: false }
+          $set: { isActive: false },
         });
       }
 
@@ -204,56 +203,56 @@ class PushNotificationServiceClass {
       token: tokenDoc.token,
       data: {
         // All data must be strings for FCM
-        notificationId: notification.notificationId || '',
-        type: notification.type || '',
+        notificationId: notification.notificationId || "",
+        type: notification.type || "",
         ...Object.fromEntries(
-          Object.entries(notification.data || {}).map(([k, v]) => [k, String(v)])
-        )
-      }
+          Object.entries(notification.data || {}).map(([k, v]) => [k, String(v)]),
+        ),
+      },
     };
 
     // Platform-specific configuration
-    if (tokenDoc.platform === 'ios') {
+    if (tokenDoc.platform === "ios") {
       baseMessage.apns = {
         headers: {
-          'apns-priority': notification.priority === 'urgent' ? '10' : '5',
+          "apns-priority": notification.priority === "urgent" ? "10" : "5",
         },
         payload: {
           aps: {
             alert: {
               title: notification.title,
-              body: notification.body
+              body: notification.body,
             },
             badge: notification.badge || 1,
-            sound: notification.sound || 'default',
+            sound: notification.sound || "default",
             category: notification.category,
-            'thread-id': notification.threadId
-          }
-        }
+            "thread-id": notification.threadId,
+          },
+        },
       };
-    } else if (tokenDoc.platform === 'android') {
+    } else if (tokenDoc.platform === "android") {
       baseMessage.android = {
-        priority: notification.priority === 'urgent' ? 'high' : 'normal',
+        priority: notification.priority === "urgent" ? "high" : "normal",
         notification: {
           title: notification.title,
           body: notification.body,
-          icon: 'ic_notification',
-          color: '#000000',
-          sound: notification.sound || 'default',
+          icon: "ic_notification",
+          color: "#000000",
+          sound: notification.sound || "default",
           tag: notification.tag,
-          click_action: 'FLUTTER_NOTIFICATION_CLICK'
-        }
+          click_action: "FLUTTER_NOTIFICATION_CLICK",
+        },
       };
-    } else if (tokenDoc.platform === 'web') {
+    } else if (tokenDoc.platform === "web") {
       baseMessage.webpush = {
         notification: {
           title: notification.title,
           body: notification.body,
-          icon: '/icon-192x192.png',
-          badge: '/badge-72x72.png',
-          requireInteraction: notification.priority === 'urgent',
-          actions: notification.actions || []
-        }
+          icon: "/icon-192x192.png",
+          badge: "/badge-72x72.png",
+          requireInteraction: notification.priority === "urgent",
+          actions: notification.actions || [],
+        },
       };
     }
 
@@ -265,7 +264,7 @@ class PushNotificationServiceClass {
    */
   async sendToUsers(userIds, notification) {
     // Route to appropriate backend
-    if (this.backend === 'onesignal') {
+    if (this.backend === "onesignal") {
       return await OneSignalService.sendToUsers(userIds, notification);
     }
 
@@ -278,17 +277,15 @@ class PushNotificationServiceClass {
     for (let i = 0; i < userIds.length; i += batchSize) {
       const batch = userIds.slice(i, i + batchSize);
 
-      const batchPromises = batch.map(userId =>
-        this.sendToUser(userId, notification)
-      );
+      const batchPromises = batch.map(userId => this.sendToUser(userId, notification));
 
       const batchResults = await Promise.allSettled(batchPromises);
 
       batchResults.forEach((result, index) => {
         results.push({
           userId: batch[index],
-          success: result.status === 'fulfilled' && result.value.success,
-          error: result.status === 'rejected' ? result.reason : result.value?.error
+          success: result.status === "fulfilled" && result.value.success,
+          error: result.status === "rejected" ? result.reason : result.value?.error,
         });
       });
 
@@ -309,7 +306,7 @@ class PushNotificationServiceClass {
       title: "Test Notification",
       body: "This is a test notification from Carp School",
       data: { test: true },
-      priority: 'normal'
+      priority: "normal",
     });
   }
 
@@ -322,13 +319,13 @@ class PushNotificationServiceClass {
 
       const result = await PushTokens.removeAsync({
         isActive: false,
-        lastUsedAt: { $lt: cutoffDate }
+        lastUsedAt: { $lt: cutoffDate },
       });
 
       return result;
 
     } catch (error) {
-      console.error('[Push] Token cleanup failed:', error);
+      console.error("[Push] Token cleanup failed:", error);
       return 0;
     }
   }
@@ -339,13 +336,13 @@ class PushNotificationServiceClass {
   getStatus() {
     const baseStatus = {
       backend: this.backend,
-      initialized: this.isInitialized
+      initialized: this.isInitialized,
     };
 
-    if (this.backend === 'onesignal') {
+    if (this.backend === "onesignal") {
       return {
         ...baseStatus,
-        ...OneSignalService.getStatus()
+        ...OneSignalService.getStatus(),
       };
     }
 
@@ -356,8 +353,8 @@ class PushNotificationServiceClass {
       environment: {
         hasProjectId: !!process.env.FIREBASE_PROJECT_ID,
         hasClientEmail: !!process.env.FIREBASE_CLIENT_EMAIL,
-        hasPrivateKey: !!process.env.FIREBASE_PRIVATE_KEY
-      }
+        hasPrivateKey: !!process.env.FIREBASE_PRIVATE_KEY,
+      },
     };
   }
 }

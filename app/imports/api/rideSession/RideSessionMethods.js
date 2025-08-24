@@ -1,11 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
 import { RideSessions, RideSessionSchema } from "./RideSession";
-
-// Helper function to generate 4-digit pickup codes
-const generatePickupCode = () => {
-  return Math.floor(1000 + Math.random() * 9000).toString();
-};
 import {
   canCreateRideSession,
   canStartRideSession,
@@ -18,6 +13,9 @@ import {
   validateSessionState,
   validateTimeConstraints,
 } from "./RideSessionsSafety";
+
+// Helper function to generate 4-digit pickup codes
+const generatePickupCode = () => Math.floor(1000 + Math.random() * 9000).toString();
 
 Meteor.methods({
   async "rideSessions.create"(rideId, driverId, riderIds = []) {
@@ -324,7 +322,7 @@ Meteor.methods({
         attemptsRemaining: Math.max(0, 5 - (riderProgress.codeAttempts || 0)),
         codeError: riderProgress.codeError || false,
       };
-    } else if (isRider || isAdmin) {
+    } if (isRider || isAdmin) {
       // Rider gets full code
       return {
         fullCode: riderProgress.code,

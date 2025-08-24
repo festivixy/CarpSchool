@@ -112,7 +112,7 @@ const PathMapView = ({
     try {
       // Use optimized routing service with caching
       const { getRoute } = await import("../utils/mapServices");
-      const routeData = await getRoute(start, end, { service: 'driving' });
+      const routeData = await getRoute(start, end, { service: "driving" });
 
       return {
         geometry: routeData.geometry,
@@ -198,7 +198,7 @@ const PathMapView = ({
             route = await findRouteOptimized(startCoord, endCoord);
           } catch (routingError) {
             console.warn("Optimized routing failed, using fallback:", routingError);
-            if (routingError.message.includes('timeout')) {
+            if (routingError.message.includes("timeout")) {
               setError("Route calculation timed out, showing direct path");
             }
             route = createStraightLineRoute(startCoord, endCoord);
@@ -237,7 +237,7 @@ const PathMapView = ({
         }
       } catch (routeError) {
         console.error("Route finding error:", routeError);
-        if (routeError.message.includes('timeout')) {
+        if (routeError.message.includes("timeout")) {
           setError("Route calculation timed out. Please try again.");
         } else {
           setError(`Route finding failed: ${routeError.message}`);

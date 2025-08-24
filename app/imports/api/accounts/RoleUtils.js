@@ -99,7 +99,7 @@ export async function validateAdminAction(userId, targetSchoolId = null, action 
     if (await isSchoolAdmin(userId, targetSchoolId)) {
       return true;
     }
-    throw new Meteor.Error("access-denied", `You don't have admin access to this school`);
+    throw new Meteor.Error("access-denied", "You don't have admin access to this school");
   }
 
   // For general admin actions, check if user has any admin role
@@ -107,7 +107,7 @@ export async function validateAdminAction(userId, targetSchoolId = null, action 
     return true;
   }
 
-  throw new Meteor.Error("access-denied", `You don't have admin permissions for this action`);
+  throw new Meteor.Error("access-denied", "You don't have admin permissions for this action");
 }
 
 /**
@@ -116,7 +116,7 @@ export async function validateAdminAction(userId, targetSchoolId = null, action 
 export function getRoleDisplayName(role) {
   if (role === "system") return "System Administrator";
   if (role.startsWith("admin.")) {
-    return `School Administrator`;
+    return "School Administrator";
   }
   return role;
 }
@@ -128,7 +128,7 @@ export async function addSchoolAdminRole(userId, schoolId) {
   const role = `admin.${schoolId}`;
 
   await Meteor.users.updateAsync(userId, {
-    $addToSet: { roles: role }
+    $addToSet: { roles: role },
   });
 
   return role;
@@ -141,7 +141,7 @@ export async function removeSchoolAdminRole(userId, schoolId) {
   const role = `admin.${schoolId}`;
 
   await Meteor.users.updateAsync(userId, {
-    $pull: { roles: role }
+    $pull: { roles: role },
   });
 
   return true;
@@ -157,7 +157,7 @@ export async function addSystemRole(managerId, targetUserId) {
   }
 
   await Meteor.users.updateAsync(targetUserId, {
-    $addToSet: { roles: "system" }
+    $addToSet: { roles: "system" },
   });
 
   return true;

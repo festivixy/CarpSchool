@@ -29,34 +29,34 @@ class OneSignalServiceClass {
     try {
       // Check if required environment variables are set
       const requiredEnvVars = [
-        'ONESIGNAL_APP_ID',
-        'ONESIGNAL_API_KEY'
+        "ONESIGNAL_APP_ID",
+        "ONESIGNAL_API_KEY",
       ];
 
       const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
       if (missingVars.length > 0) {
-        console.warn(`[OneSignal] Missing environment variables: ${missingVars.join(', ')}`);
-        console.warn('[OneSignal] Push notifications will not be functional');
+        console.warn(`[OneSignal] Missing environment variables: ${missingVars.join(", ")}`);
+        console.warn("[OneSignal] Push notifications will not be functional");
         return;
       }
 
       // Dynamic import of onesignal-node (install with: meteor npm install onesignal-node)
       try {
-        const OneSignal = require('onesignal-node');
+        const OneSignal = require("onesignal-node");
         this.client = new OneSignal.Client(
           process.env.ONESIGNAL_APP_ID,
-          process.env.ONESIGNAL_API_KEY
+          process.env.ONESIGNAL_API_KEY,
         );
       } catch (error) {
-        console.warn('[OneSignal] onesignal-node package not installed. Run: meteor npm install onesignal-node');
+        console.warn("[OneSignal] onesignal-node package not installed. Run: meteor npm install onesignal-node");
         return;
       }
 
       this.isInitialized = true;
 
     } catch (error) {
-      console.error('[OneSignal] Failed to initialize service:', error);
+      console.error("[OneSignal] Failed to initialize service:", error);
       this.isInitialized = false;
     }
   }
@@ -66,25 +66,25 @@ class OneSignalServiceClass {
    */
   async sendToUser(userId, notification) {
     if (!this.isInitialized) {
-      console.warn('[OneSignal] Service not initialized, skipping notification');
-      return { success: false, error: 'Service not initialized' };
+      console.warn("[OneSignal] Service not initialized, skipping notification");
+      return { success: false, error: "Service not initialized" };
     }
 
     try {
       // Get user's active push tokens to find OneSignal player IDs
       const tokens = await PushTokens.find({
         userId,
-        isActive: true
+        isActive: true,
       }).fetchAsync();
 
       if (tokens.length === 0) {
         console.log(`[OneSignal] No active tokens found for user ${userId}`);
-        return { success: false, error: 'No active tokens' };
+        return { success: false, error: "No active tokens" };
       }
 
       // Extract OneSignal player IDs from tokens
       const playerIds = tokens
-        .filter(token => token.platform === 'onesignal' || token.oneSignalPlayerId)
+        .filter(token => token.platform === "onesignal" || token.oneSignalPlayerId)
         .map(token => token.oneSignalPlayerId || token.token);
 
       if (playerIds.length === 0) {
@@ -98,7 +98,7 @@ class OneSignalServiceClass {
       }
 
       const oneSignalNotification = this.buildOneSignalNotification(notification, {
-        include_player_ids: playerIds
+        include_player_ids: playerIds,
       });
 
       const response = await this.client.createNotification(oneSignalNotification);
@@ -114,15 +114,15 @@ class OneSignalServiceClass {
       console.error(`[OneSignal] Failed to send notification to user ${userId}:`, error);
 
       // Handle specific channel issues gracefully
-      if (error.message && error.message.includes('android_channel_id')) {
-        console.warn('[OneSignal] Android channel configuration issue - treating as warning');
+      if (error.message && error.message.includes("android_channel_id")) {
+        console.warn("[OneSignal] Android channel configuration issue - treating as warning");
 
         // Update notification as sent with warning
         if (notification.notificationId) {
-          await this.updateNotificationStatus(notification.notificationId, { id: 'channel-warning' }, true, 'Android channel not configured');
+          await this.updateNotificationStatus(notification.notificationId, { id: "channel-warning" }, true, "Android channel not configured");
         }
 
-        return { success: true, warning: 'Android channel not configured', response: { id: 'channel-warning' } };
+        return { success: true, warning: "Android channel not configured", response: { id: "channel-warning" } };
       }
 
       // Update notification status on error
@@ -140,7 +140,7 @@ class OneSignalServiceClass {
   async sendUsingExternalUserId(userId, notification) {
     try {
       const oneSignalNotification = this.buildOneSignalNotification(notification, {
-        include_external_user_ids: [userId]
+        include_external_user_ids: [userId],
       });
 
       const response = await this.client.createNotification(oneSignalNotification);
@@ -151,11 +151,11 @@ class OneSignalServiceClass {
       console.error(`[OneSignal] Failed to send using external user ID ${userId}:`, error);
 
       // Handle specific channel issues
-      if (error.message && error.message.includes('android_channel_id')) {
-        console.warn('[OneSignal] Android channel not configured - this is expected for server-only setup');
-        console.log('[OneSignal] Notification attempt logged but may not deliver to Android devices');
+      if (error.message && error.message.includes("android_channel_id")) {
+        console.warn("[OneSignal] Android channel not configured - this is expected for server-only setup");
+        console.log("[OneSignal] Notification attempt logged but may not deliver to Android devices");
         // Don't throw error for channel issues in development
-        return { success: true, warning: 'Android channel not configured', response: { id: 'channel-warning' } };
+        return { success: true, warning: "Android channel not configured", response: { id: "channel-warning" } };
       }
 
       return { success: false, error: error.message };
@@ -167,14 +167,14 @@ class OneSignalServiceClass {
    */
   async sendToUsers(userIds, notification) {
     if (!this.isInitialized) {
-      console.warn('[OneSignal] Service not initialized, skipping notification');
-      return { success: false, error: 'Service not initialized' };
+      console.warn("[OneSignal] Service not initialized, skipping notification");
+      return { success: false, error: "Service not initialized" };
     }
 
     try {
       // For batch sending, use external user IDs (most efficient)
       const oneSignalNotification = this.buildOneSignalNotification(notification, {
-        include_external_user_ids: userIds
+        include_external_user_ids: userIds,
       });
 
       const response = await this.client.createNotification(oneSignalNotification);
@@ -182,7 +182,7 @@ class OneSignalServiceClass {
       return { success: true, response, userCount: userIds.length };
 
     } catch (error) {
-      console.error(`[OneSignal] Batch send failed:`, error);
+      console.error("[OneSignal] Batch send failed:", error);
       return { success: false, error: error.message };
     }
   }
@@ -192,13 +192,13 @@ class OneSignalServiceClass {
    */
   async sendToSegment(filters, notification) {
     if (!this.isInitialized) {
-      console.warn('[OneSignal] Service not initialized, skipping notification');
-      return { success: false, error: 'Service not initialized' };
+      console.warn("[OneSignal] Service not initialized, skipping notification");
+      return { success: false, error: "Service not initialized" };
     }
 
     try {
       const oneSignalNotification = this.buildOneSignalNotification(notification, {
-        filters
+        filters,
       });
 
       const response = await this.client.createNotification(oneSignalNotification);
@@ -206,7 +206,7 @@ class OneSignalServiceClass {
       return { success: true, response };
 
     } catch (error) {
-      console.error(`[OneSignal] Segment send failed:`, error);
+      console.error("[OneSignal] Segment send failed:", error);
       return { success: false, error: error.message };
     }
   }
@@ -220,14 +220,14 @@ class OneSignalServiceClass {
       contents: { en: notification.body },
       headings: { en: notification.title },
       data: notification.data || {},
-      ...targeting
+      ...targeting,
     };
 
     // Add priority-based settings
-    if (notification.priority === 'urgent') {
+    if (notification.priority === "urgent") {
       baseNotification.priority = 10;
-      baseNotification.android_accent_color = 'FF0000FF'; // Red
-    } else if (notification.priority === 'high') {
+      baseNotification.android_accent_color = "FF0000FF"; // Red
+    } else if (notification.priority === "high") {
       baseNotification.priority = 8;
     } else {
       baseNotification.priority = 5;
@@ -244,18 +244,18 @@ class OneSignalServiceClass {
    */
   addPlatformSpecificSettings(baseNotification, notification) {
     // iOS specific settings
-    baseNotification.ios_badgeType = 'Increase';
+    baseNotification.ios_badgeType = "Increase";
     baseNotification.ios_badgeCount = 1;
 
     // Android specific settings - remove channel requirement for testing
     // baseNotification.android_channel_id = 'default';
     // baseNotification.existing_android_channel_id = 'default';
-    baseNotification.small_icon = 'ic_stat_onesignal_default';
-    baseNotification.large_icon = 'https://carp.school/icon-large.png';
+    baseNotification.small_icon = "ic_stat_onesignal_default";
+    baseNotification.large_icon = "https://carp.school/icon-large.png";
 
     // Web push settings
-    baseNotification.web_icon = 'https://carp.school/icon-192x192.png';
-    baseNotification.web_badge = 'https://carp.school/badge-72x72.png';
+    baseNotification.web_icon = "https://carp.school/icon-192x192.png";
+    baseNotification.web_badge = "https://carp.school/badge-72x72.png";
 
     // Add action buttons based on notification type
     if (notification.type && notification.data) {
@@ -280,29 +280,29 @@ class OneSignalServiceClass {
   getActionButtons(type, data) {
     const buttonConfigs = {
       ride_update: [
-        { id: 'view_ride', text: 'View Ride' },
-        { id: 'contact_driver', text: 'Contact Driver' }
+        { id: "view_ride", text: "View Ride" },
+        { id: "contact_driver", text: "Contact Driver" },
       ],
       rider_joined: [
-        { id: 'view_ride', text: 'View Ride' },
-        { id: 'view_rider', text: 'View Rider' }
+        { id: "view_ride", text: "View Ride" },
+        { id: "view_rider", text: "View Rider" },
       ],
       chat_message: [
-        { id: 'reply', text: 'Reply' },
-        { id: 'view_chat', text: 'View Chat' }
+        { id: "reply", text: "Reply" },
+        { id: "view_chat", text: "View Chat" },
       ],
       emergency: [
-        { id: 'call_emergency', text: 'Call 911' },
-        { id: 'view_details', text: 'View Details' }
+        { id: "call_emergency", text: "Call 911" },
+        { id: "view_details", text: "View Details" },
       ],
       ride_starting: [
-        { id: 'track_ride', text: 'Track Ride' },
-        { id: 'contact_driver', text: 'Contact Driver' }
-      ]
+        { id: "track_ride", text: "Track Ride" },
+        { id: "contact_driver", text: "Contact Driver" },
+      ],
     };
 
     return buttonConfigs[type] || [
-      { id: 'open_app', text: 'Open App' }
+      { id: "open_app", text: "Open App" },
     ];
   }
 
@@ -314,24 +314,24 @@ class OneSignalServiceClass {
       const setFields = {
         status: success ? NOTIFICATION_STATUS.SENT : NOTIFICATION_STATUS.FAILED,
         sentAt: success ? new Date() : undefined,
-        errorMessage: errorMessage
+        errorMessage: errorMessage,
       };
 
       if (response) {
         setFields.externalId = response.id;
         setFields.externalData = {
           oneSignalId: response.id,
-          recipients: response.recipients || 0
+          recipients: response.recipients || 0,
         };
       }
 
       await Notifications.updateAsync(notificationId, {
         $set: setFields,
-        $inc: { attempts: 1 }
+        $inc: { attempts: 1 },
       });
 
     } catch (error) {
-      console.error('[OneSignal] Failed to update notification status:', error);
+      console.error("[OneSignal] Failed to update notification status:", error);
     }
   }
 
@@ -344,14 +344,14 @@ class OneSignalServiceClass {
       const tokenData = {
         userId,
         token: playerId,
-        platform: 'onesignal',
+        platform: "onesignal",
         deviceInfo: {
           ...deviceInfo,
-          oneSignalPlayerId: playerId
+          oneSignalPlayerId: playerId,
         },
         isActive: true,
         lastUsedAt: new Date(),
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       // Use upsert to handle both insert and update cases
@@ -361,25 +361,25 @@ class OneSignalServiceClass {
         {
           $set: {
             userId, // Update userId (handles case where same device switches users)
-            platform: 'onesignal',
+            platform: "onesignal",
             deviceInfo: {
               ...deviceInfo,
-              oneSignalPlayerId: playerId
+              oneSignalPlayerId: playerId,
             },
             isActive: true,
             lastUsedAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
           },
           $setOnInsert: {
-            createdAt: new Date()
-          }
-        }
+            createdAt: new Date(),
+          },
+        },
       );
 
       return result.insertedId || result.upsertedId;
 
     } catch (error) {
-      console.error('[OneSignal] Player registration failed:', error);
+      console.error("[OneSignal] Player registration failed:", error);
       throw error;
     }
   }
@@ -389,7 +389,7 @@ class OneSignalServiceClass {
    */
   async setUserTags(playerId, tags) {
     if (!this.isInitialized) {
-      throw new Error('OneSignal service not initialized');
+      throw new Error("OneSignal service not initialized");
     }
 
     try {
@@ -410,7 +410,7 @@ class OneSignalServiceClass {
       title: "OneSignal Test",
       body: "This is a test notification from OneSignal",
       data: { test: true, timestamp: Date.now() },
-      priority: 'normal'
+      priority: "normal",
     });
   }
 
@@ -419,7 +419,7 @@ class OneSignalServiceClass {
    */
   async getNotificationStats(notificationId) {
     if (!this.isInitialized) {
-      throw new Error('OneSignal service not initialized');
+      throw new Error("OneSignal service not initialized");
     }
 
     try {
@@ -432,11 +432,11 @@ class OneSignalServiceClass {
         remaining: stats.remaining || 0,
         queued_at: stats.queued_at,
         send_after: stats.send_after,
-        completed_at: stats.completed_at
+        completed_at: stats.completed_at,
       };
 
     } catch (error) {
-      console.error(`[OneSignal] Failed to get notification stats:`, error);
+      console.error("[OneSignal] Failed to get notification stats:", error);
       throw error;
     }
   }
@@ -449,15 +449,15 @@ class OneSignalServiceClass {
       const cutoffDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days
 
       const result = await PushTokens.removeAsync({
-        platform: 'onesignal',
+        platform: "onesignal",
         isActive: false,
-        lastUsedAt: { $lt: cutoffDate }
+        lastUsedAt: { $lt: cutoffDate },
       });
 
       return result;
 
     } catch (error) {
-      console.error('[OneSignal] Device cleanup failed:', error);
+      console.error("[OneSignal] Device cleanup failed:", error);
       return 0;
     }
   }
@@ -471,8 +471,8 @@ class OneSignalServiceClass {
       hasClient: !!this.client,
       environment: {
         hasAppId: !!process.env.ONESIGNAL_APP_ID,
-        hasApiKey: !!process.env.ONESIGNAL_API_KEY
-      }
+        hasApiKey: !!process.env.ONESIGNAL_API_KEY,
+      },
     };
   }
 }

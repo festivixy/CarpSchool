@@ -136,18 +136,18 @@ const searchLocations = async (query, options = {}) => {
     try {
       const {
         limit = 5,
-        countrycodes = 'ca',
+        countrycodes = "ca",
         addressdetails = 1,
       } = options;
 
-      const searchUrl = new URL('https://nominatim.carp.school/search');
-      searchUrl.searchParams.set('q', query);
-      searchUrl.searchParams.set('format', 'json');
-      searchUrl.searchParams.set('limit', limit.toString());
-      searchUrl.searchParams.set('addressdetails', addressdetails.toString());
-      searchUrl.searchParams.set('countrycodes', countrycodes);
+      const searchUrl = new URL("https://nominatim.carp.school/search");
+      searchUrl.searchParams.set("q", query);
+      searchUrl.searchParams.set("format", "json");
+      searchUrl.searchParams.set("limit", limit.toString());
+      searchUrl.searchParams.set("addressdetails", addressdetails.toString());
+      searchUrl.searchParams.set("countrycodes", countrycodes);
 
-      console.log('[MapServices] Fetching search results for:', normalizedQuery);
+      console.log("[MapServices] Fetching search results for:", normalizedQuery);
 
       // Use fetch with timeout and cancellation (3 second timeout for search)
       const response = await fetchWithTimeout(searchUrl.toString(), 3000, controller);
@@ -172,7 +172,7 @@ const searchLocations = async (query, options = {}) => {
 
       return formattedResults;
     } catch (error) {
-      console.error('[MapServices] Search error:', error);
+      console.error("[MapServices] Search error:", error);
       throw error;
     } finally {
       // Remove from pending requests and cleanup controller
@@ -215,7 +215,7 @@ const fetchWithTimeout = (url, timeout = 10000, externalController = null) => {
     })
     .catch(error => {
       clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
+      if (error.name === "AbortError") {
         throw new Error(`Request timeout after ${timeout}ms`);
       }
       throw error;
@@ -232,7 +232,7 @@ const fetchWithTimeout = (url, timeout = 10000, externalController = null) => {
  */
 export const getRoute = async (startCoord, endCoord, options = {}) => {
   if (!startCoord || !endCoord) {
-    throw new Error('Start and end coordinates are required');
+    throw new Error("Start and end coordinates are required");
   }
 
   // Create cache key from coordinates (rounded to reduce cache size)
@@ -243,7 +243,7 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
   // Check cache first
   const cachedRoute = CacheManager.get(routeCache, cacheKey, CACHE_CONFIG.ROUTE_TTL);
   if (cachedRoute) {
-    console.log('[MapServices] Using cached route');
+    console.log("[MapServices] Using cached route");
     return cachedRoute;
   }
 
@@ -255,12 +255,12 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
   // Create new request with timeout handling
   const requestPromise = (async () => {
     try {
-      const { service = 'driving', timeout = 3000, useWorker = false } = options; // Reduced to 3 seconds
+      const { service = "driving", timeout = 3000, useWorker = false } = options; // Reduced to 3 seconds
 
       // Use Web Worker for heavy calculations if requested
-      if (useWorker && typeof Worker !== 'undefined') {
+      if (useWorker && typeof Worker !== "undefined") {
         try {
-          const { calculateRouteInWorker } = await import('./mapWorker');
+          const { calculateRouteInWorker } = await import("./mapWorker");
           const workerResult = await calculateRouteInWorker(startCoord, endCoord, { timeout });
 
           // Cache the result
@@ -268,14 +268,14 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
 
           return workerResult;
         } catch (workerError) {
-          console.warn('[MapServices] Worker route calculation failed, using main thread:', workerError);
+          console.warn("[MapServices] Worker route calculation failed, using main thread:", workerError);
           // Continue with main thread calculation
         }
       }
 
       // Use core route calculation
-      const { calculateCoreRoute } = await import('./mapCore');
-      console.log('[MapServices] Fetching route from OSRM with timeout:', timeout);
+      const { calculateCoreRoute } = await import("./mapCore");
+      console.log("[MapServices] Fetching route from OSRM with timeout:", timeout);
 
       const routeData = await calculateCoreRoute(startCoord, endCoord, { service, timeout });
 
@@ -284,7 +284,7 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
         geometry: routeData.geometry,
         distance: routeData.distance * 1000, // Convert back to meters for compatibility
         duration: routeData.duration * 60, // Convert back to seconds for compatibility
-        service: 'OSRM',
+        service: "OSRM",
       };
 
       // Cache the route
@@ -292,11 +292,11 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
 
       return formattedResult;
     } catch (error) {
-      console.error('[MapServices] Route error:', error);
+      console.error("[MapServices] Route error:", error);
 
       // Fallback to straight line if routing fails or times out
       const straightLineRoute = createStraightLineRoute(startCoord, endCoord);
-      console.warn('[MapServices] Using straight line fallback due to:', error.message);
+      console.warn("[MapServices] Using straight line fallback due to:", error.message);
       return straightLineRoute;
     } finally {
       // Remove from pending requests
@@ -320,7 +320,7 @@ const createStraightLineRoute = (start, end) => {
   const distance = calculateDistance(start, end);
   return {
     geometry: {
-      type: 'LineString',
+      type: "LineString",
       coordinates: [
         [start.lng, start.lat],
         [end.lng, end.lat],
@@ -328,7 +328,7 @@ const createStraightLineRoute = (start, end) => {
     },
     distance: distance * 1000, // convert km to meters
     duration: (distance / 50) * 3600, // assume 50 km/h average speed
-    service: 'Straight Line',
+    service: "Straight Line",
   };
 };
 
@@ -374,7 +374,7 @@ export const MapServiceCache = {
     activeSearchControllers.clear();
     activeRouteControllers.clear();
 
-    console.log('[MapServices] All caches cleared and requests canceled');
+    console.log("[MapServices] All caches cleared and requests canceled");
   },
 
   /**
@@ -383,7 +383,7 @@ export const MapServiceCache = {
   cleanup() {
     CacheManager.cleanup(searchCache, CACHE_CONFIG.SEARCH_TTL);
     CacheManager.cleanup(routeCache, CACHE_CONFIG.ROUTE_TTL);
-    console.log('[MapServices] Cache cleanup completed');
+    console.log("[MapServices] Cache cleanup completed");
   },
 
   /**
@@ -420,7 +420,7 @@ export const searchLocation = debouncedSearch;
 export const searchLocationImmediate = searchLocations;
 
 // Periodic cache cleanup (every 10 minutes)
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   setInterval(() => {
     MapServiceCache.cleanup();
   }, 10 * 60 * 1000);

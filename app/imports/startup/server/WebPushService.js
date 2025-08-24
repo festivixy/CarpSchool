@@ -4,13 +4,13 @@ import { PushTokens, Notifications, NOTIFICATION_STATUS } from "../../api/notifi
 /**
  * Web Push Service using VAPID
  * Handles browser-based push notifications using the Web Push Protocol
- * 
+ *
  * Setup Instructions:
  * 1. Generate VAPID keys: npm install -g web-push && web-push generate-vapid-keys
  * 2. Install web-push: meteor npm install web-push
  * 3. Set environment variables:
  *    - VAPID_PUBLIC_KEY
- *    - VAPID_PRIVATE_KEY  
+ *    - VAPID_PRIVATE_KEY
  *    - VAPID_SUBJECT (mailto:your-email@domain.com)
  * 4. Add public key to Meteor settings.json
  */
@@ -33,17 +33,17 @@ class WebPushServiceClass {
       const vapidSubject = process.env.VAPID_SUBJECT;
 
       if (!vapidPublicKey || !vapidPrivateKey || !vapidSubject) {
-        console.warn('[WebPush] Missing VAPID configuration variables');
-        console.warn('[WebPush] Required: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT');
-        console.warn('[WebPush] Generate keys with: npx web-push generate-vapid-keys');
+        console.warn("[WebPush] Missing VAPID configuration variables");
+        console.warn("[WebPush] Required: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT");
+        console.warn("[WebPush] Generate keys with: npx web-push generate-vapid-keys");
         return;
       }
 
       // Dynamic import of web-push (install with: meteor npm install web-push)
       try {
-        this.webpush = require('web-push');
+        this.webpush = require("web-push");
       } catch (error) {
-        console.warn('[WebPush] web-push package not installed. Run: meteor npm install web-push');
+        console.warn("[WebPush] web-push package not installed. Run: meteor npm install web-push");
         return;
       }
 
@@ -51,14 +51,14 @@ class WebPushServiceClass {
       this.webpush.setVapidDetails(
         vapidSubject,
         vapidPublicKey,
-        vapidPrivateKey
+        vapidPrivateKey,
       );
 
       this.isInitialized = true;
-      console.log('[WebPush] Service initialized with VAPID keys');
+      console.log("[WebPush] Service initialized with VAPID keys");
 
     } catch (error) {
-      console.error('[WebPush] Failed to initialize service:', error);
+      console.error("[WebPush] Failed to initialize service:", error);
       this.isInitialized = false;
     }
   }
@@ -68,39 +68,39 @@ class WebPushServiceClass {
    */
   async sendToUser(userId, notification) {
     if (!this.isInitialized) {
-      console.warn('[WebPush] Service not initialized, skipping notification');
-      return { success: false, error: 'Service not initialized' };
+      console.warn("[WebPush] Service not initialized, skipping notification");
+      return { success: false, error: "Service not initialized" };
     }
 
     try {
       // Get user's web push subscriptions
       const subscriptions = await PushTokens.find({
         userId,
-        platform: 'web',
-        isActive: true
+        platform: "web",
+        isActive: true,
       }).fetchAsync();
 
       if (subscriptions.length === 0) {
         console.log(`[WebPush] No web push subscriptions found for user ${userId}`);
-        return { success: false, error: 'No subscriptions' };
+        return { success: false, error: "No subscriptions" };
       }
 
       const payload = JSON.stringify({
         title: notification.title,
         body: notification.body,
-        icon: notification.icon || '/icon-192x192.png',
-        badge: notification.badge || '/icon-72x72.png',
+        icon: notification.icon || "/icon-192x192.png",
+        badge: notification.badge || "/icon-72x72.png",
         data: notification.data || {},
         tag: notification.tag,
-        requireInteraction: notification.priority === 'high',
-        actions: notification.actions || []
+        requireInteraction: notification.priority === "high",
+        actions: notification.actions || [],
       });
 
       const options = {
         TTL: notification.ttl || 24 * 60 * 60, // 24 hours default
-        priority: notification.priority === 'high' ? 'high' : 'normal',
+        priority: notification.priority === "high" ? "high" : "normal",
         topic: notification.topic,
-        urgency: notification.priority === 'high' ? 'high' : 'normal'
+        urgency: notification.priority === "high" ? "high" : "normal",
       };
 
       const results = [];
@@ -111,30 +111,30 @@ class WebPushServiceClass {
       for (const sub of subscriptions) {
         try {
           const pushSubscription = JSON.parse(sub.token);
-          
+
           const result = await this.webpush.sendNotification(
             pushSubscription,
             payload,
-            options
+            options,
           );
 
           results.push({
             subscriptionId: sub._id,
             success: true,
-            status: result.statusCode
+            status: result.statusCode,
           });
 
           successCount++;
 
         } catch (error) {
           console.error(`[WebPush] Failed to send to subscription ${sub._id}:`, error);
-          
+
           // Handle expired subscriptions
           if (error.statusCode === 410 || error.statusCode === 404) {
             console.log(`[WebPush] Subscription ${sub._id} is invalid, deactivating...`);
             await PushTokens.updateAsync(
               { _id: sub._id },
-              { $set: { isActive: false, deactivatedAt: new Date() } }
+              { $set: { isActive: false, deactivatedAt: new Date() } },
             );
           }
 
@@ -142,7 +142,7 @@ class WebPushServiceClass {
             subscriptionId: sub._id,
             success: false,
             error: error.message,
-            statusCode: error.statusCode
+            statusCode: error.statusCode,
           });
 
           failureCount++;
@@ -155,7 +155,7 @@ class WebPushServiceClass {
         await this.updateNotificationStatus(
           notification.notificationId,
           { results, successCount, failureCount },
-          hasSuccess
+          hasSuccess,
         );
       }
 
@@ -165,7 +165,7 @@ class WebPushServiceClass {
         success: successCount > 0,
         results,
         successCount,
-        failureCount
+        failureCount,
       };
 
     } catch (error) {
@@ -185,8 +185,8 @@ class WebPushServiceClass {
    */
   async sendToUsers(userIds, notification) {
     if (!this.isInitialized) {
-      console.warn('[WebPush] Service not initialized, skipping notification');
-      return { success: false, error: 'Service not initialized' };
+      console.warn("[WebPush] Service not initialized, skipping notification");
+      return { success: false, error: "Service not initialized" };
     }
 
     const results = [];
@@ -196,7 +196,7 @@ class WebPushServiceClass {
     for (const userId of userIds) {
       const result = await this.sendToUser(userId, notification);
       results.push({ userId, ...result });
-      
+
       if (result.success) {
         totalSuccess += result.successCount || 1;
       } else {
@@ -209,7 +209,7 @@ class WebPushServiceClass {
       results,
       totalSuccess,
       totalFailure,
-      userCount: userIds.length
+      userCount: userIds.length,
     };
   }
 
@@ -222,7 +222,7 @@ class WebPushServiceClass {
         status: success ? NOTIFICATION_STATUS.SENT : NOTIFICATION_STATUS.FAILED,
         sentAt: success ? new Date() : undefined,
         response: response ? JSON.stringify(response) : undefined,
-        error: errorMessage || undefined
+        error: errorMessage || undefined,
       };
 
       const incFields = {};
@@ -241,7 +241,7 @@ class WebPushServiceClass {
       await Notifications.updateAsync({ _id: notificationId }, updateDoc);
 
     } catch (error) {
-      console.error('[WebPush] Failed to update notification status:', error);
+      console.error("[WebPush] Failed to update notification status:", error);
     }
   }
 
@@ -260,16 +260,16 @@ class WebPushServiceClass {
       const cutoffDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days
 
       const result = await PushTokens.removeAsync({
-        platform: 'web',
+        platform: "web",
         isActive: false,
-        deactivatedAt: { $lt: cutoffDate }
+        deactivatedAt: { $lt: cutoffDate },
       });
 
       console.log(`[WebPush] Cleaned up ${result} expired subscriptions`);
       return result;
 
     } catch (error) {
-      console.error('[WebPush] Cleanup failed:', error);
+      console.error("[WebPush] Cleanup failed:", error);
       return 0;
     }
   }
@@ -284,8 +284,8 @@ class WebPushServiceClass {
       environment: {
         hasVapidPublicKey: !!process.env.VAPID_PUBLIC_KEY,
         hasVapidPrivateKey: !!process.env.VAPID_PRIVATE_KEY,
-        hasVapidSubject: !!process.env.VAPID_SUBJECT
-      }
+        hasVapidSubject: !!process.env.VAPID_SUBJECT,
+      },
     };
   }
 }

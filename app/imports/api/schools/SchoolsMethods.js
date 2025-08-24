@@ -49,7 +49,7 @@ Meteor.methods({
 
     const school = await Schools.findOneAsync({
       code: schoolCode.toUpperCase(),
-      isActive: true
+      isActive: true,
     });
 
     if (!school) {
@@ -65,14 +65,14 @@ Meteor.methods({
   async "schools.getByDomain"(email) {
     check(email, String);
 
-    const domain = email.split('@')[1]?.toLowerCase();
+    const domain = email.split("@")[1]?.toLowerCase();
     if (!domain) {
       throw new Meteor.Error("invalid-email", "Invalid email format");
     }
 
     const school = await Schools.findOneAsync({
       domain: domain,
-      isActive: true
+      isActive: true,
     });
 
     return school; // May be null if no school found
@@ -86,8 +86,8 @@ Meteor.methods({
       { isActive: true },
       {
         sort: { name: 1 },
-        fields: { name: 1, shortName: 1, code: 1, location: 1 }
-      }
+        fields: { name: 1, shortName: 1, code: 1, location: 1 },
+      },
     ).fetchAsync();
 
     return schools;
@@ -140,7 +140,7 @@ Meteor.methods({
     }
 
     const result = await Schools.updateAsync(schoolId, {
-      $set: { isActive: false }
+      $set: { isActive: false },
     });
 
     if (result === 0) {

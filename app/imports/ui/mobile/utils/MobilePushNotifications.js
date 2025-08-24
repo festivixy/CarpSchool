@@ -14,7 +14,7 @@ class MobilePushNotificationManager {
     this.isInitialized = false;
     this.platform = null;
     this.pushToken = null;
-    this.backend = 'firebase'; // default
+    this.backend = "firebase"; // default
     this.pushPlugin = null;
     this.oneSignalPlugin = null;
 
@@ -28,13 +28,13 @@ class MobilePushNotificationManager {
    * Initialize when device is ready
    */
   initializeWhenReady() {
-    document.addEventListener('deviceready', () => {
+    document.addEventListener("deviceready", () => {
       this.platform = device.platform.toLowerCase();
-      this.backend = Meteor.settings.public?.notifications?.backend || 'firebase';
+      this.backend = Meteor.settings.public?.notifications?.backend || "firebase";
 
       console.log(`[MobilePush] Initializing for ${this.platform} with ${this.backend} backend`);
 
-      if (this.backend === 'onesignal') {
+      if (this.backend === "onesignal") {
         this.initializeOneSignal();
       } else {
         this.initializeFirebase();
@@ -49,7 +49,7 @@ class MobilePushNotificationManager {
     try {
       // Check if Firebase push plugin is available
       if (!window.FCMPlugin && !window.PushNotification) {
-        console.warn('[MobilePush] Firebase push plugin not found. Install: meteor add cordova:cordova-plugin-fcm-with-dependecy-updated');
+        console.warn("[MobilePush] Firebase push plugin not found. Install: meteor add cordova:cordova-plugin-fcm-with-dependecy-updated");
         return;
       }
 
@@ -61,7 +61,7 @@ class MobilePushNotificationManager {
       }
 
     } catch (error) {
-      console.error('[MobilePush] Firebase initialization failed:', error);
+      console.error("[MobilePush] Firebase initialization failed:", error);
     }
   }
 
@@ -72,49 +72,49 @@ class MobilePushNotificationManager {
     try {
       // Get initial token
       FCMPlugin.getToken((token) => {
-        console.log('[MobilePush] FCM token received:', token);
+        console.log("[MobilePush] FCM token received:", token);
         this.pushToken = token;
-        this.registerTokenWithServer(token, 'firebase');
+        this.registerTokenWithServer(token, "firebase");
       }, (error) => {
-        console.error('[MobilePush] FCM getToken error:', error);
+        console.error("[MobilePush] FCM getToken error:", error);
       });
 
       // Listen for token refresh
       FCMPlugin.onTokenRefresh((token) => {
-        console.log('[MobilePush] FCM token refreshed:', token);
+        console.log("[MobilePush] FCM token refreshed:", token);
         this.pushToken = token;
-        this.registerTokenWithServer(token, 'firebase');
+        this.registerTokenWithServer(token, "firebase");
       }, (error) => {
-        console.error('[MobilePush] FCM token refresh error:', error);
+        console.error("[MobilePush] FCM token refresh error:", error);
       });
 
       // Handle received notifications
       FCMPlugin.onNotification((data) => {
-        console.log('[MobilePush] FCM notification received:', data);
+        console.log("[MobilePush] FCM notification received:", data);
         this.handleNotification(data);
       }, (error) => {
-        console.error('[MobilePush] FCM notification error:', error);
+        console.error("[MobilePush] FCM notification error:", error);
       });
 
       // Request permission (iOS)
-      if (this.platform === 'ios') {
+      if (this.platform === "ios") {
         FCMPlugin.requestPushPermission({
           ios9Support: {
             timeout: 10,
-            interval: 0.3
-          }
+            interval: 0.3,
+          },
         }, (success) => {
-          console.log('[MobilePush] FCM permission granted:', success);
+          console.log("[MobilePush] FCM permission granted:", success);
         }, (error) => {
-          console.error('[MobilePush] FCM permission denied:', error);
+          console.error("[MobilePush] FCM permission denied:", error);
         });
       }
 
       this.isInitialized = true;
-      console.log('[MobilePush] Firebase FCM initialized successfully');
+      console.log("[MobilePush] Firebase FCM initialized successfully");
 
     } catch (error) {
-      console.error('[MobilePush] Firebase FCM initialization failed:', error);
+      console.error("[MobilePush] Firebase FCM initialization failed:", error);
     }
   }
 
@@ -126,8 +126,8 @@ class MobilePushNotificationManager {
       const push = PushNotification.init({
         android: {
           senderID: Meteor.settings.public?.firebase?.senderId,
-          icon: 'ic_notification',
-          iconColor: '#000000'
+          icon: "ic_notification",
+          iconColor: "#000000",
         },
         ios: {
           alert: true,
@@ -135,41 +135,41 @@ class MobilePushNotificationManager {
           sound: true,
           categories: {
             ride_update: {
-              yes: { callback: 'onRideAction', title: 'View Ride', foreground: true },
-              no: { callback: 'onDismiss', title: 'Dismiss', foreground: false }
+              yes: { callback: "onRideAction", title: "View Ride", foreground: true },
+              no: { callback: "onDismiss", title: "Dismiss", foreground: false },
             },
             chat_message: {
-              reply: { callback: 'onChatReply', title: 'Reply', foreground: true },
-              view: { callback: 'onChatView', title: 'View Chat', foreground: true }
-            }
-          }
-        }
+              reply: { callback: "onChatReply", title: "Reply", foreground: true },
+              view: { callback: "onChatView", title: "View Chat", foreground: true },
+            },
+          },
+        },
       });
 
       // Handle registration
-      push.on('registration', (data) => {
-        console.log('[MobilePush] PushNotification registration:', data.registrationId);
+      push.on("registration", (data) => {
+        console.log("[MobilePush] PushNotification registration:", data.registrationId);
         this.pushToken = data.registrationId;
-        this.registerTokenWithServer(data.registrationId, 'firebase');
+        this.registerTokenWithServer(data.registrationId, "firebase");
       });
 
       // Handle notifications
-      push.on('notification', (data) => {
-        console.log('[MobilePush] PushNotification received:', data);
+      push.on("notification", (data) => {
+        console.log("[MobilePush] PushNotification received:", data);
         this.handleNotification(data);
       });
 
       // Handle errors
-      push.on('error', (error) => {
-        console.error('[MobilePush] PushNotification error:', error);
+      push.on("error", (error) => {
+        console.error("[MobilePush] PushNotification error:", error);
       });
 
       this.pushPlugin = push;
       this.isInitialized = true;
-      console.log('[MobilePush] Firebase PushNotification initialized successfully');
+      console.log("[MobilePush] Firebase PushNotification initialized successfully");
 
     } catch (error) {
-      console.error('[MobilePush] Firebase PushNotification initialization failed:', error);
+      console.error("[MobilePush] Firebase PushNotification initialization failed:", error);
     }
   }
 
@@ -180,7 +180,7 @@ class MobilePushNotificationManager {
     try {
       // Check if OneSignal plugin is available
       if (!window.plugins?.OneSignal) {
-        console.warn('[MobilePush] OneSignal plugin not found. Install: meteor add onesignal-cordova-plugin');
+        console.warn("[MobilePush] OneSignal plugin not found. Install: meteor add onesignal-cordova-plugin");
         return;
       }
 
@@ -188,7 +188,7 @@ class MobilePushNotificationManager {
       const appId = Meteor.settings.public?.oneSignal?.appId;
 
       if (!appId) {
-        console.error('[MobilePush] OneSignal App ID not configured in Meteor settings');
+        console.error("[MobilePush] OneSignal App ID not configured in Meteor settings");
         return;
       }
 
@@ -197,18 +197,18 @@ class MobilePushNotificationManager {
 
       // Handle notification received
       oneSignal.handleNotificationReceived((notification) => {
-        console.log('[MobilePush] OneSignal notification received:', notification);
+        console.log("[MobilePush] OneSignal notification received:", notification);
         this.handleNotification(notification);
       });
 
       // Handle notification opened
       oneSignal.handleNotificationOpened((result) => {
-        console.log('[MobilePush] OneSignal notification opened:', result);
+        console.log("[MobilePush] OneSignal notification opened:", result);
         this.handleNotificationAction(result.notification, result.action);
       });
 
       // iOS specific configuration
-      if (this.platform === 'ios') {
+      if (this.platform === "ios") {
         oneSignal.inFocusDisplaying(oneSignal.OSInFocusDisplayOption.Notification);
         oneSignal.setSubscription(true);
       }
@@ -218,14 +218,14 @@ class MobilePushNotificationManager {
 
       // Get player ID
       oneSignal.getIds((ids) => {
-        console.log('[MobilePush] OneSignal player ID:', ids.userId);
+        console.log("[MobilePush] OneSignal player ID:", ids.userId);
         this.pushToken = ids.userId;
-        this.registerTokenWithServer(ids.userId, 'onesignal');
+        this.registerTokenWithServer(ids.userId, "onesignal");
 
         // iOS: Request permission after initialization
-        if (this.platform === 'ios') {
+        if (this.platform === "ios") {
           oneSignal.promptForPushNotificationsWithUserResponse((accepted) => {
-            console.log('[MobilePush] iOS push permission:', accepted ? 'granted' : 'denied');
+            console.log("[MobilePush] iOS push permission:", accepted ? "granted" : "denied");
           });
         }
       });
@@ -237,10 +237,10 @@ class MobilePushNotificationManager {
 
       this.oneSignalPlugin = oneSignal;
       this.isInitialized = true;
-      console.log('[MobilePush] OneSignal initialized successfully');
+      console.log("[MobilePush] OneSignal initialized successfully");
 
     } catch (error) {
-      console.error('[MobilePush] OneSignal initialization failed:', error);
+      console.error("[MobilePush] OneSignal initialization failed:", error);
     }
   }
 
@@ -255,18 +255,18 @@ class MobilePushNotificationManager {
 
       const deviceInfo = this.getDeviceInfo();
 
-      if (backend === 'onesignal') {
+      if (backend === "onesignal") {
         // Register OneSignal player ID
-        await Meteor.callAsync('notifications.registerOneSignalPlayer', token, deviceInfo);
+        await Meteor.callAsync("notifications.registerOneSignalPlayer", token, deviceInfo);
       } else {
         // Register Firebase token
-        await Meteor.callAsync('notifications.registerPushToken', token, this.platform, deviceInfo);
+        await Meteor.callAsync("notifications.registerPushToken", token, this.platform, deviceInfo);
       }
 
       console.log(`[MobilePush] Token registered with server: ${token.substring(0, 20)}...`);
 
     } catch (error) {
-      console.error('[MobilePush] Token registration failed:', error);
+      console.error("[MobilePush] Token registration failed:", error);
     }
   }
 
@@ -275,24 +275,24 @@ class MobilePushNotificationManager {
    */
   handleNotification(notification) {
     try {
-      console.log('[MobilePush] Processing notification:', notification);
+      console.log("[MobilePush] Processing notification:", notification);
 
       // Extract notification data based on backend
       let notificationData;
-      if (this.backend === 'onesignal') {
+      if (this.backend === "onesignal") {
         notificationData = {
-          title: notification.payload?.title || 'Carp School',
-          body: notification.payload?.body || '',
+          title: notification.payload?.title || "Carp School",
+          body: notification.payload?.body || "",
           data: notification.payload?.additionalData || {},
-          foreground: notification.isAppInFocus
+          foreground: notification.isAppInFocus,
         };
       } else {
         // Firebase format
         notificationData = {
-          title: notification.title || notification.message || 'Carp School',
-          body: notification.body || notification.message || '',
+          title: notification.title || notification.message || "Carp School",
+          body: notification.body || notification.message || "",
           data: notification.additionalData || notification.data || {},
-          foreground: notification.foreground
+          foreground: notification.foreground,
         };
       }
 
@@ -310,7 +310,7 @@ class MobilePushNotificationManager {
       }
 
     } catch (error) {
-      console.error('[MobilePush] Notification handling failed:', error);
+      console.error("[MobilePush] Notification handling failed:", error);
     }
   }
 
@@ -321,7 +321,7 @@ class MobilePushNotificationManager {
     try {
       const data = notification.data || notification.additionalData || {};
 
-      console.log('[MobilePush] Handling notification action:', action, data);
+      console.log("[MobilePush] Handling notification action:", action, data);
 
       // Navigate based on notification data
       if (data.rideId) {
@@ -330,7 +330,7 @@ class MobilePushNotificationManager {
       } else if (data.chatId) {
         // Navigate to chat
         this.navigateToChat(data.chatId);
-      } else if (data.action === 'open_app') {
+      } else if (data.action === "open_app") {
         // Just bring app to foreground
         this.bringAppToForeground();
       }
@@ -346,7 +346,7 @@ class MobilePushNotificationManager {
       }
 
     } catch (error) {
-      console.error('[MobilePush] Notification action handling failed:', error);
+      console.error("[MobilePush] Notification action handling failed:", error);
     }
   }
 
@@ -356,8 +356,8 @@ class MobilePushNotificationManager {
   showInAppNotification(notification) {
     // Emit custom event that UI components can listen to
     if (window.dispatchEvent) {
-      const event = new CustomEvent('inAppNotification', {
-        detail: notification
+      const event = new CustomEvent("inAppNotification", {
+        detail: notification,
       });
       window.dispatchEvent(event);
     }
@@ -368,9 +368,9 @@ class MobilePushNotificationManager {
    */
   navigateToRide(rideId) {
     if (window.FlowRouter) {
-      window.FlowRouter.go('/mobile/ride-info', { rideId });
+      window.FlowRouter.go("/mobile/ride-info", { rideId });
     } else {
-      console.warn('[MobilePush] FlowRouter not available for navigation');
+      console.warn("[MobilePush] FlowRouter not available for navigation");
     }
   }
 
@@ -379,9 +379,9 @@ class MobilePushNotificationManager {
    */
   navigateToChat(chatId) {
     if (window.FlowRouter) {
-      window.FlowRouter.go('/chat', {}, { chatId });
+      window.FlowRouter.go("/chat", {}, { chatId });
     } else {
-      console.warn('[MobilePush] FlowRouter not available for navigation');
+      console.warn("[MobilePush] FlowRouter not available for navigation");
     }
   }
 
@@ -390,7 +390,7 @@ class MobilePushNotificationManager {
    */
   bringAppToForeground() {
     // App is already in foreground when this is called
-    console.log('[MobilePush] App brought to foreground');
+    console.log("[MobilePush] App brought to foreground");
   }
 
   /**
@@ -398,19 +398,19 @@ class MobilePushNotificationManager {
    */
   handleSpecificAction(action, data) {
     switch (action) {
-      case 'call_driver':
+      case "call_driver":
         if (data.driverPhone) {
-          window.open(`tel:${data.driverPhone}`, '_system');
+          window.open(`tel:${data.driverPhone}`, "_system");
         }
         break;
-      case 'track_ride':
+      case "track_ride":
         this.navigateToRide(data.rideId);
         break;
-      case 'reply_chat':
+      case "reply_chat":
         this.navigateToChat(data.chatId);
         break;
       default:
-        console.log('[MobilePush] Unknown action:', action);
+        console.log("[MobilePush] Unknown action:", action);
     }
   }
 
@@ -420,9 +420,9 @@ class MobilePushNotificationManager {
   async markAsDelivered(notificationId) {
     try {
       // We could add a method for this, but for now just log
-      console.log('[MobilePush] Notification delivered:', notificationId);
+      console.log("[MobilePush] Notification delivered:", notificationId);
     } catch (error) {
-      console.error('[MobilePush] Mark as delivered failed:', error);
+      console.error("[MobilePush] Mark as delivered failed:", error);
     }
   }
 
@@ -431,10 +431,10 @@ class MobilePushNotificationManager {
    */
   async markAsRead(notificationId) {
     try {
-      await Meteor.callAsync('notifications.markAsRead', notificationId);
-      console.log('[MobilePush] Notification marked as read:', notificationId);
+      await Meteor.callAsync("notifications.markAsRead", notificationId);
+      console.log("[MobilePush] Notification marked as read:", notificationId);
     } catch (error) {
-      console.error('[MobilePush] Mark as read failed:', error);
+      console.error("[MobilePush] Mark as read failed:", error);
     }
   }
 
@@ -444,13 +444,13 @@ class MobilePushNotificationManager {
   getDeviceInfo() {
     const info = {
       platform: this.platform,
-      model: device.model || 'Unknown',
-      version: device.version || 'Unknown',
-      uuid: device.uuid || 'Unknown',
-      cordova: device.cordova || 'Unknown',
-      manufacturer: device.manufacturer || 'Unknown',
+      model: device.model || "Unknown",
+      version: device.version || "Unknown",
+      uuid: device.uuid || "Unknown",
+      cordova: device.cordova || "Unknown",
+      manufacturer: device.manufacturer || "Unknown",
       isVirtual: device.isVirtual || false,
-      serial: device.serial || 'Unknown'
+      serial: device.serial || "Unknown",
     };
 
     return info;
@@ -461,15 +461,16 @@ class MobilePushNotificationManager {
    */
   async requestPermission() {
     try {
-      if (this.backend === 'onesignal' && this.oneSignalPlugin) {
+      if (this.backend === "onesignal" && this.oneSignalPlugin) {
         // OneSignal handles permissions automatically
         return true;
-      } else if (this.platform === 'ios' && window.FCMPlugin) {
+      } if (this.platform === "ios" && window.FCMPlugin) {
         // Request FCM permission
         return new Promise((resolve) => {
-          FCMPlugin.requestPushPermission({},
+          FCMPlugin.requestPushPermission(
+{},
             () => resolve(true),
-            () => resolve(false)
+            () => resolve(false),
           );
         });
       }
@@ -478,7 +479,7 @@ class MobilePushNotificationManager {
       return true;
 
     } catch (error) {
-      console.error('[MobilePush] Permission request failed:', error);
+      console.error("[MobilePush] Permission request failed:", error);
       return false;
     }
   }
@@ -488,16 +489,16 @@ class MobilePushNotificationManager {
    */
   async setTags(tags) {
     try {
-      if (this.backend === 'onesignal' && this.oneSignalPlugin) {
+      if (this.backend === "onesignal" && this.oneSignalPlugin) {
         this.oneSignalPlugin.sendTags(tags);
         return true;
-      } else {
-        // For Firebase, we handle tags on the server side
-        await Meteor.callAsync('notifications.setUserTags', tags);
-        return true;
       }
+        // For Firebase, we handle tags on the server side
+        await Meteor.callAsync("notifications.setUserTags", tags);
+        return true;
+
     } catch (error) {
-      console.error('[MobilePush] Set tags failed:', error);
+      console.error("[MobilePush] Set tags failed:", error);
       return false;
     }
   }
@@ -526,7 +527,7 @@ class MobilePushNotificationManager {
       platform: this.platform,
       backend: this.backend,
       hasToken: !!this.pushToken,
-      token: this.pushToken ? this.pushToken.substring(0, 20) + '...' : null
+      token: this.pushToken ? `${this.pushToken.substring(0, 20)}...` : null,
     };
   }
 }
@@ -540,14 +541,14 @@ if (Meteor.isClient) {
     const user = Meteor.user();
     if (user && mobilePushManager.isInitialized && mobilePushManager.pushToken) {
       // Set external user ID for OneSignal
-      if (mobilePushManager.backend === 'onesignal' && mobilePushManager.oneSignalPlugin) {
+      if (mobilePushManager.backend === "onesignal" && mobilePushManager.oneSignalPlugin) {
         mobilePushManager.oneSignalPlugin.setExternalUserId(user._id);
       }
 
       // Re-register token with current user
       mobilePushManager.registerTokenWithServer(
         mobilePushManager.pushToken,
-        mobilePushManager.backend
+        mobilePushManager.backend,
       );
     }
   });
@@ -568,8 +569,8 @@ export const MobilePushHelpers = {
   async setRideTags(rideId) {
     return await mobilePushManager.setTags({
       currentRide: rideId,
-      hasActiveRide: 'true',
-      lastRideUpdate: new Date().toISOString()
+      hasActiveRide: "true",
+      lastRideUpdate: new Date().toISOString(),
     });
   },
 
@@ -578,8 +579,8 @@ export const MobilePushHelpers = {
    */
   async clearRideTags() {
     return await mobilePushManager.setTags({
-      currentRide: '',
-      hasActiveRide: 'false'
+      currentRide: "",
+      hasActiveRide: "false",
     });
   },
 
@@ -588,8 +589,8 @@ export const MobilePushHelpers = {
    */
   async setLocationTags(city, state) {
     return await mobilePushManager.setTags({
-      city: city || '',
-      state: state || ''
+      city: city || "",
+      state: state || "",
     });
   },
 
@@ -598,5 +599,5 @@ export const MobilePushHelpers = {
    */
   getStatus() {
     return mobilePushManager.getStatus();
-  }
+  },
 };

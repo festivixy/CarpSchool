@@ -80,13 +80,13 @@ export async function getSchoolFilter(userId = null) {
  * Auto-detect school from email domain
  */
 export async function detectSchoolFromEmail(email) {
-  if (!email || !email.includes('@')) return null;
+  if (!email || !email.includes("@")) return null;
 
-  const domain = email.split('@')[1].toLowerCase();
+  const domain = email.split("@")[1].toLowerCase();
 
   const school = await Schools.findOneAsync({
     domain: domain,
-    isActive: true
+    isActive: true,
   });
 
   return school;

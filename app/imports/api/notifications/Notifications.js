@@ -14,7 +14,7 @@ export const NOTIFICATION_TYPES = {
   RIDE_STARTING: "ride_starting",
   RIDE_COMPLETED: "ride_completed",
   EMERGENCY: "emergency",
-  SYSTEM: "system"
+  SYSTEM: "system",
 };
 
 // Notification priority levels
@@ -22,7 +22,7 @@ export const NOTIFICATION_PRIORITY = {
   LOW: "low",
   NORMAL: "normal",
   HIGH: "high",
-  URGENT: "urgent"
+  URGENT: "urgent",
 };
 
 // Notification status
@@ -31,7 +31,7 @@ export const NOTIFICATION_STATUS = {
   SENT: "sent",
   DELIVERED: "delivered",
   FAILED: "failed",
-  READ: "read"
+  READ: "read",
 };
 
 // JOI Schema for Notifications
@@ -65,7 +65,7 @@ export const NotificationsSchema = Joi.object({
     chatId: Joi.string().optional(),
     sessionId: Joi.string().optional(),
     action: Joi.string().optional(),
-    url: Joi.string().optional()
+    url: Joi.string().optional(),
   }).unknown(true).optional().description("Additional data for notification handling"),
 
   // Push notification specific fields
@@ -73,7 +73,7 @@ export const NotificationsSchema = Joi.object({
     badge: Joi.number().integer().min(0).optional(),
     sound: Joi.string().optional(),
     category: Joi.string().optional(),
-    threadId: Joi.string().optional()
+    threadId: Joi.string().optional(),
   }).optional().description("Platform-specific push notification data"),
 
   // Scheduling and delivery
@@ -124,7 +124,7 @@ export const NotificationsSchema = Joi.object({
     .description("Device tokens used for this notification"),
 
   platform: Joi.string().valid("ios", "android", "web").optional()
-    .description("Target platform for the notification")
+    .description("Target platform for the notification"),
 });
 
 // Push Token Schema for user devices
@@ -144,7 +144,7 @@ export const PushTokenSchema = Joi.object({
     model: Joi.string().optional(),
     version: Joi.string().optional(),
     appVersion: Joi.string().optional(),
-    isSimulator: Joi.boolean().optional()
+    isSimulator: Joi.boolean().optional(),
   }).optional().description("Device information"),
 
   isActive: Joi.boolean().default(true)
@@ -157,7 +157,7 @@ export const PushTokenSchema = Joi.object({
     .description("Token registration timestamp"),
 
   expiresAt: Joi.date().optional()
-    .description("Token expiration date (if known)")
+    .description("Token expiration date (if known)"),
 });
 
 // Create PushTokens collection
@@ -209,11 +209,11 @@ export const NotificationHelpers = {
    */
   getDefaultExpiry: (type) => {
     const expiryHours = {
-      [NOTIFICATION_TYPES.EMERGENCY]: 1,      // 1 hour
-      [NOTIFICATION_TYPES.RIDE_STARTING]: 2,  // 2 hours
-      [NOTIFICATION_TYPES.CHAT_MESSAGE]: 24,  // 24 hours
-      [NOTIFICATION_TYPES.RIDE_UPDATE]: 6,    // 6 hours
-      [NOTIFICATION_TYPES.SYSTEM]: 72         // 72 hours
+      [NOTIFICATION_TYPES.EMERGENCY]: 1, // 1 hour
+      [NOTIFICATION_TYPES.RIDE_STARTING]: 2, // 2 hours
+      [NOTIFICATION_TYPES.CHAT_MESSAGE]: 24, // 24 hours
+      [NOTIFICATION_TYPES.RIDE_UPDATE]: 6, // 6 hours
+      [NOTIFICATION_TYPES.SYSTEM]: 72, // 72 hours
     };
 
     const hours = expiryHours[type] || 24; // Default 24 hours
@@ -223,9 +223,7 @@ export const NotificationHelpers = {
   /**
    * Generate group key for related notifications
    */
-  generateGroupKey: (type, rideId) => {
-    return `${type}_${rideId}_${new Date().toISOString().split('T')[0]}`;
-  },
+  generateGroupKey: (type, rideId) => `${type}_${rideId}_${new Date().toISOString().split("T")[0]}`,
 
   /**
    * Check if notification should be batched
@@ -233,8 +231,8 @@ export const NotificationHelpers = {
   shouldBatch: (type) => {
     const batchableTypes = [
       NOTIFICATION_TYPES.CHAT_MESSAGE,
-      NOTIFICATION_TYPES.SYSTEM
+      NOTIFICATION_TYPES.SYSTEM,
     ];
     return batchableTypes.includes(type);
-  }
+  },
 };

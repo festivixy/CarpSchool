@@ -4,12 +4,12 @@ import { Images } from "../../api/images/Images";
 // Set Content Security Policy headers for OneSignal support
 WebApp.connectHandlers.use("/", (req, res, next) => {
   // Only set CSP for HTML responses to avoid breaking API responses
-  if (req.url === '/' || req.url.endsWith('.html') || !req.url.includes('.')) {
+  if (req.url === "/" || req.url.endsWith(".html") || !req.url.includes(".")) {
 
     // In development, use a more permissive CSP for easier testing
-    const isDevelopment = process.env.NODE_ENV !== 'production';
+    const isDevelopment = process.env.NODE_ENV !== "production";
 
-    if (isDevelopment && process.env.DISABLE_CSP === 'true') {
+    if (isDevelopment && process.env.DISABLE_CSP === "true") {
       // Completely disable CSP for development testing
     } else {
       const cspHeader = [
@@ -22,10 +22,10 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
         "worker-src 'self' blob: https://cdn.onesignal.com",
         "frame-src https://onesignal.com https://*.onesignal.com",
         "object-src 'none'",
-        "base-uri 'self'"
-      ].join('; ');
+        "base-uri 'self'",
+      ].join("; ");
 
-      res.setHeader('Content-Security-Policy', cspHeader);
+      res.setHeader("Content-Security-Policy", cspHeader);
     }
   }
   next();
@@ -96,13 +96,13 @@ WebApp.connectHandlers.use("/health", (req, res, _next) => {
 // Serve index.html for all client-side routes that don't match API endpoints or static files
 WebApp.connectHandlers.use((req, res, next) => {
   // Skip if this is an API endpoint, static file, or already handled
-  if (req.url.startsWith('/api') ||
-      req.url.startsWith('/sockjs') ||
-      req.url.startsWith('/packages') ||
-      req.url.startsWith('/image') ||
-      req.url.startsWith('/health') ||
-      req.url.includes('.') || // Skip requests for files with extensions
-      req.method !== 'GET') {
+  if (req.url.startsWith("/api") ||
+      req.url.startsWith("/sockjs") ||
+      req.url.startsWith("/packages") ||
+      req.url.startsWith("/image") ||
+      req.url.startsWith("/health") ||
+      req.url.includes(".") || // Skip requests for files with extensions
+      req.method !== "GET") {
     return next();
   }
 

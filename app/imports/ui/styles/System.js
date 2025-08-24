@@ -137,13 +137,13 @@ export const StatusMessage = styled.div`
   margin: 10px 0;
   font-weight: 500;
   
-  ${props => props.type === 'success' && `
+  ${props => props.type === "success" && `
     background: #f0fff4;
     color: #38a169;
     border: 1px solid #9ae6b4;
   `}
   
-  ${props => props.type === 'error' && `
+  ${props => props.type === "error" && `
     background: #fff5f5;
     color: #e53e3e;
     border: 1px solid #feb2b2;

@@ -349,7 +349,7 @@ class MobileOnboarding extends React.Component {
     this.setState({
       selectedSchoolId: schoolId,
       selectedSchoolName: school.name,
-      error: "" // Clear any previous errors
+      error: "", // Clear any previous errors
     });
   };
 

@@ -28,7 +28,7 @@ import {
   ActionButtons,
   StatusBadge,
   ErrorMessage,
-  SuccessMessage
+  SuccessMessage,
 } from "../styles/AdminNotifications";
 
 /**
@@ -37,15 +37,15 @@ import {
  */
 const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
   const [testForm, setTestForm] = useState({
-    recipients: '',
-    title: '',
-    body: '',
-    type: 'system',
-    priority: 'normal',
-    rideId: ''
+    recipients: "",
+    title: "",
+    body: "",
+    type: "system",
+    priority: "normal",
+    rideId: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [message, setMessage] = useState({ type: "", text: "" });
   const [showTestForm, setShowTestForm] = useState(false);
 
   // Check admin permissions
@@ -55,14 +55,14 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
     if (!isAdmin) {
       // Redirect non-admins
       if (window.FlowRouter) {
-        window.FlowRouter.go('/');
+        window.FlowRouter.go("/");
       }
     }
   }, [isAdmin]);
 
   const showMessage = (type, text) => {
     setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+    setTimeout(() => setMessage({ type: "", text: "" }), 5000);
   };
 
   const handleTestFormChange = (field, value) => {
@@ -77,14 +77,14 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
       const { recipients, title, body, type, priority, rideId } = testForm;
 
       if (!title || !body) {
-        throw new Error('Title and body are required');
+        throw new Error("Title and body are required");
       }
 
       let recipientIds = [];
 
       if (recipients.trim()) {
         // Parse recipients (comma-separated usernames or user IDs)
-        recipientIds = recipients.split(',').map(r => r.trim()).filter(r => r);
+        recipientIds = recipients.split(",").map(r => r.trim()).filter(r => r);
       } else {
         // Send to current user as test
         recipientIds = [Meteor.userId()];
@@ -93,17 +93,17 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
       const options = {
         type,
         priority,
-        data: rideId ? { rideId } : {}
+        data: rideId ? { rideId } : {},
       };
 
-      if (rideId && ['ride_update', 'ride_cancelled', 'rider_joined'].includes(type)) {
+      if (rideId && ["ride_update", "ride_cancelled", "rider_joined"].includes(type)) {
         // Use ride-specific method
         await Meteor.callAsync(
           "notifications.sendToRideParticipants",
           rideId,
           title,
           body,
-          options
+          options,
         );
       } else {
         // Use general send method
@@ -112,41 +112,41 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
           recipientIds,
           title,
           body,
-          options
+          options,
         );
       }
 
-      showMessage('success', 'Test notification sent successfully!');
+      showMessage("success", "Test notification sent successfully!");
 
       // Reset form
       setTestForm({
-        recipients: '',
-        title: '',
-        body: '',
-        type: 'system',
-        priority: 'normal',
-        rideId: ''
+        recipients: "",
+        title: "",
+        body: "",
+        type: "system",
+        priority: "normal",
+        rideId: "",
       });
 
     } catch (error) {
-      console.error('Test notification failed:', error);
-      showMessage('error', error.reason || error.message || 'Failed to send notification');
+      console.error("Test notification failed:", error);
+      showMessage("error", error.reason || error.message || "Failed to send notification");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCleanup = async () => {
-    if (!confirm('This will delete old notifications. Continue?')) {
+    if (!confirm("This will delete old notifications. Continue?")) {
       return;
     }
 
     setIsLoading(true);
     try {
-      const result = await Meteor.callAsync('notifications.cleanup', 30);
-      showMessage('success', `Cleaned up ${result} old notifications`);
+      const result = await Meteor.callAsync("notifications.cleanup", 30);
+      showMessage("success", `Cleaned up ${result} old notifications`);
     } catch (error) {
-      showMessage('error', error.reason || error.message || 'Cleanup failed');
+      showMessage("error", error.reason || error.message || "Cleanup failed");
     } finally {
       setIsLoading(false);
     }
@@ -154,26 +154,24 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
 
   const handleMarkAsRead = async (notificationId) => {
     try {
-      await Meteor.callAsync('notifications.markAsRead', notificationId);
-      showMessage('success', 'Notification marked as read');
+      await Meteor.callAsync("notifications.markAsRead", notificationId);
+      showMessage("success", "Notification marked as read");
     } catch (error) {
-      showMessage('error', error.reason || error.message);
+      showMessage("error", error.reason || error.message);
     }
   };
 
-  const formatDate = (date) => {
-    return new Date(date).toLocaleString();
-  };
+  const formatDate = (date) => new Date(date).toLocaleString();
 
   const getStatusColor = (status) => {
     const colors = {
-      pending: '#ffa726',
-      sent: '#66bb6a',
-      delivered: '#42a5f5',
-      failed: '#ef5350',
-      read: '#9e9e9e'
+      pending: "#ffa726",
+      sent: "#66bb6a",
+      delivered: "#42a5f5",
+      failed: "#ef5350",
+      read: "#9e9e9e",
     };
-    return colors[status] || '#9e9e9e';
+    return colors[status] || "#9e9e9e";
   };
 
   if (!ready) {
@@ -191,7 +189,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
       </Header>
 
       {message.text && (
-        message.type === 'error' ? (
+        message.type === "error" ? (
           <ErrorMessage>{message.text}</ErrorMessage>
         ) : (
           <SuccessMessage>{message.text}</SuccessMessage>
@@ -235,9 +233,9 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
           Test Notifications
           <Button
             onClick={() => setShowTestForm(!showTestForm)}
-            style={{ marginLeft: '16px', fontSize: '14px' }}
+            style={{ marginLeft: "16px", fontSize: "14px" }}
           >
-            {showTestForm ? 'Hide' : 'Show'} Test Form
+            {showTestForm ? "Hide" : "Show"} Test Form
           </Button>
         </SectionTitle>
 
@@ -249,7 +247,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
                 <Input
                   type="text"
                   value={testForm.recipients}
-                  onChange={(e) => handleTestFormChange('recipients', e.target.value)}
+                  onChange={(e) => handleTestFormChange("recipients", e.target.value)}
                   placeholder="user1, user2, user3..."
                 />
               </FormGroup>
@@ -259,7 +257,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
                 <Input
                   type="text"
                   value={testForm.title}
-                  onChange={(e) => handleTestFormChange('title', e.target.value)}
+                  onChange={(e) => handleTestFormChange("title", e.target.value)}
                   placeholder="Notification title"
                   required
                 />
@@ -269,7 +267,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
                 <Label>Body *</Label>
                 <TextArea
                   value={testForm.body}
-                  onChange={(e) => handleTestFormChange('body', e.target.value)}
+                  onChange={(e) => handleTestFormChange("body", e.target.value)}
                   placeholder="Notification message"
                   rows={3}
                   required
@@ -280,7 +278,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
                 <Label>Type</Label>
                 <Select
                   value={testForm.type}
-                  onChange={(e) => handleTestFormChange('type', e.target.value)}
+                  onChange={(e) => handleTestFormChange("type", e.target.value)}
                 >
                   {Object.values(NOTIFICATION_TYPES).map(type => (
                     <option key={type} value={type}>{type}</option>
@@ -292,7 +290,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
                 <Label>Priority</Label>
                 <Select
                   value={testForm.priority}
-                  onChange={(e) => handleTestFormChange('priority', e.target.value)}
+                  onChange={(e) => handleTestFormChange("priority", e.target.value)}
                 >
                   {Object.values(NOTIFICATION_PRIORITY).map(priority => (
                     <option key={priority} value={priority}>{priority}</option>
@@ -305,14 +303,14 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
                 <Input
                   type="text"
                   value={testForm.rideId}
-                  onChange={(e) => handleTestFormChange('rideId', e.target.value)}
+                  onChange={(e) => handleTestFormChange("rideId", e.target.value)}
                   placeholder="Optional ride ID"
                 />
               </FormGroup>
 
               <ActionButtons>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Sending...' : 'Send Test Notification'}
+                  {isLoading ? "Sending..." : "Send Test Notification"}
                 </Button>
               </ActionButtons>
             </form>
@@ -325,7 +323,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
         <SectionTitle>System Actions</SectionTitle>
         <ActionButtons>
           <Button onClick={handleCleanup} disabled={isLoading}>
-            {isLoading ? 'Cleaning...' : 'Cleanup Old Notifications'}
+            {isLoading ? "Cleaning..." : "Cleanup Old Notifications"}
           </Button>
         </ActionButtons>
       </Section>
@@ -335,33 +333,33 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
         <SectionTitle>Recent Notifications</SectionTitle>
         <NotificationList>
           {notifications.length === 0 ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+            <div style={{ padding: "20px", textAlign: "center", color: "#666" }}>
               No notifications found
             </div>
           ) : (
             notifications.slice(0, 50).map(notification => (
               <NotificationItem key={notification._id}>
                 <NotificationContent>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div style={{ flex: 1 }}>
-                      <h4 style={{ margin: '0 0 4px 0', fontSize: '14px' }}>{notification.title}</h4>
-                      <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#666' }}>{notification.body}</p>
-                      <div style={{ fontSize: '11px', color: '#999' }}>
+                      <h4 style={{ margin: "0 0 4px 0", fontSize: "14px" }}>{notification.title}</h4>
+                      <p style={{ margin: "0 0 8px 0", fontSize: "13px", color: "#666" }}>{notification.body}</p>
+                      <div style={{ fontSize: "11px", color: "#999" }}>
                         <span>To: {notification.userId}</span>
-                        <span style={{ margin: '0 8px' }}>•</span>
+                        <span style={{ margin: "0 8px" }}>•</span>
                         <span>Type: {notification.type}</span>
-                        <span style={{ margin: '0 8px' }}>•</span>
+                        <span style={{ margin: "0 8px" }}>•</span>
                         <span>{formatDate(notification.createdAt)}</span>
                       </div>
                     </div>
-                    <div style={{ marginLeft: '16px', textAlign: 'right' }}>
+                    <div style={{ marginLeft: "16px", textAlign: "right" }}>
                       <StatusBadge color={getStatusColor(notification.status)}>
                         {notification.status}
                       </StatusBadge>
-                      {notification.status !== 'read' && (
+                      {notification.status !== "read" && (
                         <Button
                           onClick={() => handleMarkAsRead(notification._id)}
-                          style={{ marginTop: '8px', fontSize: '11px', padding: '4px 8px' }}
+                          style={{ marginTop: "8px", fontSize: "11px", padding: "4px 8px" }}
                         >
                           Mark Read
                         </Button>
@@ -382,11 +380,11 @@ AdminNotifications.propTypes = {
   stats: PropTypes.object.isRequired,
   notifications: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
-  currentUser: PropTypes.object
+  currentUser: PropTypes.object,
 };
 
 export default withTracker(() => {
-  const statsHandle = Meteor.subscribe('notifications.admin', {}, { limit: 100 });
+  const statsHandle = Meteor.subscribe("notifications.admin", {}, { limit: 100 });
   const currentUser = Meteor.user();
 
   return {
@@ -395,13 +393,13 @@ export default withTracker(() => {
       last24Hours: 0,
       activeTokens: 0,
       byStatus: {},
-      byType: {}
+      byType: {},
     }, // Would be populated from a reactive method call
     notifications: Notifications.find({}, {
       sort: { createdAt: -1 },
-      limit: 100
+      limit: 100,
     }).fetch(),
     ready: statsHandle.ready(),
-    currentUser
+    currentUser,
   };
 })(AdminNotifications);

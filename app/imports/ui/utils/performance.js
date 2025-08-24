@@ -12,7 +12,7 @@
  * @returns {React.Component} - Profiled component
  */
 export const withPerformanceProfiler = (componentName, WrappedComponent) => {
-  if (process.env.NODE_ENV !== 'development') {
+  if (process.env.NODE_ENV !== "development") {
     return WrappedComponent;
   }
 
@@ -46,13 +46,13 @@ export const usePerformanceMeasure = (operationName) => {
   const startTime = React.useRef(null);
 
   const startMeasure = React.useCallback(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       startTime.current = performance.now();
     }
   }, []);
 
   const endMeasure = React.useCallback(() => {
-    if (process.env.NODE_ENV === 'development' && startTime.current !== null) {
+    if (process.env.NODE_ENV === "development" && startTime.current !== null) {
       const duration = performance.now() - startTime.current;
       if (duration > 5) { // Only log operations taking >5ms
         console.log(`⏱️ [Performance] ${operationName} took ${duration.toFixed(2)}ms`);
@@ -71,7 +71,7 @@ export const usePerformanceMeasure = (operationName) => {
  * @param {string} name - Name for performance tracking
  * @returns {any} - Memoized value
  */
-export const useMemoWithPerf = (factory, deps, name = 'unknown') => {
+export const useMemoWithPerf = (factory, deps, name = "unknown") => {
   const [value, setValue] = React.useState(() => factory());
   const prevDeps = React.useRef(deps);
 
@@ -79,7 +79,7 @@ export const useMemoWithPerf = (factory, deps, name = 'unknown') => {
     const depsChanged = !deps.every((dep, index) => dep === prevDeps.current[index]);
 
     if (depsChanged) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         const startTime = performance.now();
         const newValue = factory();
         const duration = performance.now() - startTime;
@@ -107,10 +107,10 @@ export const useMemoWithPerf = (factory, deps, name = 'unknown') => {
  * @param {string} name - Name for performance tracking
  * @returns {Function} - Memoized callback
  */
-export const useCallbackWithPerf = (callback, deps, name = 'unknown') => {
+export const useCallbackWithPerf = (callback, deps, name = "unknown") => {
   const memoizedCallback = React.useCallback(callback, deps);
 
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     return React.useCallback((...args) => {
       const startTime = performance.now();
       const result = memoizedCallback(...args);
@@ -141,7 +141,7 @@ export const useRenderTracking = (componentName, props = {}) => {
     const now = Date.now();
     const timeSinceLastRender = now - lastRenderTime.current;
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       if (renderCount.current > 1 && timeSinceLastRender < 100) {
         console.warn(`🔥 [Performance] ${componentName} rendered ${renderCount.current} times (last render ${timeSinceLastRender}ms ago)`, {
           props: Object.keys(props),
@@ -160,12 +160,12 @@ export const useRenderTracking = (componentName, props = {}) => {
  */
 export const useMemoryTracking = (componentName) => {
   React.useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && performance.memory) {
+    if (process.env.NODE_ENV === "development" && performance.memory) {
       const memory = performance.memory;
       console.log(`💾 [Memory] ${componentName} mounted`, {
-        used: (memory.usedJSHeapSize / 1024 / 1024).toFixed(2) + 'MB',
-        total: (memory.totalJSHeapSize / 1024 / 1024).toFixed(2) + 'MB',
-        limit: (memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2) + 'MB',
+        used: `${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
+        total: `${(memory.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
+        limit: `${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB`,
       });
     }
   }, [componentName]);

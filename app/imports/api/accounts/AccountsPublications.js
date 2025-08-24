@@ -37,7 +37,7 @@ Meteor.publish("AllUsers", async function () {
         },
       },
     );
-  } else if (await isSchoolAdmin(this.userId)) {
+  } if (await isSchoolAdmin(this.userId)) {
     // School admins can only see users from their school
     return Meteor.users.find(
       { schoolId: currentUser.schoolId },

@@ -15,11 +15,11 @@ const ChatSchema = Joi.object({
       Joi.object({
         Sender: Joi.string().required(), // User ID of the message sender
         Content: createSafeStringSchema({
-          pattern: 'chatMessage',
+          pattern: "chatMessage",
           min: 1,
           max: 1000,
-          label: 'Message Content',
-          patternMessage: 'Message contains invalid characters',
+          label: "Message Content",
+          patternMessage: "Message contains invalid characters",
         }),
         Timestamp: Joi.date().required(),
       }),

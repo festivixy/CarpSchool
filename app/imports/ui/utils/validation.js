@@ -1,6 +1,6 @@
 /**
  * Centralized validation utilities for input sanitization and XSS prevention
- * 
+ *
  * This module provides reusable validation functions and Joi custom validators
  * to prevent XSS attacks and ensure input safety across the application.
  */
@@ -23,13 +23,13 @@ const XSS_PATTERNS = [
  */
 export const validateXSS = (value, helpers) => {
   if (!value) return value; // Allow empty values where permitted
-  
+
   for (const pattern of XSS_PATTERNS) {
     if (pattern.test(value)) {
-      return helpers.error('string.xss', { value });
+      return helpers.error("string.xss", { value });
     }
   }
-  
+
   return value;
 };
 
@@ -39,19 +39,19 @@ export const validateXSS = (value, helpers) => {
 export const VALIDATION_PATTERNS = {
   // Names: letters, spaces, hyphens, apostrophes, commas, periods
   name: /^[a-zA-Z\s\-'.,]+$/,
-  
+
   // Location names: letters, numbers, spaces, basic punctuation
   location: /^[a-zA-Z0-9\s\-,.()&']+$/,
-  
+
   // Phone numbers: digits, spaces, parentheses, plus, minus
   phone: /^[+\-0-9\s()]*$/,
-  
+
   // General text with basic punctuation (notes, descriptions)
   generalText: /^[a-zA-Z0-9\s\-,.()&'!?;:]*$/,
-  
+
   // Chat messages: includes more symbols for communication
   chatMessage: /^[a-zA-Z0-9\s\-,.()&'!?;:@#$%+=_\[\]{}|\\/"~`\*\^]*$/,
-  
+
   // Coordinates: lat,lng format
   coordinates: /^-?\d+\.?\d*,-?\d+\.?\d*$/,
 };
@@ -60,13 +60,13 @@ export const VALIDATION_PATTERNS = {
  * Common validation messages
  */
 export const VALIDATION_MESSAGES = {
-  xss: 'Input contains potentially unsafe content',
-  name: 'Name can only contain letters, spaces, hyphens, apostrophes, commas, and periods',
-  location: 'Location can only contain letters, numbers, spaces, and basic punctuation',
-  phone: 'Phone number can only contain digits, spaces, parentheses, plus, and minus signs',
-  generalText: 'Text can only contain letters, numbers, spaces, and basic punctuation',
-  chatMessage: 'Message contains invalid characters',
-  uri: 'Must be a valid URL',
+  xss: "Input contains potentially unsafe content",
+  name: "Name can only contain letters, spaces, hyphens, apostrophes, commas, and periods",
+  location: "Location can only contain letters, numbers, spaces, and basic punctuation",
+  phone: "Phone number can only contain digits, spaces, parentheses, plus, and minus signs",
+  generalText: "Text can only contain letters, numbers, spaces, and basic punctuation",
+  chatMessage: "Message contains invalid characters",
+  uri: "Must be a valid URL",
 };
 
 /**
@@ -87,51 +87,51 @@ export const createSafeStringSchema = ({
   max = 100,
   required = true,
   allowEmpty = false,
-  label = 'Input',
+  label = "Input",
   patternMessage = null,
 } = {}) => {
-  let schema = require('joi').string();
-  
+  let schema = require("joi").string();
+
   if (required) {
     schema = schema.required();
   } else {
     schema = schema.optional();
   }
-  
+
   if (allowEmpty) {
-    schema = schema.allow('');
+    schema = schema.allow("");
   }
-  
+
   if (min !== null) {
     schema = schema.min(min);
   }
-  
+
   if (max !== null) {
     schema = schema.max(max);
   }
-  
+
   if (pattern && VALIDATION_PATTERNS[pattern]) {
     schema = schema.pattern(VALIDATION_PATTERNS[pattern]);
   }
-  
+
   // Add XSS validation
-  schema = schema.custom(validateXSS, 'XSS validation');
-  
+  schema = schema.custom(validateXSS, "XSS validation");
+
   // Set custom messages
   const messages = {
-    'string.xss': VALIDATION_MESSAGES.xss,
+    "string.xss": VALIDATION_MESSAGES.xss,
   };
-  
+
   if (pattern && VALIDATION_MESSAGES[pattern]) {
-    messages['string.pattern.base'] = patternMessage || VALIDATION_MESSAGES[pattern];
+    messages["string.pattern.base"] = patternMessage || VALIDATION_MESSAGES[pattern];
   }
-  
+
   schema = schema.messages(messages);
-  
+
   if (label) {
     schema = schema.label(label);
   }
-  
+
   return schema;
 };
 
@@ -146,40 +146,40 @@ export const createSafeStringSchema = ({
  * @returns {object} - Joi schema object
  */
 export const createSafeUriSchema = ({
-  schemes = ['http', 'https', 'data'],
+  schemes = ["http", "https", "data"],
   required = false,
   allowEmpty = true,
   max = 500,
-  label = 'URL',
+  label = "URL",
 } = {}) => {
-  let schema = require('joi').string();
-  
+  let schema = require("joi").string();
+
   if (required) {
     schema = schema.required();
   } else {
     schema = schema.optional();
   }
-  
+
   if (allowEmpty) {
-    schema = schema.allow('');
+    schema = schema.allow("");
   }
-  
+
   if (max) {
     schema = schema.max(max);
   }
-  
+
   schema = schema.uri({ scheme: schemes });
-  schema = schema.custom(validateXSS, 'XSS validation');
-  
+  schema = schema.custom(validateXSS, "XSS validation");
+
   schema = schema.messages({
-    'string.uri': VALIDATION_MESSAGES.uri,
-    'string.xss': VALIDATION_MESSAGES.xss,
+    "string.uri": VALIDATION_MESSAGES.uri,
+    "string.xss": VALIDATION_MESSAGES.xss,
   });
-  
+
   if (label) {
     schema = schema.label(label);
   }
-  
+
   return schema;
 };
 
@@ -191,54 +191,54 @@ export const validateInput = {
    * Validate a place/location name
    */
   placeName: (value) => createSafeStringSchema({
-    pattern: 'location',
+    pattern: "location",
     min: 1,
     max: 100,
-    label: 'Location Name',
+    label: "Location Name",
   }).validate(value),
-  
+
   /**
    * Validate a person's name
    */
   personName: (value) => createSafeStringSchema({
-    pattern: 'name',
+    pattern: "name",
     min: 1,
     max: 100,
-    label: 'Name',
+    label: "Name",
   }).validate(value),
-  
+
   /**
    * Validate a chat message
    */
   chatMessage: (value) => createSafeStringSchema({
-    pattern: 'chatMessage',
+    pattern: "chatMessage",
     min: 1,
     max: 1000,
-    label: 'Message Content',
+    label: "Message Content",
     patternMessage: VALIDATION_MESSAGES.chatMessage,
   }).validate(value),
-  
+
   /**
    * Validate ride notes
    */
   rideNotes: (value) => createSafeStringSchema({
-    pattern: 'generalText',
+    pattern: "generalText",
     min: 0,
     max: 500,
     required: false,
     allowEmpty: true,
-    label: 'Ride Notes',
+    label: "Ride Notes",
   }).validate(value),
-  
+
   /**
    * Validate phone number
    */
   phoneNumber: (value) => createSafeStringSchema({
-    pattern: 'phone',
+    pattern: "phone",
     min: 0,
     max: 20,
     required: false,
     allowEmpty: true,
-    label: 'Phone Number',
+    label: "Phone Number",
   }).validate(value),
 };

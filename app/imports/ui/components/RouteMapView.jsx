@@ -100,7 +100,7 @@ const RouteMapView = ({
     try {
       // Use optimized routing service with caching
       const { getRoute } = await import("../utils/mapServices");
-      const routeData = await getRoute(start, end, { service: 'driving' });
+      const routeData = await getRoute(start, end, { service: "driving" });
 
       return routeData.geometry;
     } catch (routingError) {

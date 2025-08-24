@@ -16,20 +16,20 @@ import {
   NotificationActions,
   NotificationButton,
   MarkAllReadButton,
-  EmptyState
+  EmptyState,
 } from "../styles/NotificationBadge";
 
 /**
  * Notification Badge Component
  * Shows unread count and notification list
  */
-const NotificationBadge = ({ 
-  unreadCount, 
-  notifications, 
+const NotificationBadge = ({
+  unreadCount,
+  notifications,
   ready,
   showList = false,
   onToggleList = null,
-  position = "bottom-right"
+  position = "bottom-right",
 }) => {
   const [isListOpen, setIsListOpen] = useState(showList);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,11 +75,11 @@ const NotificationBadge = ({
     // Navigate based on notification data
     if (notification.data?.rideId) {
       if (window.FlowRouter) {
-        FlowRouter.go('/mobile/ride-info', { rideId: notification.data.rideId });
+        FlowRouter.go("/mobile/ride-info", { rideId: notification.data.rideId });
       }
     } else if (notification.data?.chatId) {
       if (window.FlowRouter) {
-        FlowRouter.go('/chat', {}, { chatId: notification.data.chatId });
+        FlowRouter.go("/chat", {}, { chatId: notification.data.chatId });
       }
     }
 
@@ -90,14 +90,14 @@ const NotificationBadge = ({
   const getNotificationIcon = (type) => {
     const icons = {
       ride_update: "🚗",
-      ride_cancelled: "❌", 
+      ride_cancelled: "❌",
       rider_joined: "👋",
       rider_left: "👋",
       chat_message: "💬",
       ride_starting: "🚦",
       ride_completed: "✅",
       emergency: "🚨",
-      system: "ℹ️"
+      system: "ℹ️",
     };
     return icons[type] || "📬";
   };
@@ -119,7 +119,7 @@ const NotificationBadge = ({
 
   const truncateText = (text, maxLength = 80) => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
+    return `${text.substring(0, maxLength)}...`;
   };
 
   if (!ready) {
@@ -138,18 +138,18 @@ const NotificationBadge = ({
 
       {isListOpen && (
         <NotificationList position={position}>
-          <div style={{ 
-            padding: "16px", 
+          <div style={{
+            padding: "16px",
             borderBottom: "1px solid #eee",
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center"
+            alignItems: "center",
           }}>
             <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>
               Notifications
             </h3>
             {unreadCount > 0 && (
-              <MarkAllReadButton 
+              <MarkAllReadButton
                 onClick={handleMarkAllAsRead}
                 disabled={isLoading}
               >
@@ -178,7 +178,7 @@ const NotificationBadge = ({
                 <NotificationIcon>
                   {getNotificationIcon(notification.type)}
                 </NotificationIcon>
-                
+
                 <NotificationContent>
                   <NotificationTitle>
                     {notification.title}
@@ -215,16 +215,16 @@ NotificationBadge.propTypes = {
   ready: PropTypes.bool.isRequired,
   showList: PropTypes.bool,
   onToggleList: PropTypes.func,
-  position: PropTypes.oneOf(["bottom-right", "bottom-left", "top-right", "top-left"])
+  position: PropTypes.oneOf(["bottom-right", "bottom-left", "top-right", "top-left"]),
 };
 
 export default withTracker(() => {
   const subscription = Meteor.subscribe("notifications.recent");
   const countSubscription = Meteor.subscribe("notifications.unreadCount");
-  
+
   return {
     unreadCount: NotificationHelpers.getUnreadCount(),
     notifications: NotificationHelpers.getRecentNotifications(),
-    ready: subscription.ready() && countSubscription.ready()
+    ready: subscription.ready() && countSubscription.ready(),
   };
 })(NotificationBadge);

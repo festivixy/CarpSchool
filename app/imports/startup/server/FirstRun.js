@@ -42,7 +42,7 @@ async function createUser(email, firstName, lastName, password, role, schoolCode
     }
   }
 
-  console.log(`  Creating user ${email}${school ? ` for school ${school.name}` : ''}.`);
+  console.log(`  Creating user ${email}${school ? ` for school ${school.name}` : ""}.`);
   const userID = await new Promise((resolve, _reject) => {
     const id = Accounts.createUser({
       username: email,

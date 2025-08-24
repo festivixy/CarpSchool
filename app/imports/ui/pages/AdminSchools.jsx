@@ -223,7 +223,7 @@ class AdminSchools extends React.Component {
         coordinates: {
           lat: createForm.selectedLocation.lat,
           lng: createForm.selectedLocation.lng,
-        }
+        },
       } : undefined,
       settings: {
         allowRegistration: createForm.allowRegistration,
@@ -277,7 +277,7 @@ class AdminSchools extends React.Component {
         coordinates: {
           lat: editForm.selectedLocation.lat,
           lng: editForm.selectedLocation.lng,
-        }
+        },
       } : editingSchool.location,
       settings: {
         allowRegistration: editForm.allowRegistration,
@@ -324,14 +324,12 @@ class AdminSchools extends React.Component {
     if (!searchQuery.trim()) return schools;
 
     const query = searchQuery.toLowerCase();
-    return schools.filter((school) => {
-      return (
+    return schools.filter((school) => (
         (school.name && school.name.toLowerCase().includes(query)) ||
         (school.shortName && school.shortName.toLowerCase().includes(query)) ||
         (school.code && school.code.toLowerCase().includes(query)) ||
         (school.domain && school.domain.toLowerCase().includes(query))
-      );
-    });
+      ));
   };
 
   getUserCount = (schoolId) => {
@@ -566,7 +564,7 @@ class AdminSchools extends React.Component {
                           onChange={this.handleCreateFormChange}
                           placeholder="LHS"
                           disabled={this.state.loading}
-                          style={{ textTransform: 'uppercase' }}
+                          style={{ textTransform: "uppercase" }}
                         />
                       </FormField>
                       <FormField>
@@ -706,7 +704,7 @@ class AdminSchools extends React.Component {
                           onChange={this.handleEditFormChange}
                           placeholder="LHS"
                           disabled={this.state.loading}
-                          style={{ textTransform: 'uppercase' }}
+                          style={{ textTransform: "uppercase" }}
                         />
                       </FormField>
                       <FormField>

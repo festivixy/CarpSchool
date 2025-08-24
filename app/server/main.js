@@ -1,16 +1,6 @@
 // Email configuration
 import { Meteor } from "meteor/meteor";
 
-// Configure SMTP for iCloud+ custom domain
-if (Meteor.isServer) {
-  Meteor.startup(() => {
-    // Email configuration check
-    if (!process.env.MAIL_URL) {
-      console.warn("⚠️  MAIL_URL not set - email functionality will not work");
-    }
-  });
-}
-
 // First run setup
 import "../imports/startup/server/FirstRun";
 
@@ -57,3 +47,13 @@ import "../imports/api/accounts/AccountsConfig";
 import "../imports/startup/server/PushNotificationService";
 import "../imports/startup/server/OneSignalService";
 import "../imports/startup/server/NotificationIntegration";
+
+// Configure SMTP for iCloud+ custom domain
+if (Meteor.isServer) {
+  Meteor.startup(() => {
+    // Email configuration check
+    if (!process.env.MAIL_URL) {
+      console.warn("⚠️  MAIL_URL not set - email functionality will not work");
+    }
+  });
+}

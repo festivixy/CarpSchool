@@ -39,11 +39,11 @@ Meteor.methods({
     const { Places } = await import("../places/Places");
     const origin = await Places.findOneAsync({
       _id: value.origin,
-      schoolId: user.schoolId
+      schoolId: user.schoolId,
     });
     const destination = await Places.findOneAsync({
       _id: value.destination,
-      schoolId: user.schoolId
+      schoolId: user.schoolId,
     });
 
     if (!origin) {
@@ -92,7 +92,7 @@ Meteor.methods({
 
     // Add user to ride
     await Rides.updateAsync(rideId, {
-      $push: { riders: userId }
+      $push: { riders: userId },
     });
 
     return true;
@@ -117,7 +117,7 @@ Meteor.methods({
 
     const rides = await Rides.find(query, {
       sort: { date: 1 },
-      limit: 50
+      limit: 50,
     }).fetchAsync();
 
     return rides;

@@ -36,8 +36,8 @@ if (Meteor.isServer) {
                 type: "rider_left",
                 priority: "normal",
                 action: "view_ride",
-                includeSender: false
-              }
+                includeSender: false,
+              },
             );
           }
         }
@@ -60,13 +60,13 @@ if (Meteor.isServer) {
               type: "ride_update",
               priority: "normal",
               action: "view_ride",
-              includeSender: false
-            }
+              includeSender: false,
+            },
           );
         }
 
       } catch (error) {
-        console.error('[Notifications] Error in ride observer:', error);
+        console.error("[Notifications] Error in ride observer:", error);
       }
     },
 
@@ -76,13 +76,13 @@ if (Meteor.isServer) {
         if (removedRide.riders && removedRide.riders.length > 0) {
           await NotificationUtils.sendRideCancellation(
             removedRide._id,
-            "This ride has been cancelled"
+            "This ride has been cancelled",
           );
         }
       } catch (error) {
-        console.error('[Notifications] Error in ride removal observer:', error);
+        console.error("[Notifications] Error in ride removal observer:", error);
       }
-    }
+    },
   });
 
   // Hook into chat collection changes for new messages
@@ -102,40 +102,40 @@ if (Meteor.isServer) {
               newChat._id,
               message.Sender,
               message.Content,
-              newChat.rideId
+              newChat.rideId,
             );
           }
         }
       } catch (error) {
-        console.error('[Notifications] Error in chat observer:', error);
+        console.error("[Notifications] Error in chat observer:", error);
       }
-    }
+    },
   });
 
   // Cleanup observers on server shutdown
-  process.on('SIGTERM', () => {
+  process.on("SIGTERM", () => {
     try {
-      if (rideObserver && typeof rideObserver.stop === 'function') {
+      if (rideObserver && typeof rideObserver.stop === "function") {
         rideObserver.stop();
       }
-      if (chatObserver && typeof chatObserver.stop === 'function') {
+      if (chatObserver && typeof chatObserver.stop === "function") {
         chatObserver.stop();
       }
     } catch (error) {
-      console.error('[Notifications] Error stopping observers:', error);
+      console.error("[Notifications] Error stopping observers:", error);
     }
   });
 
-  process.on('SIGINT', () => {
+  process.on("SIGINT", () => {
     try {
-      if (rideObserver && typeof rideObserver.stop === 'function') {
+      if (rideObserver && typeof rideObserver.stop === "function") {
         rideObserver.stop();
       }
-      if (chatObserver && typeof chatObserver.stop === 'function') {
+      if (chatObserver && typeof chatObserver.stop === "function") {
         chatObserver.stop();
       }
     } catch (error) {
-      console.error('[Notifications] Error stopping observers:', error);
+      console.error("[Notifications] Error stopping observers:", error);
     }
   });
 }
@@ -149,7 +149,7 @@ export const NotificationTriggers = {
     try {
       await NotificationUtils.sendRideStarting(rideId, estimatedTime);
     } catch (error) {
-      console.error(`[Notifications] Failed to send ride starting notification:`, error);
+      console.error("[Notifications] Failed to send ride starting notification:", error);
       throw error;
     }
   },
@@ -167,11 +167,11 @@ export const NotificationTriggers = {
         {
           type: "ride_completed",
           priority: "normal",
-          action: "view_ride"
-        }
+          action: "view_ride",
+        },
       );
     } catch (error) {
-      console.error(`[Notifications] Failed to send ride completed notification:`, error);
+      console.error("[Notifications] Failed to send ride completed notification:", error);
       throw error;
     }
   },
@@ -183,7 +183,7 @@ export const NotificationTriggers = {
     try {
       await NotificationUtils.sendEmergency(rideId, message, priority);
     } catch (error) {
-      console.error(`[Notifications] Failed to send emergency notification:`, error);
+      console.error("[Notifications] Failed to send emergency notification:", error);
       throw error;
     }
   },
@@ -200,8 +200,8 @@ export const NotificationTriggers = {
       } else {
         // Send to all active users
         const activeUsers = await Meteor.users.find(
-          { 'status.online': true },
-          { fields: { _id: 1 } }
+          { "status.online": true },
+          { fields: { _id: 1 } },
         ).fetchAsync();
         recipients = activeUsers.map(user => user._id);
       }
@@ -217,12 +217,12 @@ export const NotificationTriggers = {
         message,
         {
           type: "system",
-          priority: "normal"
-        }
+          priority: "normal",
+        },
       );
     } catch (error) {
-      console.error(`[Notifications] Failed to send system notification:`, error);
+      console.error("[Notifications] Failed to send system notification:", error);
       throw error;
     }
-  }
+  },
 };

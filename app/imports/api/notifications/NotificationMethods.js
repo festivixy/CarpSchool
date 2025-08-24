@@ -9,7 +9,7 @@ import {
   NOTIFICATION_TYPES,
   NOTIFICATION_PRIORITY,
   NOTIFICATION_STATUS,
-  NotificationHelpers
+  NotificationHelpers,
 } from "./Notifications";
 import { Rides } from "../ride/Rides";
 import { Chats } from "../chat/Chat";
@@ -36,7 +36,7 @@ Meteor.methods({
       await PushTokens.updateAsync(
         { userId: this.userId, platform, isActive: true },
         { $set: { isActive: false } },
-        { multi: true }
+        { multi: true },
       );
 
       // Create new token record
@@ -47,7 +47,7 @@ Meteor.methods({
         deviceInfo,
         isActive: true,
         lastUsedAt: new Date(),
-        createdAt: new Date()
+        createdAt: new Date(),
       });
 
       const tokenId = await PushTokens.insertAsync(pushTokenData);
@@ -74,7 +74,7 @@ Meteor.methods({
     try {
       const result = await PushTokens.updateAsync(
         { userId: this.userId, token },
-        { $set: { isActive: false } }
+        { $set: { isActive: false } },
       );
 
       // console.log(`[Push] Unregistered token for user ${this.userId}`);
@@ -117,7 +117,7 @@ Meteor.methods({
           groupKey: options.groupKey || NotificationHelpers.generateGroupKey(options.type, options.data?.rideId),
           batchId,
           createdBy: this.userId,
-          platform: options.platform
+          platform: options.platform,
         });
 
         const notificationId = await Notifications.insertAsync(notificationData);
@@ -131,7 +131,7 @@ Meteor.methods({
               body,
               data: options.data || {},
               priority: options.priority,
-              notificationId
+              notificationId,
             });
           });
         }
@@ -189,9 +189,9 @@ Meteor.methods({
         data: {
           rideId,
           action: options.action || "view_ride",
-          ...options.data
+          ...options.data,
         },
-        groupKey: NotificationHelpers.generateGroupKey(options.type || NOTIFICATION_TYPES.RIDE_UPDATE, rideId)
+        groupKey: NotificationHelpers.generateGroupKey(options.type || NOTIFICATION_TYPES.RIDE_UPDATE, rideId),
       };
 
       return await Meteor.callAsync("notifications.send", filteredRecipients, title, body, rideOptions);
@@ -217,14 +217,14 @@ Meteor.methods({
         {
           _id: notificationId,
           userId: this.userId,
-          status: { $ne: NOTIFICATION_STATUS.READ }
+          status: { $ne: NOTIFICATION_STATUS.READ },
         },
         {
           $set: {
             status: NOTIFICATION_STATUS.READ,
-            readAt: new Date()
-          }
-        }
+            readAt: new Date(),
+          },
+        },
       );
 
       if (result) {
@@ -251,15 +251,15 @@ Meteor.methods({
       const result = await Notifications.updateAsync(
         {
           userId: this.userId,
-          status: { $ne: NOTIFICATION_STATUS.READ }
+          status: { $ne: NOTIFICATION_STATUS.READ },
         },
         {
           $set: {
             status: NOTIFICATION_STATUS.READ,
-            readAt: new Date()
-          }
+            readAt: new Date(),
+          },
         },
-        { multi: true }
+        { multi: true },
       );
 
       // console.log(`[Notifications] Marked ${result} notifications as read for user ${this.userId}`);
@@ -290,8 +290,8 @@ Meteor.methods({
       const result = await Notifications.removeAsync({
         $or: [
           { createdAt: { $lt: cutoffDate } },
-          { expiresAt: { $lt: new Date() } }
-        ]
+          { expiresAt: { $lt: new Date() } },
+        ],
       });
 
       // console.log(`[Notifications] Cleaned up ${result} old notifications`);
@@ -320,9 +320,9 @@ Meteor.methods({
         byStatus: {},
         byType: {},
         last24Hours: await Notifications.find({
-          createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+          createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
         }).countAsync(),
-        activeTokens: await PushTokens.find({ isActive: true }).countAsync()
+        activeTokens: await PushTokens.find({ isActive: true }).countAsync(),
       };
 
       // Get counts by status
@@ -360,8 +360,8 @@ Meteor.methods({
         { userId: this.userId },
         {
           sort: { createdAt: -1 },
-          limit: safeLimit
-        }
+          limit: safeLimit,
+        },
       ).fetchAsync();
 
       return notifications;
@@ -385,16 +385,16 @@ Meteor.methods({
       const result = await PushTokens.updateAsync(
         {
           userId: this.userId,
-          isActive: true
+          isActive: true,
         },
         {
           $set: {
             isActive: false,
             deactivatedAt: new Date(),
-            deactivationReason: 'user_logout'
-          }
+            deactivationReason: "user_logout",
+          },
         },
-        { multi: true }
+        { multi: true },
       );
 
       // console.log(`[Logout] Deactivated ${result} push tokens for user ${this.userId}`);
@@ -402,7 +402,7 @@ Meteor.methods({
       return {
         success: true,
         deactivatedTokens: result,
-        userId: this.userId
+        userId: this.userId,
       };
 
     } catch (error) {
@@ -419,19 +419,19 @@ Meteor.methods({
       // Get from WebPushService
       const webPushKey = WebPushService.getVapidPublicKey();
       if (webPushKey) {
-        return { publicKey: webPushKey, source: 'webpush' };
+        return { publicKey: webPushKey, source: "webpush" };
       }
 
       // Fallback to Meteor settings
       const settingsKey = Meteor.settings.public?.vapid?.publicKey;
       if (settingsKey) {
-        return { publicKey: settingsKey, source: 'settings' };
+        return { publicKey: settingsKey, source: "settings" };
       }
 
       // Fallback to environment variable
       const envKey = process.env.VAPID_PUBLIC_KEY;
       if (envKey) {
-        return { publicKey: envKey, source: 'env' };
+        return { publicKey: envKey, source: "env" };
       }
 
       throw new Meteor.Error("vapid-not-configured", "VAPID public key not configured");
@@ -440,7 +440,7 @@ Meteor.methods({
       console.error("[VAPID] Failed to get public key:", error);
       throw new Meteor.Error("vapid-failed", error.reason || "Failed to get VAPID public key");
     }
-  }
+  },
 });
 
 // Utility methods for integration with existing systems
@@ -457,8 +457,8 @@ export const NotificationUtils = {
       {
         type: NOTIFICATION_TYPES.RIDE_CANCELLED,
         priority: NOTIFICATION_PRIORITY.HIGH,
-        action: "view_ride"
-      }
+        action: "view_ride",
+      },
     );
   },
 
@@ -475,8 +475,8 @@ export const NotificationUtils = {
         type: NOTIFICATION_TYPES.RIDER_JOINED,
         priority: NOTIFICATION_PRIORITY.NORMAL,
         action: "view_ride",
-        includeSender: false // Don't notify the rider who just joined
-      }
+        includeSender: false, // Don't notify the rider who just joined
+      },
     );
   },
 
@@ -497,8 +497,8 @@ export const NotificationUtils = {
       {
         type: NOTIFICATION_TYPES.RIDE_STARTING,
         priority: NOTIFICATION_PRIORITY.HIGH,
-        action: "view_ride"
-      }
+        action: "view_ride",
+      },
     );
   },
 
@@ -517,12 +517,12 @@ export const NotificationUtils = {
         "notifications.send",
         offlineParticipants,
         `Message from ${senderName}`,
-        messageContent.length > 50 ? messageContent.substring(0, 47) + "..." : messageContent,
+        messageContent.length > 50 ? `${messageContent.substring(0, 47)}...` : messageContent,
         {
           type: NOTIFICATION_TYPES.CHAT_MESSAGE,
           priority: NOTIFICATION_PRIORITY.NORMAL,
-          data: { chatId, rideId, action: "open_chat" }
-        }
+          data: { chatId, rideId, action: "open_chat" },
+        },
       );
     }
   },
@@ -545,7 +545,7 @@ export const NotificationUtils = {
         user: {
           id: this.userId,
           username: currentUser?.username,
-          roles: currentUser?.roles || []
+          roles: currentUser?.roles || [],
         },
         ride: ride ? {
           id: ride._id,
@@ -560,15 +560,15 @@ export const NotificationUtils = {
           isAdmin: await (async () => {
             const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
             return await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
-          })() || false
+          })() || false,
         },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       if (ride) {
         debugInfo.notifications = {
           wouldSendTo: [ride.driver, ...ride.riders].filter(userId => userId !== this.userId),
-          allParticipants: [ride.driver, ...ride.riders]
+          allParticipants: [ride.driver, ...ride.riders],
         };
       }
 
@@ -589,16 +589,16 @@ export const NotificationUtils = {
       const result = await PushTokens.updateAsync(
         {
           userId: userId,
-          isActive: true
+          isActive: true,
         },
         {
           $set: {
             isActive: false,
             deactivatedAt: new Date(),
-            deactivationReason: 'user_logout'
-          }
+            deactivationReason: "user_logout",
+          },
         },
-        { multi: true }
+        { multi: true },
       );
 
       // console.log(`[Logout] Deactivated ${result} push tokens for user ${userId}`);
@@ -606,7 +606,7 @@ export const NotificationUtils = {
       return {
         success: true,
         deactivatedTokens: result,
-        userId: userId
+        userId: userId,
       };
 
     } catch (error) {
@@ -631,9 +631,9 @@ export const NotificationUtils = {
         pushPayload: {
           sound: "emergency.caf",
           badge: 1,
-          category: "EMERGENCY"
-        }
-      }
+          category: "EMERGENCY",
+        },
+      },
     );
-  }
+  },
 };

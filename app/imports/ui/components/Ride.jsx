@@ -296,10 +296,8 @@ class Ride extends React.Component {
     }
 
     // Find the session for this ride
-    const session = rideSessions.find(session =>
-      session.rideId === ride._id &&
-      !session.finished
-    );
+    const session = rideSessions.find(session => session.rideId === ride._id &&
+      !session.finished);
 
     if (!session) {
       return false;
@@ -318,11 +316,9 @@ class Ride extends React.Component {
     }
 
     // Find the active session for this ride
-    const session = rideSessions.find(session =>
-      session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id &&
       session.status === "active" &&
-      !session.finished
-    );
+      !session.finished);
 
     if (!session) {
       return false;
@@ -346,11 +342,9 @@ class Ride extends React.Component {
     }
 
     // Find the active session for this ride
-    const session = rideSessions.find(session =>
-      session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id &&
       session.status === "active" &&
-      !session.finished
-    );
+      !session.finished);
 
     if (!session) {
       return false;
@@ -372,11 +366,9 @@ class Ride extends React.Component {
     if (!currentUser) return false;
 
     // Find the active session for this ride
-    const session = rideSessions.find(session =>
-      session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id &&
       (session.status === "active" || session.status === "created") &&
-      !session.finished
-    );
+      !session.finished);
 
     if (!session) {
       return false;
@@ -393,11 +385,9 @@ class Ride extends React.Component {
     if (!currentUser) return false;
 
     // Find the active session for this ride
-    const session = rideSessions.find(session =>
-      session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id &&
       session.status === "active" &&
-      !session.finished
-    );
+      !session.finished);
 
     if (!session) {
       return false;
@@ -420,10 +410,8 @@ class Ride extends React.Component {
     if (!currentUser) return false;
 
     // Find any completed session for this ride
-    const session = rideSessions.find(session =>
-      session.rideId === ride._id &&
-      (session.finished || session.status === "completed" || session.status === "cancelled")
-    );
+    const session = rideSessions.find(session => session.rideId === ride._id &&
+      (session.finished || session.status === "completed" || session.status === "cancelled"));
 
     if (!session) {
       return false;
@@ -442,10 +430,8 @@ class Ride extends React.Component {
     const { ride, rideSessions } = this.props;
 
     // Find the completed session for this ride
-    const session = rideSessions.find(session =>
-      session.rideId === ride._id &&
-      (session.finished || session.status === "completed" || session.status === "cancelled")
-    );
+    const session = rideSessions.find(session => session.rideId === ride._id &&
+      (session.finished || session.status === "completed" || session.status === "cancelled"));
 
     if (session) {
       // Navigate to the RideHistory page
@@ -474,7 +460,7 @@ class Ride extends React.Component {
       });
     } catch (error) {
       this.setState({ isGenerating: false });
-      swal("Error", "Failed to get location: " + error.message, "error");
+      swal("Error", `Failed to get location: ${error.message}`, "error");
     }
   };
 
@@ -515,7 +501,7 @@ class Ride extends React.Component {
       });
     } catch (error) {
       this.setState({ isGenerating: false });
-      swal("Error", "Failed to get location: " + error.message, "error");
+      swal("Error", `Failed to get location: ${error.message}`, "error");
     }
   };
 
@@ -531,7 +517,7 @@ class Ride extends React.Component {
       } else {
         this.setState({
           codeModalOpen: true,
-          fullCode: result.fullCode
+          fullCode: result.fullCode,
         });
       }
     });
@@ -576,16 +562,14 @@ class Ride extends React.Component {
       });
     } catch (error) {
       this.setState({ isGenerating: false });
-      swal("Error", "Failed to get location: " + error.message, "error");
+      swal("Error", `Failed to get location: ${error.message}`, "error");
     }
   };
 
   getSessionId = () => {
     const { ride, rideSessions } = this.props;
-    const session = rideSessions.find(session =>
-      session.rideId === ride._id &&
-      !session.finished
-    );
+    const session = rideSessions.find(session => session.rideId === ride._id &&
+      !session.finished);
     return session ? session._id : null;
   };
 
@@ -594,8 +578,6 @@ class Ride extends React.Component {
     const user = users?.find(u => u._id === userId);
     return user?.username || userId; // Fallback to ID if username not available
   };
-
-
 
   handleConfirmPickup = () => {
     this.setState({ pickupModalOpen: true });
@@ -617,8 +599,8 @@ class Ride extends React.Component {
           this.setState(prev => ({
             riderCodes: {
               ...prev.riderCodes,
-              [riderId]: result
-            }
+              [riderId]: result,
+            },
           }));
         }
       });
@@ -628,7 +610,7 @@ class Ride extends React.Component {
   handleRiderSelect = (riderId) => {
     this.setState({
       selectedRiderId: riderId,
-      codeInput: ""
+      codeInput: "",
     });
   };
 
@@ -653,7 +635,7 @@ class Ride extends React.Component {
           pickupModalOpen: false,
           selectedRiderId: null,
           codeInput: "",
-          riderCodes: {}
+          riderCodes: {},
         });
       }
     });
@@ -664,14 +646,14 @@ class Ride extends React.Component {
       pickupModalOpen: false,
       selectedRiderId: null,
       codeInput: "",
-      riderCodes: {}
+      riderCodes: {},
     });
   };
 
   closeCodeModal = () => {
     this.setState({
       codeModalOpen: false,
-      fullCode: null
+      fullCode: null,
     });
   };
 
@@ -1115,7 +1097,7 @@ class Ride extends React.Component {
                                   maxLength="2"
                                   placeholder="??"
                                   value={this.state.codeInput}
-                                  onChange={(e) => this.setState({ codeInput: e.target.value.replace(/\D/g, '') })}
+                                  onChange={(e) => this.setState({ codeInput: e.target.value.replace(/\D/g, "") })}
                                   disabled={this.state.verifyingCode}
                                 />
                                 <VerifyButton
@@ -1193,7 +1175,7 @@ class Ride extends React.Component {
                                   maxLength="2"
                                   placeholder="??"
                                   value={this.state.codeInput}
-                                  onChange={(e) => this.setState({ codeInput: e.target.value.replace(/\D/g, '') })}
+                                  onChange={(e) => this.setState({ codeInput: e.target.value.replace(/\D/g, "") })}
                                   disabled={this.state.verifyingCode}
                                 />
                                 <VerifyButton

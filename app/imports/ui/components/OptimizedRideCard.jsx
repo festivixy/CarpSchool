@@ -23,25 +23,25 @@ const OptimizedRideCard = memo(({
 
     if (rideSession) {
       return {
-        type: 'session',
+        type: "session",
         status: rideSession.status,
-        isActive: rideSession.status === 'active',
-        isCompleted: rideSession.status === 'completed',
+        isActive: rideSession.status === "active",
+        isCompleted: rideSession.status === "completed",
       };
     }
 
     if (rideDate < now) {
       return {
-        type: 'past',
-        status: 'missed',
+        type: "past",
+        status: "missed",
         isActive: false,
         isCompleted: false,
       };
     }
 
     return {
-      type: 'upcoming',
-      status: 'scheduled',
+      type: "upcoming",
+      status: "scheduled",
       isActive: false,
       isCompleted: false,
     };
@@ -130,6 +130,6 @@ OptimizedRideCard.propTypes = {
   users: PropTypes.array,
 };
 
-OptimizedRideCard.displayName = 'OptimizedRideCard';
+OptimizedRideCard.displayName = "OptimizedRideCard";
 
 export default OptimizedRideCard;

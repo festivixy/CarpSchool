@@ -288,11 +288,11 @@ Meteor.methods({
     const rides = await Rides.find({
       $or: [
         { driver: user._id },
-        { riders: user._id }
-      ]
+        { riders: user._id },
+      ],
     }, {
       sort: { date: -1 },
-      limit: 50
+      limit: 50,
     }).fetchAsync();
 
     return rides;

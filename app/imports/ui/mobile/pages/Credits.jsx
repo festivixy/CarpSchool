@@ -97,5 +97,5 @@ export default withRouter(
       creditsData,
       ready: subscription.ready(),
     };
-  })(MobileCredits)
+  })(MobileCredits),
 );

@@ -58,14 +58,14 @@ Meteor.methods({
       // Update existing content
       const result = await SystemContent.updateAsync(
         { type },
-        { $set: contentData }
+        { $set: contentData },
       );
       return { updated: true, contentId: existingContent._id };
-    } else {
+    }
       // Create new content
       const contentId = await SystemContent.insertAsync(contentData);
       return { created: true, contentId };
-    }
+
   },
 
   /**

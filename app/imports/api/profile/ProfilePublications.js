@@ -24,14 +24,14 @@ Meteor.publish("ProfilesAdmin", async function publish() {
   if (await isSystemAdmin(this.userId)) {
     // System admins can see all profiles
     return Profiles.find();
-  } else if (await isSchoolAdmin(this.userId)) {
+  } if (await isSchoolAdmin(this.userId)) {
     // School admins can only see profiles from users in their school
     const schoolUsers = await Meteor.users.find(
       { schoolId: currentUser.schoolId },
-      { fields: { _id: 1 } }
+      { fields: { _id: 1 } },
     ).fetchAsync();
     const userIds = schoolUsers.map(user => user._id);
-    
+
     return Profiles.find({ Owner: { $in: userIds } });
   }
 

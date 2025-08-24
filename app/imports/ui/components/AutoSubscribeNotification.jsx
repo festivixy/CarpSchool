@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Tracker } from 'meteor/tracker';
-import { oneSignalManager, OneSignalHelpers } from '../utils/oneSignalNotifications';
+import React, { useEffect, useState } from "react";
+import { Meteor } from "meteor/meteor";
+import { Tracker } from "meteor/tracker";
+import { oneSignalManager, OneSignalHelpers } from "../utils/oneSignalNotifications";
 
 /**
  * AutoSubscribeNotification Component
@@ -19,7 +19,7 @@ const AutoSubscribeNotification = () => {
   const [subscriptionStatus, setSubscriptionStatus] = useState({
     checked: false,
     subscribed: false,
-    method: null
+    method: null,
   });
 
   /**
@@ -36,7 +36,7 @@ const AutoSubscribeNotification = () => {
         try {
           oneSignalSubscribed = await oneSignalManager.isEnabled();
         } catch (error) {
-          console.log('[AutoSub] OneSignal check failed:', error.message);
+          console.log("[AutoSub] OneSignal check failed:", error.message);
         }
       }
 
@@ -47,28 +47,28 @@ const AutoSubscribeNotification = () => {
           const devices = await OneSignalHelpers.getUserDevices();
           hasServerTokens = devices.length > 0;
         } catch (error) {
-          console.log('[AutoSub] Server token check failed:', error.message);
+          console.log("[AutoSub] Server token check failed:", error.message);
         }
       }
 
-      const isSubscribed = browserPermission === 'granted' && (oneSignalSubscribed || hasServerTokens);
+      const isSubscribed = browserPermission === "granted" && (oneSignalSubscribed || hasServerTokens);
 
-      console.log('[AutoSub] Subscription status check:', {
+      console.log("[AutoSub] Subscription status check:", {
         browserPermission,
         oneSignalSubscribed,
         hasServerTokens,
-        isSubscribed
+        isSubscribed,
       });
 
       return {
         isSubscribed,
         browserPermission,
         oneSignalSubscribed,
-        hasServerTokens
+        hasServerTokens,
       };
 
     } catch (error) {
-      console.error('[AutoSub] Status check failed:', error);
+      console.error("[AutoSub] Status check failed:", error);
       return { isSubscribed: false, error: error.message };
     }
   };
@@ -80,7 +80,7 @@ const AutoSubscribeNotification = () => {
     const maxRetries = 3;
 
     if (isProcessing && retryCount === 0) {
-      console.log('[AutoSub] Already processing, skipping...');
+      console.log("[AutoSub] Already processing, skipping...");
       return;
     }
 
@@ -95,12 +95,12 @@ const AutoSubscribeNotification = () => {
     let subscriptionMethod = null;
 
     try {
-      console.log('[AutoSub] Starting auto-subscription process...');
+      console.log("[AutoSub] Starting auto-subscription process...");
 
       // Check if notifications are supported
-      if (!('Notification' in window)) {
-        console.log('[AutoSub] Notifications not supported in this browser');
-        setSubscriptionStatus({ checked: true, subscribed: false, method: 'unsupported' });
+      if (!("Notification" in window)) {
+        console.log("[AutoSub] Notifications not supported in this browser");
+        setSubscriptionStatus({ checked: true, subscribed: false, method: "unsupported" });
         return;
       }
 
@@ -108,15 +108,15 @@ const AutoSubscribeNotification = () => {
       const status = await checkSubscriptionStatus();
 
       if (status.isSubscribed) {
-        console.log('[AutoSub] User already subscribed');
-        setSubscriptionStatus({ checked: true, subscribed: true, method: 'already-subscribed' });
+        console.log("[AutoSub] User already subscribed");
+        setSubscriptionStatus({ checked: true, subscribed: true, method: "already-subscribed" });
         return;
       }
 
       // If permission is denied, don't try to subscribe
-      if (status.browserPermission === 'denied') {
-        console.log('[AutoSub] Browser permission denied, cannot auto-subscribe');
-        setSubscriptionStatus({ checked: true, subscribed: false, method: 'permission-denied' });
+      if (status.browserPermission === "denied") {
+        console.log("[AutoSub] Browser permission denied, cannot auto-subscribe");
+        setSubscriptionStatus({ checked: true, subscribed: false, method: "permission-denied" });
         return;
       }
 
@@ -125,37 +125,37 @@ const AutoSubscribeNotification = () => {
       // Method 1: Try OneSignal if available
       if (oneSignalManager.isSupported && !status.oneSignalSubscribed) {
         try {
-          console.log('[AutoSub] Attempting OneSignal subscription...');
+          console.log("[AutoSub] Attempting OneSignal subscription...");
 
           // Request permission through OneSignal
           const granted = await oneSignalManager.requestPermission();
 
           if (granted) {
-            console.log('[AutoSub] OneSignal subscription successful');
+            console.log("[AutoSub] OneSignal subscription successful");
             subscriptionSuccess = true;
-            subscriptionMethod = 'onesignal';
+            subscriptionMethod = "onesignal";
           }
 
         } catch (oneSignalError) {
-          console.log('[AutoSub] OneSignal subscription failed:', oneSignalError.message);
+          console.log("[AutoSub] OneSignal subscription failed:", oneSignalError.message);
         }
       }
 
       // Method 2: Fallback to browser native if OneSignal failed
-      if (!subscriptionSuccess && status.browserPermission === 'default') {
+      if (!subscriptionSuccess && status.browserPermission === "default") {
         try {
-          console.log('[AutoSub] Attempting browser native subscription...');
+          console.log("[AutoSub] Attempting browser native subscription...");
 
           const permission = await Notification.requestPermission();
 
-          if (permission === 'granted') {
-            console.log('[AutoSub] Browser native subscription successful');
+          if (permission === "granted") {
+            console.log("[AutoSub] Browser native subscription successful");
             subscriptionSuccess = true;
-            subscriptionMethod = 'browser-native';
+            subscriptionMethod = "browser-native";
           }
 
         } catch (nativeError) {
-          console.log('[AutoSub] Browser native subscription failed:', nativeError.message);
+          console.log("[AutoSub] Browser native subscription failed:", nativeError.message);
         }
       }
 
@@ -164,12 +164,12 @@ const AutoSubscribeNotification = () => {
         setSubscriptionStatus({
           checked: true,
           subscribed: true,
-          method: subscriptionMethod
+          method: subscriptionMethod,
         });
         console.log(`[AutoSub] Auto-subscription completed via ${subscriptionMethod} on attempt ${currentAttempt}`);
 
         // Set a timestamp to avoid re-subscribing too frequently
-        localStorage.setItem('autoSubscribeLastSuccess', Date.now().toString());
+        localStorage.setItem("autoSubscribeLastSuccess", Date.now().toString());
       } else {
         console.log(`[AutoSub] Auto-subscription attempt ${currentAttempt} failed`);
 
@@ -182,7 +182,7 @@ const AutoSubscribeNotification = () => {
             attemptAutoSubscribe(retryCount + 1);
           }, 2000);
 
-          return; // Don't set final status yet, we're retrying
+           // Don't set final status yet, we're retrying
         } else {
           console.log(`[AutoSub] All ${maxRetries} subscription attempts failed - user may need to manually enable notifications`);
 
@@ -190,7 +190,7 @@ const AutoSubscribeNotification = () => {
           setSubscriptionStatus({
             checked: true,
             subscribed: false,
-            method: 'failed-after-retries'
+            method: "failed-after-retries",
           });
         }
       }
@@ -207,10 +207,10 @@ const AutoSubscribeNotification = () => {
         }, 2000);
 
         return; // Don't set final status yet, we're retrying
-      } else {
-        console.error(`[AutoSub] All ${maxRetries} attempts failed with errors`);
-        setSubscriptionStatus({ checked: true, subscribed: false, method: 'error' });
       }
+        console.error(`[AutoSub] All ${maxRetries} attempts failed with errors`);
+        setSubscriptionStatus({ checked: true, subscribed: false, method: "error" });
+
     } finally {
       // Only set processing to false on final attempt (success or max retries reached)
       if (subscriptionSuccess || retryCount >= maxRetries - 1) {
@@ -225,16 +225,16 @@ const AutoSubscribeNotification = () => {
   const shouldAttemptSubscription = () => {
     // Don't auto-subscribe if user is not logged in
     if (!Meteor.userId()) {
-      console.log('[AutoSub] User not logged in, skipping auto-subscription');
+      console.log("[AutoSub] User not logged in, skipping auto-subscription");
       return false;
     }
 
     // Check cooldown period (don't try more than once per hour)
-    const lastSuccess = localStorage.getItem('autoSubscribeLastSuccess');
+    const lastSuccess = localStorage.getItem("autoSubscribeLastSuccess");
     if (lastSuccess) {
       const hourAgo = Date.now() - (60 * 60 * 1000);
       if (parseInt(lastSuccess) > hourAgo) {
-        console.log('[AutoSub] Cooldown period active, skipping auto-subscription');
+        console.log("[AutoSub] Cooldown period active, skipping auto-subscription");
         return false;
       }
     }
@@ -265,7 +265,7 @@ const AutoSubscribeNotification = () => {
           setSubscriptionStatus({
             checked: true,
             subscribed: status.isSubscribed,
-            method: status.isSubscribed ? 'pre-existing' : 'skipped'
+            method: status.isSubscribed ? "pre-existing" : "skipped",
           });
         }
       }, 2000); // 2 second delay to allow for initialization
@@ -296,7 +296,7 @@ const AutoSubscribeNotification = () => {
    */
   useEffect(() => {
     if (subscriptionStatus.checked) {
-      console.log('[AutoSub] Final status:', subscriptionStatus);
+      console.log("[AutoSub] Final status:", subscriptionStatus);
     }
   }, [subscriptionStatus]);
 

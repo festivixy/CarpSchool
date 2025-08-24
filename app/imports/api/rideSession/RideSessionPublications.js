@@ -22,12 +22,12 @@ Meteor.publish("rideSessions", async function publish() {
     if (await isSystemAdmin(this.userId)) {
       // System admins can see all sessions
       return RideSessions.find({});
-    } else {
+    }
       // School admins can only see sessions from their school
       return RideSessions.find({
-        schoolId: currentUser.schoolId
+        schoolId: currentUser.schoolId,
       });
-    }
+
   }
 
   // Regular users can only see sessions where they are driver or rider
@@ -141,7 +141,7 @@ Meteor.publish("adminRideSessions", async function publish(options = {}) {
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  
+
   if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
     return this.ready();
   }

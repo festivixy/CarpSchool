@@ -62,9 +62,9 @@ const InteractiveMapPicker = React.memo(({
   }), [selectedLocation, initialLat, initialLng]);
 
   // Memoize tile URL to prevent recreation on every render
-  const tileUrl = useMemo(() =>
-    "https://tileserver.carp.school/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png",
-    []
+  const tileUrl = useMemo(
+() => "https://tileserver.carp.school/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png",
+    [],
   );
 
   // Memoize location select callback to prevent unnecessary re-renders
@@ -349,7 +349,7 @@ const InteractiveMapPicker = React.memo(({
         const { searchLocation: optimizedSearch } = await import("../../utils/mapServices");
         const results = await optimizedSearch(searchQuery, {
           limit: 5,
-          countrycodes: 'ca',
+          countrycodes: "ca",
           addressdetails: 1,
         });
 
@@ -359,7 +359,7 @@ const InteractiveMapPicker = React.memo(({
         }
       } catch (error) {
         console.error("Search error:", error);
-        if (error.message.includes('timeout')) {
+        if (error.message.includes("timeout")) {
           showError("Search timed out. Please try again.");
         } else {
           showError("Search failed. Please try again.");
@@ -480,17 +480,16 @@ const InteractiveMapPicker = React.memo(({
       </HelpText>
     </MapContainer>
   );
-}, (prevProps, nextProps) => {
+}, (prevProps, nextProps) =>
   // Custom comparison for better memoization performance
-  return (
+   (
     prevProps.initialLat === nextProps.initialLat &&
     prevProps.initialLng === nextProps.initialLng &&
     prevProps.height === nextProps.height &&
     prevProps.selectedLocation?.lat === nextProps.selectedLocation?.lat &&
     prevProps.selectedLocation?.lng === nextProps.selectedLocation?.lng &&
     prevProps.onLocationSelect === nextProps.onLocationSelect
-  );
-});
+  ));
 
 InteractiveMapPicker.propTypes = {
   initialLat: PropTypes.number,

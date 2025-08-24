@@ -121,10 +121,10 @@ class MobileMyRides extends React.Component {
     });
 
     // Filter driving rides (where user is the driver)
-    let drivingRides = rides.filter((ride) => ride.driver === currentUser);
+    const drivingRides = rides.filter((ride) => ride.driver === currentUser);
 
     // Filter riding rides (where user is a passenger)
-    let ridingRides = rides.filter((ride) => {
+    const ridingRides = rides.filter((ride) => {
       // Handle new schema with riders array
       if (ride.riders && Array.isArray(ride.riders)) {
         return ride.riders.includes(currentUser);
@@ -197,13 +197,13 @@ class MobileMyRides extends React.Component {
         ...drivingCategories.active,
         ...drivingCategories.upcoming,
         ...drivingCategories.past,
-        ...drivingCategories.missed
+        ...drivingCategories.missed,
       ],
       filteredRidingRides: [
         ...ridingCategories.active,
         ...ridingCategories.upcoming,
         ...ridingCategories.past,
-        ...ridingCategories.missed
+        ...ridingCategories.missed,
       ],
       // Driving categories
       pastDrivingRides: drivingCategories.past,
@@ -390,7 +390,7 @@ class MobileMyRides extends React.Component {
       upcomingDrivingRides,
       pastDrivingRides,
       missedDrivingRides,
-      searchQuery
+      searchQuery,
     } = this.state;
 
     return (
@@ -436,25 +436,25 @@ class MobileMyRides extends React.Component {
               activeDrivingRides,
               "Active Rides",
               `${activeDrivingRides.length} ongoing ride${activeDrivingRides.length !== 1 ? "s" : ""} with active sessions`,
-              true
+              true,
             )}
             {this.renderRideSection(
               upcomingDrivingRides,
               "Upcoming Rides",
               `${upcomingDrivingRides.length} scheduled ride${upcomingDrivingRides.length !== 1 ? "s" : ""} without sessions yet`,
-              true
+              true,
             )}
             {this.renderRideSection(
               pastDrivingRides,
               "Past Rides",
               `${pastDrivingRides.length} completed ride${pastDrivingRides.length !== 1 ? "s" : ""} with finished sessions`,
-              true
+              true,
             )}
             {this.renderRideSection(
               missedDrivingRides,
               "Missed Rides",
               `${missedDrivingRides.length} past ride${missedDrivingRides.length !== 1 ? "s" : ""} without sessions`,
-              true
+              true,
             )}
           </>
         )}
@@ -469,7 +469,7 @@ class MobileMyRides extends React.Component {
       upcomingRidingRides,
       pastRidingRides,
       missedRidingRides,
-      searchQuery
+      searchQuery,
     } = this.state;
 
     return (
@@ -519,25 +519,25 @@ class MobileMyRides extends React.Component {
               activeRidingRides,
               "Active Rides",
               `${activeRidingRides.length} ongoing ride${activeRidingRides.length !== 1 ? "s" : ""} with active sessions`,
-              false
+              false,
             )}
             {this.renderRideSection(
               upcomingRidingRides,
               "Upcoming Rides",
               `${upcomingRidingRides.length} scheduled ride${upcomingRidingRides.length !== 1 ? "s" : ""} without sessions yet`,
-              false
+              false,
             )}
             {this.renderRideSection(
               pastRidingRides,
               "Past Rides",
               `${pastRidingRides.length} completed ride${pastRidingRides.length !== 1 ? "s" : ""} with finished sessions`,
-              false
+              false,
             )}
             {this.renderRideSection(
               missedRidingRides,
               "Missed Rides",
               `${missedRidingRides.length} past ride${missedRidingRides.length !== 1 ? "s" : ""} without sessions`,
-              false
+              false,
             )}
           </>
         )}

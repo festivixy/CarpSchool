@@ -189,7 +189,7 @@ export const StatusBadge = styled.span`
   font-weight: 500;
   text-transform: uppercase;
   color: white;
-  background-color: ${props => props.color || '#9e9e9e'};
+  background-color: ${props => props.color || "#9e9e9e"};
 `;
 
 export const ErrorMessage = styled.div`

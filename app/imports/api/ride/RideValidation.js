@@ -26,7 +26,7 @@ export const validateUserCanJoinRide = (ride, user) => {
   if (ride.riders.length >= ride.seats) {
     return {
       isValid: false,
-      error: `This ride is full (${ride.riders.length}/${ride.seats} seats taken)`
+      error: `This ride is full (${ride.riders.length}/${ride.seats} seats taken)`,
     };
   }
 
@@ -48,7 +48,7 @@ export const validateUserCanJoinRide = (ride, user) => {
   if (rideDate.getTime() < (now.getTime() - bufferTime)) {
     return {
       isValid: false,
-      error: "You cannot join rides that have already started or passed"
+      error: "You cannot join rides that have already started or passed",
     };
   }
 
@@ -86,7 +86,7 @@ export const validateUserCanRemoveRider = async (ride, currentUser, riderToRemov
   if (!isDriver && !isAdmin) {
     return {
       isValid: false,
-      error: "You can only remove riders from your own rides"
+      error: "You can only remove riders from your own rides",
     };
   }
 
@@ -111,7 +111,7 @@ export const validateRideCapacity = (ride) => {
     return {
       isValid: false,
       error: `Ride is overbooked: ${ride.riders.length} riders for ${ride.seats} seats`,
-      warnings: []
+      warnings: [],
     };
   }
 
@@ -128,7 +128,7 @@ export const validateRideCapacity = (ride) => {
     return {
       isValid: false,
       error: `Ride contains duplicate riders: ${ride.riders.length} total, ${uniqueRiders.length} unique`,
-      warnings: []
+      warnings: [],
     };
   }
 
@@ -137,7 +137,7 @@ export const validateRideCapacity = (ride) => {
     return {
       isValid: false,
       error: `Driver ${ride.driver} cannot also be listed as a rider`,
-      warnings: []
+      warnings: [],
     };
   }
 
@@ -167,7 +167,7 @@ export const validateRideTiming = (ride, isUpdate = false) => {
       return {
         isValid: false,
         error: "Ride date cannot be in the past",
-        warnings: []
+        warnings: [],
       };
     }
   }

@@ -26,10 +26,10 @@ Meteor.methods({
       try {
         await OneSignalService.setUserTags(playerId, {
           userId: this.userId,
-          userType: 'app_user'
+          userType: "app_user",
         });
       } catch (tagError) {
-        console.warn('Failed to set OneSignal tags:', tagError);
+        console.warn("Failed to set OneSignal tags:", tagError);
         // Don't fail registration if tagging fails
       }
 
@@ -57,8 +57,8 @@ Meteor.methods({
       const { PushTokens } = await import("./Notifications");
       const tokens = await PushTokens.find({
         userId: this.userId,
-        platform: 'onesignal',
-        isActive: true
+        platform: "onesignal",
+        isActive: true,
       }).fetchAsync();
 
       if (tokens.length === 0) {
@@ -109,10 +109,10 @@ Meteor.methods({
       const notification = {
         title,
         body,
-        type: options.type || 'system',
-        priority: options.priority || 'normal',
+        type: options.type || "system",
+        priority: options.priority || "normal",
         data: options.data || {},
-        imageUrl: options.imageUrl
+        imageUrl: options.imageUrl,
       };
 
       const result = await OneSignalService.sendToSegment(filters, notification);
@@ -168,16 +168,16 @@ Meteor.methods({
           userId: this.userId,
           $or: [
             { token: playerId },
-            { 'deviceInfo.oneSignalPlayerId': playerId }
+            { "deviceInfo.oneSignalPlayerId": playerId },
           ],
-          isActive: true
+          isActive: true,
         },
         {
           $set: {
             isActive: false,
-            deactivatedAt: new Date()
-          }
-        }
+            deactivatedAt: new Date(),
+          },
+        },
       );
 
       if (result === 0) {
@@ -207,21 +207,21 @@ Meteor.methods({
       const devices = await PushTokens.find({
         userId: this.userId,
         isActive: true,
-        platform: 'onesignal'
+        platform: "onesignal",
       }, {
         fields: {
           token: 1,
           deviceInfo: 1,
           createdAt: 1,
-          lastUsedAt: 1
-        }
+          lastUsedAt: 1,
+        },
       }).fetchAsync();
 
       return devices.map(device => ({
         playerId: device.token,
         deviceInfo: device.deviceInfo || {},
         registeredAt: device.createdAt,
-        lastUsed: device.lastUsedAt
+        lastUsed: device.lastUsedAt,
       }));
 
     } catch (error) {
@@ -272,7 +272,7 @@ Meteor.methods({
     try {
       const config = {
         appId: process.env.ONESIGNAL_APP_ID,
-        safariWebId: process.env.ONESIGNAL_SAFARI_WEB_ID
+        safariWebId: process.env.ONESIGNAL_SAFARI_WEB_ID,
       };
 
       // Only return if we have at least the app ID
@@ -286,7 +286,7 @@ Meteor.methods({
       console.error("[OneSignal] Failed to get config:", error);
       throw new Meteor.Error("config-failed", error.reason || "Failed to get OneSignal configuration");
     }
-  }
+  },
 });
 
 /**
@@ -298,13 +298,13 @@ export const OneSignalUtils = {
    */
   async setRideTags(userId, rideId) {
     try {
-      await Meteor.callAsync('notifications.setUserTags', {
+      await Meteor.callAsync("notifications.setUserTags", {
         currentRide: rideId,
-        hasActiveRide: 'true',
-        lastRideUpdate: new Date().toISOString()
+        hasActiveRide: "true",
+        lastRideUpdate: new Date().toISOString(),
       });
     } catch (error) {
-      console.warn('Failed to set ride tags:', error);
+      console.warn("Failed to set ride tags:", error);
     }
   },
 
@@ -313,12 +313,12 @@ export const OneSignalUtils = {
    */
   async clearRideTags(userId) {
     try {
-      await Meteor.callAsync('notifications.setUserTags', {
-        currentRide: '',
-        hasActiveRide: 'false'
+      await Meteor.callAsync("notifications.setUserTags", {
+        currentRide: "",
+        hasActiveRide: "false",
       });
     } catch (error) {
-      console.warn('Failed to clear ride tags:', error);
+      console.warn("Failed to clear ride tags:", error);
     }
   },
 
@@ -327,10 +327,10 @@ export const OneSignalUtils = {
    */
   async sendToCityUsers(city, title, message) {
     const filters = [
-      { field: 'tag', key: 'city', relation: '=', value: city }
+      { field: "tag", key: "city", relation: "=", value: city },
     ];
 
-    return await Meteor.callAsync('notifications.sendToSegment', filters, title, message);
+    return await Meteor.callAsync("notifications.sendToSegment", filters, title, message);
   },
 
   /**
@@ -338,9 +338,9 @@ export const OneSignalUtils = {
    */
   async sendToActiveRiders(title, message) {
     const filters = [
-      { field: 'tag', key: 'hasActiveRide', relation: '=', value: 'true' }
+      { field: "tag", key: "hasActiveRide", relation: "=", value: "true" },
     ];
 
-    return await Meteor.callAsync('notifications.sendToSegment', filters, title, message);
-  }
+    return await Meteor.callAsync("notifications.sendToSegment", filters, title, message);
+  },
 };

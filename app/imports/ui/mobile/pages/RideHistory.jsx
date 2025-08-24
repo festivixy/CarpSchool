@@ -114,7 +114,7 @@ class RideHistory extends React.Component {
                 <TimelineTime>
                   {session.timeline.created ?
                     new Date(session.timeline.created).toLocaleString() :
-                    'Not available'
+                    "Not available"
                   }
                 </TimelineTime>
               </TimelineInfo>
@@ -180,7 +180,7 @@ class RideHistory extends React.Component {
                       <div>Code attempts: {progress.codeAttempts}</div>
                     )}
                     {progress?.codeError && (
-                      <div style={{ color: 'rgba(244, 67, 54, 1)' }}>Code verification disabled</div>
+                      <div style={{ color: "rgba(244, 67, 54, 1)" }}>Code verification disabled</div>
                     )}
                   </RiderProgressDetails>
                 </RiderProgressItem>
@@ -193,11 +193,11 @@ class RideHistory extends React.Component {
             <HistorySection>
               <HistorySectionTitle>Events</HistorySectionTitle>
               {Object.entries(session.events)
-                .sort(([,a], [,b]) => new Date(a.time) - new Date(b.time))
+                .sort(([, a], [, b]) => new Date(a.time) - new Date(b.time))
                 .map(([eventKey, event]) => (
                   <EventItem key={eventKey}>
                     <EventTitle>
-                      {eventKey.replace(/_\d+$/, '').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      {eventKey.replace(/_\d+$/, "").replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}
                     </EventTitle>
                     <EventDetails>
                       <div>Time: {new Date(event.time).toLocaleString()}</div>

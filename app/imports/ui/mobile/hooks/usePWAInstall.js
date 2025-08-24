@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 /**
  * Custom hook for managing PWA installation state and functionality
@@ -15,7 +15,7 @@ export const usePWAInstall = () => {
   const isAndroid = /Android/.test(navigator.userAgent);
   const isMobile = isIOS || isAndroid;
   const isRunningAsPWA =
-    window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia("(display-mode: standalone)").matches ||
     window.navigator.standalone === true;
 
   /**
@@ -23,7 +23,7 @@ export const usePWAInstall = () => {
    */
   const checkInstallHash = () => {
     const hash = window.location.hash;
-    return hash.startsWith('#pwa'); // Includes #pwa-install, #pwa-auto-show, etc.
+    return hash.startsWith("#pwa"); // Includes #pwa-install, #pwa-auto-show, etc.
   };
 
   /**
@@ -31,9 +31,9 @@ export const usePWAInstall = () => {
    */
   const getHasBeenShown = () => {
     try {
-      return localStorage.getItem('pwa-install-prompt-shown') === 'true';
+      return localStorage.getItem("pwa-install-prompt-shown") === "true";
     } catch (error) {
-      console.warn('[PWA] localStorage not available:', error);
+      console.warn("[PWA] localStorage not available:", error);
       return false;
     }
   };
@@ -43,10 +43,10 @@ export const usePWAInstall = () => {
    */
   const markAsShown = () => {
     try {
-      localStorage.setItem('pwa-install-prompt-shown', 'true');
+      localStorage.setItem("pwa-install-prompt-shown", "true");
       setHasBeenShown(true);
     } catch (error) {
-      console.warn('[PWA] Could not save to localStorage:', error);
+      console.warn("[PWA] Could not save to localStorage:", error);
     }
   };
 
@@ -60,16 +60,16 @@ export const usePWAInstall = () => {
 
     setIsVisible(true);
     markAsShown();
-    window.location.hash = '#pwa-install';
+    window.location.hash = "#pwa-install";
   };
 
   /**
    * Force show the install prompt (for testing/debugging)
    */
   const forceShowInstallPrompt = () => {
-    console.log('[PWA] Force showing install prompt');
+    console.log("[PWA] Force showing install prompt");
     setIsVisible(true);
-    window.location.hash = '#pwa-install';
+    window.location.hash = "#pwa-install";
   };
 
   /**
@@ -77,8 +77,8 @@ export const usePWAInstall = () => {
    */
   const hideInstallPrompt = () => {
     setIsVisible(false);
-    if (window.location.hash.startsWith('#pwa')) {
-      window.location.hash = '';
+    if (window.location.hash.startsWith("#pwa")) {
+      window.location.hash = "";
     }
   };
 
@@ -96,18 +96,18 @@ export const usePWAInstall = () => {
     const handleHashChange = () => {
       const hashIndicatesShow = checkInstallHash();
 
-      console.log('[PWA Debug]', {
+      console.log("[PWA Debug]", {
         hash: window.location.hash,
         hashIndicatesShow,
         isMobile,
         isRunningAsPWA,
-        hasBeenShown
+        hasBeenShown,
       });
 
       if (hashIndicatesShow) {
         // Hash overrides all restrictions except PWA check
         const shouldShow = !isRunningAsPWA;
-        console.log('[PWA Debug] Hash detected, showing:', shouldShow);
+        console.log("[PWA Debug] Hash detected, showing:", shouldShow);
         setIsVisible(shouldShow);
 
         // Mark as shown for future auto-shows (but hash can still override)
@@ -123,10 +123,10 @@ export const usePWAInstall = () => {
     handleHashChange();
 
     // Listen for hash changes
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener("hashchange", handleHashChange);
 
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener("hashchange", handleHashChange);
     };
   }, [isMobile, isRunningAsPWA]);
 
@@ -145,27 +145,27 @@ export const usePWAInstall = () => {
    * Auto-show prompt for first-time mobile users
    */
   useEffect(() => {
-    console.log('[PWA Auto-Show Debug]', {
+    console.log("[PWA Auto-Show Debug]", {
       isMobile,
       isRunningAsPWA,
       hasBeenShown,
-      shouldAutoShow: isMobile && !isRunningAsPWA && !hasBeenShown
+      shouldAutoShow: isMobile && !isRunningAsPWA && !hasBeenShown,
     });
 
     // Only auto-show for mobile users who haven't seen it and aren't running as PWA
     if (isMobile && !isRunningAsPWA && !hasBeenShown) {
-      console.log('[PWA] Auto-showing install prompt for first-time mobile user in 3 seconds...');
+      console.log("[PWA] Auto-showing install prompt for first-time mobile user in 3 seconds...");
 
       // Delay the auto-show slightly to avoid showing too early
       const autoShowTimeout = setTimeout(() => {
-        console.log('[PWA] Triggering auto-show now');
+        console.log("[PWA] Triggering auto-show now");
         setIsVisible(true);
         markAsShown();
-        window.location.hash = '#pwa-auto-show';
+        window.location.hash = "#pwa-auto-show";
       }, 3000); // 3 second delay after page load
 
       return () => {
-        console.log('[PWA] Auto-show timeout cleared');
+        console.log("[PWA] Auto-show timeout cleared");
         clearTimeout(autoShowTimeout);
       };
     }
@@ -197,17 +197,17 @@ export const usePWAInstall = () => {
       hideInstallPrompt();
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, [isMobile, isIOS, isRunningAsPWA]);
 
   // Expose force show function globally for testing
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     window.forcePWAPrompt = forceShowInstallPrompt;
   }
 
@@ -222,7 +222,7 @@ export const usePWAInstall = () => {
     isRunningAsPWA,
     showInstallPrompt,
     hideInstallPrompt,
-    forceShowInstallPrompt
+    forceShowInstallPrompt,
   };
 };
 

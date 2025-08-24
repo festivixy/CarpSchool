@@ -77,7 +77,7 @@ export const TimelineItem = styled.div`
   display: flex;
   align-items: center;
   padding: 12px 0;
-  border-left: 3px solid ${props => props.completed ? 'rgba(76, 175, 80, 1)' : 'rgba(224, 224, 224, 1)'};
+  border-left: 3px solid ${props => (props.completed ? "rgba(76, 175, 80, 1)" : "rgba(224, 224, 224, 1)")};
   padding-left: 16px;
   margin-left: 12px;
   position: relative;
@@ -91,9 +91,9 @@ export const TimelineItem = styled.div`
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background-color: ${props => props.completed ? 'rgba(76, 175, 80, 1)' : 'rgba(224, 224, 224, 1)'};
+    background-color: ${props => (props.completed ? "rgba(76, 175, 80, 1)" : "rgba(224, 224, 224, 1)")};
     border: 2px solid white;
-    box-shadow: 0 0 0 2px ${props => props.completed ? 'rgba(76, 175, 80, 1)' : 'rgba(224, 224, 224, 1)'};
+    box-shadow: 0 0 0 2px ${props => (props.completed ? "rgba(76, 175, 80, 1)" : "rgba(224, 224, 224, 1)")};
   }
 `;
 
@@ -141,11 +141,11 @@ export const RiderProgressName = styled.div`
 
 export const RiderProgressStatus = styled.div`
   font-size: 14px;
-  color: ${props => props.completed ? 'rgba(76, 175, 80, 1)' : 'rgba(255, 152, 0, 1)'};
+  color: ${props => (props.completed ? "rgba(76, 175, 80, 1)" : "rgba(255, 152, 0, 1)")};
   font-weight: 600;
   padding: 4px 8px;
   border-radius: 6px;
-  background-color: ${props => props.completed ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 152, 0, 0.1)'};
+  background-color: ${props => (props.completed ? "rgba(76, 175, 80, 0.1)" : "rgba(255, 152, 0, 0.1)")};
 `;
 
 export const RiderProgressDetails = styled.div`

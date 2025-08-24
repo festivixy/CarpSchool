@@ -47,20 +47,20 @@ export const Badge = styled.div`
   justify-content: center;
   width: 40px;
   height: 40px;
-  background-color: ${props => props.hasCount ? 'rgba(244, 67, 54, 0.1)' : 'rgba(0, 0, 0, 0.05)'};
+  background-color: ${props => (props.hasCount ? "rgba(244, 67, 54, 0.1)" : "rgba(0, 0, 0, 0.05)")};
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    background-color: ${props => props.hasCount ? 'rgba(244, 67, 54, 0.15)' : 'rgba(0, 0, 0, 0.1)'};
+    background-color: ${props => (props.hasCount ? "rgba(244, 67, 54, 0.15)" : "rgba(0, 0, 0, 0.1)")};
     transform: scale(1.05);
   }
 
   &:before {
     content: "🔔";
     font-size: 18px;
-    opacity: ${props => props.hasCount ? 0.8 : 0.6};
+    opacity: ${props => (props.hasCount ? 0.8 : 0.6)};
   }
 
   ${props => props.hasCount && `
@@ -91,10 +91,10 @@ export const BadgeCount = styled.span`
 // Notification List Container
 export const NotificationList = styled.div`
   position: absolute;
-  top: ${props => props.position?.includes('top') ? 'auto' : '100%'};
-  bottom: ${props => props.position?.includes('top') ? '100%' : 'auto'};
-  right: ${props => props.position?.includes('left') ? 'auto' : '0'};
-  left: ${props => props.position?.includes('left') ? '0' : 'auto'};
+  top: ${props => (props.position?.includes("top") ? "auto" : "100%")};
+  bottom: ${props => (props.position?.includes("top") ? "100%" : "auto")};
+  right: ${props => (props.position?.includes("left") ? "auto" : "0")};
+  left: ${props => (props.position?.includes("left") ? "0" : "auto")};
   width: 320px;
   max-height: 400px;
   background-color: white;
@@ -123,7 +123,7 @@ export const NotificationItem = styled.div`
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   cursor: pointer;
   transition: background-color 0.2s ease;
-  background-color: ${props => props.isRead ? 'transparent' : 'rgba(33, 150, 243, 0.02)'};
+  background-color: ${props => (props.isRead ? "transparent" : "rgba(33, 150, 243, 0.02)")};
   
   &:hover {
     background-color: rgba(0, 0, 0, 0.03);

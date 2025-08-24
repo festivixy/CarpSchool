@@ -14,10 +14,10 @@ export function isSystemRole(user) {
  */
 export function isAdminRole(user) {
   if (!user?.roles) return false;
-  
+
   // Check for system role
   if (user.roles.includes("system")) return true;
-  
+
   // Check for any school admin role
   return user.roles.some(role => role.startsWith("admin."));
 }
@@ -27,7 +27,7 @@ export function isAdminRole(user) {
  */
 export function isSchoolAdminRole(user) {
   if (!user?.roles || !user?.schoolId) return false;
-  
+
   return user.roles.includes(`admin.${user.schoolId}`);
 }
 
@@ -36,16 +36,16 @@ export function isSchoolAdminRole(user) {
  */
 export function getAdminRoleDisplay(user) {
   if (!user?.roles) return null;
-  
+
   if (user.roles.includes("system")) {
     return "System Administrator";
   }
-  
+
   const schoolAdminRoles = user.roles.filter(role => role.startsWith("admin."));
   if (schoolAdminRoles.length > 0) {
     return "School Administrator";
   }
-  
+
   return null;
 }
 

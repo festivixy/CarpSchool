@@ -91,7 +91,7 @@ export const canFinishRideSession = async (userId, sessionId) => {
     return {
       allowed: false,
       reason: "Cannot finish session while riders are still active",
-      warnings: [`${activeRiders.length} riders still need to be dropped off`]
+      warnings: [`${activeRiders.length} riders still need to be dropped off`],
     };
   }
 
@@ -269,7 +269,7 @@ export const validateSessionState = async (sessionId, requiredState) => {
   if (session.status !== requiredState) {
     return {
       allowed: false,
-      reason: `Session must be in '${requiredState}' state, currently '${session.status}'`
+      reason: `Session must be in '${requiredState}' state, currently '${session.status}'`,
     };
   }
 
@@ -302,7 +302,7 @@ export const validateTimeConstraints = async (sessionId, action) => {
   if (timeDiff > maxSessionAge) {
     return {
       allowed: false,
-      reason: "Session is too old for this action. Sessions expire after 24 hours."
+      reason: "Session is too old for this action. Sessions expire after 24 hours.",
     };
   }
 
