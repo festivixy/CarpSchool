@@ -76,7 +76,7 @@ export async function canManageUser(managerId, targetUserId) {
   if (manager.schoolId !== target.schoolId) return false;
 
   // Check if manager is admin of the target's school
-  return await isSchoolAdmin(managerId, target.schoolId);
+  return isSchoolAdmin(managerId, target.schoolId);
 }
 
 /**

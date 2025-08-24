@@ -160,7 +160,7 @@ Meteor.methods({
 
     // System admins can see all users
     if (currentUser.roles?.includes("system")) {
-      return await Meteor.users.find({}, {
+      return Meteor.users.find({}, {
         fields: {
           emails: 1,
           profile: 1,
@@ -186,7 +186,7 @@ Meteor.methods({
       throw new Meteor.Error("not-admin", "You don't have admin permissions");
     }
 
-    return await Meteor.users.find(
+    return Meteor.users.find(
       { schoolId: { $in: adminSchools } },
       {
         fields: {

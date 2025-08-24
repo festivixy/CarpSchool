@@ -449,7 +449,7 @@ export const NotificationUtils = {
    * Send ride cancellation notification
    */
   async sendRideCancellation(rideId, reason = "The ride has been cancelled") {
-    return await Meteor.callAsync(
+    return Meteor.callAsync(
       "notifications.sendToRideParticipants",
       rideId,
       "Ride Cancelled",
@@ -466,7 +466,7 @@ export const NotificationUtils = {
    * Send rider joined notification
    */
   async sendRiderJoined(rideId, riderName) {
-    return await Meteor.callAsync(
+    return Meteor.callAsync(
       "notifications.sendToRideParticipants",
       rideId,
       "New Rider",
@@ -489,7 +489,7 @@ export const NotificationUtils = {
       ? `Your ride is starting in ${estimatedTime}`
       : "Your ride is starting soon";
 
-    return await Meteor.callAsync(
+    return Meteor.callAsync(
       "notifications.sendToRideParticipants",
       rideId,
       title,

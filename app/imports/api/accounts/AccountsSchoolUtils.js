@@ -10,7 +10,7 @@ export async function getUserSchool(userId) {
   const user = await Meteor.users.findOneAsync(userId);
   if (!user || !user.schoolId) return null;
 
-  return await Schools.findOneAsync(user.schoolId);
+  return Schools.findOneAsync(user.schoolId);
 }
 
 /**
@@ -18,7 +18,7 @@ export async function getUserSchool(userId) {
  */
 export async function getCurrentUserSchool() {
   const userId = Meteor.userId();
-  return await getUserSchool(userId);
+  return getUserSchool(userId);
 }
 
 /**
