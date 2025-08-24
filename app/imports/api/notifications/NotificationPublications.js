@@ -227,7 +227,8 @@ Meteor.publish("notifications.admin", function(filters = {}, options = {}) {
   }
 
   const currentUser = Meteor.users.findOne(this.userId);
-  if (!currentUser?.roles?.includes("admin")) {
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
     this.ready();
     return;
   }
@@ -288,7 +289,8 @@ Meteor.publish("notifications.adminTokens", function(filters = {}) {
   }
 
   const currentUser = Meteor.users.findOne(this.userId);
-  if (!currentUser?.roles?.includes("admin")) {
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
     this.ready();
     return;
   }
