@@ -100,7 +100,8 @@ Meteor.methods({
 
     // Only admins can send segment notifications
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser?.roles?.includes("admin")) {
+    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+    if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
       throw new Meteor.Error("not-authorized", "Admin access required for segment notifications");
     }
 
@@ -133,7 +134,8 @@ Meteor.methods({
 
     // Only admins can get detailed stats
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser?.roles?.includes("admin")) {
+    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+    if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
       throw new Meteor.Error("not-authorized", "Admin access required for notification statistics");
     }
 
@@ -245,7 +247,8 @@ Meteor.methods({
 
     if (userId && userId !== this.userId) {
       const currentUser = await Meteor.users.findOneAsync(this.userId);
-      if (!currentUser?.roles?.includes("admin")) {
+      const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+      if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
         throw new Meteor.Error("not-authorized", "Can only test notifications for yourself unless admin");
       }
     }

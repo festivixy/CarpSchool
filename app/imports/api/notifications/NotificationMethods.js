@@ -554,7 +554,10 @@ export const NotificationUtils = {
           rideExists: !!ride,
           isDriver: ride ? ride.driver === this.userId : false,
           isRider: ride ? ride.riders.includes(this.userId) : false,
-          isAdmin: currentUser?.roles?.includes("admin") || false
+          isAdmin: await (async () => {
+            const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+            return await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
+          })() || false
         },
         timestamp: new Date().toISOString()
       };
