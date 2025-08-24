@@ -4,6 +4,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import BackButton from "../../mobile/components/BackButton";
+import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import {
   PageContainer,
   FixedHeader,
@@ -250,7 +251,7 @@ ComponentsTest.propTypes = {
 
 export default withRouter(withTracker(() => {
   const currentUser = Meteor.user();
-  const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes("admin");
+  const isAdmin = isAdminRole(currentUser);
 
   return {
     currentUser,

@@ -3,6 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
+import { isAdminRole } from "../desktop/components/NavBarRoleUtils";
 import { Profiles } from "../../api/profile/Profile";
 import { getImageUrl } from "../mobile/utils/imageUtils";
 import {
@@ -282,7 +283,7 @@ class MobileAdminUsers extends React.Component {
         (profileName && profileName.toLowerCase().includes(query)) ||
         (user.emails?.[0]?.address &&
           user.emails[0].address.toLowerCase().includes(query)) ||
-        (user.roles && user.roles.includes("admin") && "admin".includes(query))
+        (isAdminRole(user) && "admin".includes(query))
       );
     });
   };
@@ -365,7 +366,7 @@ class MobileAdminUsers extends React.Component {
               </SearchResultsCount>
               <UsersGrid>
                 {filteredUsers.map((user) => {
-                  const isAdmin = user.roles && user.roles.includes("admin");
+                  const isAdmin = isAdminRole(user);
                   const isCurrentUser = user._id === Meteor.userId();
                   const userProfile = profiles.find(
                     (profile) => profile.Owner === user._id,
