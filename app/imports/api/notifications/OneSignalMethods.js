@@ -330,7 +330,7 @@ export const OneSignalUtils = {
       { field: "tag", key: "city", relation: "=", value: city },
     ];
 
-    return await Meteor.callAsync("notifications.sendToSegment", filters, title, message);
+    return Meteor.callAsync("notifications.sendToSegment", filters, title, message);
   },
 
   /**
@@ -341,6 +341,6 @@ export const OneSignalUtils = {
       { field: "tag", key: "hasActiveRide", relation: "=", value: "true" },
     ];
 
-    return await Meteor.callAsync("notifications.sendToSegment", filters, title, message);
+    return Meteor.callAsync("notifications.sendToSegment", filters, title, message);
   },
 };

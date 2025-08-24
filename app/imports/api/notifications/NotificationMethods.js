@@ -513,7 +513,7 @@ export const NotificationUtils = {
     const offlineParticipants = []; // TODO: Implement offline user detection
 
     if (offlineParticipants.length > 0) {
-      return await Meteor.callAsync(
+      return Meteor.callAsync(
         "notifications.send",
         offlineParticipants,
         `Message from ${senderName}`,
@@ -559,7 +559,7 @@ export const NotificationUtils = {
           isRider: ride ? ride.riders.includes(this.userId) : false,
           isAdmin: await (async () => {
             const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-            return await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
+            return isSystemAdmin(this.userId) || isSchoolAdmin(this.userId);
           })() || false,
         },
         timestamp: new Date().toISOString(),
@@ -619,7 +619,7 @@ export const NotificationUtils = {
    * Send emergency notification
    */
   async sendEmergency(rideId, message, priority = NOTIFICATION_PRIORITY.URGENT) {
-    return await Meteor.callAsync(
+    return Meteor.callAsync(
       "notifications.sendToRideParticipants",
       rideId,
       "⚠️ Emergency Alert",
