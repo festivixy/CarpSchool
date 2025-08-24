@@ -15,7 +15,8 @@ Meteor.publish("errorReports", async function publishErrorReports(limit = 50, sk
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId)) {
     return this.ready();
   }
 
@@ -42,7 +43,8 @@ Meteor.publish("errorReports.unresolved", async function publishUnresolvedErrors
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId)) {
     return this.ready();
   }
 
@@ -67,7 +69,8 @@ Meteor.publish("errorReports.critical", async function publishCriticalErrors() {
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId)) {
     return this.ready();
   }
 
@@ -95,7 +98,8 @@ Meteor.publish("errorReports.byUser", async function publishErrorsByUser(usernam
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId)) {
     return this.ready();
   }
 
@@ -120,7 +124,8 @@ Meteor.publish("errorReports.recent", async function publishRecentErrors(hours =
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId)) {
     return this.ready();
   }
 
@@ -146,7 +151,8 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId)) {
     return this.ready();
   }
 

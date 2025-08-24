@@ -45,11 +45,9 @@ Meteor.publish("chats.admin", async function publishAllChats() {
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (
-    !currentUser ||
-    !currentUser.roles ||
-    !currentUser.roles.includes("admin")
-  ) {
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+
+  if (!await isSystemAdmin(this.userId)) {
     return this.ready();
   }
 

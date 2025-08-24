@@ -8,10 +8,12 @@ Meteor.methods({
 
     // Check if user is admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes("admin")) {
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
+
+    if (!await isSystemAdmin(user._id)) {
       throw new Meteor.Error(
         "access-denied",
-        "You must be an admin to delete rides",
+        "You must be a system admin to delete rides",
       );
     }
 
@@ -30,12 +32,14 @@ Meteor.methods({
       notes: String,
     });
 
-    // Check if user is admin
+    // Check if user is system admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes("admin")) {
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
+
+    if (!await isSystemAdmin(user._id)) {
       throw new Meteor.Error(
         "access-denied",
-        "You must be an admin to edit rides",
+        "You must be a system admin to edit rides",
       );
     }
 

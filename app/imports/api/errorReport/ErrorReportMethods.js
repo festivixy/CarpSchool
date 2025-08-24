@@ -196,10 +196,11 @@ Meteor.methods({
     check(reportId, String);
     check(updates, Object);
 
-    // Check admin permissions
+    // Check system admin permissions
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
-      throw new Meteor.Error("access-denied", "Only administrators can update error reports.");
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
+    if (!await isSystemAdmin(this.userId)) {
+      throw new Meteor.Error("access-denied", "Only system administrators can update error reports.");
     }
 
     // Validate updates
@@ -235,10 +236,11 @@ Meteor.methods({
   async "errorReports.remove"(reportId) {
     check(reportId, String);
 
-    // Check admin permissions
+    // Check system admin permissions
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
-      throw new Meteor.Error("access-denied", "Only administrators can delete error reports.");
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
+    if (!await isSystemAdmin(this.userId)) {
+      throw new Meteor.Error("access-denied", "Only system administrators can delete error reports.");
     }
 
     const result = await ErrorReports.removeAsync(reportId);
@@ -254,10 +256,11 @@ Meteor.methods({
    * Get error statistics (admin only)
    */
   async "errorReports.getStats"() {
-    // Check admin permissions
+    // Check system admin permissions
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
-      throw new Meteor.Error("access-denied", "Only administrators can view error statistics.");
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
+    if (!await isSystemAdmin(this.userId)) {
+      throw new Meteor.Error("access-denied", "Only system administrators can view error statistics.");
     }
 
     const totalErrors = await ErrorReports.find({}).countAsync();

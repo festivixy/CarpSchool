@@ -60,11 +60,14 @@ Meteor.methods({
     }
 
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    const isAdmin =
-      currentUser && currentUser.roles && currentUser.roles.includes("admin");
+    const { isSystemAdmin, isSchoolAdmin, canManageUser } = await import("../accounts/RoleUtils");
 
-    // Only the creator or admin can update
-    if (place.createdBy !== this.userId && !isAdmin) {
+    // Check if user can manage this place (same school or system admin)
+    const canManagePlace = await isSystemAdmin(this.userId) ||
+      (await isSchoolAdmin(this.userId) && currentUser.schoolId === place.schoolId);
+
+    // Only the creator or school/system admin can update
+    if (place.createdBy !== this.userId && !canManagePlace) {
       throw new Meteor.Error(
         "access-denied",
         "You can only update places you created",
@@ -134,11 +137,14 @@ Meteor.methods({
     }
 
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    const isAdmin =
-      currentUser && currentUser.roles && currentUser.roles.includes("admin");
+    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
 
-    // Only the creator or admin can delete
-    if (place.createdBy !== this.userId && !isAdmin) {
+    // Check if user can manage this place (same school or system admin)
+    const canManagePlace = await isSystemAdmin(this.userId) ||
+      (await isSchoolAdmin(this.userId) && currentUser.schoolId === place.schoolId);
+
+    // Only the creator or school/system admin can delete
+    if (place.createdBy !== this.userId && !canManagePlace) {
       throw new Meteor.Error(
         "access-denied",
         "You can only delete places you created",
@@ -159,10 +165,10 @@ Meteor.methods({
     }
 
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    const isAdmin = currentUser && currentUser.roles && currentUser.roles.includes("admin");
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
 
-    if (!isAdmin) {
-      throw new Meteor.Error("access-denied", "Admin access required");
+    if (!await isSystemAdmin(this.userId)) {
+      throw new Meteor.Error("access-denied", "System admin access required");
     }
 
     // Find places without createdBy or createdAt, including null values

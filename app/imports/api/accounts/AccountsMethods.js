@@ -39,12 +39,13 @@ Meteor.methods({
   async "users.remove"(userId) {
     check(userId, String);
 
-    // Check if user is admin
+    // Check if user is system admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes("admin")) {
+    const { isSystemAdmin } = await import("./RoleUtils");
+    if (!await isSystemAdmin(user._id)) {
       throw new Meteor.Error(
         "access-denied",
-        "You must be an admin to delete users",
+        "You must be a system admin to delete users",
       );
     }
 
@@ -68,12 +69,13 @@ Meteor.methods({
       emailVerified: Boolean,
     });
 
-    // Check if user is admin
+    // Check if user is system admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes("admin")) {
+    const { isSystemAdmin } = await import("./RoleUtils");
+    if (!await isSystemAdmin(user._id)) {
       throw new Meteor.Error(
         "access-denied",
-        "You must be an admin to edit users",
+        "You must be a system admin to edit users",
       );
     }
 
@@ -141,12 +143,13 @@ Meteor.methods({
     check(userId, String);
     check(action, String);
 
-    // Check if user is admin
+    // Check if user is system admin
     const user = await Meteor.userAsync();
-    if (!user || !user.roles || !user.roles.includes("admin")) {
+    const { isSystemAdmin } = await import("./RoleUtils");
+    if (!await isSystemAdmin(user._id)) {
       throw new Meteor.Error(
         "access-denied",
-        "You must be an admin to modify user roles",
+        "You must be a system admin to modify user roles",
       );
     }
 

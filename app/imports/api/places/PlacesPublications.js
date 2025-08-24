@@ -59,16 +59,20 @@ Meteor.publish("places.admin", async function publishAllPlaces() {
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (
-    !currentUser ||
-    !currentUser.roles ||
-    !currentUser.roles.includes("admin")
-  ) {
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+
+  const isSystem = await isSystemAdmin(this.userId);
+  const isSchool = await isSchoolAdmin(this.userId);
+
+  if (!isSystem && !isSchool) {
     throw new Meteor.Error("access-denied", "Admin access required");
   }
 
+  // System admins see all places, school admins only see their school's places
+  const filter = isSystem ? {} : { schoolId: currentUser.schoolId };
+
   return Places.find(
-    {},
+    filter,
     {
       fields: {
         _id: 1,
@@ -77,6 +81,7 @@ Meteor.publish("places.admin", async function publishAllPlaces() {
         createdBy: 1,
         createdAt: 1,
         updatedAt: 1,
+        schoolId: 1,
       },
     },
   );
@@ -92,8 +97,8 @@ Meteor.publish("places.options", async function publishPlaceOptions() {
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  const isAdmin =
-    currentUser && currentUser.roles && currentUser.roles.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
 
   let query;
 

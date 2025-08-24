@@ -5,12 +5,13 @@ Meteor.methods({
     async "users.removeProfilePicture"(userId) {
         check(userId, String);
 
-        // Check if user is admin
+        // Check if user is system admin
         const user = await Meteor.userAsync();
-        if (!user || !user.roles || !user.roles.includes("admin")) {
+        const { isSystemAdmin } = await import("../accounts/RoleUtils");
+        if (!await isSystemAdmin(user._id)) {
             throw new Meteor.Error(
                 "access-denied",
-                "You must be an admin to remove profile pictures",
+                "You must be a system admin to remove profile pictures",
             );
         }
 
