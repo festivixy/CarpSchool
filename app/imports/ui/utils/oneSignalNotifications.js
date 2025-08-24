@@ -324,7 +324,7 @@ export const OneSignalHelpers = {
    * Set ride-specific tags
    */
   async setRideTags(rideId) {
-    return await oneSignalManager.setTags({
+    return oneSignalManager.setTags({
       currentRide: rideId,
       hasActiveRide: "true",
       lastRideUpdate: new Date().toISOString(),
@@ -335,7 +335,7 @@ export const OneSignalHelpers = {
    * Clear ride tags
    */
   async clearRideTags() {
-    return await oneSignalManager.setTags({
+    return oneSignalManager.setTags({
       currentRide: "",
       hasActiveRide: "false",
     });
@@ -345,7 +345,7 @@ export const OneSignalHelpers = {
    * Set location tags for city-based notifications
    */
   async setLocationTags(city, state, country) {
-    return await oneSignalManager.setTags({
+    return oneSignalManager.setTags({
       city: city || "",
       state: state || "",
       country: country || "",

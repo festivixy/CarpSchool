@@ -560,14 +560,14 @@ export const MobilePushHelpers = {
    * Request permission with user-friendly handling
    */
   async requestPermission() {
-    return await mobilePushManager.requestPermission();
+    return mobilePushManager.requestPermission();
   },
 
   /**
    * Set ride-related tags
    */
   async setRideTags(rideId) {
-    return await mobilePushManager.setTags({
+    return mobilePushManager.setTags({
       currentRide: rideId,
       hasActiveRide: "true",
       lastRideUpdate: new Date().toISOString(),
@@ -578,7 +578,7 @@ export const MobilePushHelpers = {
    * Clear ride tags
    */
   async clearRideTags() {
-    return await mobilePushManager.setTags({
+    return mobilePushManager.setTags({
       currentRide: "",
       hasActiveRide: "false",
     });
@@ -588,7 +588,7 @@ export const MobilePushHelpers = {
    * Set location tags
    */
   async setLocationTags(city, state) {
-    return await mobilePushManager.setTags({
+    return mobilePushManager.setTags({
       city: city || "",
       state: state || "",
     });
