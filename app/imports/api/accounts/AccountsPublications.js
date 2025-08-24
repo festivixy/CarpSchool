@@ -13,7 +13,8 @@ Meteor.publish(null, function () {
 Meteor.publish("AllUsers", async function () {
   if (this.userId) {
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (user && user.roles && user.roles.includes("admin")) {
+    const { isSystemAdmin } = await import("./RoleUtils");
+    if (await isSystemAdmin(this.userId)) {
       return Meteor.users.find(
         {},
         {

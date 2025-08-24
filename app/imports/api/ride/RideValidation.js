@@ -62,7 +62,7 @@ export const validateUserCanJoinRide = (ride, user) => {
  * @param {string} riderToRemove - User ID of rider to remove
  * @returns {Object} - { isValid: boolean, error: string|null }
  */
-export const validateUserCanRemoveRider = (ride, currentUser, riderToRemove) => {
+export const validateUserCanRemoveRider = async (ride, currentUser, riderToRemove) => {
   // Check if ride exists
   if (!ride) {
     return { isValid: false, error: "Ride not found" };
@@ -79,7 +79,8 @@ export const validateUserCanRemoveRider = (ride, currentUser, riderToRemove) => 
   }
 
   // Check permissions - only driver or admin can remove riders
-  const isAdmin = currentUser.roles && currentUser.roles.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(currentUser._id) || await isSchoolAdmin(currentUser._id);
   const isDriver = ride.driver === currentUser._id;
 
   if (!isDriver && !isAdmin) {

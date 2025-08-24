@@ -13,7 +13,8 @@ Meteor.publish("ProfilesAdmin", async function publish() {
   if (this.userId) {
     // Check role assignments directly from the database
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (user && user.roles && user.roles.includes("admin")) {
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
+    if (await isSystemAdmin(this.userId)) {
       return Profiles.find();
     }
   }

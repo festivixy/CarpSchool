@@ -14,7 +14,8 @@ Meteor.publish("rideSessions", async function publish() {
     return this.ready();
   }
 
-  const isAdmin = currentUser.roles && currentUser.roles.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
 
   // Admin users can see all sessions
   if (isAdmin) {
@@ -60,7 +61,8 @@ Meteor.publish("rideSessionsByRide", async function publish(rideId) {
     return this.ready();
   }
 
-  const isAdmin = currentUser.roles && currentUser.roles.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
 
   // Find sessions for this ride where user has access
   const query = { rideId };
@@ -87,7 +89,8 @@ Meteor.publish("activeRideSessions", async function publish() {
     return this.ready();
   }
 
-  const isAdmin = currentUser.roles && currentUser.roles.includes("admin");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
 
   // Query for active sessions
   const query = {
@@ -123,7 +126,8 @@ Meteor.publish("adminRideSessions", async function publish(options = {}) {
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser || !currentUser.roles || !currentUser.roles.includes("admin")) {
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId)) {
     return this.ready();
   }
 
