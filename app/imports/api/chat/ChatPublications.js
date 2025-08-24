@@ -45,11 +45,22 @@ Meteor.publish("chats.admin", async function publishAllChats() {
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
-  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
 
-  if (!await isSystemAdmin(this.userId)) {
-    return this.ready();
+  if (await isSystemAdmin(this.userId)) {
+    // System admins can see all chats
+    return Chats.find({});
+  } else if (await isSchoolAdmin(this.userId)) {
+    // School admins can only see chats from their school
+    // Find rides from the school to get their chats
+    const schoolRides = await Rides.find(
+      { schoolId: currentUser.schoolId },
+      { fields: { _id: 1 } }
+    ).fetchAsync();
+    const rideIds = schoolRides.map(ride => ride._id);
+
+    return Chats.find({ rideId: { $in: rideIds } });
   }
 
-  return Chats.find({});
+  return this.ready();
 });

@@ -46,6 +46,7 @@ Meteor.publish("places.mine", async function publishMyPlaces() {
       createdBy: 1,
       createdAt: 1,
       updatedAt: 1,
+      schoolId: 1,
     },
   });
 });
@@ -59,6 +60,10 @@ Meteor.publish("places.admin", async function publishAllPlaces() {
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
+  if (!currentUser) {
+    return this.ready();
+  }
+
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
 
   const isSystem = await isSystemAdmin(this.userId);
@@ -97,13 +102,21 @@ Meteor.publish("places.options", async function publishPlaceOptions() {
   }
 
   const currentUser = await Meteor.users.findOneAsync(this.userId);
+  if (!currentUser) {
+    return this.ready();
+  }
+
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
 
   let query;
 
-  if (isAdmin) {
+  if (await isSystemAdmin(this.userId)) {
+    // System admins see all places
     query = {};
+  } else if (await isSchoolAdmin(this.userId)) {
+    // School admins see places from their school
+    query = { schoolId: currentUser.schoolId };
   } else {
     // Find rides where user is driver or rider
     const userRides = await Rides.find({
@@ -131,6 +144,7 @@ Meteor.publish("places.options", async function publishPlaceOptions() {
       createdBy: 1,
       createdAt: 1,
       updatedAt: 1,
+      schoolId: 1,
     },
     sort: { text: 1 },
   });

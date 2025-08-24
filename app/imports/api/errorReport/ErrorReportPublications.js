@@ -14,7 +14,6 @@ Meteor.publish("errorReports", async function publishErrorReports(limit = 50, sk
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
   const { isSystemAdmin } = await import("../accounts/RoleUtils");
   if (!await isSystemAdmin(this.userId)) {
     return this.ready();
@@ -42,7 +41,6 @@ Meteor.publish("errorReports.unresolved", async function publishUnresolvedErrors
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
   const { isSystemAdmin } = await import("../accounts/RoleUtils");
   if (!await isSystemAdmin(this.userId)) {
     return this.ready();
@@ -68,7 +66,6 @@ Meteor.publish("errorReports.critical", async function publishCriticalErrors() {
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
   const { isSystemAdmin } = await import("../accounts/RoleUtils");
   if (!await isSystemAdmin(this.userId)) {
     return this.ready();
@@ -97,7 +94,6 @@ Meteor.publish("errorReports.byUser", async function publishErrorsByUser(usernam
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
   const { isSystemAdmin } = await import("../accounts/RoleUtils");
   if (!await isSystemAdmin(this.userId)) {
     return this.ready();
@@ -123,7 +119,6 @@ Meteor.publish("errorReports.recent", async function publishRecentErrors(hours =
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
   const { isSystemAdmin } = await import("../accounts/RoleUtils");
   if (!await isSystemAdmin(this.userId)) {
     return this.ready();
@@ -150,7 +145,6 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
   const { isSystemAdmin } = await import("../accounts/RoleUtils");
   if (!await isSystemAdmin(this.userId)) {
     return this.ready();

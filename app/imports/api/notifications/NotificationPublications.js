@@ -216,7 +216,7 @@ Meteor.publish("notifications.pushTokens", function() {
 /**
  * Admin publication for notification management
  */
-Meteor.publish("notifications.admin", function(filters = {}, options = {}) {
+Meteor.publish("notifications.admin", async function(filters = {}, options = {}) {
   check(filters, Object);
   check(options, Object);
 
@@ -226,7 +226,6 @@ Meteor.publish("notifications.admin", function(filters = {}, options = {}) {
     return;
   }
 
-  const currentUser = Meteor.users.findOne(this.userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
     this.ready();
@@ -267,6 +266,30 @@ Meteor.publish("notifications.admin", function(filters = {}, options = {}) {
     }
   }
 
+  // School admins should only see notifications for users in their school
+  if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
+    if (currentUser?.schoolId) {
+      // Find users in the same school
+      const schoolUsers = await Meteor.users.find(
+        { schoolId: currentUser.schoolId },
+        { fields: { _id: 1 } }
+      ).fetchAsync();
+      const userIds = schoolUsers.map(user => user._id);
+      
+      if (query.userId) {
+        // If filtering by specific user, make sure that user is in the same school
+        if (!userIds.includes(query.userId)) {
+          this.ready();
+          return;
+        }
+      } else {
+        // Filter to only users in the same school
+        query.userId = { $in: userIds };
+      }
+    }
+  }
+
   // console.log(`[Pub] Admin notifications query:`, query, { limit, skip, sort });
 
   return Notifications.find(query, {
@@ -279,7 +302,7 @@ Meteor.publish("notifications.admin", function(filters = {}, options = {}) {
 /**
  * Admin publication for push tokens management
  */
-Meteor.publish("notifications.adminTokens", function(filters = {}) {
+Meteor.publish("notifications.adminTokens", async function(filters = {}) {
   check(filters, Object);
 
   // Verify admin permissions
@@ -288,7 +311,6 @@ Meteor.publish("notifications.adminTokens", function(filters = {}) {
     return;
   }
 
-  const currentUser = Meteor.users.findOne(this.userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
     this.ready();
@@ -308,6 +330,30 @@ Meteor.publish("notifications.adminTokens", function(filters = {}) {
 
   if (filters.isActive !== undefined) {
     query.isActive = filters.isActive;
+  }
+
+  // School admins should only see tokens for users in their school
+  if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
+    if (currentUser?.schoolId) {
+      // Find users in the same school
+      const schoolUsers = await Meteor.users.find(
+        { schoolId: currentUser.schoolId },
+        { fields: { _id: 1 } }
+      ).fetchAsync();
+      const userIds = schoolUsers.map(user => user._id);
+      
+      if (query.userId) {
+        // If filtering by specific user, make sure that user is in the same school
+        if (!userIds.includes(query.userId)) {
+          this.ready();
+          return;
+        }
+      } else {
+        // Filter to only users in the same school
+        query.userId = { $in: userIds };
+      }
+    }
   }
 
   // console.log(`[Pub] Admin push tokens query:`, query);
