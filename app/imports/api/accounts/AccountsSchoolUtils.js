@@ -6,10 +6,10 @@ import { Schools } from "../schools/Schools";
  */
 export async function getUserSchool(userId) {
   if (!userId) return null;
-  
+
   const user = await Meteor.users.findOneAsync(userId);
   if (!user || !user.schoolId) return null;
-  
+
   return await Schools.findOneAsync(user.schoolId);
 }
 
@@ -26,7 +26,7 @@ export async function getCurrentUserSchool() {
  */
 export async function userBelongsToSchool(userId, schoolId) {
   if (!userId || !schoolId) return false;
-  
+
   const user = await Meteor.users.findOneAsync(userId);
   return user?.schoolId === schoolId;
 }
@@ -36,17 +36,18 @@ export async function userBelongsToSchool(userId, schoolId) {
  */
 export async function validateSchoolAccess(userId, schoolId) {
   const user = await Meteor.users.findOneAsync(userId);
-  
+
   // Admins can access any school
-  if (user?.roles?.includes("admin")) {
+  const { isSystemAdmin, isSchoolAdmin } = await import("./RoleUtils");
+  if (await isSystemAdmin(userId) || await isSchoolAdmin(userId)) {
     return true;
   }
-  
+
   // Users can only access their own school
   if (user?.schoolId === schoolId) {
     return true;
   }
-  
+
   throw new Meteor.Error("access-denied", "You can only access data from your school");
 }
 
@@ -58,19 +59,20 @@ export async function getSchoolFilter(userId = null) {
   if (!currentUserId) {
     throw new Meteor.Error("not-logged-in", "Please log in first");
   }
-  
+
   const user = await Meteor.users.findOneAsync(currentUserId);
-  
+
   // Admins can see all schools if no specific school filter
-  if (user?.roles?.includes("admin")) {
+  const { isSystemAdmin, isSchoolAdmin } = await import("./RoleUtils");
+  if (await isSystemAdmin(currentUserId) || await isSchoolAdmin(currentUserId)) {
     return {}; // No filter for admins
   }
-  
+
   // Regular users can only see their school
   if (!user?.schoolId) {
     throw new Meteor.Error("no-school", "User has no school assigned");
   }
-  
+
   return { schoolId: user.schoolId };
 }
 
@@ -79,13 +81,13 @@ export async function getSchoolFilter(userId = null) {
  */
 export async function detectSchoolFromEmail(email) {
   if (!email || !email.includes('@')) return null;
-  
+
   const domain = email.split('@')[1].toLowerCase();
-  
-  const school = await Schools.findOneAsync({ 
+
+  const school = await Schools.findOneAsync({
     domain: domain,
-    isActive: true 
+    isActive: true
   });
-  
+
   return school;
 }
