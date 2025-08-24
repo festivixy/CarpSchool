@@ -329,7 +329,8 @@ export const ProtectedRouteRequireAdmin = ({
     const userId = Meteor.userId();
     const isLoggingIn = Meteor.loggingIn();
     const isLogged = userId !== null;
-    const isAdmin = user && user.roles && user.roles.includes("admin");
+    const isAdmin = user?.roles?.includes("system") ||
+                    user?.roles?.some(role => role.startsWith("admin."));
     const userLoaded = user !== undefined;
 
     // Dynamic auth overlay state

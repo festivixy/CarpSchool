@@ -395,7 +395,11 @@ const MobileNavBarContainer = withTracker(() => ({
   currentUser: Meteor.user() ? Meteor.user().username : "",
   currentId: Meteor.user() ? Meteor.user()._id : "",
   isAdmin: Meteor.user()
-    ? Meteor.user().roles && Meteor.user().roles.includes("admin")
+    ? (() => {
+        const user = Meteor.user();
+        return user?.roles?.includes("system") ||
+               user?.roles?.some(role => role.startsWith("admin."));
+      })()
     : false,
   isSystem: Meteor.user()
     ? Meteor.user().roles && Meteor.user().roles.includes("system")
