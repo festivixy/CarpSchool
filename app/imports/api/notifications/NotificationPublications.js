@@ -7,7 +7,7 @@ if (Meteor.isServer) {
   /**
    * Publication for user's notifications
    */
-  Meteor.publish("notifications", function(limit = 50, offset = 0) {
+  Meteor.publish("notifications", function (limit = 50, offset = 0) {
   check(limit, Number);
   check(offset, Number);
 
@@ -40,16 +40,16 @@ if (Meteor.isServer) {
         readAt: 1,
         expiresAt: 1,
         groupKey: 1,
-        actionTaken: 1
-      }
-    }
+        actionTaken: 1,
+      },
+    },
   );
 });
 
 /**
  * Publication for unread notification count
  */
-Meteor.publish("notifications.unreadCount", function() {
+Meteor.publish("notifications.unreadCount", function () {
   if (!this.userId) {
     this.ready();
     return;
@@ -62,35 +62,35 @@ Meteor.publish("notifications.unreadCount", function() {
   const handle = Notifications.find(
     {
       userId: this.userId,
-      status: { $ne: NOTIFICATION_STATUS.READ }
-    }
+      status: { $ne: NOTIFICATION_STATUS.READ },
+    },
   ).observeChanges({
-    added: function() {
+    added: function () {
       if (!initializing) {
         self.changed("notificationCounts", self.userId, {
           unreadCount: Notifications.find({
             userId: self.userId,
-            status: { $ne: NOTIFICATION_STATUS.READ }
-          }).count()
+            status: { $ne: NOTIFICATION_STATUS.READ },
+          }).count(),
         });
       }
     },
-    removed: function() {
+    removed: function () {
       self.changed("notificationCounts", self.userId, {
         unreadCount: Notifications.find({
           userId: self.userId,
-          status: { $ne: NOTIFICATION_STATUS.READ }
-        }).count()
+          status: { $ne: NOTIFICATION_STATUS.READ },
+        }).count(),
       });
     },
-    changed: function() {
+    changed: function () {
       self.changed("notificationCounts", self.userId, {
         unreadCount: Notifications.find({
           userId: self.userId,
-          status: { $ne: NOTIFICATION_STATUS.READ }
-        }).count()
+          status: { $ne: NOTIFICATION_STATUS.READ },
+        }).count(),
       });
-    }
+    },
   });
 
   initializing = false;
@@ -99,14 +99,14 @@ Meteor.publish("notifications.unreadCount", function() {
   self.added("notificationCounts", self.userId, {
     unreadCount: Notifications.find({
       userId: self.userId,
-      status: { $ne: NOTIFICATION_STATUS.READ }
-    }).count()
+      status: { $ne: NOTIFICATION_STATUS.READ },
+    }).count(),
   });
 
   self.ready();
 
   // Clean up observer on stop
-  self.onStop(function() {
+  self.onStop(function () {
     handle.stop();
   });
 });
@@ -114,7 +114,7 @@ Meteor.publish("notifications.unreadCount", function() {
 /**
  * Publication for recent notifications (last 24 hours)
  */
-Meteor.publish("notifications.recent", function() {
+Meteor.publish("notifications.recent", function () {
   if (!this.userId) {
     this.ready();
     return;
@@ -127,7 +127,7 @@ Meteor.publish("notifications.recent", function() {
   return Notifications.find(
     {
       userId: this.userId,
-      createdAt: { $gte: yesterday }
+      createdAt: { $gte: yesterday },
     },
     {
       sort: { createdAt: -1 },
@@ -141,16 +141,16 @@ Meteor.publish("notifications.recent", function() {
         status: 1,
         data: 1,
         createdAt: 1,
-        readAt: 1
-      }
-    }
+        readAt: 1,
+      },
+    },
   );
 });
 
 /**
  * Publication for ride-specific notifications
  */
-Meteor.publish("notifications.forRide", function(rideId) {
+Meteor.publish("notifications.forRide", function (rideId) {
   check(rideId, String);
 
   if (!this.userId) {
@@ -163,7 +163,7 @@ Meteor.publish("notifications.forRide", function(rideId) {
   return Notifications.find(
     {
       userId: this.userId,
-      "data.rideId": rideId
+      "data.rideId": rideId,
     },
     {
       sort: { createdAt: -1 },
@@ -177,16 +177,16 @@ Meteor.publish("notifications.forRide", function(rideId) {
         status: 1,
         data: 1,
         createdAt: 1,
-        readAt: 1
-      }
-    }
+        readAt: 1,
+      },
+    },
   );
 });
 
 /**
  * Publication for user's push tokens (for managing devices)
  */
-Meteor.publish("notifications.pushTokens", function() {
+Meteor.publish("notifications.pushTokens", function () {
   if (!this.userId) {
     this.ready();
     return;
@@ -197,7 +197,7 @@ Meteor.publish("notifications.pushTokens", function() {
   return PushTokens.find(
     {
       userId: this.userId,
-      isActive: true
+      isActive: true,
     },
     {
       sort: { lastUsedAt: -1 },
@@ -207,16 +207,16 @@ Meteor.publish("notifications.pushTokens", function() {
         deviceInfo: 1,
         isActive: 1,
         lastUsedAt: 1,
-        createdAt: 1
-      }
-    }
+        createdAt: 1,
+      },
+    },
   );
 });
 
 /**
  * Admin publication for notification management
  */
-Meteor.publish("notifications.admin", async function(filters = {}, options = {}) {
+Meteor.publish("notifications.admin", async function (filters = {}, options = {}) {
   check(filters, Object);
   check(options, Object);
 
@@ -273,7 +273,7 @@ Meteor.publish("notifications.admin", async function(filters = {}, options = {})
       // Find users in the same school
       const schoolUsers = await Meteor.users.find(
         { schoolId: currentUser.schoolId },
-        { fields: { _id: 1 } }
+        { fields: { _id: 1 } },
       ).fetchAsync();
       const userIds = schoolUsers.map(user => user._id);
 
@@ -295,14 +295,14 @@ Meteor.publish("notifications.admin", async function(filters = {}, options = {})
   return Notifications.find(query, {
     sort,
     limit,
-    skip
+    skip,
   });
 });
 
 /**
  * Admin publication for push tokens management
  */
-Meteor.publish("notifications.adminTokens", async function(filters = {}) {
+Meteor.publish("notifications.adminTokens", async function (filters = {}) {
   check(filters, Object);
 
   // Verify admin permissions
@@ -339,7 +339,7 @@ Meteor.publish("notifications.adminTokens", async function(filters = {}) {
       // Find users in the same school
       const schoolUsers = await Meteor.users.find(
         { schoolId: currentUser.schoolId },
-        { fields: { _id: 1 } }
+        { fields: { _id: 1 } },
       ).fetchAsync();
       const userIds = schoolUsers.map(user => user._id);
 
@@ -360,7 +360,7 @@ Meteor.publish("notifications.adminTokens", async function(filters = {}) {
 
   return PushTokens.find(query, {
     sort: { lastUsedAt: -1 },
-    limit: 1000
+    limit: 1000,
   });
 });
 

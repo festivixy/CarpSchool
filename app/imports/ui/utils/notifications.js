@@ -35,10 +35,10 @@ class NotificationManager {
       }
 
       this.isInitialized = true;
-      console.log('[Notifications] Manager initialized');
+      console.log("[Notifications] Manager initialized");
 
     } catch (error) {
-      console.error('[Notifications] Initialization failed:', error);
+      console.error("[Notifications] Initialization failed:", error);
     }
   }
 
@@ -47,11 +47,11 @@ class NotificationManager {
    */
   async initializeCordova() {
     return new Promise((resolve) => {
-      document.addEventListener('deviceready', async () => {
+      document.addEventListener("deviceready", async () => {
         try {
           // Check if push plugin is available
           if (!window.PushNotification) {
-            console.warn('[Notifications] PushNotification plugin not available');
+            console.warn("[Notifications] PushNotification plugin not available");
             resolve();
             return;
           }
@@ -62,8 +62,8 @@ class NotificationManager {
           const push = window.PushNotification.init({
             android: {
               senderID: Meteor.settings.public?.firebase?.senderId || "YOUR_SENDER_ID",
-              icon: 'ic_notification',
-              iconColor: '#000000'
+              icon: "ic_notification",
+              iconColor: "#000000",
             },
             ios: {
               alert: true,
@@ -71,35 +71,35 @@ class NotificationManager {
               sound: true,
               categories: {
                 emergency: {
-                  yes: { callback: 'onYes', title: 'Emergency', foreground: true },
-                  no: { callback: 'onNo', title: 'Cancel', foreground: true }
-                }
-              }
-            }
+                  yes: { callback: "onYes", title: "Emergency", foreground: true },
+                  no: { callback: "onNo", title: "Cancel", foreground: true },
+                },
+              },
+            },
           });
 
           // Handle registration
-          push.on('registration', (data) => {
-            console.log('[Push] Registration successful:', data.registrationId);
+          push.on("registration", (data) => {
+            console.log("[Push] Registration successful:", data.registrationId);
             this.pushToken.set(data.registrationId);
             this.registerTokenWithServer(data.registrationId);
           });
 
           // Handle notifications
-          push.on('notification', (data) => {
+          push.on("notification", (data) => {
             this.handleNotification(data);
           });
 
           // Handle errors
-          push.on('error', (error) => {
-            console.error('[Push] Registration error:', error);
+          push.on("error", (error) => {
+            console.error("[Push] Registration error:", error);
           });
 
           this.hasPermission = true;
           resolve();
 
         } catch (error) {
-          console.error('[Notifications] Cordova setup failed:', error);
+          console.error("[Notifications] Cordova setup failed:", error);
           resolve();
         }
       }, false);
@@ -112,26 +112,26 @@ class NotificationManager {
   async initializeWeb() {
     try {
       // Check browser support
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        console.warn('[Notifications] Web push not supported');
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        console.warn("[Notifications] Web push not supported");
         return;
       }
 
       this.isSupported = true;
 
       // Register service worker
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('[Push] Service worker registered');
+      const registration = await navigator.serviceWorker.register("/sw.js");
+      console.log("[Push] Service worker registered");
 
       // Check current permission
-      this.hasPermission = Notification.permission === 'granted';
+      this.hasPermission = Notification.permission === "granted";
 
       if (this.hasPermission) {
         await this.subscribeWebPush(registration);
       }
 
     } catch (error) {
-      console.error('[Notifications] Web push setup failed:', error);
+      console.error("[Notifications] Web push setup failed:", error);
     }
   }
 
@@ -146,9 +146,9 @@ class NotificationManager {
       }
 
       // Check secure context requirement
-      if (!window.isSecureContext && location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      if (!window.isSecureContext && location.protocol !== "https:" && location.hostname !== "localhost") {
         const error = `Push notifications require HTTPS or localhost. Current URL: ${window.location.href}`;
-        console.error('[Notifications]', error);
+        console.error("[Notifications]", error);
         throw new Error(error);
       }
 
@@ -156,7 +156,7 @@ class NotificationManager {
       const permission = await new Promise((resolve) => {
         // Call immediately, not in async chain
         const result = Notification.requestPermission();
-        if (result && typeof result.then === 'function') {
+        if (result && typeof result.then === "function") {
           // Modern promise-based API
           result.then(resolve);
         } else {
@@ -164,7 +164,7 @@ class NotificationManager {
           resolve(result);
         }
       });
-      this.hasPermission = permission === 'granted';
+      this.hasPermission = permission === "granted";
 
       if (this.hasPermission) {
         const registration = await navigator.serviceWorker.ready;
@@ -174,7 +174,7 @@ class NotificationManager {
       return this.hasPermission;
 
     } catch (error) {
-      console.error('[Notifications] Permission request failed:', error);
+      console.error("[Notifications] Permission request failed:", error);
       return false;
     }
   }
@@ -189,38 +189,38 @@ class NotificationManager {
       // Try to get VAPID key from multiple sources
       try {
         // First, try to get from server
-        const vapidData = await Meteor.callAsync('notifications.getVapidPublicKey');
+        const vapidData = await Meteor.callAsync("notifications.getVapidPublicKey");
         vapidPublicKey = vapidData.publicKey;
         console.log(`[Push] VAPID key loaded from ${vapidData.source}`);
       } catch (error) {
-        console.warn('[Push] Failed to get VAPID key from server:', error.reason);
+        console.warn("[Push] Failed to get VAPID key from server:", error.reason);
 
         // Fallback to client settings
         vapidPublicKey = Meteor.settings.public?.vapid?.publicKey;
         if (vapidPublicKey) {
-          console.log('[Push] Using VAPID key from client settings');
+          console.log("[Push] Using VAPID key from client settings");
         }
       }
 
       if (!vapidPublicKey) {
-        console.warn('[Push] VAPID public key not configured');
-        console.warn('[Push] Configure VAPID_PUBLIC_KEY environment variable or Meteor settings');
+        console.warn("[Push] VAPID public key not configured");
+        console.warn("[Push] Configure VAPID_PUBLIC_KEY environment variable or Meteor settings");
         return;
       }
 
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey)
+        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey),
       });
 
       const token = JSON.stringify(subscription);
       this.pushToken.set(token);
-      this.registerTokenWithServer(token, 'web');
+      this.registerTokenWithServer(token, "web");
 
-      console.log('[Push] Web push subscription successful');
+      console.log("[Push] Web push subscription successful");
 
     } catch (error) {
-      console.error('[Push] Web push subscription failed:', error);
+      console.error("[Push] Web push subscription failed:", error);
     }
   }
 
@@ -238,22 +238,22 @@ class NotificationManager {
       // Determine platform if not provided
       if (!platform) {
         if (window.cordova) {
-          platform = window.device?.platform?.toLowerCase() || 'unknown';
-          if (platform === 'ios') platform = 'ios';
-          else if (platform.includes('android')) platform = 'android';
+          platform = window.device?.platform?.toLowerCase() || "unknown";
+          if (platform === "ios") platform = "ios";
+          else if (platform.includes("android")) platform = "android";
         } else {
-          platform = 'web';
+          platform = "web";
         }
       }
 
       // Get device info
       const deviceInfo = this.getDeviceInfo();
 
-      await Meteor.callAsync('notifications.registerPushToken', token, platform, deviceInfo);
+      await Meteor.callAsync("notifications.registerPushToken", token, platform, deviceInfo);
       console.log(`[Push] Token registered with server for platform: ${platform}`);
 
     } catch (error) {
-      console.error('[Push] Server registration failed:', error);
+      console.error("[Push] Server registration failed:", error);
     }
   }
 
@@ -261,7 +261,7 @@ class NotificationManager {
    * Handle incoming notification
    */
   handleNotification(data) {
-    console.log('[Push] Notification received:', data);
+    console.log("[Push] Notification received:", data);
 
     try {
       // Mark as delivered if we have notification ID
@@ -286,7 +286,7 @@ class NotificationManager {
       }
 
     } catch (error) {
-      console.error('[Push] Notification handling failed:', error);
+      console.error("[Push] Notification handling failed:", error);
     }
   }
 
@@ -305,37 +305,37 @@ class NotificationManager {
           case NOTIFICATION_TYPES.RIDER_JOINED:
           case NOTIFICATION_TYPES.RIDE_STARTING:
             if (rideId) {
-              FlowRouter.go('/mobile/ride-info', { rideId });
+              FlowRouter.go("/mobile/ride-info", { rideId });
             }
             break;
 
           case NOTIFICATION_TYPES.CHAT_MESSAGE:
             if (chatId) {
-              FlowRouter.go('/chat', {}, { chatId });
+              FlowRouter.go("/chat", {}, { chatId });
             } else if (rideId) {
-              FlowRouter.go('/chat', {}, { rideId });
+              FlowRouter.go("/chat", {}, { rideId });
             }
             break;
 
           case NOTIFICATION_TYPES.EMERGENCY:
             if (rideId) {
-              FlowRouter.go('/mobile/ride-info', { rideId });
+              FlowRouter.go("/mobile/ride-info", { rideId });
               // Could also show emergency modal
             }
             break;
 
           default:
             // Default navigation or no navigation
-            if (action === 'open_chat' && chatId) {
-              FlowRouter.go('/chat', {}, { chatId });
+            if (action === "open_chat" && chatId) {
+              FlowRouter.go("/chat", {}, { chatId });
             } else if (rideId) {
-              FlowRouter.go('/mobile/ride-info', { rideId });
+              FlowRouter.go("/mobile/ride-info", { rideId });
             }
         }
       }
 
     } catch (error) {
-      console.error('[Push] Navigation failed:', error);
+      console.error("[Push] Navigation failed:", error);
     }
   }
 
@@ -345,17 +345,17 @@ class NotificationManager {
   showInAppNotification(data) {
     // This could integrate with a toast/banner system
     // For now, just log it
-    console.log('[Push] In-app notification:', data.message);
+    console.log("[Push] In-app notification:", data.message);
 
     // You could emit a custom event that UI components listen to
     if (window.dispatchEvent) {
-      const event = new CustomEvent('inAppNotification', {
+      const event = new CustomEvent("inAppNotification", {
         detail: {
           title: data.title,
           message: data.message,
           type: data.additionalData?.type,
-          data: data.additionalData
-        }
+          data: data.additionalData,
+        },
       });
       window.dispatchEvent(event);
     }
@@ -390,10 +390,10 @@ class NotificationManager {
    * Utility function for VAPID key conversion
    */
   urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const padding = "=".repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
 
     const rawData = window.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
@@ -425,11 +425,11 @@ class NotificationManager {
     try {
       const token = this.getToken();
       if (token) {
-        await Meteor.callAsync('notifications.unregisterPushToken', token);
+        await Meteor.callAsync("notifications.unregisterPushToken", token);
         this.pushToken.set(null);
       }
     } catch (error) {
-      console.error('[Push] Unregistration failed:', error);
+      console.error("[Push] Unregistration failed:", error);
     }
   }
 }
@@ -443,7 +443,7 @@ export const NotificationHelpers = {
    * Get unread notification count reactively
    */
   getUnreadCount() {
-    const subscription = Meteor.subscribe('notifications.unreadCount');
+    const subscription = Meteor.subscribe("notifications.unreadCount");
     if (!subscription.ready()) return 0;
 
     const countDoc = NotificationCounts?.findOne(Meteor.userId());
@@ -454,7 +454,7 @@ export const NotificationHelpers = {
    * Get recent notifications reactively
    */
   getRecentNotifications() {
-    const subscription = Meteor.subscribe('notifications.recent');
+    const subscription = Meteor.subscribe("notifications.recent");
     if (!subscription.ready()) return [];
 
     return Notifications.find({}, { sort: { createdAt: -1 } }).fetch();
@@ -465,9 +465,9 @@ export const NotificationHelpers = {
    */
   async markAsRead(notificationId) {
     try {
-      await Meteor.callAsync('notifications.markAsRead', notificationId);
+      await Meteor.callAsync("notifications.markAsRead", notificationId);
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      console.error("Failed to mark notification as read:", error);
     }
   },
 
@@ -476,9 +476,9 @@ export const NotificationHelpers = {
    */
   async markAllAsRead() {
     try {
-      await Meteor.callAsync('notifications.markAllAsRead');
+      await Meteor.callAsync("notifications.markAllAsRead");
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+      console.error("Failed to mark all notifications as read:", error);
     }
   },
 
@@ -494,12 +494,12 @@ export const NotificationHelpers = {
     const granted = await notificationManager.requestPermission();
 
     if (!granted) {
-      console.log('User denied notification permission');
+      console.log("User denied notification permission");
       // Could show instructions on how to enable in settings
     }
 
     return granted;
-  }
+  },
 };
 
 // Auto-initialize when user logs in
