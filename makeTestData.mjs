@@ -36,49 +36,94 @@ var template = {
       "appId": "your-app-id-here"
     }
   },
+  defaultSchools: [
+    {
+      name: "Default Test School",
+      shortName: "Test School",
+      code: "TEST",
+      domain: "foo.com",
+      location: {
+        coordinates: {
+          lat: 49.2827,
+          lng: -123.1207
+        }
+      },
+      settings: {
+        allowPublicRegistration: true,
+        requireEmailVerification: true,
+        requireDomainMatch: false,
+        maxRideDistance: 50
+      }
+    },
+    {
+      name: "Example University",
+      shortName: "Example Uni",
+      code: "UNI",
+      domain: "uni.edu",
+      location: {
+        coordinates: {
+          lat: 49.2606,
+          lng: -123.2460
+        }
+      },
+      settings: {
+        allowPublicRegistration: true,
+        requireEmailVerification: true,
+        requireDomainMatch: true,
+        maxRideDistance: 30
+      }
+    }
+  ],
   defaultAccounts: [
     {
       email: "admin@foo.com",
-      firstName: "Admin",
-      lastName: "User",
+      firstName: "System",
+      lastName: "Administrator",
       password: "changeme",
-      role: "admin",
+      role: "system",
+      schoolCode: "TEST",
     },
     {
       email: "alice@example.com",
       firstName: "Alice",
       lastName: "Johnson",
       password: "password123",
+      schoolCode: "TEST",
     },
     {
       email: "bob@example.com",
       firstName: "Bob",
       lastName: "Smith",
       password: "password123",
+      schoolCode: "TEST",
     },
     {
       email: "charlie@example.com",
       firstName: "Charlie",
       lastName: "Brown",
       password: "password123",
+      schoolCode: "TEST",
     },
     {
       email: "student1@uni.edu",
       firstName: "Emma",
       lastName: "Davis",
       password: "password123",
+      schoolCode: "UNI",
     },
     {
       email: "student2@uni.edu",
       firstName: "David",
       lastName: "Wilson",
       password: "password123",
+      schoolCode: "UNI",
     },
     {
       email: "student3@uni.edu",
       firstName: "Sarah",
       lastName: "Taylor",
       password: "password123",
+      schoolCode: "UNI",
     },
   ],
   defaultPlaces: [],
@@ -249,6 +294,7 @@ const settingsPath = path.join(process.cwd(), "config", "settings.development.js
 fs.writeFileSync(settingsPath, JSON.stringify(template, null, 2), "utf8");
 console.log(`\n✅ Test data generation complete!`);
 console.log(`📊 Summary:`);
+console.log(`   • ${template.defaultSchools.length} schools`);
 console.log(`   • ${template.defaultAccounts.length} user accounts`);
 console.log(`   • ${template.defaultPlaces.length} places with UUIDs`);
 console.log(

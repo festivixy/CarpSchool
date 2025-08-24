@@ -5,10 +5,27 @@ import crypto from "crypto";
 import { Rides } from "../../api/ride/Rides";
 import { Places } from "../../api/places/Places";
 import { Captcha } from "../../api/captcha/Captcha";
+import { Schools } from "../../api/schools/Schools";
 
 /* eslint-disable no-console */
 
-async function createUser(email, firstName, lastName, password, role) {
+async function createSchool(schoolData) {
+  console.log(`  Creating school: ${schoolData.name} (${schoolData.code})`);
+
+  const school = {
+    ...schoolData,
+    code: schoolData.code.toUpperCase(),
+    isActive: true,
+    createdAt: new Date(),
+    createdBy: "system",
+  };
+
+  const schoolId = await Schools.insertAsync(school);
+  console.log(`  School ${schoolData.name} created with ID: ${schoolId}`);
+  return schoolId;
+}
+
+async function createUser(email, firstName, lastName, password, role, schoolCode) {
   const captchaSessionId = await Captcha.insertAsync({
     text: "dummy-captcha-text",
     timestamp: Date.now(),
@@ -16,7 +33,16 @@ async function createUser(email, firstName, lastName, password, role) {
     used: false,
   });
   console.log(`  Created dummy captcha session ID: ${captchaSessionId}`);
-  console.log(`  Creating user ${email}.`);
+  // Find school by code if provided
+  let school = null;
+  if (schoolCode) {
+    school = await Schools.findOneAsync({ code: schoolCode.toUpperCase() });
+    if (!school) {
+      throw new Error(`School with code ${schoolCode} not found`);
+    }
+  }
+
+  console.log(`  Creating user ${email}${school ? ` for school ${school.name}` : ''}.`);
   const userID = await new Promise((resolve, _reject) => {
     const id = Accounts.createUser({
       username: email,
@@ -28,17 +54,24 @@ async function createUser(email, firstName, lastName, password, role) {
       email: email,
       password: password,
       captchaSessionId: captchaSessionId,
+      schoolId: school ? school._id : null,
     });
     resolve(id);
   });
 
-  if (role === "admin") {
-    console.log(`  Assigning admin role to user ${email} with ID ${userID}`);
-    // Add admin role directly to user document
+  // Assign roles based on type
+  if (role === "system") {
+    console.log(`  Assigning system role to user ${email} with ID ${userID}`);
     await Meteor.users.updateAsync(userID, {
-      $set: { roles: ["admin"] },
+      $set: { roles: ["system"] },
     });
-    console.log(`  Admin role assignment completed for user ${email}`);
+    console.log(`  System role assignment completed for user ${email}`);
+  } else if (role === "admin" && school) {
+    console.log(`  Assigning school admin role to user ${email} with ID ${userID}`);
+    await Meteor.users.updateAsync(userID, {
+      $set: { roles: [`admin.${school._id}`] },
+    });
+    console.log(`  School admin role assignment completed for user ${email}`);
   }
 
   return userID;
@@ -228,12 +261,27 @@ Meteor.startup(async () => {
   // Migrate any existing legacy ride data
   await migrateLegacyRides();
 
+  // Create default schools first
+  if ((await Schools.find().countAsync()) === 0) {
+    if (Meteor.settings.defaultSchools) {
+      console.log("Creating the default school(s)");
+      for (const schoolData of Meteor.settings.defaultSchools) { // eslint-disable-line
+        await createSchool(schoolData);
+      }
+      // Wait a moment for schools to be fully indexed
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+    }
+  }
+
+  // Create default users
   if ((await Meteor.users.find().countAsync()) === 0) {
     if (Meteor.settings.defaultAccounts) {
       console.log("Creating the default user(s)");
-      for (const { email, firstName, lastName, password, role } of Meteor // eslint-disable-line
+      for (const { email, firstName, lastName, password, role, schoolCode } of Meteor // eslint-disable-line
         .settings.defaultAccounts) {
-        await createUser(email, firstName, lastName, password, role);
+        await createUser(email, firstName, lastName, password, role, schoolCode);
       }
       // Wait a moment for all users to be fully indexed
       await new Promise((resolve) => {
