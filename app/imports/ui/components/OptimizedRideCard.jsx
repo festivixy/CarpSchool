@@ -1,25 +1,26 @@
 import React, { memo, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import Ride from "./Ride";
+import { isAdminRole } from "../desktop/components/NavBarRoleUtils";
 
 /**
  * Optimized Ride Card wrapper component with memoization
  * Prevents unnecessary re-renders when ride data hasn't changed
  */
-const OptimizedRideCard = memo(({ 
-  ride, 
-  rideSession, 
-  currentUser, 
+const OptimizedRideCard = memo(({
+  ride,
+  rideSession,
+  currentUser,
   onAction,
   places,
   users,
-  ...props 
+  ...props
 }) => {
   // Memoize ride status calculation
   const rideStatus = useMemo(() => {
     const now = new Date();
     const rideDate = new Date(ride.date);
-    
+
     if (rideSession) {
       return {
         type: 'session',
@@ -28,7 +29,7 @@ const OptimizedRideCard = memo(({
         isCompleted: rideSession.status === 'completed',
       };
     }
-    
+
     if (rideDate < now) {
       return {
         type: 'past',
@@ -37,7 +38,7 @@ const OptimizedRideCard = memo(({
         isCompleted: false,
       };
     }
-    
+
     return {
       type: 'upcoming',
       status: 'scheduled',
@@ -50,7 +51,7 @@ const OptimizedRideCard = memo(({
   const userRole = useMemo(() => ({
     isDriver: ride.driver === currentUser?._id,
     isRider: ride.riders?.includes(currentUser?._id),
-    isAdmin: currentUser?.roles?.includes('admin'),
+    isAdmin: isAdminRole(currentUser),
   }), [ride.driver, ride.riders, currentUser]);
 
   // Memoize action callback to prevent child re-renders
@@ -63,10 +64,10 @@ const OptimizedRideCard = memo(({
   // Memoize places data
   const ridePlaces = useMemo(() => {
     if (!places) return null;
-    
+
     const originPlace = places.find(place => place._id === ride.origin);
     const destinationPlace = places.find(place => place._id === ride.destination);
-    
+
     return {
       origin: originPlace,
       destination: destinationPlace,

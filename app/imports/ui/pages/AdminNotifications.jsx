@@ -3,6 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import { Notifications, NOTIFICATION_TYPES, NOTIFICATION_PRIORITY } from "../../api/notifications/Notifications";
+import { isAdminRole } from "../desktop/components/NavBarRoleUtils";
 import { NotificationTriggers } from "../../startup/server/NotificationIntegration";
 import {
   Container,
@@ -48,7 +49,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
   const [showTestForm, setShowTestForm] = useState(false);
 
   // Check admin permissions
-  const isAdmin = currentUser?.roles?.includes("admin");
+  const isAdmin = isAdminRole(currentUser);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -74,13 +75,13 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
 
     try {
       const { recipients, title, body, type, priority, rideId } = testForm;
-      
+
       if (!title || !body) {
         throw new Error('Title and body are required');
       }
 
       let recipientIds = [];
-      
+
       if (recipients.trim()) {
         // Parse recipients (comma-separated usernames or user IDs)
         recipientIds = recipients.split(',').map(r => r.trim()).filter(r => r);
@@ -116,7 +117,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
       }
 
       showMessage('success', 'Test notification sent successfully!');
-      
+
       // Reset form
       setTestForm({
         recipients: '',
@@ -232,7 +233,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
       <Section>
         <SectionTitle>
           Test Notifications
-          <Button 
+          <Button
             onClick={() => setShowTestForm(!showTestForm)}
             style={{ marginLeft: '16px', fontSize: '14px' }}
           >
@@ -358,7 +359,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
                         {notification.status}
                       </StatusBadge>
                       {notification.status !== 'read' && (
-                        <Button 
+                        <Button
                           onClick={() => handleMarkAsRead(notification._id)}
                           style={{ marginTop: '8px', fontSize: '11px', padding: '4px 8px' }}
                         >
@@ -387,7 +388,7 @@ AdminNotifications.propTypes = {
 export default withTracker(() => {
   const statsHandle = Meteor.subscribe('notifications.admin', {}, { limit: 100 });
   const currentUser = Meteor.user();
-  
+
   return {
     stats: {
       total: 0,
@@ -396,9 +397,9 @@ export default withTracker(() => {
       byStatus: {},
       byType: {}
     }, // Would be populated from a reactive method call
-    notifications: Notifications.find({}, { 
-      sort: { createdAt: -1 }, 
-      limit: 100 
+    notifications: Notifications.find({}, {
+      sort: { createdAt: -1 },
+      limit: 100
     }).fetch(),
     ready: statsHandle.ready(),
     currentUser

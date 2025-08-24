@@ -3,6 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
+import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import { RideSessions } from "../../../api/rideSession/RideSession";
 import { Rides } from "../../../api/ride/Rides";
 import { Spacer } from "../../components";
@@ -56,7 +57,7 @@ class RideHistory extends React.Component {
 
     // User must be driver, rider, or admin
     const user = Meteor.users.findOne(currentUser._id);
-    const isAdmin = user?.roles?.includes("admin");
+    const isAdmin = isAdminRole(user);
     const isDriver = session.driverId === currentUser._id;
     const isRider = session.riders.includes(currentUser._id);
 

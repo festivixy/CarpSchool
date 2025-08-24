@@ -5,6 +5,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
+import { isAdminRole } from "../desktop/components/NavBarRoleUtils";
 import { Places } from "../../api/places/Places";
 import { RideSessions } from "../../api/rideSession/RideSession";
 import RouteMapView from "./RouteMapView";
@@ -430,7 +431,7 @@ class Ride extends React.Component {
 
     // User must be driver, rider, or admin
     const user = Meteor.users.findOne(currentUser._id);
-    const isAdmin = user?.roles?.includes("admin");
+    const isAdmin = isAdminRole(user);
     const isDriver = session.driverId === currentUser._id;
     const isRider = session.riders.includes(currentUser._id);
 

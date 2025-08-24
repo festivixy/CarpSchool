@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import { Notifications, PushTokens } from "../../../api/notifications/Notifications";
 import { NotificationHelpers, notificationManager } from "../../utils/notifications";
 import { OneSignalHelpers, oneSignalManager } from "../../utils/oneSignalNotifications";
+import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import {
   Container,
   Section,
@@ -160,7 +161,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       // Analyze permissions
       const isDriver = testRide.driver === currentUser?._id;
       const isRider = testRide.riders?.includes(currentUser?._id);
-      const isAdmin = currentUser?.roles?.includes('admin');
+      const isAdmin = isAdminRole(currentUser);
 
       addLog(`🔑 Permissions analysis:`, 'info');
       addLog(`  - Is Driver: ${isDriver} (${testRide.driver} === ${currentUser?._id})`, isDriver ? 'success' : 'info');
@@ -264,7 +265,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       });
 
       // Get service status if admin
-      if (currentUser?.roles?.includes('admin')) {
+      if (isAdminRole(currentUser)) {
         try {
           const stats = await Meteor.callAsync('notifications.getStats');
           addLog(`📈 System stats:`, 'info');
