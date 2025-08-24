@@ -86,7 +86,7 @@ export async function migratePlacesToCollection() {
       const systemUserId = await Meteor.users.insertAsync({
         username: "system",
         emails: [{ address: "system@rideshare.com", verified: true }],
-        roles: ["admin"],
+        roles: ["system"],
         createdAt: new Date(),
         profile: {
           firstName: "System",

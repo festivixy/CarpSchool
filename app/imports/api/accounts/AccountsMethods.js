@@ -149,22 +149,22 @@ Meteor.methods({
     if (!await isSystemAdmin(user._id)) {
       throw new Meteor.Error(
         "access-denied",
-        "You must be a system admin to modify user roles",
+        "You must be a system admin to modify system admin roles",
       );
     }
 
-    // Prevent removing admin role from self
+    // Prevent removing system admin role from self
     if (userId === Meteor.userId() && action === "remove") {
       throw new Meteor.Error(
         "invalid-operation",
-        "You cannot remove admin role from yourself",
+        "You cannot remove system admin role from yourself",
       );
     }
 
     if (action === "add") {
-      await Meteor.users.updateAsync(userId, { $addToSet: { roles: "admin" } });
+      await Meteor.users.updateAsync(userId, { $addToSet: { roles: "system" } });
     } else if (action === "remove") {
-      await Meteor.users.updateAsync(userId, { $pull: { roles: "admin" } });
+      await Meteor.users.updateAsync(userId, { $pull: { roles: "system" } });
     }
   },
 
