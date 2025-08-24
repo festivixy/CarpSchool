@@ -50,7 +50,7 @@ export const VALIDATION_PATTERNS = {
   generalText: /^[a-zA-Z0-9\s\-,.()&'!?;:]*$/,
 
   // Chat messages: includes more symbols for communication
-  chatMessage: /^[a-zA-Z0-9\s\-,.()&'!?;:@#$%+=_\[\]{}|\\/"~`\*\^]*$/,
+  chatMessage: /^[a-zA-Z0-9\s\-,.()&'!?;:@#$%+=_[\]{}|\\/"~`*^]*$/,
 
   // Coordinates: lat,lng format
   coordinates: /^-?\d+\.?\d*,-?\d+\.?\d*$/,
