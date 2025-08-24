@@ -406,7 +406,7 @@ class OneSignalServiceClass {
    * Send test notification (for debugging)
    */
   async sendTestNotification(userId) {
-    return await this.sendToUser(userId, {
+    return this.sendToUser(userId, {
       title: "OneSignal Test",
       body: "This is a test notification from OneSignal",
       data: { test: true, timestamp: Date.now() },

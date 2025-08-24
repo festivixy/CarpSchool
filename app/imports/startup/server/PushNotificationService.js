@@ -85,7 +85,7 @@ class PushNotificationServiceClass {
   async sendToUser(userId, notification) {
     // Route to appropriate backend
     if (this.backend === "onesignal") {
-      return await OneSignalService.sendToUser(userId, notification);
+      return OneSignalService.sendToUser(userId, notification);
     }
 
     // Firebase implementation
@@ -265,7 +265,7 @@ class PushNotificationServiceClass {
   async sendToUsers(userIds, notification) {
     // Route to appropriate backend
     if (this.backend === "onesignal") {
-      return await OneSignalService.sendToUsers(userIds, notification);
+      return OneSignalService.sendToUsers(userIds, notification);
     }
 
     // Firebase implementation
@@ -302,7 +302,7 @@ class PushNotificationServiceClass {
    * Send test notification (for debugging)
    */
   async sendTestNotification(userId) {
-    return await this.sendToUser(userId, {
+    return this.sendToUser(userId, {
       title: "Test Notification",
       body: "This is a test notification from Carp School",
       data: { test: true },
