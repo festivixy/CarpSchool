@@ -517,6 +517,11 @@ if (Meteor.isClient) {
 
 // Export collection for use in components
 export { Notifications } from "../../api/notifications/Notifications";
+
+// Client-only exports - handled at module level
+let NotificationCounts;
 if (Meteor.isClient) {
-  export { NotificationCounts } from "../../api/notifications/NotificationPublications";
+  const { NotificationCounts: ClientCounts } = require("../../api/notifications/NotificationPublications");
+  NotificationCounts = ClientCounts;
 }
+export { NotificationCounts };

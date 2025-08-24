@@ -276,7 +276,7 @@ Meteor.publish("notifications.admin", async function(filters = {}, options = {})
         { fields: { _id: 1 } }
       ).fetchAsync();
       const userIds = schoolUsers.map(user => user._id);
-      
+
       if (query.userId) {
         // If filtering by specific user, make sure that user is in the same school
         if (!userIds.includes(query.userId)) {
@@ -342,7 +342,7 @@ Meteor.publish("notifications.adminTokens", async function(filters = {}) {
         { fields: { _id: 1 } }
       ).fetchAsync();
       const userIds = schoolUsers.map(user => user._id);
-      
+
       if (query.userId) {
         // If filtering by specific user, make sure that user is in the same school
         if (!userIds.includes(query.userId)) {
@@ -367,6 +367,8 @@ Meteor.publish("notifications.adminTokens", async function(filters = {}) {
 } // End server-only block
 
 // Collection for reactive notification counts (client-side only)
+let NotificationCounts;
 if (Meteor.isClient) {
-  export const NotificationCounts = new Mongo.Collection("notificationCounts");
+  NotificationCounts = new Mongo.Collection("notificationCounts");
 }
+export { NotificationCounts };
