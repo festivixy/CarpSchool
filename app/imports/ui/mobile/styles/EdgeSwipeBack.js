@@ -61,7 +61,8 @@ export const SwipeBlob = styled.div`
   background: rgba(0, 122, 255, 0.9);
 
   /* Position and scale transform */
-  transform: translate(${props => props.x - 20}px, ${props => props.y - 20}px) scale(${props => 0.6 + (props.progress * 0.4)});
+  transform: translate(${props => props.x - 20}px, ${props => props.y - 20}px)
+    scale(${props => 0.6 + (props.progress * 0.4)});
 
   /* Visibility control */
   display: ${props => (props.visible ? "block" : "none")};

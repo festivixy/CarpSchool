@@ -435,19 +435,25 @@ class MobileMyRides extends React.Component {
             {this.renderRideSection(
               activeDrivingRides,
               "Active Rides",
-              `${activeDrivingRides.length} ongoing ride${activeDrivingRides.length !== 1 ? "s" : ""} with active sessions`,
+              `${activeDrivingRides.length} ongoing ride${
+                activeDrivingRides.length !== 1 ? "s" : ""
+              } with active sessions`,
               true,
             )}
             {this.renderRideSection(
               upcomingDrivingRides,
               "Upcoming Rides",
-              `${upcomingDrivingRides.length} scheduled ride${upcomingDrivingRides.length !== 1 ? "s" : ""} without sessions yet`,
+              `${upcomingDrivingRides.length} scheduled ride${
+                upcomingDrivingRides.length !== 1 ? "s" : ""
+              } without sessions yet`,
               true,
             )}
             {this.renderRideSection(
               pastDrivingRides,
               "Past Rides",
-              `${pastDrivingRides.length} completed ride${pastDrivingRides.length !== 1 ? "s" : ""} with finished sessions`,
+              `${pastDrivingRides.length} completed ride${
+                pastDrivingRides.length !== 1 ? "s" : ""
+              } with finished sessions`,
               true,
             )}
             {this.renderRideSection(
@@ -518,19 +524,25 @@ class MobileMyRides extends React.Component {
             {this.renderRideSection(
               activeRidingRides,
               "Active Rides",
-              `${activeRidingRides.length} ongoing ride${activeRidingRides.length !== 1 ? "s" : ""} with active sessions`,
+              `${activeRidingRides.length} ongoing ride${
+                activeRidingRides.length !== 1 ? "s" : ""
+              } with active sessions`,
               false,
             )}
             {this.renderRideSection(
               upcomingRidingRides,
               "Upcoming Rides",
-              `${upcomingRidingRides.length} scheduled ride${upcomingRidingRides.length !== 1 ? "s" : ""} without sessions yet`,
+              `${upcomingRidingRides.length} scheduled ride${
+                upcomingRidingRides.length !== 1 ? "s" : ""
+              } without sessions yet`,
               false,
             )}
             {this.renderRideSection(
               pastRidingRides,
               "Past Rides",
-              `${pastRidingRides.length} completed ride${pastRidingRides.length !== 1 ? "s" : ""} with finished sessions`,
+              `${pastRidingRides.length} completed ride${
+                pastRidingRides.length !== 1 ? "s" : ""
+              } with finished sessions`,
               false,
             )}
             {this.renderRideSection(
