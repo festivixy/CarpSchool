@@ -169,7 +169,8 @@ Meteor.methods({
       const isDriver = ride.driver === this.userId;
       const isRider = ride.riders.includes(this.userId);
       const currentUser = await Meteor.users.findOneAsync(this.userId);
-      const isAdmin = currentUser?.roles?.includes("admin");
+      const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+      const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
 
       if (!isDriver && !isRider && !isAdmin) {
         throw new Meteor.Error("not-authorized", "Not authorized to send notifications for this ride");
@@ -278,8 +279,9 @@ Meteor.methods({
 
     // Only admins can run cleanup
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser?.roles?.includes("admin")) {
-      throw new Meteor.Error("not-authorized", "Admin access required");
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
+    if (!await isSystemAdmin(this.userId)) {
+      throw new Meteor.Error("not-authorized", "System admin access required");
     }
 
     try {
@@ -307,7 +309,8 @@ Meteor.methods({
   async "notifications.getStats"() {
     // Only admins can get stats
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser?.roles?.includes("admin")) {
+    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+    if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
       throw new Meteor.Error("not-authorized", "Admin access required");
     }
 
