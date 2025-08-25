@@ -3,11 +3,38 @@ import { check } from "meteor/check";
 import { Schools } from "./Schools";
 
 /**
- * Publish all active schools (public info only)
+ * Publish schools accessible to current user
  */
-Meteor.publish("schools.active", function publishActiveSchools() {
+Meteor.publish("schools.active", async function publishActiveSchools() {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  const user = await Meteor.users.findOneAsync(this.userId);
+  if (!user) {
+    return this.ready();
+  }
+
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+
+  let query = { isActive: true };
+
+  if (await isSystemAdmin(this.userId)) {
+    // System admins can see all schools
+    query = { isActive: true };
+  } else if (await isSchoolAdmin(this.userId)) {
+    // School admins can only see their own school
+    query = { _id: user.schoolId, isActive: true };
+  } else {
+    // Regular users can only see their own school
+    if (!user.schoolId) {
+      return this.ready(); // User has no school assigned
+    }
+    query = { _id: user.schoolId, isActive: true };
+  }
+
   return Schools.find(
-    { isActive: true },
+    query,
     {
       fields: {
         name: 1,

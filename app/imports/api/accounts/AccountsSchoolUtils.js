@@ -37,10 +37,16 @@ export async function userBelongsToSchool(userId, schoolId) {
 export async function validateSchoolAccess(userId, schoolId) {
   const user = await Meteor.users.findOneAsync(userId);
 
-  // Admins can access any school
+  // System admins can access any school, school admins only their own
   const { isSystemAdmin, isSchoolAdmin } = await import("./RoleUtils");
-  if (await isSystemAdmin(userId) || await isSchoolAdmin(userId)) {
+  if (await isSystemAdmin(userId)) {
     return true;
+  } else if (await isSchoolAdmin(userId)) {
+    // School admins can only access their own school
+    if (user?.schoolId === schoolId) {
+      return true;
+    }
+    throw new Meteor.Error("access-denied", "School admins can only access data from their own school");
   }
 
   // Users can only access their own school
@@ -62,10 +68,13 @@ export async function getSchoolFilter(userId = null) {
 
   const user = await Meteor.users.findOneAsync(currentUserId);
 
-  // Admins can see all schools if no specific school filter
+  // System admins can see all schools, school admins only their own
   const { isSystemAdmin, isSchoolAdmin } = await import("./RoleUtils");
-  if (await isSystemAdmin(currentUserId) || await isSchoolAdmin(currentUserId)) {
-    return {}; // No filter for admins
+  if (await isSystemAdmin(currentUserId)) {
+    return {}; // No filter for system admins
+  } else if (await isSchoolAdmin(currentUserId)) {
+    // School admins can only see their own school
+    return { _id: user.schoolId };
   }
 
   // Regular users can only see their school

@@ -79,11 +79,34 @@ Meteor.methods({
   },
 
   /**
-   * List all active schools
+   * List schools accessible to current user
    */
   async "schools.list"() {
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
+    if (!currentUser) {
+      throw new Meteor.Error("not-logged-in", "Please log in first");
+    }
+
+    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+
+    let query = { isActive: true };
+
+    if (await isSystemAdmin(this.userId)) {
+      // System admins can see all schools
+      query = { isActive: true };
+    } else if (await isSchoolAdmin(this.userId)) {
+      // School admins can only see their own school
+      query = { _id: currentUser.schoolId, isActive: true };
+    } else {
+      // Regular users can only see their own school
+      if (!currentUser.schoolId) {
+        return []; // User has no school assigned
+      }
+      query = { _id: currentUser.schoolId, isActive: true };
+    }
+
     const schools = await Schools.find(
-      { isActive: true },
+      query,
       {
         sort: { name: 1 },
         fields: { name: 1, shortName: 1, code: 1, location: 1 },

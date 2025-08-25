@@ -153,9 +153,15 @@ Meteor.methods({
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
 
-    const result = await RateLimit.removeAsync({
-      updatedAt: { $lt: cutoffDate },
-    });
+    // Build query with school filtering for school admins
+    let query = { updatedAt: { $lt: cutoffDate } };
+
+    if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
+      const currentUser = await Meteor.users.findOneAsync(this.userId);
+      query.schoolId = currentUser.schoolId;
+    }
+
+    const result = await RateLimit.removeAsync(query);
 
     return { removedCount: result };
   },

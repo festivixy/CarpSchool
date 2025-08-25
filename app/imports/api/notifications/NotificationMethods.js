@@ -315,24 +315,35 @@ Meteor.methods({
     }
 
     try {
+      // Build school filter query
+      let query = {};
+      let tokenQuery = { isActive: true };
+
+      if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
+        // School admins can only see stats from their school
+        query.schoolId = currentUser.schoolId;
+        tokenQuery.schoolId = currentUser.schoolId;
+      }
+
       const stats = {
-        total: await Notifications.find({}).countAsync(),
+        total: await Notifications.find(query).countAsync(),
         byStatus: {},
         byType: {},
         last24Hours: await Notifications.find({
+          ...query,
           createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
         }).countAsync(),
-        activeTokens: await PushTokens.find({ isActive: true }).countAsync(),
+        activeTokens: await PushTokens.find(tokenQuery).countAsync(),
       };
 
       // Get counts by status
       for (const status of Object.values(NOTIFICATION_STATUS)) {
-        stats.byStatus[status] = await Notifications.find({ status }).countAsync();
+        stats.byStatus[status] = await Notifications.find({ ...query, status }).countAsync();
       }
 
       // Get counts by type
       for (const type of Object.values(NOTIFICATION_TYPES)) {
-        stats.byType[type] = await Notifications.find({ type }).countAsync();
+        stats.byType[type] = await Notifications.find({ ...query, type }).countAsync();
       }
 
       return stats;

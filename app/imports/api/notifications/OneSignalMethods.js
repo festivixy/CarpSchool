@@ -105,6 +105,19 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized", "Admin access required for segment notifications");
     }
 
+    // School admins can only send to their own school
+    if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
+      // Ensure filters include school restriction
+      if (!filters.some(filter => filter.field === "tag" && filter.key === "schoolId" && filter.value === currentUser.schoolId)) {
+        filters.push({
+          field: "tag",
+          key: "schoolId",
+          value: currentUser.schoolId,
+          relation: "="
+        });
+      }
+    }
+
     try {
       const notification = {
         title,
@@ -137,6 +150,15 @@ Meteor.methods({
     const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
     if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
       throw new Meteor.Error("not-authorized", "Admin access required for notification statistics");
+    }
+
+    // School admins can only access stats for notifications from their school
+    if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
+      const { Notifications } = await import("./Notifications");
+      const notification = await Notifications.findOneAsync(notificationId);
+      if (!notification || notification.schoolId !== currentUser.schoolId) {
+        throw new Meteor.Error("access-denied", "You can only access stats for notifications from your school");
+      }
     }
 
     try {
