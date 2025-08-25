@@ -1269,9 +1269,9 @@ export default withRouter(
     }
 
     return {
-      places: Places.find({}).fetch(),
+      places: Places.find({}).fetch(), // Places are already filtered by publication
       rideSessions,
-      users: Meteor.users.find({}).fetch(),
+      users: Meteor.users.find({ _id: { $in: uniqueUserIds } }).fetch(), // Only subscribed users
       ready: rideSessionsSubscription.ready() && usersSubscription.ready(),
     };
   })(Ride),

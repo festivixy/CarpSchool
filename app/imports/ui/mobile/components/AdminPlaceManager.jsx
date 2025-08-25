@@ -492,8 +492,8 @@ export default withTracker(() => {
   const usersSubscription = Meteor.subscribe("AllUsers");
 
   return {
-    places: Places.find({}, { sort: { text: 1 } }).fetch(),
-    users: Meteor.users.find({}).fetch(),
+    places: Places.find({}, { sort: { text: 1 } }).fetch(), // Places already filtered by publication
+    users: Meteor.users.find({}).fetch(), // Users already filtered by AllUsers publication
     ready: placesSubscription.ready() && usersSubscription.ready(),
   };
 })(AdminPlaceManager);
