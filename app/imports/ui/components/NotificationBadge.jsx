@@ -164,7 +164,7 @@ const NotificationBadge = ({
                 <div style={{ fontSize: "48px", marginBottom: "16px" }}>📭</div>
                 <h4 style={{ margin: "0 0 8px 0", color: "#666" }}>No notifications</h4>
                 <p style={{ margin: 0, color: "#999", fontSize: "14px" }}>
-                  You're all caught up!
+                  You&apos;re all caught up!
                 </p>
               </div>
             </EmptyState>

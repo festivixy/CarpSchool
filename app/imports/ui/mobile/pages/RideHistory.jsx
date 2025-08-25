@@ -83,7 +83,7 @@ class RideHistory extends React.Component {
             <NotFoundIcon>📋</NotFoundIcon>
             <NotFoundTitle>History Not Available</NotFoundTitle>
             <NotFoundMessage>
-              This ride history is not available or you don't have permission to view it.
+              This ride history is not available or you don&apos;t have permission to view it.
             </NotFoundMessage>
           </NotFound>
 
@@ -274,7 +274,7 @@ export default withRouter(
       ready: sessionsSubscription.ready() && ridesSubscription.ready() && usersSubscription.ready(),
       session,
       ride,
-      users: Meteor.users.find({}).fetch(),
+      users: Meteor.users.find({}).fetch(), // Users already filtered by publication
     };
   })(RideHistory),
 );

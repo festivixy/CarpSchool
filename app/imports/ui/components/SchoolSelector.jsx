@@ -151,7 +151,7 @@ class SchoolSelector extends Component {
 
         {filteredSchools.length === 0 && searchTerm && (
           <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>
-            No schools found matching "{searchTerm}"
+            No schools found matching &quot;{searchTerm}&quot;
           </div>
         )}
 

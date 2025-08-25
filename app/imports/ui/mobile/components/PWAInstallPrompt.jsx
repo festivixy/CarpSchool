@@ -199,7 +199,7 @@ const PWAInstallPrompt = () => {
                 in the browser address bar,
               </li>
               <li>
-                <p>Click 'Add to Home Screen'.</p>
+                <p>Click &apos;Add to Home Screen&apos;.</p>
               </li>
             </ol>
           </IOSInstructions>
@@ -213,7 +213,7 @@ const PWAInstallPrompt = () => {
         )}
 
         <SkipButton onClick={hideInstallPrompt}>
-          I'm fine, I'll just view it in my browser.
+          I&apos;m fine, I&apos;ll just view it in my browser.
         </SkipButton>
       </ModalContent>
     </ModalOverlay>
