@@ -252,8 +252,6 @@ services:
 #                         CHANGE THIS IN PRODUCTION!
 #
 # CodePush Configuration:
-# CODEPUSH_MYSQL_PASSWORD - MySQL password for CodePush (default: codepush123)
-# CODEPUSH_MYSQL_ROOT_PASSWORD - MySQL root password (default: rootpass123)
 # CODEPUSH_JWT_KEY - JWT encryption key for CodePush (CHANGE IN PRODUCTION!)
 # CODEPUSH_SESSION_SECRET - Session secret for CodePush (CHANGE IN PRODUCTION!)
 #                          CHANGE ALL CODEPUSH SECRETS IN PRODUCTION!
