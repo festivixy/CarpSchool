@@ -144,6 +144,12 @@ services:
     environment:
       - NODE_ENV=production
       - DOWNLOAD_URL=https://codepush.carp.school/download
+      - CONFIG_FILE=/config.js
+      - DB_HOST=codepush-mysql
+      - DB_PORT=3306
+      - DB_USERNAME=codepush
+      - DB_PASSWORD=${CODEPUSH_MYSQL_PASSWORD:-codepush123}
+      - DB_NAME=codepush
       - MYSQL_HOST=codepush-mysql
       - MYSQL_PORT=3306
       - MYSQL_USERNAME=codepush
