@@ -163,7 +163,6 @@ services:
     volumes:
       - ./codepush_storage:/data/storage
       - ./codepush_tmp:/data/tmp
-      - ./codepush-config.js:/config.js:ro
     depends_on:
       codepush-mysql:
         condition: service_healthy
