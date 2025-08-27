@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # CodePush Setup Helper Script
-# Compatible with official Docker deployment documentation
-# Supports both Docker Compose and Docker Swarm deployment methods
+# Docker Compose deployment for CodePush server
 
 set -e
 
@@ -13,18 +12,13 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration variables
-COMPOSE_PROJECT_NAME="code-push-server"
-DEPLOYMENT_MODE="${DEPLOYMENT_MODE:-compose}" # compose or swarm
-
 echo -e "${BLUE}🚀 CodePush Server Setup Helper${NC}"
-echo -e "${YELLOW}Deployment Mode: ${DEPLOYMENT_MODE}${NC}"
 echo ""
 
 # Function to check if Docker is running
 check_docker() {
     if ! docker info >/dev/null 2>&1; then
-        echo -e "${RED}��� Docker is not running. Please start Docker first.${NC}"
+        echo -e "${RED}❌ Docker is not running. Please start Docker first.${NC}"
         exit 1
     fi
     echo -e "${GREEN}✅ Docker is running${NC}"
@@ -33,7 +27,7 @@ check_docker() {
 # Function to check and generate JWT token
 check_jwt_config() {
     echo -e "${BLUE}🔐 Checking JWT configuration...${NC}"
-    
+
     if grep -q "INSERT_RANDOM_TOKEN_KEY" codepush-config.js; then
         echo -e "${RED}⚠️  WARNING: JWT token is not configured!${NC}"
         echo -e "${YELLOW}The JWT tokenSecret is still set to placeholder value.${NC}"
@@ -50,23 +44,11 @@ check_jwt_config() {
     fi
 }
 
-# Function to initialize Docker Swarm (for swarm mode)
-init_swarm() {
-    if [ "$DEPLOYMENT_MODE" = "swarm" ]; then
-        echo -e "${BLUE}🐝 Initializing Docker Swarm...${NC}"
-        if ! docker node ls >/dev/null 2>&1; then
-            echo -e "${YELLOW}Swarm not initialized. Initializing now...${NC}"
-            sudo docker swarm init
-            echo -e "${GREEN}✅ Docker Swarm initialized${NC}"
-        else
-            echo -e "${GREEN}✅ Docker Swarm already initialized${NC}"
-        fi
-    fi
-}
 
-# Function to start CodePush services (Docker Compose mode)
-start_codepush_compose() {
-    echo -e "${BLUE}🔄 Starting CodePush services (Docker Compose)...${NC}"
+
+# Function to start CodePush services
+start_codepush() {
+    echo -e "${BLUE}🔄 Starting CodePush services...${NC}"
 
     # Start only CodePush related services
     docker compose up -d codepush-mysql codepush-redis codepush-server
@@ -82,44 +64,23 @@ start_codepush_compose() {
     fi
 }
 
-# Function to start CodePush services (Docker Swarm mode)
-start_codepush_swarm() {
-    echo -e "${BLUE}🔄 Starting CodePush services (Docker Swarm)...${NC}"
-    
-    # Deploy stack using official method
-    sudo docker stack deploy -c docker-compose.yml $COMPOSE_PROJECT_NAME
-    
-    echo -e "${YELLOW}⏳ Waiting for services to be ready...${NC}"
-    echo -e "${YELLOW}This may take a while for first-time setup...${NC}"
-    sleep 60
-    
-    # Check service status
-    sudo docker service ls | grep $COMPOSE_PROJECT_NAME
-}
-
-# Function to get deployment keys (updated for current database structure)
+# Function to get deployment keys
 get_deployment_keys() {
     echo -e "${BLUE}🔑 Retrieving deployment keys...${NC}"
 
-    if [ "$DEPLOYMENT_MODE" = "compose" ]; then
-        # Wait for MySQL to be ready and run query to get keys
-        # Note: Using empty password since MYSQL_ALLOW_EMPTY_PASSWORD="On"
-        docker compose exec codepush-mysql mysql -u codepush -D codepush -e "
-            SELECT
-                a.name as app_name,
-                a.os,
-                a.platform,
-                d.name as deployment_name,
-                d.deployment_key
-            FROM apps a
-            JOIN deployments d ON a.id = d.appid
-            ORDER BY a.platform, a.name, d.name;
-        " 2>/dev/null || echo -e "${YELLOW}⚠️  Could not retrieve keys. Database may still be initializing or no apps created yet.${NC}"
-    else
-        # For swarm mode, need to find the actual container
-        echo -e "${YELLOW}⚠️  Manual key retrieval needed in swarm mode.${NC}"
-        echo -e "${YELLOW}Use CodePush web interface to view keys: http://localhost:3000${NC}"
-    fi
+    # Wait for MySQL to be ready and run query to get keys
+    # Note: Using empty password since MYSQL_ALLOW_EMPTY_PASSWORD="On"
+    docker compose exec codepush-mysql mysql -u codepush -D codepush -e "
+        SELECT
+            a.name as app_name,
+            a.os,
+            a.platform,
+            d.name as deployment_name,
+            d.deployment_key
+        FROM apps a
+        JOIN deployments d ON a.id = d.appid
+        ORDER BY a.platform, a.name, d.name;
+    " 2>/dev/null || echo -e "${YELLOW}⚠️  Could not retrieve keys. Database may still be initializing or no apps created yet.${NC}"
 }
 
 # Function to show CodePush status
@@ -127,55 +88,39 @@ show_status() {
     echo -e "${BLUE}📊 CodePush Server Status${NC}"
     echo ""
 
-    if [ "$DEPLOYMENT_MODE" = "compose" ]; then
-        # Docker Compose status
-        echo -e "${YELLOW}Docker Compose Services:${NC}"
-        docker compose ps codepush-server codepush-mysql codepush-redis
-        echo ""
+    # Docker Compose status
+    echo -e "${YELLOW}Docker Services:${NC}"
+    docker compose ps codepush-server codepush-mysql codepush-redis
+    echo ""
 
-        # Check if server is accessible
-        if curl -s http://localhost:3000/ >/dev/null 2>&1; then
-            echo -e "${GREEN}✅ CodePush server is accessible at http://localhost:3000${NC}"
-        else
-            echo -e "${YELLOW}⚠️  CodePush server not accessible directly.${NC}"
-        fi
-
-        # Check if server is accessible through proxy
-        if curl -s http://localhost:40064/ >/dev/null 2>&1; then
-            echo -e "${GREEN}✅ CodePush server is accessible through proxy at http://localhost:40064${NC}"
-            echo -e "${GREEN}🌐 Will be available at https://codepush.carp.school (when proxied)${NC}"
-        else
-            echo -e "${YELLOW}⚠️  CodePush server not accessible through proxy.${NC}"
-            echo -e "${YELLOW}💡 Try: docker compose up -d service-proxy${NC}"
-        fi
+    # Check if server is accessible
+    if curl -s http://localhost:3000/ >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ CodePush server is accessible at http://localhost:3000${NC}"
     else
-        # Docker Swarm status
-        echo -e "${YELLOW}Docker Swarm Services:${NC}"
-        sudo docker service ls | grep $COMPOSE_PROJECT_NAME
-        echo ""
-        echo -e "${YELLOW}Service Details:${NC}"
-        sudo docker service ps ${COMPOSE_PROJECT_NAME}_codepush-server 2>/dev/null || true
-        sudo docker service ps ${COMPOSE_PROJECT_NAME}_codepush-mysql 2>/dev/null || true
-        sudo docker service ps ${COMPOSE_PROJECT_NAME}_codepush-redis 2>/dev/null || true
+        echo -e "${YELLOW}⚠️  CodePush server not accessible directly.${NC}"
+    fi
+
+    # Check if server is accessible through proxy
+    if curl -s http://localhost:40064/ >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ CodePush server is accessible through proxy at http://localhost:40064${NC}"
+        echo -e "${GREEN}🌐 Will be available at https://codepush.carp.school (when proxied)${NC}"
+    else
+        echo -e "${YELLOW}⚠️  CodePush server not accessible through proxy.${NC}"
+        echo -e "${YELLOW}💡 Try: docker compose up -d service-proxy${NC}"
     fi
 
     echo ""
 
     # Show configuration
     echo -e "${YELLOW}Configuration:${NC}"
-    if [ "$DEPLOYMENT_MODE" = "compose" ]; then
-        echo -e "Direct Access: http://localhost:3000"
-        echo -e "Proxy Port: 40064 (http://localhost:40064)"
-        echo -e "External URL: https://codepush.carp.school"
-    else
-        echo -e "Access: http://YOUR_SERVER_IP:3000"
-        echo -e "Note: Update DOWNLOAD_URL in docker-compose.yml for external access"
-    fi
-    echo -e "Admin Credentials: admin / 123456 (default from official docs)"
+    echo -e "Direct Access: http://localhost:3000"
+    echo -e "Proxy Port: 40064 (http://localhost:40064)"
+    echo -e "External URL: https://codepush.carp.school"
+    echo -e "Admin Credentials: admin / 123456 (default)"
     echo -e "Data Directory: ./codepush_storage"
     echo -e "MySQL Database: codepush (user: codepush, no password)"
     echo ""
-    
+
     echo -e "${RED}🔐 SECURITY REMINDERS:${NC}"
     echo -e "1. Change default admin password after first login"
     echo -e "2. Update JWT tokenSecret in codepush-config.js"
@@ -185,27 +130,15 @@ show_status() {
 
 # Function to stop services
 stop_codepush() {
-    if [ "$DEPLOYMENT_MODE" = "compose" ]; then
-        echo -e "${BLUE}🛑 Stopping CodePush services (Docker Compose)...${NC}"
-        docker compose stop codepush-server codepush-mysql codepush-redis
-        echo -e "${GREEN}✅ CodePush services stopped${NC}"
-    else
-        echo -e "${BLUE}🛑 Stopping CodePush services (Docker Swarm)...${NC}"
-        sudo docker stack rm $COMPOSE_PROJECT_NAME
-        echo -e "${GREEN}✅ CodePush stack removed${NC}"
-        echo -e "${YELLOW}Note: To leave swarm completely: sudo docker swarm leave --force${NC}"
-    fi
+    echo -e "${BLUE}🛑 Stopping CodePush services...${NC}"
+    docker compose stop codepush-server codepush-mysql codepush-redis
+    echo -e "${GREEN}✅ CodePush services stopped${NC}"
 }
 
 # Function to show logs
 show_logs() {
     echo -e "${BLUE}📋 CodePush Server Logs (Press Ctrl+C to exit)${NC}"
-    
-    if [ "$DEPLOYMENT_MODE" = "compose" ]; then
-        docker compose logs -f codepush-server
-    else
-        sudo docker service logs -f ${COMPOSE_PROJECT_NAME}_codepush-server
-    fi
+    docker compose logs -f codepush-server
 }
 
 # Function to reset data
@@ -214,18 +147,8 @@ reset_data() {
     read -p "Are you sure? Type 'yes' to continue: " confirm
     if [ "$confirm" = "yes" ]; then
         echo -e "${BLUE}🗑️  Resetting CodePush data...${NC}"
-        
-        if [ "$DEPLOYMENT_MODE" = "compose" ]; then
-            docker compose down codepush-server codepush-mysql codepush-redis
-            sudo rm -rf codepush_storage codepush_tmp codepush_mysql_data codepush_redis_data
-        else
-            sudo docker stack rm $COMPOSE_PROJECT_NAME
-            echo -e "${YELLOW}Waiting for services to shut down...${NC}"
-            sleep 30
-            # In swarm mode, volumes are managed differently
-            sudo docker volume rm $(sudo docker volume ls -q | grep $COMPOSE_PROJECT_NAME) 2>/dev/null || true
-        fi
-        
+        docker compose down codepush-server codepush-mysql codepush-redis
+        sudo rm -rf codepush_storage codepush_tmp codepush_mysql_data codepush_redis_data
         echo -e "${GREEN}✅ CodePush data reset${NC}"
         echo -e "${YELLOW}💡 Run '$0 start' to initialize fresh services${NC}"
     else
@@ -246,20 +169,17 @@ show_usage() {
     echo -e "  ${GREEN}logs${NC}      - Show CodePush server logs"
     echo -e "  ${GREEN}reset${NC}     - Reset database and storage (DANGER!)"
     echo ""
-    echo -e "${GREEN}Environment Variables:${NC}"
-    echo -e "  ${GREEN}DEPLOYMENT_MODE${NC} - Set to 'compose' (default) or 'swarm'"
-    echo ""
     echo -e "${YELLOW}Examples:${NC}"
-    echo -e "  $0 start                           # Start with Docker Compose"
-    echo -e "  DEPLOYMENT_MODE=swarm $0 start     # Start with Docker Swarm"
-    echo -e "  $0 keys                            # Get deployment keys"
-    echo -e "  $0 logs                            # Show server logs"
+    echo -e "  $0 start                    # Start CodePush services"
+    echo -e "  $0 keys                     # Get deployment keys"
+    echo -e "  $0 logs                     # Show server logs"
+    echo -e "  $0 status                   # Check service health"
     echo ""
-    echo -e "${YELLOW}Official Documentation Compatibility:${NC}"
-    echo -e "  - Supports both Docker Compose and Docker Swarm deployment"
+    echo -e "${YELLOW}Features:${NC}"
+    echo -e "  - Docker Compose deployment"
     echo -e "  - Uses admin:123456 default credentials (change after setup!)"
     echo -e "  - Compatible with official code-push-server Docker images"
-    echo -e "  - Follows official volume storage patterns"
+    echo -e "  - Local volume storage for persistence"
     echo ""
 }
 
@@ -268,12 +188,7 @@ case "${1:-status}" in
     "start")
         check_docker
         check_jwt_config
-        if [ "$DEPLOYMENT_MODE" = "swarm" ]; then
-            init_swarm
-            start_codepush_swarm
-        else
-            start_codepush_compose
-        fi
+        start_codepush
         echo ""
         echo -e "${GREEN}🎉 CodePush services started!${NC}"
         echo -e "${YELLOW}💡 Run '$0 keys' to get deployment keys${NC}"
@@ -285,14 +200,7 @@ case "${1:-status}" in
         ;;
     "restart")
         echo -e "${BLUE}🔄 Restarting CodePush services...${NC}"
-        if [ "$DEPLOYMENT_MODE" = "compose" ]; then
-            docker compose restart codepush-server codepush-mysql codepush-redis
-        else
-            # For swarm, we need to update the service
-            sudo docker service update --force ${COMPOSE_PROJECT_NAME}_codepush-server
-            sudo docker service update --force ${COMPOSE_PROJECT_NAME}_codepush-mysql
-            sudo docker service update --force ${COMPOSE_PROJECT_NAME}_codepush-redis
-        fi
+        docker compose restart codepush-server codepush-mysql codepush-redis
         echo -e "${GREEN}✅ CodePush services restarted${NC}"
         ;;
     "status")
