@@ -3,7 +3,7 @@ config.development = {
   // Config for database, only support mysql.
   db: {
     username: process.env.MYSQL_USERNAME,
-    password: process.env.MYSQL_PASSWORD,
+    password: process.env.MYSQL_PASSWORD || null,
     database: process.env.MYSQL_DATABASE,
     host: process.env.MYSQL_HOST,
     port: process.env.MYSQL_PORT || 3306,

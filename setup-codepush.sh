@@ -69,7 +69,7 @@ get_deployment_keys() {
     echo -e "${BLUE}🔑 Retrieving deployment keys...${NC}"
 
     # Wait for MySQL to be ready and run query to get keys
-    # Note: Using empty password since MYSQL_ALLOW_EMPTY_PASSWORD="On"
+    # Note: Using no password since MYSQL_ALLOW_EMPTY_PASSWORD="On"
     docker compose exec codepush-mysql mysql -u codepush -D codepush -e "
         SELECT
             a.name as app_name,
@@ -118,7 +118,7 @@ show_status() {
     echo -e "External URL: https://codepush.carp.school"
     echo -e "Admin Credentials: admin / 123456 (default)"
     echo -e "Data Directory: ./codepush_storage"
-    echo -e "MySQL Database: codepush (user: codepush, no password)"
+    echo -e "MySQL Database: codepush (user: codepush, no password required)"
     echo ""
 
     echo -e "${RED}🔐 SECURITY REMINDERS:${NC}"

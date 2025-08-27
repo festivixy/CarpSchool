@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS `codepush`;
 
-GRANT SELECT,UPDATE,INSERT ON `codepush`.* TO 'codepush'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
+GRANT SELECT,UPDATE,INSERT ON `codepush`.* TO 'codepush'@'%' WITH GRANT OPTION;
 
 flush privileges;
 

@@ -148,7 +148,6 @@ services:
       - MYSQL_HOST=codepush-mysql
       - MYSQL_PORT=3306
       - MYSQL_USERNAME=codepush
-      - MYSQL_PASSWORD="123456"
       - MYSQL_DATABASE=codepush
       - STORAGE_DIR=/data/storage
       - DATA_DIR=/data/tmp
@@ -186,7 +185,7 @@ services:
     networks:
       - carpool_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "codepush", "-p${CODEPUSH_MYSQL_PASSWORD:-codepush123}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 30s
       timeout: 10s
       retries: 3
