@@ -113,8 +113,8 @@ CREATE TABLE IF NOT EXISTS `user_sessions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Insert default admin user
-INSERT IGNORE INTO `users` (`username`, `password`, `email`) VALUES 
-('admin', '$2b$10$N9qo8uLOickgx2ZMRZoMye1234567890abcdefghijklmnopqrstuvwxyz', 'admin@carp.school');
+INSERT IGNORE INTO `users` (`username`, `password`, `email`) VALUES
+('admin', '$2b$10$N9qo8uLOickgx2ZMRZoMye.2l9HE1gZKWXz.3FULjyRVDGrNSILWK', 'admin@carp.school');
 
 -- Insert default apps for CarpSchool
 SET @admin_id = (SELECT id FROM users WHERE username = 'admin');

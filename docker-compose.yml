@@ -139,7 +139,7 @@ services:
       start_period: 30s
 
   codepush-server:
-    image: tablee/code-push-server:v0.5.2
+    image: tablee/code-push-server:latest
     container_name: codepush-server
     environment:
       - NODE_ENV=production
