@@ -143,12 +143,8 @@ services:
     container_name: codepush-server
     environment:
       - NODE_ENV=production
+      - CONFIG_FILE=/config.js
       - DOWNLOAD_URL=https://codepush.carp.school/download
-      - DB_HOST=codepush-mysql
-      - DB_PORT=3306
-      - DB_USERNAME=codepush
-      - DB_PASSWORD=${CODEPUSH_MYSQL_PASSWORD:-codepush123}
-      - DB_NAME=codepush
       - MYSQL_HOST=codepush-mysql
       - MYSQL_PORT=3306
       - MYSQL_USERNAME=codepush
@@ -158,11 +154,11 @@ services:
       - DATA_DIR=/data/tmp
       - REDIS_HOST=codepush-redis
       - REDIS_PORT=6379
-      - JWT_ENCRYPT_KEY=${CODEPUSH_JWT_KEY:-your-secret-key-change-in-production}
-      - SESSION_SECRET=${CODEPUSH_SESSION_SECRET:-your-session-secret-change-in-production}
+      - JWT_TOKEN_SECRET=${CODEPUSH_JWT_KEY:-carp-school-codepush-jwt-secret-key-change-in-production-2024}
     volumes:
       - ./codepush_storage:/data/storage
       - ./codepush_tmp:/data/tmp
+      - ./codepush-config.js:/config.js
     depends_on:
       codepush-mysql:
         condition: service_healthy

@@ -1,106 +1,93 @@
 var config = {};
-
-// Server Configuration
-config.env = "production";
-config.port = 3000;
-config.host = "0.0.0.0";
-
-// Database Configuration
-config.db = {
-  username: process.env.MYSQL_USERNAME || "codepush",
-  password: process.env.MYSQL_PASSWORD || "codepush123",
-  database: process.env.MYSQL_DATABASE || "codepush",
-  host: process.env.MYSQL_HOST || "codepush-mysql",
-  port: parseInt(process.env.MYSQL_PORT) || 3306,
-  dialect: "mysql",
-  timezone: "+00:00",
-  logging: false,
-  operatorsAliases: false,
-  pool: {
-    max: 10,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
+config.development = {
+  // Config for database, only support mysql.
+  db: {
+    username: process.env.MYSQL_USERNAME || process.env.RDS_USERNAME,
+    password: process.env.MYSQL_PASSWORD || process.env.RDS_PASSWORD,
+    database: process.env.MYSQL_DATABASE || process.env.DATA_BASE,
+    host: process.env.MYSQL_HOST || process.env.RDS_HOST,
+    port: process.env.MYSQL_PORT || 3306,
+    dialect: "mysql",
+    logging: false,
+    operatorsAliases: false,
+  },
+  // Config for local storage when storageType value is "local".
+  local: {
+    // Binary files storage dir, Do not use tmpdir and it's public download dir.
+    storageDir: process.env.STORAGE_DIR,
+    // Binary files download host address which Code Push Server listen to. the files storage in storageDir.
+    downloadUrl: process.env.DOWNLOAD_URL,
+    // public static download spacename.
+    public: '/download'
+  },
+  jwt: {
+    // Recommended: 63 random alpha-numeric characters
+    // Generate using: https://www.grc.com/passwords.htm
+    tokenSecret: process.env.JWT_TOKEN_SECRET || 'carp-school-codepush-jwt-secret-key-change-in-production-2024'
+  },
+  common: {
+    /*
+     * tryLoginTimes is control login error times to avoid force attack.
+     * if value is 0, no limit for login auth, it may not safe for account. when it's a number, it means you can
+     * try that times today. but it need config redis server.
+     */
+    tryLoginTimes: 4,
+    // CodePush Web(https://github.com/lisong/code-push-web) login address.
+    //codePushWebUrl: "http://127.0.0.1:3001/login",
+    // create patch updates's number. default value is 3
+    diffNums: 3,
+    // data dir for caclulate diff files. it's optimization.
+    dataDir: process.env.DATA_DIR,
+    // storageType which is your binary package files store. options value is ("local" | "qiniu" | "s3")
+    storageType: "local",
+    // options value is (true | false), when it's true, it will cache updateCheck results in redis.
+    updateCheckCache: false,
+    // options value is (true | false), when it's true, it will cache rollout results in redis
+    rolloutClientUniqueIdCache: false,
+  },
+  // Config for smtp email，register module need validate user email project source https://github.com/nodemailer/nodemailer
+  smtpConfig:{
+    host: "smtp.mail.me.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USERNAME || "",
+      pass: process.env.SMTP_PASSWORD || ""
+    }
+  },
+  // Config for redis (register module, tryLoginTimes module)
+  redis: {
+    default: {
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT || 6379,
+      retry_strategy: function (options) {
+        if (options.error.code === 'ECONNREFUSED') {
+          // End reconnecting on a specific error and flush all commands with a individual error
+          return new Error('The server refused the connection');
+        }
+        if (options.total_retry_time > 1000 * 60 * 60) {
+            // End reconnecting after a specific timeout and flush all commands with a individual error
+            return new Error('Retry time exhausted');
+        }
+        if (options.times_connected > 10) {
+            // End reconnecting with built in error
+            return undefined;
+        }
+        // reconnect after
+        return Math.max(options.attempt * 100, 3000);
+      }
+    }
   }
-};
+}
 
-// Redis Configuration
-config.redis = {
-  host: process.env.REDIS_HOST || "codepush-redis",
-  port: parseInt(process.env.REDIS_PORT) || 6379,
-  db: 0,
-  password: process.env.REDIS_PASSWORD || "",
-  lazyConnect: true
-};
-
-// Storage Configuration
-config.storageDir = process.env.STORAGE_DIR || "/data/storage";
-config.dataDir = process.env.DATA_DIR || "/data/tmp";
-config.downloadUrl = process.env.DOWNLOAD_URL || "https://codepush.carp.school/download";
-
-// Security Configuration
-config.jwt = {
-  iss: "CarPoolCodePush",
-  secret: process.env.JWT_ENCRYPT_KEY || "your-secret-key-change-in-production",
-  expiration: "10h"
-};
-
-config.session = {
-  secret: process.env.SESSION_SECRET || "your-session-secret-change-in-production",
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    secure: false, // Set to true when using HTTPS (will be proxied)
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+config.development.log4js = {
+  appenders: {console: { type: 'console'}},
+  categories : {
+    "default": { appenders: ['console'], level:'error'},
+    "startup": { appenders: ['console'], level:'info'},
+    "http": { appenders: ['console'], level:'info'}
   }
-};
+}
 
-// CORS Configuration (for web interface)
-config.cors = {
-  origin: [
-    "https://codepush.carp.school",
-    "https://carp.school",
-    "http://localhost:3000",
-    "http://localhost:8084"
-  ],
-  credentials: true
-};
-
-// Upload Configuration
-config.upload = {
-  maxFileSize: 50 * 1024 * 1024, // 50MB
-  allowedExtensions: [".zip", ".js", ".json", ".html", ".css", ".png", ".jpg", ".svg"]
-};
-
-// Logging Configuration
-config.log = {
-  level: "info",
-  format: "combined"
-};
-
-// App Configuration
-config.app = {
-  name: "CarpSchool CodePush",
-  description: "CodePush server for CarpSchool mobile app",
-  defaultUser: {
-    username: "admin",
-    password: "carpschool123", // CHANGE IN PRODUCTION
-    email: "admin@carp.school"
-  }
-};
-
-// Client Configuration
-config.client = {
-  updateCheckUrl: process.env.DOWNLOAD_URL || "https://codepush.carp.school/download",
-  updateDownloadUrl: process.env.DOWNLOAD_URL || "https://codepush.carp.school/download"
-};
-
-// Feature Flags
-config.features = {
-  enableAnalytics: true,
-  enableMetrics: true,
-  enableRollback: true,
-  enableTargeting: true
-};
-
+config.production = Object.assign({}, config.development);
 module.exports = config;
