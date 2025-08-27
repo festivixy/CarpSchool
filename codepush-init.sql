@@ -1,150 +1,198 @@
--- CodePush MySQL Database Initialization Script
--- This script sets up the initial database structure for CodePush server
+CREATE DATABASE IF NOT EXISTS `codepush`;
 
-CREATE DATABASE IF NOT EXISTS codepush CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE codepush;
+GRANT SELECT,UPDATE,INSERT ON `codepush`.* TO 'codepush'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
 
--- Users table
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL UNIQUE,
-  `password` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL UNIQUE,
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+flush privileges;
 
--- Apps table
+use `codepush`;
 CREATE TABLE IF NOT EXISTS `apps` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` text,
-  `platform` enum('ios','android') NOT NULL,
-  `owner_id` int(11) NOT NULL,
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `uid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `os` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `platform` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `is_use_diff_text` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_app_name_platform` (`name`, `platform`),
-  KEY `owner_id` (`owner_id`),
-  FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `idx_name` (`name`(12))
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
--- Deployments table
+CREATE TABLE IF NOT EXISTS `collaborators` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `appid` int(10) unsigned NOT NULL DEFAULT '0',
+  `uid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `roles` varchar(20) NOT NULL DEFAULT '',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_appid` (`appid`),
+  KEY `idx_uid` (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE IF NOT EXISTS `deployments` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app_id` int(11) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `key` varchar(100) NOT NULL UNIQUE,
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `appid` int(10) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(20) NOT NULL DEFAULT '',
+  `description` varchar(500) NOT NULL DEFAULT '',
+  `deployment_key` varchar(64) NOT NULL,
+  `last_deployment_version_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `label_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_app_deployment` (`app_id`, `name`),
-  KEY `app_id` (`app_id`),
-  FOREIGN KEY (`app_id`) REFERENCES `apps` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `idx_appid` (`appid`),
+  KEY `idx_deploymentkey` (`deployment_key`(40))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Packages table
+CREATE TABLE IF NOT EXISTS `deployments_history` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `deployment_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `package_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_deployment_id` (`deployment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE IF NOT EXISTS `deployments_versions` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `deployment_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `app_version` varchar(100) NOT NULL DEFAULT '',
+  `current_package_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `min_version` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `max_version` bigint(20) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_did_minversion` (`deployment_id`,`min_version`),
+  KEY `idx_did_maxversion` (`deployment_id`,`max_version`),
+  KEY `idx_did_appversion` (`deployment_id`,`app_version`(30))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `packages` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `deployment_id` int(11) NOT NULL,
-  `description` text,
-  `package_hash` varchar(64) NOT NULL,
-  `blob_url` varchar(500) NOT NULL,
-  `size` bigint(20) NOT NULL,
-  `manifest_blob_url` varchar(500),
-  `released_by` int(11),
-  `label` varchar(20) NOT NULL,
-  `is_mandatory` boolean DEFAULT false,
-  `is_disabled` boolean DEFAULT false,
-  `rollout` int(3) DEFAULT 100,
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `deployment_version_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `deployment_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `description` varchar(500) NOT NULL DEFAULT '',
+  `package_hash` varchar(64) NOT NULL DEFAULT '',
+  `blob_url` varchar(255) NOT NULL DEFAULT '',
+  `size` int(11) unsigned NOT NULL DEFAULT '0',
+  `manifest_blob_url` varchar(255) NOT NULL DEFAULT '',
+  `release_method` varchar(20) NOT NULL DEFAULT '',
+  `label` varchar(20) NOT NULL DEFAULT '',
+  `original_label` varchar(20) NOT NULL DEFAULT '',
+  `original_deployment` varchar(20) NOT NULL DEFAULT '',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `released_by` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `is_mandatory` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `is_disabled` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `rollout` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `deployment_id` (`deployment_id`),
-  KEY `released_by` (`released_by`),
-  FOREIGN KEY (`deployment_id`) REFERENCES `deployments` (`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`released_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `idx_deploymentid_label` (`deployment_id`,`label`(8)),
+  KEY `idx_versions_id` (`deployment_version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Package diff table (for differential updates)
 CREATE TABLE IF NOT EXISTS `packages_diff` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `package_id` int(11) NOT NULL,
-  `diff_against_package_hash` varchar(64) NOT NULL,
-  `diff_blob_url` varchar(500) NOT NULL,
-  `diff_size` bigint(20) NOT NULL,
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `package_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `diff_against_package_hash` varchar(64) NOT NULL DEFAULT '',
+  `diff_blob_url` varchar(255) NOT NULL DEFAULT '',
+  `diff_size` int(11) unsigned NOT NULL DEFAULT '0',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `package_id` (`package_id`),
-  FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `idx_packageid_hash` (`package_id`,`diff_against_package_hash`(40))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Package metrics table
-CREATE TABLE IF NOT EXISTS `package_metrics` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `package_id` int(11) NOT NULL,
-  `app_version` varchar(20),
-  `deployment_id` int(11) NOT NULL,
-  `client_unique_id` varchar(100),
-  `label` varchar(20),
-  `status` enum('DeploymentSucceeded','DeploymentFailed','Downloaded') NOT NULL,
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE IF NOT EXISTS `packages_metrics` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `package_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `active` int(10) unsigned NOT NULL DEFAULT '0',
+  `downloaded` int(10) unsigned NOT NULL DEFAULT '0',
+  `failed` int(10) unsigned NOT NULL DEFAULT '0',
+  `installed` int(10) unsigned NOT NULL DEFAULT '0',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `package_id` (`package_id`),
-  KEY `deployment_id` (`deployment_id`),
-  KEY `status` (`status`),
-  KEY `created_at` (`created_at`),
-  FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`deployment_id`) REFERENCES `deployments` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `idx_packageid` (`package_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- User sessions table
-CREATE TABLE IF NOT EXISTS `user_sessions` (
-  `id` varchar(128) NOT NULL,
-  `user_id` int(11),
-  `expires` timestamp NULL,
-  `data` text,
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE IF NOT EXISTS `user_tokens` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `tokens` varchar(64) NOT NULL DEFAULT '',
+  `created_by` varchar(64) NOT NULL DEFAULT '',
+  `description` varchar(500) NOT NULL DEFAULT '',
+  `is_session` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `expires` (`expires`),
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `idx_uid` (`uid`),
+  KEY `idx_tokens` (`tokens`) KEY_BLOCK_SIZE=16
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Insert default admin user
-INSERT IGNORE INTO `users` (`username`, `password`, `email`) VALUES
-('admin', '$2b$10$N9qo8uLOickgx2ZMRZoMye.2l9HE1gZKWXz.3FULjyRVDGrNSILWK', 'admin@carp.school');
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL DEFAULT '',
+  `password` varchar(255) NOT NULL DEFAULT '',
+  `email` varchar(100) NOT NULL DEFAULT '',
+  `identical` varchar(10) NOT NULL DEFAULT '',
+  `ack_code` varchar(10) NOT NULL DEFAULT '',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `udx_identical` (`identical`),
+  KEY `udx_username` (`username`),
+  KEY `idx_email` (`email`) KEY_BLOCK_SIZE=20
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Insert default apps for CarpSchool
-SET @admin_id = (SELECT id FROM users WHERE username = 'admin');
+INSERT INTO `users` (`id`, `username`, `password`, `email`, `identical`, `ack_code`, `updated_at`, `created_at`)
+VALUES
+	(1,'admin','$2a$12$mvUY9kTqW4kSoGuZFDW0sOSgKmNY8SPHVyVrSckBTLtXKf6vKX3W.','lisong2010@gmail.com','4ksvOXqog','oZmGE','2016-11-14 10:46:55','2016-02-29 21:24:49');
 
-INSERT IGNORE INTO `apps` (`name`, `description`, `platform`, `owner_id`) VALUES 
-('CarpSchool-iOS', 'CarpSchool iOS Application', 'ios', @admin_id),
-('CarpSchool-Android', 'CarpSchool Android Application', 'android', @admin_id);
 
--- Create default deployments
-SET @ios_app_id = (SELECT id FROM apps WHERE name = 'CarpSchool-iOS');
-SET @android_app_id = (SELECT id FROM apps WHERE name = 'CarpSchool-Android');
+CREATE TABLE IF NOT EXISTS `versions` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '1.DBversion',
+  `version` varchar(10) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `udx_type` (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT IGNORE INTO `deployments` (`app_id`, `name`, `key`) VALUES 
-(@ios_app_id, 'Staging', CONCAT('ios-staging-', SUBSTRING(MD5(RAND()), 1, 20))),
-(@ios_app_id, 'Production', CONCAT('ios-production-', SUBSTRING(MD5(RAND()), 1, 20))),
-(@android_app_id, 'Staging', CONCAT('android-staging-', SUBSTRING(MD5(RAND()), 1, 20))),
-(@android_app_id, 'Production', CONCAT('android-production-', SUBSTRING(MD5(RAND()), 1, 20)));
+LOCK TABLES `versions` WRITE;
+INSERT INTO `versions` (`id`, `type`, `version`)
+VALUES
+	(1,1,'0.5.0');
+UNLOCK TABLES;
 
--- Create indexes for performance
-CREATE INDEX IF NOT EXISTS `idx_packages_hash` ON `packages` (`package_hash`);
-CREATE INDEX IF NOT EXISTS `idx_packages_label` ON `packages` (`label`);
-CREATE INDEX IF NOT EXISTS `idx_deployments_key` ON `deployments` (`key`);
-CREATE INDEX IF NOT EXISTS `idx_metrics_client` ON `package_metrics` (`client_unique_id`);
+CREATE TABLE IF NOT EXISTS `log_report_deploy` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `status` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `package_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `client_unique_id` varchar(100) NOT NULL DEFAULT '',
+  `previous_label` varchar(20) NOT NULL DEFAULT '',
+  `previous_deployment_key` varchar(64) NOT NULL DEFAULT '',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Show created deployment keys for reference
-SELECT 
-    a.name as app_name,
-    a.platform,
-    d.name as deployment_name,
-    d.key as deployment_key
-FROM apps a 
-JOIN deployments d ON a.id = d.app_id 
-ORDER BY a.platform, a.name, d.name;
+CREATE TABLE IF NOT EXISTS `log_report_download` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `package_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `client_unique_id` varchar(100) NOT NULL DEFAULT '',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

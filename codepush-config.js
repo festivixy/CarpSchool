@@ -2,10 +2,10 @@ var config = {};
 config.development = {
   // Config for database, only support mysql.
   db: {
-    username: process.env.MYSQL_USERNAME || process.env.RDS_USERNAME,
-    password: process.env.MYSQL_PASSWORD || process.env.RDS_PASSWORD,
-    database: process.env.MYSQL_DATABASE || process.env.DATA_BASE,
-    host: process.env.MYSQL_HOST || process.env.RDS_HOST,
+    username: process.env.MYSQL_USERNAME,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    host: process.env.MYSQL_HOST,
     port: process.env.MYSQL_PORT || 3306,
     dialect: "mysql",
     logging: false,
@@ -23,7 +23,7 @@ config.development = {
   jwt: {
     // Recommended: 63 random alpha-numeric characters
     // Generate using: https://www.grc.com/passwords.htm
-    tokenSecret: process.env.JWT_TOKEN_SECRET || 'carp-school-codepush-jwt-secret-key-change-in-production-2024'
+    tokenSecret: 'INSERT_RANDOM_TOKEN_KEY'
   },
   common: {
     /*
@@ -47,12 +47,12 @@ config.development = {
   },
   // Config for smtp email，register module need validate user email project source https://github.com/nodemailer/nodemailer
   smtpConfig:{
-    host: "smtp.mail.me.com",
-    port: 587,
-    secure: false,
+    host: "smtp.aliyun.com",
+    port: 465,
+    secure: true,
     auth: {
-      user: process.env.SMTP_USERNAME || "",
-      pass: process.env.SMTP_PASSWORD || ""
+      user: "",
+      pass: ""
     }
   },
   // Config for redis (register module, tryLoginTimes module)
