@@ -167,8 +167,8 @@ case $COMMAND in
         echo -e "${YELLOW}📱 Building and releasing iOS update to CodePush...${NC}"
 
         # Default app name (you can override with environment variable)
-        local ios_app_name="${CODEPUSH_IOS_APP:-CarpSchool-iOS}"
-        local deployment="${CODEPUSH_DEPLOYMENT:-Staging}"
+        ios_app_name="${CODEPUSH_IOS_APP:-CarpSchool-iOS}"
+        deployment="${CODEPUSH_DEPLOYMENT:-Staging}"
 
         echo -e "${BLUE}📝 CodePush Configuration:${NC}"
         echo -e "${YELLOW}📱 iOS App: $ios_app_name${NC}"
@@ -182,8 +182,8 @@ case $COMMAND in
         echo -e "${YELLOW}🤖 Building and releasing Android update to CodePush...${NC}"
 
         # Default app name (you can override with environment variable)
-        local android_app_name="${CODEPUSH_ANDROID_APP:-CarpSchool-Android}"
-        local deployment="${CODEPUSH_DEPLOYMENT:-Staging}"
+        android_app_name="${CODEPUSH_ANDROID_APP:-CarpSchool-Android}"
+        deployment="${CODEPUSH_DEPLOYMENT:-Staging}"
 
         echo -e "${BLUE}📝 CodePush Configuration:${NC}"
         echo -e "${YELLOW}🤖 Android App: $android_app_name${NC}"
