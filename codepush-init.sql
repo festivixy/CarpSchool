@@ -1,5 +1,6 @@
 CREATE DATABASE IF NOT EXISTS `codepush`;
 
+CREATE USER IF NOT EXISTS 'codepush'@'%';
 GRANT SELECT,UPDATE,INSERT ON `codepush`.* TO 'codepush'@'%' WITH GRANT OPTION;
 
 flush privileges;
