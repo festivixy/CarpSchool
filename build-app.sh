@@ -17,12 +17,19 @@
 # Environment Variables:
 #   READ_TIMEOUT           - Input timeout in seconds (default: 10s)
 #   CARPOOL_NONINTERACTIVE - Set to '1' for non-interactive mode
+#   CODEPUSH_IOS_APP       - iOS app name for CodePush (default: CarpSchool-iOS)
+#   CODEPUSH_ANDROID_APP   - Android app name for CodePush (default: CarpSchool-Android)
+#   CODEPUSH_DEPLOYMENT    - CodePush deployment name (default: Staging)
 #
 # Examples:
 #   ./build-app.sh server                                    # Build server bundle
 #   ./build-app.sh ios --server-url https://staging.carp.school  # Build iOS with custom server
 #   ./build-app.sh android --build-dir ../dist              # Build Android with custom directory
 #   ./build-app.sh all --build-dir ../production            # Build all platforms
+#   ./build-app.sh codepush-ios                              # Release iOS update to CodePush
+#   ./build-app.sh codepush-android                          # Release Android update to CodePush
+#   ./build-app.sh codepush-status                           # Check CodePush configuration
+#   CODEPUSH_IOS_APP=MyApp-iOS ./build-app.sh codepush-ios   # Custom iOS app name
 #   CARPOOL_NONINTERACTIVE=1 ./build-app.sh server          # Non-interactive server build
 
 set -e  # Exit on any error
@@ -158,14 +165,32 @@ case $COMMAND in
         ;;
     "codepush-ios")
         echo -e "${YELLOW}📱 Building and releasing iOS update to CodePush...${NC}"
-        # Example: Replace with your actual app name and deployment
-        codepush_build_and_release "ios" "CarpSchool-iOS" "Staging" "$BUILD_DIR" "$SERVER_URL" "" "iOS update from build script"
+
+        # Default app name (you can override with environment variable)
+        local ios_app_name="${CODEPUSH_IOS_APP:-CarpSchool-iOS}"
+        local deployment="${CODEPUSH_DEPLOYMENT:-Staging}"
+
+        echo -e "${BLUE}📝 CodePush Configuration:${NC}"
+        echo -e "${YELLOW}📱 iOS App: $ios_app_name${NC}"
+        echo -e "${YELLOW}🎯 Deployment: $deployment${NC}"
+        echo ""
+
+        codepush_build_and_release "ios" "$ios_app_name" "$deployment" "$BUILD_DIR" "$SERVER_URL" "" "iOS update from build script"
         ui_show_completion "iOS CodePush release" "Update released to CodePush server"
         ;;
     "codepush-android")
         echo -e "${YELLOW}🤖 Building and releasing Android update to CodePush...${NC}"
-        # Example: Replace with your actual app name and deployment
-        codepush_build_and_release "android" "CarpSchool-Android" "Staging" "$BUILD_DIR" "$SERVER_URL" "" "Android update from build script"
+
+        # Default app name (you can override with environment variable)
+        local android_app_name="${CODEPUSH_ANDROID_APP:-CarpSchool-Android}"
+        local deployment="${CODEPUSH_DEPLOYMENT:-Staging}"
+
+        echo -e "${BLUE}📝 CodePush Configuration:${NC}"
+        echo -e "${YELLOW}🤖 Android App: $android_app_name${NC}"
+        echo -e "${YELLOW}🎯 Deployment: $deployment${NC}"
+        echo ""
+
+        codepush_build_and_release "android" "$android_app_name" "$deployment" "$BUILD_DIR" "$SERVER_URL" "" "Android update from build script"
         ui_show_completion "Android CodePush release" "Update released to CodePush server"
         ;;
     "codepush-status")

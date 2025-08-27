@@ -102,6 +102,26 @@ codepush_extract_www() {
     echo -e "${GREEN}✅ www folder extracted to: $output_dir${NC}"
 }
 
+# Function to configure CodePush CLI for custom server
+codepush_configure_cli() {
+    local server_url="${1:-$DEFAULT_CODEPUSH_SERVER}"
+
+    echo -e "${BLUE}🔧 Configuring CodePush CLI for server: $server_url${NC}"
+
+    # Set the server URL for CodePush CLI
+    export CODE_PUSH_SERVER_URL="$server_url"
+
+    # Check if logged in
+    if ! code-push whoami &>/dev/null; then
+        echo -e "${YELLOW}⚠️  Not logged in to CodePush server${NC}"
+        echo -e "${YELLOW}💡 Please run: code-push login $server_url${NC}"
+        echo -e "${YELLOW}💡 Use credentials - Username: admin, Password: 123456${NC}"
+        return 1
+    fi
+
+    echo -e "${GREEN}✅ CLI configured and authenticated${NC}"
+}
+
 # Function to release update to CodePush server
 codepush_release_update() {
     local app_name="$1"
@@ -126,9 +146,11 @@ codepush_release_update() {
     echo -e "${YELLOW}🎯 Deployment: $deployment${NC}"
     echo -e "${YELLOW}🌐 Server: $codepush_server${NC}"
 
-    # Use code-push CLI to release the update
-    # Note: You'll need to configure the CLI to point to your self-hosted server
-    code-push release "$app_name" "$www_dir" "*" \
+    # Configure CLI for custom server
+    codepush_configure_cli "$codepush_server" || return 1
+
+    # Use code-push CLI to release the update for Cordova apps
+    code-push release-cordova "$app_name" "$platform" \
         --deploymentName "$deployment" \
         --description "$update_description" \
         --mandatory false \
@@ -136,6 +158,7 @@ codepush_release_update() {
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ Update released successfully${NC}"
+        echo -e "${YELLOW}📊 Check deployment status: code-push deployment history $app_name $deployment${NC}"
     else
         echo -e "${RED}❌ Failed to release update${NC}"
         return 1
@@ -157,28 +180,38 @@ codepush_build_and_release() {
         return 1
     fi
 
-    local temp_www="$build_dir/codepush-www"
+    local codepush_server="${server_url:-$DEFAULT_CODEPUSH_SERVER}"
+    local update_description="${description:-Meteor app update from build script}"
 
     echo -e "${BLUE}🔄 Building and releasing Meteor app for CodePush${NC}"
+    echo -e "${YELLOW}📱 App: $app_name${NC}"
+    echo -e "${YELLOW}🔧 Platform: $platform${NC}"
+    echo -e "${YELLOW}🎯 Deployment: $deployment${NC}"
+    echo -e "${YELLOW}🌐 Server: $codepush_server${NC}"
 
     # Set deployment key if provided
     if [ -n "$deployment_key" ]; then
         codepush_set_deployment_key "$platform" "$deployment" "$deployment_key"
     fi
 
-    # Build the app
-    codepush_build_meteor "$platform" "$build_dir" "$server_url" || return 1
+    # Configure CLI for custom server
+    codepush_configure_cli "$codepush_server" || return 1
 
-    # Extract www folder
-    codepush_extract_www "$platform" "$build_dir" "$temp_www" || return 1
+    # Release to CodePush (this will build automatically)
+    code-push release-cordova "$app_name" "$platform" \
+        --deploymentName "$deployment" \
+        --description "$update_description" \
+        --mandatory false \
+        --targetBinaryVersion "*"
 
-    # Release to CodePush
-    codepush_release_update "$app_name" "$platform" "$temp_www" "$deployment" "$description" "$server_url"
-
-    # Cleanup
-    rm -rf "$temp_www"
-
-    echo -e "${GREEN}✅ Build and release completed${NC}"
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ Build and release completed successfully${NC}"
+        echo -e "${YELLOW}📊 Check deployment status: code-push deployment history $app_name $deployment${NC}"
+        echo -e "${YELLOW}🎯 Admin panel: $codepush_server:40065${NC}"
+    else
+        echo -e "${RED}❌ Failed to build and release${NC}"
+        return 1
+    fi
 }
 
 # Function to show CodePush status
@@ -187,7 +220,7 @@ codepush_show_status() {
     echo ""
 
     # Check if CodePush plugin is installed
-    if grep -q "cordova-plugin-code-push" .meteor/cordova-plugins; then
+    if grep -q "cordova-plugin-code-push" .meteor/cordova-plugins 2>/dev/null; then
         echo -e "${GREEN}✅ CodePush plugin installed${NC}"
     else
         echo -e "${RED}❌ CodePush plugin not installed${NC}"
@@ -195,7 +228,7 @@ codepush_show_status() {
     fi
 
     # Check mobile-config.js configuration
-    if grep -q "CodePushDeploymentKey" mobile-config.js; then
+    if [ -f "mobile-config.js" ] && grep -q "CodePushDeploymentKey" mobile-config.js; then
         echo -e "${GREEN}✅ CodePush configured in mobile-config.js${NC}"
         local deployment_key=$(grep "CodePushDeploymentKey" mobile-config.js | sed 's/.*"\(.*\)".*/\1/')
         if [ -z "$deployment_key" ]; then
@@ -203,8 +236,15 @@ codepush_show_status() {
         else
             echo -e "${GREEN}🔑 Deployment key: $deployment_key${NC}"
         fi
+
+        # Check server URL configuration
+        if grep -q "CodePushServerURL" mobile-config.js; then
+            local server_url=$(grep "CodePushServerURL" mobile-config.js | sed 's/.*"\(.*\)".*/\1/')
+            echo -e "${GREEN}🌐 Server URL: $server_url${NC}"
+        fi
     else
         echo -e "${RED}❌ CodePush not configured in mobile-config.js${NC}"
+        echo -e "${YELLOW}💡 Add CodePush configuration to mobile-config.js${NC}"
     fi
 
     # Check if code-push CLI is installed
@@ -212,10 +252,34 @@ codepush_show_status() {
         echo -e "${GREEN}✅ CodePush CLI installed${NC}"
         local cli_version=$(code-push --version 2>/dev/null || echo "unknown")
         echo -e "${GREEN}📦 CLI Version: $cli_version${NC}"
+
+        # Check if logged in
+        if code-push whoami &>/dev/null; then
+            local whoami_output=$(code-push whoami 2>/dev/null)
+            echo -e "${GREEN}✅ Logged in as: $whoami_output${NC}"
+
+            # Try to list apps
+            echo ""
+            echo -e "${BLUE}📱 Available Apps:${NC}"
+            if code-push app list &>/dev/null; then
+                code-push app list
+            else
+                echo -e "${YELLOW}⚠️  Unable to list apps (check server connection)${NC}"
+            fi
+        else
+            echo -e "${YELLOW}⚠️  Not logged in to CodePush server${NC}"
+            echo -e "${YELLOW}💡 Run: code-push login $DEFAULT_CODEPUSH_SERVER${NC}"
+            echo -e "${YELLOW}💡 Use credentials - Username: admin, Password: 123456${NC}"
+        fi
     else
         echo -e "${RED}❌ CodePush CLI not installed${NC}"
         echo -e "${YELLOW}💡 Run: npm install -g code-push-cli${NC}"
     fi
 
+    echo ""
+    echo -e "${BLUE}🎯 Quick Commands:${NC}"
+    echo -e "${YELLOW}📱 iOS release: ./build-app.sh codepush-ios${NC}"
+    echo -e "${YELLOW}🤖 Android release: ./build-app.sh codepush-android${NC}"
+    echo -e "${YELLOW}🌐 Admin panel: $DEFAULT_CODEPUSH_SERVER:40065${NC}"
     echo ""
 }
