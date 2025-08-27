@@ -213,7 +213,8 @@ services:
       - "40060:8080"  # Nominatim
       - "40061:8082"  # Tileserver
       - "40062:8083"  # OSRM
-      - "40064:8084"  # CodePush
+      - "40064:8084"  # CodePush API (mobile clients only)
+      - "40065:8085"  # CodePush Admin (full access)
     volumes:
       - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -252,6 +253,8 @@ services:
 #                         CHANGE THIS IN PRODUCTION!
 #
 # CodePush Configuration:
+# Port 40064 - API only (for mobile clients) - Safe for public exposure
+# Port 40065 - Full access (admin panel) - Should be firewalled or VPN only
 # CODEPUSH_JWT_KEY - JWT encryption key for CodePush (CHANGE IN PRODUCTION!)
 # CODEPUSH_SESSION_SECRET - Session secret for CodePush (CHANGE IN PRODUCTION!)
 #                          CHANGE ALL CODEPUSH SECRETS IN PRODUCTION!
