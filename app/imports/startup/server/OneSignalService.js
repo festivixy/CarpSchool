@@ -250,33 +250,33 @@ class OneSignalServiceClass {
    */
   addPlatformSpecificSettings(baseNotification, notification) {
     // iOS specific settings
-    baseNotification.ios_badgeType = "Increase";
-    baseNotification.ios_badgeCount = 1;
+    baseNotification.ios_badgeType = "Increase"; // eslint-disable-line no-param-reassign
+    baseNotification.ios_badgeCount = 1; // eslint-disable-line no-param-reassign
 
     // Android specific settings - remove channel requirement for testing
     // baseNotification.android_channel_id = 'default';
     // baseNotification.existing_android_channel_id = 'default';
-    baseNotification.small_icon = "ic_stat_onesignal_default";
-    baseNotification.large_icon = "https://carp.school/icon-large.png";
+    baseNotification.small_icon = "ic_stat_onesignal_default"; // eslint-disable-line no-param-reassign
+    baseNotification.large_icon = "https://carp.school/icon-large.png"; // eslint-disable-line no-param-reassign
 
     // Web push settings
-    baseNotification.web_icon = "https://carp.school/icon-192x192.png";
-    baseNotification.web_badge = "https://carp.school/badge-72x72.png";
+    baseNotification.web_icon = "https://carp.school/icon-192x192.png"; // eslint-disable-line no-param-reassign
+    baseNotification.web_badge = "https://carp.school/badge-72x72.png"; // eslint-disable-line no-param-reassign
 
     // Add action buttons based on notification type
     if (notification.type && notification.data) {
-      baseNotification.buttons = this.getActionButtons(notification.type, notification.data);
+      baseNotification.buttons = this.getActionButtons(notification.type, notification.data); // eslint-disable-line no-param-reassign
     }
 
     // Add rich media if available
     if (notification.imageUrl) {
-      baseNotification.big_picture = notification.imageUrl;
-      baseNotification.ios_attachments = { id: notification.imageUrl };
+      baseNotification.big_picture = notification.imageUrl; // eslint-disable-line no-param-reassign
+      baseNotification.ios_attachments = { id: notification.imageUrl }; // eslint-disable-line no-param-reassign
     }
 
     // Schedule delivery if specified
     if (notification.sendAt) {
-      baseNotification.send_after = notification.sendAt.toISOString();
+      baseNotification.send_after = notification.sendAt.toISOString(); // eslint-disable-line no-param-reassign
     }
   }
 

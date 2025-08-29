@@ -238,11 +238,11 @@ class NotificationManager {
       // Determine platform if not provided
       if (!platform) {
         if (window.cordova) {
-          platform = window.device?.platform?.toLowerCase() || "unknown";
-          if (platform === "ios") platform = "ios";
-          else if (platform.includes("android")) platform = "android";
+          platform = window.device?.platform?.toLowerCase() || "unknown"; // eslint-disable-line no-param-reassign
+          if (platform === "ios") platform = "ios"; // eslint-disable-line no-param-reassign
+          else if (platform.includes("android")) platform = "android"; // eslint-disable-line no-param-reassign
         } else {
-          platform = "web";
+          platform = "web"; // eslint-disable-line no-param-reassign
         }
       }
 
