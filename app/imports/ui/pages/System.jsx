@@ -268,8 +268,8 @@ class SystemAdmin extends React.Component {
             <PreviewContent onClick={(e) => e.stopPropagation()}>
               <PreviewHeader>
                 <PreviewTitle>
-                  Preview: {previewType === "tos" ? "Terms of Service" :
-                           previewType === "privacy" ? "Privacy Policy" : "Credits"}
+                  Preview: {previewType === "tos" ? "Terms of Service" : // eslint-disable-line no-nested-ternary
+                           previewType === "privacy" ? "Privacy Policy" : "Credits" }
                 </PreviewTitle>
                 <CloseButton onClick={this.closePreview}>✕</CloseButton>
               </PreviewHeader>

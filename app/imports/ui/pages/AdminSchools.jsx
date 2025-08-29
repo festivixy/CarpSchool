@@ -414,7 +414,7 @@ class AdminSchools extends React.Component {
             </CreateButton>
           </TopActions>
 
-          {schools.length === 0 ? (
+          {schools.length === 0 ? ( // eslint-disable-line no-nested-ternary
             <EmptyState>
               <EmptyStateIcon>🏫</EmptyStateIcon>
               <EmptyStateTitle>No schools found</EmptyStateTitle>

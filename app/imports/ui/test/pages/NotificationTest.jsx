@@ -683,8 +683,8 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
           ) : (
             logs.map((log, index) => (
               <div key={index} className={log.type} style={{
-                color: log.type === "error" ? "#e53e3e" :
-                       log.type === "success" ? "#38a169" :
+                color: log.type === "error" ? "#e53e3e" : // eslint-disable-line no-nested-ternary
+                       log.type === "success" ? "#38a169" : // eslint-disable-line no-nested-ternary
                        log.type === "warning" ? "#d69e2e" : "#4a5568",
                 marginBottom: "4px",
                 fontFamily: "monospace",

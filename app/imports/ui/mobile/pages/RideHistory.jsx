@@ -166,7 +166,8 @@ class RideHistory extends React.Component {
                   <RiderProgressHeader>
                     <RiderProgressName>{this.getUsernameFromId(riderId)}</RiderProgressName>
                     <RiderProgressStatus completed={progress?.droppedOff}>
-                      {progress?.droppedOff ? "Completed" : progress?.pickedUp ? "Picked Up" : "Not Picked"}
+                      {progress?.droppedOff ? "Completed" : progress?.pickedUp ? "Picked Up" : "Not Picked"} {/* eslint-disable-line no-nested-ternary */}
+                       
                     </RiderProgressStatus>
                   </RiderProgressHeader>
                   <RiderProgressDetails>
