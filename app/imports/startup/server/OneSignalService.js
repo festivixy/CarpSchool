@@ -124,7 +124,7 @@ class OneSignalServiceClass {
             notification.notificationId,
             { id: "channel-warning" },
             true,
-            "Android channel not configured"
+            "Android channel not configured",
           );
         }
 

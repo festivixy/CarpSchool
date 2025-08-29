@@ -316,8 +316,8 @@ Meteor.methods({
 
     try {
       // Build school filter query
-      let query = {};
-      let tokenQuery = { isActive: true };
+      const query = {};
+      const tokenQuery = { isActive: true };
 
       if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
         // School admins can only see stats from their school

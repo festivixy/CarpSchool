@@ -113,7 +113,7 @@ Meteor.methods({
           field: "tag",
           key: "schoolId",
           value: currentUser.schoolId,
-          relation: "="
+          relation: "=",
         });
       }
     }

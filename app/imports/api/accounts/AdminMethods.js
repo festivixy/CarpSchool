@@ -3,7 +3,6 @@ import { check } from "meteor/check";
 import {
   isSystemAdmin,
   isSchoolAdmin,
-  canManageUser,
   addSchoolAdminRole,
   removeSchoolAdminRole,
   addSystemRole,

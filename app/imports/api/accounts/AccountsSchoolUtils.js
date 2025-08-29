@@ -41,7 +41,7 @@ export async function validateSchoolAccess(userId, schoolId) {
   const { isSystemAdmin, isSchoolAdmin } = await import("./RoleUtils");
   if (await isSystemAdmin(userId)) {
     return true;
-  } else if (await isSchoolAdmin(userId)) {
+  } if (await isSchoolAdmin(userId)) {
     // School admins can only access their own school
     if (user?.schoolId === schoolId) {
       return true;
@@ -72,7 +72,7 @@ export async function getSchoolFilter(userId = null) {
   const { isSystemAdmin, isSchoolAdmin } = await import("./RoleUtils");
   if (await isSystemAdmin(currentUserId)) {
     return {}; // No filter for system admins
-  } else if (await isSchoolAdmin(currentUserId)) {
+  } if (await isSchoolAdmin(currentUserId)) {
     // School admins can only see their own school
     return { _id: user.schoolId };
   }

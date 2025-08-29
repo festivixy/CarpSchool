@@ -221,7 +221,7 @@ Meteor.methods({
         await RideSessions.updateAsync(sessionId, { $set: updateData });
         throw new Meteor.Error(
           "verification-failed",
-          "Too many failed attempts. Code verification disabled for this rider."
+          "Too many failed attempts. Code verification disabled for this rider.",
         );
       }
 

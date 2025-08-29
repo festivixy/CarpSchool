@@ -154,7 +154,7 @@ Meteor.methods({
     cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
 
     // Build query with school filtering for school admins
-    let query = { updatedAt: { $lt: cutoffDate } };
+    const query = { updatedAt: { $lt: cutoffDate } };
 
     if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
       const currentUser = await Meteor.users.findOneAsync(this.userId);
