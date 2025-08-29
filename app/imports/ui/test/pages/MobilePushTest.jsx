@@ -316,7 +316,7 @@ const MobilePushTest = () => {
       {/* Setup Instructions */}
       <Section>
         <h3>📚 Mobile Setup Instructions</h3>
-        <div style={{ fontSize: "14px", lineHeight: "1.6", 
+        <div style={{ fontSize: "14px", lineHeight: "1.6",
           backgroundColor: "#f7fafc", padding: "16px", borderRadius: "8px" }}>
           <h4>For Firebase Mobile:</h4>
           <code style={{ display: "block", marginBottom: "8px" }}>

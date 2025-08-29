@@ -111,7 +111,7 @@ Meteor.methods({
       if (!filters.some(
         filter => filter.field === "tag" &&
         filter.key === "schoolId" &&
-        filter.value === currentUser.schoolId
+        filter.value === currentUser.schoolId,
       )) {
         filters.push({
           field: "tag",

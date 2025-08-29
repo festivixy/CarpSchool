@@ -151,7 +151,7 @@ export const testServerMethodAvailability = async () => {
     return { available: true, tested: true };
 
   } catch (error) {
-    if (error.error === 404 || error.reason?.includes("not found") || 
+    if (error.error === 404 || error.reason?.includes("not found") ||
     (error.reason?.includes("Method") && error.reason?.includes("not found"))) {
       return { available: false, reason: "Method not found - server restart needed" };
     }

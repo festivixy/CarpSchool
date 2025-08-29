@@ -268,10 +268,10 @@ export const validateSessionState = async (sessionId, requiredState) => {
 };
 
 export const validateLocationProximity = async (
-  driverId, 
-  riderId, 
-  location, 
-  maxDistance = 1000
+  driverId,
+  riderId,
+  location,
+  maxDistance = 1000,
 ) => { // eslint-disable-line no-unused-vars
   // This would require integration with your location tracking system
   // For now, we'll just validate that location coordinates are provided

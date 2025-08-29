@@ -51,7 +51,7 @@ class MobilePushNotificationManager {
       if (!window.FCMPlugin && !window.PushNotification) {
         console.warn(
           "[MobilePush] Firebase push plugin not found. " +
-          "Install: meteor add cordova:cordova-plugin-fcm-with-dependecy-updated"
+          "Install: meteor add cordova:cordova-plugin-fcm-with-dependecy-updated",
         );
         return;
       }
