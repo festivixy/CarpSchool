@@ -137,9 +137,9 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       addLog("🔍 Debugging ride notification setup...", "info");
 
       // Get current user info
-      const currentUser = Meteor.user();
-      addLog(`👤 Current user: ${currentUser?.username || "Unknown"} (${currentUser?._id || "No ID"})`, "info");
-      addLog(`🔑 User roles: [${currentUser?.roles?.join(", ") || "None"}]`, "info");
+      const currentMeteorUser = Meteor.user();
+      addLog(`👤 Current user: ${currentMeteorUser?.username || "Unknown"} (${currentMeteorUser?._id || "No ID"})`, "info");
+      addLog(`🔑 User roles: [${currentMeteorUser?.roles?.join(", ") || "None"}]`, "info");
 
       // Get user's rides
       const rides = await Meteor.callAsync("rides.getUserRides") || [];
@@ -159,12 +159,12 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       addLog(`  🎯 From: ${testRide.origin} → To: ${testRide.destination}`, "info");
 
       // Analyze permissions
-      const isDriver = testRide.driver === currentUser?._id;
-      const isRider = testRide.riders?.includes(currentUser?._id);
-      const isAdmin = isAdminRole(currentUser);
+      const isDriver = testRide.driver === currentMeteorUser?._id;
+      const isRider = testRide.riders?.includes(currentMeteorUser?._id);
+      const isAdmin = isAdminRole(currentMeteorUser);
 
       addLog("🔑 Permissions analysis:", "info");
-      addLog(`  - Is Driver: ${isDriver} (${testRide.driver} === ${currentUser?._id})`, isDriver ? "success" : "info");
+      addLog(`  - Is Driver: ${isDriver} (${testRide.driver} === ${currentMeteorUser?._id})`, isDriver ? "success" : "info");
       addLog(`  - Is Rider: ${isRider}`, isRider ? "success" : "info");
       addLog(`  - Is Admin: ${isAdmin}`, isAdmin ? "success" : "info");
 
@@ -179,7 +179,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
 
       // Show who would receive notifications
       const allParticipants = [testRide.driver, ...(testRide.riders || [])];
-      const recipients = allParticipants.filter(userId => userId !== currentUser?._id);
+      const recipients = allParticipants.filter(userId => userId !== currentMeteorUser?._id);
 
       addLog("📬 Notification recipients:", "info");
       addLog(`  - All participants: [${allParticipants.join(", ")}]`, "info");

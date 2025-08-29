@@ -295,7 +295,7 @@ class Ride extends React.Component {
     }
 
     // Find the session for this ride
-    const session = rideSessions.find(session => session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id && // eslint-disable-line no-shadow
       !session.finished);
 
     if (!session) {
@@ -315,7 +315,7 @@ class Ride extends React.Component {
     }
 
     // Find the active session for this ride
-    const session = rideSessions.find(session => session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id && // eslint-disable-line no-shadow
       session.status === "active" &&
       !session.finished);
 
@@ -341,7 +341,7 @@ class Ride extends React.Component {
     }
 
     // Find the active session for this ride
-    const session = rideSessions.find(session => session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id && // eslint-disable-line no-shadow
       session.status === "active" &&
       !session.finished);
 
@@ -365,7 +365,7 @@ class Ride extends React.Component {
     if (!currentUser) return false;
 
     // Find the active session for this ride
-    const session = rideSessions.find(session => session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id && // eslint-disable-line no-shadow
       (session.status === "active" || session.status === "created") &&
       !session.finished);
 
@@ -384,7 +384,7 @@ class Ride extends React.Component {
     if (!currentUser) return false;
 
     // Find the active session for this ride
-    const session = rideSessions.find(session => session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id && // eslint-disable-line no-shadow
       session.status === "active" &&
       !session.finished);
 
@@ -409,7 +409,7 @@ class Ride extends React.Component {
     if (!currentUser) return false;
 
     // Find any completed session for this ride
-    const session = rideSessions.find(session => session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id && // eslint-disable-line no-shadow
       (session.finished || session.status === "completed" || session.status === "cancelled"));
 
     if (!session) {
@@ -429,7 +429,7 @@ class Ride extends React.Component {
     const { ride, rideSessions } = this.props;
 
     // Find the completed session for this ride
-    const session = rideSessions.find(session => session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id && // eslint-disable-line no-shadow
       (session.finished || session.status === "completed" || session.status === "cancelled"));
 
     if (session) {
@@ -566,7 +566,7 @@ class Ride extends React.Component {
 
   getSessionId = () => {
     const { ride, rideSessions } = this.props;
-    const session = rideSessions.find(session => session.rideId === ride._id &&
+    const session = rideSessions.find(session => session.rideId === ride._id && // eslint-disable-line no-shadow
       !session.finished);
     return session ? session._id : null;
   };

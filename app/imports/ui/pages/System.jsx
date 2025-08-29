@@ -148,8 +148,8 @@ class SystemAdmin extends React.Component {
 
   getLastUpdated = (type) => {
     const { systemContent } = this.props;
-    const doc = systemContent.find(doc => doc.type === type);
-    return doc?.lastUpdated;
+    const doc_ = systemContent.find(doc => doc.type === type);
+    return doc_?.lastUpdated;
   };
 
   getCharacterCount = (content) => {

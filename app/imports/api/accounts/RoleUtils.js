@@ -50,7 +50,6 @@ export async function getUserAdminSchools(userId = null) {
 
   // System admins can admin all schools
   if (user.roles.includes("system")) {
-    const { Schools } = await import("../schools/Schools");
     const allSchools = await Schools.find({ isActive: true }).fetchAsync();
     return allSchools.map(school => school._id);
   }

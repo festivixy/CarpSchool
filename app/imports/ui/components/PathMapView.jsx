@@ -112,13 +112,13 @@ const PathMapView = ({
     try {
       // Use optimized routing service with caching
       const { getRoute } = await import("../utils/mapServices");
-      const routeData = await getRoute(start, end, { service: "driving" });
+      const routeDataRespone = await getRoute(start, end, { service: "driving" });
 
       return {
-        geometry: routeData.geometry,
-        distance: routeData.distance,
-        duration: routeData.duration,
-        service: routeData.service,
+        geometry: routeDataRespone.geometry,
+        distance: routeDataRespone.distance,
+        duration: routerouteDataResponeData.duration,
+        service: routeDataRespone.service,
       };
     } catch (routingError) {
       console.error("Optimized routing error:", routingError);
@@ -274,8 +274,8 @@ const PathMapView = ({
       if (mapInstanceRef.current) {
         try {
           mapInstanceRef.current.remove();
-        } catch (error) {
-          console.warn("Error removing map instance:", error);
+        } catch (e) {
+          console.warn("Error removing map instance:", e);
         } finally {
           mapInstanceRef.current = null;
           startMarkerRef.current = null;
