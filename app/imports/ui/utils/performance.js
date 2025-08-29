@@ -143,7 +143,8 @@ export const useRenderTracking = (componentName, props = {}) => {
 
     if (process.env.NODE_ENV === "development") {
       if (renderCount.current > 1 && timeSinceLastRender < 100) {
-        console.warn(`🔥 [Performance] ${componentName} rendered ${renderCount.current} times (last render ${timeSinceLastRender}ms ago)`, {
+        console.warn(`🔥 [Performance] ${componentName} rendered ` +
+          `${renderCount.current} times (last render ${timeSinceLastRender}ms ago)`, {
           props: Object.keys(props),
           renderCount: renderCount.current,
         });

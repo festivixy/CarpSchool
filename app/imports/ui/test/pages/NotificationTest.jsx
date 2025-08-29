@@ -369,7 +369,8 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
 
       // Check secure context
       const isSecure = window.isSecureContext || location.protocol === "https:" || location.hostname === "localhost";
-      addLog(`🔒 Secure context: ${isSecure ? "Yes" : "No"} (${location.protocol}//${location.hostname})`, isSecure ? "success" : "error");
+      addLog(`🔒 Secure context: ${isSecure ? "Yes" : "No"} ` +
+        `(${location.protocol}//${location.hostname})`, isSecure ? "success" : "error");
 
       if (!isSecure) {
         addLog("❌ Push notifications require HTTPS or localhost", "error");
@@ -503,7 +504,8 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       addLog(`  - Total registered devices: ${status.totalDevices}`, "info");
       addLog(`  - Current device ID: ${status.currentDevice.playerId || "Not registered"}`, "info");
       addLog(`  - Other devices: ${status.otherDevices.length}`, "info");
-      addLog(`  - Can receive notifications: ${status.canReceiveNotifications}`, status.canReceiveNotifications ? "success" : "warning");
+      addLog(`  - Can receive notifications: ${status.canReceiveNotifications}`, 
+        status.canReceiveNotifications ? "success" : "warning");
 
       if (status.currentDevice.deviceInfo) {
         const info = status.currentDevice.deviceInfo;
@@ -544,7 +546,8 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
         <h3>📊 Current Status</h3>
         <StatusDisplay>
           <div>👤 User: {currentUser?.username || "Not logged in"}</div>
-          <div>🔔 Notifications: {notifications.length} total, {notifications.filter(n => n.status !== "read").length} unread</div>
+          <div>🔔 Notifications: {notifications.length} total, 
+            {notifications.filter(n => n.status !== "read").length} unread</div>
           <div>📱 Push Tokens: {pushTokens.length} active</div>
           <div>🌐 Browser Permission: {(() => {
             if (typeof Notification === "undefined") {
@@ -711,13 +714,18 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
             const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
             if (isIOS && isSafari) {
               return (
-                <div style={{ marginTop: "12px", padding: "8px", backgroundColor: "#fff3cd", borderRadius: "4px", border: "1px solid #ffeaa7" }}>
+                <div style={{ marginTop: "12px", padding: "8px", 
+                backgroundColor: "#fff3cd", borderRadius: "4px", border: "1px solid #ffeaa7" }}>
                   <strong>📱 iOS Safari Users:</strong>
                   <ul style={{ marginTop: "8px", marginBottom: "8px", paddingLeft: "20px" }}>
-                    <li><strong>Add to Home Screen:</strong> Tap Share → Add to Home Screen for better notification support</li>
-                    <li><strong>Use OneSignal:</strong> OneSignal tests work better than native browser notifications</li>
-                    <li><strong>PWA Mode:</strong> Notifications work best when running as a Progressive Web App</li>
-                    <li><strong>iOS 12+:</strong> Requires iOS 12 or later for full notification support</li>
+                    <li><strong>Add to Home Screen:</strong> 
+                    Tap Share → Add to Home Screen for better notification support</li>
+                    <li><strong>Use OneSignal:</strong> 
+                    OneSignal tests work better than native browser notifications</li>
+                    <li><strong>PWA Mode:</strong> 
+                    Notifications work best when running as a Progressive Web App</li>
+                    <li><strong>iOS 12+:</strong> 
+                    Requires iOS 12 or later for full notification support</li>
                   </ul>
                 </div>
               );

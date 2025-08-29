@@ -108,7 +108,11 @@ Meteor.methods({
     // School admins can only send to their own school
     if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
       // Ensure filters include school restriction
-      if (!filters.some(filter => filter.field === "tag" && filter.key === "schoolId" && filter.value === currentUser.schoolId)) {
+      if (!filters.some(
+        filter => filter.field === "tag" &&
+        filter.key === "schoolId" &&
+        filter.value === currentUser.schoolId
+      )) {
         filters.push({
           field: "tag",
           key: "schoolId",

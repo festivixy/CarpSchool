@@ -496,7 +496,8 @@ class AdminSchools extends React.Component {
                           <DetailLabel>Location</DetailLabel>
                           <DetailValue>
                             {school.location?.coordinates
-                              ? `${school.location.coordinates.lat.toFixed(4)}, ${school.location.coordinates.lng.toFixed(4)}`
+                              ? `${school.location.coordinates.lat.toFixed(4)}, ` +
+                              `${school.location.coordinates.lng.toFixed(4)}`
                               : "Not set"
                             }
                           </DetailValue>
