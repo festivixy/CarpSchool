@@ -109,7 +109,7 @@ class PushNotificationServiceClass {
       const results = [];
 
       // Send to each platform
-      for (const tokenDoc of tokens) {
+      for (const tokenDoc of tokens) { // eslint-disable-line no-restricted-syntax
         try {
           const result = await this.sendToToken(tokenDoc, notification);
           results.push({

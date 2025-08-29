@@ -101,7 +101,7 @@ Meteor.methods({
       const notifications = [];
       const batchId = Random.id();
 
-      for (const userId of recipients) {
+      for (const userId of recipients) { // eslint-disable-line no-restricted-syntax
         const notificationData = NotificationHelpers.createNotification({
           userId,
           title,
@@ -333,12 +333,12 @@ Meteor.methods({
       };
 
       // Get counts by status
-      for (const status of Object.values(NOTIFICATION_STATUS)) {
+      for (const status of Object.values(NOTIFICATION_STATUS)) { // eslint-disable-line no-restricted-syntax
         stats.byStatus[status] = await Notifications.find({ ...query, status }).countAsync();
       }
 
       // Get counts by type
-      for (const type of Object.values(NOTIFICATION_TYPES)) {
+      for (const type of Object.values(NOTIFICATION_TYPES)) { // eslint-disable-line no-restricted-syntax
         stats.byType[type] = await Notifications.find({ ...query, type }).countAsync();
       }
 

@@ -67,7 +67,7 @@ Meteor.methods({
 
       // Set tags for all user devices
       const results = [];
-      for (const token of tokens) {
+      for (const token of tokens) { // eslint-disable-line no-restricted-syntax
         try {
           await OneSignalService.setUserTags(token.token, tags);
           results.push({ playerId: token.token, success: true });

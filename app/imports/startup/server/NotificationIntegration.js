@@ -18,7 +18,7 @@ if (Meteor.isServer) {
         // Rider joined
         if (oldRide.riders.length < newRide.riders.length) {
           const newRiders = newRide.riders.filter(rider => !oldRide.riders.includes(rider));
-          for (const riderName of newRiders) {
+          for (const riderName of newRiders) { // eslint-disable-line no-restricted-syntax
             await NotificationUtils.sendRiderJoined(newRide._id, riderName);
           }
         }
@@ -26,7 +26,7 @@ if (Meteor.isServer) {
         // Rider left
         if (oldRide.riders.length > newRide.riders.length) {
           const leftRiders = oldRide.riders.filter(rider => !newRide.riders.includes(rider));
-          for (const riderName of leftRiders) {
+          for (const riderName of leftRiders) { // eslint-disable-line no-restricted-syntax
             await Meteor.callAsync(
               "notifications.sendToRideParticipants",
               newRide._id,
@@ -93,7 +93,7 @@ if (Meteor.isServer) {
         if (newChat.Messages.length > oldChat.Messages.length) {
           const newMessages = newChat.Messages.slice(oldChat.Messages.length);
 
-          for (const message of newMessages) {
+          for (const message of newMessages) { // eslint-disable-line no-restricted-syntax
             // Skip system messages
             if (message.Sender === "System") continue;
 

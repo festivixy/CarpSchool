@@ -165,7 +165,7 @@ export const calculateDistanceInWorker = async (startCoord, endCoord) => {
 export const cleanupWorker = () => {
   if (worker) {
     // Cancel all pending messages
-    for (const { reject } of pendingMessages.values()) {
+    for (const { reject } of pendingMessages.values()) { // eslint-disable-line no-restricted-syntax
       reject(new Error("Worker cleanup - operation cancelled"));
     }
     pendingMessages.clear();

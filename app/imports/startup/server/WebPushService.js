@@ -109,7 +109,7 @@ class WebPushServiceClass {
       let failureCount = 0;
 
       // Send to all user's subscriptions
-      for (const sub of subscriptions) {
+      for (const sub of subscriptions) { // eslint-disable-line no-restricted-syntax
         try {
           const pushSubscription = JSON.parse(sub.token);
 
@@ -194,7 +194,7 @@ class WebPushServiceClass {
     let totalSuccess = 0;
     let totalFailure = 0;
 
-    for (const userId of userIds) {
+    for (const userId of userIds) { // eslint-disable-line no-restricted-syntax
       const result = await this.sendToUser(userId, notification);
       results.push({ userId, ...result });
 

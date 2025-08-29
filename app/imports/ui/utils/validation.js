@@ -26,7 +26,7 @@ const XSS_PATTERNS = [
 export const validateXSS = (value, helpers) => {
   if (!value) return value; // Allow empty values where permitted
 
-  for (const pattern of XSS_PATTERNS) {
+  for (const pattern of XSS_PATTERNS) { // eslint-disable-line no-restricted-syntax
     if (pattern.test(value)) {
       return helpers.error("string.xss", { value });
     }

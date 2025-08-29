@@ -167,7 +167,7 @@ For questions about this application or to report issues, please contact lz at k
 
     const results = [];
 
-    for (const [type, content] of Object.entries(defaultContents)) {
+    for (const [type, content] of Object.entries(defaultContents)) { // eslint-disable-line no-restricted-syntax
       // Check if content already exists
       const existingContent = await SystemContent.findOneAsync({ type });
 

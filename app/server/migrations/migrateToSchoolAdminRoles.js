@@ -33,7 +33,7 @@ export async function migrateAdminRolesToSchoolSpecific() {
     let migratedCount = 0;
     let systemAdminCount = 0;
 
-    for (const user of adminUsers) {
+    for (const user of adminUsers) { // eslint-disable-line no-restricted-syntax
       console.log(`Processing admin user: ${user.emails[0].address}`);
 
       // Remove old "admin" role

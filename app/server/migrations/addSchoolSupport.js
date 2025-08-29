@@ -63,7 +63,7 @@ export async function migrateUsersToSchool(defaultSchoolId) {
   console.log(`Found ${usersWithoutSchool.length} users without school assignment`);
 
   let migratedCount = 0;
-  for (const user of usersWithoutSchool) {
+  for (const user of usersWithoutSchool) { // eslint-disable-line no-restricted-syntax
     await Meteor.users.updateAsync(user._id, {
       $set: { schoolId: defaultSchoolId },
     });
@@ -83,7 +83,7 @@ export async function migrateRidesToSchool(defaultSchoolId) {
   console.log(`Found ${ridesWithoutSchool.length} rides without school assignment`);
 
   let migratedCount = 0;
-  for (const ride of ridesWithoutSchool) {
+  for (const ride of ridesWithoutSchool) { // eslint-disable-line no-restricted-syntax
     await Rides.updateAsync(ride._id, {
       $set: { schoolId: defaultSchoolId },
     });
@@ -103,7 +103,7 @@ export async function migratePlacesToSchool(defaultSchoolId) {
   console.log(`Found ${placesWithoutSchool.length} places without school assignment`);
 
   let migratedCount = 0;
-  for (const place of placesWithoutSchool) {
+  for (const place of placesWithoutSchool) { // eslint-disable-line no-restricted-syntax
     await Places.updateAsync(place._id, {
       $set: { schoolId: defaultSchoolId },
     });

@@ -88,7 +88,7 @@ const CacheManager = {
    */
   cleanup(cache, ttl) {
     const now = Date.now();
-    for (const [key, item] of cache.entries()) {
+    for (const [key, item] of cache.entries()) { // eslint-disable-line no-restricted-syntax
       if (now - item.timestamp > ttl) {
         cache.delete(key);
       }
@@ -359,10 +359,10 @@ export const MapServiceCache = {
    */
   clearAll() {
     // Cancel all active requests
-    for (const controller of activeSearchControllers.values()) {
+    for (const controller of activeSearchControllers.values()) { // eslint-disable-line no-restricted-syntax
       controller.abort();
     }
-    for (const controller of activeRouteControllers.values()) {
+    for (const controller of activeRouteControllers.values()) { // eslint-disable-line no-restricted-syntax
       controller.abort();
     }
 
