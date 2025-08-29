@@ -519,6 +519,7 @@ if (Meteor.isClient) {
 export { Notifications } from "../../api/notifications/Notifications";
 
 // Client-only exports - handled at module level
+// eslint-disable-next-line import/no-mutable-exports
 let NotificationCounts;
 if (Meteor.isClient) {
   // eslint-disable-next-line global-require
