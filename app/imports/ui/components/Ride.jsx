@@ -247,7 +247,6 @@ class Ride extends React.Component {
 
   canStartRide = () => {
     const { ride, rideSessions } = this.props;
-    const currentUser = Meteor.user();
 
     // Must be the driver
     if (!this.isCurrentUserDriver()) {
@@ -277,7 +276,7 @@ class Ride extends React.Component {
     // Get riders for the session
     const riders = ride.riders && Array.isArray(ride.riders) ? ride.riders : [];
 
-    Meteor.call("rideSessions.create", ride._id, Meteor.userId(), riders, (error, sessionId) => {
+    Meteor.call("rideSessions.create", ride._id, Meteor.userId(), riders, (error, _sessionId) => {
       this.setState({ isGenerating: false });
       if (error) {
         swal("Error", error.reason || error.message, "error");
@@ -506,7 +505,6 @@ class Ride extends React.Component {
   };
 
   handleShowCode = () => {
-    const { ride } = this.props;
     const currentUser = Meteor.user();
 
     if (!currentUser) return;
@@ -592,7 +590,6 @@ class Ride extends React.Component {
     const session = rideSessions.find(s => s._id === sessionId);
     if (!session) return;
 
-    const riderCodes = {};
     session.riders.forEach(riderId => {
       Meteor.call("rideSessions.getPickupCodeHint", sessionId, riderId, (error, result) => {
         if (!error && result) {

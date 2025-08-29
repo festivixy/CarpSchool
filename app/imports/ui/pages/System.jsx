@@ -109,7 +109,7 @@ class SystemAdmin extends React.Component {
 
     this.setState({ loading: true });
 
-    Meteor.call("system.updateContent", type, content, (error, result) => {
+    Meteor.call("system.updateContent", type, content, (error, _result) => {
       this.setState({ loading: false });
 
       if (error) {

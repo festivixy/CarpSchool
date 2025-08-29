@@ -268,7 +268,6 @@ Meteor.methods({
     const targetUserId = userId || this.userId;
 
     if (userId && userId !== this.userId) {
-      const currentUser = await Meteor.users.findOneAsync(this.userId);
       const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
       if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
         throw new Meteor.Error("not-authorized", "Can only test notifications for yourself unless admin");
@@ -333,7 +332,7 @@ export const OneSignalUtils = {
   /**
    * Clear ride tags when ride ends
    */
-  async clearRideTags(userId) {
+  async clearRideTags(userId) { // eslint-disable-line no-unused-vars
     try {
       await Meteor.callAsync("notifications.setUserTags", {
         currentRide: "",

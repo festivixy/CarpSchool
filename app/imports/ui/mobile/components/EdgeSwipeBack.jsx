@@ -23,8 +23,6 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
 
     // Configuration
     const EDGE_THRESHOLD = 20; // Pixels from edge to start gesture
-    const MIN_SWIPE_DISTANCE = 30; // Minimum distance for valid swipe
-    const MAX_SWIPE_DISTANCE = 250; // Maximum distance for valid swipe
     const MAX_SWIPE_TIME = 500; // Maximum time for gesture (ms)
     const MAX_VERTICAL_DRIFT = 100; // Maximum vertical movement allowed
 

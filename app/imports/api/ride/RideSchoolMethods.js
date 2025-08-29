@@ -1,7 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { Rides, RidesSchema } from "./Rides";
-import { getSchoolFilter, validateSchoolAccess, getCurrentUserSchool } from "../accounts/AccountsSchoolUtils";
+import { getSchoolFilter } from "../accounts/AccountsSchoolUtils";
 
 /**
  * Example of school-aware ride methods

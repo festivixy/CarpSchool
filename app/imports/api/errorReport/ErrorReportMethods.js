@@ -237,7 +237,6 @@ Meteor.methods({
     check(reportId, String);
 
     // Check system admin permissions
-    const currentUser = await Meteor.users.findOneAsync(this.userId);
     const { isSystemAdmin } = await import("../accounts/RoleUtils");
     if (!await isSystemAdmin(this.userId)) {
       throw new Meteor.Error("access-denied", "Only system administrators can delete error reports.");
@@ -257,7 +256,6 @@ Meteor.methods({
    */
   async "errorReports.getStats"() {
     // Check system admin permissions
-    const currentUser = await Meteor.users.findOneAsync(this.userId);
     const { isSystemAdmin } = await import("../accounts/RoleUtils");
     if (!await isSystemAdmin(this.userId)) {
       throw new Meteor.Error("access-denied", "Only system administrators can view error statistics.");

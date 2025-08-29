@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Meteor } from "meteor/meteor";
-import PropTypes from "prop-types";
 import { MobilePushHelpers } from "../../mobile/utils/MobilePushNotifications";
 import {
   Container,
@@ -189,22 +188,22 @@ const MobilePushTest = () => {
 
       const testRideId = `mobile-test-ride-${Date.now()}`;
 
-      const result = await Meteor.callAsync(
-"notifications.send",
-        [Meteor.userId()],
-        "🚗 Driver Arriving",
-        "Your test driver will arrive in 5 minutes",
-        {
-          type: "ride_update",
-          priority: "high",
-          data: {
-            rideId: testRideId,
-            action: "track_driver",
-            driverName: "Test Driver",
-            eta: 5,
-          },
-        },
-      );
+//       const result = await Meteor.callAsync(
+// "notifications.send",
+//         [Meteor.userId()],
+//         "🚗 Driver Arriving",
+//         "Your test driver will arrive in 5 minutes",
+//         {
+//           type: "ride_update",
+//           priority: "high",
+//           data: {
+//             rideId: testRideId,
+//             action: "track_driver",
+//             driverName: "Test Driver",
+//             eta: 5,
+//           },
+//         },
+//       );
 
       addLog("✅ Ride notification sent successfully!", "success");
       addLog(`🚗 Ride ID: ${testRideId}`, "info");

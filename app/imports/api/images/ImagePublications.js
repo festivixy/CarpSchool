@@ -4,7 +4,6 @@ import { Images } from "./Images";
 /** This subscription publishes image metadata (without image data) for admin users */
 Meteor.publish("ImagesMetadata", async function () {
   if (this.userId) {
-    const user = await Meteor.users.findOneAsync(this.userId);
     const { isSystemAdmin } = await import("../accounts/RoleUtils");
     if (await isSystemAdmin(this.userId)) {
       return Images.find(

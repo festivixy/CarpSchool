@@ -119,7 +119,6 @@ class AdminSchools extends React.Component {
   };
 
   handleDeactivate = (school) => {
-    const action = school.isActive ? "deactivate" : "reactivate";
     const actionText = school.isActive ? "deactivate" : "reactivate";
 
     swal({
@@ -231,7 +230,7 @@ class AdminSchools extends React.Component {
       },
     };
 
-    Meteor.call("schools.create", schoolData, (error, schoolId) => {
+    Meteor.call("schools.create", schoolData, (error, _schoolId) => {
       this.setState({ loading: false });
       if (error) {
         this.setState({ error: error.message });

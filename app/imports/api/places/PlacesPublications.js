@@ -107,7 +107,6 @@ Meteor.publish("places.options", async function publishPlaceOptions() {
   }
 
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
 
   let query;
 

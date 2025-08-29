@@ -60,7 +60,7 @@ Meteor.methods({
     }
 
     const currentUser = await Meteor.users.findOneAsync(this.userId);
-    const { isSystemAdmin, isSchoolAdmin, canManageUser } = await import("../accounts/RoleUtils");
+    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
 
     // Check if user can manage this place (same school or system admin)
     const canManagePlace = await isSystemAdmin(this.userId) ||
@@ -164,7 +164,6 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized", "You must be logged in");
     }
 
-    const currentUser = await Meteor.users.findOneAsync(this.userId);
     const { isSystemAdmin } = await import("../accounts/RoleUtils");
 
     if (!await isSystemAdmin(this.userId)) {

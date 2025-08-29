@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import { Notifications, PushTokens } from "../../../api/notifications/Notifications";
-import { NotificationHelpers, notificationManager } from "../../utils/notifications";
+import { notificationManager } from "../../utils/notifications";
 import { OneSignalHelpers, oneSignalManager } from "../../utils/oneSignalNotifications";
 import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import {

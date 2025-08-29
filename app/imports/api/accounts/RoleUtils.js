@@ -83,7 +83,7 @@ export async function canManageUser(managerId, targetUserId) {
 /**
  * Validate admin action permissions
  */
-export async function validateAdminAction(userId, targetSchoolId = null, action = "manage") {
+export async function validateAdminAction(userId, targetSchoolId = null, action = "manage") { // eslint-disable-line no-unused-vars
   const user = await Meteor.users.findOneAsync(userId);
 
   if (!user) {

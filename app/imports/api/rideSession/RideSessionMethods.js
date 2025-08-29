@@ -10,7 +10,6 @@ import {
   canDropoffRider,
   canModifyRideSession,
   validateRiderSequence,
-  validateSessionState,
   validateTimeConstraints,
 } from "./RideSessionsSafety";
 
@@ -302,7 +301,6 @@ Meteor.methods({
     }
 
     // Check if user is driver or the specific rider
-    const user = await Meteor.users.findOneAsync(userId);
     const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
     const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
     const isDriver = session.driverId === userId;
@@ -392,7 +390,6 @@ Meteor.methods({
       throw new Meteor.Error("not-found", "Session not found");
     }
 
-    const user = await Meteor.users.findOneAsync(userId);
     const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
     const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
     const isDriver = session.driverId === userId;
@@ -440,7 +437,6 @@ Meteor.methods({
     const userId = this.userId;
 
     // Check if user is system admin
-    const user = await Meteor.users.findOneAsync(userId);
     const { isSystemAdmin } = await import("../accounts/RoleUtils");
     if (!await isSystemAdmin(userId)) {
       throw new Meteor.Error("access-denied", "You must be a system admin to delete ride sessions");

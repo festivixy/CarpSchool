@@ -17,7 +17,7 @@ export const getCurrentLocation = async () =>
  * @param {Function} onError - Callback for errors
  * @returns {number} Watch ID for clearing the watch
  */
-export const watchLocation = (onSuccess, onError) => {
+export const watchLocation = (onSuccess, _onError) => {
   // Return dummy data for now
   const watchId = setInterval(() => {
     onSuccess({ lat: 0, lng: 0 });

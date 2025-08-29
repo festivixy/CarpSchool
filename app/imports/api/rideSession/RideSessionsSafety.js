@@ -1,4 +1,3 @@
-import { Meteor } from "meteor/meteor";
 import { RideSessions } from "./RideSession";
 import { Rides } from "../ride/Rides";
 
@@ -16,7 +15,6 @@ export const canCreateRideSession = async (userId, rideId, driverId, riders = []
   if (!ride) return { allowed: false, reason: "Ride not found" };
 
   // Check if user is the driver or an admin
-  const user = await Meteor.users.findOneAsync(userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = ride.driver === userId || driverId === userId;
@@ -46,7 +44,6 @@ export const canStartRideSession = async (userId, sessionId) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const user = await Meteor.users.findOneAsync(userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
@@ -72,7 +69,6 @@ export const canFinishRideSession = async (userId, sessionId) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const user = await Meteor.users.findOneAsync(userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
@@ -104,7 +100,6 @@ export const canCancelRideSession = async (userId, sessionId, reason) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const user = await Meteor.users.findOneAsync(userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
@@ -131,7 +126,6 @@ export const canPickupRider = async (userId, sessionId, riderId, location) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const user = await Meteor.users.findOneAsync(userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
@@ -166,7 +160,6 @@ export const canDropoffRider = async (userId, sessionId, riderId, location) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const user = await Meteor.users.findOneAsync(userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
@@ -203,7 +196,6 @@ export const canViewRideSession = async (userId, sessionId) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const user = await Meteor.users.findOneAsync(userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
@@ -222,7 +214,6 @@ export const canModifyRideSession = async (userId, sessionId) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const user = await Meteor.users.findOneAsync(userId);
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
   const isDriver = session.driverId === userId;
@@ -276,7 +267,7 @@ export const validateSessionState = async (sessionId, requiredState) => {
   return { allowed: true };
 };
 
-export const validateLocationProximity = async (driverId, riderId, location, maxDistance = 1000) => {
+export const validateLocationProximity = async (driverId, riderId, location, maxDistance = 1000) => { // eslint-disable-line no-unused-vars
   // This would require integration with your location tracking system
   // For now, we'll just validate that location coordinates are provided
   if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
@@ -289,7 +280,7 @@ export const validateLocationProximity = async (driverId, riderId, location, max
   return { allowed: true };
 };
 
-export const validateTimeConstraints = async (sessionId, action) => {
+export const validateTimeConstraints = async (sessionId, action) => { // eslint-disable-line no-unused-vars
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 

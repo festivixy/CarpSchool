@@ -21,15 +21,13 @@ import { usePWAInstall } from "../hooks/usePWAInstall";
 const PWAInstallPrompt = () => {
   const {
     isVisible,
-    canInstall,
-    hasBeenShown,
     isIOS,
     isMobile,
     isRunningAsPWA,
     hideInstallPrompt,
   } = usePWAInstall();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isInstallable, setIsInstallable] = useState(false);
+  const [setIsInstallable] = useState(false);
   const [buttonText, setButtonText] = useState("Loading app info...");
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [appInfo, setAppInfo] = useState({ name: "", logo: "" });

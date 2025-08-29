@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Meteor } from "meteor/meteor";
 import { Tracker } from "meteor/tracker";
 import { oneSignalManager, OneSignalHelpers } from "../utils/oneSignalNotifications";
@@ -15,7 +15,7 @@ import { oneSignalManager, OneSignalHelpers } from "../utils/oneSignalNotificati
  */
 const AutoSubscribeNotification = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [lastCheck, setLastCheck] = useState(null);
+  const [setLastCheck] = useState(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState({
     checked: false,
     subscribed: false,

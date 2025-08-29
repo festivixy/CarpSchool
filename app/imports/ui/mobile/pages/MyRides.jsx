@@ -145,7 +145,6 @@ class MobileMyRides extends React.Component {
         const rideDateOnly = new Date(rideDate.getFullYear(), rideDate.getMonth(), rideDate.getDate());
         const session = sessionMap[ride._id];
         const isPastDate = rideDateOnly < today;
-        const isFutureDate = rideDateOnly >= today;
 
         if (session) {
           // Ride has a session

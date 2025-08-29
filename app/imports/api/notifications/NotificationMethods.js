@@ -4,8 +4,6 @@ import { check, Match } from "meteor/check";
 import {
   Notifications,
   PushTokens,
-  NotificationsSchema,
-  PushTokenSchema,
   NOTIFICATION_TYPES,
   NOTIFICATION_PRIORITY,
   NOTIFICATION_STATUS,
@@ -168,7 +166,6 @@ Meteor.methods({
       // Verify user has permission to send notifications for this ride
       const isDriver = ride.driver === this.userId;
       const isRider = ride.riders.includes(this.userId);
-      const currentUser = await Meteor.users.findOneAsync(this.userId);
       const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
       const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
 
@@ -278,7 +275,6 @@ Meteor.methods({
     check(daysOld, Number);
 
     // Only admins can run cleanup
-    const currentUser = await Meteor.users.findOneAsync(this.userId);
     const { isSystemAdmin } = await import("../accounts/RoleUtils");
     if (!await isSystemAdmin(this.userId)) {
       throw new Meteor.Error("not-authorized", "System admin access required");

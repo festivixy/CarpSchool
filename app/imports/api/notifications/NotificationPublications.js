@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { check, Match } from "meteor/check";
+import { check } from "meteor/check";
 import { Notifications, PushTokens, NOTIFICATION_STATUS } from "./Notifications";
 
 // Server-side publications

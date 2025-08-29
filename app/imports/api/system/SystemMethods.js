@@ -56,7 +56,7 @@ Meteor.methods({
 
     if (existingContent) {
       // Update existing content
-      const result = await SystemContent.updateAsync(
+      await SystemContent.updateAsync(
         { type },
         { $set: contentData },
       );

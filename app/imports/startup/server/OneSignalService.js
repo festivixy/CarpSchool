@@ -283,7 +283,7 @@ class OneSignalServiceClass {
   /**
    * Get action buttons based on notification type
    */
-  getActionButtons(type, data) {
+  getActionButtons(type, data) { // eslint-disable-line no-unused-vars
     const buttonConfigs = {
       ride_update: [
         { id: "view_ride", text: "View Ride" },
@@ -347,18 +347,18 @@ class OneSignalServiceClass {
   async registerPlayerForUser(userId, playerId, deviceInfo = {}) {
     try {
       // Store player ID as a push token
-      const tokenData = {
-        userId,
-        token: playerId,
-        platform: "onesignal",
-        deviceInfo: {
-          ...deviceInfo,
-          oneSignalPlayerId: playerId,
-        },
-        isActive: true,
-        lastUsedAt: new Date(),
-        createdAt: new Date(),
-      };
+      // const tokenData = {
+      //   userId,
+      //   token: playerId,
+      //   platform: "onesignal",
+      //   deviceInfo: {
+      //     ...deviceInfo,
+      //     oneSignalPlayerId: playerId,
+      //   },
+      //   isActive: true,
+      //   lastUsedAt: new Date(),
+      //   createdAt: new Date(),
+      // };
 
       // Use upsert to handle both insert and update cases
       // This prevents duplicate key errors on the unique token index
