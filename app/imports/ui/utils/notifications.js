@@ -146,7 +146,7 @@ class NotificationManager {
       }
 
       // Check secure context requirement
-      if (!window.isSecureContext && location.protocol !== "https:" && location.hostname !== "localhost") {
+      if (!window.isSecureContext && window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
         const error = `Push notifications require HTTPS or localhost. Current URL: ${window.location.href}`;
         console.error("[Notifications]", error);
         throw new Error(error);

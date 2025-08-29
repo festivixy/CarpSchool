@@ -214,8 +214,8 @@ class OneSignalManager {
     }
 
     // Add screen info
-    if (screen) {
-      info.screenResolution = `${screen.width}x${screen.height}`;
+    if (window.screen) {
+      info.screenResolution = `${window.screen.width}x${window.screen.height}`;
     }
 
     return info;

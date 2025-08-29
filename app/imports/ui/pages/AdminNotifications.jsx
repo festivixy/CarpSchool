@@ -136,7 +136,7 @@ const AdminNotifications = ({ stats, notifications, ready, currentUser }) => {
   };
 
   const handleCleanup = async () => {
-    if (!confirm("This will delete old notifications. Continue?")) {
+    if (!window.confirm("This will delete old notifications. Continue?")) {
       return;
     }
 

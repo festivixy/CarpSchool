@@ -368,9 +368,9 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       }
 
       // Check secure context
-      const isSecure = window.isSecureContext || location.protocol === "https:" || location.hostname === "localhost";
+      const isSecure = window.isSecureContext || window.location.protocol === "https:" || window.location.hostname === "localhost";
       addLog(`🔒 Secure context: ${isSecure ? "Yes" : "No"} ` +
-        `(${location.protocol}//${location.hostname})`, isSecure ? "success" : "error");
+        `(${window.location.protocol}//${window.location.hostname})`, isSecure ? "success" : "error");
 
       if (!isSecure) {
         addLog("❌ Push notifications require HTTPS or localhost", "error");
