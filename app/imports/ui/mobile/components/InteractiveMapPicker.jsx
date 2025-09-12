@@ -48,18 +48,18 @@ const InteractiveMapPicker = React.memo(({
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
+  // Memoize initial coordinates to prevent unnecessary recalculations
+  const initialCoordinates = useMemo(() => ({
+    lat: selectedLocation?.lat || initialLat,
+    lng: selectedLocation?.lng || initialLng,
+  }), [selectedLocation, initialLat, initialLng]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(initialCoordinates);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
-  // Memoize initial coordinates to prevent unnecessary recalculations
-  const initialCoordinates = useMemo(() => ({
-    lat: selectedLocation?.lat || initialLat,
-    lng: selectedLocation?.lng || initialLng,
-  }), [selectedLocation, initialLat, initialLng]);
 
   // Memoize tile URL to prevent recreation on every render
   const tileUrl = useMemo(
