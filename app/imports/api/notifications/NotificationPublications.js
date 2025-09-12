@@ -367,5 +367,5 @@ Meteor.publish("notifications.adminTokens", async function (filters = {}) {
 } // End server-only block
 
 // Collection for reactive notification counts (client-side only)
-const NotificationCounts = Meteor.isClient ? new Mongo.Collection("notificationCounts") : none;
+const NotificationCounts = Meteor.isClient ? new Mongo.Collection("notificationCounts") : null;
 export { NotificationCounts };
