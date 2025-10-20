@@ -1,11 +1,50 @@
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
+import { check, Match } from "meteor/check";
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
 import fileType from "file-type";
 import { Images, ImagesSchema } from "./Images";
 import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
+
+/**
+ * Check if a user can view a private image
+ * @param {Object} image - The image document
+ * @param {String} userId - The current user ID
+ * @returns {Promise<Boolean>} - Whether the user can view the image
+ */
+const canViewImage = async (image, userId) => {
+  // Public images - anyone can view
+  if (!image.private) {
+    return true;
+  }
+
+  // Private images require authentication
+  if (!userId) {
+    return false;
+  }
+
+  // System admin can view all images
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  if (await isSystemAdmin(userId)) {
+    return true;
+  }
+
+  // Image uploader can view their own images
+  if (image.user === userId) {
+    return true;
+  }
+
+  // School admin can view images in their school
+  if (image.school) {
+    const { isSchoolAdmin } = await import("../accounts/RoleUtils");
+    if (await isSchoolAdmin(userId, image.school)) {
+      return true;
+    }
+  }
+
+  return false;
+};
 
 // Image compression function - converts to PNG and compresses efficiently
 const compressImage = async (inputBuffer, targetSizeKB = 750) => {
@@ -89,14 +128,20 @@ Meteor.methods({
    * Upload an image with captcha verification
    * @param {Object} imageData - The image data
    * @param {String} captchaSessionId - The captcha session ID
+   * @param {Object} privacyOptions - Privacy settings (optional)
    */
-  async "images.upload"(imageData, captchaSessionId) {
+  async "images.upload"(imageData, captchaSessionId, privacyOptions = {}) {
     check(imageData, {
       fileName: String,
       mimeType: String,
       base64Data: String,
     });
     check(captchaSessionId, String);
+    check(privacyOptions, {
+      private: Match.Optional(Boolean),
+      school: Match.Optional(String),
+      user: Match.Optional(String),
+    });
 
     // Verify captcha
     if (!(await isCaptchaSolved(captchaSessionId))) {
@@ -195,16 +240,25 @@ Meteor.methods({
       $or: [{ sha256Hash }, { compressedSha256Hash }],
     });
     if (existingImage) {
-      return {
-        imageId: existingImage._id,
-        uuid: existingImage.uuid,
-        sha256Hash: existingImage.sha256Hash,
-        compressedSha256Hash: existingImage.compressedSha256Hash,
-        originalFileSize: existingImage.originalFileSize,
-        compressedFileSize: existingImage.fileSize,
-        compressionRatio: existingImage.compressionRatio,
-        finalMimeType: "image/png",
-      };
+      // Check if current user can access existing image
+      if (existingImage.private && !(await canViewImage(existingImage, this.userId))) {
+        // If they can't view it, treat as new upload
+        console.log("User cannot access existing private image, creating new instance");
+      } else {
+        return {
+          imageId: existingImage._id,
+          uuid: existingImage.uuid,
+          sha256Hash: existingImage.sha256Hash,
+          compressedSha256Hash: existingImage.compressedSha256Hash,
+          originalFileSize: existingImage.originalFileSize,
+          compressedFileSize: existingImage.fileSize,
+          compressionRatio: existingImage.compressionRatio,
+          finalMimeType: "image/png",
+          private: existingImage.private,
+          school: existingImage.school,
+          user: existingImage.user,
+        };
+      }
     }
 
     // Create the image document
@@ -221,6 +275,10 @@ Meteor.methods({
       compressionRatio: compressionResult.compressionRatio,
       uploadedAt: new Date(),
       uploadedBy: this.userId || null,
+      // Privacy settings
+      private: privacyOptions.private || false,
+      school: privacyOptions.school || null,
+      user: privacyOptions.user || this.userId || null, // Default to uploader
     };
 
     // Validate the document (skip imageData validation for binary)
@@ -245,6 +303,9 @@ Meteor.methods({
       compressedFileSize: fileSize,
       compressionRatio: compressionResult.compressionRatio,
       finalMimeType: "image/png",
+      private: imageDoc.private,
+      school: imageDoc.school,
+      user: imageDoc.user,
     };
   },
 
@@ -258,6 +319,11 @@ Meteor.methods({
     const image = await Images.findOneAsync({ uuid });
     if (!image) {
       throw new Meteor.Error("image-not-found", "Image not found");
+    }
+
+    // Check permissions for private images
+    if (!(await canViewImage(image, this.userId))) {
+      throw new Meteor.Error("access-denied", "You do not have permission to view this image");
     }
 
     // Convert binary data back to base64 for client
@@ -275,6 +341,9 @@ Meteor.methods({
       sha256Hash: image.sha256Hash,
       compressedSha256Hash: image.compressedSha256Hash,
       imageData: base64Data,
+      private: image.private,
+      school: image.school,
+      user: image.user,
     };
   },
 
@@ -300,6 +369,9 @@ Meteor.methods({
           sha256Hash: 1,
           compressedSha256Hash: 1,
           uploadedBy: 1,
+          private: 1,
+          school: 1,
+          user: 1,
           // Exclude imageData for performance
         },
       },
@@ -307,6 +379,11 @@ Meteor.methods({
 
     if (!image) {
       throw new Meteor.Error("image-not-found", "Image not found");
+    }
+
+    // Check permissions for private images
+    if (!(await canViewImage(image, this.userId))) {
+      throw new Meteor.Error("access-denied", "You do not have permission to view this image");
     }
 
     return image;
@@ -341,12 +418,23 @@ Meteor.methods({
           sha256Hash: 1,
           compressedSha256Hash: 1,
           uploadedBy: 1,
+          private: 1,
+          school: 1,
+          user: 1,
           // Exclude imageData for performance
         },
       },
     ).fetchAsync();
 
-    return images;
+    // Filter images based on permissions
+    const allowedImages = [];
+    for (const image of images) {
+      if (await canViewImage(image, this.userId)) {
+        allowedImages.push(image);
+      }
+    }
+
+    return allowedImages;
   },
 
   /**
@@ -361,10 +449,18 @@ Meteor.methods({
       throw new Meteor.Error("image-not-found", "Image not found");
     }
 
+    // Check permissions for private images
+    if (!(await canViewImage(image, this.userId))) {
+      throw new Meteor.Error("access-denied", "You do not have permission to view this image");
+    }
+
     return {
       imageData: image.imageData,
       mimeType: image.mimeType,
       fileName: image.fileName,
+      private: image.private,
+      school: image.school,
+      user: image.user,
     };
   },
 });
