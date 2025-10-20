@@ -18,6 +18,10 @@ const ImagesSchema = Joi.object({
   compressionRatio: Joi.number().optional(), // Compression ratio percentage
   uploadedAt: Joi.date().required(),
   uploadedBy: Joi.string().optional(), // user id if available
+  // Privacy controls
+  private: Joi.boolean().default(false), // Whether image is private
+  school: Joi.string().optional(), // School ID for school-restricted images
+  user: Joi.string().optional(), // User ID for user-restricted images
 });
 
 /** Make the collection available to other code. */
