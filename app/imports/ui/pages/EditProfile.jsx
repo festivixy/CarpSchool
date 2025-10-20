@@ -202,10 +202,18 @@ class MobileEditProfile extends React.Component {
             base64Data,
           };
 
+          // Privacy options for profile image - private to user and their school
+          const privacyOptions = {
+            private: true,
+            school: this.props.profileData?.SchoolId,
+            user: Meteor.user()._id,
+          };
+
           Meteor.call(
             "images.upload",
             imageData,
             captchaData.sessionId,
+            privacyOptions,
             (err, result) => {
               if (!this._isMounted) return;
 
@@ -279,10 +287,18 @@ class MobileEditProfile extends React.Component {
             base64Data,
             };
 
+          // Privacy options for vehicle image - private to user and their school
+          const privacyOptions = {
+            private: true,
+            school: this.props.profileData?.SchoolId,
+            user: Meteor.user()._id,
+          };
+
           Meteor.call(
             "images.upload",
             imageData,
             captchaData.sessionId,
+            privacyOptions,
             (err, result) => {
               if (!this._isMounted) return;
 
