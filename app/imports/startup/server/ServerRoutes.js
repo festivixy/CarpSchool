@@ -1,4 +1,5 @@
 import { WebApp } from "meteor/webapp";
+import { Accounts } from "meteor/accounts-base";
 import { Images } from "../../api/images/Images";
 
 // Set Content Security Policy headers for OneSignal support
@@ -53,6 +54,58 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
       res.writeHead(404, { "Content-Type": "text/plain" });
       res.end("Image not found");
       return;
+    }
+
+    // Check permissions for private images
+    if (image.private) {
+      // Get user from request (check for DDP connection first, then session)
+      let userId = null;
+
+      // Try to get user from DDP connection header
+      const loginToken = req.headers['meteor-login-token'] || req.headers.authorization?.replace('Bearer ', '');
+
+      if (loginToken) {
+        // Look up the user by login token
+        const hashedToken = Accounts._hashLoginToken(loginToken);
+        const user = await Meteor.users.findOneAsync({
+          "services.resume.loginTokens.hashedToken": hashedToken
+        });
+        if (user) {
+          userId = user._id;
+        }
+      }
+
+      // If no user found and image is private, deny access
+      if (!userId) {
+        res.writeHead(403, { "Content-Type": "text/plain" });
+        res.end("Access denied: Authentication required for private images");
+        return;
+      }
+
+      // Check if user can view this private image
+      const { isSystemAdmin } = await import("../../api/accounts/RoleUtils");
+      const { isSchoolAdmin } = await import("../../api/accounts/RoleUtils");
+
+      let canView = false;
+
+      // System admin can view all images
+      if (await isSystemAdmin(userId)) {
+        canView = true;
+      }
+      // Image uploader can view their own images
+      else if (image.user === userId) {
+        canView = true;
+      }
+      // School admin can view images in their school
+      else if (image.school && await isSchoolAdmin(userId, image.school)) {
+        canView = true;
+      }
+
+      if (!canView) {
+        res.writeHead(403, { "Content-Type": "text/plain" });
+        res.end("Access denied: You do not have permission to view this image");
+        return;
+      }
     }
 
     // Convert base64 to buffer
