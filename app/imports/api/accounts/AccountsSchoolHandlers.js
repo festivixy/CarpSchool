@@ -48,13 +48,8 @@ Accounts.onCreateUser(async (options, user) => {
     } else {
       throw new Meteor.Error("invalid-school", "Selected school is not valid or active");
     }
-  } else {
-    // If no school could be determined, require manual selection
-    throw new Meteor.Error(
-      "school-required",
-      "Please select a school or use an email address associated with your institution",
-    );
   }
+  // School selection will happen later in the onboarding process
 
   // Send verification email after user is saved to database (existing logic)
   const finalUserEmail = newUser.emails[0].address;
