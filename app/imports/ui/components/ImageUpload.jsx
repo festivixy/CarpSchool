@@ -11,14 +11,21 @@ import {
 } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import Captcha from "./Captcha";
+import ImagePrivacySelector from "./ImagePrivacySelector";
 import { FileFormatInfo } from "../styles/ImageUpload";
 
-const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
+const ImageUpload = ({
+  onUploadSuccess,
+  onUploadError,
+  initialPrivacyOptions = { private: false },
+  showPrivacySelector = true
+}) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [privacyOptions, setPrivacyOptions] = useState(initialPrivacyOptions);
   const fileInputRef = useRef(null);
   const captchaRef = useRef(null);
 
@@ -112,6 +119,7 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
             "images.upload",
             imageData,
             captchaData.sessionId,
+            privacyOptions,
             (err, result) => {
               setIsUploading(false);
 
@@ -190,6 +198,14 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
           </Form.Field>
         )}
 
+        {showPrivacySelector && (
+          <ImagePrivacySelector
+            privacyOptions={privacyOptions}
+            onPrivacyChange={setPrivacyOptions}
+            disabled={isUploading}
+          />
+        )}
+
         {selectedFile && (
           <Form.Field>
             <Captcha
@@ -242,11 +258,19 @@ const ImageUpload = ({ onUploadSuccess, onUploadError }) => {
 ImageUpload.propTypes = {
   onUploadSuccess: PropTypes.func,
   onUploadError: PropTypes.func,
+  initialPrivacyOptions: PropTypes.shape({
+    private: PropTypes.bool,
+    school: PropTypes.string,
+    user: PropTypes.string,
+  }),
+  showPrivacySelector: PropTypes.bool,
 };
 
 ImageUpload.defaultProps = {
   onUploadSuccess: null,
   onUploadError: null,
+  initialPrivacyOptions: { private: false },
+  showPrivacySelector: true,
 };
 
 export default ImageUpload;
