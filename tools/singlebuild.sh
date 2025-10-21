@@ -1,0 +1,1 @@
+meteor build "../build" --architecture "os.linux.x86_64" --server-only --verbose --mobile-settings "../config/setting.json"
