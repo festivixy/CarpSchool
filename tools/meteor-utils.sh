@@ -18,12 +18,15 @@ meteor_update_browserslist() {
 
 # Function to build Meteor bundle
 meteor_build_bundle() {
+    local pathpwd=$(pwd)
+    insure_app_dir
     local build_dir=${1:-"../build"}
     local architecture=${2:-"os.linux.x86_64"}
     local settings=${3:-"../config/setting.json"}
 
     echo -e "${YELLOW}🚀 Building Meteor bundle...${NC}"
     meteor build "$build_dir" --architecture "$architecture" --server-only --verbose --mobile-settings "$settings"
+    cd "$pathpwd"
 }
 
 meteor_install_cordova_plugins() {
