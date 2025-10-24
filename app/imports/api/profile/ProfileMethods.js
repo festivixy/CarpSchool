@@ -1,7 +1,176 @@
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
+import { check, Match } from "meteor/check";
+import { Profiles } from "./Profile";
 
 Meteor.methods({
+  /**
+   * Change user role and unverify them
+   * Requires re-verification after role change
+   */
+  "profile.changeRole"(newRole) {
+    check(newRole, String);
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to change your role.");
+    }
+
+    if (!["Driver", "Rider"].includes(newRole)) {
+      throw new Meteor.Error("invalid-role", "Role must be either 'Driver' or 'Rider'.");
+    }
+
+    const userId = this.userId;
+    const existingProfile = Profiles.findOne({ Owner: userId });
+
+    if (!existingProfile) {
+      throw new Meteor.Error("no-profile", "Profile not found. Please complete your profile first.");
+    }
+
+    // If role is the same, no need to change
+    if (existingProfile.UserType === newRole) {
+      throw new Meteor.Error("same-role", "You are already set as " + newRole + ".");
+    }
+
+    // Update role and unverify user
+    Profiles.update(
+      { Owner: userId },
+      {
+        $set: {
+          UserType: newRole,
+          verified: false  // Unverify user when role changes
+        }
+      }
+    );
+
+    return {
+      success: true,
+      message: `Role changed to ${newRole}. Please complete verification again.`,
+      newRole: newRole,
+      verified: false,
+    };
+  },
+
+  /**
+   * Update basic profile information (Name, Location)
+   */
+  "profile.updateBasicInfo"(profileData) {
+    check(profileData, {
+      Name: String,
+      Location: String,
+    });
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to update your profile.");
+    }
+
+    const userId = this.userId;
+    const existingProfile = Profiles.findOne({ Owner: userId });
+
+    if (!existingProfile) {
+      throw new Meteor.Error("no-profile", "Profile not found. Please complete your profile first.");
+    }
+
+    // Validate data
+    if (!profileData.Name.trim()) {
+      throw new Meteor.Error("invalid-data", "Name is required.");
+    }
+
+    if (!profileData.Location.trim()) {
+      throw new Meteor.Error("invalid-data", "Location is required.");
+    }
+
+    // Update basic info only
+    Profiles.update(
+      { Owner: userId },
+      {
+        $set: {
+          Name: profileData.Name.trim(),
+          Location: profileData.Location.trim(),
+        }
+      }
+    );
+
+    return {
+      success: true,
+      message: "Basic information updated successfully.",
+    };
+  },
+
+  /**
+   * Update contact information (Phone, Other)
+   */
+  "profile.updateContactInfo"(contactData) {
+    check(contactData, {
+      Phone: String,
+      Other: String,
+    });
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to update your contact info.");
+    }
+
+    const userId = this.userId;
+    const existingProfile = Profiles.findOne({ Owner: userId });
+
+    if (!existingProfile) {
+      throw new Meteor.Error("no-profile", "Profile not found. Please complete your profile first.");
+    }
+
+    // Update contact info only
+    Profiles.update(
+      { Owner: userId },
+      {
+        $set: {
+          Phone: contactData.Phone.trim(),
+          Other: contactData.Other.trim(),
+        }
+      }
+    );
+
+    return {
+      success: true,
+      message: "Contact information updated successfully.",
+    };
+  },
+
+  /**
+   * Update profile images (Profile image, Vehicle image)
+   */
+  "profile.updateImages"(imageData) {
+    check(imageData, {
+      Image: Match.Optional(String),
+      Ride: Match.Optional(String),
+    });
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to update your images.");
+    }
+
+    const userId = this.userId;
+    const existingProfile = Profiles.findOne({ Owner: userId });
+
+    if (!existingProfile) {
+      throw new Meteor.Error("no-profile", "Profile not found. Please complete your profile first.");
+    }
+
+    const updateFields = {};
+    if (imageData.Image !== undefined) {
+      updateFields.Image = imageData.Image;
+    }
+    if (imageData.Ride !== undefined) {
+      updateFields.Ride = imageData.Ride;
+    }
+
+    // Update images only
+    Profiles.update(
+      { Owner: userId },
+      { $set: updateFields }
+    );
+
+    return {
+      success: true,
+      message: "Images updated successfully.",
+    };
+  },
     async "users.removeProfilePicture"(userId) {
         check(userId, String);
 

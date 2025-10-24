@@ -1,14 +1,36 @@
 import { Meteor } from "meteor/meteor";
 import { Profiles } from "./Profile";
 
-Meteor.publish("Profiles", function publish() {
-  if (this.userId) {
-    return Profiles.find({ Owner: this.userId });
+/**
+ * Read-only profile publication for normal users
+ * Users can only read their own profile
+ */
+Meteor.publish("userProfile", function publish() {
+  if (!this.userId) {
+    return this.ready();
   }
-  return this.ready();
+
+  // Return only the user's own profile (read-only)
+  return Profiles.find({ Owner: this.userId });
 });
 
-/** This subscription publishes all documents regardless of user, but only if the logged in user is the Admin. */
+/**
+ * Legacy publication - kept for backward compatibility but made read-only
+ * @deprecated Use userProfile instead
+ */
+Meteor.publish("Profiles", function publish() {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  // Only return the user's own profile for backward compatibility (read-only)
+  return Profiles.find({ Owner: this.userId });
+});
+
+/**
+ * Admin publication - allows admins to see all profiles or school-specific profiles
+ * Normal users get no access to other profiles
+ */
 Meteor.publish("ProfilesAdmin", async function publish() {
   if (!this.userId) {
     return this.ready();
@@ -35,5 +57,6 @@ Meteor.publish("ProfilesAdmin", async function publish() {
     return Profiles.find({ Owner: { $in: userIds } });
   }
 
+  // Non-admin users get no access to other profiles
   return this.ready();
 });
