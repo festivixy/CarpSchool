@@ -689,6 +689,17 @@ class MobileEditProfile extends React.Component {
                 )}
               </Section>
 
+              <Button
+                type="submit"
+                disabled={
+                  this.state.isSubmitting ||
+                  !this.state.name.trim() ||
+                  !this.state.location.trim()
+                }
+              >
+                {this.state.isSubmitting ? "Saving..." : "Save Profile"}
+              </Button>
+
               {/* Role Change Section */}
               <Section>
                 <SectionTitle>Change Role</SectionTitle>
@@ -716,17 +727,6 @@ class MobileEditProfile extends React.Component {
                   ⚠️ You need to reverify your account to change role
                 </ReverifyWarning>
               </Section>
-
-              <Button
-                type="submit"
-                disabled={
-                  this.state.isSubmitting ||
-                  !this.state.name.trim() ||
-                  !this.state.location.trim()
-                }
-              >
-                {this.state.isSubmitting ? "Saving..." : "Save Profile"}
-              </Button>
             </InputSection>
           </Form>
 
