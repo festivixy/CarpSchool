@@ -7,7 +7,7 @@ Meteor.methods({
    * Change user role and unverify them
    * Requires re-verification after role change
    */
-  "profile.changeRole"(newRole) {
+  async "profile.changeRole"(newRole) {
     check(newRole, String);
 
     if (!this.userId) {
@@ -19,7 +19,7 @@ Meteor.methods({
     }
 
     const userId = this.userId;
-    const existingProfile = Profiles.findOne({ Owner: userId });
+    const existingProfile = await Profiles.findOneAsync({ Owner: userId });
 
     if (!existingProfile) {
       throw new Meteor.Error("no-profile", "Profile not found. Please complete your profile first.");
@@ -31,7 +31,7 @@ Meteor.methods({
     }
 
     // Update role and unverify user
-    Profiles.update(
+    await Profiles.updateAsync(
       { Owner: userId },
       {
         $set: {
@@ -52,7 +52,7 @@ Meteor.methods({
   /**
    * Update basic profile information (Name, Location)
    */
-  "profile.updateBasicInfo"(profileData) {
+  async "profile.updateBasicInfo"(profileData) {
     check(profileData, {
       Name: String,
       Location: String,
@@ -63,7 +63,7 @@ Meteor.methods({
     }
 
     const userId = this.userId;
-    const existingProfile = Profiles.findOne({ Owner: userId });
+    const existingProfile = await Profiles.findOneAsync({ Owner: userId });
 
     if (!existingProfile) {
       throw new Meteor.Error("no-profile", "Profile not found. Please complete your profile first.");
@@ -79,7 +79,7 @@ Meteor.methods({
     }
 
     // Update basic info only
-    Profiles.update(
+    await Profiles.updateAsync(
       { Owner: userId },
       {
         $set: {
@@ -98,7 +98,7 @@ Meteor.methods({
   /**
    * Update contact information (Phone, Other)
    */
-  "profile.updateContactInfo"(contactData) {
+  async "profile.updateContactInfo"(contactData) {
     check(contactData, {
       Phone: String,
       Other: String,
@@ -109,14 +109,14 @@ Meteor.methods({
     }
 
     const userId = this.userId;
-    const existingProfile = Profiles.findOne({ Owner: userId });
+    const existingProfile = await Profiles.findOneAsync({ Owner: userId });
 
     if (!existingProfile) {
       throw new Meteor.Error("no-profile", "Profile not found. Please complete your profile first.");
     }
 
     // Update contact info only
-    Profiles.update(
+    await Profiles.updateAsync(
       { Owner: userId },
       {
         $set: {
@@ -135,7 +135,7 @@ Meteor.methods({
   /**
    * Update profile images (Profile image, Vehicle image)
    */
-  "profile.updateImages"(imageData) {
+  async "profile.updateImages"(imageData) {
     check(imageData, {
       Image: Match.Optional(String),
       Ride: Match.Optional(String),
@@ -146,7 +146,7 @@ Meteor.methods({
     }
 
     const userId = this.userId;
-    const existingProfile = Profiles.findOne({ Owner: userId });
+    const existingProfile = await Profiles.findOneAsync({ Owner: userId });
 
     if (!existingProfile) {
       throw new Meteor.Error("no-profile", "Profile not found. Please complete your profile first.");
@@ -161,7 +161,7 @@ Meteor.methods({
     }
 
     // Update images only
-    Profiles.update(
+    await Profiles.updateAsync(
       { Owner: userId },
       { $set: updateFields }
     );

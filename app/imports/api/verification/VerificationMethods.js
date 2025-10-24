@@ -8,7 +8,7 @@ Meteor.methods({
    * Finish verification process for the current user
    * Updates user's verification status to verified
    */
-  "verify.finish"() {
+  async "verify.finish"() {
     if (!this.userId) {
       throw new Meteor.Error("not-authorized", "You must be logged in to verify.");
     }
@@ -16,7 +16,7 @@ Meteor.methods({
     const userId = this.userId;
 
     // Get user's profile to determine their role
-    const userProfile = Profiles.findOne({ Owner: userId });
+    const userProfile = await Profiles.findOneAsync({ Owner: userId });
     if (!userProfile) {
       throw new Meteor.Error("no-profile", "User profile not found. Please complete your profile first.");
     }
@@ -27,11 +27,11 @@ Meteor.methods({
     }
 
     // Check if verification already exists
-    const existingVerification = Verifications.findOne({ userId });
+    const existingVerification = await Verifications.findOneAsync({ userId });
 
     if (existingVerification) {
       // Update existing verification
-      Verifications.update(existingVerification._id, {
+      await Verifications.updateAsync(existingVerification._id, {
         $set: {
           verificationStatus: "verified",
           verifiedAt: new Date(),
@@ -41,7 +41,7 @@ Meteor.methods({
       });
     } else {
       // Create new verification record
-      Verifications.insert({
+      await Verifications.insertAsync({
         userId: userId,
         userType: userType,
         verificationStatus: "verified",
@@ -52,7 +52,7 @@ Meteor.methods({
     }
 
     // Update user profile to set verified: true
-    Profiles.update(
+    await Profiles.updateAsync(
       { Owner: userId },
       { $set: { verified: true } }
     );
@@ -68,13 +68,13 @@ Meteor.methods({
   /**
    * Get verification status for the current user
    */
-  "verify.getStatus"() {
+  async "verify.getStatus"() {
     if (!this.userId) {
       throw new Meteor.Error("not-authorized", "You must be logged in.");
     }
 
-    const verification = Verifications.findOne({ userId: this.userId });
-    const userProfile = Profiles.findOne({ Owner: this.userId });
+    const verification = await Verifications.findOneAsync({ userId: this.userId });
+    const userProfile = await Profiles.findOneAsync({ Owner: this.userId });
 
     return {
       verification: verification || null,
