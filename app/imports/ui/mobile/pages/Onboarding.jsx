@@ -65,7 +65,7 @@ class MobileOnboarding extends React.Component {
       name: "",
       selectedSchoolId: "",
       selectedSchoolName: "",
-      userType: "Both",
+      userType: "Driver",
       phone: "",
       other: "",
       profileImage: "",
@@ -235,7 +235,7 @@ class MobileOnboarding extends React.Component {
 
           // Privacy options for profile image - private to user and their school
           const privacyOptions = {
-            private: true,
+            private: false,
             school: this.state.selectedSchoolId,
             user: Meteor.user()._id,
           };
@@ -317,7 +317,7 @@ class MobileOnboarding extends React.Component {
 
           // Privacy options for vehicle image - private to user and their school
           const privacyOptions = {
-            private: true,
+            private: false,
             school: this.state.selectedSchoolId,
             user: Meteor.user()._id,
           };
@@ -499,14 +499,7 @@ class MobileOnboarding extends React.Component {
           <UserTypeDesc>I need rides from others</UserTypeDesc>
         </UserTypeOption>
 
-        <UserTypeOption
-          selected={this.state.userType === "Both"}
-          onClick={() => this.setState({ userType: "Both" })}
-        >
-          <UserTypeIcon>🔄</UserTypeIcon>
-          <UserTypeTitle>Both</UserTypeTitle>
-          <UserTypeDesc>I drive sometimes and ride sometimes</UserTypeDesc>
-        </UserTypeOption>
+
       </UserTypeOptions>
 
       <ContactSection>

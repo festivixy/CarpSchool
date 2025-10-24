@@ -54,7 +54,7 @@ class MobileEditProfile extends React.Component {
       rideImage: "",
       phone: "",
       other: "",
-      userType: "Both",
+      userType: "Driver",
       error: "",
       success: "",
       isSubmitting: false,
@@ -96,7 +96,7 @@ class MobileEditProfile extends React.Component {
         rideImage: profile.Ride || "",
         phone: profile.Phone || "",
         other: profile.Other || "",
-        userType: profile.UserType || "Both",
+        userType: profile.UserType || "Driver",
       });
     }
   };
@@ -204,7 +204,7 @@ class MobileEditProfile extends React.Component {
 
           // Privacy options for profile image - private to user and their school
           const privacyOptions = {
-            private: true,
+            private: false,
             school: this.props.profileData?.SchoolId,
             user: Meteor.user()._id,
           };
@@ -289,7 +289,7 @@ class MobileEditProfile extends React.Component {
 
           // Privacy options for vehicle image - private to user and their school
           const privacyOptions = {
-            private: true,
+            private: false,
             school: this.props.profileData?.SchoolId,
             user: Meteor.user()._id,
           };
@@ -461,7 +461,6 @@ class MobileEditProfile extends React.Component {
                   >
                     <option value="Driver">Driver</option>
                     <option value="Rider">Rider</option>
-                    <option value="Both">Both</option>
                   </Select>
                 </Field>
               </Section>
