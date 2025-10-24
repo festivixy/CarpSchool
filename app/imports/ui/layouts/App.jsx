@@ -28,6 +28,7 @@ import MobileSignout from "../mobile/pages/Signout";
 import MobileVerifyEmail from "../pages/VerifyEmail";
 import MobileEditProfile from "../pages/EditProfile";
 import MobileOnboarding from "../mobile/pages/Onboarding";
+import MobileVerify from "../pages/Verify";
 import MobileTOS from "../mobile/pages/TOS";
 import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
@@ -104,6 +105,9 @@ class App extends React.Component {
 
               {/* Onboarding route - simple auth check without profile requirement */}
               <ProtectedRoute path="/onboarding" component={MobileOnboarding} />
+
+              {/* Verification route - requires authentication */}
+              <ProtectedRoute path="/verify" component={MobileVerify} />
 
               {/* Main app routes with full onboarding flow */}
               <ProtectedRoutes path="/my-rides" component={MobileMyRides} />
