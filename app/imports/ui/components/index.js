@@ -14,5 +14,6 @@ export { default as ImageViewer } from "./ImageViewer";
 export { default as ImageAuth } from "./ImageAuth";
 export { default as RiderVerify } from "./RiderVerify";
 export { default as DriverVerify } from "./DriverVerify";
+export { default as SchoolSmtpSettings } from "./SchoolSmtpSettings";
 export { default as Captcha } from "./Captcha";
 export { default as ConfirmFunction } from "./ConfirmFunction";
