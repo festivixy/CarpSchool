@@ -53,6 +53,14 @@ const ProfileSchema = Joi.object({
   }),
   UserType: Joi.string().valid("Driver", "Rider").default("Driver"),
   verified: Joi.boolean().default(false),
+  schoolemail: createSafeStringSchema({
+    pattern: "email",
+    min: 0,
+    max: 255,
+    required: false,
+    allowEmpty: true,
+    label: "School Email",
+  }),
   Owner: Joi.string().required(),
 });
 

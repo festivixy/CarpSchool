@@ -128,6 +128,101 @@ export const ErrorMessage = styled.div`
   box-sizing: border-box;
 `;
 
+export const SchoolEmailSection = styled.div`
+  background-color: rgba(248, 249, 250, 1);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  border: 1px solid rgba(230, 230, 230, 1);
+  width: 100%;
+  box-sizing: border-box;
+`;
+
+export const EmailStepContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+export const StepTitle = styled.h2`
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 1);
+  text-align: center;
+  margin: 0 0 12px 0;
+`;
+
+export const StepDescription = styled.p`
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(100, 100, 100, 1);
+  text-align: center;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+`;
+
+export const EmailInput = styled.input`
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 1);
+  width: 100%;
+  min-height: 48px;
+  color: rgba(0, 0, 0, 1);
+  font-weight: 400;
+  padding: 12px 16px;
+  border: 2px solid rgba(224, 224, 224, 1);
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+
+  &:focus {
+    border-color: rgba(34, 197, 94, 1);
+  }
+
+  &::placeholder {
+    color: rgba(130, 130, 130, 1);
+  }
+
+  &:disabled {
+    background-color: rgba(245, 245, 245, 1);
+    cursor: not-allowed;
+  }
+`;
+
+export const CodeInput = styled.input`
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 1);
+  width: 100%;
+  min-height: 56px;
+  color: rgba(0, 0, 0, 1);
+  font-weight: 600;
+  padding: 12px 16px;
+  border: 2px solid rgba(224, 224, 224, 1);
+  font-size: 24px;
+  font-family: monospace;
+  text-align: center;
+  letter-spacing: 8px;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+
+  &:focus {
+    border-color: rgba(34, 197, 94, 1);
+  }
+
+  &::placeholder {
+    color: rgba(130, 130, 130, 1);
+    letter-spacing: 4px;
+  }
+
+  &:disabled {
+    background-color: rgba(245, 245, 245, 1);
+    cursor: not-allowed;
+  }
+`;
+
 // Media Queries for responsive design
 export const MediaQueries = styled.div`
   @media (max-width: 480px) {

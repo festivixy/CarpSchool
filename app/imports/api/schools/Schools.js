@@ -29,6 +29,14 @@ const SchoolsSchema = Joi.object({
     maxRideDistance: Joi.number().default(50), // Max km for rides
   }).default({}),
   isActive: Joi.boolean().default(true),
+  smtpSettings: Joi.object({
+    email: Joi.string().email().optional(),
+    password: Joi.string().min(1).max(255).optional(),
+    host: Joi.string().hostname().optional(),
+    port: Joi.number().integer().min(1).max(65535).default(587),
+    secure: Joi.boolean().default(false),
+    enabled: Joi.boolean().default(false),
+  }).optional(),
   createdAt: Joi.date().default(() => new Date()),
   createdBy: Joi.string().required(), // Admin who created the school
 });
