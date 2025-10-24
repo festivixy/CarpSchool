@@ -14,7 +14,7 @@ Meteor.methods({
     }
 
     const userId = this.userId;
-    
+
     // Get user's profile to determine their role
     const userProfile = Profiles.findOne({ Owner: userId });
     if (!userProfile) {
@@ -28,7 +28,7 @@ Meteor.methods({
 
     // Check if verification already exists
     const existingVerification = Verifications.findOne({ userId });
-    
+
     if (existingVerification) {
       // Update existing verification
       Verifications.update(existingVerification._id, {
@@ -50,6 +50,12 @@ Meteor.methods({
         updatedAt: new Date(),
       });
     }
+
+    // Update user profile to set verified: true
+    Profiles.update(
+      { Owner: userId },
+      { $set: { verified: true } }
+    );
 
     return {
       success: true,

@@ -52,6 +52,7 @@ const ProfileSchema = Joi.object({
     label: "Additional Information",
   }),
   UserType: Joi.string().valid("Driver", "Rider").default("Driver"),
+  verified: Joi.boolean().default(false),
   Owner: Joi.string().required(),
 });
 

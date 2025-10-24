@@ -53,6 +53,11 @@ const ProtectedRoutesComponent = ({
       return <Redirect to="/onboarding" />;
     }
 
+    // If logged in, email verified, has profile, but not verified, redirect to verification
+    if (loggedIn && userLoaded && ready && profileData && !profileData.verified) {
+      return <Redirect to="/verify" />;
+    }
+
     // Always render the component, but show overlay if still authenticating
     return (
       <RouteContainer>

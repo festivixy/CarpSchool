@@ -44,6 +44,7 @@ import ProtectedRoutes, {
   ProtectedRouteRequireNotEmailVerified,
   ProtectedRouteRequireSystem,
 } from "./ProtectedRoutes";
+import { ProtectedRouteRequireVerification } from "./VerificationProtection";
 import { DesktopOnly, MobileOnly } from "./Devices";
 import { AppContainer, MainContent } from "../styles/App";
 import FooterVerbose from "../desktop/components/FooterVerbose";
@@ -109,25 +110,25 @@ class App extends React.Component {
               {/* Verification route - requires authentication */}
               <ProtectedRoute path="/verify" component={MobileVerify} />
 
-              {/* Main app routes with full onboarding flow */}
-              <ProtectedRoutes path="/my-rides" component={MobileMyRides} />
-              <ProtectedRoutes path="/ride/:rideId" component={MobileRideInfo} />
-              <ProtectedRoutes path="/ride-history/:id" component={RideHistory} />
-              <ProtectedRoutes
+              {/* Main app routes with verification requirement */}
+              <ProtectedRouteRequireVerification path="/my-rides" component={MobileMyRides} />
+              <ProtectedRouteRequireVerification path="/ride/:rideId" component={MobileRideInfo} />
+              <ProtectedRouteRequireVerification path="/ride-history/:id" component={RideHistory} />
+              <ProtectedRouteRequireVerification
                 path="/edit-profile"
                 component={MobileEditProfile}
               />
-              <ProtectedRoutes path="/chat" component={MobileChat} />
-              <ProtectedRoutes path="/places" component={MobilePlaceManager} />
+              <ProtectedRouteRequireVerification path="/chat" component={MobileChat} />
+              <ProtectedRouteRequireVerification path="/places" component={MobilePlaceManager} />
 
               {/* iOS-specific routes */}
-              <ProtectedRoutes path="/ios/create-ride" component={IOSCreateRide} />
-              <ProtectedRoutes path="/ios/join-ride" component={IOSJoinRide} />
+              <ProtectedRouteRequireVerification path="/ios/create-ride" component={IOSCreateRide} />
+              <ProtectedRouteRequireVerification path="/ios/join-ride" component={IOSJoinRide} />
 
               {/* Mobile-specific routes */}
-              <ProtectedRoutes path="/mobile/profile" component={IOSProfile} />
+              <ProtectedRouteRequireVerification path="/mobile/profile" component={IOSProfile} />
 
-              {/* Admin routes */}
+              {/* Admin routes - also require verification */}
               <ProtectedRouteRequireAdmin
                 path="/admin/rides"
                 component={MobileAdminRides}
@@ -162,7 +163,7 @@ class App extends React.Component {
               {/* Redirect /admin to 404 */}
               <Route exact path="/admin" render={() => <Redirect to="/404" />} />
 
-              {/* Test routes */}
+              {/* Test routes - also require verification */}
               <ProtectedRouteRequireAdmin
                 path="/_test/map-components"
                 component={() => (
