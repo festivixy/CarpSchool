@@ -132,7 +132,7 @@ Meteor.methods({
           Ride: "",
           Phone: "",
           Other: "",
-          UserType: "Both",
+          UserType: "Driver",
           Owner: userId,
         });
       }
