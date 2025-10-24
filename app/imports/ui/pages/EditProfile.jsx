@@ -29,7 +29,20 @@ import {
   UploadSection,
   UploadButton,
   Button,
-  ReverifyButton,
+  RoleChangeButton,
+  ReverifyWarning,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalClose,
+  ModalBody,
+  ModalText,
+  ConfirmButtonContainer,
+  ConfirmButton,
+  ConfirmProgress,
+  ConfirmText,
+  CancelButton,
   ErrorMessage,
   SuccessMessage,
   Links,
@@ -69,6 +82,11 @@ class MobileEditProfile extends React.Component {
       isUploadingRide: false,
       showProfileUpload: false,
       showRideUpload: false,
+      // Role change confirmation states
+      showRoleConfirmModal: false,
+      isConfirmingRole: false,
+      confirmProgress: 0,
+      confirmTimer: null,
     };
   }
 
@@ -79,6 +97,10 @@ class MobileEditProfile extends React.Component {
 
   componentWillUnmount() {
     this._isMounted = false;
+    // Clean up any running timers
+    if (this.state.confirmTimer) {
+      clearInterval(this.state.confirmTimer);
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -340,6 +362,89 @@ class MobileEditProfile extends React.Component {
     this.submit();
   };
 
+  // Handle role change button click
+  handleRoleChangeClick = () => {
+    this.setState({ showRoleConfirmModal: true });
+  };
+
+  // Handle role change confirmation start
+  handleConfirmStart = () => {
+    this.setState({
+      isConfirmingRole: true,
+      confirmProgress: 0
+    });
+
+    const timer = setInterval(() => {
+      this.setState(prevState => {
+        const newProgress = prevState.confirmProgress + (100 / 30); // 3 seconds = 30 intervals of 100ms
+
+        if (newProgress >= 100) {
+          clearInterval(timer);
+          this.confirmRoleChange();
+          return {
+            confirmProgress: 100,
+            confirmTimer: null,
+          };
+        }
+
+        return { confirmProgress: newProgress };
+      });
+    }, 100);
+
+    this.setState({ confirmTimer: timer });
+  };
+
+  // Handle role change confirmation end
+  handleConfirmEnd = () => {
+    if (this.state.confirmTimer) {
+      clearInterval(this.state.confirmTimer);
+    }
+    this.setState({
+      isConfirmingRole: false,
+      confirmProgress: 0,
+      confirmTimer: null,
+    });
+  };
+
+  // Handle role change confirmation completion
+  confirmRoleChange = () => {
+    const { userType } = this.state;
+
+    this.setState({
+      isConfirmingRole: false,
+      showRoleConfirmModal: false,
+      confirmProgress: 0,
+      confirmTimer: null,
+      error: "",
+      success: "",
+    });
+
+    // Update only the user type in the profile
+    const existingProfile = this.props.profileData;
+    if (existingProfile) {
+      Profiles.update(
+        existingProfile._id,
+        { $set: { UserType: userType } },
+        (error) => {
+          if (!this._isMounted) return;
+          if (error) {
+            this.setState({ error: error.message });
+          } else {
+            this.setState({
+              success: "Role changed successfully! Please reverify your account.",
+            });
+          }
+        }
+      );
+    }
+  };
+
+  // Handle modal close
+  handleModalClose = () => {
+    this.handleConfirmEnd();
+    this.setState({ showRoleConfirmModal: false });
+  };
+
   submit = () => {
     const { name, location, profileImage, rideImage, phone, other, userType } =
       this.state;
@@ -363,7 +468,7 @@ class MobileEditProfile extends React.Component {
       Ride: rideImage,
       Phone: phone,
       Other: other,
-      UserType: userType,
+      // UserType is handled separately
       Owner: Meteor.user()._id,
     };
 
@@ -600,9 +705,16 @@ class MobileEditProfile extends React.Component {
                   </Select>
                 </Field>
 
-                <ReverifyButton type="button">
+                <RoleChangeButton
+                  type="button"
+                  onClick={this.handleRoleChangeClick}
+                >
+                  Save Role Change
+                </RoleChangeButton>
+
+                <ReverifyWarning>
                   ⚠️ You need to reverify your account to change role
-                </ReverifyButton>
+                </ReverifyWarning>
               </Section>
 
               <Button
@@ -630,6 +742,48 @@ class MobileEditProfile extends React.Component {
 
           <Spacer height={96} />
         </Content>
+
+        {/* Role Change Confirmation Modal */}
+        {this.state.showRoleConfirmModal && (
+          <ModalOverlay onClick={this.handleModalClose}>
+            <ModalContent onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalTitle>Confirm Role Change</ModalTitle>
+                <ModalClose onClick={this.handleModalClose}>×</ModalClose>
+              </ModalHeader>
+
+              <ModalBody>
+                <ModalText>
+                  You are about to change your role to <strong>{this.state.userType}</strong>.
+                  This action requires account reverification.
+                </ModalText>
+
+                <ConfirmButtonContainer>
+                  <ConfirmButton
+                    onMouseDown={this.handleConfirmStart}
+                    onMouseUp={this.handleConfirmEnd}
+                    onMouseLeave={this.handleConfirmEnd}
+                    onTouchStart={this.handleConfirmStart}
+                    onTouchEnd={this.handleConfirmEnd}
+                    disabled={this.state.isConfirmingRole && this.state.confirmProgress >= 100}
+                  >
+                    <ConfirmProgress progress={this.state.confirmProgress} />
+                    <ConfirmText>
+                      {this.state.isConfirmingRole
+                        ? `Hold to confirm... ${Math.ceil((100 - this.state.confirmProgress) / 33.33)}s`
+                        : "Hold for 3 seconds to confirm"
+                      }
+                    </ConfirmText>
+                  </ConfirmButton>
+                </ConfirmButtonContainer>
+
+                <CancelButton onClick={this.handleModalClose}>
+                  Cancel
+                </CancelButton>
+              </ModalBody>
+            </ModalContent>
+          </ModalOverlay>
+        )}
       </Container>
     );
   }

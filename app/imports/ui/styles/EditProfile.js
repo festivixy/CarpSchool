@@ -353,7 +353,7 @@ export const Button = styled.button`
   }
 `;
 
-export const ReverifyButton = styled.button`
+export const RoleChangeButton = styled.button`
   border-radius: 8px;
   background-color: rgba(220, 53, 69, 1);
   display: flex;
@@ -368,7 +368,7 @@ export const ReverifyButton = styled.button`
   font-size: 16px;
   font-family: inherit;
   cursor: pointer;
-  margin-top: 16px;
+  margin-bottom: 12px;
 
   &:hover:not(:disabled) {
     background-color: rgba(200, 35, 51, 1);
@@ -376,6 +376,173 @@ export const ReverifyButton = styled.button`
 
   &:disabled {
     background-color: rgba(150, 150, 150, 1);
+    cursor: not-allowed;
+  }
+`;
+
+export const ReverifyWarning = styled.div`
+  background-color: rgba(255, 248, 220, 1);
+  border: 1px solid rgba(255, 204, 128, 1);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: rgba(156, 111, 0, 1);
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+`;
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+`;
+
+export const ModalContent = styled.div`
+  background-color: rgba(255, 255, 255, 1);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+`;
+
+export const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px 24px;
+  border-bottom: 1px solid rgba(230, 230, 230, 1);
+`;
+
+export const ModalTitle = styled.h2`
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 1);
+  margin: 0;
+`;
+
+export const ModalClose = styled.button`
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: rgba(130, 130, 130, 1);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: rgba(240, 240, 240, 1);
+    color: rgba(0, 0, 0, 1);
+  }
+`;
+
+export const ModalBody = styled.div`
+  padding: 20px 24px 24px 24px;
+`;
+
+export const ModalText = styled.p`
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 1);
+  margin: 0 0 24px 0;
+  text-align: center;
+
+  strong {
+    color: rgba(220, 53, 69, 1);
+    font-weight: 600;
+  }
+`;
+
+export const ConfirmButtonContainer = styled.div`
+  margin-bottom: 16px;
+`;
+
+export const ConfirmButton = styled.button`
+  position: relative;
+  border-radius: 8px;
+  background-color: rgba(220, 53, 69, 1);
+  display: flex;
+  min-height: 56px;
+  width: 100%;
+  align-items: center;
+  color: rgba(255, 255, 255, 1);
+  font-weight: 600;
+  justify-content: center;
+  padding: 0 16px;
+  border: none;
+  font-size: 16px;
+  font-family: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(200, 35, 51, 1);
+  }
+
+  &:disabled {
+    background-color: rgba(150, 150, 150, 1);
+    cursor: not-allowed;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+export const ConfirmProgress = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.2);
+  width: ${props => props.progress}%;
+  transition: width 0.1s ease-out;
+  border-radius: 8px 0 0 8px;
+`;
+
+export const ConfirmText = styled.span`
+  position: relative;
+  z-index: 2;
+`;
+
+export const CancelButton = styled.button`
+  border-radius: 8px;
+  background-color: rgba(130, 130, 130, 1);
+  display: flex;
+  min-height: 48px;
+  width: 100%;
+  align-items: center;
+  color: rgba(255, 255, 255, 1);
+  font-weight: 600;
+  justify-content: center;
+  padding: 0 16px;
+  border: none;
+  font-size: 16px;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(100, 100, 100, 1);
+  }
+
+  &:disabled {
+    background-color: rgba(180, 180, 180, 1);
     cursor: not-allowed;
   }
 `;
