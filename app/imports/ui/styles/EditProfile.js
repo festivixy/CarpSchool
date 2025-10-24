@@ -353,6 +353,33 @@ export const Button = styled.button`
   }
 `;
 
+export const ReverifyButton = styled.button`
+  border-radius: 8px;
+  background-color: rgba(220, 53, 69, 1);
+  display: flex;
+  min-height: 48px;
+  width: 100%;
+  align-items: center;
+  color: rgba(255, 255, 255, 1);
+  font-weight: 600;
+  justify-content: center;
+  padding: 0 16px;
+  border: none;
+  font-size: 16px;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 16px;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(200, 35, 51, 1);
+  }
+
+  &:disabled {
+    background-color: rgba(150, 150, 150, 1);
+    cursor: not-allowed;
+  }
+`;
+
 export const ErrorMessage = styled.div`
   background-color: rgba(255, 240, 240, 1);
   border: 1px solid rgba(255, 200, 200, 1);

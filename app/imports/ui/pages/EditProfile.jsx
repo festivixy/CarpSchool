@@ -29,6 +29,7 @@ import {
   UploadSection,
   UploadButton,
   Button,
+  ReverifyButton,
   ErrorMessage,
   SuccessMessage,
   Links,
@@ -451,18 +452,6 @@ class MobileEditProfile extends React.Component {
                     required
                   />
                 </Field>
-
-                <Field>
-                  <Label>User Type</Label>
-                  <Select
-                    name="userType"
-                    value={this.state.userType}
-                    onChange={this.handleChange}
-                  >
-                    <option value="Driver">Driver</option>
-                    <option value="Rider">Rider</option>
-                  </Select>
-                </Field>
               </Section>
 
               {/* Contact Information */}
@@ -593,6 +582,27 @@ class MobileEditProfile extends React.Component {
                     </UploadButton>
                   </UploadSection>
                 )}
+              </Section>
+
+              {/* Role Change Section */}
+              <Section>
+                <SectionTitle>Change Role</SectionTitle>
+
+                <Field>
+                  <Label>User Type</Label>
+                  <Select
+                    name="userType"
+                    value={this.state.userType}
+                    onChange={this.handleChange}
+                  >
+                    <option value="Driver">Driver</option>
+                    <option value="Rider">Rider</option>
+                  </Select>
+                </Field>
+
+                <ReverifyButton type="button">
+                  ⚠️ You need to reverify your account to change role
+                </ReverifyButton>
               </Section>
 
               <Button
