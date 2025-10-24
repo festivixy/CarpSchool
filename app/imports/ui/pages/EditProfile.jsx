@@ -419,24 +419,23 @@ class MobileEditProfile extends React.Component {
       success: "",
     });
 
-    // Update only the user type in the profile
-    const existingProfile = this.props.profileData;
-    if (existingProfile) {
-      Profiles.update(
-        existingProfile._id,
-        { $set: { UserType: userType } },
-        (error) => {
-          if (!this._isMounted) return;
-          if (error) {
-            this.setState({ error: error.message });
-          } else {
-            this.setState({
-              success: "Role changed successfully! Please reverify your account.",
-            });
+    // Use new role change method that unverifies user
+    Meteor.call("profile.changeRole", userType, (error, result) => {
+      if (!this._isMounted) return;
+      if (error) {
+        this.setState({ error: error.reason || error.message });
+      } else {
+        this.setState({
+          success: result.message,
+        });
+        // Redirect to verification page after successful role change
+        setTimeout(() => {
+          if (this._isMounted) {
+            this.setState({ redirectToReferer: "/verify" });
           }
-        }
-      );
-    }
+        }, 2000);
+      }
+    });
   };
 
   // Handle modal close
@@ -446,7 +445,7 @@ class MobileEditProfile extends React.Component {
   };
 
   submit = () => {
-    const { name, location, profileImage, rideImage, phone, other, userType } =
+    const { name, location, profileImage, rideImage, phone, other } =
       this.state;
 
     if (!name.trim()) {
@@ -461,53 +460,73 @@ class MobileEditProfile extends React.Component {
 
     this.setState({ isSubmitting: true, error: "", success: "" });
 
-    const profileData = {
+    // Use granular update methods instead of direct database operations
+    const basicInfo = {
       Name: name,
       Location: location,
-      Image: profileImage,
-      Ride: rideImage,
-      Phone: phone,
-      Other: other,
-      // UserType is handled separately
-      Owner: Meteor.user()._id,
     };
 
-    // Check if profile exists and update or insert
-    const existingProfile = this.props.profileData;
+    const contactInfo = {
+      Phone: phone,
+      Other: other,
+    };
 
-    if (existingProfile) {
-      // Update existing profile
-      Profiles.update(existingProfile._id, { $set: profileData }, (error) => {
+    const imageInfo = {
+      Image: profileImage,
+      Ride: rideImage,
+    };
+
+    // Update basic info first
+    Meteor.call("profile.updateBasicInfo", basicInfo, (basicError) => {
+      if (!this._isMounted) return;
+
+      if (basicError) {
+        this.setState({
+          isSubmitting: false,
+          error: basicError.reason || basicError.message
+        });
+        return;
+      }
+
+      // Update contact info
+      Meteor.call("profile.updateContactInfo", contactInfo, (contactError) => {
         if (!this._isMounted) return;
-        this.setState({ isSubmitting: false });
-        if (error) {
-          this.setState({ error: error.message });
-        } else {
+
+        if (contactError) {
           this.setState({
-            success: "Profile updated successfully!",
-            redirectToReferer: true,
+            isSubmitting: false,
+            error: contactError.reason || contactError.message
           });
+          return;
         }
+
+        // Update images
+        Meteor.call("profile.updateImages", imageInfo, (imageError) => {
+          if (!this._isMounted) return;
+          this.setState({ isSubmitting: false });
+
+          if (imageError) {
+            this.setState({
+              error: imageError.reason || imageError.message
+            });
+          } else {
+            this.setState({
+              success: "Profile updated successfully!",
+              redirectToReferer: true,
+            });
+          }
+        });
       });
-    } else {
-      // Insert new profile
-      Profiles.insert(profileData, (error) => {
-        if (!this._isMounted) return;
-        this.setState({ isSubmitting: false });
-        if (error) {
-          this.setState({ error: error.message });
-        } else {
-          this.setState({
-            success: "Profile created successfully!",
-            redirectToReferer: true,
-          });
-        }
-      });
-    }
+    });
   };
 
   render() {
     if (this.state.redirectToReferer) {
+      // Check if it's a specific redirect (like to verification)
+      if (typeof this.state.redirectToReferer === "string") {
+        return <Redirect to={this.state.redirectToReferer} />;
+      }
+      // Default redirect
       return <Redirect to="/my-rides" />;
     }
 
