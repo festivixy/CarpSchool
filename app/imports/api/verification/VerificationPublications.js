@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { Verifications } from "./Verification";
+import { isAnyAdminSync } from "../accounts/RoleUtils";
 
 Meteor.publish("userVerification", function () {
   if (!this.userId) {
@@ -15,13 +16,11 @@ Meteor.publish("allVerifications", function () {
     return this.ready();
   }
 
-  // Check if user is admin (you may want to implement proper role checking)
-  const user = Meteor.users.findOne(this.userId);
-  if (!user) {
+  // Check if user has admin privileges using proper role checking
+  if (!isAnyAdminSync(this.userId)) {
     return this.ready();
   }
 
-  // For now, return all verifications for admin users
-  // You should implement proper admin role checking here
+  // Admin users can see all verifications
   return Verifications.find({});
 });
