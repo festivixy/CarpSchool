@@ -31,6 +31,7 @@ import MobileEditProfile from "../pages/EditProfile";
 import MobileOnboarding from "../mobile/pages/Onboarding";
 import MobileVerify from "../pages/Verify";
 import WaitingForConfirmation from "../components/WaitingForConfirmation";
+import RejectionScreen from "../components/RejectionScreen";
 import MobileTOS from "../mobile/pages/TOS";
 import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
@@ -114,6 +115,9 @@ class App extends React.Component {
 
               {/* Waiting for confirmation route - requires authentication */}
               <ProtectedRoute path="/waiting-confirmation" component={WaitingForConfirmation} />
+
+              {/* Rejection screen route - requires authentication */}
+              <ProtectedRoute path="/verification-rejected" component={RejectionScreen} />
 
               {/* Main app routes with verification requirement */}
               <ProtectedRouteRequireVerification path="/my-rides" component={MobileMyRides} />
