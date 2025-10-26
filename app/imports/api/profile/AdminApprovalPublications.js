@@ -43,6 +43,7 @@ Meteor.publish("admin.pendingUsers", async function() {
       schoolemail: 1,
       verified: 1,
       requested: 1,
+      rejected: 1,
       createdAt: 1,
     }
   });
@@ -69,6 +70,7 @@ Meteor.publish("profiles.mineWithApprovalStatus", function() {
         UserType: 1,
         verified: 1,
         requested: 1,
+        rejected: 1,
         schoolemail: 1,
         approvedAt: 1,
         approvedBy: 1,
