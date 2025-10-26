@@ -40,6 +40,7 @@ const ProtectedRouteRequireVerificationComponent = ({
       "/privacy",
       "/credits",
       "/waiting-confirmation",
+      "/verification-rejected",
     ];
 
     // Check if current route is allowed for unverified users
@@ -81,6 +82,11 @@ const ProtectedRouteRequireVerificationComponent = ({
     // If logged in, has profile, not verified but requested (waiting for admin approval), redirect to waiting page
     if (loggedIn && userLoaded && ready && profileData && !profileData.verified && profileData.requested && !isAllowedRoute) {
       return <Redirect to="/waiting-confirmation" />;
+    }
+
+    // If logged in, has profile, and is rejected, redirect to rejection page
+    if (loggedIn && userLoaded && ready && profileData && profileData.rejected && !isAllowedRoute) {
+      return <Redirect to="/verification-rejected" />;
     }
 
     // Always render the component, but show overlay if still authenticating
