@@ -229,4 +229,40 @@ Meteor.methods({
 
     return adminInfo;
   },
+
+  /**
+   * Assign user to a school (system admin only)
+   */
+  async "accounts.assignUserToSchool"(userId, schoolId) {
+    check(userId, String);
+    check(schoolId, String);
+
+    const currentUserId = Meteor.userId();
+    if (!currentUserId) {
+      throw new Meteor.Error("not-logged-in", "Please log in first");
+    }
+
+    const currentUser = await Meteor.users.findOneAsync(currentUserId);
+    if (!currentUser?.roles?.includes("system")) {
+      throw new Meteor.Error("access-denied", "Only system administrators can assign users to schools");
+    }
+
+    const targetUser = await Meteor.users.findOneAsync(userId);
+    if (!targetUser) {
+      throw new Meteor.Error("user-not-found", "Target user not found");
+    }
+
+    // Import Schools here to avoid circular dependency
+    const { Schools } = await import("../schools/Schools");
+    const school = await Schools.findOneAsync(schoolId);
+    if (!school) {
+      throw new Meteor.Error("school-not-found", "School not found");
+    }
+
+    await Meteor.users.updateAsync(userId, {
+      $set: { schoolId: schoolId }
+    });
+
+    return { success: true };
+  },
 });
