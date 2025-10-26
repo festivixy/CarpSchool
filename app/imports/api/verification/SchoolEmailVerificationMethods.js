@@ -33,7 +33,7 @@ Meteor.methods({
     }
 
     const userId = this.userId;
-    
+
     // Get user's profile
     const userProfile = await Profiles.findOneAsync({ Owner: userId });
     if (!userProfile) {
@@ -133,9 +133,9 @@ Meteor.methods({
     const userId = this.userId;
 
     // Find verification record
-    const verification = await SchoolEmailVerifications.findOneAsync({ 
+    const verification = await SchoolEmailVerifications.findOneAsync({
       userId,
-      verified: false 
+      verified: false
     });
 
     if (!verification) {
@@ -172,11 +172,12 @@ Meteor.methods({
     // Code is correct - update profile
     await Profiles.updateAsync(
       { Owner: userId },
-      { 
-        $set: { 
+      {
+        $set: {
           verified: true,
+          requested: true,
           schoolemail: verification.email
-        } 
+        }
       }
     );
 
@@ -203,9 +204,9 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized", "You must be logged in.");
     }
 
-    const verification = await SchoolEmailVerifications.findOneAsync({ 
+    const verification = await SchoolEmailVerifications.findOneAsync({
       userId: this.userId,
-      verified: false 
+      verified: false
     });
 
     if (!verification) {
@@ -233,7 +234,7 @@ Meteor.methods({
  */
 async function sendSchoolVerificationEmail(school, email, verificationCode, userName) {
   const smtpSettings = school.smtpSettings;
-  
+
   // Configure SMTP for this email
   process.env.MAIL_URL = `smtp://${encodeURIComponent(smtpSettings.email)}:${encodeURIComponent(smtpSettings.password)}@${smtpSettings.host}:${smtpSettings.port}`;
 
@@ -244,7 +245,7 @@ async function sendSchoolVerificationEmail(school, email, verificationCode, user
           <h1 style="color: #333; margin: 0; font-size: 28px;">🚗 ${school.schoolName}</h1>
           <h2 style="color: #666; margin: 10px 0 0 0; font-size: 18px;">School Email Verification</h2>
         </div>
-        
+
         <div style="margin-bottom: 30px;">
           <p style="color: #333; font-size: 16px; line-height: 1.5; margin: 0 0 15px 0;">
             Hi ${userName},
