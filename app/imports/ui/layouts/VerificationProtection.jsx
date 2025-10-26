@@ -29,7 +29,7 @@ const ProtectedRouteRequireVerificationComponent = ({
     const currentPath = props.location.pathname;
     const allowedUnverifiedRoutes = [
       "/",
-      "/login", 
+      "/login",
       "/signup",
       "/signout",
       "/onboarding",
@@ -39,6 +39,7 @@ const ProtectedRouteRequireVerificationComponent = ({
       "/terms",
       "/privacy",
       "/credits",
+      "/waiting-confirmation",
     ];
 
     // Check if current route is allowed for unverified users
@@ -75,6 +76,11 @@ const ProtectedRouteRequireVerificationComponent = ({
     // If logged in, has profile, but not verified AND not on allowed route, redirect to verification
     if (loggedIn && userLoaded && ready && profileData && !profileData.verified && !isAllowedRoute) {
       return <Redirect to="/verify" />;
+    }
+
+    // If logged in, has profile, verified but requested (waiting for admin approval), redirect to waiting page
+    if (loggedIn && userLoaded && ready && profileData && profileData.verified && profileData.requested && !isAllowedRoute) {
+      return <Redirect to="/waiting-confirmation" />;
     }
 
     // Always render the component, but show overlay if still authenticating
