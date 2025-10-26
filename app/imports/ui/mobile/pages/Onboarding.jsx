@@ -693,7 +693,7 @@ class MobileOnboarding extends React.Component {
 
   render() {
     if (this.state.redirectToReferer) {
-      return <Redirect to="/my-rides" />;
+      return <Redirect to="/verify" />;
     }
 
     const { currentStep, totalSteps, isSubmitting } = this.state;
