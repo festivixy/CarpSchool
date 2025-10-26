@@ -30,7 +30,7 @@ const SchoolsSchema = Joi.object({
   }).default({}),
   isActive: Joi.boolean().default(true),
   smtpSettings: Joi.object({
-    email: Joi.string().email().optional(),
+    email: Joi.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).optional(),
     password: Joi.string().min(1).max(255).optional(),
     host: Joi.string().hostname().optional(),
     port: Joi.number().integer().min(1).max(65535).default(587),

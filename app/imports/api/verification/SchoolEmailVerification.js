@@ -6,7 +6,7 @@ export const SchoolEmailVerifications = new Mongo.Collection("schoolEmailVerific
 // School Email Verification Schema
 const SchoolEmailVerificationSchema = Joi.object({
   userId: Joi.string().required(),
-  email: Joi.string().email().required(),
+  email: Joi.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).required(),
   schoolId: Joi.string().required(),
   verificationCode: Joi.string().length(6).required(),
   attempts: Joi.number().integer().min(0).default(0),
