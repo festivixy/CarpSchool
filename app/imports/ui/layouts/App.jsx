@@ -12,6 +12,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import MobileAdminRides from "../pages/AdminRides";
 import MobileAdminUsers from "../pages/AdminUsers";
 import AdminSchools from "../pages/AdminSchools";
+import AdminPendingUsers from "../components/AdminPendingUsers";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import LoadingPage from "../components/LoadingPage";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -29,6 +30,7 @@ import MobileVerifyEmail from "../pages/VerifyEmail";
 import MobileEditProfile from "../pages/EditProfile";
 import MobileOnboarding from "../mobile/pages/Onboarding";
 import MobileVerify from "../pages/Verify";
+import WaitingForConfirmation from "../components/WaitingForConfirmation";
 import MobileTOS from "../mobile/pages/TOS";
 import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
@@ -110,6 +112,9 @@ class App extends React.Component {
               {/* Verification route - requires authentication */}
               <ProtectedRoute path="/verify" component={MobileVerify} />
 
+              {/* Waiting for confirmation route - requires authentication */}
+              <ProtectedRoute path="/waiting-confirmation" component={WaitingForConfirmation} />
+
               {/* Main app routes with verification requirement */}
               <ProtectedRouteRequireVerification path="/my-rides" component={MobileMyRides} />
               <ProtectedRouteRequireVerification path="/ride/:rideId" component={MobileRideInfo} />
@@ -136,6 +141,10 @@ class App extends React.Component {
               <ProtectedRouteRequireAdmin
                 path="/admin/users"
                 component={MobileAdminUsers}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/admin/pending-users"
+                component={AdminPendingUsers}
               />
               <ProtectedRouteRequireAdmin
                 path="/admin/places"
