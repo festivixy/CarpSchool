@@ -36,7 +36,8 @@ Meteor.methods({
       {
         $set: {
           UserType: newRole,
-          verified: false  // Unverify user when role changes
+          verified: false,  // Unverify user when role changes
+          requested: false  // Reset admin approval request when role changes
         }
       }
     );
