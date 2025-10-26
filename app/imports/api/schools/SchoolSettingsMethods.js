@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
+import { Email } from "meteor/email";
 import { Schools } from "./Schools";
 import { isSchoolAdmin, isSystemAdmin } from "../accounts/RoleUtils";
 
@@ -129,7 +130,6 @@ Meteor.methods({
     }
 
     try {
-      const { Email } = await import("meteor/email");
       const smtpSettings = school.smtpSettings;
 
       // Configure SMTP for this test
