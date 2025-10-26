@@ -53,6 +53,7 @@ const ProfileSchema = Joi.object({
   }),
   UserType: Joi.string().valid("Driver", "Rider").default("Driver"),
   verified: Joi.boolean().default(false),
+  requested: Joi.boolean().default(false),
   schoolemail: createSafeStringSchema({
     pattern: "email",
     min: 0,
@@ -60,6 +61,18 @@ const ProfileSchema = Joi.object({
     required: false,
     allowEmpty: true,
     label: "School Email",
+  }),
+  approvedAt: Joi.date().optional(),
+  approvedBy: Joi.string().optional(),
+  rejectedAt: Joi.date().optional(),
+  rejectedBy: Joi.string().optional(),
+  rejectionReason: createSafeStringSchema({
+    pattern: "generalText",
+    min: 0,
+    max: 500,
+    required: false,
+    allowEmpty: true,
+    label: "Rejection Reason",
   }),
   Owner: Joi.string().required(),
 });
