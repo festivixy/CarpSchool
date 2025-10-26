@@ -23,8 +23,7 @@ import {
   ErrorMessage,
   SuccessMessage,
   EmptyState,
-  SchoolSelector,
-  SchoolOption,
+
   FilterSection,
   FilterGroup,
   FilterLabel,
@@ -36,7 +35,6 @@ import {
  */
 const SchoolAdminManager = ({ schools }) => {
   const [searchEmail, setSearchEmail] = useState("");
-  const [selectedSchool, setSelectedSchool] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(null);
@@ -88,9 +86,9 @@ const SchoolAdminManager = ({ schools }) => {
     }, 300);
   };
 
-  const handleMakeSchoolAdmin = (userId, userEmail) => {
-    if (!selectedSchool) {
-      setError("Please select a school first");
+  const handleMakeSchoolAdmin = (userId, userEmail, userSchoolId) => {
+    if (!userSchoolId) {
+      setError("User must be assigned to a school first");
       return;
     }
 
@@ -100,27 +98,18 @@ const SchoolAdminManager = ({ schools }) => {
     setError("");
     setSuccess("");
 
-    // First assign user to the school, then make them admin
-    Meteor.call("accounts.assignUserToSchool", userId, selectedSchool, (err) => {
+    // Make them admin of their assigned school
+    Meteor.call("admin.makeSchoolAdmin", userId, (err, result) => {
+      setProcessing(null);
       if (err) {
-        setProcessing(null);
-        setError(err.reason || "Failed to assign user to school");
-        return;
+        setError(err.reason || "Failed to make user school admin");
+      } else {
+        setSuccess(`${userEmail} has been made a school administrator!`);
+        loadUsers(); // Reload users to show updated roles
+
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(""), 3000);
       }
-
-      // Now make them school admin
-      Meteor.call("admin.makeSchoolAdmin", userId, (err, result) => {
-        setProcessing(null);
-        if (err) {
-          setError(err.reason || "Failed to make user school admin");
-        } else {
-          setSuccess(`${userEmail} has been made a school administrator!`);
-          loadUsers(); // Reload users to show updated roles
-
-          // Clear success message after 3 seconds
-          setTimeout(() => setSuccess(""), 3000);
-        }
-      });
     });
   };
 
@@ -237,21 +226,7 @@ const SchoolAdminManager = ({ schools }) => {
           </SearchButton>
         </SearchSection>
 
-        <SchoolSelector>
-          <label htmlFor="school-select">Select School for New Admins:</label>
-          <select
-            id="school-select"
-            value={selectedSchool}
-            onChange={(e) => setSelectedSchool(e.target.value)}
-          >
-            <option value="">Choose a school...</option>
-            {schools.map(school => (
-              <SchoolOption key={school._id} value={school._id}>
-                {school.name} ({school.code})
-              </SchoolOption>
-            ))}
-          </select>
-        </SchoolSelector>
+
 
         <FilterSection>
           <FilterGroup>
@@ -335,9 +310,9 @@ const SchoolAdminManager = ({ schools }) => {
                 <Actions>
                   {!isSystemAdmin(user) && !isSchoolAdmin(user) && (
                     <AddAdminButton
-                      onClick={() => handleMakeSchoolAdmin(user._id, user.emails?.[0]?.address)}
-                      disabled={processing === user._id || !selectedSchool}
-                      title={!selectedSchool ? "Select a school first" : "Make school administrator"}
+                      onClick={() => handleMakeSchoolAdmin(user._id, user.emails?.[0]?.address, user.schoolId)}
+                      disabled={processing === user._id || !user.schoolId}
+                      title={!user.schoolId ? "User must be assigned to a school" : "Make school administrator"}
                     >
                       {processing === user._id ? "Adding..." : "👑 Make Admin"}
                     </AddAdminButton>
