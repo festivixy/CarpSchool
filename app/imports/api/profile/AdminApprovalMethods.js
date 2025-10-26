@@ -110,10 +110,11 @@ Meteor.methods({
       }
     }
 
-    // Reject the user by setting both verified: false and requested: false
+    // Reject the user by setting both verified: false, requested: false, and rejected: true
     const updateData = {
       verified: false,
       requested: false,
+      rejected: true,
       rejectedAt: new Date(),
       rejectedBy: this.userId,
     };
@@ -135,6 +136,50 @@ Meteor.methods({
       userName: profileToReject.Name,
       userType: profileToReject.UserType,
       reason: reason || "No reason provided",
+    };
+  },
+
+  /**
+   * Allow user to re-verify after rejection
+   */
+  async "profile.reVerify"() {
+    const userId = this.userId;
+
+    if (!userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in.");
+    }
+
+    // Get the user's profile
+    const profile = await Profiles.findOneAsync({ Owner: userId });
+    if (!profile) {
+      throw new Meteor.Error("profile-not-found", "User profile not found.");
+    }
+
+    // Check if user is in rejected state
+    if (!profile.rejected) {
+      throw new Meteor.Error("invalid-state", "User is not in rejected state.");
+    }
+
+    // Reset verification state to allow re-verification
+    await Profiles.updateAsync(
+      { Owner: userId },
+      {
+        $set: {
+          verified: false,
+          requested: false,
+          rejected: false,
+        },
+        $unset: {
+          rejectedAt: "",
+          rejectedBy: "",
+          rejectionReason: "",
+        }
+      }
+    );
+
+    return {
+      success: true,
+      message: "You can now re-verify your profile.",
     };
   },
 
