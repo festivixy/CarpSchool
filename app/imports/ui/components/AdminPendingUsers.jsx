@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Meteor } from "meteor/meteor";
 import { getImageUrl } from "../mobile/utils/imageUtils";
+import UserVerificationPopup from "./UserVerificationPopup";
 import {
   Container,
   Header,
@@ -46,6 +47,8 @@ const AdminPendingUsers = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectUserId, setRejectUserId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserPopup, setShowUserPopup] = useState(false);
 
   useEffect(() => {
     loadPendingUsers();
@@ -81,7 +84,7 @@ const AdminPendingUsers = () => {
         setSuccess(`${userName} has been approved successfully!`);
         // Remove the approved user from the list
         setPendingUsers(prev => prev.filter(user => user.Owner !== userId));
-        
+
         // Clear success message after 3 seconds
         setTimeout(() => setSuccess(""), 3000);
       }
@@ -104,18 +107,18 @@ const AdminPendingUsers = () => {
     Meteor.call("admin.rejectUser", rejectUserId, rejectReason, (err, result) => {
       setProcessing(null);
       setShowRejectModal(false);
-      
+
       if (err) {
         setError(err.reason || "Failed to reject user");
       } else {
         setSuccess(`${result.userName} has been rejected.`);
         // Remove the rejected user from the list
         setPendingUsers(prev => prev.filter(user => user.Owner !== rejectUserId));
-        
+
         // Clear success message after 3 seconds
         setTimeout(() => setSuccess(""), 3000);
       }
-      
+
       setRejectUserId(null);
       setRejectReason("");
     });
@@ -125,6 +128,26 @@ const AdminPendingUsers = () => {
     setShowRejectModal(false);
     setRejectUserId(null);
     setRejectReason("");
+  };
+
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+    setShowUserPopup(true);
+  };
+
+  const handleCloseUserPopup = () => {
+    setShowUserPopup(false);
+    setSelectedUser(null);
+  };
+
+  const handlePopupSuccess = (message) => {
+    setSuccess(message);
+    // Remove the user from the list
+    if (selectedUser) {
+      setPendingUsers(prev => prev.filter(user => user.Owner !== selectedUser.Owner));
+    }
+    // Clear success message after 3 seconds
+    setTimeout(() => setSuccess(""), 3000);
   };
 
   const formatDate = (date) => {
@@ -176,7 +199,7 @@ const AdminPendingUsers = () => {
           </EmptyState>
         ) : (
           pendingUsers.map((user) => (
-            <UserCard key={user.Owner}>
+            <UserCard key={user.Owner} onClick={() => handleUserClick(user)}>
               <UserInfo>
                 <UserAvatar>
                   {user.Image ? (
@@ -187,7 +210,7 @@ const AdminPendingUsers = () => {
                     </div>
                   )}
                 </UserAvatar>
-                
+
                 <UserDetails>
                   <UserName>{user.Name}</UserName>
                   <UserType userType={user.UserType}>
@@ -207,14 +230,14 @@ const AdminPendingUsers = () => {
                 </UserDetails>
               </UserInfo>
 
-              <Actions>
+              <Actions onClick={(e) => e.stopPropagation()}>
                 <ApproveButton
                   onClick={() => handleApprove(user.Owner, user.Name)}
                   disabled={processing === user.Owner}
                 >
                   {processing === user.Owner ? "Approving..." : "✅ Approve"}
                 </ApproveButton>
-                
+
                 <RejectButton
                   onClick={() => handleRejectClick(user.Owner)}
                   disabled={processing === user.Owner}
@@ -234,13 +257,13 @@ const AdminPendingUsers = () => {
             <ModalHeader>
               <h3>Reject User Verification</h3>
             </ModalHeader>
-            
+
             <ModalBody>
               <p>
-                Are you sure you want to reject this user? They will need to complete 
+                Are you sure you want to reject this user? They will need to complete
                 verification again.
               </p>
-              
+
               <RejectInput
                 type="text"
                 placeholder="Reason for rejection (optional)"
@@ -249,13 +272,13 @@ const AdminPendingUsers = () => {
                 maxLength={500}
               />
             </ModalBody>
-            
+
             <ModalActions>
               <ModalButton onClick={handleRejectCancel}>
                 Cancel
               </ModalButton>
-              <ModalButton 
-                primary 
+              <ModalButton
+                primary
                 onClick={handleRejectConfirm}
                 disabled={processing}
               >
@@ -264,6 +287,15 @@ const AdminPendingUsers = () => {
             </ModalActions>
           </ModalContent>
         </ModalOverlay>
+      )}
+
+      {/* User Verification Popup */}
+      {showUserPopup && selectedUser && (
+        <UserVerificationPopup
+          user={selectedUser}
+          onClose={handleCloseUserPopup}
+          onSuccess={handlePopupSuccess}
+        />
       )}
     </Container>
   );

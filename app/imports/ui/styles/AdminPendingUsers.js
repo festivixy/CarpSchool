@@ -4,7 +4,7 @@ export const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  
+
   @media (max-width: 768px) {
     padding: 15px;
   }
@@ -17,7 +17,7 @@ export const Header = styled.div`
   margin-bottom: 30px;
   flex-wrap: wrap;
   gap: 15px;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
@@ -29,7 +29,7 @@ export const Title = styled.h1`
   font-size: 28px;
   font-weight: 700;
   margin: 0;
-  
+
   @media (max-width: 768px) {
     font-size: 24px;
   }
@@ -39,7 +39,7 @@ export const Subtitle = styled.p`
   color: #666;
   font-size: 16px;
   margin: 5px 0 0 0;
-  
+
   @media (max-width: 768px) {
     font-size: 14px;
   }
@@ -55,12 +55,12 @@ export const RefreshButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover:not(:disabled) {
     background: #0056b3;
     transform: translateY(-1px);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -83,12 +83,18 @@ export const UserCard = styled.div`
   align-items: center;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  
+  cursor: pointer;
+
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
+    border-color: #4caf50;
   }
-  
+
+  &:active {
+    transform: translateY(0);
+  }
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
@@ -102,7 +108,7 @@ export const UserInfo = styled.div`
   align-items: center;
   gap: 20px;
   flex: 1;
-  
+
   @media (max-width: 768px) {
     width: 100%;
   }
@@ -118,23 +124,23 @@ export const UserAvatar = styled.div`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  
+
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  
+
   .placeholder {
     font-size: 24px;
     font-weight: bold;
     color: #666;
   }
-  
+
   @media (max-width: 768px) {
     width: 56px;
     height: 56px;
-    
+
     .placeholder {
       font-size: 20px;
     }
@@ -153,7 +159,7 @@ export const UserName = styled.h3`
   font-size: 18px;
   font-weight: 600;
   margin: 0;
-  
+
   @media (max-width: 768px) {
     font-size: 16px;
   }
@@ -193,7 +199,7 @@ export const UserMeta = styled.p`
 export const Actions = styled.div`
   display: flex;
   gap: 12px;
-  
+
   @media (max-width: 768px) {
     width: 100%;
     justify-content: flex-end;
@@ -211,12 +217,12 @@ export const ApproveButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 100px;
-  
+
   &:hover:not(:disabled) {
     background: #218838;
     transform: translateY(-1px);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -234,12 +240,12 @@ export const RejectButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 100px;
-  
+
   &:hover:not(:disabled) {
     background: #c82333;
     transform: translateY(-1px);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -259,18 +265,18 @@ export const EmptyState = styled.div`
   text-align: center;
   padding: 60px 20px;
   color: #666;
-  
+
   div {
     font-size: 48px;
     margin-bottom: 20px;
   }
-  
+
   h3 {
     color: #333;
     font-size: 24px;
     margin: 0 0 10px 0;
   }
-  
+
   p {
     font-size: 16px;
     margin: 0;
@@ -328,7 +334,7 @@ export const ModalContent = styled.div`
 export const ModalHeader = styled.div`
   padding: 24px 24px 0 24px;
   border-bottom: 1px solid #eee;
-  
+
   h3 {
     color: #333;
     font-size: 18px;
@@ -339,7 +345,7 @@ export const ModalHeader = styled.div`
 
 export const ModalBody = styled.div`
   padding: 24px;
-  
+
   p {
     color: #666;
     font-size: 14px;
@@ -364,13 +370,13 @@ export const RejectInput = styled.textarea`
   font-size: 14px;
   font-family: inherit;
   resize: vertical;
-  
+
   &:focus {
     outline: none;
     border-color: #007bff;
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
   }
-  
+
   &::placeholder {
     color: #999;
   }
@@ -386,12 +392,12 @@ export const ModalButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover:not(:disabled) {
     background: ${props => props.primary ? "#c82333" : "#5a6268"};
     transform: translateY(-1px);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
