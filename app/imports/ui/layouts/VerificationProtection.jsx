@@ -73,13 +73,13 @@ const ProtectedRouteRequireVerificationComponent = ({
       return <Redirect to="/onboarding" />;
     }
 
-    // If logged in, has profile, but not verified AND not on allowed route, redirect to verification
-    if (loggedIn && userLoaded && ready && profileData && !profileData.verified && !isAllowedRoute) {
+    // If logged in, has profile, but not verified and not requested (needs verification), redirect to verification
+    if (loggedIn && userLoaded && ready && profileData && !profileData.verified && !profileData.requested && !isAllowedRoute) {
       return <Redirect to="/verify" />;
     }
 
-    // If logged in, has profile, verified but requested (waiting for admin approval), redirect to waiting page
-    if (loggedIn && userLoaded && ready && profileData && profileData.verified && profileData.requested && !isAllowedRoute) {
+    // If logged in, has profile, not verified but requested (waiting for admin approval), redirect to waiting page
+    if (loggedIn && userLoaded && ready && profileData && !profileData.verified && profileData.requested && !isAllowedRoute) {
       return <Redirect to="/waiting-confirmation" />;
     }
 

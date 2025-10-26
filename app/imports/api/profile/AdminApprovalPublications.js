@@ -24,7 +24,7 @@ Meteor.publish("admin.pendingUsers", async function() {
     return this.ready();
   }
 
-  let query = { verified: true, requested: true };
+  let query = { verified: false, requested: true };
 
   // For school admins, only show users from their school
   if (isSchoolAdmin && !isSystemAdmin) {

@@ -31,8 +31,8 @@ Meteor.methods({
     }
 
     // Check if profile is in the correct state for approval
-    if (!profileToApprove.verified) {
-      throw new Meteor.Error("not-verified", "User must be verified before they can be approved.");
+    if (profileToApprove.verified) {
+      throw new Meteor.Error("already-verified", "User is already verified and approved.");
     }
 
     if (!profileToApprove.requested) {
@@ -47,15 +47,16 @@ Meteor.methods({
       }
     }
 
-    // Approve the user by setting requested: false
+    // Approve the user by setting verified: true and requested: false
     await Profiles.updateAsync(
       { Owner: userId },
-      { 
-        $set: { 
+      {
+        $set: {
+          verified: true,
           requested: false,
           approvedAt: new Date(),
           approvedBy: this.userId,
-        } 
+        }
       }
     );
 
@@ -97,7 +98,7 @@ Meteor.methods({
     }
 
     // Check if profile is in the correct state for rejection
-    if (!profileToReject.verified || !profileToReject.requested) {
+    if (profileToReject.verified || !profileToReject.requested) {
       throw new Meteor.Error("invalid-state", "User is not pending approval.");
     }
 
@@ -110,7 +111,7 @@ Meteor.methods({
     }
 
     // Reject the user by setting both verified: false and requested: false
-    const updateData = { 
+    const updateData = {
       verified: false,
       requested: false,
       rejectedAt: new Date(),
@@ -155,7 +156,7 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized", "Only administrators can view pending users.");
     }
 
-    let query = { verified: true, requested: true };
+    let query = { verified: false, requested: true };
 
     // For school admins, only show users from their school
     if (isSchoolAdmin && !isSystemAdmin) {
@@ -181,8 +182,8 @@ Meteor.methods({
     const usersWithDetails = await Promise.all(
       pendingProfiles.map(async (profile) => {
         const user = await Meteor.users.findOneAsync(profile.Owner, {
-          fields: { 
-            emails: 1, 
+          fields: {
+            emails: 1,
             createdAt: 1,
             schoolId: 1,
           }

@@ -174,7 +174,7 @@ Meteor.methods({
       { Owner: userId },
       {
         $set: {
-          verified: true,
+          verified: false,
           requested: true,
           schoolemail: verification.email
         }

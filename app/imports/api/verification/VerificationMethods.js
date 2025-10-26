@@ -51,10 +51,10 @@ Meteor.methods({
       });
     }
 
-    // Update user profile to set verified: true and requested: true (pending admin approval)
+    // Update user profile to set verified: false and requested: true (pending admin approval)
     await Profiles.updateAsync(
       { Owner: userId },
-      { $set: { verified: true, requested: true } }
+      { $set: { verified: false, requested: true } }
     );
 
     return {
