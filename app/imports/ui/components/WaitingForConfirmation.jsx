@@ -38,8 +38,13 @@ const WaitingForConfirmation = ({ profile, loading }) => {
     return (
       <Container>
         <Content>
-          <Icon>⏳</Icon>
-          <Title>Loading...</Title>
+          <Icon>🔍</Icon>
+          <Title>Admin Verification in Progress</Title>
+          <Subtitle>Our administrators are reviewing your profile verification</Subtitle>
+
+          <Message>
+            Please check back soon! You'll receive an email notification once your account has been approved and you can access the full application.
+          </Message>
         </Content>
       </Container>
     );
@@ -51,9 +56,9 @@ const WaitingForConfirmation = ({ profile, loading }) => {
   return (
     <Container>
       <Content>
-        <Icon>⏳</Icon>
-        <Title>Verification Under Review</Title>
-        <Subtitle>Your {userType.toLowerCase()} verification is pending approval</Subtitle>
+        <Icon>🔍</Icon>
+        <Title>Admin Verification in Progress</Title>
+        <Subtitle>Our administrators are reviewing your {userType.toLowerCase()} profile verification</Subtitle>
 
         <StatusCard>
           <StatusIcon verified>✅</StatusIcon>
@@ -86,23 +91,26 @@ const WaitingForConfirmation = ({ profile, loading }) => {
         <Message>
           Hi {userName}! 👋
           <br /><br />
-          Great news! You&apos;ve successfully completed your {userType.toLowerCase()} verification. 
-          Your profile is now under review by our administrators.
+          Great news! You&apos;ve successfully completed your {userType.toLowerCase()} verification.
+          Our administrators are now reviewing your profile to ensure everything is in order.
           <br /><br />
           <strong>What happens next?</strong>
           <br />
-          • Our admins will review your verification details
+          • Our admins are currently verifying your profile details
           <br />
-          • You&apos;ll receive access once approved
+          • You&apos;ll receive an email notification once approved
           <br />
-          • This typically takes 1-2 business days
+          • Check back soon - this typically takes 1-2 business days
+          <br />
+          • No further action is needed from you at this time
         </Message>
 
         <InfoSection>
-          <InfoTitle>📧 Need Help?</InfoTitle>
+          <InfoTitle>📧 What to Expect</InfoTitle>
           <InfoText>
-            If you have questions about your verification status, please contact your school administrator 
-            or our support team. We&apos;re here to help!
+            You'll receive an email notification as soon as your profile is approved by our administrators.
+            In the meantime, feel free to check back here periodically. If you have questions about your
+            verification status, please contact your school administrator or our support team.
           </InfoText>
         </InfoSection>
 
