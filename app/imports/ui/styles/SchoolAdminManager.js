@@ -126,6 +126,50 @@ export const SchoolOption = styled.option`
   padding: 8px;
 `;
 
+export const FilterSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  background: #f8fafb;
+  border-radius: 12px;
+  border: 1px solid #e1e8ed;
+`;
+
+export const FilterGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+export const FilterLabel = styled.label`
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+export const FilterSelect = styled.select`
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #4caf50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  }
+
+  &:hover {
+    border-color: #ccc;
+  }
+`;
+
 export const UsersList = styled.div`
   display: flex;
   flex-direction: column;

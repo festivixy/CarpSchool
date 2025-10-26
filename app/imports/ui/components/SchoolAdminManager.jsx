@@ -25,6 +25,10 @@ import {
   EmptyState,
   SchoolSelector,
   SchoolOption,
+  FilterSection,
+  FilterGroup,
+  FilterLabel,
+  FilterSelect,
 } from "../styles/SchoolAdminManager";
 
 /**
@@ -38,6 +42,10 @@ const SchoolAdminManager = ({ schools }) => {
   const [processing, setProcessing] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [schoolFilter, setSchoolFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("email");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
     loadUsers();
@@ -150,11 +158,60 @@ const SchoolAdminManager = ({ schools }) => {
     return school?.name || "Unknown School";
   };
 
-  const filteredUsers = searchEmail.trim()
-    ? users.filter(user =>
-        user.emails?.[0]?.address?.toLowerCase().includes(searchEmail.toLowerCase())
-      )
-    : users;
+  const filteredUsers = users
+    .filter(user => {
+      // Search filter
+      if (searchEmail.trim()) {
+        const email = user.emails?.[0]?.address?.toLowerCase() || "";
+        if (!email.includes(searchEmail.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // Role filter
+      if (roleFilter !== "all") {
+        if (roleFilter === "system" && !isSystemAdmin(user)) return false;
+        if (roleFilter === "school" && !isSchoolAdmin(user)) return false;
+        if (roleFilter === "regular" && (isSystemAdmin(user) || isSchoolAdmin(user))) return false;
+      }
+
+      // School filter
+      if (schoolFilter !== "all") {
+        if (!user.schoolId || user.schoolId !== schoolFilter) return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      let aVal, bVal;
+
+      switch (sortBy) {
+        case "email":
+          aVal = a.emails?.[0]?.address || "";
+          bVal = b.emails?.[0]?.address || "";
+          break;
+        case "school":
+          aVal = getSchoolName(a.schoolId);
+          bVal = getSchoolName(b.schoolId);
+          break;
+        case "role":
+          aVal = isSystemAdmin(a) ? "system" : (isSchoolAdmin(a) ? "school" : "regular");
+          bVal = isSystemAdmin(b) ? "system" : (isSchoolAdmin(b) ? "school" : "regular");
+          break;
+        case "created":
+          aVal = new Date(a.createdAt || 0);
+          bVal = new Date(b.createdAt || 0);
+          break;
+        default:
+          aVal = a.emails?.[0]?.address || "";
+          bVal = b.emails?.[0]?.address || "";
+      }
+
+      if (sortOrder === "desc") {
+        return bVal > aVal ? 1 : -1;
+      }
+      return aVal > bVal ? 1 : -1;
+    });
 
   return (
     <Container>
@@ -196,6 +253,48 @@ const SchoolAdminManager = ({ schools }) => {
           </select>
         </SchoolSelector>
 
+        <FilterSection>
+          <FilterGroup>
+            <FilterLabel>Filter by Role:</FilterLabel>
+            <FilterSelect value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+              <option value="all">All Roles</option>
+              <option value="system">System Admins</option>
+              <option value="school">School Admins</option>
+              <option value="regular">Regular Users</option>
+            </FilterSelect>
+          </FilterGroup>
+
+          <FilterGroup>
+            <FilterLabel>Filter by School:</FilterLabel>
+            <FilterSelect value={schoolFilter} onChange={(e) => setSchoolFilter(e.target.value)}>
+              <option value="all">All Schools</option>
+              {schools.map(school => (
+                <option key={school._id} value={school._id}>
+                  {school.name}
+                </option>
+              ))}
+            </FilterSelect>
+          </FilterGroup>
+
+          <FilterGroup>
+            <FilterLabel>Sort by:</FilterLabel>
+            <FilterSelect value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="email">Email</option>
+              <option value="school">School</option>
+              <option value="role">Role</option>
+              <option value="created">Date Created</option>
+            </FilterSelect>
+          </FilterGroup>
+
+          <FilterGroup>
+            <FilterLabel>Order:</FilterLabel>
+            <FilterSelect value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </FilterSelect>
+          </FilterGroup>
+        </FilterSection>
+
         {loading ? (
           <LoadingState>
             <div>🔍 Loading users...</div>
@@ -205,8 +304,8 @@ const SchoolAdminManager = ({ schools }) => {
             <div>👥</div>
             <h3>No users found</h3>
             <p>
-              {searchEmail.trim()
-                ? `No users found matching "${searchEmail}"`
+              {searchEmail.trim() || roleFilter !== "all" || schoolFilter !== "all"
+                ? "No users match the current search and filter criteria"
                 : "No users available to manage"
               }
             </p>
