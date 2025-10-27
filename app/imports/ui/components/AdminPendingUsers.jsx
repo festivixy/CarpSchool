@@ -69,6 +69,8 @@ const AdminPendingUsers = () => {
     });
   };
 
+
+
   const handleApprove = (userId, userName) => {
     if (processing) return;
 
@@ -220,7 +222,7 @@ const AdminPendingUsers = () => {
                   {user.schoolemail && (
                     <UserEmail>📧 School: {user.schoolemail}</UserEmail>
                   )}
-                  <UserSchool>🏫 {user.School}</UserSchool>
+                  <UserSchool>🏫 {user.schoolName}</UserSchool>
                   {user.Phone && (
                     <UserMeta>📞 {user.Phone}</UserMeta>
                   )}
