@@ -62,7 +62,6 @@ import {
 } from "../styles/AdminSchools";
 import BackButton from "../mobile/components/BackButton";
 import InteractiveMapPicker from "../mobile/components/InteractiveMapPicker";
-import AdminPendingUsers from "../components/AdminPendingUsers";
 import SchoolAdminManager from "../components/SchoolAdminManager";
 
 /**
@@ -517,11 +516,6 @@ class AdminSchools extends React.Component {
               </SchoolsGrid>
             </>
           )}
-
-          {/* Pending Users Section */}
-          <div style={{ marginTop: "48px" }}>
-            <AdminPendingUsers />
-          </div>
 
           {/* School Admin Manager Section */}
           <SchoolAdminManager schools={schools} />
