@@ -1,6 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { Schools, SchoolsSchema } from "./Schools";
+import { isSystemAdmin, isSchoolAdmin } from "../accounts/RoleUtils";
 
 Meteor.methods({
   /**
@@ -171,5 +172,131 @@ Meteor.methods({
     }
 
     return true;
+  },
+
+  /**
+   * Get school admin's own school data
+   */
+  async "schools.getMySchool"() {
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
+    if (!currentUser) {
+      throw new Meteor.Error("not-logged-in", "Please log in first");
+    }
+
+    const isSchoolAdminUser = await isSchoolAdmin(this.userId);
+    if (!isSchoolAdminUser) {
+      throw new Meteor.Error("access-denied", "Only school administrators can access school data");
+    }
+
+    if (!currentUser.schoolId) {
+      throw new Meteor.Error("no-school", "No school assigned to your account");
+    }
+
+    const school = await Schools.findOneAsync(currentUser.schoolId);
+    if (!school) {
+      throw new Meteor.Error("school-not-found", "School not found");
+    }
+
+    return school;
+  },
+
+  /**
+   * Update school admin's own school basic information
+   */
+  async "schools.updateMySchool"(updateData) {
+    check(updateData, {
+      name: String,
+      shortName: String,
+      code: String,
+      domain: String,
+      location: Object,
+      settings: Object,
+    });
+
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
+    if (!currentUser) {
+      throw new Meteor.Error("not-logged-in", "Please log in first");
+    }
+
+    const isSchoolAdminUser = await isSchoolAdmin(this.userId);
+    if (!isSchoolAdminUser) {
+      throw new Meteor.Error("access-denied", "Only school administrators can update school data");
+    }
+
+    if (!currentUser.schoolId) {
+      throw new Meteor.Error("no-school", "No school assigned to your account");
+    }
+
+    // Create a simplified validation schema for updates
+    const updateSchema = Joi.object({
+      name: Joi.string().required().min(2).max(100),
+      shortName: Joi.string().required().min(2).max(20),
+      code: Joi.string().required().min(2).max(10).uppercase(),
+      domain: Joi.string().pattern(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).allow("").allow(null).optional(),
+      location: Joi.object({
+        city: Joi.string().allow("").optional(),
+        province: Joi.string().allow("").optional(),
+        country: Joi.string().default("Canada"),
+        address: Joi.string().allow("").optional(),
+        coordinates: Joi.object({
+          lat: Joi.number().required(),
+          lng: Joi.number().required(),
+        }).required(),
+      }).optional(),
+      settings: Joi.object({
+        allowPublicRegistration: Joi.boolean().default(true),
+        requireEmailVerification: Joi.boolean().default(true),
+        requireDomainMatch: Joi.boolean().default(false),
+        maxRideDistance: Joi.number().default(50),
+      }).default({}),
+    });
+
+    const { error, value } = updateSchema.validate(updateData);
+
+    if (error) {
+      throw new Meteor.Error("validation-error", error.details[0].message);
+    }
+
+    // Check if code is being changed and if it conflicts with another school
+    const currentSchool = await Schools.findOneAsync(currentUser.schoolId);
+    if (value.code !== currentSchool.code) {
+      const existingSchool = await Schools.findOneAsync({
+        code: value.code,
+        _id: { $ne: currentUser.schoolId }
+      });
+      if (existingSchool) {
+        throw new Meteor.Error("duplicate-code", `School with code '${value.code}' already exists`);
+      }
+    }
+
+    // Check if domain is being changed and if it conflicts with another school
+    if (value.domain && value.domain !== currentSchool.domain) {
+      const existingDomain = await Schools.findOneAsync({
+        domain: value.domain,
+        _id: { $ne: currentUser.schoolId }
+      });
+      if (existingDomain) {
+        throw new Meteor.Error("duplicate-domain", `School with domain '${value.domain}' already exists`);
+      }
+    }
+
+    // Update the school
+    await Schools.updateAsync(currentUser.schoolId, {
+      $set: {
+        name: value.name,
+        shortName: value.shortName,
+        code: value.code,
+        domain: value.domain || null,
+        location: value.location,
+        settings: value.settings,
+        updatedAt: new Date(),
+        updatedBy: this.userId,
+      }
+    });
+
+    return {
+      success: true,
+      message: "School information updated successfully",
+    };
   },
 });

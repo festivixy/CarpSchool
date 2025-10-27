@@ -104,3 +104,42 @@ Meteor.publish("schools.byId", function publishSchoolById(schoolId) {
     },
   );
 });
+
+/**
+ * Publish school admin's own school data for management
+ */
+Meteor.publish("schools.mySchool", async function publishMySchool() {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  const user = await Meteor.users.findOneAsync(this.userId);
+  if (!user || !user.schoolId) {
+    return this.ready();
+  }
+
+  // Check if user is school admin
+  const { isSchoolAdmin } = await import("../accounts/RoleUtils");
+  const isSchoolAdminUser = await isSchoolAdmin(this.userId);
+
+  if (!isSchoolAdminUser) {
+    return this.ready();
+  }
+
+  return Schools.find(
+    { _id: user.schoolId },
+    {
+      fields: {
+        name: 1,
+        shortName: 1,
+        code: 1,
+        domain: 1,
+        location: 1,
+        settings: 1,
+        isActive: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    },
+  );
+});
