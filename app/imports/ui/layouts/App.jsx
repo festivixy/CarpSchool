@@ -12,7 +12,8 @@ import { withTracker } from "meteor/react-meteor-data";
 import MobileAdminRides from "../pages/AdminRides";
 import MobileAdminUsers from "../pages/AdminUsers";
 import AdminSchools from "../pages/AdminSchools";
-import AdminPendingUsers from "../components/AdminPendingUsers";
+import AdminPendingUsersPage from "../pages/AdminPendingUsers";
+import SchoolManagement from "../pages/SchoolManagement";
 import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import LoadingPage from "../components/LoadingPage";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -148,11 +149,15 @@ class App extends React.Component {
               />
               <ProtectedRouteRequireAdmin
                 path="/admin/pending-users"
-                component={AdminPendingUsers}
+                component={AdminPendingUsersPage}
               />
               <ProtectedRouteRequireAdmin
                 path="/admin/places"
                 component={MobileAdminPlaceManager}
+              />
+              <ProtectedRouteRequireAdmin
+                path="/admin/school-management"
+                component={SchoolManagement}
               />
               <ProtectedRouteRequireSystem
                 path="/admin/schools"
