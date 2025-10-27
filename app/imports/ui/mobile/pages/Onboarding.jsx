@@ -65,7 +65,7 @@ class MobileOnboarding extends React.Component {
       name: "",
       selectedSchoolId: "",
       selectedSchoolName: "",
-      userType: "Both",
+      userType: "Driver",
       phone: "",
       other: "",
       profileImage: "",
@@ -508,14 +508,6 @@ class MobileOnboarding extends React.Component {
         >
           <UserTypeTitle>Rider</UserTypeTitle>
           <UserTypeDesc>I need rides from others</UserTypeDesc>
-        </UserTypeOption>
-
-        <UserTypeOption
-          selected={this.state.userType === "Both"}
-          onClick={() => this.setState({ userType: "Both" })}
-        >
-          <UserTypeTitle>Both</UserTypeTitle>
-          <UserTypeDesc>I drive sometimes and ride sometimes</UserTypeDesc>
         </UserTypeOption>
       </UserTypeOptions>
 
