@@ -1,6 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { Profiles } from "./Profile";
+import { isSystemAdmin, isSchoolAdmin } from "../accounts/RoleUtils";
 
 /**
  * Publish pending users for admin approval
@@ -17,26 +18,31 @@ Meteor.publish("admin.pendingUsers", async function() {
   }
 
   // Check if user is system admin or school admin
-  const isSystemAdmin = currentUser.roles && currentUser.roles.includes("admin");
-  const isSchoolAdmin = currentUser.roles && currentUser.roles.includes("school-admin");
+  const isSystem = await isSystemAdmin(this.userId);
+  const isSchoolAdminUser = await isSchoolAdmin(this.userId);
 
-  if (!isSystemAdmin && !isSchoolAdmin) {
+  if (!isSystem && !isSchoolAdminUser) {
     return this.ready();
   }
 
   let query = { verified: false, requested: true };
 
-  // For school admins, only show users from their school
-  if (isSchoolAdmin && !isSystemAdmin) {
-    query.SchoolId = currentUser.schoolId;
+  // For school admins, we need to filter by user.schoolId, not profile.SchoolId
+  if (isSchoolAdminUser && !isSystem) {
+    // Get all users from the current admin's school
+    const schoolUserIds = await Meteor.users.find(
+      { schoolId: currentUser.schoolId },
+      { fields: { _id: 1 } }
+    ).fetchAsync();
+
+    const userIds = schoolUserIds.map(user => user._id);
+    query.Owner = { $in: userIds };
   }
 
   return Profiles.find(query, {
     fields: {
       Name: 1,
       UserType: 1,
-      School: 1,
-      SchoolId: 1,
       Owner: 1,
       Image: 1,
       Phone: 1,

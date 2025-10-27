@@ -1,6 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
 import { Profiles } from "./Profile";
+import { isSystemAdmin, isSchoolAdmin } from "../accounts/RoleUtils";
 
 Meteor.methods({
   /**
@@ -17,10 +18,10 @@ Meteor.methods({
     }
 
     // Check if user is system admin or school admin
-    const isSystemAdmin = currentUser.roles && currentUser.roles.includes("admin");
-    const isSchoolAdmin = currentUser.roles && currentUser.roles.includes("school-admin");
+    const isSystem = await isSystemAdmin(this.userId);
+    const isSchoolAdminUser = await isSchoolAdmin(this.userId);
 
-    if (!isSystemAdmin && !isSchoolAdmin) {
+    if (!isSystem && !isSchoolAdminUser) {
       throw new Meteor.Error("not-authorized", "Only administrators can approve users.");
     }
 
@@ -40,7 +41,7 @@ Meteor.methods({
     }
 
     // For school admins, ensure they can only approve users from their school
-    if (isSchoolAdmin && !isSystemAdmin) {
+    if (isSchoolAdminUser && !isSystem) {
       const targetUser = await Meteor.users.findOneAsync(userId);
       if (!targetUser || targetUser.schoolId !== currentUser.schoolId) {
         throw new Meteor.Error("not-authorized", "School administrators can only approve users from their own school.");
@@ -84,10 +85,10 @@ Meteor.methods({
     }
 
     // Check if user is system admin or school admin
-    const isSystemAdmin = currentUser.roles && currentUser.roles.includes("admin");
-    const isSchoolAdmin = currentUser.roles && currentUser.roles.includes("school-admin");
+    const isSystem = await isSystemAdmin(this.userId);
+    const isSchoolAdminUser = await isSchoolAdmin(this.userId);
 
-    if (!isSystemAdmin && !isSchoolAdmin) {
+    if (!isSystem && !isSchoolAdminUser) {
       throw new Meteor.Error("not-authorized", "Only administrators can reject users.");
     }
 
@@ -103,7 +104,7 @@ Meteor.methods({
     }
 
     // For school admins, ensure they can only reject users from their school
-    if (isSchoolAdmin && !isSystemAdmin) {
+    if (isSchoolAdminUser && !isSystem) {
       const targetUser = await Meteor.users.findOneAsync(userId);
       if (!targetUser || targetUser.schoolId !== currentUser.schoolId) {
         throw new Meteor.Error("not-authorized", "School administrators can only reject users from their own school.");
@@ -194,27 +195,21 @@ Meteor.methods({
     }
 
     // Check if user is system admin or school admin
-    const isSystemAdmin = currentUser.roles && currentUser.roles.includes("admin");
-    const isSchoolAdmin = currentUser.roles && currentUser.roles.includes("school-admin");
+    const isSystem = await isSystemAdmin(this.userId);
+    const isSchoolAdminUser = await isSchoolAdmin(this.userId);
 
-    if (!isSystemAdmin && !isSchoolAdmin) {
+    if (!isSystem && !isSchoolAdminUser) {
       throw new Meteor.Error("not-authorized", "Only administrators can view pending users.");
     }
 
     let query = { verified: false, requested: true };
 
-    // For school admins, only show users from their school
-    if (isSchoolAdmin && !isSystemAdmin) {
-      query.SchoolId = currentUser.schoolId;
-    }
-
-    const pendingProfiles = await Profiles.find(query, {
+    // First get all pending profiles
+    const allPendingProfiles = await Profiles.find(query, {
       sort: { createdAt: -1 },
       fields: {
         Name: 1,
         UserType: 1,
-        School: 1,
-        SchoolId: 1,
         Owner: 1,
         Image: 1,
         Phone: 1,
@@ -223,9 +218,9 @@ Meteor.methods({
       }
     }).fetchAsync();
 
-    // Get user account info for each profile
+    // Get user account info for each profile and filter by school for school admins
     const usersWithDetails = await Promise.all(
-      pendingProfiles.map(async (profile) => {
+      allPendingProfiles.map(async (profile) => {
         const user = await Meteor.users.findOneAsync(profile.Owner, {
           fields: {
             emails: 1,
@@ -234,18 +229,36 @@ Meteor.methods({
           }
         });
 
+        // Get school name if user has a school assigned
+        let schoolName = "No school assigned";
+        if (user?.schoolId) {
+          const { Schools } = await import("../schools/Schools");
+          const school = await Schools.findOneAsync(user.schoolId, {
+            fields: { name: 1 }
+          });
+          schoolName = school?.name || "Unknown school";
+        }
+
         return {
           ...profile,
           userEmail: user?.emails?.[0]?.address || "No email",
           userCreatedAt: user?.createdAt || profile.createdAt,
+          userSchoolId: user?.schoolId,
+          schoolName: schoolName,
         };
       })
     );
 
+    // Filter by school for school admins
+    let filteredUsers = usersWithDetails;
+    if (isSchoolAdminUser && !isSystem) {
+      filteredUsers = usersWithDetails.filter(user => user.userSchoolId === currentUser.schoolId);
+    }
+
     return {
       success: true,
-      pendingUsers: usersWithDetails,
-      count: usersWithDetails.length,
+      pendingUsers: filteredUsers,
+      count: filteredUsers.length,
     };
   },
 });
