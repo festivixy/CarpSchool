@@ -382,36 +382,52 @@ class MobileOnboarding extends React.Component {
   };
 
   handleFinish = () => {
-    const { name, selectedSchoolId, selectedSchoolName, userType, phone, other, profileImage, rideImage } =
+    const { name, selectedSchoolId, userType, phone, other, profileImage, rideImage } =
       this.state;
 
     this.setState({ isSubmitting: true, error: "", success: "" });
 
-    const profileData = {
-      Name: name,
-      School: selectedSchoolName,
-      SchoolId: selectedSchoolId,
-      Image: profileImage,
-      Ride: rideImage,
-      Phone: phone,
-      Other: other,
-      UserType: userType,
-      Owner: Meteor.user()._id,
-    };
-
-    // Insert new profile
-    Profiles.insert(profileData, (error) => {
+    // First, assign the school to the user account
+    Meteor.call("accounts.onboarding.assignSchool", selectedSchoolId, (schoolError) => {
       if (!this._isMounted) return;
-      this.setState({ isSubmitting: false });
-      if (error) {
-        this.setState({ error: error.message });
-      } else {
+
+      if (schoolError) {
         this.setState({
-          success:
-            "Welcome to CarpSchool! Your profile has been created successfully!",
-          redirectToReferer: true,
+          isSubmitting: false,
+          error: schoolError.reason || schoolError.message || "Failed to assign school"
         });
+        return;
       }
+
+      // Then create the profile
+      const profileData = {
+        Name: name,
+        Location: "Not specified", // Will be set in profile edit later
+        Image: profileImage,
+        Ride: rideImage,
+        Phone: phone,
+        Other: other,
+        UserType: userType,
+        verified: false,        // New users need admin approval
+        requested: true,        // Request admin approval
+        rejected: false,        // Not rejected yet
+        Owner: Meteor.user()._id,
+      };
+
+      // Insert new profile
+      Profiles.insert(profileData, (profileError) => {
+        if (!this._isMounted) return;
+        this.setState({ isSubmitting: false });
+        if (profileError) {
+          this.setState({ error: profileError.message });
+        } else {
+          this.setState({
+            success:
+              "Welcome to CarpSchool! Your profile has been created successfully! Waiting for admin approval...",
+            redirectToReferer: "/waiting-confirmation",
+          });
+        }
+      });
     });
   };
 
@@ -652,7 +668,7 @@ class MobileOnboarding extends React.Component {
           <strong>Name:</strong> {this.state.name}
         </SummaryItem>
         <SummaryItem>
-          <strong>Location:</strong> {this.state.location}
+          <strong>School:</strong> {this.state.selectedSchoolName}
         </SummaryItem>
         <SummaryItem>
           <strong>User Type:</strong> {this.state.userType}
@@ -693,6 +709,11 @@ class MobileOnboarding extends React.Component {
 
   render() {
     if (this.state.redirectToReferer) {
+      // Check if it's a specific redirect path
+      if (typeof this.state.redirectToReferer === "string") {
+        return <Redirect to={this.state.redirectToReferer} />;
+      }
+      // Default redirect for existing users
       return <Redirect to="/verify" />;
     }
 
