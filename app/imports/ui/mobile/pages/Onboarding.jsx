@@ -490,7 +490,7 @@ class MobileOnboarding extends React.Component {
     <Step>
       <StepTitle>How do you ride share?</StepTitle>
       <StepSubtitle>
-        Tell us if you drive, ride, or do both. You can change this later.
+        Tell us if you drive or need rides. You can change this later.
       </StepSubtitle>
 
       <UserTypeOptions>
