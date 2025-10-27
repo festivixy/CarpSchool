@@ -177,21 +177,6 @@ class NavBar extends React.Component {
                       >
                         Manage Places
                       </DropdownItem>
-                      <DropdownItem
-                        to="/admin/error-reports"
-                        onClick={this.closeAllMenus}
-                      >
-                        🚨 Error Reports
-                      </DropdownItem>
-                      <DropdownItem
-                        to="/_test/image-upload"
-                        onClick={this.closeAllMenus}
-                      >
-                        Test Image Upload
-                      </DropdownItem>
-                      <DropdownItem to="/_test" onClick={this.closeAllMenus}>
-                        Components Test
-                      </DropdownItem>
                     </DropdownMenu>
                   )}
                 </Dropdown>
@@ -215,6 +200,21 @@ class NavBar extends React.Component {
                         onClick={this.closeAllMenus}
                       >
                         🏫 Manage Schools
+                      </DropdownItem>
+                      <DropdownItem
+                        to="/admin/error-reports"
+                        onClick={this.closeAllMenus}
+                      >
+                        🚨 Error Reports
+                      </DropdownItem>
+                      <DropdownItem
+                        to="/_test/image-upload"
+                        onClick={this.closeAllMenus}
+                      >
+                        Test Image Upload
+                      </DropdownItem>
+                      <DropdownItem to="/_test" onClick={this.closeAllMenus}>
+                        Components Test
                       </DropdownItem>
                     </DropdownMenu>
                   )}
@@ -315,15 +315,6 @@ class NavBar extends React.Component {
                       >
                         Manage Places
                       </MobileItem>
-                      <MobileItem
-                        to="/_test/image-upload"
-                        onClick={this.closeAllMenus}
-                      >
-                        Test Image Upload
-                      </MobileItem>
-                      <MobileItem to="/_test" onClick={this.closeAllMenus}>
-                        Components Test
-                      </MobileItem>
                     </MobileSection>
                   )}
 
@@ -335,6 +326,21 @@ class NavBar extends React.Component {
                       </MobileItem>
                       <MobileItem to="/admin/schools" onClick={this.closeAllMenus}>
                         🏫 Manage Schools
+                      </MobileItem>
+                      <MobileItem
+                        to="/admin/error-reports"
+                        onClick={this.closeAllMenus}
+                      >
+                        🚨 Error Reports
+                      </MobileItem>
+                      <MobileItem
+                        to="/_test/image-upload"
+                        onClick={this.closeAllMenus}
+                      >
+                        Test Image Upload
+                      </MobileItem>
+                      <MobileItem to="/_test" onClick={this.closeAllMenus}>
+                        Components Test
                       </MobileItem>
                     </MobileSection>
                   )}
