@@ -15,53 +15,25 @@ export const CaptchaLabel = styled.label`
 `;
 
 export const CaptchaContainer = styled.div`
-  display: inline-flex;
-  justify-content: flex-end;
+  display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px;
+  padding: 12px;
   background: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #e9ecef;
-  width: 327px;
-  height: 94px;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    width: 280px;
-    max-width: 90vw;
-  }
-
-  @media (max-width: 480px) {
-    width: 250px;
-    max-width: 95vw;
-    padding: 10px;
-    gap: 8px;
-  }
 `;
 
 export const CaptchaDisplay = styled.div`
+  flex: 1;
   display: flex;
-  padding: 9px 50px 9px 49px;
-  flex-direction: column;
-  align-items: flex-start;
-  border-radius: 4px;
-  border: 1px solid #dee2e6;
-  background: #fff;
-  width: 150px;
-  height: 50px;
+  align-items: center;
   justify-content: center;
-
-  @media (max-width: 768px) {
-    width: 120px;
-    padding: 9px 30px;
-  }
-
-  @media (max-width: 480px) {
-    width: 100px;
-    height: 40px;
-    padding: 9px 20px;
-  }
+  background: white;
+  border-radius: 4px;
+  padding: 8px;
+  min-height: 50px;
+  border: 1px solid #dee2e6;
 
   svg {
     max-width: 100%;
@@ -70,49 +42,32 @@ export const CaptchaDisplay = styled.div`
 `;
 
 export const CaptchaLoading = styled.div`
+  flex: 1;
   display: flex;
-  padding: 9px 50px 9px 49px;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: #f8f9fa;
   border-radius: 4px;
+  padding: 16px;
   color: #6c757d;
   font-size: 14px;
-  width: 150px;
-  height: 50px;
+  min-height: 50px;
   border: 1px solid #dee2e6;
-
-  @media (max-width: 768px) {
-    width: 120px;
-    padding: 9px 30px;
-  }
-
-  @media (max-width: 480px) {
-    width: 100px;
-    height: 40px;
-    padding: 9px 20px;
-    font-size: 12px;
-  }
 `;
 
 export const CaptchaRefreshButton = styled.button`
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #007bff;
+  color: white;
   display: flex;
-  padding: 10px;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 20px;
-  background: #007bff;
-  border: none;
-  color: white;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-
-  @media (max-width: 480px) {
-    padding: 8px;
-  }
 
   &:hover:not(:disabled) {
     background: #0056b3;
@@ -130,11 +85,6 @@ export const CaptchaRefreshButton = styled.button`
     width: 20px;
     height: 20px;
     filter: invert(1);
-
-    @media (max-width: 480px) {
-      width: 16px;
-      height: 16px;
-    }
   }
 `;
 
