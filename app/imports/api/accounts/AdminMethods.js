@@ -265,4 +265,53 @@ Meteor.methods({
 
     return { success: true };
   },
+
+  /**
+   * Assign current user to a school during onboarding
+   */
+  async "accounts.onboarding.assignSchool"(schoolId) {
+    check(schoolId, String);
+
+    const currentUserId = Meteor.userId();
+    if (!currentUserId) {
+      throw new Meteor.Error("not-logged-in", "Please log in first");
+    }
+
+    const currentUser = await Meteor.users.findOneAsync(currentUserId);
+    if (!currentUser) {
+      throw new Meteor.Error("user-not-found", "User not found");
+    }
+
+    // Import Schools here to avoid circular dependency
+    const { Schools } = await import("../schools/Schools");
+    const school = await Schools.findOneAsync({ _id: schoolId, isActive: true });
+    if (!school) {
+      throw new Meteor.Error("school-not-found", "School not found or inactive");
+    }
+
+    // Check if school allows public registration
+    if (!school.settings?.allowPublicRegistration) {
+      throw new Meteor.Error("registration-not-allowed", "This school does not allow public registration");
+    }
+
+    // If user already has the same school assigned, just return success
+    if (currentUser.schoolId === schoolId) {
+      return {
+        success: true,
+        schoolName: school.name,
+        message: `Already assigned to ${school.name}`
+      };
+    }
+
+    // If user has a different school or no school, assign the selected one
+    await Meteor.users.updateAsync(currentUserId, {
+      $set: { schoolId: schoolId }
+    });
+
+    return {
+      success: true,
+      schoolName: school.name,
+      message: `Successfully joined ${school.name}`
+    };
+  },
 });

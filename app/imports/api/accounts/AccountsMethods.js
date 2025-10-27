@@ -133,6 +133,9 @@ Meteor.methods({
           Phone: "",
           Other: "",
           UserType: "Driver",
+          verified: false,        // New profiles need admin approval
+          requested: true,        // Request admin approval
+          rejected: false,        // Not rejected yet
           Owner: userId,
         });
       }
