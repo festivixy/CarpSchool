@@ -61,6 +61,31 @@ Meteor.publish("schools.all", async function publishAllSchools() {
 });
 
 /**
+ * Publish schools for onboarding (all active schools for school selection)
+ */
+Meteor.publish("schools.onboarding", function publishSchoolsForOnboarding() {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  // During onboarding, users need to see all active schools to choose from
+  return Schools.find(
+    { isActive: true },
+    {
+      fields: {
+        name: 1,
+        shortName: 1,
+        code: 1,
+        domain: 1,
+        location: 1,
+        settings: 1,
+      },
+      sort: { name: 1 },
+    },
+  );
+});
+
+/**
  * Publish single school by ID
  */
 Meteor.publish("schools.byId", function publishSchoolById(schoolId) {

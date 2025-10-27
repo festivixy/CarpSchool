@@ -74,10 +74,12 @@ class SchoolSelector extends Component {
     if (!searchTerm) return schools;
 
     const term = searchTerm.toLowerCase();
-    return schools.filter(school => school.name.toLowerCase().includes(term) ||
+    return schools.filter(school =>
+      school.name.toLowerCase().includes(term) ||
       school.shortName.toLowerCase().includes(term) ||
       school.code.toLowerCase().includes(term) ||
-      school.location.city.toLowerCase().includes(term));
+      (school.location?.city && school.location.city.toLowerCase().includes(term))
+    );
   };
 
   render() {
@@ -141,7 +143,7 @@ class SchoolSelector extends Component {
               <SchoolInfo>
                 <SchoolName>{school.name}</SchoolName>
                 <SchoolLocation>
-                  📍 {school.location.city}, {school.location.province}
+                  📍 {school.location?.city || "Location not set"}{school.location?.province ? `, ${school.location.province}` : ""}
                 </SchoolLocation>
               </SchoolInfo>
               <SchoolCode>{school.code}</SchoolCode>
@@ -175,7 +177,7 @@ SchoolSelector.propTypes = {
 };
 
 export default withTracker(() => {
-  const subscription = Meteor.subscribe("schools.active");
+  const subscription = Meteor.subscribe("schools.onboarding");
   const schools = Schools.find({}, { sort: { name: 1 } }).fetch();
 
   return {
