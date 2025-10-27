@@ -91,7 +91,7 @@ class AdminSchools extends React.Component {
     code: "",
     domain: "",
     selectedLocation: null,
-    allowRegistration: true,
+    allowPublicRegistration: true,
     requireEmailVerification: true,
   });
 
@@ -113,7 +113,7 @@ class AdminSchools extends React.Component {
         code: school.code || "",
         domain: school.domain || "",
         selectedLocation: school.location?.coordinates || null,
-        allowRegistration: school.settings?.allowRegistration ?? true,
+        allowPublicRegistration: school.settings?.allowPublicRegistration ?? true,
         requireEmailVerification: school.settings?.requireEmailVerification ?? true,
       },
       error: "",
@@ -227,7 +227,7 @@ class AdminSchools extends React.Component {
         },
       } : undefined,
       settings: {
-        allowRegistration: createForm.allowRegistration,
+        allowPublicRegistration: createForm.allowPublicRegistration,
         requireEmailVerification: createForm.requireEmailVerification,
       },
     };
@@ -281,7 +281,7 @@ class AdminSchools extends React.Component {
         },
       } : editingSchool.location,
       settings: {
-        allowRegistration: editForm.allowRegistration,
+        allowPublicRegistration: editForm.allowPublicRegistration,
         requireEmailVerification: editForm.requireEmailVerification,
       },
     };
@@ -491,7 +491,7 @@ class AdminSchools extends React.Component {
                         <DetailItem>
                           <DetailLabel>Registration</DetailLabel>
                           <DetailValue>
-                            {school.settings?.allowRegistration ? "Open" : "Closed"}
+                            {school.settings?.allowPublicRegistration ? "Open" : "Closed"}
                           </DetailValue>
                         </DetailItem>
                         <DetailItem>
@@ -611,8 +611,8 @@ class AdminSchools extends React.Component {
                           </SwitchLabel>
                           <Switch disabled={this.state.loading}>
                             <SwitchInput
-                              name="allowRegistration"
-                              checked={this.state.createForm.allowRegistration}
+                              name="allowPublicRegistration"
+                              checked={this.state.createForm.allowPublicRegistration}
                               onChange={this.handleCreateFormChange}
                               disabled={this.state.loading}
                             />
@@ -751,8 +751,8 @@ class AdminSchools extends React.Component {
                           </SwitchLabel>
                           <Switch disabled={this.state.loading}>
                             <SwitchInput
-                              name="allowRegistration"
-                              checked={this.state.editForm.allowRegistration}
+                              name="allowPublicRegistration"
+                              checked={this.state.editForm.allowPublicRegistration}
                               onChange={this.handleEditFormChange}
                               disabled={this.state.loading}
                             />
