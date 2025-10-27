@@ -72,14 +72,14 @@ const UserVerificationPopup = ({ user, onClose, onSuccess }) => {
     Meteor.call("admin.rejectUser", user.Owner, rejectReason, (err, result) => {
       setProcessing(false);
       setShowRejectModal(false);
-      
+
       if (err) {
         setError(err.reason || "Failed to reject user");
       } else {
         onSuccess(`${user.Name} has been rejected.`);
         onClose();
       }
-      
+
       setRejectReason("");
     });
   };
@@ -120,7 +120,7 @@ const UserVerificationPopup = ({ user, onClose, onSuccess }) => {
                 </div>
               )}
             </UserAvatar>
-            
+
             <UserInfo>
               <UserName>{user.Name}</UserName>
               <UserBadge userType={user.UserType}>
@@ -134,31 +134,31 @@ const UserVerificationPopup = ({ user, onClose, onSuccess }) => {
               <InfoLabel>Account Email</InfoLabel>
               <InfoValue>{user.userEmail}</InfoValue>
             </InfoItem>
-            
+
             <InfoItem>
               <InfoLabel>School Email</InfoLabel>
               <InfoValue>
                 {user.schoolemail ? `📧 ${user.schoolemail}` : "Not provided"}
               </InfoValue>
             </InfoItem>
-            
+
             <InfoItem>
               <InfoLabel>School</InfoLabel>
-              <InfoValue>🏫 {user.School || "Not specified"}</InfoValue>
+              <InfoValue>🏫 {user.schoolName || "Not specified"}</InfoValue>
             </InfoItem>
-            
+
             <InfoItem>
               <InfoLabel>Phone Number</InfoLabel>
               <InfoValue>
                 {user.Phone ? `📞 ${user.Phone}` : "Not provided"}
               </InfoValue>
             </InfoItem>
-            
+
             <InfoItem>
               <InfoLabel>Account Created</InfoLabel>
               <InfoValue>📅 {formatDate(user.userCreatedAt)}</InfoValue>
             </InfoItem>
-            
+
             <InfoItem>
               <InfoLabel>Verification Status</InfoLabel>
               <InfoValue>⏳ Pending Admin Approval</InfoValue>
@@ -188,7 +188,7 @@ const UserVerificationPopup = ({ user, onClose, onSuccess }) => {
             >
               {processing ? "Approving..." : "✅ Approve User"}
             </ApproveButton>
-            
+
             <RejectButton
               onClick={handleRejectClick}
               disabled={processing}
@@ -205,13 +205,13 @@ const UserVerificationPopup = ({ user, onClose, onSuccess }) => {
               <RejectModalHeader>
                 <h3>Reject User Verification</h3>
               </RejectModalHeader>
-              
+
               <RejectModalBody>
                 <p>
-                  Are you sure you want to reject <strong>{user.Name}</strong>? 
+                  Are you sure you want to reject <strong>{user.Name}</strong>?
                   They will need to complete verification again.
                 </p>
-                
+
                 <RejectInput
                   type="text"
                   placeholder="Reason for rejection (optional)"
@@ -220,13 +220,13 @@ const UserVerificationPopup = ({ user, onClose, onSuccess }) => {
                   maxLength={500}
                 />
               </RejectModalBody>
-              
+
               <RejectModalActions>
                 <ModalButton onClick={handleRejectCancel}>
                   Cancel
                 </ModalButton>
-                <ModalButton 
-                  primary 
+                <ModalButton
+                  primary
                   onClick={handleRejectConfirm}
                   disabled={processing}
                 >
