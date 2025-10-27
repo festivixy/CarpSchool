@@ -44,19 +44,6 @@ import {
   Navigation,
   PrimaryButton,
   SecondaryButton,
-  SchoolSelectorContainer,
-  SchoolSelectorHeader,
-  SchoolSelectorTitle,
-  SchoolSelectorSubtitle,
-  AutoDetectedSchool,
-  AutoDetectedLabel,
-  AutoDetectedSchoolName,
-  SchoolSearchInput,
-  SelectedSchoolContainer,
-  SelectedSchoolContent,
-  SelectedSchoolName,
-  SchoolBadge,
-  SchoolBadgeText,
 } from "../styles/Onboarding";
 import Captcha from "../../components/Captcha";
 import SchoolSelector from "../../components/SchoolSelector";
@@ -446,11 +433,11 @@ class MobileOnboarding extends React.Component {
 
   renderProgressBar = () => {
     const { currentStep, totalSteps } = this.state;
-    const progress = currentStep;
+    const progress = (currentStep / totalSteps) * 100;
 
     return (
       <ProgressContainer>
-        <ProgressBar progress={progress}>
+        <ProgressBar>
           <ProgressFill progress={progress} />
         </ProgressBar>
         <ProgressText>
@@ -492,45 +479,10 @@ class MobileOnboarding extends React.Component {
         Choose your educational institution to connect with fellow students.
       </StepSubtitle>
 
-      <SchoolSelectorContainer>
-        <SchoolSelectorHeader>
-          <SchoolSelectorTitle>Select Your School</SchoolSelectorTitle>
-          <SchoolSelectorSubtitle>
-            Choose your educational institution to connect with fellow students
-          </SchoolSelectorSubtitle>
-        </SchoolSelectorHeader>
-
-        {this.state.selectedSchoolName && (
-          <AutoDetectedSchool>
-            <AutoDetectedLabel>Auto-detected:</AutoDetectedLabel>
-            <AutoDetectedSchoolName>
-              {this.state.selectedSchoolName} (based on your email domain)
-            </AutoDetectedSchoolName>
-          </AutoDetectedSchool>
-        )}
-
-        <SchoolSearchInput
-          type="text"
-          placeholder=" Search schools by name, city, or code..."
-          // Add search functionality here if needed
-        />
-
-        {this.state.selectedSchoolName && (
-          <SelectedSchoolContainer>
-            <SelectedSchoolContent>
-              <SelectedSchoolName>{this.state.selectedSchoolName}</SelectedSchoolName>
-              <SchoolBadge>
-                <SchoolBadgeText>TEST</SchoolBadgeText>
-              </SchoolBadge>
-            </SelectedSchoolContent>
-          </SelectedSchoolContainer>
-        )}
-
-        {/* Keep the original school selector functionality */}
-        <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}>
-          {this.renderSchoolSelector()}
-        </div>
-      </SchoolSelectorContainer>
+      <div style={{ marginTop: "20px" }}>
+        {/* School selection will be rendered here */}
+        {this.renderSchoolSelector()}
+      </div>
     </Step>
   );
 
@@ -546,30 +498,24 @@ class MobileOnboarding extends React.Component {
           selected={this.state.userType === "Driver"}
           onClick={() => this.setState({ userType: "Driver" })}
         >
-          <UserTypeTitle selected={this.state.userType === "Driver"}>Driver</UserTypeTitle>
-          <UserTypeDesc selected={this.state.userType === "Driver"}>
-            I drive and offer rides
-          </UserTypeDesc>
+          <UserTypeTitle>Driver</UserTypeTitle>
+          <UserTypeDesc>I drive and offer rides</UserTypeDesc>
         </UserTypeOption>
 
         <UserTypeOption
           selected={this.state.userType === "Rider"}
           onClick={() => this.setState({ userType: "Rider" })}
         >
-          <UserTypeTitle selected={this.state.userType === "Rider"}>Rider</UserTypeTitle>
-          <UserTypeDesc selected={this.state.userType === "Rider"}>
-            I need rides from others
-          </UserTypeDesc>
+          <UserTypeTitle>Rider</UserTypeTitle>
+          <UserTypeDesc>I need rides from others</UserTypeDesc>
         </UserTypeOption>
 
         <UserTypeOption
           selected={this.state.userType === "Both"}
           onClick={() => this.setState({ userType: "Both" })}
         >
-          <UserTypeTitle selected={this.state.userType === "Both"}>Both</UserTypeTitle>
-          <UserTypeDesc selected={this.state.userType === "Both"}>
-            I drive sometimes and ride sometimes
-          </UserTypeDesc>
+          <UserTypeTitle>Both</UserTypeTitle>
+          <UserTypeDesc>I drive sometimes and ride sometimes</UserTypeDesc>
         </UserTypeOption>
       </UserTypeOptions>
 
@@ -612,6 +558,17 @@ class MobileOnboarding extends React.Component {
         {/* Profile Photo */}
         <PhotoSection>
           <h3>Profile Photo</h3>
+          {(this.state.profileImagePreview || this.state.profileImage) && (
+            <PhotoPreview>
+              <PreviewImg
+                src={
+                  this.state.profileImagePreview ||
+                  getImageUrl(this.state.profileImage)
+                }
+                alt="Profile preview"
+              />
+            </PhotoPreview>
+          )}
           <FileInput
             type="file"
             accept="image/*"
@@ -620,86 +577,118 @@ class MobileOnboarding extends React.Component {
             disabled={this.state.isUploadingProfile}
           />
           <FileLabel htmlFor="profile-upload">
-            Add Profile Photo
+            {this.state.profileImage // eslint-disable-line
+              ? "Change Profile Photo"
+              : this.state.profileImagePreview
+                ? "Upload This Photo"
+                : "Add Profile Photo"}
           </FileLabel>
+
+          {/* Profile Image Upload with Captcha */}
+          {this.state.showProfileUpload && (
+            <UploadSection>
+              <Captcha
+                ref={this.profileCaptchaRef}
+                autoGenerate={true}
+                disabled={this.state.isUploadingProfile}
+              />
+
+              <UploadButton
+                type="button"
+                onClick={this.uploadProfileImage}
+                disabled={this.state.isUploadingProfile}
+              >
+                {this.state.isUploadingProfile
+                  ? "Uploading..."
+                  : "Upload Profile Photo"}
+              </UploadButton>
+            </UploadSection>
+          )}
         </PhotoSection>
 
-        {/* Vehicle Photo */}
-        <PhotoSection>
-          <h3>Vehicle Photo</h3>
-          <FileInput
-            type="file"
-            accept="image/*"
-            onChange={(e) => this.handleImageSelect(e, "ride")}
-            id="ride-upload"
-            disabled={this.state.isUploadingRide}
-          />
-          <FileLabel htmlFor="ride-upload">
-            Add Vehicle Photo
-          </FileLabel>
-        </PhotoSection>
+        {/* Vehicle Photo - Only show for Drivers */}
+        {this.state.userType !== "Rider" && (
+          <PhotoSection>
+            <h3>Vehicle Photo</h3>
+            {(this.state.rideImagePreview || this.state.rideImage) && (
+              <PhotoPreview>
+                <PreviewImg
+                src={
+                  this.state.rideImagePreview ||
+                  getImageUrl(this.state.rideImage)
+                }
+                  alt="Vehicle preview"
+                />
+              </PhotoPreview>
+            )}
+            <FileInput
+              type="file"
+              accept="image/*"
+              onChange={(e) => this.handleImageSelect(e, "ride")}
+              id="vehicle-upload"
+              disabled={this.state.isUploadingRide}
+            />
+            <FileLabel htmlFor="vehicle-upload">
+              {this.state.rideImage // eslint-disable-line
+                ? "Change Vehicle Photo"
+                : this.state.rideImagePreview
+                  ? "Upload This Photo"
+                  : "Add Vehicle Photo"}
+            </FileLabel>
+
+            {/* Ride Image Upload with Captcha */}
+            {this.state.showRideUpload && (
+              <UploadSection>
+                <Captcha
+                  ref={this.rideCaptchaRef}
+                  autoGenerate={true}
+                  disabled={this.state.isUploadingRide}
+                />
+
+                <UploadButton
+                  type="button"
+                  onClick={this.uploadRideImage}
+                  disabled={this.state.isUploadingRide}
+                >
+                  {this.state.isUploadingRide
+                    ? "Uploading..."
+                    : "Upload Vehicle Photo"}
+                </UploadButton>
+              </UploadSection>
+            )}
+          </PhotoSection>
+        )}
       </PhotoSections>
 
-      <FileInfo>
-        Supported: JPEG, PNG, GIF, WebP (max 5MB each)
-      </FileInfo>
+      <FileInfo>Supported: JPEG, PNG, GIF, WebP (max 5MB each)</FileInfo>
 
-      {/* Profile Summary */}
       <Summary>
         <h3>Profile Summary</h3>
         <SummaryItem>
-          <strong>Name:</strong> {this.state.name || 'admin'}
+          <strong>Name:</strong> {this.state.name}
         </SummaryItem>
         <SummaryItem>
-          <strong>Location:</strong>
+          <strong>School:</strong> {this.state.selectedSchoolName}
         </SummaryItem>
         <SummaryItem>
-          <strong>User Type:</strong> {this.state.userType || 'Both'}
+          <strong>User Type:</strong> {this.state.userType}
         </SummaryItem>
+        {this.state.phone && (
+          <SummaryItem>
+            <strong>Phone:</strong> {this.state.phone}
+          </SummaryItem>
+        )}
+        {this.state.profileImage && (
+          <SummaryItem>
+            <strong>Profile Photo:</strong> ✅ Uploaded
+          </SummaryItem>
+        )}
+        {this.state.rideImage && (
+          <SummaryItem>
+            <strong>Vehicle Photo:</strong> ✅ Uploaded
+          </SummaryItem>
+        )}
       </Summary>
-
-      {/* Hidden upload sections for captcha functionality */}
-      {this.state.showProfileUpload && (
-        <div style={{ display: 'none' }}>
-          <UploadSection>
-            <Captcha
-              ref={this.profileCaptchaRef}
-              autoGenerate={true}
-              disabled={this.state.isUploadingProfile}
-            />
-            <UploadButton
-              type="button"
-              onClick={this.uploadProfileImage}
-              disabled={this.state.isUploadingProfile}
-            >
-              {this.state.isUploadingProfile
-                ? "Uploading..."
-                : "Upload Profile Photo"}
-            </UploadButton>
-          </UploadSection>
-        </div>
-      )}
-
-      {this.state.showRideUpload && (
-        <div style={{ display: 'none' }}>
-          <UploadSection>
-            <Captcha
-              ref={this.rideCaptchaRef}
-              autoGenerate={true}
-              disabled={this.state.isUploadingRide}
-            />
-            <UploadButton
-              type="button"
-              onClick={this.uploadRideImage}
-              disabled={this.state.isUploadingRide}
-            >
-              {this.state.isUploadingRide
-                ? "Uploading..."
-                : "Upload Vehicle Photo"}
-            </UploadButton>
-          </UploadSection>
-        </div>
-      )}
     </Step>
   );
 
