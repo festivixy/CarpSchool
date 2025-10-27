@@ -4,6 +4,7 @@ import { Redirect } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Profiles } from "../../api/profile/Profile";
+import { Schools } from "../../api/schools/Schools";
 import { getImageUrl } from "../mobile/utils/imageUtils";
 import { ProfileSkeleton } from "../skeleton";
 import {
@@ -566,6 +567,20 @@ class MobileEditProfile extends React.Component {
                 </Field>
 
                 <Field>
+                  <Label>School</Label>
+                  <Input
+                    type="text"
+                    value={this.props.schoolData?.name || "No school assigned"}
+                    readOnly
+                    style={{
+                      backgroundColor: "#f5f5f5",
+                      color: "#666",
+                      cursor: "not-allowed"
+                    }}
+                  />
+                </Field>
+
+                <Field>
                   <Label>Location *</Label>
                   <Input
                     type="text"
@@ -810,17 +825,23 @@ class MobileEditProfile extends React.Component {
 
 MobileEditProfile.propTypes = {
   profileData: PropTypes.object,
+  schoolData: PropTypes.object,
   ready: PropTypes.bool.isRequired,
   currentUser: PropTypes.string,
 };
 
 export default withTracker(() => {
-  const subscription = Meteor.subscribe("Profiles");
+  const profileSubscription = Meteor.subscribe("Profiles");
+  const schoolSubscription = Meteor.subscribe("schools.active");
   const userId = Meteor.userId();
+  const user = Meteor.user();
+
+  const schoolData = user?.schoolId ? Schools.findOne(user.schoolId) : null;
 
   return {
     profileData: Profiles.findOne({ Owner: userId }),
-    currentUser: Meteor.user() ? Meteor.user()._id : "",
-    ready: subscription.ready(),
+    schoolData: schoolData,
+    currentUser: user ? user._id : "",
+    ready: profileSubscription.ready() && schoolSubscription.ready(),
   };
 })(MobileEditProfile);
