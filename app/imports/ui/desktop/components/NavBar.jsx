@@ -172,10 +172,22 @@ class NavBar extends React.Component {
                         Manage Users
                       </DropdownItem>
                       <DropdownItem
+                        to="/admin/pending-users"
+                        onClick={this.closeAllMenus}
+                      >
+                        ⏳ Pending Approvals
+                      </DropdownItem>
+                      <DropdownItem
                         to="/admin/places"
                         onClick={this.closeAllMenus}
                       >
                         Manage Places
+                      </DropdownItem>
+                      <DropdownItem
+                        to="/admin/school-management"
+                        onClick={this.closeAllMenus}
+                      >
+                        🏫 School Settings
                       </DropdownItem>
                     </DropdownMenu>
                   )}
@@ -309,11 +321,17 @@ class NavBar extends React.Component {
                       <MobileItem to="/admin/users" onClick={this.closeAllMenus}>
                         Manage Users
                       </MobileItem>
+                      <MobileItem to="/admin/pending-users" onClick={this.closeAllMenus}>
+                        ⏳ Pending Approvals
+                      </MobileItem>
                       <MobileItem
                         to="/admin/places"
                         onClick={this.closeAllMenus}
                       >
                         Manage Places
+                      </MobileItem>
+                      <MobileItem to="/admin/school-management" onClick={this.closeAllMenus}>
+                        🏫 School Settings
                       </MobileItem>
                     </MobileSection>
                   )}

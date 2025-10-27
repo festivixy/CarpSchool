@@ -128,6 +128,27 @@ const Profile = ({ history, currentUser, isAdmin }) => {
             </button>
 
             <button
+              onClick={() => handleNavigation("/admin/pending-users")}
+              style={{
+                width: "100%",
+                padding: "18px 20px",
+                backgroundColor: "transparent",
+                border: "none",
+                borderBottom: "1px solid #f0f0f0",
+                textAlign: "left",
+                fontSize: "16px",
+                color: "#333",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <MenuIcon>⏳</MenuIcon>
+              Pending Approvals
+              <MenuArrow>›</MenuArrow>
+            </button>
+
+            <button
               onClick={() => handleNavigation("/admin/rides")}
               style={{
                 width: "100%",
@@ -145,6 +166,27 @@ const Profile = ({ history, currentUser, isAdmin }) => {
             >
               <MenuIcon>🚗</MenuIcon>
               Manage Rides
+              <MenuArrow>›</MenuArrow>
+            </button>
+
+            <button
+              onClick={() => handleNavigation("/admin/school-management")}
+              style={{
+                width: "100%",
+                padding: "18px 20px",
+                backgroundColor: "transparent",
+                border: "none",
+                borderBottom: "1px solid #f0f0f0",
+                textAlign: "left",
+                fontSize: "16px",
+                color: "#333",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <MenuIcon>🏫</MenuIcon>
+              School Settings
               <MenuArrow>›</MenuArrow>
             </button>
 
