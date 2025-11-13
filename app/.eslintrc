@@ -60,7 +60,8 @@
     "no-await-in-loop": "off",
     "no-undef": "off",
     "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": true, "argsIgnorePattern": "^_" }],
-    "react/no-unknown-property": ["error", { "ignore": ["jsx"] }]
+    "react/no-unknown-property": ["error", { "ignore": ["jsx"] }],
+    "indent": ["error", 4]
   },
   "globals": {
     "Assets": true
