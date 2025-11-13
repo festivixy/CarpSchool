@@ -1,5 +1,6 @@
 import { RideSessions } from "./RideSession";
 import { Rides } from "../ride/Rides";
+import { Places } from "../places/Places";
 
 /**
  * Safety validation functions for RideSession operations
@@ -151,6 +152,11 @@ export const canPickupRider = async (userId, sessionId, riderId, location) => {
     return { allowed: false, reason: "Valid location coordinates are required" };
   }
 
+  const proximityCheck = await validateLocationProximity(userId, riderId, location, 1000);
+  if (!proximityCheck.allowed) {
+    return proximityCheck;
+  }
+
   return { allowed: true };
 };
 
@@ -184,6 +190,11 @@ export const canDropoffRider = async (userId, sessionId, riderId, location) => {
 
   if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
     return { allowed: false, reason: "Valid location coordinates are required" };
+  }
+
+  const proximityCheck = await validateLocationProximity(session.driverId, riderId, location, 1000);
+  if (!proximityCheck.allowed) {
+    return proximityCheck;
   }
 
   return { allowed: true };
@@ -267,20 +278,78 @@ export const validateSessionState = async (sessionId, requiredState) => {
   return { allowed: true };
 };
 
+const calculateDistance = (lat1, lng1, lat2, lng2) => {
+  const R = 6371e3;
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lng2 - lng1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+};
+
 export const validateLocationProximity = async (
   driverId,
   riderId,
   location,
   maxDistance = 1000,
-) => { // eslint-disable-line no-unused-vars
-  // This would require integration with your location tracking system
-  // For now, we'll just validate that location coordinates are provided
+) => {
   if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
     return { allowed: false, reason: "Valid location coordinates are required" };
   }
 
-  // TODO: Implement actual proximity validation using driver's current location
-  // and expected pickup/dropoff points from the ride data
+  const session = await RideSessions.findOneAsync({ driverId, riders: riderId, finished: false });
+  if (!session) {
+    return { allowed: true };
+  }
+
+  const ride = await Rides.findOneAsync(session.rideId);
+  if (!ride) {
+    return { allowed: true };
+  }
+
+  const origin = await Places.findOneAsync({ _id: ride.origin });
+  const destination = await Places.findOneAsync({ _id: ride.destination });
+
+  if (!origin || !destination) {
+    return { allowed: true };
+  }
+
+  const [originLat, originLng] = origin.value.split(",").map(Number);
+  const [destLat, destLng] = destination.value.split(",").map(Number);
+
+  if (!Number.isFinite(originLat) || !Number.isFinite(originLng) ||
+      !Number.isFinite(destLat) || !Number.isFinite(destLng)) {
+    return { allowed: true };
+  }
+
+  const riderProgress = session.progress[riderId];
+  const isPickedUp = riderProgress?.pickedUp;
+
+  let targetLat, targetLng;
+  if (!isPickedUp) {
+    targetLat = originLat;
+    targetLng = originLng;
+  } else {
+    targetLat = destLat;
+    targetLng = destLng;
+  }
+
+  const distance = calculateDistance(location.lat, location.lng, targetLat, targetLng);
+
+  if (distance > maxDistance) {
+    const distanceKm = (distance / 1000).toFixed(1);
+    const maxKm = (maxDistance / 1000).toFixed(1);
+    return {
+      allowed: false,
+      reason: `You are ${distanceKm}km away from the ${isPickedUp ? "dropoff" : "pickup"} point. Maximum allowed distance is ${maxKm}km.`,
+    };
+  }
 
   return { allowed: true };
 };

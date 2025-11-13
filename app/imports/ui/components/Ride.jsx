@@ -268,22 +268,34 @@ class Ride extends React.Component {
     return rideDateOnly >= today;
   };
 
-  handleStartRide = () => {
+  handleStartRide = async () => {
     const { ride } = this.props;
 
     this.setState({ isGenerating: true });
 
-    // Get riders for the session
-    const riders = ride.riders && Array.isArray(ride.riders) ? ride.riders : [];
+    try {
+      const location = await getCurrentLocation();
+      const riders = ride.riders && Array.isArray(ride.riders) ? ride.riders : [];
 
-    Meteor.call("rideSessions.create", ride._id, Meteor.userId(), riders, (error, _sessionId) => {
+      Meteor.call("rideSessions.create", ride._id, Meteor.userId(), riders, location, (error, _sessionId) => {
+        this.setState({ isGenerating: false });
+        if (error) {
+          swal("Error", error.reason || error.message, "error");
+        } else {
+          swal("Success", "Ride session created successfully! You can now start tracking your ride.", "success");
+        }
+      });
+    } catch (error) {
       this.setState({ isGenerating: false });
-      if (error) {
-        swal("Error", error.reason || error.message, "error");
-      } else {
-        swal("Success", "Ride session created successfully! You can now start tracking your ride.", "success");
-      }
-    });
+      const riders = ride.riders && Array.isArray(ride.riders) ? ride.riders : [];
+      Meteor.call("rideSessions.create", ride._id, Meteor.userId(), riders, null, (error, _sessionId) => {
+        if (error) {
+          swal("Error", error.reason || error.message, "error");
+        } else {
+          swal("Success", "Ride session created successfully! You can now start tracking your ride.", "success");
+        }
+      });
+    }
   };
 
   canStartActiveRide = () => {
@@ -611,7 +623,7 @@ class Ride extends React.Component {
     });
   };
 
-  handleCodeVerification = () => {
+  handleCodeVerification = async () => {
     const { selectedRiderId, codeInput } = this.state;
     const sessionId = this.getSessionId();
 
@@ -619,23 +631,41 @@ class Ride extends React.Component {
 
     this.setState({ verifyingCode: true });
 
-    Meteor.call("rideSessions.verifyPickupCode", sessionId, selectedRiderId, codeInput, (error, result) => {
-      this.setState({ verifyingCode: false });
+    try {
+      const location = await getCurrentLocation();
+      Meteor.call("rideSessions.verifyPickupCode", sessionId, selectedRiderId, codeInput, location, (error, result) => {
+        this.setState({ verifyingCode: false });
 
-      if (error) {
-        swal("Verification Failed", error.reason || error.message, "error");
-        // Reload rider codes to get updated attempt count
-        this.loadRiderCodes();
-      } else {
-        swal("Success!", result.message, "success");
-        this.setState({
-          pickupModalOpen: false,
-          selectedRiderId: null,
-          codeInput: "",
-          riderCodes: {},
-        });
-      }
-    });
+        if (error) {
+          swal("Verification Failed", error.reason || error.message, "error");
+          this.loadRiderCodes();
+        } else {
+          swal("Success!", result.message, "success");
+          this.setState({
+            pickupModalOpen: false,
+            selectedRiderId: null,
+            codeInput: "",
+            riderCodes: {},
+          });
+        }
+      });
+    } catch (error) {
+      this.setState({ verifyingCode: false });
+      Meteor.call("rideSessions.verifyPickupCode", sessionId, selectedRiderId, codeInput, null, (error, result) => {
+        if (error) {
+          swal("Verification Failed", error.reason || error.message, "error");
+          this.loadRiderCodes();
+        } else {
+          swal("Success!", result.message, "success");
+          this.setState({
+            pickupModalOpen: false,
+            selectedRiderId: null,
+            codeInput: "",
+            riderCodes: {},
+          });
+        }
+      });
+    }
   };
 
   closePickupModal = () => {

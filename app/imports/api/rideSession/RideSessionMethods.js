@@ -17,10 +17,11 @@ import {
 const generatePickupCode = () => Math.floor(1000 + Math.random() * 9000).toString();
 
 Meteor.methods({
-  async "rideSessions.create"(rideId, driverId, riderIds = []) {
+  async "rideSessions.create"(rideId, driverId, riderIds = [], location) {
     check(rideId, String);
     check(driverId, String);
     check(riderIds, [String]);
+    check(location, Match.Optional({ lat: Number, lng: Number }));
 
     const userId = this.userId;
 
@@ -70,9 +71,9 @@ Meteor.methods({
 
     const sessionId = await RideSessions.insertAsync(value);
 
-    // Log creation event
+    // Log creation event with actual location or default
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "rideCreated", {
-      location: { lat: 0, lng: 0 }, // TODO: Get actual location
+      location: location || { lat: 0, lng: 0 },
       time: new Date(),
       by: userId,
     });
@@ -171,10 +172,11 @@ Meteor.methods({
     return true;
   },
 
-  async "rideSessions.verifyPickupCode"(sessionId, riderId, lastTwoDigits) {
+  async "rideSessions.verifyPickupCode"(sessionId, riderId, lastTwoDigits, location) {
     check(sessionId, String);
     check(riderId, String);
     check(lastTwoDigits, String);
+    check(location, Match.Optional({ lat: Number, lng: Number }));
 
     const userId = this.userId;
 
@@ -184,8 +186,9 @@ Meteor.methods({
       throw new Meteor.Error("not-found", "Session not found");
     }
 
-    // Location not needed for verification
-    const canPickup = await canPickupRider(userId, sessionId, riderId, { lat: 0, lng: 0 });
+    // Use provided location or default for verification check
+    const checkLocation = location || { lat: 0, lng: 0 };
+    const canPickup = await canPickupRider(userId, sessionId, riderId, checkLocation);
     if (!canPickup.allowed) {
       throw new Meteor.Error("access-denied", canPickup.reason);
     }
@@ -236,9 +239,9 @@ Meteor.methods({
 
     await RideSessions.updateAsync(sessionId, { $set: updateData });
 
-    // Log pickup event
+    // Log pickup event with actual location or default
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "riderPickedUp", {
-      location: { lat: 0, lng: 0 }, // TODO: Get actual location from driver
+      location: location || { lat: 0, lng: 0 },
       time: new Date(),
       by: userId,
       riderId,
