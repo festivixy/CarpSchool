@@ -141,76 +141,6 @@ const averagePositions = (positions) => {
   return result;
 };
 
-// IP-based geolocation fallback services
-const IP_GEOLOCATION_SERVICES = [
-  {
-    url: "https://ipapi.co/json/",
-    parser: (data) => data.latitude && data.longitude ? {
-      lat: parseFloat(data.latitude),
-      lng: parseFloat(data.longitude),
-      accuracy: 5000, // IP geolocation is typically accurate to ~5km
-      source: "ipapi"
-    } : null
-  },
-  {
-    url: "https://ip-api.com/json/?fields=status,lat,lon",
-    parser: (data) => data.status === "success" && data.lat && data.lon ? {
-      lat: parseFloat(data.lat),
-      lng: parseFloat(data.lon),
-      accuracy: 5000,
-      source: "ip-api"
-    } : null
-  },
-  {
-    url: "https://geolocation-db.com/json/",
-    parser: (data) => data.latitude && data.longitude ? {
-      lat: parseFloat(data.latitude),
-      lng: parseFloat(data.longitude),
-      accuracy: 10000, // Less accurate
-      source: "geolocation-db"
-    } : null
-  }
-];
-
-// Try IP-based geolocation as fallback
-const tryIpGeolocation = async () => {
-  const errors = [];
-  
-  for (const service of IP_GEOLOCATION_SERVICES) {
-    let timeoutId = null;
-    try {
-      // Create timeout controller for fetch (compatible with older browsers)
-      const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-      timeoutId = controller ? setTimeout(() => controller.abort(), 5000) : null;
-      
-      const fetchOptions = {};
-      if (controller) {
-        fetchOptions.signal = controller.signal;
-      }
-      
-      const response = await fetch(service.url, fetchOptions);
-      
-      if (timeoutId) clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      
-      const data = await response.json();
-      const location = service.parser(data);
-      
-      if (location) {
-        return formatLocation(location, location.accuracy);
-      }
-    } catch (error) {
-      if (timeoutId) clearTimeout(timeoutId);
-      errors.push(`${service.url}: ${error.message}`);
-      continue;
-    }
-  }
-  
-  throw new Error(`IP geolocation failed: ${errors.join("; ")}`);
-};
 
 const getErrorDetails = (error) => {
   const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.toLowerCase().includes("firefox");
@@ -272,25 +202,17 @@ export const getCurrentLocation = async (options = {}) => {
     useTriangulation = true,
     triangulationReadings = 3,
     useCache = true,
-    useIpFallback = true,
     minAccuracy = null, // Minimum accuracy in meters (null = no minimum)
     ...geoOptions
   } = options;
   
+  // GPS is required for ride safety - no fallbacks allowed
   if (typeof navigator === "undefined" || !navigator.geolocation) {
-    // Try IP fallback if GPS not available
-    if (useIpFallback) {
-      try {
-        return await tryIpGeolocation();
-      } catch (ipError) {
-        throw new Error("Geolocation not supported and IP fallback failed");
-      }
-    }
-    throw new Error("Geolocation not supported");
+    throw new Error("GPS location is required for ride safety. Please enable location services on your device.");
   }
   
   if (!isSecure()) {
-    throw new Error("Location services require HTTPS or Cordova environment");
+    throw new Error("Location services require a secure connection. Please use a secure web browser or mobile app.");
   }
 
   await waitForCordova();
@@ -375,22 +297,11 @@ export const getCurrentLocation = async (options = {}) => {
         positionCache = position;
         return { lat: position.lat, lng: position.lng };
       } catch (lowAccuracyError) {
-        // Continue to IP fallback
+        // Continue to throw error - GPS is required
       }
     }
     
-    // Try IP-based fallback as last resort
-    if (useIpFallback && error && error.code !== error.PERMISSION_DENIED) {
-      try {
-        const ipLocation = await tryIpGeolocation();
-        console.warn("Using IP-based geolocation fallback (less accurate)");
-        return ipLocation;
-      } catch (ipError) {
-        // IP fallback also failed
-      }
-    }
-    
-    // All methods failed
+    // GPS is required - no fallbacks allowed for ride safety
     // Check if error has code property (geolocation error) or is a regular Error
     if (error && typeof error.code !== "undefined") {
       throw new Error(getErrorDetails(error));
@@ -407,7 +318,7 @@ export const watchLocation = (onSuccess, onError, options = {}) => {
   }
   
   if (!isSecure()) {
-    onError?.(new Error("Location services require HTTPS or Cordova environment"));
+    onError?.(new Error("Location services require a secure connection. Please use a secure web browser or mobile app."));
     return null;
   }
 

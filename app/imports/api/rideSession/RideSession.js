@@ -43,6 +43,15 @@ const RideSessionSchema = Joi.object({
       reason: Joi.string().optional(),
     }),
   ).default({}),
+  liveLocations: Joi.object().pattern(
+    Joi.string(), // User ID (driver or rider)
+    Joi.object({
+      lat: Joi.number().required(),
+      lng: Joi.number().required(),
+      accuracy: Joi.number().optional(),
+      timestamp: Joi.date().required(),
+    }),
+  ).default({}),
   createdBy: Joi.string().required().label("Created By User ID"),
   status: Joi.string().valid("created", "active", "completed", "cancelled").default("created"),
 });
