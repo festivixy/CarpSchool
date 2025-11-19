@@ -17,10 +17,16 @@ import {
 const generatePickupCode = () => Math.floor(1000 + Math.random() * 9000).toString();
 
 Meteor.methods({
-  async "rideSessions.create"(rideId, driverId, riderIds = []) {
+  async "rideSessions.create"(rideId, driverId, riderIds = [], location) {
     check(rideId, String);
     check(driverId, String);
     check(riderIds, [String]);
+    check(location, { lat: Number, lng: Number });
+    
+    // GPS location is required for ride safety
+    if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
+      throw new Meteor.Error("validation-error", "GPS location is required for ride safety. Please enable location services.");
+    }
 
     const userId = this.userId;
 
@@ -70,9 +76,9 @@ Meteor.methods({
 
     const sessionId = await RideSessions.insertAsync(value);
 
-    // Log creation event
+    // Log creation event with actual location
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "rideCreated", {
-      location: { lat: 0, lng: 0 }, // TODO: Get actual location
+      location,
       time: new Date(),
       by: userId,
     });
@@ -171,10 +177,11 @@ Meteor.methods({
     return true;
   },
 
-  async "rideSessions.verifyPickupCode"(sessionId, riderId, lastTwoDigits) {
+  async "rideSessions.verifyPickupCode"(sessionId, riderId, lastTwoDigits, location) {
     check(sessionId, String);
     check(riderId, String);
     check(lastTwoDigits, String);
+    check(location, { lat: Number, lng: Number });
 
     const userId = this.userId;
 
@@ -184,8 +191,11 @@ Meteor.methods({
       throw new Meteor.Error("not-found", "Session not found");
     }
 
-    // Location not needed for verification
-    const canPickup = await canPickupRider(userId, sessionId, riderId, { lat: 0, lng: 0 });
+    // GPS location is required for verification
+    if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
+      throw new Meteor.Error("validation-error", "GPS location is required for pickup verification. Please enable location services.");
+    }
+    const canPickup = await canPickupRider(userId, sessionId, riderId, location);
     if (!canPickup.allowed) {
       throw new Meteor.Error("access-denied", canPickup.reason);
     }
@@ -236,9 +246,9 @@ Meteor.methods({
 
     await RideSessions.updateAsync(sessionId, { $set: updateData });
 
-    // Log pickup event
+    // Log pickup event with actual location
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "riderPickedUp", {
-      location: { lat: 0, lng: 0 }, // TODO: Get actual location from driver
+      location,
       time: new Date(),
       by: userId,
       riderId,
@@ -443,6 +453,63 @@ Meteor.methods({
     }
 
     await RideSessions.removeAsync(sessionId);
+    return true;
+  },
+
+  async "rideSessions.updateLiveLocation"(sessionId, location) {
+    check(sessionId, String);
+    check(location, { lat: Number, lng: Number });
+
+    const userId = this.userId;
+
+    // GPS location is required for live location sharing
+    if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
+      throw new Meteor.Error("validation-error", "GPS location is required for live location sharing. Please enable location services.");
+    }
+
+    // Validate coordinates are within valid ranges
+    if (Math.abs(location.lat) > 90 || Math.abs(location.lng) > 180) {
+      throw new Meteor.Error("validation-error", "Invalid location coordinates");
+    }
+
+    // Get session and validate access
+    const session = await RideSessions.findOneAsync(sessionId);
+    if (!session) {
+      throw new Meteor.Error("not-found", "Session not found");
+    }
+
+    // Check if user is driver or rider in this session
+    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+    const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+    const isDriver = session.driverId === userId;
+    const isRider = session.riders.includes(userId);
+
+    if (!isDriver && !isRider && !isAdmin) {
+      throw new Meteor.Error("access-denied", "You don't have permission to update location for this session");
+    }
+
+    // Only allow live location updates for active sessions
+    if (session.status !== "active") {
+      throw new Meteor.Error("validation-error", "Live location sharing is only available for active ride sessions");
+    }
+
+    // Update live location for this user
+    const liveLocationData = {
+      lat: location.lat,
+      lng: location.lng,
+      timestamp: new Date(),
+    };
+
+    // Include accuracy if provided
+    if (location.accuracy !== undefined && typeof location.accuracy === "number") {
+      liveLocationData.accuracy = location.accuracy;
+    }
+
+    const updateData = {
+      [`liveLocations.${userId}`]: liveLocationData,
+    };
+
+    await RideSessions.updateAsync(sessionId, { $set: updateData });
     return true;
   },
 });
