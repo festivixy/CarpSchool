@@ -56,6 +56,9 @@ import "../imports/startup/server/PushNotificationService";
 import "../imports/startup/server/OneSignalService";
 import "../imports/startup/server/NotificationIntegration";
 
+// Background Jobs
+import "../imports/startup/server/LocationCleanup";
+
 // Configure SMTP for iCloud+ custom domain
 if (Meteor.isServer) {
   Meteor.startup(() => {

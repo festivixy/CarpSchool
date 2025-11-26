@@ -505,6 +505,51 @@ Meteor.methods({
       liveLocationData.accuracy = location.accuracy;
     }
 
+    // Helper for calculating distance (Haversine formula)
+    const calculateDistance = (lat1, lng1, lat2, lng2) => {
+      const R = 6371000; // Earth's radius in meters
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLng = ((lng2 - lng1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    };
+
+    // Anti-spoofing validation: Check for impossible speeds ("teleportation")
+    const lastLocation =
+      session.liveLocations && session.liveLocations[userId];
+
+    if (lastLocation && lastLocation.lat && lastLocation.lng && lastLocation.timestamp) {
+      const distance = calculateDistance(
+        lastLocation.lat,
+        lastLocation.lng,
+        location.lat,
+        location.lng
+      );
+      
+      const timeDiff = new Date().getTime() - new Date(lastLocation.timestamp).getTime();
+      
+      // If time difference is very small (avoid division by zero), assume it's a duplicate or rapid update
+      if (timeDiff > 1000) { 
+        const speed = distance / (timeDiff / 1000); // meters per second
+        const maxSpeed = 300; // ~1000 km/h (faster than any car/train)
+
+        if (speed > maxSpeed) {
+          console.warn(
+            `[Security] Rejected impossible location jump for user ${userId}. Speed: ${speed.toFixed(2)} m/s`
+          );
+          // Silently reject the update or throw an error depending on strictness
+          // Here we choose to reject it to prevent jumping but not crash the client
+          return false; 
+        }
+      }
+    }
+
     const updateData = {
       [`liveLocations.${userId}`]: liveLocationData,
     };
