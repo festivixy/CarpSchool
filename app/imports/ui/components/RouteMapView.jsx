@@ -28,6 +28,7 @@ L.Icon.Default.mergeOptions({
 const RouteMapView = ({
   startCoord,
   endCoord,
+  liveLocations = [],
   height = "400px",
 }) => {
   const mapRef = useRef(null);
@@ -35,6 +36,7 @@ const RouteMapView = ({
   const startMarkerRef = useRef(null);
   const endMarkerRef = useRef(null);
   const routeLayerRef = useRef(null);
+  const liveMarkersRef = useRef({});
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Calculate map center based on start and end coordinates
@@ -86,6 +88,24 @@ const RouteMapView = ({
       iconSize: [30, 30],
       iconAnchor: [15, 15],
     });
+
+  const createDriverIcon = () => L.divIcon({
+    className: "custom-driver-marker",
+    html: "<div style=\"background-color: #007bff; color: white; border-radius: 50%; " +
+      "width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; " +
+      "border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 16px;\">🚗</div>",
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+  });
+
+  const createRiderIcon = () => L.divIcon({
+    className: "custom-rider-marker",
+    html: "<div style=\"background-color: #6c757d; color: white; border-radius: 50%; " +
+      "width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; " +
+      "border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 16px;\">👤</div>",
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+  });
 
   // Create straight line geometry as fallback
   const createStraightLineGeometry = (start, end) => ({
@@ -250,6 +270,40 @@ const RouteMapView = ({
     }
   }, [startCoord, endCoord]);
 
+  // Update live location markers
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    const currentMarkers = liveMarkersRef.current;
+    const newMarkerIds = new Set();
+
+    liveLocations.forEach((location) => {
+      const { userId, lat, lng, role } = location;
+      newMarkerIds.add(userId);
+
+      if (currentMarkers[userId]) {
+        // Update existing marker position
+        currentMarkers[userId].setLatLng([lat, lng]);
+      } else {
+        // Create new marker
+        const icon = role === "driver" ? createDriverIcon() : createRiderIcon();
+        const marker = L.marker([lat, lng], { icon })
+          .addTo(mapInstanceRef.current)
+          .bindPopup(role === "driver" ? "Driver" : "Rider");
+        
+        currentMarkers[userId] = marker;
+      }
+    });
+
+    // Remove markers for users who are no longer in the list
+    Object.keys(currentMarkers).forEach((userId) => {
+      if (!newMarkerIds.has(userId)) {
+        mapInstanceRef.current.removeLayer(currentMarkers[userId]);
+        delete currentMarkers[userId];
+      }
+    });
+  }, [liveLocations]);
+
   return (
     <RouteMapContainer>
       <RouteMapWrapper style={{ height }}>
@@ -276,6 +330,14 @@ RouteMapView.propTypes = {
     lat: PropTypes.number.isRequired,
     lng: PropTypes.number.isRequired,
   }).isRequired,
+  liveLocations: PropTypes.arrayOf(
+    PropTypes.shape({
+      userId: PropTypes.string.isRequired,
+      lat: PropTypes.number.isRequired,
+      lng: PropTypes.number.isRequired,
+      role: PropTypes.string,
+    })
+  ),
   height: PropTypes.string,
 };
 

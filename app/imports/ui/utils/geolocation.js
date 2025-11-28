@@ -187,7 +187,7 @@ const getSinglePosition = (options, retryCount = 0) => {
             getSinglePosition(options, retryCount + 1)
               .then(resolve)
               .catch(reject);
-          }, Math.pow(2, retryCount) * 1000); // 1s, 2s delays
+          }, Math.pow(2, retryCount) * 1000); // 1s, 2s dela`ys
         } else {
           reject(error);
         }

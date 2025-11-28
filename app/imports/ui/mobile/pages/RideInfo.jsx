@@ -5,6 +5,7 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import { Places } from "../../../api/places/Places";
+import { RideSessions } from "../../../api/rideSession/RideSession";
 import RouteMapView from "../../components/RouteMapView";
 import BackButton from "../components/BackButton";
 import { RideInfoSkeleton } from "../../skeleton";
@@ -72,6 +73,28 @@ class RideInfo extends React.Component {
       minute: "2-digit",
       hour12: true,
     });
+
+  getLiveLocations = () => {
+    const { ride, rideSessions } = this.props;
+    if (!ride || !rideSessions) return [];
+
+    // Show locations for created or active sessions
+    const session = rideSessions.find(
+      (s) =>
+        s.rideId === ride._id &&
+        (s.status === "active" || s.status === "created") &&
+        !s.finished,
+    );
+
+    if (!session || !session.liveLocations) return [];
+
+    return Object.entries(session.liveLocations).map(([userId, loc]) => ({
+      userId,
+      lat: loc.lat,
+      lng: loc.lng,
+      role: session.driverId === userId ? "driver" : "rider",
+    }));
+  };
 
   renderRideStatus = (ride) => {
     // Handle new schema with riders array
@@ -142,6 +165,7 @@ class RideInfo extends React.Component {
             <RouteMapView
               startCoord={startCoord}
               endCoord={endCoord}
+              liveLocations={this.getLiveLocations()}
               height="100%"
             />
           ) : (
@@ -249,6 +273,7 @@ RideInfo.propTypes = {
   ready: PropTypes.bool.isRequired,
   ride: PropTypes.object,
   places: PropTypes.array.isRequired,
+  rideSessions: PropTypes.array,
   history: PropTypes.object.isRequired,
   rideId: PropTypes.string.isRequired,
 };
@@ -258,15 +283,21 @@ export default withRouter(
     const rideId = props.match.params.rideId;
     const ridesSubscription = Meteor.subscribe("Rides");
     const placesSubscription = Meteor.subscribe("places.options");
+    const rideSessionsSubscription = Meteor.subscribe("rideSessions");
 
-    const ready = ridesSubscription.ready() && placesSubscription.ready();
+    const ready =
+      ridesSubscription.ready() &&
+      placesSubscription.ready() &&
+      rideSessionsSubscription.ready();
     const ride = Rides.findOne(rideId);
     const places = Places.find({}).fetch();
+    const rideSessions = RideSessions.find({}).fetch();
 
     return {
       ready,
       ride,
       places,
+      rideSessions,
       rideId,
     };
   })(RideInfo),

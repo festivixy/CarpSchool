@@ -9,7 +9,7 @@ import { isAdminRole } from "../desktop/components/NavBarRoleUtils";
 import { Places } from "../../api/places/Places";
 import { RideSessions } from "../../api/rideSession/RideSession";
 import RouteMapView from "./RouteMapView";
-import { getCurrentLocation } from "../utils/geolocation";
+import { getCurrentLocation, watchLocation, clearLocationWatch } from "../utils/geolocation";
 import { MobileOnly, DesktopOnly } from "../layouts/Devices";
 import {
   RideCard,
@@ -100,8 +100,106 @@ class Ride extends React.Component {
       verifyingCode: false,
       riderCodes: {}, // Store code hints for riders
       fullCode: null, // For rider's code display
+      isTrackingEnabled: true, // Default to true
     };
+    this.watchId = null;
   }
+
+  componentDidMount() {
+    this.manageLocationTracking();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevProps.rideSessions !== this.props.rideSessions ||
+      prevState.isTrackingEnabled !== this.state.isTrackingEnabled
+    ) {
+      this.manageLocationTracking();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.watchId) {
+      clearLocationWatch(this.watchId);
+      this.watchId = null;
+    }
+  }
+
+  toggleTracking = () => {
+    this.setState((prevState) => ({
+      isTrackingEnabled: !prevState.isTrackingEnabled,
+    }));
+  };
+
+  manageLocationTracking = () => {
+    const { ride, rideSessions } = this.props;
+    const { isTrackingEnabled } = this.state;
+    const currentUser = Meteor.user();
+
+    if (!currentUser || !isTrackingEnabled) {
+      if (this.watchId) {
+        clearLocationWatch(this.watchId);
+        this.watchId = null;
+      }
+      return;
+    }
+
+    // Find active session
+    const session = rideSessions.find(
+      (s) =>
+        s.rideId === ride._id && s.status === "active" && !s.finished,
+    );
+
+    const isParticipant =
+      session &&
+      (session.driverId === currentUser._id ||
+        session.riders.includes(currentUser._id));
+
+    if (isParticipant && !this.watchId) {
+      // Start tracking
+      this.watchId = watchLocation(
+        (location) => {
+          // Throttle updates could be implemented here if needed
+          Meteor.call(
+            "rideSessions.updateLiveLocation",
+            session._id,
+            location,
+            (error) => {
+              if (error) {
+                console.warn("Location update failed:", error);
+              }
+            },
+          );
+        },
+        (error) => console.error("Location tracking error:", error),
+        { enableHighAccuracy: true },
+      );
+    } else if (!isParticipant && this.watchId) {
+      // Stop tracking
+      clearLocationWatch(this.watchId);
+      this.watchId = null;
+    }
+  };
+
+  getLiveLocations = () => {
+    const { ride, rideSessions } = this.props;
+    // Show locations for created or active sessions
+    const session = rideSessions.find(
+      (s) =>
+        s.rideId === ride._id &&
+        (s.status === "active" || s.status === "created") &&
+        !s.finished,
+    );
+
+    if (!session || !session.liveLocations) return [];
+
+    return Object.entries(session.liveLocations).map(([userId, loc]) => ({
+      userId,
+      lat: loc.lat,
+      lng: loc.lng,
+      role: session.driverId === userId ? "driver" : "rider",
+    }));
+  };
 
   handleShareRide = () => {
     this.setState({ isGenerating: true });
@@ -837,7 +935,7 @@ class Ride extends React.Component {
             </Notes>
           )}
 
-          {(this.canShareRide() ||
+            {(this.canShareRide() ||
             this.canJoinRide() ||
             this.canStartRide() ||
             this.canStartActiveRide() ||
@@ -850,6 +948,39 @@ class Ride extends React.Component {
             (this.getPlaceCoordinates(ride.origin) &&
              this.getPlaceCoordinates(ride.destination))) && (
             <Actions>
+              {/* Add Tracking Toggle for active participants */}
+              {(this.canConfirmPickup() || this.canConfirmDropoff()) && (
+                <div style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  marginBottom: "10px", 
+                  width: "100%", 
+                  justifyContent: "center",
+                  backgroundColor: this.state.isTrackingEnabled ? "#e8f5e9" : "#ffebee",
+                  padding: "8px",
+                  borderRadius: "8px",
+                  border: `1px solid ${this.state.isTrackingEnabled ? "#c8e6c9" : "#ffcdd2"}`
+                }}>
+                  <span style={{ marginRight: "10px", fontSize: "14px" }}>
+                    {this.state.isTrackingEnabled ? "🟢 Live Location ON" : "🔴 Live Location OFF"}
+                  </span>
+                  <button
+                    onClick={this.toggleTracking}
+                    style={{
+                      padding: "4px 8px",
+                      borderRadius: "4px",
+                      border: "none",
+                      backgroundColor: this.state.isTrackingEnabled ? "#dc3545" : "#28a745",
+                      color: "white",
+                      cursor: "pointer",
+                      fontSize: "12px"
+                    }}
+                  >
+                    {this.state.isTrackingEnabled ? "Stop Sharing" : "Start Sharing"}
+                  </button>
+                </div>
+              )}
+              
               {this.canShareRide() && (
                 <ShareButton
                   className={isGenerating ? "loading" : ""}
@@ -1055,6 +1186,7 @@ class Ride extends React.Component {
                   <RouteMapView
                     startCoord={this.getPlaceCoordinates(ride.origin)}
                     endCoord={this.getPlaceCoordinates(ride.destination)}
+                    liveLocations={this.getLiveLocations()}
                     height="100%"
                   />
                 </ModalContent>
