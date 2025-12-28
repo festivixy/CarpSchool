@@ -32,7 +32,7 @@ class MobilePushNotificationManager {
       this.platform = device.platform.toLowerCase();
       this.backend = Meteor.settings.public?.notifications?.backend || "firebase";
 
-      console.log(`[MobilePush] Initializing for ${this.platform} with ${this.backend} backend`);
+      // console.log(`[MobilePush] Initializing for ${this.platform} with ${this.backend} backend`);
 
       if (this.backend === "onesignal") {
         this.initializeOneSignal();
@@ -75,7 +75,7 @@ class MobilePushNotificationManager {
     try {
       // Get initial token
       FCMPlugin.getToken((token) => {
-        console.log("[MobilePush] FCM token received:", token);
+        // console.log("[MobilePush] FCM token received:", token);
         this.pushToken = token;
         this.registerTokenWithServer(token, "firebase");
       }, (error) => {
@@ -84,7 +84,7 @@ class MobilePushNotificationManager {
 
       // Listen for token refresh
       FCMPlugin.onTokenRefresh((token) => {
-        console.log("[MobilePush] FCM token refreshed:", token);
+        // console.log("[MobilePush] FCM token refreshed:", token);
         this.pushToken = token;
         this.registerTokenWithServer(token, "firebase");
       }, (error) => {
@@ -93,7 +93,7 @@ class MobilePushNotificationManager {
 
       // Handle received notifications
       FCMPlugin.onNotification((data) => {
-        console.log("[MobilePush] FCM notification received:", data);
+        // console.log("[MobilePush] FCM notification received:", data);
         this.handleNotification(data);
       }, (error) => {
         console.error("[MobilePush] FCM notification error:", error);
@@ -107,14 +107,14 @@ class MobilePushNotificationManager {
             interval: 0.3,
           },
         }, (success) => {
-          console.log("[MobilePush] FCM permission granted:", success);
+          // console.log("[MobilePush] FCM permission granted:", success);
         }, (error) => {
           console.error("[MobilePush] FCM permission denied:", error);
         });
       }
 
       this.isInitialized = true;
-      console.log("[MobilePush] Firebase FCM initialized successfully");
+      // console.log("[MobilePush] Firebase FCM initialized successfully");
 
     } catch (error) {
       console.error("[MobilePush] Firebase FCM initialization failed:", error);
@@ -151,14 +151,14 @@ class MobilePushNotificationManager {
 
       // Handle registration
       push.on("registration", (data) => {
-        console.log("[MobilePush] PushNotification registration:", data.registrationId);
+        // console.log("[MobilePush] PushNotification registration:", data.registrationId);
         this.pushToken = data.registrationId;
         this.registerTokenWithServer(data.registrationId, "firebase");
       });
 
       // Handle notifications
       push.on("notification", (data) => {
-        console.log("[MobilePush] PushNotification received:", data);
+        // console.log("[MobilePush] PushNotification received:", data);
         this.handleNotification(data);
       });
 
@@ -169,7 +169,7 @@ class MobilePushNotificationManager {
 
       this.pushPlugin = push;
       this.isInitialized = true;
-      console.log("[MobilePush] Firebase PushNotification initialized successfully");
+      // console.log("[MobilePush] Firebase PushNotification initialized successfully");
 
     } catch (error) {
       console.error("[MobilePush] Firebase PushNotification initialization failed:", error);
@@ -200,13 +200,13 @@ class MobilePushNotificationManager {
 
       // Handle notification received
       oneSignal.handleNotificationReceived((notification) => {
-        console.log("[MobilePush] OneSignal notification received:", notification);
+        // console.log("[MobilePush] OneSignal notification received:", notification);
         this.handleNotification(notification);
       });
 
       // Handle notification opened
       oneSignal.handleNotificationOpened((result) => {
-        console.log("[MobilePush] OneSignal notification opened:", result);
+        // console.log("[MobilePush] OneSignal notification opened:", result);
         this.handleNotificationAction(result.notification, result.action);
       });
 
@@ -221,14 +221,14 @@ class MobilePushNotificationManager {
 
       // Get player ID
       oneSignal.getIds((ids) => {
-        console.log("[MobilePush] OneSignal player ID:", ids.userId);
+        // console.log("[MobilePush] OneSignal player ID:", ids.userId);
         this.pushToken = ids.userId;
         this.registerTokenWithServer(ids.userId, "onesignal");
 
         // iOS: Request permission after initialization
         if (this.platform === "ios") {
           oneSignal.promptForPushNotificationsWithUserResponse((accepted) => {
-            console.log("[MobilePush] iOS push permission:", accepted ? "granted" : "denied");
+            // console.log("[MobilePush] iOS push permission:", accepted ? "granted" : "denied");
           });
         }
       });
@@ -240,7 +240,7 @@ class MobilePushNotificationManager {
 
       this.oneSignalPlugin = oneSignal;
       this.isInitialized = true;
-      console.log("[MobilePush] OneSignal initialized successfully");
+      // console.log("[MobilePush] OneSignal initialized successfully");
 
     } catch (error) {
       console.error("[MobilePush] OneSignal initialization failed:", error);
@@ -266,7 +266,7 @@ class MobilePushNotificationManager {
         await Meteor.callAsync("notifications.registerPushToken", token, this.platform, deviceInfo);
       }
 
-      console.log(`[MobilePush] Token registered with server: ${token.substring(0, 20)}...`);
+      // console.log(`[MobilePush] Token registered with server: ${token.substring(0, 20)}...`);
 
     } catch (error) {
       console.error("[MobilePush] Token registration failed:", error);
@@ -278,7 +278,7 @@ class MobilePushNotificationManager {
    */
   handleNotification(notification) {
     try {
-      console.log("[MobilePush] Processing notification:", notification);
+      // console.log("[MobilePush] Processing notification:", notification);
 
       // Extract notification data based on backend
       let notificationData;
@@ -324,7 +324,7 @@ class MobilePushNotificationManager {
     try {
       const data = notification.data || notification.additionalData || {};
 
-      console.log("[MobilePush] Handling notification action:", action, data);
+      // console.log("[MobilePush] Handling notification action:", action, data);
 
       // Navigate based on notification data
       if (data.rideId) {
@@ -393,7 +393,7 @@ class MobilePushNotificationManager {
    */
   bringAppToForeground() {
     // App is already in foreground when this is called
-    console.log("[MobilePush] App brought to foreground");
+    // console.log("[MobilePush] App brought to foreground");
   }
 
   /**
@@ -413,7 +413,7 @@ class MobilePushNotificationManager {
         this.navigateToChat(data.chatId);
         break;
       default:
-        console.log("[MobilePush] Unknown action:", action);
+        // console.log("[MobilePush] Unknown action:", action);
     }
   }
 
@@ -423,7 +423,7 @@ class MobilePushNotificationManager {
   async markAsDelivered(notificationId) {
     try {
       // We could add a method for this, but for now just log
-      console.log("[MobilePush] Notification delivered:", notificationId);
+      // console.log("[MobilePush] Notification delivered:", notificationId);
     } catch (error) {
       console.error("[MobilePush] Mark as delivered failed:", error);
     }
@@ -435,7 +435,7 @@ class MobilePushNotificationManager {
   async markAsRead(notificationId) {
     try {
       await Meteor.callAsync("notifications.markAsRead", notificationId);
-      console.log("[MobilePush] Notification marked as read:", notificationId);
+      // console.log("[MobilePush] Notification marked as read:", notificationId);
     } catch (error) {
       console.error("[MobilePush] Mark as read failed:", error);
     }

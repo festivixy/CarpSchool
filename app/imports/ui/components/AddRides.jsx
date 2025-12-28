@@ -287,12 +287,12 @@ class AddRidesModal extends React.Component {
       createdAt: new Date(),
     };
 
-    Rides.insert(rideData, (error) => {
+    Meteor.call("rides.create", rideData, (error) => {
       this.setState({ isSubmitting: false });
 
       if (error) {
         this.setState({
-          error: error.message || "Failed to create ride. Please try again.",
+          error: error.reason || error.message || "Failed to create ride. Please try again.",
         });
       } else {
         this.setState({ success: true });

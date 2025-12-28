@@ -53,9 +53,9 @@
   "scripts": {
     "start": "cd .. && ./runner.sh",
     "dev": "meteor --no-release-check --settings ../config/settings.development.json --port 3001",
-    "lint": "eslint --quiet --ext .jsx --ext .js --ext .mjs ./imports ./client ./server ./plugins",
-    "lint:compact": "eslint --quiet --ext .jsx --ext .js --ext .mjs --format compact ./imports ./client ./server ./plugins",
-    "lint:fix": "eslint --quiet --ext .jsx --ext .js --ext .mjs ./imports ./client ./server ./plugins --fix",
+    "lint": "eslint --quiet --ext .jsx,.js,.mjs .",
+    "lint:compact": "eslint --quiet --ext .jsx,.js,.mjs --format compact .",
+    "lint:fix": "eslint --quiet --ext .jsx,.js,.mjs --fix .",
     "build": "meteor build ../build --architecture os.linux.x86_64 --server-only",
     "build:server": "cd .. && ./build-app.sh server",
     "build:ios": "cd .. && ./build-app.sh ios",

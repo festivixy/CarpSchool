@@ -4,6 +4,43 @@ import { Profiles } from "./Profile";
 
 Meteor.methods({
   /**
+   * Create a new user profile
+   */
+  async "profiles.create"(profileData) {
+    check(profileData, {
+      Name: String,
+      Location: String,
+      Image: String,
+      Ride: String,
+      Phone: String,
+      Other: String,
+      UserType: String,
+      verified: Boolean,
+      requested: Boolean,
+      rejected: Boolean,
+      Owner: String,
+    });
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to create a profile.");
+    }
+
+    // Ensure the owner is the current user
+    if (profileData.Owner !== this.userId) {
+      throw new Meteor.Error("access-denied", "You cannot create a profile for someone else.");
+    }
+
+    // Check if profile already exists
+    const existingProfile = await Profiles.findOneAsync({ Owner: this.userId });
+    if (existingProfile) {
+      throw new Meteor.Error("already-exists", "You already have a profile.");
+    }
+
+    const profileId = await Profiles.insertAsync(profileData);
+    return profileId;
+  },
+
+  /**
    * Change user role and unverify them
    * Requires re-verification after role change
    */

@@ -225,14 +225,12 @@ class MobileChat extends React.Component {
             try {
                 const result =
                     await window.cordova.plugins.NativeNavBar.promise.hideAllNavBars();
-                console.log("[Chat] 🙈 Hidden all iOS navbars:", result);
+                // console.log("[Chat] 🙈 Hidden all iOS navbars:", result);
             } catch (error) {
                 console.warn("[Chat] ⚠️ Error hiding iOS navbars:", error);
             }
         } else {
-            console.log(
-                "[Chat] ℹ️ Native navbar plugin not available or hideAllNavBars not supported",
-            );
+            // console.log("[Chat] ℹ️ Native navbar plugin not available or hideAllNavBars not supported");
         }
     };
 
@@ -241,14 +239,12 @@ class MobileChat extends React.Component {
             try {
                 const result =
                     await window.cordova.plugins.NativeNavBar.promise.showAllNavBars();
-                console.log("[Chat] 👁️ Restored all iOS navbars:", result);
+                // console.log("[Chat] 👁️ Restored all iOS navbars:", result);
             } catch (error) {
                 console.warn("[Chat] ⚠️ Error restoring iOS navbars:", error);
             }
         } else {
-            console.log(
-                "[Chat] ℹ️ Native navbar plugin not available or showAllNavBars not supported",
-            );
+            // console.log("[Chat] ℹ️ Native navbar plugin not available or showAllNavBars not supported");
         }
     };
 

@@ -21,6 +21,38 @@ Meteor.methods({
     await Rides.removeAsync(rideId);
   },
 
+  async "rides.create"(rideData) {
+    check(rideData, {
+      driver: String,
+      riders: Array,
+      origin: String,
+      destination: String,
+      date: Date,
+      seats: Number,
+      notes: String,
+      createdAt: Date,
+    });
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to create a ride.");
+    }
+
+    // Ensure the driver is the current user
+    if (rideData.driver !== this.userId) {
+      throw new Meteor.Error("access-denied", "You cannot create a ride for someone else.");
+    }
+
+    // Validate data using schema via simple check or reusing schema logic if needed
+    // For now, basic checks are sufficient as schema validation happens on insert generally,
+    // but explicit validation is better.
+    if (!rideData.origin || !rideData.destination || !rideData.date) {
+        throw new Meteor.Error("invalid-data", "Missing required fields.");
+    }
+
+    const rideId = await Rides.insertAsync(rideData);
+    return rideId;
+  },
+
   async "rides.update"(rideId, updateData) {
     check(rideId, String);
     check(updateData, {

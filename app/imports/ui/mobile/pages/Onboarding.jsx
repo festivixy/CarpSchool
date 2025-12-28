@@ -415,11 +415,11 @@ class MobileOnboarding extends React.Component {
       };
 
       // Insert new profile
-      Profiles.insert(profileData, (profileError) => {
+      Meteor.call("profiles.create", profileData, (profileError) => {
         if (!this._isMounted) return;
         this.setState({ isSubmitting: false });
         if (profileError) {
-          this.setState({ error: profileError.message });
+          this.setState({ error: profileError.reason || profileError.message });
         } else {
           this.setState({
             success:
