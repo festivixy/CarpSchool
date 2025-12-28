@@ -142,6 +142,66 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
   }
 });
 
+// Persona Webhook Endpoint
+WebApp.connectHandlers.use("/webhooks/persona", async (req, res, _next) => {
+  if (req.method !== "POST") {
+    res.writeHead(405);
+    res.end("Method Not Allowed");
+    return;
+  }
+
+  let body = "";
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+
+  req.on("end", async () => {
+    try {
+      const payload = JSON.parse(body);
+      const { data } = payload;
+      
+      // Basic validation
+      if (!data || !data.attributes) {
+        res.writeHead(400);
+        res.end("Invalid Payload");
+        return;
+      }
+
+      const { status, referenceId, inquiryId } = data.attributes;
+
+      // Only process completed inquiries
+      if (status === "completed" && referenceId) {
+        // Update user profile
+        // Import Profiles here to avoid circular dependency issues if any
+        const { Profiles } = await import("../../api/profile/Profile");
+        
+        // Find profile belonging to the user (referenceId should be userId)
+        const profile = await Profiles.findOneAsync({ Owner: referenceId });
+        
+        if (profile) {
+          await Profiles.updateAsync(profile._id, {
+            $set: {
+              identityVerified: true,
+              personaInquiryId: inquiryId,
+              verifiedAt: new Date(),
+            }
+          });
+          console.log(`Verified identity for user ${referenceId}`);
+        } else {
+          console.warn(`Profile not found for user ${referenceId}`);
+        }
+      }
+
+      res.writeHead(200);
+      res.end("OK");
+    } catch (e) {
+      console.error("Error processing Persona webhook:", e);
+      res.writeHead(500);
+      res.end("Internal Server Error");
+    }
+  });
+});
+
 // Health check endpoint
 WebApp.connectHandlers.use("/health", (req, res, _next) => {
   res.writeHead(200, { "Content-Type": "text/plain" });

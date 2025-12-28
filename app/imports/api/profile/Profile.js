@@ -92,6 +92,10 @@ const ProfileSchema = Joi.object({
     allowEmpty: true,
     label: "Rejection Reason",
   }),
+  // Persona Identity Verification
+  identityVerified: Joi.boolean().default(false),
+  personaInquiryId: Joi.string().optional(),
+  verifiedAt: Joi.date().optional(),
   Owner: Joi.string().required(),
 });
 

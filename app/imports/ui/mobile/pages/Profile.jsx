@@ -57,6 +57,39 @@ const Profile = ({ history, currentUser, isAdmin }) => {
 
         {/* Profile Options */}
         <Section>
+          {/* Identity Verification Status */}
+          <button
+             onClick={() => {
+               if (!currentUser.profile?.identityVerified) {
+                 // Redirect to Persona verification flow with userId as reference
+                 // NOTE: In production, use the production environment ID
+                 const inquiryTemplateId = "itmpl_PygaeTqwQpVeoiAMmVmZzrWwezCN";
+                 const environmentId = "env_5ZRRvhfj6N4FoUoQ2e4KSv19gUuG";
+                 const referenceId = currentUser._id;
+                 const redirectUri = encodeURIComponent("https://carp.school"); // Update this to your app's URL
+                 
+                 window.location.href = `https://miniapp.withpersona.com/verify?inquiry-template-id=${inquiryTemplateId}&environment-id=${environmentId}&reference-id=${referenceId}&redirect-uri=${redirectUri}`;
+               }
+             }}
+             style={{
+               width: "100%",
+               padding: "18px 20px",
+               backgroundColor: currentUser.profile?.identityVerified ? "#f0f9eb" : "transparent",
+               border: "none",
+               borderBottom: "1px solid #f0f0f0",
+               textAlign: "left",
+               fontSize: "16px",
+               color: "#333",
+               cursor: currentUser.profile?.identityVerified ? "default" : "pointer",
+               display: "flex",
+               alignItems: "center",
+             }}
+          >
+            <MenuIcon>{currentUser.profile?.identityVerified ? "✅" : "🛡️"}</MenuIcon>
+            {currentUser.profile?.identityVerified ? "Identity Verified" : "Verify Identity"}
+            {!currentUser.profile?.identityVerified && <MenuArrow>›</MenuArrow>}
+          </button>
+
           <button
             onClick={() => handleNavigation("/edit-profile")}
             style={{
