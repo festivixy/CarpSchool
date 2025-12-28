@@ -20,7 +20,8 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import MobileNotFound from "../mobile/pages/NotFound";
 import MobileSignIn from "../pages/SignIn";
 import LiquidGlassSignIn from "../liquidGlass/pages/SignIn";
-import MobileSignup from "../pages/Signup";
+import LiquidGlassSignIn from "../liquidGlass/pages/SignIn";
+import StudentRegistration from "../pages/StudentRegistration";
 import MobileForgotPassword from "../pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
@@ -97,7 +98,7 @@ class App extends React.Component {
               />
               <ProtectedRouteRequireNotLoggedIn
                 path="/signup"
-                component={MobileSignup}
+                component={StudentRegistration}
               />
               <ProtectedRouteRequireNotLoggedIn
                 path="/forgot"

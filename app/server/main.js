@@ -45,6 +45,8 @@ import "../imports/api/notifications/OneSignalMethods";
 import "../imports/api/system/SystemMethods";
 import "../imports/api/schools/SchoolsMethods";
 import "../imports/api/accounts/AdminMethods";
+import "../imports/api/accounts/RegistrationMethods";
+import "../imports/api/accounts/RegistrationRateLimits";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers"; // Login validation and logout handlers
