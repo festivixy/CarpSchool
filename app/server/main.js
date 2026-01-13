@@ -23,8 +23,8 @@ import "../imports/api/system/SystemPublications";
 import "../imports/api/schools/SchoolsPublications";
 
 // Routes
-import "../imports/startup/server/ServerRoutes";
 import "../imports/startup/server/ApiRoutes";
+import "../imports/startup/server/ServerRoutes";
 
 // Methods
 import "../imports/api/captcha/CaptchaMethods";
