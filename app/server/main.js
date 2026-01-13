@@ -24,6 +24,7 @@ import "../imports/api/schools/SchoolsPublications";
 
 // Routes
 import "../imports/startup/server/ServerRoutes";
+import "../imports/startup/server/ApiRoutes";
 
 // Methods
 import "../imports/api/captcha/CaptchaMethods";
