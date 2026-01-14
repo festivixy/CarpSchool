@@ -26,19 +26,28 @@ NC='\033[0m' # No Color
 show_usage() {
     echo -e "${BLUE}🚀 CarpSchool Deployment Script${NC}"
     echo ""
-    echo "Usage: $0 <user@host> <remote_path>"
+    echo "Usage: $0 [options] <user@host> <remote_path>"
     echo ""
     echo "Arguments:"
     echo "  user@host      SSH connection string (e.g., user@myserver.com)"
     echo "  remote_path    Path on remote server (e.g., /var/www/carpool)"
     echo ""
-    echo "Prerequisites:"
-    echo "  - SSH key authentication configured for passwordless login"
-    echo "  - Remote server has Node.js installed"
-    echo "  - Local machine has Meteor and Docker installed"
+    echo "Options:"
+    echo "  --build        Build locally before deploying"
+    echo "  --help         Show this help message"
     echo ""
-    echo "Example:"
+    echo "Prerequisites:"
+    echo "  - SSH access to remote server (password or key authentication)"
+    echo "  - Application must be built first (see build instructions)"
+    echo "  - Remote server has Node.js and required dependencies installed"
+    echo ""
+    echo "Build Instructions:"
+    echo "  Linux/macOS: ./build-prod.sh"
+    echo "  Windows:      build.bat"
+    echo ""
+    echo "Examples:"
     echo "  $0 user@myserver.com /var/www/carpool"
+    echo "  $0 --build user@myserver.com /var/www/carpool"
 }
 
 # Check if SSH connection works
@@ -87,7 +96,33 @@ check_remote_directory() {
     echo -e "${GREEN}✅ Remote directory verified${NC}"
 }
 
-# Build the application locally
+# Check if built application exists
+check_build_exists() {
+    local tar_file="build/app.tar.gz"
+
+    echo -e "${BLUE}🔍 Checking for built application...${NC}"
+
+    if [ ! -f "$tar_file" ]; then
+        echo -e "${RED}❌ Build file not found: $tar_file${NC}"
+        echo ""
+        echo -e "${YELLOW}💡 Please build the application first:${NC}"
+        echo "   ./build-prod.sh    # For Linux/macOS"
+        echo "   build.bat          # For Windows"
+        echo ""
+        echo -e "${YELLOW}💡 Or run deployment with build:${NC}"
+        echo "   ./deploy.sh --build user@host path"
+        echo ""
+        exit 1
+    fi
+
+    echo -e "${GREEN}✅ Build file found: $tar_file${NC}"
+
+    # Show build file size
+    local size=$(du -h "$tar_file" | cut -f1)
+    echo -e "${BLUE}📊 Bundle size: $size${NC}"
+}
+
+# Build the application locally (when --build flag is used)
 build_locally() {
     echo -e "${BLUE}🔨 Building CarpSchool locally...${NC}"
 
@@ -102,7 +137,7 @@ build_locally() {
     echo -e "${YELLOW}🧹 Cleaning previous build...${NC}"
     rm -rf build server/build
 
-    # Update browserslist (with timeout to prevent hanging)
+    # Update browserslist
     echo -e "${YELLOW}📦 Updating browserslist database...${NC}"
     cd app
     timeout 30 meteor npm install caniuse-lite --save --legacy-peer-deps >/dev/null 2>&1 || echo "caniuse-lite install skipped"
@@ -112,7 +147,7 @@ build_locally() {
     # Build Meteor bundle
     echo -e "${YELLOW}🚀 Building Meteor bundle...${NC}"
     cd app
-    meteor build "../build" --architecture "os.linux.x86_64" --server-only
+    meteor build "..\build" --architecture "os.linux.x86_64" --server-only
     cd ..
 
     # Install server dependencies
@@ -200,7 +235,31 @@ show_completion() {
 
 # Main deployment function
 main() {
-    # Check arguments
+    local build_first=false
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --build)
+                build_first=true
+                shift
+                ;;
+            --help)
+                show_usage
+                exit 0
+                ;;
+            -*)
+                echo -e "${RED}❌ Unknown option: $1${NC}"
+                show_usage
+                exit 1
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
+
+    # Check remaining arguments
     if [ $# -ne 2 ]; then
         show_usage
         exit 1
@@ -212,6 +271,11 @@ main() {
     echo -e "${GREEN}🚀 Starting CarpSchool deployment...${NC}"
     echo -e "${BLUE}Target: $ssh_target${NC}"
     echo -e "${BLUE}Path: $remote_path${NC}"
+    if [ "$build_first" = true ]; then
+        echo -e "${BLUE}Mode: Build + Deploy${NC}"
+    else
+        echo -e "${BLUE}Mode: Deploy Only${NC}"
+    fi
     echo ""
 
     # Validate inputs
@@ -228,7 +292,13 @@ main() {
     # Run deployment steps
     check_ssh_connection "$ssh_target"
     check_remote_directory "$ssh_target" "$remote_path"
-    build_locally
+
+    if [ "$build_first" = true ]; then
+        build_locally
+    else
+        check_build_exists
+    fi
+
     upload_via_sftp "$ssh_target" "$remote_path"
     show_completion "$ssh_target" "$remote_path"
 
