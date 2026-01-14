@@ -452,3 +452,25 @@ export const SecondaryButton = styled(Button)`
     background-color: #e9ecef;
   }
 `;
+
+// Additional components needed by StudentRegistration
+export const Form = styled.form`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const InputSection = styled.div`
+  width: 100%;
+  margin-bottom: 20px;
+`;
+
+export const Field = styled.div`
+  width: 100%;
+  margin-bottom: 16px;
+`;
+
+export const SubmitButton = styled(PrimaryButton)`
+  width: 100%;
+  margin-top: 16px;
+`;

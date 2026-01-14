@@ -29,9 +29,8 @@ import {
   PreviewImg,
   FileInput,
   FileLabel,
-} from "../styles/Onboarding"; // Using existing styles
+} from "../mobile/styles/Onboarding"; // Using existing styles
 import Captcha from "../components/Captcha";
-import { getImageUrl } from "../utils/imageUtils";
 
 /**
  * Unified Student Registration Wizard
