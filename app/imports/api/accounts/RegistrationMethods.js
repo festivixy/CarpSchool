@@ -4,7 +4,7 @@ import { check } from "meteor/check";
 import { Profiles } from "../profile/Profile";
 import { Schools } from "../schools/Schools";
 import { Images } from "../images/Images"; // Direct access for atomic registration
-import { validateCaptcha } from "../captcha/server/captcha";
+import { Captcha, useCaptcha } from "../captcha/Captcha";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
@@ -31,7 +31,9 @@ Meteor.methods({
     }
 
     // 1. Validate Captcha
-    if (!validateCaptcha(data.captchaToken)) {
+    const captchaUsed = await useCaptcha(data.captchaToken);
+    
+    if (!captchaUsed) {
       throw new Meteor.Error("security.captcha.invalid", "Invalid security code");
     }
 
