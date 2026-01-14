@@ -10,6 +10,8 @@ REMOTE_TARGET=$1
 REMOTE_PATH=$2
 LOCAL_FILE="./build/app.tar.gz"
 
+ssh "$REMOTE_TARGET" "cd \"$REMOTE_PATH\" && docker compose down"
+
 # 1. Create the remote directory structure
 # We use escaped quotes to ensure the remote shell sees the path as a single argument
 echo "Ensuring remote directory exists..."
@@ -23,5 +25,7 @@ else
     echo "Error: Could not create remote directory. Skipping upload."
     exit 1
 fi
+
+ssh "$REMOTE_TARGET" "cd \"$REMOTE_PATH\" && docker compose up -d"
 
 echo "Done!"
