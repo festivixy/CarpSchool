@@ -378,25 +378,37 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
     }
   }
 
-  // --- ROUTE: GET /health (No auth required) ---
-  if (req.method === "GET" && url === "/health") {
-    try {
-      return sendJson(res, 200, {
-        status: "success",
-        data: {
-          service: "CarpSchool API",
-          version: "1.0.0",
-          timestamp: new Date(),
-          uptime: process.uptime(),
-          environment: process.env.NODE_ENV || "development"
-        }
-      });
-    } catch (e) {
-      return sendError(res, 500, e.message);
-    }
-  }
+   // --- ROUTE: GET /health (No auth required) ---
+   if (req.method === "GET" && url === "/health") {
+     try {
+       return sendJson(res, 200, {
+         status: "success",
+         data: {
+           service: "CarpSchool API",
+           version: "1.0.0",
+           timestamp: new Date(),
+           uptime: process.uptime(),
+           environment: process.env.NODE_ENV || "development"
+         }
+       });
+     } catch (e) {
+       return sendError(res, 500, e.message);
+     }
+   }
 
-  // Middleware: Authentication
+   // --- ROUTE: GET /schools (No auth required) ---
+   if (req.method === "GET" && url === "/schools") {
+     try {
+       const { default: Schools } = await import("../../api/schools/Schools");
+       const schools = await Schools.find({}, { limit: 100 }).fetchAsync();
+
+       return sendJson(res, 200, { status: "success", data: schools });
+     } catch (e) {
+       return sendError(res, 500, e.message);
+     }
+   }
+
+   // Middleware: Authentication
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return sendError(res, 401, "Missing or invalid Authorization header");
@@ -803,21 +815,9 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
       console.error(`API Error - PUT /profile:`, e.message);
       return sendError(res, e.message.includes('Validation error') ? 400 : 500, e.message);
     }
-  }
+   }
 
-  // --- ROUTE: GET /schools ---
-  if (req.method === "GET" && url === "/schools") {
-    try {
-      const { default: Schools } = await import("../../api/schools/Schools");
-      const schools = await Schools.find({}, { limit: 100 }).fetchAsync();
-
-      return sendJson(res, 200, { status: "success", data: schools });
-    } catch (e) {
-      return sendError(res, 500, e.message);
-    }
-  }
-
-  // --- ROUTE: GET /notifications ---
+   // --- ROUTE: GET /notifications ---
   if (req.method === "GET" && url === "/notifications") {
     try {
       const { Notifications } = await import("../../api/notifications/Notifications");
