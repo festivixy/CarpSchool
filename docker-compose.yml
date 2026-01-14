@@ -158,13 +158,6 @@ services:
 # MONGO_EXPRESS_PASSWORD - Password for mongo-express (default: carpool)
 #                         CHANGE THIS IN PRODUCTION!
 #
-# CodePush Configuration:
-# Port 40064 - API only (for mobile clients) - Safe for public exposure
-# Port 40065 - Full access (admin panel) - Should be firewalled or VPN only
-# CODEPUSH_JWT_KEY - JWT encryption key for CodePush (CHANGE IN PRODUCTION!)
-# CODEPUSH_SESSION_SECRET - Session secret for CodePush (CHANGE IN PRODUCTION!)
-#                          CHANGE ALL CODEPUSH SECRETS IN PRODUCTION!
-#
 # Push Notification Configuration:
 # NOTIFICATION_BACKEND - Choose 'firebase' or 'onesignal' (default: firebase)
 # FIREBASE_PROJECT_ID - Firebase project ID for push notifications
