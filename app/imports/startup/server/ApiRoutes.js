@@ -19,7 +19,12 @@ const sendError = (res, statusCode, message) => {
   sendJson(res, statusCode, { status: "error", message });
 };
 
-WebApp.connectHandlers.use("/api/v1", async (req, res, next) => {
+WebApp.connectHandlers.use("/api", async (req, res, next) => {
+  // Validate /v1 prefix
+  if (!req.url.startsWith('/v1')) {
+    return next();
+  }
+
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -51,7 +56,7 @@ WebApp.connectHandlers.use("/api/v1", async (req, res, next) => {
     }
   }
 
-  const url = req.url.split('?')[0]; // Remove query params
+  const url = req.url.replace(/^\/v1/, '').split('?')[0]; // Remove /v1 prefix and query params
 
   // --- AUTHENTICATION ENDPOINTS (No auth required) ---
 
