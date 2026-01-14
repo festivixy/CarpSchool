@@ -102,11 +102,11 @@ build_locally() {
     echo -e "${YELLOW}🧹 Cleaning previous build...${NC}"
     rm -rf build server/build
 
-    # Update browserslist
+    # Update browserslist (with timeout to prevent hanging)
     echo -e "${YELLOW}📦 Updating browserslist database...${NC}"
     cd app
-    meteor npm install caniuse-lite --save --legacy-peer-deps >/dev/null 2>&1 || true
-    npx update-browserslist-db@latest >/dev/null 2>&1 || true
+    timeout 30 meteor npm install caniuse-lite --save --legacy-peer-deps >/dev/null 2>&1 || echo "caniuse-lite install skipped"
+    timeout 30 npx update-browserslist-db@latest --yes >/dev/null 2>&1 || echo "browserslist update skipped"
     cd ..
 
     # Build Meteor bundle
