@@ -8,7 +8,7 @@ echo ========================================
 echo.
 
 REM Source utility functions (Windows equivalents)
-call :source_utils
+REM All utility functions are defined inline in this script
 
 REM Check dependencies
 call :check_dependencies
