@@ -399,7 +399,7 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
    // --- ROUTE: GET /schools (No auth required) ---
    if (req.method === "GET" && url === "/schools") {
      try {
-       const { default: Schools } = await import("../../api/schools/Schools");
+       const { Schools } = await import("../../api/schools/Schools");
        const schools = await Schools.find({}, { limit: 100 }).fetchAsync();
 
        return sendJson(res, 200, { status: "success", data: schools });
