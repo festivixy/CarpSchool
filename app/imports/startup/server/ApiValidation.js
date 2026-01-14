@@ -33,13 +33,13 @@ export const schemas = {
 
   login: Joi.object({
     email: Joi.string().email().optional(),
-    username: Joi.string().alphanum().min(3).max(30).optional(),
+    username: Joi.string().pattern(/^[a-zA-Z0-9_-]+$/).min(3).max(30).optional(),
     password: Joi.string().min(6).required()
   }).xor('email', 'username'), // Must have either email or username, but not both
 
   register: Joi.object({
     email: Joi.string().email().required(),
-    username: Joi.string().alphanum().min(3).max(30).required(),
+    username: Joi.string().pattern(/^[a-zA-Z0-9_-]+$/).min(3).max(30).required(),
     password: Joi.string().min(6).max(128).required(),
     profile: Joi.object({
       firstName: Joi.string().max(50).optional(),
