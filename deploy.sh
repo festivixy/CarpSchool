@@ -39,7 +39,8 @@ show_usage() {
     echo "Prerequisites:"
     echo "  - SSH access to remote server (password or key authentication)"
     echo "  - Application must be built first (see build instructions)"
-    echo "  - Remote server has Node.js and required dependencies installed"
+    echo "  - Remote server has Docker and Docker Compose installed"
+    echo "  - docker-compose.yml must exist in remote server directory"
     echo ""
     echo "Build Instructions:"
     echo "  Linux/macOS: ./build-prod.sh"
@@ -193,9 +194,25 @@ upload_via_sftp() {
         if ssh "$ssh_target" "cd '$remote_path' && tar -xzf app.tar.gz && rm app.tar.gz"; then
             echo -e "${GREEN}✅ Bundle extracted successfully${NC}"
 
-            # Show remote file count for verification
-            local remote_file_count=$(ssh "$ssh_target" "find '$remote_path' -type f | wc -l")
-            echo -e "${GREEN}📊 Files deployed: $remote_file_count${NC}"
+            # Start Docker containers
+            echo -e "${YELLOW}🐳 Starting Docker containers...${NC}"
+            if ssh "$ssh_target" "cd '$remote_path' && docker compose up -d"; then
+                echo -e "${GREEN}✅ Docker containers started successfully${NC}"
+
+                # Show container status
+                ssh "$ssh_target" "cd '$remote_path' && docker compose ps" | head -10
+
+                # Show remote file count for verification
+                local remote_file_count=$(ssh "$ssh_target" "find '$remote_path' -type f | wc -l")
+                echo -e "${GREEN}📊 Files deployed: $remote_file_count${NC}"
+            else
+                echo -e "${RED}❌ Failed to start Docker containers${NC}"
+                echo -e "${YELLOW}💡 You can start them manually:${NC}"
+                echo "   ssh $ssh_target"
+                echo "   cd $remote_path"
+                echo "   docker compose up -d"
+                exit 1
+            fi
         else
             echo -e "${RED}❌ Failed to extract bundle on remote server${NC}"
             exit 1
@@ -218,20 +235,19 @@ show_completion() {
     echo ""
     echo -e "${GREEN}🎉 Deployment completed successfully!${NC}"
     echo ""
-    echo -e "${BLUE}📋 Next steps on remote server:${NC}"
-    echo "1. SSH to server: ssh $ssh_target"
-    echo "2. Navigate to app: cd $remote_path"
-    echo "3. Install dependencies: npm install"
-    echo "4. Start application: node main.js"
+    echo -e "${BLUE}🚀 Application is now running!${NC}"
     echo ""
-    echo -e "${YELLOW}💡 Optional:${NC}"
-    echo "   Use PM2 for production: pm2 start main.js --name carpSchool"
-    echo "   Set up systemd service for auto-start"
+    echo -e "${BLUE}📋 Management commands:${NC}"
+    echo "  View logs:    ssh $ssh_target 'cd $remote_path && docker compose logs -f'"
+    echo "  Stop app:     ssh $ssh_target 'cd $remote_path && docker compose down'"
+    echo "  Restart app:  ssh $ssh_target 'cd $remote_path && docker compose restart'"
+    echo "  Check status: ssh $ssh_target 'cd $remote_path && docker compose ps'"
     echo ""
-    echo -e "${GREEN}✨ Bundle automatically extracted and ready to run!${NC}"
-    echo ""
-    echo -e "${BLUE}🌐 Application should be accessible once started${NC}"
-}
+    echo -e "${YELLOW}💡 For manual control:${NC}"
+    echo "   ssh $ssh_target"
+    echo "   cd $remote_path"
+    echo "   docker compose up -d    # Start"
+    echo "   docker compose down     # Stop"
 
 # Main deployment function
 main() {
