@@ -8,7 +8,8 @@ import { Captcha, useCaptcha } from "../captcha/Captcha";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
-Meteor.methodsAsync({
+Meteor.methods({
+  "accounts.registerStudent": async function (data) {
   /**
    * Registers a new student user.
    * Enforces .edu email validation and university matching.
