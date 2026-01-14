@@ -121,30 +121,50 @@ build_locally() {
     npm install --production --silent
     cd ../../../..
 
-    # Prepare server build directory
-    echo -e "${YELLOW}📁 Preparing server build...${NC}"
-    mkdir -p server/build
-    cp -r build/bundle/programs/server/* server/build/
+    # Create tar.gz bundle for deployment
+    echo -e "${YELLOW}📦 Creating deployment bundle...${NC}"
+    cd build/bundle/programs/server
+    tar -czf ../../../app.tar.gz .
+    cd ../../../../
 
     echo -e "${GREEN}✅ Local build completed${NC}"
+    echo -e "${BLUE}📁 Bundle created: build/app.tar.gz${NC}"
 }
 
 # Upload via SFTP
 upload_via_sftp() {
     local ssh_target="$1"
     local remote_path="$2"
+    local tar_file="build/app.tar.gz"
+
     echo -e "${BLUE}📤 Uploading bundle via SFTP...${NC}"
     echo -e "${YELLOW}💡 Enter password if prompted${NC}"
 
-    echo -e "${YELLOW}🔄 Transferring files...${NC}"
+    # Check if tar file exists
+    if [ ! -f "$tar_file" ]; then
+        echo -e "${RED}❌ Bundle file $tar_file not found!${NC}"
+        echo -e "${YELLOW}💡 Make sure the build completed successfully${NC}"
+        exit 1
+    fi
 
-    # Use rsync over SSH for better reliability and progress
-    if rsync -avz --delete "server/build/" "$ssh_target:$remote_path/"; then
+    echo -e "${YELLOW}🔄 Transferring $tar_file...${NC}"
+
+    # Upload the tar.gz file
+    if scp "$tar_file" "$ssh_target:$remote_path/app.tar.gz"; then
         echo -e "${GREEN}✅ Upload completed successfully${NC}"
 
-        # Show remote file count for verification
-        local remote_file_count=$(ssh "$ssh_target" "find '$remote_path' -type f | wc -l")
-        echo -e "${GREEN}📊 Files uploaded: $remote_file_count${NC}"
+        # Extract on remote server
+        echo -e "${YELLOW}📦 Extracting bundle on remote server...${NC}"
+        if ssh "$ssh_target" "cd '$remote_path' && tar -xzf app.tar.gz && rm app.tar.gz"; then
+            echo -e "${GREEN}✅ Bundle extracted successfully${NC}"
+
+            # Show remote file count for verification
+            local remote_file_count=$(ssh "$ssh_target" "find '$remote_path' -type f | wc -l")
+            echo -e "${GREEN}📊 Files deployed: $remote_file_count${NC}"
+        else
+            echo -e "${RED}❌ Failed to extract bundle on remote server${NC}"
+            exit 1
+        fi
     else
         echo -e "${RED}❌ Upload failed!${NC}"
         echo -e "${YELLOW}💡 Check:${NC}"
@@ -172,6 +192,8 @@ show_completion() {
     echo -e "${YELLOW}💡 Optional:${NC}"
     echo "   Use PM2 for production: pm2 start main.js --name carpSchool"
     echo "   Set up systemd service for auto-start"
+    echo ""
+    echo -e "${GREEN}✨ Bundle automatically extracted and ready to run!${NC}"
     echo ""
     echo -e "${BLUE}🌐 Application should be accessible once started${NC}"
 }
