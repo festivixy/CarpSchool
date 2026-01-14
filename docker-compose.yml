@@ -138,74 +138,6 @@ services:
       retries: 3
       start_period: 30s
 
-  codepush-server:
-    image: tablee/code-push-server:v0.5.2
-    container_name: codepush-server
-    environment:
-      - NODE_ENV=production
-      - CONFIG_FILE=/config.js
-      - DOWNLOAD_URL=https://codepush.carp.school/download
-      - MYSQL_HOST=codepush-mysql
-      - MYSQL_PORT=3306
-      - MYSQL_USERNAME=codepush
-      - MYSQL_DATABASE=codepush
-      - STORAGE_DIR=/data/storage
-      - DATA_DIR=/data/tmp
-      - REDIS_HOST=codepush-redis
-      - REDIS_PORT=6379
-      # - JWT_TOKEN_SECRET=${CODEPUSH_JWT_KEY:-carp-school-codepush-jwt-secret-key-change-in-production-2024}
-    volumes:
-      - ./codepush_storage:/data/storage
-      - ./codepush_tmp:/data/tmp
-      - ./codepush-config.js:/config.js
-    depends_on:
-      codepush-mysql:
-        condition: service_healthy
-      codepush-redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - carpool_network
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('net').connect({host: '127.0.0.1', port: 3000}).on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  codepush-mysql:
-    image: mysql:5.7.23
-    container_name: codepush-mysql
-    environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD="On"
-    volumes:
-      - ./codepush_mysql_data:/var/lib/mysql
-      - ./codepush-init.sql:/docker-entrypoint-initdb.d/codepush-init.sql:ro
-    restart: unless-stopped
-    networks:
-      - carpool_network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  codepush-redis:
-    image: redis:4.0.11-alpine
-    container_name: codepush-redis
-    volumes:
-      - ./codepush_redis_data:/data
-    restart: unless-stopped
-    networks:
-      - carpool_network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
   service-proxy:
     image: nginx:alpine
     container_name: service-proxy
@@ -213,8 +145,6 @@ services:
       - "40060:8080"  # Nominatim
       - "40061:8082"  # Tileserver
       - "40062:8083"  # OSRM
-      - "40064:8084"  # CodePush API (mobile clients only)
-      - "40065:8085"  # CodePush Admin (full access)
     volumes:
       - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
     depends_on:
