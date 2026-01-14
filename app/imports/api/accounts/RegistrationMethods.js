@@ -8,7 +8,7 @@ import { Captcha, useCaptcha } from "../captcha/Captcha";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
-Meteor.methods({
+Meteor.methodsAsync({
   /**
    * Registers a new student user.
    * Enforces .edu email validation and university matching.
@@ -19,7 +19,7 @@ Meteor.methods({
    * @param {Object} data.profile - Profile data (name, major, etc)
    * @param {string} data.captchaToken - Captcha session ID
    */
-  "accounts.registerStudent": function (data) {
+  "accounts.registerStudent": async function (data) {
     check(data, Object);
     check(data.email, String);
     check(data.password, String);
