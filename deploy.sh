@@ -8,7 +8,8 @@
 # Example: ./deploy.sh user@myserver.com /var/www/carpool
 #
 # Prerequisites:
-# - SSH key authentication set up for passwordless login
+# - SSH access to remote server (password or key authentication)
+# - rsync installed on local machine (for efficient file transfer)
 # - Remote server has Node.js and required dependencies installed
 # - Local machine has Meteor and Docker installed for building
 
@@ -44,13 +45,16 @@ show_usage() {
 check_ssh_connection() {
     local ssh_target="$1"
     echo -e "${BLUE}🔍 Checking SSH connection to $ssh_target...${NC}"
+    echo -e "${YELLOW}💡 Enter password if prompted (or use SSH keys for automation)${NC}"
 
-    if ! ssh -o ConnectTimeout=10 -o BatchMode=yes "$ssh_target" "echo 'SSH connection successful'" >/dev/null 2>&1; then
+    if ! ssh -o ConnectTimeout=10 "$ssh_target" "echo 'SSH connection successful'" >/dev/null 2>&1; then
         echo -e "${RED}❌ SSH connection failed!${NC}"
-        echo -e "${YELLOW}💡 Make sure:${NC}"
-        echo "   - SSH key is added to ~/.ssh/authorized_keys on remote server"
-        echo "   - SSH agent is running: eval \$(ssh-agent) && ssh-add"
-        echo "   - Firewall allows SSH connections"
+        echo -e "${YELLOW}💡 Troubleshooting:${NC}"
+        echo "   - Check username/host are correct"
+        echo "   - Verify SSH service is running on remote server"
+        echo "   - For password auth: enter password when prompted"
+        echo "   - For key auth: run 'ssh-copy-id $ssh_target' first"
+        echo "   - Ensure rsync is installed: 'which rsync'"
         exit 1
     fi
 
@@ -130,29 +134,23 @@ upload_via_sftp() {
     local ssh_target="$1"
     local remote_path="$2"
     echo -e "${BLUE}📤 Uploading bundle via SFTP...${NC}"
-
-    # Create batch file for sftp
-    local sftp_batch_file="/tmp/carpschool_deploy_$$.txt"
-    cat > "$sftp_batch_file" << EOF
-cd $remote_path
-put -r server/build
-EOF
+    echo -e "${YELLOW}💡 Enter password if prompted${NC}"
 
     echo -e "${YELLOW}🔄 Transferring files...${NC}"
 
-    # Execute SFTP batch
-    if sftp -b "$sftp_batch_file" "$ssh_target" >/dev/null 2>&1; then
+    # Use rsync over SSH for better reliability and progress
+    if rsync -avz --delete "server/build/" "$ssh_target:$remote_path/"; then
         echo -e "${GREEN}✅ Upload completed successfully${NC}"
-
-        # Clean up
-        rm -f "$sftp_batch_file"
 
         # Show remote file count for verification
         local remote_file_count=$(ssh "$ssh_target" "find '$remote_path' -type f | wc -l")
         echo -e "${GREEN}📊 Files uploaded: $remote_file_count${NC}"
     else
-        echo -e "${RED}❌ SFTP upload failed!${NC}"
-        rm -f "$sftp_batch_file"
+        echo -e "${RED}❌ Upload failed!${NC}"
+        echo -e "${YELLOW}💡 Check:${NC}"
+        echo "   - Remote directory permissions"
+        echo "   - Available disk space"
+        echo "   - Network connectivity"
         exit 1
     fi
 }
