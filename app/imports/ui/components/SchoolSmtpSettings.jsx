@@ -163,7 +163,7 @@ const SchoolSmtpSettings = ({ schoolId }) => {
           <SmtpInput
             type="number"
             value={settings.port}
-            onChange={(e) => handleChange("port", parseInt(e.target.value) || 587)}
+            onChange={(e) => handleChange("port", parseInt(e.target.value, 10) || 587)}
             min="1"
             max="65535"
             disabled={isSaving}

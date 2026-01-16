@@ -398,7 +398,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
           // Check iOS version (rough estimate)
           const iosVersion = navigator.userAgent.match(/OS (\d+)_/);
           if (iosVersion) {
-            const version = parseInt(iosVersion[1]);
+            const version = parseInt(iosVersion[1], 10);
             addLog(`  - iOS version: ~${version}`, version >= 12 ? "success" : "warning");
             if (version < 12) {
               addLog("⚠️ iOS 12+ recommended for better notification support", "warning");

@@ -11,7 +11,7 @@ Accounts.validateLoginAttempt(async (attempt) => {
     return false;
   }
   if (attempt.type === "password") {
-    if (attempt.meathodName !== "verifyEmail") {
+    if (attempt.methodName !== "verifyEmail") {
       return attempt.allowed;
     }
     const captchaSessionId =
@@ -54,8 +54,11 @@ Accounts.validateNewUser(async (user) => {
   }
   await useCaptcha(captchaSessionId);
 
-  // Remove captchaSessionId from user object before storing
+  // Remove captchaSessionId from user object before storing (both locations)
   delete user.captchaSessionId;  // eslint-disable-line
+  if (user.profile?.captchaSessionId) {
+    delete user.profile.captchaSessionId;  // eslint-disable-line
+  }
   return true;
 });
 

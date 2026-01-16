@@ -235,7 +235,7 @@ const AutoSubscribeNotification = () => {
     const lastSuccess = localStorage.getItem("autoSubscribeLastSuccess");
     if (lastSuccess) {
       const hourAgo = Date.now() - (60 * 60 * 1000);
-      if (parseInt(lastSuccess) > hourAgo) {
+      if (parseInt(lastSuccess, 10) > hourAgo) {
         console.log("[AutoSub] Cooldown period active, skipping auto-subscription");
         return false;
       }

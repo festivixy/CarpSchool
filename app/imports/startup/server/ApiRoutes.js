@@ -8,6 +8,9 @@ import { validateUserCanJoinRide } from "../../api/ride/RideValidation";
 import { validateInput, checkRateLimit, schemas } from "./ApiValidation";
 import { triggerWebhook, WEBHOOK_EVENTS } from "./AuthWebhooks";
 
+// Helper to escape special regex characters (prevents ReDoS attacks)
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // Helper to send JSON response
 const sendJson = (res, statusCode, data) => {
   res.writeHead(statusCode, { "Content-Type": "application/json" });
@@ -748,12 +751,12 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
         query.date = { ...query.date, $lte: new Date(queryParams.get('to')) };
       }
 
-      // Filter by origin/destination
+      // Filter by origin/destination (escape user input to prevent ReDoS)
       if (queryParams.get('origin')) {
-        query.origin = { $regex: queryParams.get('origin'), $options: 'i' };
+        query.origin = { $regex: escapeRegex(queryParams.get('origin')), $options: 'i' };
       }
       if (queryParams.get('destination')) {
-        query.destination = { $regex: queryParams.get('destination'), $options: 'i' };
+        query.destination = { $regex: escapeRegex(queryParams.get('destination')), $options: 'i' };
       }
 
       // Filter by driver
@@ -763,7 +766,7 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
 
       // Filter by available seats
       if (queryParams.get('availableSeats')) {
-        const availableSeats = parseInt(queryParams.get('availableSeats'));
+        const availableSeats = parseInt(queryParams.get('availableSeats'), 10);
         if (!isNaN(availableSeats)) {
           // This is a simplified check - in reality you'd calculate available seats
           query.seats = { $gte: availableSeats };
@@ -772,10 +775,10 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
 
       // Pagination
       if (queryParams.get('limit')) {
-        options.limit = Math.min(parseInt(queryParams.get('limit')) || 50, 100);
+        options.limit = Math.min(parseInt(queryParams.get('limit'), 10) || 50, 100);
       }
       if (queryParams.get('skip')) {
-        options.skip = parseInt(queryParams.get('skip')) || 0;
+        options.skip = parseInt(queryParams.get('skip'), 10) || 0;
       }
 
       const rides = await Rides.find(query, options).fetchAsync();
@@ -1309,7 +1312,7 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
 
       // Search by username or email
       if (queryParams.get('search')) {
-        const searchTerm = queryParams.get('search');
+        const searchTerm = escapeRegex(queryParams.get('search'));
         query.$or = [
           { username: { $regex: searchTerm, $options: 'i' } },
           { 'emails.address': { $regex: searchTerm, $options: 'i' } }
@@ -1318,10 +1321,10 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
 
       // Pagination
       if (queryParams.get('limit')) {
-        options.limit = Math.min(parseInt(queryParams.get('limit')) || 50, 100);
+        options.limit = Math.min(parseInt(queryParams.get('limit'), 10) || 50, 100);
       }
       if (queryParams.get('skip')) {
-        options.skip = parseInt(queryParams.get('skip')) || 0;
+        options.skip = parseInt(queryParams.get('skip'), 10) || 0;
       }
 
       const users = await Meteor.users.find(query, {
@@ -1905,10 +1908,10 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
 
       // Pagination
       if (queryParams.get('limit')) {
-        options.limit = Math.min(parseInt(queryParams.get('limit')) || 50, 100);
+        options.limit = Math.min(parseInt(queryParams.get('limit'), 10) || 50, 100);
       }
       if (queryParams.get('skip')) {
-        options.skip = parseInt(queryParams.get('skip')) || 0;
+        options.skip = parseInt(queryParams.get('skip'), 10) || 0;
       }
 
       const rides = await Rides.find(query, options).fetchAsync();

@@ -49,7 +49,19 @@ Meteor.methods({
         throw new Meteor.Error("invalid-data", "Missing required fields.");
     }
 
-    const rideId = await Rides.insertAsync(rideData);
+    // Get user's school ID (required by schema)
+    const user = await Meteor.users.findOneAsync(this.userId);
+    if (!user || !user.schoolId) {
+      throw new Meteor.Error("no-school", "You must be associated with a school to create rides.");
+    }
+
+    // Add schoolId to ride data
+    const rideWithSchool = {
+      ...rideData,
+      schoolId: user.schoolId,
+    };
+
+    const rideId = await Rides.insertAsync(rideWithSchool);
     return rideId;
   },
 

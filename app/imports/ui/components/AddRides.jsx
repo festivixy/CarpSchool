@@ -254,7 +254,7 @@ class AddRidesModal extends React.Component {
     }
 
     // Check if date/time is not in the past
-    const selectedDateTime = new Date(`${date}T${time}`);
+    const selectedDateTime = new Date(`${date}T${time}:00`);
     const now = new Date();
 
     if (selectedDateTime <= now) {
@@ -272,17 +272,24 @@ class AddRidesModal extends React.Component {
       return;
     }
 
+    // Ensure user is logged in before proceeding
+    const user = Meteor.user();
+    if (!user || !user._id) {
+      this.setState({ error: "You must be logged in to create a ride" });
+      return;
+    }
+
     const { origin, destination, date, time, seats, notes } = this.state;
 
     this.setState({ isSubmitting: true, error: "" });
 
     const rideData = {
-      driver: Meteor.user()._id,
+      driver: user._id,
       riders: [], // Start with empty riders array
       origin: origin.trim(),
       destination: destination.trim(),
-      date: new Date(`${date}T${time}`),
-      seats: parseInt(seats), // eslint-disable-line
+      date: new Date(`${date}T${time}:00`), // ISO 8601 format with seconds
+      seats: parseInt(seats, 10),
       notes: notes.trim(),
       createdAt: new Date(),
     };

@@ -42,7 +42,15 @@ async function createUser(email, firstName, lastName, password, role, schoolCode
     }
   }
 
-  console.log(`  Creating user ${email}${school ? ` for school ${school.name}` : ""}.`);
+  // Determine roles upfront to include in user creation
+  let roles = [];
+  if (role === "system") {
+    roles = ["system"];
+  } else if (role === "admin" && school) {
+    roles = [`admin.${school._id}`];
+  }
+
+  console.log(`  Creating user ${email}${school ? ` for school ${school.name}` : ""}${roles.length ? ` with role(s): ${roles.join(", ")}` : ""}.`);
   const userID = await new Promise((resolve, _reject) => {
     const id = Accounts.createUser({
       username: email,
@@ -59,19 +67,25 @@ async function createUser(email, firstName, lastName, password, role, schoolCode
     resolve(id);
   });
 
-  // Assign roles based on type
-  if (role === "system") {
-    console.log(`  Assigning system role to user ${email} with ID ${userID}`);
-    await Meteor.users.updateAsync(userID, {
-      $set: { roles: ["system"] },
-    });
-    console.log(`  System role assignment completed for user ${email}`);
-  } else if (role === "admin" && school) {
-    console.log(`  Assigning school admin role to user ${email} with ID ${userID}`);
-    await Meteor.users.updateAsync(userID, {
-      $set: { roles: [`admin.${school._id}`] },
-    });
-    console.log(`  School admin role assignment completed for user ${email}`);
+  // Assign roles atomically using findOneAndUpdate to prevent race conditions (V009 fix)
+  // This ensures the role is set only if the user exists and roles haven't been modified
+  if (roles.length > 0) {
+    console.log(`  Assigning role(s) to user ${email} with ID ${userID}`);
+    const result = await Meteor.users.rawCollection().findOneAndUpdate(
+      { _id: userID, roles: { $exists: false } }, // Only update if roles not already set
+      { $set: { roles: roles } },
+      { returnDocument: "after" }
+    );
+
+    if (!result) {
+      // Roles already exist, try to merge them atomically
+      await Meteor.users.rawCollection().findOneAndUpdate(
+        { _id: userID },
+        { $addToSet: { roles: { $each: roles } } },
+        { returnDocument: "after" }
+      );
+    }
+    console.log(`  Role assignment completed for user ${email}`);
   }
 
   return userID;
@@ -180,20 +194,50 @@ async function addRide(data) {
     rideData.createdAt = new Date();
   }
 
-  // Validate and resolve origin and destination places
+  // Resolve driver email/username to user ID for place ownership validation (V011 fix)
+  let driverUser = null;
+  if (rideData.driver) {
+    driverUser = await Meteor.users.findOneAsync({
+      $or: [
+        { "emails.address": rideData.driver },
+        { username: rideData.driver },
+        { _id: rideData.driver },
+      ],
+    });
+    if (driverUser) {
+      // Update driver to use user ID
+      rideData.driver = driverUser._id;
+    } else {
+      console.error(`    Error: Driver "${rideData.driver}" not found`);
+      return;
+    }
+  }
+
+  // Validate and resolve origin and destination places (V011 fix: validate ownership)
   if (rideData.origin) {
     let originPlace = await Places.findOneAsync({ _id: rideData.origin });
-    // If not found by ID, try to find by text (place name)
+    // If not found by ID, try to find by text (place name) with user validation
     if (!originPlace) {
-      originPlace = await Places.findOneAsync({ text: rideData.origin });
+      // First try to find a place matching text that belongs to the driver
+      originPlace = await Places.findOneAsync({
+        text: rideData.origin,
+        createdBy: driverUser._id,
+      });
+      // If not found for driver, try to find any matching place (for system-created places)
+      if (!originPlace) {
+        originPlace = await Places.findOneAsync({
+          text: rideData.origin,
+          createdBy: "system",
+        });
+      }
       if (originPlace) {
         console.log(
-          `    Resolved origin "${rideData.origin}" to place ID: ${originPlace._id}`,
+          `    Resolved origin "${rideData.origin}" to place ID: ${originPlace._id} (owner: ${originPlace.createdBy})`,
         );
         rideData.origin = originPlace._id;
       } else {
         console.error(
-          `    Error: Origin place "${rideData.origin}" not found by ID or name`,
+          `    Error: Origin place "${rideData.origin}" not found by ID or name for driver ${driverUser._id}`,
         );
         return;
       }
@@ -204,19 +248,28 @@ async function addRide(data) {
     let destinationPlace = await Places.findOneAsync({
       _id: rideData.destination,
     });
-    // If not found by ID, try to find by text (place name)
+    // If not found by ID, try to find by text (place name) with user validation
     if (!destinationPlace) {
+      // First try to find a place matching text that belongs to the driver
       destinationPlace = await Places.findOneAsync({
         text: rideData.destination,
+        createdBy: driverUser._id,
       });
+      // If not found for driver, try to find any matching place (for system-created places)
+      if (!destinationPlace) {
+        destinationPlace = await Places.findOneAsync({
+          text: rideData.destination,
+          createdBy: "system",
+        });
+      }
       if (destinationPlace) {
         console.log(
-          `    Resolved destination "${rideData.destination}" to place ID: ${destinationPlace._id}`,
+          `    Resolved destination "${rideData.destination}" to place ID: ${destinationPlace._id} (owner: ${destinationPlace.createdBy})`,
         );
         rideData.destination = destinationPlace._id;
       } else {
         console.error(
-          `    Error: Destination place "${rideData.destination}" not found by ID or name`,
+          `    Error: Destination place "${rideData.destination}" not found by ID or name for driver ${driverUser._id}`,
         );
         return;
       }

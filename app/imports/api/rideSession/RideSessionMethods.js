@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
+import { Random } from "meteor/random";
 import { RideSessions, RideSessionSchema } from "./RideSession";
 import {
   canCreateRideSession,
@@ -13,8 +14,11 @@ import {
   validateTimeConstraints,
 } from "./RideSessionsSafety";
 
-// Helper function to generate 4-digit pickup codes
-const generatePickupCode = () => Math.floor(1000 + Math.random() * 9000).toString();
+// Helper function to generate 4-digit pickup codes using cryptographically secure random
+const generatePickupCode = () => {
+  // Random.fraction() uses crypto.randomBytes which is cryptographically secure
+  return Math.floor(1000 + Random.fraction() * 9000).toString();
+};
 
 Meteor.methods({
   async "rideSessions.create"(rideId, driverId, riderIds = [], location) {

@@ -23,8 +23,8 @@ import {
   StyledLink,
   Legal,
   LegalLink,
-} from "../styles/Signup";
-import Captcha from "../components/Captcha";
+} from "../../../styles/Signup";
+import Captcha from "../../../components/Captcha";
 
 /**
  * Mobile Signup component with modern design and full functionality including CAPTCHA
@@ -57,25 +57,6 @@ export default class MobileSignup extends React.Component {
   /** Handle Signup submission. Create user account and a profile entry, then redirect to the home page. */
   submit = () => {
     const { email, password } = this.state;
-
-    // Client-side validation
-    if (!email || !email.trim()) {
-      this.setState({ error: "Please enter your email address." });
-      return;
-    }
-
-    // Basic email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      this.setState({ error: "Please enter a valid email address." });
-      return;
-    }
-
-    // Password validation
-    if (!password || password.length < 6) {
-      this.setState({ error: "Password must be at least 6 characters long." });
-      return;
-    }
 
     if (!this.captchaRef.current) {
       this.setState({ error: "Captcha component not available." });

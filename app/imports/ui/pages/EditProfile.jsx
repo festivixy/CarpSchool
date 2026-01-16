@@ -201,6 +201,13 @@ class MobileEditProfile extends React.Component {
       return;
     }
 
+    // Ensure user is logged in
+    const user = Meteor.user();
+    if (!user || !user._id) {
+      this.setState({ error: "You must be logged in to upload images." });
+      return;
+    }
+
     this.setState({ isUploadingProfile: true, error: "" });
 
     // First verify CAPTCHA using centralized component
@@ -230,7 +237,7 @@ class MobileEditProfile extends React.Component {
           const privacyOptions = {
             private: false,
             school: this.props.profileData?.SchoolId,
-            user: Meteor.user()._id,
+            user: user._id,
           };
 
           Meteor.call(
@@ -286,6 +293,13 @@ class MobileEditProfile extends React.Component {
       return;
     }
 
+    // Ensure user is logged in
+    const user = Meteor.user();
+    if (!user || !user._id) {
+      this.setState({ error: "You must be logged in to upload images." });
+      return;
+    }
+
     this.setState({ isUploadingRide: true, error: "" });
 
     // First verify CAPTCHA using centralized component
@@ -315,7 +329,7 @@ class MobileEditProfile extends React.Component {
           const privacyOptions = {
             private: false,
             school: this.props.profileData?.SchoolId,
-            user: Meteor.user()._id,
+            user: user._id,
           };
 
           Meteor.call(
