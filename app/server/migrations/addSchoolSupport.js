@@ -25,7 +25,7 @@ export async function createDefaultSchool() {
 
   // Create a default school for existing data
   const defaultSchoolId = await Schools.insertAsync({
-    name: "CarpSchool University", // Change this to your institution
+    name: "CarpSchool School", // Change this to your institution
     shortName: "CSU",
     code: "CSU",
     domain: "carpschool.edu", // Change this to your domain
