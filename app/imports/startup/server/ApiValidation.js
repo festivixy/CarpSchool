@@ -44,7 +44,8 @@ export const schemas = {
     profile: Joi.object({
       firstName: Joi.string().max(50).optional(),
       lastName: Joi.string().max(50).optional()
-    }).optional()
+    }).optional(),
+    captcha: Joi.string().required()
   }),
 
   tokenRefresh: Joi.object({

@@ -7,7 +7,7 @@ const Schools = new Mongo.Collection("Schools");
 
 const SchoolsSchema = Joi.object({
   _id: Joi.string().optional(),
-  name: Joi.string().required().min(2).max(100), // e.g., "Simon Fraser University"
+  name: Joi.string().required().min(2).max(100), // e.g., "Simon Fraser School"
   shortName: Joi.string().required().min(2).max(20), // e.g., "SFU"
   domain: Joi.string().pattern(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).optional(), // e.g., "sfu.ca" for email verification
   code: Joi.string().required().min(2).max(10)

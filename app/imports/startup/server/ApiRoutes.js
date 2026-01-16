@@ -178,11 +178,11 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
     try {
       // Validate input
       const validatedData = validateInput(req.body, schemas.register);
-      const { email, username, password, profile } = validatedData;
+      const { email, username, password, profile, captcha } = validatedData;
 
       // Rate limiting for registration
       const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-      const registerRateLimit = checkRateLimit(`register:${clientIp}`, "register", 3, 3600000); // 3 attempts per hour
+      const registerRateLimit = checkRateLimit(`register:${clientIp}`, "register", 3, 36000); // 3 attempts per hour
 
       if (!registerRateLimit.allowed) {
         return sendError(res, 429, "Too many registration attempts. Please try again later.");
@@ -207,9 +207,9 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
         password: password,
         profile: {
           ...profile,
-          captchaSessionId: "API_BYPASS"
+          captchaSessionId: captcha
         },
-        captchaSessionId: "API_BYPASS"
+        captchaSessionId: captcha
       };
 
       const userId = await Accounts.createUser(userObj);

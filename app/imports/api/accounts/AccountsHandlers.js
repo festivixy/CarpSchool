@@ -35,11 +35,11 @@ Accounts.validateNewUser(async (user) => {
   const captchaSessionId = user.captchaSessionId || user.profile?.captchaSessionId;
 
   // Allow API bypass for programmatic registration
-  if (captchaSessionId === "API_BYPASS") {
-    console.log("API: Bypassing CAPTCHA validation for API registration");
-    delete user.captchaSessionId;  // eslint-disable-line
-    return true;
-  }
+  // if (captchaSessionId === "API_BYPASS") {
+  //   console.log("API: Bypassing CAPTCHA validation for API registration");
+  //   delete user.captchaSessionId;  // eslint-disable-line
+  //   return true;
+  // }
 
   if (captchaSessionId === undefined) {
     throw new Meteor.Error(

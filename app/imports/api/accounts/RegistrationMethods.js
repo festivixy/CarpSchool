@@ -11,7 +11,7 @@ import crypto from "crypto";
 Meteor.methods({
   /**
    * Registers a new student user.
-   * Enforces .edu email validation and university matching.
+   * Enforces .edu email validation and school matching.
    *
    * @param {Object} data - Registration data
    * @param {string} data.email - Student .edu email
@@ -44,11 +44,6 @@ Meteor.methods({
     }
     
     const domain = emailParts[1].toLowerCase();
-    if (!domain.endsWith(".edu") && !domain.endsWith(".ca")) {
-        // Allowing .ca for Canadian universities as per existing codebase patterns, 
-        // though requirement said .edu, likely meant educational domains.
-        // We will strictly enforce that it MATCHES a known school domain.
-    }
 
     // Find school by domain (case insensitive search if needed, but domain index is likely standard)
     const school = Schools.findOne({ 

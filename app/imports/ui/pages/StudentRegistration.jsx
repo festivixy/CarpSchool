@@ -85,8 +85,7 @@ const StudentRegistration = ({ location }) => {
       case 1: // Identity
          if (!formData.email.includes("@")) return false;
          if (formData.password.length < 6) return false;
-         if (!matchedSchool) return false; // Must match a school
-         return true;
+          return true;
       case 2: // Profile
          return formData.name.length >= 2;
       case 3: // Preferences
@@ -101,7 +100,7 @@ const StudentRegistration = ({ location }) => {
       setStep(step + 1);
     } else {
         if (step === 1 && !matchedSchool) {
-            setError("Please enter a valid school email (.edu) that matches a supported university.");
+            setError("Please enter a valid email address.");
         } else if (step === 1 && formData.password.length < 6) {
             setError("Password must be at least 6 characters.");
         } else {
@@ -221,7 +220,7 @@ const StudentRegistration = ({ location }) => {
                        <Input 
                            type="email" 
                            name="email" 
-                           placeholder="university.edu email" 
+                            placeholder="Email address"
                            value={formData.email}
                            onChange={handleChange}
                            autoFocus
