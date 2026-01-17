@@ -210,6 +210,13 @@ class MobileOnboarding extends React.Component {
       return;
     }
 
+    // Ensure user is logged in
+    const user = Meteor.user();
+    if (!user || !user._id) {
+      this.setState({ error: "You must be logged in to upload images." });
+      return;
+    }
+
     this.setState({ isUploadingProfile: true, error: "" });
 
     this.profileCaptchaRef.current.verify((captchaError, isValid) => {
@@ -237,7 +244,7 @@ class MobileOnboarding extends React.Component {
           const privacyOptions = {
             private: false,
             school: this.state.selectedSchoolId,
-            user: Meteor.user()._id,
+            user: user._id,
           };
 
           Meteor.call(
@@ -292,6 +299,13 @@ class MobileOnboarding extends React.Component {
       return;
     }
 
+    // Ensure user is logged in
+    const user = Meteor.user();
+    if (!user || !user._id) {
+      this.setState({ error: "You must be logged in to upload images." });
+      return;
+    }
+
     this.setState({ isUploadingRide: true, error: "" });
 
     this.rideCaptchaRef.current.verify((captchaError, isValid) => {
@@ -319,7 +333,7 @@ class MobileOnboarding extends React.Component {
           const privacyOptions = {
             private: false,
             school: this.state.selectedSchoolId,
-            user: Meteor.user()._id,
+            user: user._id,
           };
 
           Meteor.call(
@@ -385,6 +399,13 @@ class MobileOnboarding extends React.Component {
     const { name, selectedSchoolId, userType, phone, other, profileImage, rideImage } =
       this.state;
 
+    // Ensure user is logged in
+    const user = Meteor.user();
+    if (!user || !user._id) {
+      this.setState({ error: "You must be logged in to complete onboarding." });
+      return;
+    }
+
     this.setState({ isSubmitting: true, error: "", success: "" });
 
     // First, assign the school to the user account
@@ -411,7 +432,7 @@ class MobileOnboarding extends React.Component {
         verified: false,        // New users need admin approval
         requested: true,        // Request admin approval
         rejected: false,        // Not rejected yet
-        Owner: Meteor.user()._id,
+        Owner: user._id,
       };
 
       // Insert new profile

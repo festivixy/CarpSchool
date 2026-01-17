@@ -85,7 +85,14 @@ class Captcha extends Component {
       captchaSessionId,
       captchaInput,
       (error, isValid) => {
-        if (error || !isValid) {
+        if (error) {
+          // Server error (network, session expired, etc.)
+          const errorMessage = error.reason || error.message || "Verification failed. Please try again.";
+          this.setState({ error: errorMessage });
+          this.generateCaptcha(); // Auto-regenerate on error
+          if (callback) callback(errorMessage, false);
+        } else if (!isValid) {
+          // Wrong code entered
           const errorMessage = "Invalid security code. Please try again.";
           this.setState({ error: errorMessage });
           this.generateCaptcha(); // Auto-regenerate on verification failure

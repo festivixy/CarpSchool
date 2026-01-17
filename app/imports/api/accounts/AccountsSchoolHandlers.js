@@ -16,8 +16,11 @@ Accounts.onCreateUser(async (options, user) => {
     roles: options.roles || [],
   };
 
-  // Handle school assignment
-  const userEmail = newUser.emails[0].address;
+  // Handle school assignment - safely access email
+  const userEmail = newUser.emails?.[0]?.address;
+  if (!userEmail) {
+    throw new Meteor.Error("invalid-email", "Email address is required for registration");
+  }
   let schoolId = options.schoolId || null;
 
   // If no school provided, try to auto-detect from email domain
@@ -37,8 +40,9 @@ Accounts.onCreateUser(async (options, user) => {
 
       // Check if school requires email domain verification
       if (school.settings?.requireDomainMatch && school.domain) {
-        const emailDomain = userEmail.split("@")[1].toLowerCase();
-        if (emailDomain !== school.domain.toLowerCase()) {
+        const emailParts = userEmail.split("@");
+        const emailDomain = emailParts.length === 2 && emailParts[1] ? emailParts[1].toLowerCase() : "";
+        if (!emailDomain || emailDomain !== school.domain.toLowerCase()) {
           throw new Meteor.Error(
             "invalid-email-domain",
             `Email must be from ${school.domain} domain to join ${school.name}`,
@@ -52,18 +56,18 @@ Accounts.onCreateUser(async (options, user) => {
   // School selection will happen later in the onboarding process
 
   // Send verification email after user is saved to database (existing logic)
-  const finalUserEmail = newUser.emails[0].address;
+  // userEmail was already validated earlier, so this is safe
   Meteor.setTimeout(async () => {
     try {
-      const savedUser = await Meteor.users.findOneAsync({ "emails.address": finalUserEmail });
+      const savedUser = await Meteor.users.findOneAsync({ "emails.address": userEmail });
       if (savedUser && process.env.MAIL_URL) {
         Accounts.sendVerificationEmail(savedUser._id);
-        console.log(`📧 Verification email sent to ${finalUserEmail}`);
+        console.log(`📧 Verification email sent to ${userEmail}`);
       } else if (!process.env.MAIL_URL) {
-        console.warn(`⚠️  MAIL_URL not configured - skipping verification email for ${finalUserEmail}`);
+        console.warn(`⚠️  MAIL_URL not configured - skipping verification email for ${userEmail}`);
       }
     } catch (error) {
-      console.error(`❌ Failed to send verification email to ${finalUserEmail}:`, error.message || error);
+      console.error(`❌ Failed to send verification email to ${userEmail}:`, error.message || error);
     }
   }, 2000);
 

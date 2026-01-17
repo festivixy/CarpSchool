@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { Rides } from "../../../../api/ride/Rides";
 import { Places } from "../../../../api/places/Places";
 import { MobileOnly } from "../../../layouts/Devices";
 import { Spacer } from "../../../components";
@@ -233,27 +232,35 @@ class CreateRide extends React.Component {
       return;
     }
 
+    // Ensure user is logged in before proceeding
+    const user = Meteor.user();
+    if (!user || !user._id) {
+      this.setState({ error: "You must be logged in to create a ride" });
+      return;
+    }
+
     const { origin, destination, date, time, seats, notes } = this.state;
 
     this.setState({ isSubmitting: true, error: "" });
 
     const rideData = {
-      driver: Meteor.user()._id,
+      driver: user._id,
       riders: [], // Start with empty riders array
       origin: origin.trim(),
       destination: destination.trim(),
-      date: new Date(`${date}T${time}`),
-      seats: parseInt(seats), // eslint-disable-line
+      date: new Date(`${date}T${time}:00`), // ISO 8601 format with seconds
+      seats: parseInt(seats, 10),
       notes: notes.trim(),
       createdAt: new Date(),
     };
 
-    Rides.insert(rideData, (error) => {
+    // Use server method instead of direct database insert (V022 security fix)
+    Meteor.call("rides.create", rideData, (error) => {
       this.setState({ isSubmitting: false });
 
       if (error) {
         this.setState({
-          error: error.message || "Failed to create ride. Please try again.",
+          error: error.reason || error.message || "Failed to create ride. Please try again.",
         });
       } else {
         this.setState({ success: true });

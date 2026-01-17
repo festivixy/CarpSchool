@@ -39,17 +39,17 @@ Meteor.methods({
 
     // 2. Validate Email Domain & School
     const emailParts = data.email.split("@");
-    if (emailParts.length !== 2) {
+    if (emailParts.length !== 2 || !emailParts[1]) {
       throw new Meteor.Error("registration.email.invalid", "Invalid email address");
     }
     
     const domain = emailParts[1].toLowerCase();
 
-    // Find school by domain (case insensitive search if needed, but domain index is likely standard)
-    const school = Schools.findOne({ 
+    // Find school by domain (case insensitive search)
+    const school = await Schools.findOneAsync({ 
         $or: [
             { domain: domain },
-            { domain: { $regex: new RegExp(`^${domain}$`, 'i') } } // Fallback regex
+            { domain: { $regex: new RegExp(`^${domain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } } // Escaped regex
         ]
     });
 
@@ -65,7 +65,7 @@ Meteor.methods({
     // 3. Create User
     let userId;
     try {
-      userId = Accounts.createUser({
+      userId = await Accounts.createUserAsync({
         email: data.email,
         username: data.email, // Using email as username per existing convention
         password: data.password,
@@ -130,7 +130,7 @@ Meteor.methods({
                  };
                  
                  // Async insert
-                 const imageId = Images.insert(imageDoc); // Sync insert for Meteor methods usually
+                 const imageId = await Images.insertAsync(imageDoc);
                  if (imageId) {
                      profileDoc.Image = uuid;
                  }
@@ -142,11 +142,10 @@ Meteor.methods({
     }
 
     try {
-        Profiles.insert(profileDoc);
+        await Profiles.insertAsync(profileDoc);
     } catch (err) {
-        // If profile creation fails, we should probably cleanup the user
-        // But for now let's just throw
-        Meteor.users.remove(userId);
+        // If profile creation fails, cleanup the user
+        await Meteor.users.removeAsync(userId);
         throw new Meteor.Error("registration.profile.createFailed", err.message);
     }
 

@@ -35,15 +35,69 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
   next();
 });
 
+// Rate limiting for image endpoint (V014 fix)
+const imageRateLimiter = new Map(); // IP -> { count, timestamp }
+const IMAGE_RATE_LIMIT = 100; // Max requests per window
+const IMAGE_RATE_WINDOW = 60000; // 1 minute window
+
+function checkImageRateLimit(ip) {
+  const now = Date.now();
+  const record = imageRateLimiter.get(ip);
+
+  if (!record || now - record.timestamp > IMAGE_RATE_WINDOW) {
+    imageRateLimiter.set(ip, { count: 1, timestamp: now });
+    return true;
+  }
+
+  if (record.count >= IMAGE_RATE_LIMIT) {
+    return false;
+  }
+
+  record.count++;
+  return true;
+}
+
+// Cleanup old rate limit entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of imageRateLimiter.entries()) {
+    if (now - record.timestamp > IMAGE_RATE_WINDOW * 2) {
+      imageRateLimiter.delete(ip);
+    }
+  }
+}, IMAGE_RATE_WINDOW);
+
+// UUID format validation regex (V014 fix)
+const UUID_REGEX = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+const SHA256_REGEX = /^[a-f0-9]{64}$/i;
+
 // Create endpoint to serve images directly: /image/<uuid>
 WebApp.connectHandlers.use("/image", async (req, res, _next) => {
   try {
+    // Rate limiting check (V014 fix)
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
+                     req.connection?.remoteAddress || 
+                     'unknown';
+    
+    if (!checkImageRateLimit(clientIp)) {
+      res.writeHead(429, { "Content-Type": "text/plain" });
+      res.end("Too Many Requests: Rate limit exceeded");
+      return;
+    }
+
     // Extract UUID from URL path (remove leading slash)
     const uuid = req.url.substring(1);
 
     if (!uuid) {
       res.writeHead(400, { "Content-Type": "text/plain" });
       res.end("Bad Request: UUID required");
+      return;
+    }
+
+    // Validate UUID format to prevent enumeration attacks (V014 fix)
+    if (!UUID_REGEX.test(uuid) && !SHA256_REGEX.test(uuid)) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end("Bad Request: Invalid UUID format");
       return;
     }
 

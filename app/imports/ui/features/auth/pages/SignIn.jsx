@@ -23,14 +23,14 @@ import {
   StyledLink,
   Legal,
   LegalLink,
-} from "../styles/Signup";
-import Captcha from "../components/Captcha";
+} from "../../../styles/SignIn";
+import Captcha from "../../../components/Captcha";
 
 /**
- * Mobile Signup component with modern design and full functionality including CAPTCHA
+ * Mobile SignIn component with modern design and full functionality including CAPTCHA
  */
-export default class MobileSignup extends React.Component {
-  /** Initialize component state with properties for signup and redirection. */
+export default class MobileSignIn extends React.Component {
+  /** Initialize component state with properties for login and redirection. */
   constructor(props) {
     super(props);
     this.state = {
@@ -54,28 +54,9 @@ export default class MobileSignup extends React.Component {
     this.submit();
   };
 
-  /** Handle Signup submission. Create user account and a profile entry, then redirect to the home page. */
+  /** Handle Signin submission using Meteor's account mechanism. */
   submit = () => {
     const { email, password } = this.state;
-
-    // Client-side validation
-    if (!email || !email.trim()) {
-      this.setState({ error: "Please enter your email address." });
-      return;
-    }
-
-    // Basic email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      this.setState({ error: "Please enter a valid email address." });
-      return;
-    }
-
-    // Password validation
-    if (!password || password.length < 6) {
-      this.setState({ error: "Password must be at least 6 characters long." });
-      return;
-    }
 
     if (!this.captchaRef.current) {
       this.setState({ error: "Captcha component not available." });
@@ -92,36 +73,33 @@ export default class MobileSignup extends React.Component {
       }
 
       const captchaData = this.captchaRef.current.getCaptchaData();
+      const methodArguments = Accounts._hashPassword(password);
+      methodArguments.captchaSessionId = captchaData.sessionId;
+      methodArguments.proofOfWorkResult = "";
 
-      // CAPTCHA is valid, proceed with account creation
-      Accounts.createUser(
-        {
-          email,
-          username: email,
-          password,
-          profile: {
-            captchaSessionId: captchaData.sessionId, // Pass captcha session ID for server-side validation
+      Accounts.callLoginMethod({
+        methodArguments: [
+          {
+            user: { email: email },
+            password: methodArguments,
           },
-        },
-        (err) => {
-          if (err) {
-            this.setState({ error: err.reason });
+        ],
+        userCallback: (error, _result) => {
+          if (error) {
+            this.setState({ error: error.reason });
           } else {
             this.setState({ error: "", redirectToReferer: true });
           }
         },
-      );
+      });
     });
   };
 
-  /** Render the signup form. */
+  /** Render the signin form. */
   render() {
-    const { from } = this.props.location?.state || {
-      from: { pathname: "/my-rides" },
-    };
-    // if correct authentication, redirect to from: page instead of signup screen
+    // if correct authentication, redirect to page instead of login screen
     if (this.state.redirectToReferer) {
-      return <Redirect to={from} />;
+      return <Redirect to={"/my-rides"} />;
     }
 
     return (
@@ -132,8 +110,8 @@ export default class MobileSignup extends React.Component {
 
         <Content>
           <Copy>
-            <Title>Create an account</Title>
-            <Subtitle>Enter your information to sign up for this app</Subtitle>
+            <Title>Sign in to your account</Title>
+            <Subtitle>Enter your credentials to access your account</Subtitle>
           </Copy>
 
           <Form onSubmit={this.handleSubmit}>
@@ -142,7 +120,7 @@ export default class MobileSignup extends React.Component {
                 <Input
                   type="email"
                   name="email"
-                  placeholder=".edu E-mail address"
+                  placeholder="email@domain.com"
                   value={this.state.email}
                   onChange={this.handleChange}
                   required
@@ -153,7 +131,7 @@ export default class MobileSignup extends React.Component {
                 <Input
                   type="password"
                   name="password"
-                  placeholder="Password"
+                  placeholder="Enter your password"
                   value={this.state.password}
                   onChange={this.handleChange}
                   required
@@ -165,7 +143,7 @@ export default class MobileSignup extends React.Component {
                 <Captcha ref={this.captchaRef} autoGenerate={true} />
               </Field>
 
-              <SubmitButton type="submit">Create Account</SubmitButton>
+              <SubmitButton type="submit">Sign In</SubmitButton>
             </InputSection>
           </Form>
 
@@ -178,13 +156,14 @@ export default class MobileSignup extends React.Component {
           </Divider>
 
           <Links>
-            <StyledLink to="/login">
-              Already have an account? Sign in
+            <StyledLink to="/signup">
+              Don&apos;t have an account? Sign up
             </StyledLink>
+            <StyledLink to="/forgot">Forgot your password?</StyledLink>
           </Links>
 
           <Legal>
-            By creating an account, you agree to our{" "}
+            By signing in, you agree to our{" "}
             <LegalLink to="/terms">Terms of Service</LegalLink> and{" "}
             <LegalLink to="/privacy">Privacy Policy</LegalLink>
           </Legal>
@@ -195,6 +174,6 @@ export default class MobileSignup extends React.Component {
 }
 
 /** Ensure that the React Router location object is available in case we need to redirect. */
-MobileSignup.propTypes = {
+MobileSignIn.propTypes = {
   location: PropTypes.object,
 };

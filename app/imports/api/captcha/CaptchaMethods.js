@@ -51,25 +51,21 @@ Meteor.methods({
       throw new Meteor.Error("expired-captcha", "CAPTCHA has expired");
     }
 
-    // Verify the CAPTCHA
-    const isValid = session.text === userInput.trim();
+    // Verify the CAPTCHA (case-insensitive for better UX)
+    const isValid = session.text.toLowerCase() === userInput.trim().toLowerCase();
 
     if (isValid) {
       // Mark as solved on correct answer
-      await Captcha.updateAsync(session, {
-        text: session.text,
-        timestamp: session.timestamp,
-        solved: true,
-        used: session.used,
-      });
+      await Captcha.updateAsync(
+        { _id: sessionId },
+        { $set: { solved: true } }
+      );
     } else {
       // Mark as used on incorrect answer to prevent brute force attacks
-      await Captcha.updateAsync(session, {
-        text: session.text,
-        timestamp: session.timestamp,
-        solved: false,
-        used: true,
-      });
+      await Captcha.updateAsync(
+        { _id: sessionId },
+        { $set: { used: true } }
+      );
     }
 
     // Clean up old sessions (older than 10 minutes)
