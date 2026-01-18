@@ -89,9 +89,21 @@ class MobileOnboarding extends React.Component {
 
   componentDidMount() {
     this._isMounted = true;
-    // If user already has a profile, redirect to dashboard
+    // If user already has a profile AND a school, redirect to dashboard
+    // If they have a profile but no school, stay on onboarding to select school (start at step 2)
     if (this.props.profileData) {
-      this.setState({ redirectToReferer: true });
+      if (this.props.currentUser?.schoolId) {
+        this.setState({ redirectToReferer: true });
+      } else {
+        // User has profile but no school - skip to school selection step
+        this.setState({ 
+          currentStep: 2,
+          name: this.props.profileData.Name || "",
+          userType: this.props.profileData.UserType || "Driver",
+          phone: this.props.profileData.Phone || "",
+          other: this.props.profileData.Other || "",
+        });
+      }
     }
   }
 
@@ -100,7 +112,8 @@ class MobileOnboarding extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.profileData && !prevProps.profileData) {
+    // Only redirect if user has both profile AND school
+    if (this.props.profileData && !prevProps.profileData && this.props.currentUser?.schoolId) {
       this.setState({ redirectToReferer: true });
     }
   }
