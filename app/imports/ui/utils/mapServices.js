@@ -158,6 +158,12 @@ const searchLocations = async (query, options = {}) => {
 
       const results = await response.json();
 
+      // Ensure results is an array before mapping
+      if (!Array.isArray(results)) {
+        console.warn("[MapServices] Nominatim returned non-array response:", results);
+        return [];
+      }
+
       // Format results
       const formattedResults = results.map((result) => ({
         id: result.place_id,

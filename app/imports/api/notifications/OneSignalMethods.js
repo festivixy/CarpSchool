@@ -243,6 +243,12 @@ Meteor.methods({
         },
       }).fetchAsync();
 
+      // Ensure devices is an array
+      if (!Array.isArray(devices)) {
+        console.warn("[OneSignal] Unexpected devices result:", devices);
+        return [];
+      }
+
       return devices.map(device => ({
         playerId: device.token,
         deviceInfo: device.deviceInfo || {},
