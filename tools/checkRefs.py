@@ -223,8 +223,8 @@ class RefChecker:
             if re.search(r'export\s+default\s+', content):
                 exports.add('default')  # Mark that this file has a default export
 
-            # Find named exports
-            named_exports = re.findall(r'export\s+(?:const|let|var|function|class)\s+(\w+)', content)
+            # Find named exports (including async functions)
+            named_exports = re.findall(r'export\s+(?:async\s+)?(?:const|let|var|function|class)\s+(\w+)', content)
             exports.update(named_exports)
 
             # Find export { ... } statements and re-exports

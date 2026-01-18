@@ -306,6 +306,21 @@ export const SuccessMessage = styled.div`
   font-size: 14px;
 `;
 
+// Reject Modal wrapper (alias for ModalOverlay for backward compat)
+export const RejectModal = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+`;
+
 // Modal styles
 export const ModalOverlay = styled.div`
   position: fixed;
