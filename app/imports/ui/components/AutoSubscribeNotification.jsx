@@ -15,7 +15,7 @@ import { oneSignalManager, OneSignalHelpers } from "../utils/oneSignalNotificati
  */
 const AutoSubscribeNotification = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [setLastCheck] = useState(null);
+  const [lastCheck, setLastCheck] = useState(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState({
     checked: false,
     subscribed: false,
