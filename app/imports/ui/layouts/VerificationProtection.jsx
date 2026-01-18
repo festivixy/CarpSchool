@@ -21,6 +21,7 @@ const ProtectedRouteRequireVerificationComponent = ({
   emailVerified,
   loggingIn,
   userLoaded,
+  hasSchool,
   ...rest
 }) => {
   // Create a functional component to use hooks
@@ -74,6 +75,11 @@ const ProtectedRouteRequireVerificationComponent = ({
       return <Redirect to="/onboarding" />;
     }
 
+    // If logged in, has profile, but no school assigned, redirect to onboarding to select school
+    if (loggedIn && userLoaded && ready && profileData && !hasSchool && !isAllowedRoute) {
+      return <Redirect to="/onboarding" />;
+    }
+
     // If logged in, has profile, but not verified and not requested (needs verification), redirect to verification
     if (loggedIn && userLoaded && ready && profileData && !profileData.verified && !profileData.requested && !isAllowedRoute) {
       return <Redirect to="/verify" />;
@@ -123,6 +129,7 @@ ProtectedRouteRequireVerificationComponent.propTypes = {
   emailVerified: PropTypes.bool.isRequired,
   loggingIn: PropTypes.bool.isRequired,
   userLoaded: PropTypes.bool.isRequired,
+  hasSchool: PropTypes.bool.isRequired,
   location: PropTypes.object.isRequired,
 };
 
@@ -141,5 +148,6 @@ export const ProtectedRouteRequireVerification = withTracker(() => {
       : false,
     loggingIn: Meteor.loggingIn(),
     userLoaded: user !== undefined,
+    hasSchool: !!user?.schoolId, // Check if user has a school assigned
   };
 })(ProtectedRouteRequireVerificationComponent);
