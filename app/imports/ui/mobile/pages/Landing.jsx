@@ -1,4 +1,5 @@
 import React from "react";
+import LoginDropdown from "../components/LoginDropdown";
 import {
   Container,
   Hero,
@@ -35,8 +36,7 @@ export default class MobileLanding extends React.Component {
             </LogoSection>
 
             <CtaSection>
-              <CtaPrimary to="/signup">Get Started</CtaPrimary>
-              <CtaSecondary to="/login">Sign In</CtaSecondary>
+              <LoginDropdown />
             </CtaSection>
           </HeroContent>
         </Hero>
@@ -88,8 +88,7 @@ export default class MobileLanding extends React.Component {
           <CtaContent>
             <CtaTitle>Ready to Start Ride Sharing?</CtaTitle>
             <CtaButtons>
-              <CtaPrimary to="/signup">Create Account</CtaPrimary>
-              <CtaSecondary to="/login">Sign In</CtaSecondary>
+              <LoginDropdown />
             </CtaButtons>
           </CtaContent>
         </FinalCta>

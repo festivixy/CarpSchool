@@ -36,6 +36,11 @@ import RejectionScreen from "../components/RejectionScreen";
 import MobileTOS from "../mobile/pages/TOS";
 import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
+import MobileHelp from "../mobile/pages/Help";
+import MobileContact from "../mobile/pages/Contact";
+import MobileFAQ from "../mobile/pages/FAQ";
+import MobileAbout from "../mobile/pages/About";
+import MobileBlog from "../mobile/pages/Blog";
 import MobilePlaceManager from "../mobile/pages/PlaceManager";
 import MobileAdminPlaceManager from "../pages/AdminPlaceManager";
 import SystemAdmin from "../pages/System";
@@ -247,6 +252,11 @@ class App extends React.Component {
               <Route exact path="/terms" component={MobileTOS} />
               <Route exact path="/privacy" component={MobilePrivacy} />
               <Route exact path="/credits" component={MobileCredits} />
+              <Route exact path="/help" component={MobileHelp} />
+              <Route exact path="/contact" component={MobileContact} />
+              <Route exact path="/faq" component={MobileFAQ} />
+              <Route exact path="/about" component={MobileAbout} />
+              <Route exact path="/blog" component={MobileBlog} />
 
               {/* Catch-all route for 404 */}
               <Redirect to="/404" />
