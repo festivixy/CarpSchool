@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
+import { useAuth, SignedIn, SignedOut } from "@clerk/clerk-react";
 import MobileAdminRides from "../pages/AdminRides";
 import MobileAdminUsers from "../pages/AdminUsers";
 import AdminSchools from "../pages/AdminSchools";
@@ -18,9 +19,9 @@ import MobileTestImageUpload from "../mobile/pages/TestImageUpload";
 import LoadingPage from "../components/LoadingPage";
 import ErrorBoundary from "../components/ErrorBoundary";
 import MobileNotFound from "../mobile/pages/NotFound";
-import MobileSignIn from "../pages/SignIn";
+import ClerkSignIn from "../pages/ClerkSignIn";
 import LiquidGlassSignIn from "../liquidGlass/pages/SignIn";
-import MobileSignup from "../pages/Signup";
+import ClerkSignup from "../pages/ClerkSignup";
 import MobileForgotPassword from "../pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
@@ -46,14 +47,6 @@ import MobileAdminPlaceManager from "../pages/AdminPlaceManager";
 import SystemAdmin from "../pages/System";
 import MobileRideInfo from "../mobile/pages/RideInfo";
 import RideHistory from "../mobile/pages/RideHistory";
-import ProtectedRoutes, {
-  ProtectedRoute,
-  ProtectedRouteRequireNotLoggedIn,
-  ProtectedRouteRequireAdmin,
-  ProtectedRouteRequireNotEmailVerified,
-  ProtectedRouteRequireSystem,
-} from "./ProtectedRoutes";
-import { ProtectedRouteRequireVerification } from "./VerificationProtection";
 import { DesktopOnly, MobileOnly } from "./Devices";
 import { AppContainer, MainContent } from "../styles/App";
 import FooterVerbose from "../desktop/components/FooterVerbose";
@@ -75,206 +68,195 @@ import NotificationTest from "../test/pages/NotificationTest";
 import MobilePushTest from "../test/pages/MobilePushTest";
 import AutoSubscribeNotification from "../components/AutoSubscribeNotification";
 import PWAInstallPrompt from "../mobile/components/PWAInstallPrompt";
-// Lazy load MapComponentsTest to improve initial load performance
 const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapComponentsTest.jsx"));
 
-/** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
+// Wrapper for routes that require authentication
+const AuthRoute = ({ component: Component, ...rest }) => {
+  const { isSignedIn, isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return <LoadingPage message="Loading..." />;
+  }
+
+  return (
+    <Route
+      {...rest}
+      render={props =>
+        isSignedIn ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
+        )
+      }
+    />
+  );
+};
+
+// Wrapper for routes that require NOT being logged in
+const GuestRoute = ({ component: Component, ...rest }) => {
+  const { isSignedIn, isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return <LoadingPage message="Loading..." />;
+  }
+
+  return (
+    <Route
+      {...rest}
+      render={props =>
+        !isSignedIn ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to={{ pathname: "/my-rides" }} />
+        )
+      }
+    />
+  );
+};
+
+// Wrapper for routes that require admin
+const AdminRoute = ({ component: Component, ...rest }) => {
+  const { isSignedIn, isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return <LoadingPage message="Loading..." />;
+  }
+
+  return (
+    <Route
+      {...rest}
+      render={props =>
+        isSignedIn && Meteor.user()?.roles?.includes("admin") ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to={{ pathname: "/my-rides" }} />
+        )
+      }
+    />
+  );
+};
+
+// Wrapper for routes that require system admin
+const SystemRoute = ({ component: Component, ...rest }) => {
+  const { isSignedIn, isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return <LoadingPage message="Loading..." />;
+  }
+
+  return (
+    <Route
+      {...rest}
+      render={props =>
+        isSignedIn && Meteor.user()?.roles?.includes("system") ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to={{ pathname: "/my-rides" }} />
+        )
+      }
+    />
+  );
+};
+
+/** Top-level layout component */
 class App extends React.Component {
   render() {
+    const { currentUser } = this.props;
+
     return (
       <Router>
         <ErrorBoundary>
           <AppContainer>
-          {/* Auto-subscribe to notifications on every page visit */}
-          <AutoSubscribeNotification />
-          {/* PWA install prompt */}
-          <PWAInstallPrompt />
-          <DesktopOnly>
-            <NavBar />
-          </DesktopOnly>
-          <MainContent>
-            <Switch>
-              <ProtectedRouteRequireNotLoggedIn exact path="/" component={MobileLanding} />
-              <Route exact path="/404" component={MobileNotFound} />
-              <ProtectedRouteRequireNotLoggedIn
-                path="/login"
-                component={MobileSignIn}
-              />
-              <ProtectedRouteRequireNotLoggedIn
-                path="/signup"
-                component={MobileSignup}
-              />
-              <ProtectedRouteRequireNotLoggedIn
-                path="/forgot"
-                component={MobileForgotPassword}
-              />
-              <ProtectedRouteRequireNotEmailVerified
-                path="/verify-email"
-                component={MobileVerifyEmail}
-              />
+            <AutoSubscribeNotification />
+            <PWAInstallPrompt />
+            <DesktopOnly>
+              <NavBar />
+            </DesktopOnly>
+            <MainContent>
+              <Switch>
+                <Route exact path="/404" component={MobileNotFound} />
 
-              {/* Onboarding route - simple auth check without profile requirement */}
-              <ProtectedRoute path="/onboarding" component={MobileOnboarding} />
+                {/* Public routes */}
+                <Route exact path="/" component={MobileLanding} />
+                <Route path="/forgot" component={MobileForgotPassword} />
+                <Route exact path="/terms" component={MobileTOS} />
+                <Route exact path="/privacy" component={MobilePrivacy} />
+                <Route exact path="/credits" component={MobileCredits} />
+                <Route exact path="/help" component={MobileHelp} />
+                <Route exact path="/contact" component={MobileContact} />
+                <Route exact path="/faq" component={MobileFAQ} />
+                <Route exact path="/about" component={MobileAbout} />
+                <Route exact path="/blog" component={MobileBlog} />
 
-              {/* Verification route - requires authentication */}
-              <ProtectedRoute path="/verify" component={MobileVerify} />
+                {/* Auth routes - only for guests */}
+                <GuestRoute path="/login" component={ClerkSignIn} />
+                <GuestRoute path="/signup" component={ClerkSignup} />
 
-              {/* Waiting for confirmation route - requires authentication */}
-              <ProtectedRoute path="/waiting-confirmation" component={WaitingForConfirmation} />
+                {/* Protected routes - require Clerk auth */}
+                <AuthRoute path="/onboarding" component={MobileOnboarding} />
+                <AuthRoute path="/verify" component={MobileVerify} />
+                <AuthRoute path="/waiting-confirmation" component={WaitingForConfirmation} />
+                <AuthRoute path="/verification-rejected" component={RejectionScreen} />
+                <AuthRoute path="/my-rides" component={MobileMyRides} />
+                <AuthRoute path="/ride/:rideId" component={MobileRideInfo} />
+                <AuthRoute path="/ride-history/:id" component={RideHistory} />
+                <AuthRoute path="/edit-profile" component={MobileEditProfile} />
+                <AuthRoute path="/chat" component={MobileChat} />
+                <AuthRoute path="/places" component={MobilePlaceManager} />
+                <AuthRoute path="/ios/create-ride" component={IOSCreateRide} />
+                <AuthRoute path="/ios/join-ride" component={IOSJoinRide} />
+                <AuthRoute path="/mobile/profile" component={IOSProfile} />
+                <AuthRoute path="/signout" component={MobileSignout} />
 
-              {/* Rejection screen route - requires authentication */}
-              <ProtectedRoute path="/verification-rejected" component={RejectionScreen} />
+                {/* Admin routes */}
+                <AdminRoute path="/admin/rides" component={MobileAdminRides} />
+                <AdminRoute path="/admin/users" component={MobileAdminUsers} />
+                <AdminRoute path="/admin/pending-users" component={AdminPendingUsersPage} />
+                <AdminRoute path="/admin/places" component={MobileAdminPlaceManager} />
+                <AdminRoute path="/admin/school-management" component={SchoolManagement} />
+                <AdminRoute path="/admin/error-reports" component={AdminErrorReports} />
+                <AdminRoute path="/admin/error-report/:id" component={AdminErrorReportDetail} />
 
-              {/* Main app routes with verification requirement */}
-              <ProtectedRouteRequireVerification path="/my-rides" component={MobileMyRides} />
-              <ProtectedRouteRequireVerification path="/ride/:rideId" component={MobileRideInfo} />
-              <ProtectedRouteRequireVerification path="/ride-history/:id" component={RideHistory} />
-              <ProtectedRouteRequireVerification
-                path="/edit-profile"
-                component={MobileEditProfile}
-              />
-              <ProtectedRouteRequireVerification path="/chat" component={MobileChat} />
-              <ProtectedRouteRequireVerification path="/places" component={MobilePlaceManager} />
+                {/* System admin routes */}
+                <SystemRoute path="/admin/schools" component={AdminSchools} />
+                <SystemRoute path="/system" component={SystemAdmin} />
 
-              {/* iOS-specific routes */}
-              <ProtectedRouteRequireVerification path="/ios/create-ride" component={IOSCreateRide} />
-              <ProtectedRouteRequireVerification path="/ios/join-ride" component={IOSJoinRide} />
+                {/* Redirect /admin to 404 */}
+                <Route exact path="/admin" render={() => <Redirect to="/404" />} />
 
-              {/* Mobile-specific routes */}
-              <ProtectedRouteRequireVerification path="/mobile/profile" component={IOSProfile} />
-
-              {/* Admin routes - also require verification */}
-              <ProtectedRouteRequireAdmin
-                path="/admin/rides"
-                component={MobileAdminRides}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/admin/users"
-                component={MobileAdminUsers}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/admin/pending-users"
-                component={AdminPendingUsersPage}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/admin/places"
-                component={MobileAdminPlaceManager}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/admin/school-management"
-                component={SchoolManagement}
-              />
-              <ProtectedRouteRequireSystem
-                path="/admin/schools"
-                component={AdminSchools}
-              />
-              <ProtectedRouteRequireAdmin
-                exact
-                path="/admin/error-reports"
-                component={AdminErrorReports}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/admin/error-report/:id"
-                component={AdminErrorReportDetail}
-              />
-              <ProtectedRouteRequireSystem
-                exact
-                path="/system"
-                component={SystemAdmin}
-              />
-
-              {/* Redirect /admin to 404 */}
-              <Route exact path="/admin" render={() => <Redirect to="/404" />} />
-
-              {/* Test routes - also require verification */}
-              <ProtectedRouteRequireAdmin
-                path="/_test/map-components"
-                component={() => (
-                  <React.Suspense fallback={
-                    <LoadingPage
-                      message="Loading Map Components Test"
-                      subMessage="Initializing map utilities and components..."
-                      size="large"
-                    />
-                  }>
+                {/* Test routes */}
+                <Route path="/_test/map-components" component={() => (
+                  <React.Suspense fallback={<LoadingPage message="Loading..." />}>
                     <MapComponentsTest />
                   </React.Suspense>
-                )}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/footer-components"
-                component={FooterComponentsTest}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/liquidglass-components"
-                component={LiquidGlassComponentsTest}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/image-upload"
-                component={MobileTestImageUpload}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/liquidglass/login"
-                component={LiquidGlassSignIn}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/shared-components"
-                component={SharedComponentsDemo}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/mobile-navbar-auto"
-                component={MobileNavBarAutoTest}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/skeleton-components"
-                component={SkeletonComponentsTest}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/crash-app"
-                component={CrashApp}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/notifications"
-                component={NotificationTest}
-              />
-              <ProtectedRouteRequireAdmin
-                path="/_test/mobile-push"
-                component={MobilePushTest}
-              />
-              <ProtectedRouteRequireAdmin
-                exact
-                path="/_test"
-                component={ComponentsTest}
-              />
-              <ProtectedRoute path="/signout" component={MobileSignout} />
+                )} />
+                <Route path="/_test/footer-components" component={FooterComponentsTest} />
+                <Route path="/_test/liquidglass-components" component={LiquidGlassComponentsTest} />
+                <Route path="/_test/image-upload" component={MobileTestImageUpload} />
+                <Route path="/_test/liquidglass/login" component={LiquidGlassSignIn} />
+                <Route path="/_test/shared-components" component={SharedComponentsDemo} />
+                <Route path="/_test/mobile-navbar-auto" component={MobileNavBarAutoTest} />
+                <Route path="/_test/skeleton-components" component={SkeletonComponentsTest} />
+                <Route path="/_test/crash-app" component={CrashApp} />
+                <Route path="/_test/notifications" component={NotificationTest} />
+                <Route path="/_test/mobile-push" component={MobilePushTest} />
+                <Route exact path="/_test" component={ComponentsTest} />
 
-              {/* Public pages */}
-              <Route exact path="/terms" component={MobileTOS} />
-              <Route exact path="/privacy" component={MobilePrivacy} />
-              <Route exact path="/credits" component={MobileCredits} />
-              <Route exact path="/help" component={MobileHelp} />
-              <Route exact path="/contact" component={MobileContact} />
-              <Route exact path="/faq" component={MobileFAQ} />
-              <Route exact path="/about" component={MobileAbout} />
-              <Route exact path="/blog" component={MobileBlog} />
-
-              {/* Catch-all route for 404 */}
-              <Redirect to="/404" />
-            </Switch>
-          </MainContent>
-          <DesktopOnly>
-            <FooterVerbose />
-          </DesktopOnly>
-          {/* <SimpleFooter /> - Desktop footer component */}
-          {this.props.currentUser && (
+                {/* Catch-all route for 404 */}
+                <Redirect to="/404" />
+              </Switch>
+            </MainContent>
+            <DesktopOnly>
+              <FooterVerbose />
+            </DesktopOnly>
+            {currentUser && (
+              <MobileOnly>
+                <MobileNavBarAuto />
+              </MobileOnly>
+            )}
             <MobileOnly>
-              <MobileNavBarAuto />
+              <EdgeSwipeBack />
             </MobileOnly>
-          )}
-          {/* Edge swipe back gesture - mobile only */}
-          <MobileOnly>
-            <EdgeSwipeBack />
-          </MobileOnly>
           </AppContainer>
         </ErrorBoundary>
       </Router>
@@ -286,9 +268,10 @@ App.propTypes = {
   currentUser: PropTypes.object,
 };
 
-/** withTracker connects Meteor data to React components. */
 const AppTracker = withTracker(() => ({
   currentUser: Meteor.user(),
 }))(App);
 
 export default AppTracker;
+
+

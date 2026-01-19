@@ -1,8 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Redirect } from "react-router-dom";
-import { Meteor } from "meteor/meteor";
-import { withTracker } from "meteor/react-meteor-data";
+import { useAuth } from "@clerk/clerk-react";
 import { Profiles } from "../../../api/profile/Profile";
 import { getImageUrl } from "../utils/imageUtils";
 import {
@@ -60,7 +59,7 @@ class MobileOnboarding extends React.Component {
     this.rideCaptchaRef = React.createRef();
     this.state = {
       currentStep: 1,
-      totalSteps: 4, // Reduced from 5 since we removed the captcha step
+      totalSteps: 4,
       // Profile data
       name: "",
       selectedSchoolId: "",

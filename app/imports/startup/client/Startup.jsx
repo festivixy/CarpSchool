@@ -1,6 +1,7 @@
 import React from "react";
 import { render } from "react-dom";
 import { Meteor } from "meteor/meteor";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-react";
 import App from "../../ui/layouts/App";
 // Initialize mobile push notifications for Cordova apps
 import "../../ui/mobile/utils/MobilePushNotifications";
@@ -13,6 +14,12 @@ console.warn = (...args) => {
   }
   originalConsoleWarn.apply(console, args);
 };
+
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error("Missing Clerk Publishable Key. Add VITE_CLERK_PUBLISHABLE_KEY to your .env file.");
+}
 
 /** Render the app component */
 const renderApp = () => {
@@ -33,7 +40,12 @@ const renderApp = () => {
   }
 
   try {
-    render(<App />, rootElement);  // eslint-disable-line
+    render(
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+        <App />
+      </ClerkProvider>,
+      rootElement
+    );
   } catch (error) {
     console.error("Error rendering React app:", error);
     console.error("Error stack:", error.stack);

@@ -289,3 +289,81 @@ export const LegalLink = styled(Link)`
     text-decoration: underline;
   }
 `;
+
+// Clerk-specific styles
+export const ClerkCard = styled.div`
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+`;
+
+export const ClerkHeaderTitle = styled.h1`
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: rgba(0, 0, 0, 1);
+`;
+
+export const ClerkHeaderSubtitle = styled.p`
+  font-size: 14px;
+  color: rgba(130, 130, 130, 1);
+  margin: 0 0 24px 0;
+`;
+
+export const ClerkSocialButton = styled.button`
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(224, 224, 224, 1);
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(249, 249, 249, 1);
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+`;
+
+export const ClerkFormLabel = styled.label`
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: rgba(0, 0, 0, 1);
+`;
+
+export const ClerkFormInput = styled.input`
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(224, 224, 224, 1);
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: rgba(0, 0, 0, 0.3);
+  }
+`;
+
+export const ClerkFooterLink = styled.a`
+  color: rgba(0, 0, 0, 1);
+  font-size: 14px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
