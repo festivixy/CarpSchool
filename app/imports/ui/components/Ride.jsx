@@ -8,6 +8,7 @@ import swal from "sweetalert";
 import { isAdminRole } from "../desktop/components/NavBarRoleUtils";
 import { Places } from "../../api/places/Places";
 import { RideSessions } from "../../api/rideSession/RideSession";
+import { formatUserList, getUserDisplayName } from "../utils/userDisplay";
 import RouteMapView from "./RouteMapView";
 import { getCurrentLocation, watchLocation, clearLocationWatch } from "../utils/geolocation";
 import { MobileOnly, DesktopOnly } from "../layouts/Devices";
@@ -918,12 +919,12 @@ class Ride extends React.Component {
                 {/* Handle new schema */}
                 {ride.riders !== undefined && ride.seats !== undefined // eslint-disable-line no-nested-ternary
                   ? ride.riders.length > 0
-                    ? `${ride.riders.length}/${ride.seats} riders: ${ride.riders.join(", ")}`
+                    ? `${ride.riders.length}/${ride.seats} riders: ${formatUserList(ride.riders)}`
                     : `0/${ride.seats} riders - None yet`
                   : /* Handle legacy schema */
                     ride.rider === "TBD"
                     ? "No rider yet"
-                    : ride.rider}
+                    : getUserDisplayName(ride.rider)}
               </DetailText>
             </DetailItem>
           </Details>

@@ -60,3 +60,77 @@ Meteor.publish("ProfilesAdmin", async function publish() {
   // Non-admin users get no access to other profiles
   return this.ready();
 });
+
+/**
+ * Publication for basic profile display info (Name only)
+ * Used for displaying user names in chats, rides, etc.
+ * @param {string[]} userIds - Array of user IDs to fetch profiles for
+ */
+Meteor.publish("profiles.displayNames", function publish(userIds) {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  // Validate input
+  if (!Array.isArray(userIds)) {
+    return this.ready();
+  }
+
+  // Limit the number of profiles that can be fetched at once
+  const limitedUserIds = userIds.slice(0, 50);
+
+  // Return only Name and Owner fields for the requested users
+  return Profiles.find(
+    { Owner: { $in: limitedUserIds } },
+    { fields: { Name: 1, Owner: 1 } }
+  );
+});
+
+/**
+ * Publication for all profiles the current user interacts with
+ * Returns basic display info for chat participants and ride members
+ */
+Meteor.publish("profiles.interacted", function publish() {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  // Import collections dynamically to avoid circular dependencies
+  const { Chats } = require("../chat/Chat");
+  const { Rides } = require("../ride/Rides");
+
+  // Get all chats the user is in
+  const userChats = Chats.find(
+    { Participants: this.userId },
+    { fields: { Participants: 1 } }
+  ).fetch();
+
+  // Get all rides the user is in
+  const userRides = Rides.find(
+    { $or: [{ driver: this.userId }, { riders: this.userId }] },
+    { fields: { driver: 1, riders: 1 } }
+  ).fetch();
+
+  // Collect all unique user IDs
+  const userIdSet = new Set();
+
+  userChats.forEach(chat => {
+    chat.Participants?.forEach(id => userIdSet.add(id));
+  });
+
+  userRides.forEach(ride => {
+    if (ride.driver) userIdSet.add(ride.driver);
+    ride.riders?.forEach(id => userIdSet.add(id));
+  });
+
+  // Always include the current user
+  userIdSet.add(this.userId);
+
+  const userIds = Array.from(userIdSet);
+
+  // Return basic profile info for all interacted users
+  return Profiles.find(
+    { Owner: { $in: userIds } },
+    { fields: { Name: 1, Owner: 1 } }
+  );
+});

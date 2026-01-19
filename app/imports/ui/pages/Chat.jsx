@@ -4,6 +4,8 @@ import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Chats } from "../../api/chat/Chat";
+import { Profiles } from "../../api/profile/Profile";
+import { formatUserList } from "../utils/userDisplay";
 import "../../api/chat/ChatMethods";
 import { MobileOnly, DesktopOnly } from "../layouts/Devices";
 import BackButton from "../mobile/components/BackButton";
@@ -367,7 +369,7 @@ class MobileChat extends React.Component {
                                                     {this.getChatDisplayName(selectedChat)}
                                                 </ConversationName>
                                                 <ConversationParticipants>
-                                                    {selectedChat.Participants.join(", ")}
+                                                    {formatUserList(selectedChat.Participants)}
                                                 </ConversationParticipants>
                                             </ConversationInfo>
                                         </ConversationHeader>
@@ -551,7 +553,10 @@ export default withRouter(
             subscription = Meteor.subscribe("chats");
         }
 
-        const ready = subscription.ready();
+        // Subscribe to profiles to resolve user names (shows names for all interacted users)
+        const profilesSub = Meteor.subscribe("profiles.interacted");
+
+        const ready = subscription.ready() && profilesSub.ready();
 
         // Only fetch and sort chats when subscription is ready for better performance
         const chats = ready

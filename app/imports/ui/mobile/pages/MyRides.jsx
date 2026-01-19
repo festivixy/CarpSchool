@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import swal from "sweetalert";
 import { Rides } from "../../../api/ride/Rides";
 import { RideSessions } from "../../../api/rideSession/RideSession";
+import { getUserDisplayName } from "../../utils/userDisplay";
 import JoinRideModal from "../../components/JoinRideModal";
 import Ride from "../../components/Ride";
 import ConfirmFunction from "../../components/ConfirmFunction";
@@ -352,7 +353,7 @@ class MobileMyRides extends React.Component {
                               onClick={() => this.handleRemoveRider(ride._id, rider)}
                               style={{ backgroundColor: "#ff4757" }}
                             >
-                              Remove {rider}
+                              Remove {getUserDisplayName(rider)}
                             </ContactButton>
                           </div>
                         ))}

@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import { RideSessions } from "../../../api/rideSession/RideSession";
 import { Rides } from "../../../api/ride/Rides";
+import { getUserDisplayName } from "../../utils/userDisplay";
 import { Spacer } from "../../components";
 import { MobileGenericSkeleton } from "../../skeleton";
 import {
@@ -40,9 +41,8 @@ import {
  */
 class RideHistory extends React.Component {
   getUsernameFromId = (userId) => {
-    const { users } = this.props;
-    const user = users.find(u => u._id === userId);
-    return user?.username || userId; // Fallback to ID if username not available
+    // Use the centralized userDisplay utility
+    return getUserDisplayName(userId);
   };
 
   handleBack = () => {

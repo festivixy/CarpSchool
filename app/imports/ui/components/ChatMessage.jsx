@@ -1,5 +1,6 @@
 import React, { memo, useMemo } from "react";
 import PropTypes from "prop-types";
+import { getUserDisplayName } from "../utils/userDisplay";
 import {
   Message,
   MessageSender,
@@ -31,16 +32,10 @@ const ChatMessage = memo(({
     return date.toLocaleTimeString();
   }, [message.Timestamp, timeFormat]);
 
-  // Memoize sender display
+  // Memoize sender display - resolve user ID to display name
   const senderDisplay = useMemo(() => {
     if (!showSender) return null;
-
-    // Extract username from email if needed
-    const sender = message.Sender;
-    if (sender.includes("@")) {
-      return sender.split("@")[0];
-    }
-    return sender;
+    return getUserDisplayName(message.Sender);
   }, [message.Sender, showSender]);
 
   const isSystem = message.Sender === "System";

@@ -6,6 +6,8 @@ import PropTypes from "prop-types";
 import { Rides } from "../../../api/ride/Rides";
 import { Places } from "../../../api/places/Places";
 import { RideSessions } from "../../../api/rideSession/RideSession";
+import { Profiles } from "../../../api/profile/Profile";
+import { formatUserList, getUserDisplayName } from "../../utils/userDisplay";
 import RouteMapView from "../../components/RouteMapView";
 import BackButton from "../components/BackButton";
 import { RideInfoSkeleton } from "../../skeleton";
@@ -123,11 +125,15 @@ class RideInfo extends React.Component {
       if (ride.riders.length === 0) {
         return "No riders yet";
       }
-      return `${ride.riders.length}/${ride.seats} riders: ${ride.riders.join(", ")}`;
+      return `${ride.riders.length}/${ride.seats} riders: ${formatUserList(ride.riders)}`;
     }
 
     // Handle legacy schema
-    return ride.rider === "TBD" ? "No rider yet" : ride.rider;
+    if (ride.rider === "TBD") {
+      return "No rider yet";
+    }
+    // Try to resolve legacy rider ID to name
+    return getUserDisplayName(ride.rider);
   };
 
   render() {
@@ -284,11 +290,13 @@ export default withRouter(
     const ridesSubscription = Meteor.subscribe("Rides");
     const placesSubscription = Meteor.subscribe("places.options");
     const rideSessionsSubscription = Meteor.subscribe("rideSessions");
+    const profilesSubscription = Meteor.subscribe("profiles.interacted");
 
     const ready =
       ridesSubscription.ready() &&
       placesSubscription.ready() &&
-      rideSessionsSubscription.ready();
+      rideSessionsSubscription.ready() &&
+      profilesSubscription.ready();
     const ride = Rides.findOne(rideId);
     const places = Places.find({}).fetch();
     const rideSessions = RideSessions.find({}).fetch();
