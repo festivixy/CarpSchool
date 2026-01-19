@@ -20,7 +20,7 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
         "connect-src 'self' https://onesignal.com https://*.onesignal.com " +
         "https://api.onesignal.com https://cdn.onesignal.com wss: ws: " +
         "https://nominatim.carp.school https://tileserver.carp.school https://osrm.carp.school",
-        "img-src 'self' data: https: http: https://onesignal.com https://*.onesignal.com",
+        "img-src 'self' data: blob: https: http: https://onesignal.com https://*.onesignal.com",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' data: https: https://fonts.gstatic.com",
         "worker-src 'self' blob: https://cdn.onesignal.com",
