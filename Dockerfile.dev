@@ -1,0 +1,17 @@
+FROM node:20
+
+# Install Meteor
+RUN curl https://install.meteor.com/ | sh
+
+# Set working directory
+WORKDIR /app
+
+# Expose ports
+EXPOSE 3001 3002
+
+# Set environment
+ENV METEOR_ALLOW_SUPERUSER=true
+ENV PATH="/root/.meteor:${PATH}"
+
+# Default command
+CMD ["meteor", "--no-release-check", "--port", "3001"]

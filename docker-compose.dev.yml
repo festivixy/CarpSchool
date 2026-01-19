@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: carpool-dev
+    working_dir: /app
+    ports:
+      - "3001:3001"
+      - "3002:3002"
+    volumes:
+      - ./app:/app
+      - ./config:/config
+      - node-modules:/app/node_modules
+    command: >
+      bash -c "
+      echo '🚀 Starting Carpool development environment...' &&
+      echo '📦 Installing dependencies...' &&
+      meteor npm install &&
+      echo '✅ Starting development server...' &&
+      meteor --no-release-check --settings /config/settings.development.json --port 3001
+      "
+    environment:
+      - METEOR_ALLOW_SUPERUSER=true
+    networks:
+      - carpool_network
+
+networks:
+  carpool_network:
+    driver: bridge
+
+volumes:
+  node-modules:
