@@ -1,0 +1,41 @@
+name: Build Meteor Server Bundle
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        # Meteor 3.x uses Node.js 20.x; adjust as necessary for your Meteor version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Meteor
+        run: curl https://install.meteor.com | sh
+
+      - name: Install app dependencies
+        # Navigate to the app directory if not in the root, and use meteor npm install
+        run: |
+          cd app
+          meteor npm install
+
+      - name: Build Meteor app for server
+        run: |
+          cd app
+          # Use --architecture os.linux.x86_64 for a standard Linux server deployment
+          meteor build --directory ../build --architecture os.linux.x86_64 --server-only --verbose --mobile-settings "../config/setting.json"
+
+      - name: Archive build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: meteor-bundle
+          path: build/app.tar.gz
