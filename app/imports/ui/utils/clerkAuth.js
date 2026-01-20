@@ -3,19 +3,17 @@ import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 
 /**
- * Get Clerk publishable key from server
- * Returns a promise that resolves with the publishable key
+ * Get Clerk publishable key from public settings
+ * Returns the publishable key directly
  */
 export function getClerkPublishableKey() {
-  return new Promise((resolve, reject) => {
-    Meteor.call("clerk.getPublishableKey", (error, result) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(result.publishableKey);
-      }
-    });
-  });
+  const publishableKey = Meteor.settings?.public?.clerk?.publishableKey;
+
+  if (!publishableKey) {
+    throw new Error("Clerk publishable key not configured. Set clerk.publishableKey in settings.json public section.");
+  }
+
+  return publishableKey;
 }
 
 /**
@@ -28,15 +26,14 @@ export function useClerkPublishableKey() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    getClerkPublishableKey()
-      .then((key) => {
-        setPublishableKey(key);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    try {
+      const key = getClerkPublishableKey();
+      setPublishableKey(key);
+      setLoading(false);
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+    }
   }, []);
 
   return { publishableKey, loading, error };

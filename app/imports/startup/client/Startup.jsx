@@ -34,13 +34,13 @@ const renderApp = async () => {
     }
   }
 
-  // Get Clerk publishable key from server
+  // Get Clerk publishable key from public settings
   let PUBLISHABLE_KEY;
   try {
-    PUBLISHABLE_KEY = await getClerkPublishableKey();
+    PUBLISHABLE_KEY = getClerkPublishableKey();
     console.log("Clerk publishable key loaded successfully");
   } catch (error) {
-    console.error("Failed to get Clerk publishable key from server:", error);
+    console.error("Failed to get Clerk publishable key from settings:", error);
 
     // Show error message to user
     rootElement.innerHTML = `

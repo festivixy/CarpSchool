@@ -4,23 +4,6 @@ import { Accounts } from "meteor/accounts-base";
 import { Profiles } from "../profile/Profile";
 
 Meteor.methods({
-  /**
-   * Get Clerk publishable key for client-side initialization
-   * Exposes server environment variable to client safely
-   */
-  "clerk.getPublishableKey": function() {
-    const publishableKey = process.env.METEOR_VITE_CLERK_PUBLISHABLE_KEY ||
-                          process.env.VITE_CLERK_PUBLISHABLE_KEY;
-
-    if (!publishableKey) {
-      throw new Meteor.Error("clerk-config-missing",
-        "Clerk publishable key not configured. Set METEOR_VITE_CLERK_PUBLISHABLE_KEY environment variable.");
-    }
-
-    return {
-      publishableKey: publishableKey
-    };
-  },
 
   /**
    * Get or create Meteor user from Clerk user ID
