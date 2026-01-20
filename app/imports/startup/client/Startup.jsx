@@ -3,6 +3,7 @@ import { render } from "react-dom";
 import { Meteor } from "meteor/meteor";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-react";
 import App from "../../ui/layouts/App";
+import { getClerkPublishableKey } from "../../ui/utils/clerkAuth";
 // Initialize mobile push notifications for Cordova apps
 import "../../ui/mobile/utils/MobilePushNotifications";
 
@@ -16,7 +17,7 @@ console.warn = (...args) => {
 };
 
 /** Render the app component */
-const renderApp = () => {
+const renderApp = async () => {
   const rootElement = document.getElementById("root");
   if (!rootElement) {
     console.error("Root element not found! Make sure the HTML has a div with id=\"root\"");
@@ -33,11 +34,33 @@ const renderApp = () => {
     }
   }
 
-  // Get Clerk publishable key from environment (Meteor prefixes with METEOR_)
-  const PUBLISHABLE_KEY = process.env.METEOR_VITE_CLERK_PUBLISHABLE_KEY;
+  // Get Clerk publishable key from server
+  let PUBLISHABLE_KEY;
+  try {
+    PUBLISHABLE_KEY = await getClerkPublishableKey();
+    console.log("Clerk publishable key loaded successfully");
+  } catch (error) {
+    console.error("Failed to get Clerk publishable key from server:", error);
+
+    // Show error message to user
+    rootElement.innerHTML = `
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; font-family: Arial, sans-serif;">
+        <div>
+          <h2 style="color: #e74c3c;">Configuration Error</h2>
+          <p>Failed to load authentication configuration.</p>
+          <p style="color: #7f8c8d; font-size: 14px;">Please check server configuration and try refreshing the page.</p>
+          <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Retry
+          </button>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   if (!PUBLISHABLE_KEY) {
-    console.error("Missing Clerk Publishable Key. Set METEOR_VITE_CLERK_PUBLISHABLE_KEY environment variable.");
+    console.error("Missing Clerk Publishable Key from server response");
+    return;
   }
 
   try {
@@ -77,7 +100,7 @@ Meteor.startup(() => {
     let fallbackTimeoutId = null;
 
     // Safe render function that prevents double-rendering
-    const safeRenderApp = (trigger) => {
+    const safeRenderApp = async (trigger) => {
       if (appStartupState.appRendered) {
         console.log(`[Startup] App already rendered, ignoring ${trigger} trigger`);
         return;
@@ -92,7 +115,7 @@ Meteor.startup(() => {
         fallbackTimeoutId = null;
       }
 
-      renderApp();
+      await renderApp();
     };
 
     // Wait for device ready event in Cordova
@@ -110,6 +133,8 @@ Meteor.startup(() => {
     }, 10000);
   } else {
     // Normal web startup
-    renderApp();
+    renderApp().catch(error => {
+      console.error("Failed to render app:", error);
+    });
   }
 });

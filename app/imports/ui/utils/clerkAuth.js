@@ -3,6 +3,46 @@ import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 
 /**
+ * Get Clerk publishable key from server
+ * Returns a promise that resolves with the publishable key
+ */
+export function getClerkPublishableKey() {
+  return new Promise((resolve, reject) => {
+    Meteor.call("clerk.getPublishableKey", (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result.publishableKey);
+      }
+    });
+  });
+}
+
+/**
+ * Hook to get Clerk publishable key
+ * Returns { publishableKey, loading, error }
+ */
+export function useClerkPublishableKey() {
+  const [publishableKey, setPublishableKey] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    getClerkPublishableKey()
+      .then((key) => {
+        setPublishableKey(key);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setLoading(false);
+      });
+  }, []);
+
+  return { publishableKey, loading, error };
+}
+
+/**
  * Clerk-Meteor integration hook
  * Provides Meteor user data based on Clerk session
  */
