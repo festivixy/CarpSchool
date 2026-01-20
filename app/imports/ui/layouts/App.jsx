@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { useAuth, SignedIn, SignedOut } from "@clerk/clerk-react";
+import { useAuth } from "@clerk/clerk-react";
 import MobileAdminRides from "../pages/AdminRides";
 import MobileAdminUsers from "../pages/AdminUsers";
 import AdminSchools from "../pages/AdminSchools";
@@ -28,7 +28,6 @@ import MobileMyRides from "../mobile/pages/MyRides";
 import NavBar from "../desktop/components/NavBar";
 import MobileChat from "../pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
-import MobileVerifyEmail from "../pages/VerifyEmail";
 import MobileEditProfile from "../pages/EditProfile";
 import MobileOnboarding from "../mobile/pages/Onboarding";
 import MobileVerify from "../pages/Verify";
@@ -68,14 +67,20 @@ import NotificationTest from "../test/pages/NotificationTest";
 import MobilePushTest from "../test/pages/MobilePushTest";
 import AutoSubscribeNotification from "../components/AutoSubscribeNotification";
 import PWAInstallPrompt from "../mobile/components/PWAInstallPrompt";
+import { useClerkUser } from "../utils/clerkAuth";
 const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapComponentsTest.jsx"));
 
-// Wrapper for routes that require authentication
+// Loading spinner for auth states
+const AuthLoading = () => (
+  <LoadingPage message="Loading..." />
+);
+
+// Route wrapper for authenticated routes
 const AuthRoute = ({ component: Component, ...rest }) => {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isLoaded, isSignedIn, meteorUser } = useClerkUser();
 
   if (!isLoaded) {
-    return <LoadingPage message="Loading..." />;
+    return <AuthLoading />;
   }
 
   return (
@@ -83,7 +88,7 @@ const AuthRoute = ({ component: Component, ...rest }) => {
       {...rest}
       render={props =>
         isSignedIn ? (
-          <Component {...props} />
+          <Component {...props} user={meteorUser} />
         ) : (
           <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
         )
@@ -92,12 +97,12 @@ const AuthRoute = ({ component: Component, ...rest }) => {
   );
 };
 
-// Wrapper for routes that require NOT being logged in
+// Route wrapper for guest-only routes (login, signup)
 const GuestRoute = ({ component: Component, ...rest }) => {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isLoaded, isSignedIn } = useClerkUser();
 
   if (!isLoaded) {
-    return <LoadingPage message="Loading..." />;
+    return <AuthLoading />;
   }
 
   return (
@@ -114,20 +119,20 @@ const GuestRoute = ({ component: Component, ...rest }) => {
   );
 };
 
-// Wrapper for routes that require admin
+// Route wrapper for admin routes
 const AdminRoute = ({ component: Component, ...rest }) => {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isLoaded, isSignedIn, meteorUser } = useClerkUser();
 
   if (!isLoaded) {
-    return <LoadingPage message="Loading..." />;
+    return <AuthLoading />;
   }
 
   return (
     <Route
       {...rest}
       render={props =>
-        isSignedIn && Meteor.user()?.roles?.includes("admin") ? (
-          <Component {...props} />
+        isSignedIn && meteorUser?.roles?.includes("admin") ? (
+          <Component {...props} user={meteorUser} />
         ) : (
           <Redirect to={{ pathname: "/my-rides" }} />
         )
@@ -136,20 +141,20 @@ const AdminRoute = ({ component: Component, ...rest }) => {
   );
 };
 
-// Wrapper for routes that require system admin
+// Route wrapper for system admin routes
 const SystemRoute = ({ component: Component, ...rest }) => {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isLoaded, isSignedIn, meteorUser } = useClerkUser();
 
   if (!isLoaded) {
-    return <LoadingPage message="Loading..." />;
+    return <AuthLoading />;
   }
 
   return (
     <Route
       {...rest}
       render={props =>
-        isSignedIn && Meteor.user()?.roles?.includes("system") ? (
-          <Component {...props} />
+        isSignedIn && meteorUser?.roles?.includes("system") ? (
+          <Component {...props} user={meteorUser} />
         ) : (
           <Redirect to={{ pathname: "/my-rides" }} />
         )
@@ -158,8 +163,8 @@ const SystemRoute = ({ component: Component, ...rest }) => {
   );
 };
 
-/** Top-level layout component */
-class App extends React.Component {
+// Main layout component
+class AppLayout extends React.Component {
   render() {
     const { currentUser } = this.props;
 
@@ -264,14 +269,12 @@ class App extends React.Component {
   }
 }
 
-App.propTypes = {
+AppLayout.propTypes = {
   currentUser: PropTypes.object,
 };
 
 const AppTracker = withTracker(() => ({
   currentUser: Meteor.user(),
-}))(App);
+}))(AppLayout);
 
 export default AppTracker;
-
-

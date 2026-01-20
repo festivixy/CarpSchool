@@ -5,9 +5,28 @@ import { Profiles } from "../profile/Profile";
 
 Meteor.methods({
   /**
-   * Link Clerk user ID to existing Meteor user or create new one
+   * Get Clerk publishable key for client-side initialization
+   * Exposes server environment variable to client safely
    */
-  "clerk.linkUser": function(clerkUserId) {
+  "clerk.getPublishableKey": function() {
+    const publishableKey = process.env.METEOR_VITE_CLERK_PUBLISHABLE_KEY ||
+                          process.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+    if (!publishableKey) {
+      throw new Meteor.Error("clerk-config-missing",
+        "Clerk publishable key not configured. Set METEOR_VITE_CLERK_PUBLISHABLE_KEY environment variable.");
+    }
+
+    return {
+      publishableKey: publishableKey
+    };
+  },
+
+  /**
+   * Get or create Meteor user from Clerk user ID
+   * This links Clerk auth to your existing Meteor user structure
+   */
+  "clerk.getMeteorUser": function(clerkUserId) {
     check(clerkUserId, String);
 
     if (!clerkUserId) {
@@ -20,52 +39,19 @@ Meteor.methods({
     });
 
     if (existingUser) {
-      // User already linked, return existing user ID
-      return { success: true, userId: existingUser._id, isNew: false };
-    }
-
-    // Get Clerk user info from client-side (passed via method or fetched separately)
-    // For now, we'll create a placeholder - in production, use Clerk API on server
-    const email = this.connection?.httpHeaders?.["x-clerk-user-email"] ||
-                  this.connection?.httpHeaders?.["x-clerk-auth-message"];
-
-    // Check if user exists by email (Meteor account)
-    const userByEmail = Meteor.users.findOne({
-      "emails.address": { $exists: true }
-    });
-
-    if (userByEmail) {
-      // Link existing Meteor user to Clerk
-      Meteor.users.update(userByEmail._id, {
-        $set: {
-          "profile.clerkUserId": clerkUserId,
-          "services.clerk": { userId: clerkUserId }
-        }
-      });
-      return { success: true, userId: userByEmail._id, isNew: false };
+      return existingUser;
     }
 
     // Create new Meteor user linked to Clerk
     // Note: Clerk handles password/auth, we just create the Meteor record
     const userId = Accounts.createUser({
       profile: {
-        clerkUserId: clerkUserId,
+        clerkUserId,
         name: "",
       },
     });
 
-    return { success: true, userId, isNew: true };
-  },
-
-  /**
-   * Get current user by Clerk session
-   * Called from client to sync Clerk auth with Meteor
-   */
-  "clerk.getMeteorUserId": function() {
-    if (!this.userId) {
-      throw new Meteor.Error("not-logged-in", "Not logged in");
-    }
-    return this.userId;
+    return Meteor.users.findOne(userId);
   },
 
   /**
@@ -117,6 +103,37 @@ Meteor.methods({
     Meteor.users.update(this.userId, {
       $set: { schoolId }
     });
+
+    return { success: true };
+  },
+
+  /**
+   * Update user profile from Clerk user data
+   */
+  "clerk.syncUserProfile": function(clerkData) {
+    check(clerkData, Object);
+
+    if (!this.userId) {
+      throw new Meteor.Error("auth-required", "Authentication required");
+    }
+
+    const updateData = {};
+
+    if (clerkData.firstName) {
+      updateData["profile.firstName"] = clerkData.firstName;
+    }
+    if (clerkData.lastName) {
+      updateData["profile.lastName"] = clerkData.lastName;
+    }
+    if (clerkData.imageUrl) {
+      updateData["profile.imageUrl"] = clerkData.imageUrl;
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      Meteor.users.update(this.userId, {
+        $set: updateData
+      });
+    }
 
     return { success: true };
   },

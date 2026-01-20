@@ -15,12 +15,6 @@ console.warn = (...args) => {
   originalConsoleWarn.apply(console, args);
 };
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Clerk Publishable Key. Add VITE_CLERK_PUBLISHABLE_KEY to your .env file.");
-}
-
 /** Render the app component */
 const renderApp = () => {
   const rootElement = document.getElementById("root");
@@ -37,6 +31,13 @@ const renderApp = () => {
     if (window.device && window.device.platform === "iOS") {
       document.body.classList.add("ios");
     }
+  }
+
+  // Get Clerk publishable key from environment (Meteor prefixes with METEOR_)
+  const PUBLISHABLE_KEY = process.env.METEOR_VITE_CLERK_PUBLISHABLE_KEY;
+
+  if (!PUBLISHABLE_KEY) {
+    console.error("Missing Clerk Publishable Key. Set METEOR_VITE_CLERK_PUBLISHABLE_KEY environment variable.");
   }
 
   try {

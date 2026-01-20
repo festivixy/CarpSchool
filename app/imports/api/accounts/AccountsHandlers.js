@@ -1,81 +1,43 @@
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
-import { check } from "meteor/check";
-import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
 import { NotificationUtils } from "../notifications/NotificationMethods";
 
 /* eslint-disable no-console */
 
-Accounts.validateLoginAttempt(async (attempt) => {
-  if (!attempt.allowed) {
-    return false;
-  }
-  if (attempt.type === "password") {
-    if (attempt.methodName !== "verifyEmail") {
-      return attempt.allowed;
-    }
-    const captchaSessionId =
-      attempt.methodArguments[0].password.captchaSessionId;
-    if (captchaSessionId === undefined) {
-      throw new Meteor.Error(400, "Match failed");
-    }
-    check(captchaSessionId, String);
-    const captchaSolved = await isCaptchaSolved(captchaSessionId);
-    if (!captchaSolved) {
-      throw new Meteor.Error("invalid-captcha", "CAPTCHA not solved");
-    }
-    await useCaptcha(captchaSessionId);
+// Meteor account validation handlers for Clerk integration
+// Clerk handles login/signup, these handlers are minimal since
+// we only use Meteor for data storage, not authentication
+
+// Validate new user - this will be called when creating Meteor user linked to Clerk
+Accounts.validateNewUser(async (user) => {
+  // For Clerk users, we allow bypassing validation
+  // Clerk already handles all validation
+  const isClerkUser = user.profile?.clerkUserId;
+  if (isClerkUser) {
     return true;
   }
+
+  // For API/programmatic users, allow
+  if (user.captchaSessionId === "API_BYPASS") {
+    console.log("API: Bypassing validation for API registration");
+    delete user.captchaSessionId;
+    return true;
+  }
+
   return true;
 });
 
-Accounts.validateNewUser(async (user) => {
-  // Validate captcha for new user registration
-  const captchaSessionId = user.captchaSessionId || user.profile?.captchaSessionId;
-
-  // Allow API bypass for programmatic registration
-  // if (captchaSessionId === "API_BYPASS") {
-  //   console.log("API: Bypassing CAPTCHA validation for API registration");
-  //   delete user.captchaSessionId;  // eslint-disable-line
-  //   return true;
-  // }
-
-  if (captchaSessionId === undefined) {
-    throw new Meteor.Error(
-      "captcha-required",
-      "CAPTCHA session ID required for registration",
-    );
-  }
-  check(captchaSessionId, String);
-  const captchaSolved = await isCaptchaSolved(captchaSessionId);
-  if (!captchaSolved) {
-    throw new Meteor.Error("invalid-captcha", "CAPTCHA not solved");
-  }
-  await useCaptcha(captchaSessionId);
-
-  // Remove captchaSessionId from user object before storing (both locations)
-  delete user.captchaSessionId;  // eslint-disable-line
-  if (user.profile?.captchaSessionId) {
-    delete user.profile.captchaSessionId;  // eslint-disable-line
-  }
-  return true;
-});
-
-// NOTE: onCreateUser moved to AccountsSchoolHandlers.js to include school assignment
-// This avoids "Can only call onCreateUser once" error
+// Note: onCreateUser is now handled in ClerkMethods.js for Clerk users
+// Standard Meteor users can still use AccountsSchoolHandlers.js if needed
 
 // Handle user logout - deactivate push tokens for privacy
+// This runs when Meteor.logout() is called
+// Note: Clerk's signOut() doesn't trigger this, so we handle it separately in Signout component
 Accounts.onLogout((loginHandle) => {
   if (loginHandle.userId) {
-    // console.log(`[Logout] User ${loginHandle.userId} logged out, deactivating push tokens...`);
-
-    // Call the NotificationUtils method to deactivate tokens
     NotificationUtils.deactivateUserTokens(loginHandle.userId)
       .then((_result) => {
-        // console.log(
-        //   `[Logout] Successfully deactivated ${result.deactivatedTokens} tokens for user ${loginHandle.userId}`
-        // );
+        // Successfully deactivated tokens
       })
       .catch((error) => {
         console.error(`[Logout] Failed to deactivate tokens for user ${loginHandle.userId}:`, error);

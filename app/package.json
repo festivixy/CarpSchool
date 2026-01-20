@@ -55,6 +55,7 @@
   },
   "scripts": {
     "start": "cd .. && ./runner.sh",
+    "start:background": "cd .. && ./runner.sh & echo $! > .meteor.pid && echo \"Meteor PID: $(cat .meteor.pid)\"",
     "dev": "meteor --no-release-check --settings ../config/settings.development.json --port 3001",
     "lint": "eslint --quiet --ext .jsx,.js,.mjs .",
     "lint:compact": "eslint --quiet --ext .jsx,.js,.mjs --format compact .",
@@ -68,9 +69,6 @@
     "build:ios:dev": "cd .. && ./build-app.sh ios --server-url https://dev.carp.school",
     "build:prod": "cd .. && ./build-app.sh all --server-url https://carp.school",
     "build:server:prod": "cd .. && ./build-prod.sh",
-    "build:codepush:ios": "cd .. && ./build-app.sh codepush-ios",
-    "build:codepush:android": "cd .. && ./build-app.sh codepush-android",
-    "build:codepush:status": "cd .. && ./build-app.sh codepush-status",
     "clean": "cd .. && ./clean.sh",
     "clean:all": "source ../tools/meteor-utils.sh && meteor_clean_ios"
   }

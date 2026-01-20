@@ -51,14 +51,6 @@ App.setPreference("android-installLocation", "auto");
 App.setPreference("android-signed", "true");
 App.setPreference("android-versionCode", "1");
 
-// CodePush configuration
-App.setPreference("CodePushDeploymentKey", ""); // Will be set during build
-App.setPreference("CodePushServerURL", "https://codepush.carp.school"); // Your self-hosted server
-App.setPreference("CodePushPublicKeyURL", "https://codepush.carp.school/updateCheck");
-App.setPreference("AutoHideSplashScreen", "true", "android");
-App.setPreference("SplashMaintainAspectRatio", "true", "android");
-App.setPreference("SplashScreenDelay", "3000", "android");
-
 // OneSignal Configuration
 App.setPreference('ONESIGNAL_APP_ID', 'a1f06572-fc69-4ec0-9402-b6e8a56bf14c');
 

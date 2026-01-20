@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Meteor } from "meteor/meteor";
+import { withRouter, Link } from "react-router-dom";
+import { useAuth } from "@clerk/clerk-react";
 import { withTracker } from "meteor/react-meteor-data";
-import { withRouter } from "react-router-dom";
 import JoinRideModal from "../../components/JoinRideModal";
 import AddRidesModal from "../../components/AddRides";
 import {
@@ -22,293 +22,141 @@ import {
 
 /**
  * LiquidGlass Mobile Navigation Bar - Bottom tab bar with glass morphism effect
+ * Uses Clerk for authentication
  */
-class MobileNavBarCSS extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      joinRideModalOpen: false,
-      addRidesModalOpen: false,
-      activeDropdown: null,
-      userMenuOpen: false,
-      adminMenuOpen: false,
+function MobileNavBarCSS({ currentUser, history }) {
+  const { isSignedIn, signOut } = useAuth();
+  const [joinRideModalOpen, setJoinRideModalOpen] = React.useState(false);
+  const [addRidesModalOpen, setAddRidesModalOpen] = React.useState(false);
+  const [activeDropdown, setActiveDropdown] = React.useState(null);
+  const [userMenuOpen, setUserMenuOpen] = React.useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!event.target.closest(".liquid-glass-mobile-navbar")) {
+        closeAllDropdowns();
+      }
     };
-  }
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, []);
 
-  handleJoinRideClick = () => {
-    this.setState({ joinRideModalOpen: true });
-    this.closeAllDropdowns();
+  const closeAllDropdowns = () => {
+    setUserMenuOpen(false);
+    setAdminMenuOpen(false);
+    setActiveDropdown(null);
   };
 
-  handleJoinRideClose = () => {
-    this.setState({ joinRideModalOpen: false });
+  const handleNavigation = (path) => {
+    history.push(path);
+    closeAllDropdowns();
   };
 
-  handleAddRidesClick = () => {
-    this.setState({ addRidesModalOpen: true });
-    this.closeAllDropdowns();
-  };
-
-  handleAddRidesClose = () => {
-    this.setState({ addRidesModalOpen: false });
-  };
-
-  toggleUserMenu = () => {
-    console.log("toggleUserMenu clicked, current state:", this.state.userMenuOpen);
-    this.setState((prevState) => ({
-      userMenuOpen: !prevState.userMenuOpen,
-      adminMenuOpen: false,
-      activeDropdown: prevState.userMenuOpen ? null : "user",
-    }), () => {
-      console.log("toggleUserMenu new state:", this.state.userMenuOpen);
-    });
-  };
-
-  toggleAdminMenu = () => {
-    this.setState((prevState) => ({
-      adminMenuOpen: !prevState.adminMenuOpen,
-      userMenuOpen: false,
-      activeDropdown: prevState.adminMenuOpen ? null : "admin",
-    }));
-  };
-
-  closeAllDropdowns = () => {
-    this.setState({
-      userMenuOpen: false,
-      adminMenuOpen: false,
-      activeDropdown: null,
-    });
-  };
-
-  // Close dropdowns when clicking outside
-  componentDidMount() {
-    document.addEventListener("click", this.handleOutsideClick);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener("click", this.handleOutsideClick);
-  }
-
-  handleOutsideClick = (event) => {
-    if (!event.target.closest(".liquid-glass-mobile-navbar")) {
-      this.closeAllDropdowns();
+  const handleSignOut = async () => {
+    try {
+      await signOut({ redirectUrl: "/" });
+    } catch (error) {
+      console.error("Sign out error:", error);
     }
   };
 
-  handleNavigation = (path) => {
-    this.props.history.push(path);
-    this.closeAllDropdowns();
-  };
+  const isAdmin = currentUser?.roles?.includes("system") ||
+    currentUser?.roles?.some(r => r.startsWith("admin."));
 
-  handleSignOut = () => {
-    this.props.history.push("/signout");
-    this.closeAllDropdowns();
-  };
+  return (
+    <NavBarContainer className="liquid-glass-mobile-navbar">
+      <TabBarInner>
+        <TabsContainer>
+          {isSignedIn && (
+            <TabBarItem as={Link} to="/my-rides" onClick={closeAllDropdowns}>
+              <TabLabel>Rides</TabLabel>
+            </TabBarItem>
+          )}
 
-  render() {
-    const { currentUser, isAdmin } = this.props;
-    const homeLink = currentUser ? "/my-rides" : "/";
+          {isSignedIn && (
+            <TabBarItem as={Link} to="/places" onClick={closeAllDropdowns}>
+              <TabLabel>Places</TabLabel>
+            </TabBarItem>
+          )}
 
-    // Calculate total notifications (placeholder for now)
-    const totalNotifications = 5; // This would come from real notification system
+          {isSignedIn && (
+            <TabWithBadge onClick={() => { setJoinRideModalOpen(true); closeAllDropdowns(); }}>
+              <TabLabel>Join</TabLabel>
+            </TabWithBadge>
+          )}
 
-    return (
-      <RelativeContainer>
-        <NavBarContainer className="liquid-glass-mobile-navbar">
-          <TabBarInner>
-            <TabsContainer>
-              {/* Home/My Rides Tab */}
-              <TabBarItem
-                onClick={() => this.handleNavigation(homeLink)}
-                data-navbar-item="home"
-              >
-                <img
-                  src="/svg/home.svg"
-                  alt="Home"
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
-                  }}
-                />
-                <TabLabel>{currentUser ? "My Rides" : "Home"}</TabLabel>
-              </TabBarItem>
+          {isSignedIn && (
+            <TabBarItem as={Link} to="/chat" onClick={closeAllDropdowns}>
+              <TabLabel>Chat</TabLabel>
+            </TabBarItem>
+          )}
 
-              {/* Search/Join Ride Tab */}
-              <TabBarItem
-                onClick={this.handleJoinRideClick}
-                data-navbar-item="search"
-              >
-                <img
-                  src="/svg/search.svg"
-                  alt="Search"
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
-                  }}
-                />
-                <TabLabel>Join Ride</TabLabel>
-              </TabBarItem>
+          <TabWithBadge onClick={() => { setActiveDropdown(activeDropdown === "more" ? null : "more"); }}>
+            <TabLabel>More ▾</TabLabel>
+          </TabWithBadge>
+        </TabsContainer>
+      </TabBarInner>
 
-              {/* Add/Create Ride Tab */}
-              <TabBarItem
-                onClick={this.handleAddRidesClick}
-                data-navbar-item="create"
-              >
-                <img
-                  src="/svg/plus.svg"
-                  alt="Add"
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
-                  }}
-                />
-                <TabLabel>Create</TabLabel>
-              </TabBarItem>
-
-              {/* Messages/Chat Tab with Notification Badge */}
-              <TabWithBadge
-                onClick={() => this.handleNavigation("/chat")}
-                data-navbar-item="messages"
-              >
-                <img
-                  src="/svg/message.svg"
-                  alt="Messages"
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
-                  }}
-                />
-                <TabLabel>Messages</TabLabel>
-                {totalNotifications > 0 && (
-                  <NotificationBadge>
-                    <BadgeText>{totalNotifications}</BadgeText>
-                  </NotificationBadge>
-                )}
-              </TabWithBadge>
-
-              {/* User Profile Tab with Dropdown */}
-              <TabBarItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  this.toggleUserMenu();
-                }}
-                style={{ position: "relative" }}
-                data-navbar-item="profile"
-              >
-                <img
-                  src="/svg/user.svg"
-                  alt="Profile"
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
-                    borderRadius: "50%",
-                  }}
-                />
-                <TabLabel>Profile</TabLabel>
-              </TabBarItem>
-            </TabsContainer>
-          </TabBarInner>
-
-          {/* User Dropdown Menu - Inside NavBarContainer for proper positioning */}
-          {this.state.userMenuOpen && (
+      {activeDropdown === "more" && (
+        <RelativeContainer>
           <DropdownContainer>
-            <DropdownMenu $isOpen={this.state.userMenuOpen}>
-              {currentUser ? (
+            <DropdownMenu>
+              {isSignedIn ? (
                 <>
-                  <DropdownItem onClick={() => this.handleNavigation("/edit-profile")}>
-                    📋 Edit Profile
+                  <DropdownItem as={Link} to="/mobile/profile" onClick={() => handleNavigation("/mobile/profile")}>
+                    My Profile
                   </DropdownItem>
-                  <DropdownItem onClick={() => this.handleNavigation("/places")}>
-                    📍 My Places
+                  <DropdownItem as={Link} to="/edit-profile" onClick={() => handleNavigation("/edit-profile")}>
+                    Edit Profile
+                  </DropdownItem>
+                  <DropdownItem as={Link} to="/ride-history/me" onClick={() => handleNavigation("/ride-history/me")}>
+                    My Rides
                   </DropdownItem>
                   {isAdmin && (
-                    <>
-                      <DropdownItem onClick={() => this.handleNavigation("/admin/rides")}>
-                        🚗 Manage Rides
-                      </DropdownItem>
-                      <DropdownItem onClick={() => this.handleNavigation("/admin/users")}>
-                        👥 Manage Users
-                      </DropdownItem>
-                      <DropdownItem onClick={() => this.handleNavigation("/admin/pending-users")}>
-                        ⏳ Pending Approvals
-                      </DropdownItem>
-                      <DropdownItem onClick={() => this.handleNavigation("/admin/places")}>
-                        📍 Manage Places
-                      </DropdownItem>
-                      <DropdownItem onClick={() => this.handleNavigation("/admin/school-management")}>
-                        🏫 School Settings
-                      </DropdownItem>
-                      <DropdownItem onClick={() => this.handleNavigation("/admin/error-reports")}>
-                        🚨 Error Reports
-                      </DropdownItem>
-                      <DropdownItem onClick={() => this.handleNavigation("/_test")}>
-                        🧪 Components Test
-                      </DropdownItem>
-                    </>
+                    <DropdownItem as={Link} to="/admin/rides" onClick={() => handleNavigation("/admin/rides")}>
+                      Admin Panel
+                    </DropdownItem>
                   )}
-                  <DropdownItem onClick={this.handleSignOut}>
-                    🚪 Sign Out
+                  <DropdownItem onClick={handleSignOut}>
+                    Sign Out
                   </DropdownItem>
                 </>
               ) : (
                 <>
-                  <DropdownItem onClick={() => this.handleNavigation("/login")}>
-                    👤 Sign In
+                  <DropdownItem as={Link} to="/login" onClick={() => handleNavigation("/login")}>
+                    Sign In
                   </DropdownItem>
-                  <DropdownItem onClick={() => this.handleNavigation("/signup")}>
-                    📝 Sign Up
+                  <DropdownItem as={Link} to="/signup" onClick={() => handleNavigation("/signup")}>
+                    Sign Up
                   </DropdownItem>
                 </>
               )}
             </DropdownMenu>
           </DropdownContainer>
-          )}
-        </NavBarContainer>
+        </RelativeContainer>
+      )}
 
-        <JoinRideModal
-          open={this.state.joinRideModalOpen}
-          onClose={this.handleJoinRideClose}
-          prefillCode=""
-        />
+      <JoinRideModal
+        isOpen={joinRideModalOpen}
+        onClose={() => setJoinRideModalOpen(false)}
+      />
 
-        <AddRidesModal
-          open={this.state.addRidesModalOpen}
-          onClose={this.handleAddRidesClose}
-        />
-      </RelativeContainer>
-    );
-  }
+      <AddRidesModal
+        isOpen={addRidesModalOpen}
+        onClose={() => setAddRidesModalOpen(false)}
+      />
+    </NavBarContainer>
+  );
 }
 
-/** Declare the types of all properties. */
 MobileNavBarCSS.propTypes = {
-  currentUser: PropTypes.string,
-  currentId: PropTypes.string,
-  isAdmin: PropTypes.bool,
-  isLoggedInAndEmailVerified: PropTypes.bool,
+  currentUser: PropTypes.object,
   history: PropTypes.object.isRequired,
 };
 
-/** withTracker connects Meteor data to React components. */
-const MobileNavBarCSSContainer = withTracker(() => ({
-  currentUser: Meteor.user() ? Meteor.user().username : "",
-  currentId: Meteor.user() ? Meteor.user()._id : "",
-  isAdmin: (() => {
-    const user = Meteor.user();
-    return user?.roles?.includes("system") ||
-           user?.roles?.some(role => role.startsWith("admin."));
-  })(),
-  isLoggedInAndEmailVerified: Meteor.user()
-    ? Meteor.user().emails &&
-      Meteor.user().emails[0] &&
-      Meteor.user().emails[0].verified
-    : false,
+const MobileNavBarCSSTracked = withTracker(() => ({
+  currentUser: Meteor.user(),
 }))(MobileNavBarCSS);
 
-/** Enable ReactRouter for this component. */
-export default withRouter(MobileNavBarCSSContainer);
+export default withRouter(MobileNavBarCSSTracked);

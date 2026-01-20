@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Meteor } from "meteor/meteor";
+import { withRouter, Link } from "react-router-dom";
+import { useAuth, useUserButton } from "@clerk/clerk-react";
 import { withTracker } from "meteor/react-meteor-data";
-import { withRouter } from "react-router-dom";
 import JoinRideModal from "../../components/JoinRideModal";
 import AddRidesModal from "../../components/AddRides";
 import {
@@ -26,414 +26,271 @@ import {
   MobileButton,
 } from "../styles/NavBar";
 
-/** The Desktop NavBar appears at the top of every page with responsive design for both desktop and mobile viewports. */
-class NavBar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      joinRideModalOpen: false,
-      addRidesModalOpen: false,
-      mobileMenuOpen: false,
-      userMenuOpen: false,
-      adminMenuOpen: false,
-      systemMenuOpen: false,
-    };
-  }
+/**
+ * Desktop NavBar using Clerk for authentication
+ */
+function NavBar({ currentUser }) {
+  const { isSignedIn, signOut, userId } = useAuth();
+  const [joinRideModalOpen, setJoinRideModalOpen] = React.useState(false);
+  const [addRidesModalOpen, setAddRidesModalOpen] = React.useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [userMenuOpen, setUserMenuOpen] = React.useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = React.useState(false);
+  const [systemMenuOpen, setSystemMenuOpen] = React.useState(false);
 
-  handleJoinRideClick = () => {
-    this.setState({ joinRideModalOpen: true, mobileMenuOpen: false });
+  const handleJoinRideClick = () => {
+    setJoinRideModalOpen(true);
+    setMobileMenuOpen(false);
   };
 
-  handleJoinRideClose = () => {
-    this.setState({ joinRideModalOpen: false });
+  const handleJoinRideClose = () => {
+    setJoinRideModalOpen(false);
   };
 
-  handleAddRidesClick = () => {
-    this.setState({ addRidesModalOpen: true, mobileMenuOpen: false });
+  const handleAddRidesClick = () => {
+    setAddRidesModalOpen(true);
+    setMobileMenuOpen(false);
   };
 
-  handleAddRidesClose = () => {
-    this.setState({ addRidesModalOpen: false });
+  const handleAddRidesClose = () => {
+    setAddRidesModalOpen(false);
   };
 
-  toggleMobileMenu = () => {
-    this.setState((prevState) => ({
-      mobileMenuOpen: !prevState.mobileMenuOpen,
-      userMenuOpen: false,
-      adminMenuOpen: false,
-      systemMenuOpen: false,
-    }));
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+    setUserMenuOpen(false);
+    setAdminMenuOpen(false);
+    setSystemMenuOpen(false);
   };
 
-  toggleUserMenu = () => {
-    this.setState((prevState) => ({
-      userMenuOpen: !prevState.userMenuOpen,
-      adminMenuOpen: false,
-      systemMenuOpen: false,
-    }));
+  const toggleUserMenu = () => {
+    setUserMenuOpen(!userMenuOpen);
+    setAdminMenuOpen(false);
+    setSystemMenuOpen(false);
   };
 
-  toggleAdminMenu = () => {
-    this.setState((prevState) => ({
-      adminMenuOpen: !prevState.adminMenuOpen,
-      userMenuOpen: false,
-      systemMenuOpen: false,
-    }));
+  const toggleAdminMenu = () => {
+    setAdminMenuOpen(!adminMenuOpen);
+    setUserMenuOpen(false);
+    setSystemMenuOpen(false);
   };
 
-  toggleSystemMenu = () => {
-    this.setState((prevState) => ({
-      systemMenuOpen: !prevState.systemMenuOpen,
-      userMenuOpen: false,
-      adminMenuOpen: false,
-    }));
+  const toggleSystemMenu = () => {
+    setSystemMenuOpen(!systemMenuOpen);
+    setUserMenuOpen(false);
+    setAdminMenuOpen(false);
   };
 
-  closeAllMenus = () => {
-    this.setState({
-      mobileMenuOpen: false,
-      userMenuOpen: false,
-      adminMenuOpen: false,
-      systemMenuOpen: false,
-    });
+  const closeAllMenus = () => {
+    setMobileMenuOpen(false);
+    setUserMenuOpen(false);
+    setAdminMenuOpen(false);
+    setSystemMenuOpen(false);
   };
 
-  // Close menus when clicking outside
-  componentDidMount() {
-    document.addEventListener("click", this.handleOutsideClick);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener("click", this.handleOutsideClick);
-  }
-
-  handleOutsideClick = (event) => {
-    if (!event.target.closest(".mobile-navbar")) {
-      this.closeAllMenus();
+  const handleSignOut = async () => {
+    try {
+      await signOut({ redirectUrl: "/" });
+    } catch (error) {
+      console.error("Sign out error:", error);
     }
   };
 
-  render() {
-    const homeLink = this.props.currentUser ? "/my-rides" : "/";
+  const isAdmin = currentUser?.roles?.includes("admin") ||
+    currentUser?.roles?.some(r => r.startsWith("admin."));
+  const isSystem = currentUser?.roles?.includes("system");
 
-    return (
-      <>
-        <NavBarContainer className="mobile-navbar">
-          <NavBarInner>
-            {/* Logo */}
-            <Logo to={homeLink} onClick={this.closeAllMenus}>
-              <LogoImg src="/staticimages/carp.school.png" alt="CarpSchool" />
-            </Logo>
+  return (
+    <NavBarContainer>
+      <NavBarInner>
+        <Logo to="/">
+          <LogoImg src="/images/logo.png" alt="CarpSchool" />
+        </Logo>
 
-            {/* Desktop Navigation */}
-            <DesktopNav>
-              {this.props.isLoggedInAndEmailVerified ? (
-                <>
-                  {/* My Rides */}
-                  <NavItem to="/my-rides" onClick={this.closeAllMenus}>
-                    🚗 My Rides
-                  </NavItem>
+        <DesktopNav>
+          {isSignedIn && (
+            <>
+              <NavItem>
+                <NavButton as={Link} to="/my-rides" onClick={closeAllMenus}>
+                  Find Rides
+                </NavButton>
+              </NavItem>
+              <NavItem>
+                <NavButton as={Link} to="/places" onClick={closeAllMenus}>
+                  Places
+                </NavButton>
+              </NavItem>
+            </>
+          )}
 
-                  {/* Create Ride */}
-                  <NavButton onClick={this.handleAddRidesClick}>
-                    ➕ Create Ride
-                  </NavButton>
+          {isAdmin && (
+            <Dropdown open={adminMenuOpen} onToggle={toggleAdminMenu}>
+              <DropdownTrigger as={NavButton}>
+                Admin ▾
+              </DropdownTrigger>
+              <DropdownMenu>
+                <DropdownItem as={Link} to="/admin/rides" onClick={closeAllMenus}>
+                  Manage Rides
+                </DropdownItem>
+                <DropdownItem as={Link} to="/admin/users" onClick={closeAllMenus}>
+                  Manage Users
+                </DropdownItem>
+                <DropdownItem as={Link} to="/admin/pending-users" onClick={closeAllMenus}>
+                  Pending Users
+                </DropdownItem>
+                <DropdownItem as={Link} to="/admin/places" onClick={closeAllMenus}>
+                  Manage Places
+                </DropdownItem>
+                <DropdownItem as={Link} to="/admin/school-management" onClick={closeAllMenus}>
+                  School Management
+                </DropdownItem>
+                <DropdownItem as={Link} to="/admin/error-reports" onClick={closeAllMenus}>
+                  Error Reports
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          )}
 
-                  {/* Join Ride */}
-                  <NavButton onClick={this.handleJoinRideClick}>
-                    📱 Join Ride
-                  </NavButton>
+          {isSystem && (
+            <Dropdown open={systemMenuOpen} onToggle={toggleSystemMenu}>
+              <DropdownTrigger as={NavButton}>
+                System ▾
+              </DropdownTrigger>
+              <DropdownMenu>
+                <DropdownItem as={Link} to="/admin/schools" onClick={closeAllMenus}>
+                  Manage Schools
+                </DropdownItem>
+                <DropdownItem as={Link} to="/system" onClick={closeAllMenus}>
+                  System Admin
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          )}
+        </DesktopNav>
 
-                  {/* My Places */}
-                  <NavItem to="/places" onClick={this.closeAllMenus}>
-                    📍 My Places
-                  </NavItem>
-                </>
-              ) : null}
+        <UserSection>
+          {isSignedIn ? (
+            <Dropdown open={userMenuOpen} onToggle={toggleUserMenu}>
+              <DropdownTrigger as={NavButton}>
+                {currentUser?.username || "User"} ▾
+              </DropdownTrigger>
+              <DropdownMenu>
+                <DropdownItem as={Link} to="/mobile/profile" onClick={closeAllMenus}>
+                  My Profile
+                </DropdownItem>
+                <DropdownItem as={Link} to="/edit-profile" onClick={closeAllMenus}>
+                  Edit Profile
+                </DropdownItem>
+                <DropdownItem as={Link} to="/ride-history/me" onClick={closeAllMenus}>
+                  My Ride History
+                </DropdownItem>
+                <DropdownItem onClick={() => { handleSignOut(); closeAllMenus(); }}>
+                  Sign Out
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          ) : (
+            <>
+              <NavButton as={Link} to="/login">Sign In</NavButton>
+              <NavButton primary as={Link} to="/signup">Sign Up</NavButton>
+            </>
+          )}
+        </UserSection>
 
-              {/* Admin Dropdown */}
-              {this.props.isAdmin && (
-                <Dropdown>
-                  <DropdownTrigger onClick={this.toggleAdminMenu}>
-                    Admin ▼
-                  </DropdownTrigger>
-                  {this.state.adminMenuOpen && (
-                    <DropdownMenu>
-                      <DropdownItem
-                        to="/admin/rides"
-                        onClick={this.closeAllMenus}
-                      >
-                        Manage Rides
-                      </DropdownItem>
-                      <DropdownItem
-                        to="/admin/users"
-                        onClick={this.closeAllMenus}
-                      >
-                        Manage Users
-                      </DropdownItem>
-                      <DropdownItem
-                        to="/admin/pending-users"
-                        onClick={this.closeAllMenus}
-                      >
-                        ⏳ Pending Approvals
-                      </DropdownItem>
-                      <DropdownItem
-                        to="/admin/places"
-                        onClick={this.closeAllMenus}
-                      >
-                        Manage Places
-                      </DropdownItem>
-                      <DropdownItem
-                        to="/admin/school-management"
-                        onClick={this.closeAllMenus}
-                      >
-                        🏫 School Settings
-                      </DropdownItem>
-                    </DropdownMenu>
-                  )}
-                </Dropdown>
-              )}
+        <MenuToggle onClick={toggleMobileMenu}>
+          ☰
+        </MenuToggle>
+      </NavBarInner>
 
-              {this.props.isSystem && (
-                <Dropdown>
-                  <DropdownTrigger onClick={this.toggleSystemMenu}>
-                    System ▼
-                  </DropdownTrigger>
-                  {this.state.systemMenuOpen && (
-                    <DropdownMenu>
-                      <DropdownItem
-                        to="/system"
-                        onClick={this.closeAllMenus}
-                      >
-                        🛠️ System Content
-                      </DropdownItem>
-                      <DropdownItem
-                        to="/admin/schools"
-                        onClick={this.closeAllMenus}
-                      >
-                        🏫 Manage Schools
-                      </DropdownItem>
-                      <DropdownItem
-                        to="/admin/error-reports"
-                        onClick={this.closeAllMenus}
-                      >
-                        🚨 Error Reports
-                      </DropdownItem>
-                      <DropdownItem
-                        to="/_test/image-upload"
-                        onClick={this.closeAllMenus}
-                      >
-                        Test Image Upload
-                      </DropdownItem>
-                      <DropdownItem to="/_test" onClick={this.closeAllMenus}>
-                        Components Test
-                      </DropdownItem>
-                    </DropdownMenu>
-                  )}
-                </Dropdown>
-              )}
-            </DesktopNav>
+      {mobileMenuOpen && (
+        <MobileMenu>
+          {isSignedIn ? (
+            <>
+              <MobileSection>
+                <MobileSectionTitle>Rides</MobileSectionTitle>
+                <MobileItem as={Link} to="/my-rides" onClick={toggleMobileMenu}>
+                  Find Rides
+                </MobileItem>
+                <MobileItem as={Link} to="/places" onClick={toggleMobileMenu}>
+                  Places
+                </MobileItem>
+                <MobileButton onClick={() => { handleJoinRideClick(); toggleMobileMenu(); }}>
+                  Join a Ride
+                </MobileButton>
+                <MobileButton onClick={() => { handleAddRidesClick(); toggleMobileMenu(); }}>
+                  Offer a Ride
+                </MobileButton>
+              </MobileSection>
 
-            {/* User Menu / Login */}
-            <UserSection>
-              {this.props.currentUser === "" ? (
-                <Dropdown>
-                  <DropdownTrigger onClick={this.toggleUserMenu}>
-                    Login ▼
-                  </DropdownTrigger>
-                  {this.state.userMenuOpen && (
-                    <DropdownMenu className="right">
-                      <DropdownItem to="/login" onClick={this.closeAllMenus}>
-                        👤 Sign In
-                      </DropdownItem>
-                      <DropdownItem to="/signup" onClick={this.closeAllMenus}>
-                        📝 Sign Up
-                      </DropdownItem>
-                    </DropdownMenu>
-                  )}
-                </Dropdown>
-              ) : (
-                <Dropdown>
-                  <DropdownTrigger onClick={this.toggleUserMenu}>
-                    👤 {this.props.currentUser} ▼
-                  </DropdownTrigger>
-                  {this.state.userMenuOpen && (
-                    <DropdownMenu className="right">
-                      <DropdownItem
-                        to="/chat"
-                        onClick={this.closeAllMenus}
-                      >
-                        💬 Messages
-                      </DropdownItem>
-                      <DropdownItem
-                        to="/edit-profile"
-                        onClick={this.closeAllMenus}
-                      >
-                        📋 Edit Profile
-                      </DropdownItem>
-                      <DropdownItem to="/signout" onClick={this.closeAllMenus}>
-                        🚪 Sign Out
-                      </DropdownItem>
-                    </DropdownMenu>
-                  )}
-                </Dropdown>
-              )}
-            </UserSection>
+              <MobileSection>
+                <MobileSectionTitle>Profile</MobileSectionTitle>
+                <MobileItem as={Link} to="/mobile/profile" onClick={toggleMobileMenu}>
+                  My Profile
+                </MobileItem>
+                <MobileItem as={Link} to="/edit-profile" onClick={toggleMobileMenu}>
+                  Edit Profile
+                </MobileItem>
+                <MobileItem as={Link} to="/ride-history/me" onClick={toggleMobileMenu}>
+                  My Ride History
+                </MobileItem>
+                <MobileItem as={Link} to="/chat" onClick={toggleMobileMenu}>
+                  Messages
+                </MobileItem>
+              </MobileSection>
 
-            {/* Mobile Menu Toggle */}
-            <MenuToggle onClick={this.toggleMobileMenu}>
-              {this.state.mobileMenuOpen ? "✕" : "☰"}
-            </MenuToggle>
-          </NavBarInner>
-
-          {/* Mobile Menu */}
-          {this.state.mobileMenuOpen && (
-            <MobileMenu>
-              {this.props.isLoggedInAndEmailVerified ? (
-                <>
-                  <MobileSection>
-                    <MobileItem to="/my-rides" onClick={this.closeAllMenus}>
-                      🚗 My Rides
-                    </MobileItem>
-                  </MobileSection>
-
-                  <MobileSection>
-                    <MobileButton onClick={this.handleAddRidesClick}>
-                      ➕ Create Ride
-                    </MobileButton>
-                    <MobileButton onClick={this.handleJoinRideClick}>
-                      📱 Join Ride
-                    </MobileButton>
-                  </MobileSection>
-
-                  <MobileSection>
-                    <MobileItem to="/places" onClick={this.closeAllMenus}>
-                      📍 My Places
-                    </MobileItem>
-                  </MobileSection>
-
-                  {this.props.isAdmin && (
-                    <MobileSection>
-                      <MobileSectionTitle>Admin</MobileSectionTitle>
-                      <MobileItem to="/admin/rides" onClick={this.closeAllMenus}>
-                        Manage Rides
-                      </MobileItem>
-                      <MobileItem to="/admin/users" onClick={this.closeAllMenus}>
-                        Manage Users
-                      </MobileItem>
-                      <MobileItem to="/admin/pending-users" onClick={this.closeAllMenus}>
-                        ⏳ Pending Approvals
-                      </MobileItem>
-                      <MobileItem
-                        to="/admin/places"
-                        onClick={this.closeAllMenus}
-                      >
-                        Manage Places
-                      </MobileItem>
-                      <MobileItem to="/admin/school-management" onClick={this.closeAllMenus}>
-                        🏫 School Settings
-                      </MobileItem>
-                    </MobileSection>
-                  )}
-
-                  {this.props.isSystem && (
-                    <MobileSection>
-                      <MobileSectionTitle>System</MobileSectionTitle>
-                      <MobileItem to="/system" onClick={this.closeAllMenus}>
-                        🛠️ System Content
-                      </MobileItem>
-                      <MobileItem to="/admin/schools" onClick={this.closeAllMenus}>
-                        🏫 Manage Schools
-                      </MobileItem>
-                      <MobileItem
-                        to="/admin/error-reports"
-                        onClick={this.closeAllMenus}
-                      >
-                        🚨 Error Reports
-                      </MobileItem>
-                      <MobileItem
-                        to="/_test/image-upload"
-                        onClick={this.closeAllMenus}
-                      >
-                        Test Image Upload
-                      </MobileItem>
-                      <MobileItem to="/_test" onClick={this.closeAllMenus}>
-                        Components Test
-                      </MobileItem>
-                    </MobileSection>
-                  )}
-
-                  <MobileSection>
-                    <MobileSectionTitle>Account</MobileSectionTitle>
-                    <MobileItem to="/chat" onClick={this.closeAllMenus}>
-                      💬 Messages
-                    </MobileItem>
-                    <MobileItem to="/edit-profile" onClick={this.closeAllMenus}>
-                      📋 Edit Profile
-                    </MobileItem>
-                    <MobileItem to="/signout" onClick={this.closeAllMenus}>
-                      🚪 Sign Out
-                    </MobileItem>
-                  </MobileSection>
-                </>
-              ) : (
+              {isAdmin && (
                 <MobileSection>
-                  <MobileItem to="/login" onClick={this.closeAllMenus}>
-                    👤 Sign In
+                  <MobileSectionTitle>Admin</MobileSectionTitle>
+                  <MobileItem as={Link} to="/admin/rides" onClick={toggleMobileMenu}>
+                    Manage Rides
                   </MobileItem>
-                  <MobileItem to="/signup" onClick={this.closeAllMenus}>
-                    📝 Sign Up
+                  <MobileItem as={Link} to="/admin/users" onClick={toggleMobileMenu}>
+                    Manage Users
+                  </MobileItem>
+                  <MobileItem as={Link} to="/admin/places" onClick={toggleMobileMenu}>
+                    Manage Places
                   </MobileItem>
                 </MobileSection>
               )}
-            </MobileMenu>
+
+              <MobileSection>
+                <MobileButton onClick={() => { handleSignOut(); toggleMobileMenu(); }}>
+                  Sign Out
+                </MobileButton>
+              </MobileSection>
+            </>
+          ) : (
+            <MobileSection>
+              <MobileButton as={Link} to="/login" onClick={toggleMobileMenu}>
+                Sign In
+              </MobileButton>
+              <MobileButton as={Link} to="/signup" onClick={toggleMobileMenu} primary>
+                Sign Up
+              </MobileButton>
+            </MobileSection>
           )}
-        </NavBarContainer>
+        </MobileMenu>
+      )}
 
-        <JoinRideModal
-          open={this.state.joinRideModalOpen}
-          onClose={this.handleJoinRideClose}
-          prefillCode=""
-        />
+      <JoinRideModal
+        isOpen={joinRideModalOpen}
+        onClose={handleJoinRideClose}
+      />
 
-        <AddRidesModal
-          open={this.state.addRidesModalOpen}
-          onClose={this.handleAddRidesClose}
-        />
-      </>
-    );
-  }
+      <AddRidesModal
+        isOpen={addRidesModalOpen}
+        onClose={handleAddRidesClose}
+      />
+    </NavBarContainer>
+  );
 }
 
-/** Declare the types of all properties. */
 NavBar.propTypes = {
-  currentUser: PropTypes.string,
-  currentId: PropTypes.string,
-  isAdmin: PropTypes.bool,
-  isSystem: PropTypes.bool,
-  isLoggedInAndEmailVerified: PropTypes.bool,
+  currentUser: PropTypes.object,
 };
 
-/** withTracker connects Meteor data to React components. */
-const MobileNavBarContainer = withTracker(() => ({
-  currentUser: Meteor.user() ? Meteor.user().username : "",
-  currentId: Meteor.user() ? Meteor.user()._id : "",
-  isAdmin: Meteor.user()
-    ? (() => {
-        const user = Meteor.user();
-        return user?.roles?.includes("system") ||
-               user?.roles?.some(role => role.startsWith("admin."));
-      })()
-    : false,
-  isSystem: Meteor.user()
-    ? Meteor.user().roles && Meteor.user().roles.includes("system")
-    : false,
-  isLoggedInAndEmailVerified: Meteor.user()
-    ? Meteor.user().emails &&
-      Meteor.user().emails[0] &&
-      Meteor.user().emails[0].verified
-    : false,
+const NavBarTracked = withTracker(() => ({
+  currentUser: Meteor.user(),
 }))(NavBar);
 
-/** Enable ReactRouter for this component. */
-export default withRouter(MobileNavBarContainer);
+export default withRouter(NavBarTracked);

@@ -213,6 +213,14 @@ meteor_run_dev() {
     local settings_file=${1:-"../config/settings.development.json"}
     local port=${2:-"3001"}
 
+    # Load environment variables from .env file
+    if [ -f "../.env" ]; then
+        echo -e "${YELLOW}📝 Loading environment variables from .env...${NC}"
+        set -a  # Auto-export loaded variables
+        source "../.env"
+        set +a
+    fi
+
     echo -e "${YELLOW}🚀 Starting Meteor development server...${NC}"
     cd app
     meteor --no-release-check --settings "$settings_file" --port "$port" --verbose
