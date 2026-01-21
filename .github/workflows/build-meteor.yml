@@ -26,7 +26,7 @@ jobs:
         # Navigate to the app directory if not in the root, and use meteor npm install
         run: |
           cd app
-          meteor npm install
+          meteor npm install --legacy-peer-deps
       
       - name: Update BrowerList
         run: |
