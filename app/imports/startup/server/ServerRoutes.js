@@ -16,10 +16,12 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
       const cspHeader = [
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
-        "https://cdn.onesignal.com https://onesignal.com https://api.onesignal.com",
+        "https://cdn.onesignal.com https://onesignal.com https://api.onesignal.com " +
+        "https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com",
         "connect-src 'self' https://onesignal.com https://*.onesignal.com " +
         "https://api.onesignal.com https://cdn.onesignal.com wss: ws: " +
-        "https://nominatim.carp.school https://tileserver.carp.school https://osrm.carp.school",
+        "https://nominatim.carp.school https://tileserver.carp.school https://osrm.carp.school " +
+        "https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com",
         "img-src 'self' data: https: http: https://onesignal.com https://*.onesignal.com",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' data: https: https://fonts.gstatic.com",
@@ -75,10 +77,10 @@ const SHA256_REGEX = /^[a-f0-9]{64}$/i;
 WebApp.connectHandlers.use("/image", async (req, res, _next) => {
   try {
     // Rate limiting check (V014 fix)
-    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
-                     req.connection?.remoteAddress || 
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+                     req.connection?.remoteAddress ||
                      'unknown';
-    
+
     if (!checkImageRateLimit(clientIp)) {
       res.writeHead(429, { "Content-Type": "text/plain" });
       res.end("Too Many Requests: Rate limit exceeded");
@@ -213,7 +215,7 @@ WebApp.connectHandlers.use("/webhooks/persona", async (req, res, _next) => {
     try {
       const payload = JSON.parse(body);
       const { data } = payload;
-      
+
       // Basic validation
       if (!data || !data.attributes) {
         res.writeHead(400);
@@ -228,10 +230,10 @@ WebApp.connectHandlers.use("/webhooks/persona", async (req, res, _next) => {
         // Update user profile
         // Import Profiles here to avoid circular dependency issues if any
         const { Profiles } = await import("../../api/profile/Profile");
-        
+
         // Find profile belonging to the user (referenceId should be userId)
         const profile = await Profiles.findOneAsync({ Owner: referenceId });
-        
+
         if (profile) {
           await Profiles.updateAsync(profile._id, {
             $set: {

@@ -24,7 +24,7 @@ import {
  * iOS-specific Profile page
  * Simple list of profile options without modal styling
  */
-const Profile = ({ history, currentUser, isAdmin }) => {
+const Profile = ({ history, currentUser, isAdmin, userReady }) => {
   const handleNavigation = (path) => {
     history.push(path);
   };
@@ -32,6 +32,22 @@ const Profile = ({ history, currentUser, isAdmin }) => {
   const handleSignOut = () => {
     history.push("/signout");
   };
+
+  // Show loading state while user data is being fetched
+  if (!userReady) {
+    return (
+      <ProfilePageContainer>
+        <FixedHeader>
+          <HeaderTitle>Profile</HeaderTitle>
+        </FixedHeader>
+        <ContentContainer>
+          <div style={{ padding: "20px", textAlign: "center" }}>
+            Loading...
+          </div>
+        </ContentContainer>
+      </ProfilePageContainer>
+    );
+  }
 
   return (
     <ProfilePageContainer>
@@ -58,37 +74,39 @@ const Profile = ({ history, currentUser, isAdmin }) => {
         {/* Profile Options */}
         <Section>
           {/* Identity Verification Status */}
-          <button
-             onClick={() => {
-               if (!currentUser.profile?.identityVerified) {
-                 // Redirect to Persona verification flow with userId as reference
-                 // NOTE: In production, use the production environment ID
-                 const inquiryTemplateId = "itmpl_PygaeTqwQpVeoiAMmVmZzrWwezCN";
-                 const environmentId = "env_5ZRRvhfj6N4FoUoQ2e4KSv19gUuG";
-                 const referenceId = currentUser._id;
-                 const redirectUri = encodeURIComponent("https://carp.school"); // Update this to your app's URL
-                 
-                 window.location.href = `https://miniapp.withpersona.com/verify?inquiry-template-id=${inquiryTemplateId}&environment-id=${environmentId}&reference-id=${referenceId}&redirect-uri=${redirectUri}`;
-               }
-             }}
-             style={{
-               width: "100%",
-               padding: "18px 20px",
-               backgroundColor: currentUser.profile?.identityVerified ? "#f0f9eb" : "transparent",
-               border: "none",
-               borderBottom: "1px solid #f0f0f0",
-               textAlign: "left",
-               fontSize: "16px",
-               color: "#333",
-               cursor: currentUser.profile?.identityVerified ? "default" : "pointer",
-               display: "flex",
-               alignItems: "center",
-             }}
-          >
-            <MenuIcon>{currentUser.profile?.identityVerified ? "✅" : "🛡️"}</MenuIcon>
-            {currentUser.profile?.identityVerified ? "Identity Verified" : "Verify Identity"}
-            {!currentUser.profile?.identityVerified && <MenuArrow>›</MenuArrow>}
-          </button>
+          {currentUser && (
+            <button
+               onClick={() => {
+                 if (!currentUser.profile?.identityVerified) {
+                   // Redirect to Persona verification flow with userId as reference
+                   // NOTE: In production, use the production environment ID
+                   const inquiryTemplateId = "itmpl_PygaeTqwQpVeoiAMmVmZzrWwezCN";
+                   const environmentId = "env_5ZRRvhfj6N4FoUoQ2e4KSv19gUuG";
+                   const referenceId = currentUser._id;
+                   const redirectUri = encodeURIComponent("https://carp.school"); // Update this to your app's URL
+
+                   window.location.href = `https://miniapp.withpersona.com/verify?inquiry-template-id=${inquiryTemplateId}&environment-id=${environmentId}&reference-id=${referenceId}&redirect-uri=${redirectUri}`;
+                 }
+               }}
+               style={{
+                 width: "100%",
+                 padding: "18px 20px",
+                 backgroundColor: currentUser.profile?.identityVerified ? "#f0f9eb" : "transparent",
+                 border: "none",
+                 borderBottom: "1px solid #f0f0f0",
+                 textAlign: "left",
+                 fontSize: "16px",
+                 color: "#333",
+                 cursor: currentUser.profile?.identityVerified ? "default" : "pointer",
+                 display: "flex",
+                 alignItems: "center",
+               }}
+            >
+              <MenuIcon>{currentUser.profile?.identityVerified ? "✅" : "🛡️"}</MenuIcon>
+              {currentUser.profile?.identityVerified ? "Identity Verified" : "Verify Identity"}
+              {!currentUser.profile?.identityVerified && <MenuArrow>›</MenuArrow>}
+            </button>
+          )}
 
           <button
             onClick={() => handleNavigation("/edit-profile")}
@@ -387,14 +405,17 @@ Profile.propTypes = {
   history: PropTypes.object.isRequired,
   currentUser: PropTypes.object,
   isAdmin: PropTypes.bool,
+  userReady: PropTypes.bool,
 };
 
 export default withRouter(withTracker(() => {
   const currentUser = Meteor.user();
-  const isAdmin = isAdminRole(currentUser);
+  const userReady = Meteor.userId() !== undefined; // User subscription is ready when userId is defined or null
+  const isAdmin = currentUser ? isAdminRole(currentUser) : false;
 
   return {
     currentUser,
     isAdmin,
+    userReady,
   };
 })(Profile));

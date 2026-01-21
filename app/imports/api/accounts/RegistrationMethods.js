@@ -32,7 +32,7 @@ Meteor.methods({
 
     // 1. Validate Captcha
     const captchaUsed = await useCaptcha(data.captchaToken);
-    
+
     if (!captchaUsed) {
       throw new Meteor.Error("security.captcha.invalid", "Invalid security code");
     }
@@ -42,11 +42,11 @@ Meteor.methods({
     if (emailParts.length !== 2 || !emailParts[1]) {
       throw new Meteor.Error("registration.email.invalid", "Invalid email address");
     }
-    
+
     const domain = emailParts[1].toLowerCase();
 
     // Find school by domain (case insensitive search)
-    const school = await Schools.findOneAsync({ 
+    const school = await Schools.findOneAsync({
         $or: [
             { domain: domain },
             { domain: { $regex: new RegExp(`^${domain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } } // Escaped regex
@@ -54,7 +54,7 @@ Meteor.methods({
     });
 
     if (!school) {
-       throw new Meteor.Error("registration.school.notFound", 
+       throw new Meteor.Error("registration.school.notFound",
            "Your school email domain is not recognized. Please contact support to add your school.");
     }
 
@@ -97,7 +97,7 @@ Meteor.methods({
       rejected: false,
       createdAt: new Date(),
     };
-    
+
     // Process Image if provided (Base64)
     // We do this server-side to ensure we don't rely on a separate client-side call that might fail
     // or require a separate captcha session.
@@ -108,13 +108,13 @@ Meteor.methods({
             if (buffer.length <= 5 * 1024 * 1024) {
                  const uuid = uuidv4();
                  const sha256Hash = crypto.createHash("sha256").update(buffer).digest("hex");
-                 
+
                  // We are skipping the expensive compression here for registration speed/reliability
-                 // or we could import the compression function. 
+                 // or we could import the compression function.
                  // For now, let's store it directly to ensure registration works.
                  // In a real full-stack app, this would be a job queue or separate service.
                  // We'll mimic the ImagesSchema structure.
-                 
+
                  const imageDoc = {
                    uuid,
                    sha256Hash,
@@ -128,7 +128,7 @@ Meteor.methods({
                    school: school._id,
                    user: userId
                  };
-                 
+
                  // Async insert
                  const imageId = await Images.insertAsync(imageDoc);
                  if (imageId) {
@@ -158,23 +158,23 @@ Meteor.methods({
 
     return { success: true, userId: userId };
   },
-  
+
   /**
    * Checks if an email domain belongs to a known school
    */
-  "schools.checkDomain": function(email) {
+  "schools.checkDomain": async function(email) {
       check(email, String);
       const parts = email.split("@");
       if (parts.length !== 2) return null;
-      
+
       const domain = parts[1].toLowerCase();
-      const school = Schools.findOne({ 
+      const school = await Schools.findOneAsync({
         $or: [
             { domain: domain },
             { domain: { $regex: new RegExp(`^${domain}$`, 'i') } }
         ]
       }, { fields: { name: 1, _id: 1, logoUrl: 1 } });
-      
+
       return school || null;
   }
 });

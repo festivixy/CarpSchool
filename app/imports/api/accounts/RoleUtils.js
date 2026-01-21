@@ -175,16 +175,16 @@ export async function addSystemRole(managerId, targetUserId) {
 /**
  * Check if user has system role (global access) - SYNC VERSION
  */
-export function isSystemAdminSync(userId = null) {
-  const user = Meteor.users.findOne(userId || Meteor.userId());
+export async function isSystemAdminSync(userId = null) {
+  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
   return user?.roles?.includes("system") || false;
 }
 
 /**
  * Check if user is admin of a specific school - SYNC VERSION
  */
-export function isSchoolAdminSync(userId = null, schoolId = null) {
-  const user = Meteor.users.findOne(userId || Meteor.userId());
+export async function isSchoolAdminSync(userId = null, schoolId = null) {
+  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
   if (!user?.roles) return false;
 
   // If no schoolId provided, check if user is admin of their own school
@@ -197,8 +197,8 @@ export function isSchoolAdminSync(userId = null, schoolId = null) {
 /**
  * Check if user has any admin role (system or school-specific) - SYNC VERSION
  */
-export function isAnyAdminSync(userId = null) {
-  const user = Meteor.users.findOne(userId || Meteor.userId());
+export async function isAnyAdminSync(userId = null) {
+  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
   if (!user?.roles) return false;
 
   // Check for system role
@@ -211,8 +211,8 @@ export function isAnyAdminSync(userId = null) {
 /**
  * Get user's admin schools (returns array of schoolIds user can admin) - SYNC VERSION
  */
-export function getUserAdminSchoolsSync(userId = null) {
-  const user = Meteor.users.findOne(userId || Meteor.userId());
+export async function getUserAdminSchoolsSync(userId = null) {
+  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
   if (!user?.roles) return [];
 
   // System admins can admin all schools

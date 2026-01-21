@@ -9,7 +9,7 @@ Meteor.methods({
    * Get or create Meteor user from Clerk user ID
    * This links Clerk auth to your existing Meteor user structure
    */
-  "clerk.getMeteorUser": function(clerkUserId) {
+  "clerk.getMeteorUser": async function(clerkUserId) {
     check(clerkUserId, String);
 
     if (!clerkUserId) {
@@ -17,7 +17,7 @@ Meteor.methods({
     }
 
     // Check if user already exists with this Clerk ID
-    const existingUser = Meteor.users.findOne({
+    const existingUser = await Meteor.users.findOneAsync({
       "profile.clerkUserId": clerkUserId
     });
 
@@ -28,26 +28,28 @@ Meteor.methods({
     // Create new Meteor user linked to Clerk
     // Note: Clerk handles password/auth, we just create the Meteor record
     const userId = Accounts.createUser({
+      username: `clerk_${clerkUserId}`, // Generate unique username from Clerk ID
+      email: `clerk_${clerkUserId}@clerk.local`, // Dummy email for system compatibility
       profile: {
         clerkUserId,
         name: "",
       },
     });
 
-    return Meteor.users.findOne(userId);
+    return await Meteor.users.findOneAsync(userId);
   },
 
   /**
    * Complete onboarding for Clerk users
    */
-  "clerk.completeOnboarding": function(profileData) {
+  "clerk.completeOnboarding": async function(profileData) {
     check(profileData, Object);
 
     if (!this.userId) {
       throw new Meteor.Error("auth-required", "Authentication required");
     }
 
-    const user = Meteor.users.findOne(this.userId);
+    const user = await Meteor.users.findOneAsync(this.userId);
     if (!user) {
       throw new Meteor.Error("user-not-found", "User not found");
     }
@@ -76,7 +78,7 @@ Meteor.methods({
   /**
    * Assign school to Clerk-linked user
    */
-  "clerk.assignSchool": function(schoolId) {
+  "clerk.assignSchool": async function(schoolId) {
     check(schoolId, String);
 
     if (!this.userId) {
@@ -93,7 +95,7 @@ Meteor.methods({
   /**
    * Update user profile from Clerk user data
    */
-  "clerk.syncUserProfile": function(clerkData) {
+  "clerk.syncUserProfile": async function(clerkData) {
     check(clerkData, Object);
 
     if (!this.userId) {

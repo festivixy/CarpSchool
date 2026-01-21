@@ -227,7 +227,7 @@ const ComponentsTest = ({ history, currentUser, isAdmin }) => {
           {currentUser && (
             <div>
               <UserInfoItem>
-                {currentUser.profile?.firstName} {currentUser.profile?.lastName}
+                {currentUser?.profile?.firstName} {currentUser?.profile?.lastName}
               </UserInfoItem>
               <UserInfoItem>
                 {currentUser.emails?.[0]?.address}

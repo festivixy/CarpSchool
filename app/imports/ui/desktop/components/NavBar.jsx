@@ -16,6 +16,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  DropdownButton,
   NavItem,
   NavButton,
   MenuToggle,
@@ -184,9 +185,9 @@ function NavBar({ currentUser }) {
                 <DropdownItem as={Link} to="/ride-history/me" onClick={closeAllMenus}>
                   My Ride History
                 </DropdownItem>
-                <DropdownItem onClick={() => { handleSignOut(); closeAllMenus(); }}>
+                <DropdownButton onClick={() => { handleSignOut(); closeAllMenus(); }}>
                   Sign Out
-                </DropdownItem>
+                </DropdownButton>
               </DropdownMenu>
             </Dropdown>
           ) : (
@@ -273,12 +274,12 @@ function NavBar({ currentUser }) {
       )}
 
       <JoinRideModal
-        isOpen={joinRideModalOpen}
+        open={joinRideModalOpen}
         onClose={handleJoinRideClose}
       />
 
       <AddRidesModal
-        isOpen={addRidesModalOpen}
+        open={addRidesModalOpen}
         onClose={handleAddRidesClose}
       />
     </NavBarContainer>

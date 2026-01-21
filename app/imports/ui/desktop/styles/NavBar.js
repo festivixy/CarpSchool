@@ -95,15 +95,21 @@ export const DropdownMenu = styled.div`
   }
 `;
 
-export const DropdownItem = styled(NavLink)`
+const dropdownItemStyles = `
   display: block;
+  width: 100%;
   padding: 12px 16px;
   color: #333;
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
   border-bottom: 1px solid #f0f0f0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
   transition: all 0.2s ease;
+  font-family: inherit;
 
   &:last-child {
     border-bottom: none;
@@ -119,28 +125,22 @@ export const DropdownItem = styled(NavLink)`
   }
 `;
 
-export const NavItem = styled(NavLink)`
-  color: white;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
-  }
-
-  &.active {
-    background-color: rgba(255, 255, 255, 0.15);
-  }
+export const DropdownItem = styled(NavLink)`
+  ${dropdownItemStyles}
 `;
 
-export const NavButton = styled.button`
-  background: none;
+export const DropdownButton = styled.button`
+  ${dropdownItemStyles}
+`;
+
+export const NavItem = styled.div`
+  display: inline-block;
+`;
+
+export const NavButton = styled.button.withConfig({
+  shouldForwardProp: (prop) => prop !== 'primary',
+})`
+  background: ${props => props.primary ? '#007bff' : 'none'};
   border: none;
   cursor: pointer;
   font-family: inherit;
@@ -154,7 +154,7 @@ export const NavButton = styled.button`
   white-space: nowrap;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: ${props => props.primary ? '#0056b3' : 'rgba(255, 255, 255, 0.1)'};
     color: white;
   }
 `;
@@ -230,8 +230,10 @@ export const MobileItem = styled(NavLink)`
   }
 `;
 
-export const MobileButton = styled.button`
-  background: none;
+export const MobileButton = styled.button.withConfig({
+  shouldForwardProp: (prop) => prop !== 'primary',
+})`
+  background: ${props => props.primary ? '#007bff' : 'none'};
   border: none;
   width: 100%;
   text-align: left;
@@ -245,6 +247,7 @@ export const MobileButton = styled.button`
   padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.2s ease;
+  border-radius: ${props => props.primary ? '6px' : '0'};
 
   &:last-child {
     border-bottom: none;
@@ -253,5 +256,6 @@ export const MobileButton = styled.button`
   &:hover {
     color: rgba(255, 255, 255, 0.8);
     padding-left: 8px;
+    background-color: ${props => props.primary ? '#0056b3' : 'transparent'};
   }
 `;

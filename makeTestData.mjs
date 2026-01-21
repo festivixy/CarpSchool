@@ -29,12 +29,30 @@ const vancouverCoordinates = [
   { name: "VGH Hospital", lat: 49.2628, lng: -123.1207 },
 ];
 
+// Read existing settings.json and preserve variables
+import fs from "fs";
+import path from "path";
+
+const settingsPath = path.join(process.cwd(), "config", "settings.json");
+let existingSettings = {};
+
+try {
+  const settingsContent = fs.readFileSync(settingsPath, "utf8");
+  existingSettings = JSON.parse(settingsContent);
+  console.log("✅ Loaded existing settings.json");
+} catch (error) {
+  console.log("⚠️ Could not read existing settings.json, creating new one");
+  console.log("Error:", error.message);
+}
+
+// Create template by merging existing settings with test data
 var template = {
   public: {
-    enableDebugMode: true,
-    "oneSignal": {
-      "appId": "your-app-id-here"
-    }
+    ...existingSettings.public, // Preserve all existing public settings
+    enableDebugMode: true, // Override to enable debug mode
+  },
+  private: {
+    ...existingSettings.private, // Preserve all existing private settings
   },
   defaultSchools: [
     {
@@ -288,10 +306,9 @@ function generateObjectId() {
 
 console.log("Generating test data with UUID-based place references...");
 
-import fs from "fs";
-import path from "path";
-const settingsPath = path.join(process.cwd(), "config", "settings.development.json");
-fs.writeFileSync(settingsPath, JSON.stringify(template, null, 2), "utf8");
+// Write the updated settings to settings.development.json
+const outputPath = path.join(process.cwd(), "config", "settings.development.json");
+fs.writeFileSync(outputPath, JSON.stringify(template, null, 2), "utf8");
 console.log(`\n✅ Test data generation complete!`);
 console.log(`📊 Summary:`);
 console.log(`   • ${template.defaultSchools.length} schools`);
@@ -300,4 +317,6 @@ console.log(`   • ${template.defaultPlaces.length} places with UUIDs`);
 console.log(
   `   • ${template.defaultRides.length} rides with place ID references`,
 );
-console.log(`📁 Written to: ${settingsPath}`);
+console.log(`   • enableDebugMode set to: ${template.public.enableDebugMode}`);
+console.log(`   • Preserved existing settings (oneSignal, vapid, clerk)`);
+console.log(`📁 Written to: ${outputPath}`);

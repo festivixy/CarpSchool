@@ -65,7 +65,14 @@ const renderApp = async () => {
 
   try {
     render(
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <ClerkProvider
+        publishableKey={PUBLISHABLE_KEY}
+        afterSignOutUrl="/"
+        signInUrl="/login"
+        signUpUrl="/signup"
+        afterSignInUrl="/my-rides"
+        afterSignUpUrl="/onboarding"
+      >
         <App />
       </ClerkProvider>,
       rootElement

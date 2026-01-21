@@ -4,6 +4,7 @@ import { Route, Redirect } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Profiles } from "../../api/profile/Profile";
+import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
 import LoadingPage from "../components/LoadingPage";
 import { MobileGenericSkeleton } from "../skeleton";
 import { MobileOnly, DesktopOnly } from "./Devices";
@@ -446,5 +447,117 @@ const ProtectedRoutes = withTracker(() => {
     userLoaded: user !== undefined, // Check if user data is loaded (null means not logged in, undefined means loading)
   };
 })(ProtectedRoutesComponent);
+
+/**
+ * Clerk-based route that requires authentication
+ * Uses Clerk's SignedIn/SignedOut components for conditional rendering
+ */
+export function ClerkAuthRoute({ children, ...rest }) {
+  const { isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return (
+      <RouteContainer>
+        <MobileOnly>
+          <MobileGenericSkeleton numberOfLines={35} showBackButton={true} lineVariations="default" />
+        </MobileOnly>
+        <DesktopOnly>
+          <LoadingPage message="Loading..." />
+        </DesktopOnly>
+      </RouteContainer>
+    );
+  }
+
+  return (
+    <Route
+      {...rest}
+      render={({ location }) => (
+        <>
+          <SignedIn>
+            {children}
+          </SignedIn>
+          <SignedOut>
+            <Redirect
+              to={{
+                pathname: "/login",
+                state: { from: location }
+              }}
+            />
+          </SignedOut>
+        </>
+      )}
+    />
+  );
+}
+
+/**
+ * Clerk-based route that requires the user to be signed out
+ * Uses Clerk's SignedIn/SignedOut components for conditional rendering
+ */
+export function ClerkGuestRoute({ children, redirectTo = "/my-rides", ...rest }) {
+  const { isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return (
+      <RouteContainer>
+        <MobileOnly>
+          <MobileGenericSkeleton numberOfLines={35} showBackButton={true} lineVariations="default" />
+        </MobileOnly>
+        <DesktopOnly>
+          <LoadingPage message="Loading..." />
+        </DesktopOnly>
+      </RouteContainer>
+    );
+  }
+
+  return (
+    <Route
+      {...rest}
+      render={() => (
+        <>
+          <SignedOut>
+            {children}
+          </SignedOut>
+          <SignedIn>
+            <Redirect to={redirectTo} />
+          </SignedIn>
+        </>
+      )}
+    />
+  );
+}
+
+/**
+ * Component for conditional rendering based on Clerk authentication
+ * Children of SignedIn can only be seen while signed in
+ * Children of SignedOut can only be seen while signed out
+ */
+export function ClerkConditionalContent({ children }) {
+  const { isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return (
+      <MobileOnly>
+        <MobileGenericSkeleton numberOfLines={3} showBackButton={false} lineVariations="default" />
+      </MobileOnly>
+    );
+  }
+
+  return children;
+}
+
+// Prop types for new components
+ClerkAuthRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+ClerkGuestRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+  redirectTo: PropTypes.string,
+};
+
+ClerkConditionalContent.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 export default ProtectedRoutes;

@@ -138,12 +138,12 @@ function MobileNavBarCSS({ currentUser, history }) {
       )}
 
       <JoinRideModal
-        isOpen={joinRideModalOpen}
+        open={joinRideModalOpen}
         onClose={() => setJoinRideModalOpen(false)}
       />
 
       <AddRidesModal
-        isOpen={addRidesModalOpen}
+        open={addRidesModalOpen}
         onClose={() => setAddRidesModalOpen(false)}
       />
     </NavBarContainer>
