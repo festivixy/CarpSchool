@@ -12,8 +12,9 @@ Accounts.emailTemplates.enrollAccount.subject = () => "Complete Your CarpSchool 
 
 // Beautiful HTML email template for verification
 Accounts.emailTemplates.verifyEmail.html = (user, url) => {
-  const firstName = user.profile?.firstName || "Student";
-
+  const firstName = user.profile?.firstName || "Student";  
+  // Remove "dev." prefix from URL if present to ensure clean verification links
+  const cleanUrl = url.replace(/https?:\/\/dev\./, 'https://');
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -168,7 +169,7 @@ Accounts.emailTemplates.verifyEmail.html = (user, url) => {
       </p>
 
       <div class="cta-container">
-        <a href="${url}" class="cta-button">✅ Verify My Email</a>
+        <a href="${cleanUrl}" class="cta-button">✅ Verify My Email</a>
       </div>
 
       <div class="help-section">
@@ -181,7 +182,7 @@ Accounts.emailTemplates.verifyEmail.html = (user, url) => {
 
       <p class="message">
         If the button doesn't work, you can copy and paste this link into your browser:<br>
-        <span style="word-break: break-all; color: #667eea;">${url}</span>
+        <span style="word-break: break-all; color: #667eea;">${cleanUrl}</span>
       </p>
 
       <p class="message">
@@ -214,6 +215,9 @@ Accounts.emailTemplates.verifyEmail.html = (user, url) => {
 // Beautiful HTML email template for password reset
 Accounts.emailTemplates.resetPassword.html = (user, url) => {
   const firstName = user.profile?.firstName || "Student";
+  
+  // Remove "dev." prefix from URL if present to ensure clean reset links
+  const cleanUrl = url.replace(/https?:\/\/dev\./, 'https://');
 
   return `
 <!DOCTYPE html>
@@ -337,7 +341,7 @@ Accounts.emailTemplates.resetPassword.html = (user, url) => {
       </p>
 
       <div class="cta-container">
-        <a href="${url}" class="cta-button">🔐 Reset My Password</a>
+        <a href="${cleanUrl}" class="cta-button">🔐 Reset My Password</a>
       </div>
 
       <div class="security-notice">
@@ -350,7 +354,7 @@ Accounts.emailTemplates.resetPassword.html = (user, url) => {
 
       <p class="message">
         If the button doesn't work, copy and paste this link into your browser:<br>
-        <span style="word-break: break-all; color: #ff6b6b;">${url}</span>
+        <span style="word-break: break-all; color: #ff6b6b;">${cleanUrl}</span>
       </p>
     </div>
 
@@ -371,6 +375,9 @@ Accounts.emailTemplates.resetPassword.html = (user, url) => {
 // Beautiful HTML email template for account enrollment
 Accounts.emailTemplates.enrollAccount.html = (user, url) => {
   const firstName = user.profile?.firstName || "Student";
+  
+  // Remove "dev." prefix from URL if present to ensure clean enrollment links
+  const cleanUrl = url.replace(/https?:\/\/dev\./, 'https://');
 
   return `
 <!DOCTYPE html>
@@ -500,7 +507,7 @@ Accounts.emailTemplates.enrollAccount.html = (user, url) => {
       </p>
 
       <div class="cta-container">
-        <a href="${url}" class="cta-button">🚀 Complete Setup</a>
+        <a href="${cleanUrl}" class="cta-button">🚀 Complete Setup</a>
       </div>
 
       <div class="features">
@@ -514,7 +521,7 @@ Accounts.emailTemplates.enrollAccount.html = (user, url) => {
 
       <p class="message">
         If the button doesn't work, copy and paste this link into your browser:<br>
-        <span style="word-break: break-all; color: #4ecdc4;">${url}</span>
+        <span style="word-break: break-all; color: #4ecdc4;">${cleanUrl}</span>
       </p>
     </div>
 

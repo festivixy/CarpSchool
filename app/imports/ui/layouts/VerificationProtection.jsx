@@ -65,8 +65,8 @@ const ProtectedRouteRequireVerificationComponent = ({
       return <Redirect to="/login" />;
     }
 
-    // If email not verified, redirect to verify email page
-    if (loggedIn && userLoaded && !emailVerified) {
+    // If email not verified, redirect to verify email page (unless it's an allowed route)
+    if (loggedIn && userLoaded && !emailVerified && !isAllowedRoute) {
       return <Redirect to="/verify-email" />;
     }
 

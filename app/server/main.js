@@ -1,5 +1,9 @@
 // Email configuration
 import { Meteor } from "meteor/meteor";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config({ path: '../.env' });
 
 // First run setup
 import "../imports/startup/server/FirstRun";
@@ -63,9 +67,20 @@ import "../imports/startup/server/NotificationIntegration";
 // Background Jobs
 import "../imports/startup/server/LocationCleanup";
 
-// Configure SMTP for iCloud+ custom domain
+// Configure SMTP for iCloud+ custom domain and ROOT_URL
 if (Meteor.isServer) {
   Meteor.startup(() => {
+    // ROOT_URL configuration - ensure clean URLs for email links
+    if (!process.env.ROOT_URL) {
+      // Set default production URL if not specified
+      process.env.ROOT_URL = 'https://carp.school';
+      console.log("🔗 ROOT_URL set to default: https://carp.school");
+    } else if (process.env.ROOT_URL.includes('dev.')) {
+      // Override dev URLs to production URLs for clean email links
+      process.env.ROOT_URL = process.env.ROOT_URL.replace(/https?:\/\/dev\./, 'https://');
+      console.log(`🔗 ROOT_URL cleaned from dev to: ${process.env.ROOT_URL}`);
+    }
+
     // Email configuration check
     if (!process.env.MAIL_URL) {
       console.warn("⚠️  MAIL_URL not set - email functionality will not work");
