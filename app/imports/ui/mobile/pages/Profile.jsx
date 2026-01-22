@@ -33,6 +33,48 @@ const Profile = ({ history, currentUser, isAdmin, userReady }) => {
     history.push("/signout");
   };
 
+  const handleDeleteAccount = () => {
+    // Show confirmation dialog
+    if (window.confirm(
+      "⚠️ Are you sure you want to delete your account?\n\n" +
+      "This action cannot be undone. All your data including:\n" +
+      "• Your profile\n" +
+      "• Your rides (as driver)\n" +
+      "• Your saved places\n" +
+      "• Your chat history\n\n" +
+      "will be permanently deleted.\n\n" +
+      "Type DELETE to confirm:"
+    )) {
+      const confirmation = prompt("Type DELETE (in uppercase) to confirm account deletion:");
+      
+      if (confirmation === "DELETE") {
+        // Show loading indicator
+        const deleteButton = document.getElementById("delete-account-btn");
+        if (deleteButton) {
+          deleteButton.disabled = true;
+          deleteButton.textContent = "Deleting...";
+        }
+
+        Meteor.call("accounts.deleteMyAccount", (error) => {
+          if (error) {
+            console.error("Failed to delete account:", error);
+            alert("Failed to delete account: " + error.reason);
+            if (deleteButton) {
+              deleteButton.disabled = false;
+              deleteButton.textContent = "🗑️ Delete Account";
+            }
+          } else {
+            alert("Your account has been successfully deleted. You will be signed out now.");
+            // User will be automatically logged out since account is deleted
+            history.push("/");
+          }
+        });
+      } else if (confirmation !== null) {
+        alert("Account deletion cancelled. You must type DELETE exactly to confirm.");
+      }
+    }
+  };
+
   // Show loading state while user data is being fetched
   if (!userReady) {
     return (
@@ -374,6 +416,35 @@ const Profile = ({ history, currentUser, isAdmin, userReady }) => {
           </button>
         </LegalSection>
 
+        {/* Account Management Section */}
+        <Section style={{ marginTop: "20px" }}>
+          <SectionTitle style={{ color: "#FF3B30" }}>
+            Account Management
+          </SectionTitle>
+
+          <button
+            id="delete-account-btn"
+            onClick={handleDeleteAccount}
+            style={{
+              width: "100%",
+              padding: "18px 20px",
+              backgroundColor: "transparent",
+              border: "none",
+              borderBottom: "1px solid #ffebee",
+              textAlign: "left",
+              fontSize: "16px",
+              color: "#FF3B30",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <MenuIcon>🗑️</MenuIcon>
+            Delete Account
+            <MenuArrow style={{ color: "#FF3B30" }}>›</MenuArrow>
+          </button>
+        </Section>
+
         {/* Sign Out */}
         <button
           onClick={handleSignOut}
@@ -391,6 +462,7 @@ const Profile = ({ history, currentUser, isAdmin, userReady }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            marginTop: "20px",
           }}
         >
           <LogoutIcon>🚪</LogoutIcon>

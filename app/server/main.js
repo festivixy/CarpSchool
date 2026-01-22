@@ -53,6 +53,7 @@ import "../imports/api/accounts/AdminMethods";
 import "../imports/api/accounts/ClerkMethods";
 import "../imports/api/accounts/RegistrationMethods";
 import "../imports/api/accounts/RegistrationRateLimits";
+import "../imports/api/accounts/DeleteAccountMethods";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers"; // Login validation and logout handlers

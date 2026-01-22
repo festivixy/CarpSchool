@@ -179,10 +179,121 @@ Meteor.methods({
       throw new Meteor.Error("not-logged-in", "Please login first");
     }
 
+    // Handle special cases
+    if (userId === "system" || userId === "System") {
+      return "System";
+    }
+    if (userId === "deleted_user") {
+      return "[deleted user]";
+    }
+
+    // Try to get profile name first
+    const { Profiles } = await import("../profile/Profile");
+    const profile = await Profiles.findOneAsync({ Owner: userId });
+    if (profile?.Name) {
+      return profile.Name;
+    }
+
+    // Fall back to user account
     const user = await Meteor.users.findOneAsync(userId, {
-      fields: { username: 1 },
+      fields: { username: 1, emails: 1 },
     });
 
-    return user?.username || null;
+    // If user doesn't exist, they were deleted
+    if (!user) {
+      return "[deleted user]";
+    }
+
+    // Return username if available
+    if (user.username) {
+      return user.username;
+    }
+
+    // Return email username as fallback
+    if (user.emails?.[0]?.address) {
+      return user.emails[0].address.split("@")[0];
+    }
+
+    return null;
+  },
+
+  /**
+   * Get display names for multiple users at once
+   * More efficient than calling users.getUsername multiple times
+   */
+  async "users.getDisplayNames"(userIds) {
+    check(userIds, [String]);
+
+    // Only logged-in users can fetch usernames
+    if (!Meteor.userId()) {
+      throw new Meteor.Error("not-logged-in", "Please login first");
+    }
+
+    // Limit to prevent abuse
+    if (userIds.length > 100) {
+      throw new Meteor.Error("too-many-users", "Maximum 100 users per request");
+    }
+
+    const result = {};
+    const { Profiles } = await import("../profile/Profile");
+
+    // Get all profiles for these users
+    const profiles = await Profiles.find({
+      Owner: { $in: userIds }
+    }).fetchAsync();
+
+    const profileMap = {};
+    profiles.forEach(profile => {
+      if (profile.Name) {
+        profileMap[profile.Owner] = profile.Name;
+      }
+    });
+
+    // Get all users
+    const users = await Meteor.users.find(
+      { _id: { $in: userIds } },
+      { fields: { username: 1, emails: 1 } }
+    ).fetchAsync();
+
+    const userMap = {};
+    users.forEach(user => {
+      userMap[user._id] = user;
+    });
+
+    // Build result
+    for (const userId of userIds) {
+      // Handle special cases
+      if (userId === "system" || userId === "System") {
+        result[userId] = "System";
+        continue;
+      }
+      if (userId === "deleted_user") {
+        result[userId] = "[deleted user]";
+        continue;
+      }
+
+      // Try profile name first
+      if (profileMap[userId]) {
+        result[userId] = profileMap[userId];
+        continue;
+      }
+
+      // Try user account
+      const user = userMap[userId];
+      if (!user) {
+        result[userId] = "[deleted user]";
+        continue;
+      }
+
+      if (user.username) {
+        result[userId] = user.username;
+      } else if (user.emails?.[0]?.address) {
+        result[userId] = user.emails[0].address.split("@")[0];
+      } else {
+        result[userId] = `User ${userId.substring(0, 6)}...`;
+      }
+    }
+
+    return result;
   },
 });

@@ -80,19 +80,20 @@ class PlaceManager extends React.Component {
     const { places } = this.props;
     const creatorIds = [...new Set(places.map(place => place.createdBy).filter(Boolean))];
 
-    creatorIds.forEach(creatorId => {
-      if (!this.state.creatorNames[creatorId]) {
-        // Call method to get username
-        Meteor.call("users.getUsername", creatorId, (error, username) => {
-          if (!error && username) {
-            this.setState(prevState => ({
-              creatorNames: {
-                ...prevState.creatorNames,
-                [creatorId]: username,
-              },
-            }));
-          }
-        });
+    // Filter out IDs we already have
+    const idsToFetch = creatorIds.filter(id => !this.state.creatorNames[id]);
+
+    if (idsToFetch.length === 0) return;
+
+    // Use bulk method for better performance
+    Meteor.call("users.getDisplayNames", idsToFetch, (error, displayNames) => {
+      if (!error && displayNames) {
+        this.setState(prevState => ({
+          creatorNames: {
+            ...prevState.creatorNames,
+            ...displayNames,
+          },
+        }));
       }
     });
   };

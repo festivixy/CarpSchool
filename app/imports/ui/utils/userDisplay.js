@@ -16,12 +16,15 @@ import { Profiles } from "../../api/profile/Profile";
  * @returns {string} Display name for the user
  */
 export function getUserDisplayName(userId, options = {}) {
-  const { showEmail = true, shortId = true } = options;
+  const { showEmail = false, shortId = true } = options;
 
   if (!userId) return "Unknown";
 
   // Check if it's a system user
-  if (userId === "System") return "System";
+  if (userId === "System" || userId === "system") return "System";
+
+  // Check if it's a deleted user
+  if (userId === "deleted_user") return "[deleted user]";
 
   // Try to get the profile
   const profile = Profiles.findOne({ Owner: userId });
@@ -29,17 +32,23 @@ export function getUserDisplayName(userId, options = {}) {
     return profile.Name;
   }
 
-  // Try to get the user's email
-  if (showEmail) {
-    const user = Meteor.users.findOne(userId);
-    if (user?.emails?.[0]?.address) {
-      // Return just the username part of email
-      const email = user.emails[0].address;
-      return email.split("@")[0];
-    }
-    if (user?.username) {
-      return user.username;
-    }
+  // Try to get the user account
+  const user = Meteor.users.findOne(userId);
+  
+  // If user doesn't exist, they were deleted
+  if (!user) {
+    return "[deleted user]";
+  }
+
+  // Try to show email username if allowed
+  if (showEmail && user.emails?.[0]?.address) {
+    // Return just the username part of email
+    const email = user.emails[0].address;
+    return email.split("@")[0];
+  }
+  
+  if (user.username) {
+    return user.username;
   }
 
   // Fallback to shortened ID
