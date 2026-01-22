@@ -35,16 +35,22 @@ export const isLoggedIn = () => {
  */
 export const hasRole = (role) => {
   const user = Meteor.user();
-  return user?.roles?.includes(role) || false;
+  if (!user?.roles || !Array.isArray(user.roles)) return false;
+  return user.roles.includes(role);
 };
 
 /**
- * Check if user is an admin
+ * Check if user is an admin (any admin role: system or school-specific)
  */
 export const isAdmin = () => {
   const user = Meteor.user();
-  return user?.roles?.includes("admin") ||
-    user?.roles?.some(r => r.startsWith("admin."));
+  if (!user?.roles || !Array.isArray(user.roles)) return false;
+  
+  // Check for system role
+  if (user.roles.includes("system")) return true;
+  
+  // Check for any school admin role
+  return user.roles.some(r => r.startsWith("admin."));
 };
 
 /**
@@ -52,7 +58,21 @@ export const isAdmin = () => {
  */
 export const isSystemAdmin = () => {
   const user = Meteor.user();
-  return user?.roles?.includes("system");
+  if (!user?.roles || !Array.isArray(user.roles)) return false;
+  return user.roles.includes("system");
+};
+
+/**
+ * Check if user is a school admin
+ */
+export const isSchoolAdmin = (schoolId = null) => {
+  const user = Meteor.user();
+  if (!user?.roles || !Array.isArray(user.roles)) return false;
+  
+  const targetSchoolId = schoolId || user.schoolId;
+  if (!targetSchoolId) return false;
+  
+  return user.roles.includes(`admin.${targetSchoolId}`);
 };
 
 /**

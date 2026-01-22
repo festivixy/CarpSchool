@@ -2,7 +2,6 @@ import React from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { withTracker } from "meteor/react-meteor-data";
 import { Profiles } from "../../api/profile/Profile";
-import { getImageUrl } from "../utils/imageUtils";
 
 /**
  * HOC for components that need Meteor user data

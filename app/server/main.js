@@ -67,6 +67,11 @@ import "../imports/startup/server/NotificationIntegration";
 // Background Jobs
 import "../imports/startup/server/LocationCleanup";
 
+// Migrations
+import "./migrations/addSchoolSupport";
+import "./migrations/migrateToSchoolAdminRoles";
+import "./migrations/initializeClerkUserRoles";
+
 // Configure SMTP for iCloud+ custom domain and ROOT_URL
 if (Meteor.isServer) {
   Meteor.startup(() => {

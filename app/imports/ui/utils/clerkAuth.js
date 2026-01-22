@@ -103,7 +103,45 @@ export function useClerkUser() {
  */
 export function useHasRole(role) {
   const { meteorUser } = useClerkUser();
-  return meteorUser?.roles?.includes(role) || false;
+  if (!meteorUser?.roles) return false;
+  return meteorUser.roles.includes(role);
+}
+
+/**
+ * Hook to check if user is system admin
+ */
+export function useIsSystemAdmin() {
+  const { meteorUser } = useClerkUser();
+  if (!meteorUser?.roles) return false;
+  return meteorUser.roles.includes("system");
+}
+
+/**
+ * Hook to check if user has any admin role (system or school-specific)
+ */
+export function useIsAdmin() {
+  const { meteorUser } = useClerkUser();
+  if (!meteorUser?.roles) return false;
+  
+  // Check for system role
+  if (meteorUser.roles.includes("system")) return true;
+  
+  // Check for any school admin role
+  return meteorUser.roles.some(role => role.startsWith("admin."));
+}
+
+/**
+ * Hook to check if user is admin of a specific school
+ */
+export function useIsSchoolAdmin(schoolId = null) {
+  const { meteorUser } = useClerkUser();
+  if (!meteorUser?.roles) return false;
+  
+  // If no schoolId provided, check if user is admin of their own school
+  const targetSchoolId = schoolId || meteorUser.schoolId;
+  if (!targetSchoolId) return false;
+  
+  return meteorUser.roles.includes(`admin.${targetSchoolId}`);
 }
 
 /**

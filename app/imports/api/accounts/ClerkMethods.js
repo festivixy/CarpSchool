@@ -34,9 +34,12 @@ Meteor.methods({
         clerkUserId,
         name: "",
       },
+      roles: [], // Initialize empty roles array for role system compatibility
     });
 
-    return await Meteor.users.findOneAsync(userId);
+    const newUser = await Meteor.users.findOneAsync(userId);
+    console.log(`✅ Created Meteor user for Clerk ID ${clerkUserId}:`, userId);
+    return newUser;
   },
 
   /**
@@ -114,6 +117,11 @@ Meteor.methods({
       updateData["profile.imageUrl"] = clerkData.imageUrl;
     }
 
+    // Sync roles from Clerk metadata if provided
+    if (clerkData.publicMetadata?.roles) {
+      updateData.roles = clerkData.publicMetadata.roles;
+    }
+
     if (Object.keys(updateData).length > 0) {
       Meteor.users.update(this.userId, {
         $set: updateData
@@ -121,5 +129,54 @@ Meteor.methods({
     }
 
     return { success: true };
+  },
+
+  /**
+   * Initialize roles for existing Clerk users that don't have roles array
+   * This is for migration purposes
+   */
+  "clerk.initializeRoles": async function() {
+    if (!this.userId) {
+      throw new Meteor.Error("auth-required", "Authentication required");
+    }
+
+    const user = await Meteor.users.findOneAsync(this.userId);
+    if (!user) {
+      throw new Meteor.Error("user-not-found", "User not found");
+    }
+
+    // Only initialize if roles array doesn't exist
+    if (!user.roles) {
+      await Meteor.users.updateAsync(this.userId, {
+        $set: { roles: [] }
+      });
+      console.log(`✅ Initialized roles array for Clerk user: ${this.userId}`);
+    }
+
+    return { success: true, hadRoles: !!user.roles };
+  },
+
+  /**
+   * Get user's current roles (for Clerk users to check their permissions)
+   */
+  "clerk.getUserRoles": async function() {
+    if (!this.userId) {
+      throw new Meteor.Error("auth-required", "Authentication required");
+    }
+
+    const user = await Meteor.users.findOneAsync(
+      this.userId,
+      { fields: { roles: 1, schoolId: 1, "profile.clerkUserId": 1 } }
+    );
+
+    if (!user) {
+      throw new Meteor.Error("user-not-found", "User not found");
+    }
+
+    return {
+      roles: user.roles || [],
+      schoolId: user.schoolId || null,
+      isClerkUser: !!user.profile?.clerkUserId,
+    };
   },
 });

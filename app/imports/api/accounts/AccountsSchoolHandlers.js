@@ -12,7 +12,7 @@ Accounts.onCreateUser(async (options, user) => {
   // If this is a Clerk user, let it pass through
   // Clerk user creation is handled in ClerkMethods.js
   if (user.profile?.clerkUserId) {
-    return {
+    const clerkUser = {
       ...user,
       profile: {
         firstName: options.profile?.firstName || "",
@@ -20,8 +20,15 @@ Accounts.onCreateUser(async (options, user) => {
         ...options.profile,
         clerkUserId: user.profile.clerkUserId,
       },
-      roles: options.roles || [],
+      roles: options.roles || [], // Ensure roles array exists
     };
+
+    // If schoolId provided, add it
+    if (options.schoolId) {
+      clerkUser.schoolId = options.schoolId;
+    }
+
+    return clerkUser;
   }
 
   // For non-Clerk users (API users, admin accounts, etc.)
