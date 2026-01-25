@@ -6,8 +6,10 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import swal from "sweetalert";
 import { isAdminRole } from "../desktop/components/NavBarRoleUtils";
+import { canDrive, canRide } from "../../api/profile/RoleUtils";
 import { Places } from "../../api/places/Places";
 import { RideSessions } from "../../api/rideSession/RideSession";
+import { Profiles } from "../../api/profile/Profile";
 import { formatUserList, getUserDisplayName } from "../utils/userDisplay";
 import RouteMapView from "./RouteMapView";
 import { getCurrentLocation, watchLocation, clearLocationWatch } from "../utils/geolocation";
@@ -301,6 +303,13 @@ class Ride extends React.Component {
 
   canShareRide = () => {
     const { riders, seats, rider } = this.props.ride;
+    const { userProfile } = this.props;
+    
+    // Check if user has driver permissions
+    if (!canDrive(userProfile)) {
+      return false;
+    }
+    
     // Handle new schema
     if (riders !== undefined && seats !== undefined) {
       return this.isCurrentUserDriver() && riders.length < seats;
@@ -311,7 +320,14 @@ class Ride extends React.Component {
 
   canJoinRide = () => {
     const { riders, seats, rider } = this.props.ride;
+    const { userProfile } = this.props;
     const currentUser = Meteor.user();
+    
+    // Check if user has rider permissions
+    if (!canRide(userProfile)) {
+      return false;
+    }
+    
     // Handle new schema
     if (riders !== undefined && seats !== undefined) {
       return (
@@ -1400,12 +1416,15 @@ Ride.propTypes = {
   users: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
   history: PropTypes.object.isRequired,
+  userProfile: PropTypes.object,
 };
 
 export default withRouter(
   withTracker((props) => {
+    const currentUser = Meteor.user();
     Meteor.subscribe("places.options");
     const rideSessionsSubscription = Meteor.subscribe("rideSessions");
+    const profileSubscription = Meteor.subscribe("Profiles");
     const rideSessions = RideSessions.find({}).fetch();
 
     // Get all user IDs from ride sessions for username resolution
@@ -1432,7 +1451,8 @@ export default withRouter(
       places: Places.find({}).fetch(), // Places are already filtered by publication
       rideSessions,
       users: Meteor.users.find({ _id: { $in: uniqueUserIds } }).fetch(), // Only subscribed users
-      ready: rideSessionsSubscription.ready() && usersSubscription.ready(),
+      ready: rideSessionsSubscription.ready() && usersSubscription.ready() && profileSubscription.ready(),
+      userProfile: currentUser ? Profiles.findOne({ Owner: currentUser._id }) : null,
     };
   })(Ride),
 );

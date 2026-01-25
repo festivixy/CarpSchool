@@ -9,9 +9,10 @@
  * Validates if a user can join a specific ride
  * @param {Object} ride - The ride document
  * @param {Object} user - The user attempting to join
+ * @param {Object} userProfile - The user's profile with role information
  * @returns {Object} - { isValid: boolean, error: string|null }
  */
-export const validateUserCanJoinRide = (ride, user) => {
+export const validateUserCanJoinRide = (ride, user, userProfile = null) => {
   // Check if ride exists
   if (!ride) {
     return { isValid: false, error: "Ride not found" };
@@ -20,6 +21,14 @@ export const validateUserCanJoinRide = (ride, user) => {
   // Check if user is logged in
   if (!user) {
     return { isValid: false, error: "You must be logged in to join a ride" };
+  }
+
+  // Check if user has rider permissions (Rider or Both role)
+  if (userProfile && userProfile.UserType === "Driver") {
+    return {
+      isValid: false,
+      error: "You are registered as a Driver only. Please update your profile to 'Both' if you also want to join rides as a rider.",
+    };
   }
 
   // Check if ride is full
@@ -87,6 +96,28 @@ export const validateUserCanRemoveRider = async (ride, currentUser, riderToRemov
     return {
       isValid: false,
       error: "You can only remove riders from your own rides",
+    };
+  }
+
+  return { isValid: true, error: null };
+};
+
+/**
+ * Validates if a user can create a ride (driver permission check)
+ * @param {Object} userProfile - The user's profile with role information
+ * @returns {Object} - { isValid: boolean, error: string|null }
+ */
+export const validateUserCanCreateRide = (userProfile) => {
+  // Check if profile exists
+  if (!userProfile) {
+    return { isValid: false, error: "Profile not found. Please complete your profile first." };
+  }
+
+  // Check if user has driver permissions (Driver or Both role)
+  if (userProfile.UserType === "Rider") {
+    return {
+      isValid: false,
+      error: "You are registered as a Rider only. Please update your profile to 'Both' if you also want to offer rides as a driver.",
     };
   }
 

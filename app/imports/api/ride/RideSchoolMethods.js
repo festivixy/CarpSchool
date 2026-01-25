@@ -80,6 +80,19 @@ Meteor.methods({
       throw new Meteor.Error("school-mismatch", "You can only join rides from your school");
     }
 
+    // Get user and profile for role validation
+    const user = await Meteor.users.findOneAsync(userId);
+    const { Profiles } = await import("../profile/Profile");
+    const userProfile = await Profiles.findOneAsync({ Owner: userId });
+
+    // Check role permissions
+    if (userProfile && userProfile.UserType === "Driver") {
+      throw new Meteor.Error(
+        "role-error",
+        "You are registered as a Driver only. Please update your profile to 'Both' if you also want to join rides as a rider."
+      );
+    }
+
     // Check if ride has available seats
     if (ride.riders.length >= ride.seats) {
       throw new Meteor.Error("ride-full", "This ride is already full");

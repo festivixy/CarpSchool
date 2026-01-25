@@ -51,7 +51,7 @@ const ProfileSchema = Joi.object({
     allowEmpty: true,
     label: "Additional Information",
   }),
-  UserType: Joi.string().valid("Driver", "Rider").default("Driver"),
+  UserType: Joi.string().valid("Driver", "Rider", "Both").default("Driver"),
   major: createSafeStringSchema({
     pattern: "generalText",
     min: 0,

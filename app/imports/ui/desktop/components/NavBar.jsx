@@ -3,6 +3,9 @@ import PropTypes from "prop-types";
 import { withRouter, Link } from "react-router-dom";
 import { useAuth, useUserButton } from "@clerk/clerk-react";
 import { withTracker } from "meteor/react-meteor-data";
+import { Meteor } from "meteor/meteor";
+import { Profiles } from "../../../api/profile/Profile";
+import { canDrive, canRide } from "../../../api/profile/RoleUtils";
 import JoinRideModal from "../../components/JoinRideModal";
 import AddRidesModal from "../../components/AddRides";
 import {
@@ -30,7 +33,7 @@ import {
 /**
  * Desktop NavBar using Clerk for authentication
  */
-function NavBar({ currentUser }) {
+function NavBar({ currentUser, userProfile }) {
   const { isSignedIn, signOut, userId } = useAuth();
   const [joinRideModalOpen, setJoinRideModalOpen] = React.useState(false);
   const [addRidesModalOpen, setAddRidesModalOpen] = React.useState(false);
@@ -38,6 +41,10 @@ function NavBar({ currentUser }) {
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
   const [adminMenuOpen, setAdminMenuOpen] = React.useState(false);
   const [systemMenuOpen, setSystemMenuOpen] = React.useState(false);
+
+  // Check user role permissions
+  const hasDriverPermission = canDrive(userProfile);
+  const hasRiderPermission = canRide(userProfile);
 
   const handleJoinRideClick = () => {
     setJoinRideModalOpen(true);
@@ -215,12 +222,16 @@ function NavBar({ currentUser }) {
                 <MobileItem as={Link} to="/places" onClick={toggleMobileMenu}>
                   Places
                 </MobileItem>
-                <MobileButton onClick={() => { handleJoinRideClick(); toggleMobileMenu(); }}>
-                  Join a Ride
-                </MobileButton>
-                <MobileButton onClick={() => { handleAddRidesClick(); toggleMobileMenu(); }}>
-                  Offer a Ride
-                </MobileButton>
+                {hasRiderPermission && (
+                  <MobileButton onClick={() => { handleJoinRideClick(); toggleMobileMenu(); }}>
+                    Join a Ride
+                  </MobileButton>
+                )}
+                {hasDriverPermission && (
+                  <MobileButton onClick={() => { handleAddRidesClick(); toggleMobileMenu(); }}>
+                    Offer a Ride
+                  </MobileButton>
+                )}
               </MobileSection>
 
               <MobileSection>
@@ -288,10 +299,17 @@ function NavBar({ currentUser }) {
 
 NavBar.propTypes = {
   currentUser: PropTypes.object,
+  userProfile: PropTypes.object,
 };
 
-const NavBarTracked = withTracker(() => ({
-  currentUser: Meteor.user(),
-}))(NavBar);
+const NavBarTracked = withTracker(() => {
+  const currentUser = Meteor.user();
+  const profileSubscription = Meteor.subscribe("Profiles");
+  
+  return {
+    currentUser,
+    userProfile: currentUser ? Profiles.findOne({ Owner: currentUser._id }) : null,
+  };
+})(NavBar);
 
 export default withRouter(NavBarTracked);

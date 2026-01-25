@@ -51,8 +51,8 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized", "You must be logged in to change your role.");
     }
 
-    if (!["Driver", "Rider"].includes(newRole)) {
-      throw new Meteor.Error("invalid-role", "Role must be either 'Driver' or 'Rider'.");
+    if (!["Driver", "Rider", "Both"].includes(newRole)) {
+      throw new Meteor.Error("invalid-role", "Role must be either 'Driver', 'Rider', or 'Both'.");
     }
 
     const userId = this.userId;

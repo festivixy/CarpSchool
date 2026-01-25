@@ -297,15 +297,22 @@ const StudentRegistration = ({ location }) => {
                         selected={formData.userType === "Driver"}
                         onClick={() => setFormData({ ...formData, userType: "Driver" })}
                     >
-                        <UserTypeTitle>Driver</UserTypeTitle>
+                        <UserTypeTitle>Driver Only</UserTypeTitle>
                         <UserTypeDesc>I can offer rides</UserTypeDesc>
                     </UserTypeOption>
                     <UserTypeOption 
                         selected={formData.userType === "Rider"}
                         onClick={() => setFormData({ ...formData, userType: "Rider" })}
                     >
-                        <UserTypeTitle>Rider</UserTypeTitle>
+                        <UserTypeTitle>Rider Only</UserTypeTitle>
                         <UserTypeDesc>I need rides</UserTypeDesc>
+                    </UserTypeOption>
+                    <UserTypeOption 
+                        selected={formData.userType === "Both"}
+                        onClick={() => setFormData({ ...formData, userType: "Both" })}
+                    >
+                        <UserTypeTitle>Both</UserTypeTitle>
+                        <UserTypeDesc>I drive and need rides</UserTypeDesc>
                     </UserTypeOption>
                  </UserTypeOptions>
 

@@ -407,15 +407,19 @@ function MobileOnboarding({ profileData, loading }) {
   const renderStep3 = () => (
     <Step>
       <StepTitle>How do you ride share?</StepTitle>
-      <StepSubtitle>Tell us if you drive or need rides.</StepSubtitle>
+      <StepSubtitle>Tell us if you drive, ride, or both.</StepSubtitle>
       <UserTypeOptions>
         <UserTypeOption selected={userType === "Driver"} onClick={() => setUserType("Driver")}>
-          <UserTypeTitle>Driver</UserTypeTitle>
+          <UserTypeTitle>Driver Only</UserTypeTitle>
           <UserTypeDesc>I drive and offer rides</UserTypeDesc>
         </UserTypeOption>
         <UserTypeOption selected={userType === "Rider"} onClick={() => setUserType("Rider")}>
-          <UserTypeTitle>Rider</UserTypeTitle>
+          <UserTypeTitle>Rider Only</UserTypeTitle>
           <UserTypeDesc>I need rides from others</UserTypeDesc>
+        </UserTypeOption>
+        <UserTypeOption selected={userType === "Both"} onClick={() => setUserType("Both")}>
+          <UserTypeTitle>Both</UserTypeTitle>
+          <UserTypeDesc>I drive and also need rides</UserTypeDesc>
         </UserTypeOption>
       </UserTypeOptions>
       <ContactSection>

@@ -1,7 +1,8 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { Rides, RidesSchema } from "./Rides";
-import { validateUserCanJoinRide, validateUserCanRemoveRider } from "./RideValidation";
+import { validateUserCanJoinRide, validateUserCanRemoveRider, validateUserCanCreateRide } from "./RideValidation";
+import { Profiles } from "../profile/Profile";
 
 Meteor.methods({
   async "rides.remove"(rideId) {
@@ -40,6 +41,13 @@ Meteor.methods({
     // Ensure the driver is the current user
     if (rideData.driver !== this.userId) {
       throw new Meteor.Error("access-denied", "You cannot create a ride for someone else.");
+    }
+
+    // Check if user has driver permissions
+    const userProfile = await Profiles.findOneAsync({ Owner: this.userId });
+    const roleValidation = validateUserCanCreateRide(userProfile);
+    if (!roleValidation.isValid) {
+      throw new Meteor.Error("role-error", roleValidation.error);
     }
 
     // Validate data using schema via simple check or reusing schema logic if needed
@@ -222,8 +230,11 @@ Meteor.methods({
       throw new Meteor.Error("invalid-code", "Invalid share code");
     }
 
-    // Use centralized validation
-    const validation = validateUserCanJoinRide(ride, user);
+    // Get user profile for role validation
+    const userProfile = await Profiles.findOneAsync({ Owner: user._id });
+
+    // Use centralized validation with profile
+    const validation = validateUserCanJoinRide(ride, user, userProfile);
 
     if (!validation.isValid) {
       throw new Meteor.Error("validation-error", validation.error);
@@ -249,9 +260,12 @@ Meteor.methods({
 
     const user = await Meteor.userAsync();
     const ride = await Rides.findOneAsync(rideId);
+    
+    // Get user profile for role validation
+    const userProfile = await Profiles.findOneAsync({ Owner: user._id });
 
-    // Use centralized validation
-    const validation = validateUserCanJoinRide(ride, user);
+    // Use centralized validation with profile
+    const validation = validateUserCanJoinRide(ride, user, userProfile);
 
     if (!validation.isValid) {
       throw new Meteor.Error("validation-error", validation.error);

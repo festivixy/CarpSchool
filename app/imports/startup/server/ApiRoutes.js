@@ -4,7 +4,8 @@ import { Random } from "meteor/random";
 import { Accounts } from "meteor/accounts-base";
 import { ApiKeys } from "../../api/api-keys/ApiKeys";
 import { Rides } from "../../api/ride/Rides";
-import { validateUserCanJoinRide } from "../../api/ride/RideValidation";
+import { validateUserCanJoinRide, validateUserCanCreateRide } from "../../api/ride/RideValidation";
+import { Profiles } from "../../api/profile/Profile";
 import { validateInput, checkRateLimit, schemas } from "./ApiValidation";
 import { triggerWebhook, WEBHOOK_EVENTS } from "./AuthWebhooks";
 
@@ -811,6 +812,15 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
       const validatedData = validateInput(req.body, schemas.rideCreate);
       const { origin, destination, date, seats, notes } = validatedData;
 
+      // Get user profile for role validation
+      const userProfile = await Profiles.findOneAsync({ Owner: user._id });
+
+      // Check if user has driver permissions
+      const roleValidation = validateUserCanCreateRide(userProfile);
+      if (!roleValidation.isValid) {
+        return sendError(res, 403, roleValidation.error);
+      }
+
       const rideId = await Rides.insertAsync({
         driver: user._id,
         riders: [],
@@ -944,10 +954,13 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
         return sendError(res, 404, "Ride not found");
       }
 
-      // Validate user can join ride
-      const canJoin = await validateUserCanJoinRide(user._id, rideId);
-      if (!canJoin.success) {
-        return sendError(res, 400, canJoin.reason);
+      // Get user profile for role validation
+      const userProfile = await Profiles.findOneAsync({ Owner: user._id });
+
+      // Validate user can join ride (with profile for role check)
+      const canJoin = validateUserCanJoinRide(ride, user, userProfile);
+      if (!canJoin.isValid) {
+        return sendError(res, 400, canJoin.error);
       }
 
       await Rides.updateAsync(rideId, {
