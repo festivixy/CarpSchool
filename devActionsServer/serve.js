@@ -44,16 +44,14 @@ app.post('/webhook', express.json({ type: 'application/json' }), async (request,
                     console.log(stdout);
                     console.log(stderr);
                     console.log('checking and removing old bundle if exists');
-                    stdout, stderr = await exec(`cd ../build && rm -f app.tar.gz.old`);
-                    console.log(stdout);
-                    console.log(stderr);
                     try {
+                        stdout, stderr = await exec(`cd ../build && rm -f app.tar.gz.old`);
+                        console.log(stdout);
+                        console.log(stderr);
                         stdout, stderr = await exec(`cd ../build && mv app.tar.gz app.tar.gz.old`);
                         console.log(stdout);
                         console.log(stderr);
-                    } catch (error) {
-                        console.error(`Error renaming old bundle: ${error}`);
-                    }
+                    } catch {}
                     console.log('downloading new bundle');
                     stdout, stderr = await exec(`cd ../build && gh run download --name "meteor-bundle" --pattern "*"`);
                     console.log(stdout);
