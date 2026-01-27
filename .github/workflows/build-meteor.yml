@@ -33,7 +33,9 @@ jobs:
           cd app
           meteor npx update-browserslist-db@latest
       - name: Display Config Files
-        run: cat ./config/setting.json
+        run: |
+          cd app
+          cat ../config/setting.json
 
       - name: Build Meteor app for server
         run: |
