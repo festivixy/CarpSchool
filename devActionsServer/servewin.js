@@ -36,7 +36,7 @@ app.post('/webhook', express.json({ type: 'application/json' }), async (request,
                 if (workflow_run_conclusion === 'success') {
                     let stdout, stderr;
                     console.log('making sure build directory exists');
-                    stdout, stderr = await exec('if not exist ..\build mkdir ..\build');
+                    stdout, stderr = await exec('if not exist "..\\build" mkdir "..\\build"');
                     console.log(stdout);
                     console.log(stderr);
                     console.log('running docker compose down');
@@ -45,15 +45,19 @@ app.post('/webhook', express.json({ type: 'application/json' }), async (request,
                     console.log(stderr);
                     console.log('checking and removing old bundle if exists');
                     try {
-                        stdout, stderr = await exec(`cd ..\build && if exist app.tar.gz.old del /F app.tar.gz.old`);
+                        stdout, stderr = await exec(`cd ..\\build && if exist app.tar.gz.old del /F app.tar.gz.old`);
                         console.log(stdout);
                         console.log(stderr);
-                        stdout, stderr = await exec(`cd ..\build && if exist app.tar.gz move app.tar.gz app.tar.gz.old`);
+                        stdout, stderr = await exec(`cd ..\\build && if exist app.tar.gz move app.tar.gz app.tar.gz.old`);
                         console.log(stdout);
                         console.log(stderr);
                     } catch {}
                     console.log('downloading new bundle');
-                    stdout, stderr = await exec(`cd ..\build && gh run download --name "meteor-bundle" --pattern "*"`);
+                    stdout, stderr = await exec(`cd ..\\build && gh run download --name "meteor-bundle" --pattern "*"`);
+                    console.log(stdout);
+                    console.log(stderr);
+                    console.log('Moving to deployment directory and starting services');
+                    stdout, stderr = await exec(`cd ..\\build && move meteor-bundle\\app.tar.gz app.tar.gz`);
                     console.log(stdout);
                     console.log(stderr);
                     console.log('running docker compose up -d --build');
