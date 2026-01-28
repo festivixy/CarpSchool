@@ -39,7 +39,7 @@ jobs:
         run: |
           cd app
           # Use --architecture os.linux.x86_64 for a standard Linux server deployment
-          meteor build ../build --architecture os.linux.x86_64 --server-only --verbose --mobile-settings "../config/setting.json"
+          meteor build ../build --architecture os.linux.x86_64 --server-only --verbose --mobile-settings "../config/settings.json"
       
       - name: Check build dir
         run: |
