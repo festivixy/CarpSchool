@@ -28,6 +28,8 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
     volumes:
       - ./build/app.tar.gz:/bundle/bundle.tar.gz
+      - ./config/settings.json:/settings.json:ro
+      - ./start.sh.internal:/home/app/scripts/start.sh:ro
     depends_on:
       mongo:
         condition: service_healthy

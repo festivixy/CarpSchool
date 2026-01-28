@@ -32,11 +32,14 @@ jobs:
         run: |
           cd app
           meteor npx update-browserslist-db@latest
+      - name: Display Config Files
+        run: cat config/settings.json
+
       - name: Build Meteor app for server
         run: |
           cd app
           # Use --architecture os.linux.x86_64 for a standard Linux server deployment
-          meteor build ../build --architecture os.linux.x86_64 --server-only --verbose --mobile-settings "../config/setting.json"
+          meteor build ../build --architecture os.linux.x86_64 --server-only
       
       - name: Check build dir
         run: |
