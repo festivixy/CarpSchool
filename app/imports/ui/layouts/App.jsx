@@ -67,6 +67,7 @@ import NotificationTest from "../test/pages/NotificationTest";
 import MobilePushTest from "../test/pages/MobilePushTest";
 import AutoSubscribeNotification from "../components/AutoSubscribeNotification";
 import PWAInstallPrompt from "../mobile/components/PWAInstallPrompt";
+import ScrollToTop from "../components/ScrollToTop";
 import { useClerkUser } from "../utils/clerkAuth";
 const MapComponentsTest = React.lazy(() => import("/imports/ui/test/pages/MapComponentsTest.jsx"));
 
@@ -172,6 +173,7 @@ class AppLayout extends React.Component {
       <Router>
         <ErrorBoundary>
           <AppContainer>
+            <ScrollToTop />
             <AutoSubscribeNotification />
             <PWAInstallPrompt />
             <DesktopOnly>
