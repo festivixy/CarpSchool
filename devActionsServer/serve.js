@@ -56,7 +56,7 @@ app.post('/webhook', express.json({ type: 'application/json' }), async (request,
                     stdout, stderr = await exec(`cd ../build && gh run download --name "meteor-bundle" --pattern "*"`);
                     console.log(stdout);
                     console.log(stderr);
-                    console.log('running docker compose up -d --build');
+                    console.log('running docker compose up -d');
                     stdout, stderr = await exec('cd .. && docker compose up -d');
                     console.log(stdout);
                     console.log(stderr);

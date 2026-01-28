@@ -60,7 +60,7 @@ app.post('/webhook', express.json({ type: 'application/json' }), async (request,
                     stdout, stderr = await exec(`cd ..\\build && move meteor-bundle\\app.tar.gz app.tar.gz`);
                     console.log(stdout);
                     console.log(stderr);
-                    console.log('running docker compose up -d --build');
+                    console.log('running docker compose up -d');
                     stdout, stderr = await exec('cd .. && docker compose up -d');
                     console.log(stdout);
                     console.log(stderr);
