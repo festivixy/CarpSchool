@@ -1,3 +1,60 @@
+/* ─────────────────────────────────────────────────────────────
+ * Design tokens — "paper × ink × signal-yellow"
+ * Ported from the web design handoff. --coral was renamed to
+ * --signal-yellow: the value is highlighter yellow (#ffd400),
+ * the old name was historical.
+ * ───────────────────────────────────────────────────────────── */
+:root {
+  /* Paper surfaces */
+  --cream-0: #f6f5f0;
+  --cream-1: #ecebe4;
+  --cream-2: #dfddd3;
+  --cream-3: #c9c6b8;
+
+  /* Ink */
+  --ink-1: #0c0c0a;
+  --ink-2: #2a2926;
+  --ink-3: #5a5750;
+  --ink-4: #8a877d;
+
+  /* Signal yellow (the "marker") */
+  --signal-yellow: #ffd400;
+  --signal-yellow-deep: #e0a800;
+  --signal-yellow-soft: #fff3a8;
+
+  /* Secondary accents */
+  --sky: #2547d8;
+  --leaf: #1f8a5b;
+  --plum: #b03a6e;
+  --amber: #ff8a00;
+
+  /* Map / route */
+  --map-bg: #ecebe4;
+  --map-land: #f0efe8;
+  --map-park: #d9e3c9;
+  --map-water: #c9dbf0;
+  --map-road: #ffffff;
+  --map-stroke: #d8d4c5;
+
+  /* Glass */
+  --glass-tint: rgba(246, 245, 240, 0.62);
+  --glass-tint-strong: rgba(246, 245, 240, 0.82);
+  --glass-stroke: rgba(12, 12, 10, 0.1);
+  --glass-shadow: 0 10px 40px -10px rgba(12, 12, 10, 0.16), 0 2px 8px -2px rgba(12, 12, 10, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  /* Radii */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-pill: 999px;
+
+  /* Type */
+  --font-display: "Geist", -apple-system, system-ui, sans-serif;
+  --font-ui: "Geist", -apple-system, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+}
+
 html,
 body {
   height: 100%;
@@ -31,4 +88,29 @@ body.ios {
 .cordova {
   /* Prevent bounce scrolling on iOS */
   -webkit-overflow-scrolling: touch;
+}
+
+/* ── Shared animation utilities (opt-in via class) ─────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.fade-in { animation: fadeIn 0.35s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+
+@keyframes routeDash {
+  to { stroke-dashoffset: -32; }
+}
+.route-dash { stroke-dasharray: 16 8; animation: routeDash 1.6s linear infinite; }
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.6); opacity: 0; }
+}
+.pulse::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s ease-out infinite;
 }
