@@ -1,198 +1,142 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { eyebrow, inputBase } from "../../styles/tokens";
 
-export const Container = styled.div`
-  padding: 20px;
-  padding-bottom: 80px; /* Space for navbar */
-  min-height: 100vh;
-  background-color: #f8f9fa;
+const BREAK = "900px";
+
+export const Screen = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  min-height: calc(100vh - 64px);
+  background: var(--cream-0);
+
+  @media (max-width: ${BREAK}) {
+    grid-template-columns: 1fr;
+  }
 `;
 
-export const Header = styled.div`
-  margin-bottom: 24px;
+export const MapPane = styled.div`
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: ${BREAK}) {
+    height: 240px;
+  }
 `;
 
-export const Title = styled.h1`
-  font-size: 28px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0;
-  margin-bottom: 8px;
-  font-family: 'Outfit', sans-serif;
-`;
-
-export const Subtitle = styled.p`
-  font-size: 16px;
-  color: #666;
-  margin: 0;
-`;
-
-export const SearchSection = styled.div`
-  background: white;
-  padding: 16px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-bottom: 24px;
+export const ListPane = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  background: var(--cream-0);
+  border-left: 1px solid var(--glass-stroke);
+
+  @media (max-width: ${BREAK}) {
+    border-left: 0;
+  }
 `;
 
-export const SearchRow = styled.div`
+export const SearchPanel = styled.div`
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 20;
+  width: min(360px, calc(100% - 32px));
+  padding: 10px;
+  border-radius: var(--r-xl);
+`;
+
+export const SearchBox = styled.div`
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
 `;
 
 export const SearchInput = styled.input`
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid #eee;
-  background: #f8f9fa;
-  font-size: 15px;
-  transition: all 0.2s;
+  ${inputBase}
+  border: 0;
+  background: transparent;
+  padding: 6px 0;
 
   &:focus {
-    outline: none;
-    background: white;
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    box-shadow: none;
+    background: transparent;
   }
 `;
 
-export const FilterButton = styled.button`
-  background: ${props => props.active ? "#e3f2fd" : "#f8f9fa"};
-  color: ${props => props.active ? "#4a90e2" : "#666"};
-  border: 1px solid ${props => props.active ? "#4a90e2" : "#eee"};
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-`;
-
-export const ResultsCount = styled.div`
-  font-size: 14px;
-  color: #888;
-  margin-bottom: 16px;
-  padding-left: 4px;
-`;
-
-export const RidesList = styled.div`
+export const MapControls = styled.div`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 20;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 4px;
+  padding: 6px;
+  border-radius: var(--r-lg);
 `;
 
-export const RideCard = styled.div`
-  background: white;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid #f0f0f0;
-  transition: transform 0.2s;
-
-  &:active {
-    transform: scale(0.98);
-  }
-`;
-
-export const RideHeader = styled.div`
+export const ControlBtn = styled.button`
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-`;
-
-export const RideTime = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-export const Time = styled.span`
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--ink-1);
   font-size: 18px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.6);
+  }
+`;
+
+export const ListHeader = styled.div`
+  padding: 24px 24px 16px;
+`;
+
+export const Eyebrow = styled.div`
+  ${eyebrow}
+`;
+
+export const TitleRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 4px;
+  gap: 12px;
+`;
+
+export const ListTitle = styled.h2`
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 30px;
   font-weight: 700;
-  color: #1a1a1a;
+  letter-spacing: -0.01em;
 `;
 
-export const DateLabel = styled.span`
-  font-size: 13px;
-  color: #666;
-`;
-
-export const PriceTag = styled.div`
-  background: #e3f2fd;
-  color: #4a90e2;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 700;
-`;
-
-export const RouteInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-  padding-left: 12px;
-  border-left: 2px solid #eee;
-`;
-
-export const LocationRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-export const LocationText = styled.span`
-  font-size: 15px;
-  color: #333;
-  font-weight: 500;
-`;
-
-export const DriverInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid #f5f5f5;
-`;
-
-export const DriverAvatar = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-`;
-
-export const DriverName = styled.span`
-  font-size: 14px;
-  color: #444;
-  font-weight: 500;
-  flex: 1;
-`;
-
-export const RequestButton = styled.button`
-  background: #4a90e2;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
+export const SortBtn = styled.button`
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
-  
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
+  color: var(--ink-1);
+`;
+
+export const RidesScroll = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 24px 32px;
+  overflow-y: auto;
 `;
 
 export const EmptyState = styled.div`
-  text-align: center;
-  padding: 40px 20px;
-  color: #888;
+  padding: 32px 24px;
+  color: var(--ink-3);
+  font-size: 14px;
+  line-height: 1.5;
 `;

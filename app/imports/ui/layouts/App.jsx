@@ -25,6 +25,7 @@ import ClerkSignup from "../pages/ClerkSignup";
 import MobileForgotPassword from "../pages/ForgotPassword";
 import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
+import MobileMarketplace from "../mobile/pages/Marketplace";
 import NavBar from "../desktop/components/NavBar";
 import MobileChat from "../pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
@@ -205,6 +206,7 @@ class AppLayout extends React.Component {
                 <AuthRoute path="/waiting-confirmation" component={WaitingForConfirmation} />
                 <AuthRoute path="/verification-rejected" component={RejectionScreen} />
                 <AuthRoute path="/my-rides" component={MobileMyRides} />
+                <AuthRoute path="/find" component={MobileMarketplace} />
                 <AuthRoute path="/ride/:rideId" component={MobileRideInfo} />
                 <AuthRoute path="/ride-history/:id" component={RideHistory} />
                 <AuthRoute path="/edit-profile" component={MobileEditProfile} />
