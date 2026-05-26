@@ -4,490 +4,190 @@ import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
+import Avatar from "../../components/Avatar";
 import {
-  ProfilePageContainer,
-  FixedHeader,
-  HeaderTitle,
-  ContentContainer,
-  ProfileHeader,
-  ProfileName,
-  ProfileEmail,
-  LegalSection,
+  Page,
+  Banner,
+  BannerInner,
+  Identity,
+  Name,
+  Email,
+  VerifiedChip,
+  Body,
   Section,
   SectionTitle,
-  MenuIcon,
+  MenuList,
+  MenuItem,
+  MenuItemIcon,
+  MenuItemLabel,
   MenuArrow,
-  LogoutIcon,
+  SignOutBtn,
+  Loading,
 } from "../styles/Profile";
 
-/**
- * iOS-specific Profile page
- * Simple list of profile options without modal styling
- */
+const ADMIN_LINKS = [
+  { icon: "👥", label: "Manage users", path: "/admin/users" },
+  { icon: "⏳", label: "Pending approvals", path: "/admin/pending-users" },
+  { icon: "🚗", label: "Manage rides", path: "/admin/rides" },
+  { icon: "🏫", label: "School settings", path: "/admin/school-management" },
+  { icon: "📍", label: "Manage places", path: "/admin/places" },
+  { icon: "🚨", label: "Error reports", path: "/admin/error-reports" },
+];
+
+const LEGAL_LINKS = [
+  { icon: "📄", label: "Terms of Service", path: "/terms" },
+  { icon: "🔒", label: "Privacy Policy", path: "/privacy" },
+  { icon: "💰", label: "Credits", path: "/credits" },
+];
+
 const Profile = ({ history, currentUser, isAdmin, userReady }) => {
-  const handleNavigation = (path) => {
-    history.push(path);
+  const go = (path) => history.push(path);
+
+  const verifyIdentity = () => {
+    const inquiryTemplateId = "itmpl_PygaeTqwQpVeoiAMmVmZzrWwezCN";
+    const environmentId = "env_5ZRRvhfj6N4FoUoQ2e4KSv19gUuG";
+    const referenceId = currentUser._id;
+    const redirectUri = encodeURIComponent("https://carp.school");
+    window.location.href = `https://miniapp.withpersona.com/verify?inquiry-template-id=${inquiryTemplateId}`
+      + `&environment-id=${environmentId}&reference-id=${referenceId}&redirect-uri=${redirectUri}`;
   };
 
-  const handleSignOut = () => {
-    history.push("/signout");
-  };
-
-  const handleDeleteAccount = () => {
-    // Show confirmation dialog
-    if (window.confirm(
-      "⚠️ Are you sure you want to delete your account?\n\n" +
-      "This action cannot be undone. All your data including:\n" +
-      "• Your profile\n" +
-      "• Your rides (as driver)\n" +
-      "• Your saved places\n" +
-      "• Your chat history\n\n" +
-      "will be permanently deleted.\n\n" +
-      "Type DELETE to confirm:"
-    )) {
-      const confirmation = prompt("Type DELETE (in uppercase) to confirm account deletion:");
-      
-      if (confirmation === "DELETE") {
-        // Show loading indicator
-        const deleteButton = document.getElementById("delete-account-btn");
-        if (deleteButton) {
-          deleteButton.disabled = true;
-          deleteButton.textContent = "Deleting...";
-        }
-
-        Meteor.call("accounts.deleteMyAccount", (error) => {
-          if (error) {
-            console.error("Failed to delete account:", error);
-            alert("Failed to delete account: " + error.reason);
-            if (deleteButton) {
-              deleteButton.disabled = false;
-              deleteButton.textContent = "🗑️ Delete Account";
-            }
-          } else {
-            alert("Your account has been successfully deleted. You will be signed out now.");
-            // User will be automatically logged out since account is deleted
-            history.push("/");
-          }
-        });
-      } else if (confirmation !== null) {
-        alert("Account deletion cancelled. You must type DELETE exactly to confirm.");
-      }
+  const deleteAccount = () => {
+    const ok = window.confirm(
+      "Delete your account? This permanently removes your profile, rides, "
+      + "saved places, and chat history and cannot be undone.",
+    );
+    if (!ok) return;
+    const confirmation = window.prompt("Type DELETE (uppercase) to confirm:");
+    if (confirmation !== "DELETE") {
+      if (confirmation !== null) window.alert("Cancelled — you must type DELETE exactly.");
+      return;
     }
+    Meteor.call("accounts.deleteMyAccount", (error) => {
+      if (error) {
+        window.alert(`Failed to delete account: ${error.reason || error.message}`);
+      } else {
+        window.alert("Your account has been deleted. Signing you out.");
+        history.push("/");
+      }
+    });
   };
 
-  // Show loading state while user data is being fetched
   if (!userReady) {
     return (
-      <ProfilePageContainer>
-        <FixedHeader>
-          <HeaderTitle>Profile</HeaderTitle>
-        </FixedHeader>
-        <ContentContainer>
-          <div style={{ padding: "20px", textAlign: "center" }}>
-            Loading...
-          </div>
-        </ContentContainer>
-      </ProfilePageContainer>
+      <Page>
+        <Banner><BannerInner><Name>Profile</Name></BannerInner></Banner>
+        <Body><Loading>Loading…</Loading></Body>
+      </Page>
     );
   }
 
+  const firstName = currentUser?.profile?.firstName || "";
+  const lastName = currentUser?.profile?.lastName || "";
+  const fullName = `${firstName} ${lastName}`.trim() || "Your profile";
+  const email = currentUser?.emails?.[0]?.address || "";
+  const verified = currentUser?.profile?.identityVerified;
+
   return (
-    <ProfilePageContainer>
-      {/* Fixed Header */}
-      <FixedHeader>
-        <HeaderTitle>
-          Profile
-        </HeaderTitle>
-      </FixedHeader>
+    <Page>
+      <Banner>
+        <BannerInner>
+          <Avatar user={{ name: fullName, hue: 38 }} size={72} ring="var(--signal-yellow)" />
+          <Identity>
+            <Name>{fullName}</Name>
+            {email && <Email>{email}</Email>}
+            {verified && <VerifiedChip>✓ VERIFIED</VerifiedChip>}
+          </Identity>
+        </BannerInner>
+      </Banner>
 
-      <ContentContainer>
-        {/* User Info */}
-        {currentUser && (
-          <ProfileHeader>
-            <ProfileName>
-              {currentUser.profile?.firstName} {currentUser.profile?.lastName}
-            </ProfileName>
-            <ProfileEmail>
-              {currentUser.emails?.[0]?.address}
-            </ProfileEmail>
-          </ProfileHeader>
-        )}
-
-        {/* Profile Options */}
+      <Body>
         <Section>
-          {/* Identity Verification Status */}
-          {currentUser && (
-            <button
-               onClick={() => {
-                 if (!currentUser.profile?.identityVerified) {
-                   // Redirect to Persona verification flow with userId as reference
-                   // NOTE: In production, use the production environment ID
-                   const inquiryTemplateId = "itmpl_PygaeTqwQpVeoiAMmVmZzrWwezCN";
-                   const environmentId = "env_5ZRRvhfj6N4FoUoQ2e4KSv19gUuG";
-                   const referenceId = currentUser._id;
-                   const redirectUri = encodeURIComponent("https://carp.school"); // Update this to your app's URL
-
-                   window.location.href = `https://miniapp.withpersona.com/verify?inquiry-template-id=${inquiryTemplateId}&environment-id=${environmentId}&reference-id=${referenceId}&redirect-uri=${redirectUri}`;
-                 }
-               }}
-               style={{
-                 width: "100%",
-                 padding: "18px 20px",
-                 backgroundColor: currentUser.profile?.identityVerified ? "#f0f9eb" : "transparent",
-                 border: "none",
-                 borderBottom: "1px solid #f0f0f0",
-                 textAlign: "left",
-                 fontSize: "16px",
-                 color: "#333",
-                 cursor: currentUser.profile?.identityVerified ? "default" : "pointer",
-                 display: "flex",
-                 alignItems: "center",
-               }}
-            >
-              <MenuIcon>{currentUser.profile?.identityVerified ? "✅" : "🛡️"}</MenuIcon>
-              {currentUser.profile?.identityVerified ? "Identity Verified" : "Verify Identity"}
-              {!currentUser.profile?.identityVerified && <MenuArrow>›</MenuArrow>}
-            </button>
-          )}
-
-          <button
-            onClick={() => handleNavigation("/edit-profile")}
-            style={{
-              width: "100%",
-              padding: "18px 20px",
-              backgroundColor: "transparent",
-              border: "none",
-              borderBottom: "1px solid #f0f0f0",
-              textAlign: "left",
-              fontSize: "16px",
-              color: "#333",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <MenuIcon>📝</MenuIcon>
-            Edit Profile
-            <MenuArrow>›</MenuArrow>
-          </button>
-
-          <button
-            onClick={() => handleNavigation("/places")}
-            style={{
-              width: "100%",
-              padding: "18px 20px",
-              backgroundColor: "transparent",
-              border: "none",
-              textAlign: "left",
-              fontSize: "16px",
-              color: "#333",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <MenuIcon>📍</MenuIcon>
-            My Places
-            <MenuArrow>›</MenuArrow>
-          </button>
+          <SectionTitle>ACCOUNT</SectionTitle>
+          <MenuList>
+            {!verified && (
+              <MenuItem type="button" onClick={verifyIdentity}>
+                <MenuItemIcon>🛡️</MenuItemIcon>
+                <MenuItemLabel>Verify identity</MenuItemLabel>
+                <MenuArrow>›</MenuArrow>
+              </MenuItem>
+            )}
+            <MenuItem type="button" onClick={() => go("/edit-profile")}>
+              <MenuItemIcon>📝</MenuItemIcon>
+              <MenuItemLabel>Edit profile</MenuItemLabel>
+              <MenuArrow>›</MenuArrow>
+            </MenuItem>
+            <MenuItem type="button" onClick={() => go("/places")}>
+              <MenuItemIcon>📍</MenuItemIcon>
+              <MenuItemLabel>My places</MenuItemLabel>
+              <MenuArrow>›</MenuArrow>
+            </MenuItem>
+          </MenuList>
         </Section>
 
-        {/* Admin Options */}
         {isAdmin && (
           <Section>
-            <SectionTitle>
-              Admin
-            </SectionTitle>
-
-            <button
-              onClick={() => handleNavigation("/admin/users")}
-              style={{
-                width: "100%",
-                padding: "18px 20px",
-                backgroundColor: "transparent",
-                border: "none",
-                borderBottom: "1px solid #f0f0f0",
-                textAlign: "left",
-                fontSize: "16px",
-                color: "#333",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <MenuIcon>👥</MenuIcon>
-              Manage Users
-              <MenuArrow>›</MenuArrow>
-            </button>
-
-            <button
-              onClick={() => handleNavigation("/admin/pending-users")}
-              style={{
-                width: "100%",
-                padding: "18px 20px",
-                backgroundColor: "transparent",
-                border: "none",
-                borderBottom: "1px solid #f0f0f0",
-                textAlign: "left",
-                fontSize: "16px",
-                color: "#333",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <MenuIcon>⏳</MenuIcon>
-              Pending Approvals
-              <MenuArrow>›</MenuArrow>
-            </button>
-
-            <button
-              onClick={() => handleNavigation("/admin/rides")}
-              style={{
-                width: "100%",
-                padding: "18px 20px",
-                backgroundColor: "transparent",
-                border: "none",
-                borderBottom: "1px solid #f0f0f0",
-                textAlign: "left",
-                fontSize: "16px",
-                color: "#333",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <MenuIcon>🚗</MenuIcon>
-              Manage Rides
-              <MenuArrow>›</MenuArrow>
-            </button>
-
-            <button
-              onClick={() => handleNavigation("/admin/school-management")}
-              style={{
-                width: "100%",
-                padding: "18px 20px",
-                backgroundColor: "transparent",
-                border: "none",
-                borderBottom: "1px solid #f0f0f0",
-                textAlign: "left",
-                fontSize: "16px",
-                color: "#333",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <MenuIcon>🏫</MenuIcon>
-              School Settings
-              <MenuArrow>›</MenuArrow>
-            </button>
-
-            <button
-              onClick={() => handleNavigation("/admin/places")}
-              style={{
-                width: "100%",
-                padding: "18px 20px",
-                backgroundColor: "transparent",
-                border: "none",
-                borderBottom: "1px solid #f0f0f0",
-                textAlign: "left",
-                fontSize: "16px",
-                color: "#333",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-            <MenuIcon>📍</MenuIcon>
-            Manage Places
-            <MenuArrow>›</MenuArrow>
-            </button>
-
-            <button
-              onClick={() => handleNavigation("/admin/error-reports")}
-              style={{
-                width: "100%",
-                padding: "18px 20px",
-                backgroundColor: "transparent",
-                border: "none",
-                borderBottom: "1px solid #f0f0f0",
-                textAlign: "left",
-                fontSize: "16px",
-                color: "#333",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <MenuIcon>🚨</MenuIcon>
-              Error Reports
-              <MenuArrow>›</MenuArrow>
-            </button>
-
-            <button
-              onClick={() => handleNavigation("/_test")}
-              style={{
-                width: "100%",
-                padding: "18px 20px",
-                backgroundColor: "transparent",
-                border: "none",
-                textAlign: "left",
-                fontSize: "16px",
-                color: "#333",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <MenuIcon>🧪</MenuIcon>
-              Components Test
-              <MenuArrow>›</MenuArrow>
-            </button>
+            <SectionTitle>ADMIN</SectionTitle>
+            <MenuList>
+              {ADMIN_LINKS.map(item => (
+                <MenuItem key={item.path} type="button" onClick={() => go(item.path)}>
+                  <MenuItemIcon>{item.icon}</MenuItemIcon>
+                  <MenuItemLabel>{item.label}</MenuItemLabel>
+                  <MenuArrow>›</MenuArrow>
+                </MenuItem>
+              ))}
+            </MenuList>
           </Section>
         )}
 
-        {/* Legal & Information Section */}
-        <LegalSection>
-          <SectionTitle>
-            Legal & Information
-          </SectionTitle>
-
-          <button
-            onClick={() => handleNavigation("/terms")}
-            style={{
-              width: "100%",
-              padding: "18px 20px",
-              backgroundColor: "transparent",
-              border: "none",
-              borderBottom: "1px solid #f0f0f0",
-              textAlign: "left",
-              fontSize: "16px",
-              color: "#333",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <MenuIcon>📄</MenuIcon>
-            Terms of Service
-            <MenuArrow>›</MenuArrow>
-          </button>
-
-          <button
-            onClick={() => handleNavigation("/privacy")}
-            style={{
-              width: "100%",
-              padding: "18px 20px",
-              backgroundColor: "transparent",
-              border: "none",
-              borderBottom: "1px solid #f0f0f0",
-              textAlign: "left",
-              fontSize: "16px",
-              color: "#333",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <MenuIcon>🔒</MenuIcon>
-            Privacy Policy
-            <MenuArrow>›</MenuArrow>
-          </button>
-
-          <button
-            onClick={() => handleNavigation("/credits")}
-            style={{
-              width: "100%",
-              padding: "18px 20px",
-              backgroundColor: "transparent",
-              border: "none",
-              textAlign: "left",
-              fontSize: "16px",
-              color: "#333",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <MenuIcon>💰</MenuIcon>
-            Credits
-            <MenuArrow>›</MenuArrow>
-          </button>
-        </LegalSection>
-
-        {/* Account Management Section */}
-        <Section style={{ marginTop: "20px" }}>
-          <SectionTitle style={{ color: "#FF3B30" }}>
-            Account Management
-          </SectionTitle>
-
-          <button
-            id="delete-account-btn"
-            onClick={handleDeleteAccount}
-            style={{
-              width: "100%",
-              padding: "18px 20px",
-              backgroundColor: "transparent",
-              border: "none",
-              borderBottom: "1px solid #ffebee",
-              textAlign: "left",
-              fontSize: "16px",
-              color: "#FF3B30",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <MenuIcon>🗑️</MenuIcon>
-            Delete Account
-            <MenuArrow style={{ color: "#FF3B30" }}>›</MenuArrow>
-          </button>
+        <Section>
+          <SectionTitle>LEGAL &amp; INFO</SectionTitle>
+          <MenuList>
+            {LEGAL_LINKS.map(item => (
+              <MenuItem key={item.path} type="button" onClick={() => go(item.path)}>
+                <MenuItemIcon>{item.icon}</MenuItemIcon>
+                <MenuItemLabel>{item.label}</MenuItemLabel>
+                <MenuArrow>›</MenuArrow>
+              </MenuItem>
+            ))}
+          </MenuList>
         </Section>
 
-        {/* Sign Out */}
-        <button
-          onClick={handleSignOut}
-          style={{
-            width: "100%",
-            padding: "18px 20px",
-            backgroundColor: "#FF3B30",
-            border: "none",
-            borderRadius: "12px",
-            fontSize: "16px",
-            color: "white",
-            fontWeight: "600",
-            cursor: "pointer",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginTop: "20px",
-          }}
-        >
-          <LogoutIcon>🚪</LogoutIcon>
-          Sign Out
-        </button>
-      </ContentContainer>
-    </ProfilePageContainer>
+        <Section>
+          <SectionTitle $danger>DANGER ZONE</SectionTitle>
+          <MenuList>
+            <MenuItem type="button" $danger onClick={deleteAccount}>
+              <MenuItemIcon>🗑️</MenuItemIcon>
+              <MenuItemLabel>Delete account</MenuItemLabel>
+              <MenuArrow>›</MenuArrow>
+            </MenuItem>
+          </MenuList>
+        </Section>
+
+        <SignOutBtn type="button" onClick={() => go("/signout")}>
+          Sign out
+        </SignOutBtn>
+      </Body>
+    </Page>
   );
 };
 
 Profile.propTypes = {
-  history: PropTypes.object.isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   currentUser: PropTypes.object,
   isAdmin: PropTypes.bool,
   userReady: PropTypes.bool,
 };
 
+Profile.defaultProps = {
+  currentUser: null,
+  isAdmin: false,
+  userReady: false,
+};
+
 export default withRouter(withTracker(() => {
   const currentUser = Meteor.user();
-  const userReady = Meteor.userId() !== undefined; // User subscription is ready when userId is defined or null
+  const userReady = Meteor.userId() !== undefined;
   const isAdmin = currentUser ? isAdminRole(currentUser) : false;
-
-  return {
-    currentUser,
-    isAdmin,
-    userReady,
-  };
+  return { currentUser, isAdmin, userReady };
 })(Profile));
