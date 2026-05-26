@@ -15,6 +15,7 @@ const RidesSchema = Joi.object({
   date: Joi.date().required(),
   seats: Joi.number().integer().min(1).max(7)
 .required(), // Number of available seats
+  fare: Joi.number().min(0).max(100).default(0), // Price per seat (fair gas split)
   shareCode: Joi.string().optional(),
   notes: createSafeStringSchema({
     pattern: "generalText",

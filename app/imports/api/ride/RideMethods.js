@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
+import { check, Match } from "meteor/check";
 import { Rides, RidesSchema } from "./Rides";
 import { validateUserCanJoinRide, validateUserCanRemoveRider, validateUserCanCreateRide } from "./RideValidation";
 import { Profiles } from "../profile/Profile";
@@ -30,6 +30,7 @@ Meteor.methods({
       destination: String,
       date: Date,
       seats: Number,
+      fare: Match.Optional(Number),
       notes: String,
       createdAt: Date,
     });
@@ -260,7 +261,7 @@ Meteor.methods({
 
     const user = await Meteor.userAsync();
     const ride = await Rides.findOneAsync(rideId);
-    
+
     // Get user profile for role validation
     const userProfile = await Profiles.findOneAsync({ Owner: user._id });
 
@@ -351,5 +352,55 @@ Meteor.methods({
     }).fetchAsync();
 
     return rides;
+  },
+
+  /**
+   * Discovery feed: future rides at the current user's school, with
+   * origin/destination place names resolved server-side (the requester may
+   * not have those places published to them).
+   */
+  async "rides.forMySchool"(filters = {}) {
+    check(filters, Match.Optional(Object));
+
+    const userId = Meteor.userId();
+    if (!userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to browse rides.");
+    }
+
+    const { getSchoolFilter } = await import("../accounts/AccountsSchoolUtils");
+    const schoolFilter = await getSchoolFilter(userId);
+
+    const query = {
+      ...schoolFilter,
+      ...filters,
+      date: { $gte: new Date() },
+    };
+
+    const rides = await Rides.find(query, {
+      sort: { date: 1 },
+      limit: 50,
+    }).fetchAsync();
+
+    // Resolve place names so the discovery UI can show human-readable labels.
+    const placeIds = [
+      ...new Set(
+        rides.flatMap(ride => [ride.origin, ride.destination]).filter(Boolean),
+      ),
+    ];
+    const { Places } = await import("../places/Places");
+    const places = await Places.find(
+      { _id: { $in: placeIds } },
+      { fields: { text: 1 } },
+    ).fetchAsync();
+    const nameById = {};
+    places.forEach((place) => {
+      nameById[place._id] = place.text;
+    });
+
+    return rides.map(ride => ({
+      ...ride,
+      originText: nameById[ride.origin] || null,
+      destinationText: nameById[ride.destination] || null,
+    }));
   },
 });
