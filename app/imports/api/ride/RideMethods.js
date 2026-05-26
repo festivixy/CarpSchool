@@ -403,4 +403,48 @@ Meteor.methods({
       destinationText: nameById[ride.destination] || null,
     }));
   },
+
+  /**
+   * Fetch a single ride at the current user's school with place names and
+   * coordinates resolved. Lets a member view a ride they have not joined yet
+   * (the Rides publication only exposes rides you already participate in).
+   */
+  async "rides.getById"(rideId) {
+    check(rideId, String);
+
+    const userId = Meteor.userId();
+    if (!userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to view a ride.");
+    }
+
+    const ride = await Rides.findOneAsync(rideId);
+    if (!ride) {
+      throw new Meteor.Error("not-found", "Ride not found.");
+    }
+
+    // Restrict cross-school access.
+    const user = await Meteor.users.findOneAsync(userId);
+    if (user && user.schoolId && ride.schoolId && user.schoolId !== ride.schoolId) {
+      throw new Meteor.Error("access-denied", "This ride is not at your school.");
+    }
+
+    const { Places } = await import("../places/Places");
+    const ids = [ride.origin, ride.destination].filter(Boolean);
+    const places = await Places.find(
+      { _id: { $in: ids } },
+      { fields: { text: 1, value: 1 } },
+    ).fetchAsync();
+    const byId = {};
+    places.forEach((place) => {
+      byId[place._id] = place;
+    });
+
+    return {
+      ...ride,
+      originText: byId[ride.origin] ? byId[ride.origin].text : null,
+      destinationText: byId[ride.destination] ? byId[ride.destination].text : null,
+      originCoords: byId[ride.origin] ? byId[ride.origin].value : null,
+      destinationCoords: byId[ride.destination] ? byId[ride.destination].value : null,
+    };
+  },
 });
