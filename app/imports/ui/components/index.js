@@ -24,3 +24,7 @@ export { default as Icon } from "./Icon";
 export { default as Avatar, AvatarStack } from "./Avatar";
 export { default as GlassPanel } from "./GlassPanel";
 export { default as TopNav } from "./TopNav";
+export { default as MapBg } from "./MapBg";
+export { default as Pin } from "./Pin";
+export { default as RouteLine } from "./RouteLine";
+export { default as RideCard } from "./RideCard";
