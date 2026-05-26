@@ -33,3 +33,8 @@ codepush_redis_data/
 
 config/settings.development.json
 # settings.json
+
+# Claude Code (local AI config)
+CLAUDE.md
+.claude/
+.tmp_handoff/
