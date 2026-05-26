@@ -11,6 +11,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { useAuth } from "@clerk/clerk-react";
 import MobileAdminRides from "../pages/AdminRides";
+import AdminOverview from "../pages/AdminOverview";
 import MobileAdminUsers from "../pages/AdminUsers";
 import AdminSchools from "../pages/AdminSchools";
 import AdminPendingUsersPage from "../pages/AdminPendingUsers";
@@ -220,6 +221,7 @@ class AppLayout extends React.Component {
                 <AuthRoute path="/signout" component={MobileSignout} />
 
                 {/* Admin routes */}
+                <AdminRoute path="/admin/overview" component={AdminOverview} />
                 <AdminRoute path="/admin/rides" component={MobileAdminRides} />
                 <AdminRoute path="/admin/users" component={MobileAdminUsers} />
                 <AdminRoute path="/admin/pending-users" component={AdminPendingUsersPage} />
@@ -232,8 +234,8 @@ class AppLayout extends React.Component {
                 <SystemRoute path="/admin/schools" component={AdminSchools} />
                 <SystemRoute path="/system" component={SystemAdmin} />
 
-                {/* Redirect /admin to 404 */}
-                <Route exact path="/admin" render={() => <Redirect to="/404" />} />
+                {/* Redirect /admin to the overview dashboard */}
+                <Route exact path="/admin" render={() => <Redirect to="/admin/overview" />} />
 
                 {/* Test routes */}
                 <Route path="/_test/map-components" component={() => (
