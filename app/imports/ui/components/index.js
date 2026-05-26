@@ -17,3 +17,10 @@ export { default as DriverVerify } from "./DriverVerify";
 export { default as SchoolSmtpSettings } from "./SchoolSmtpSettings";
 export { default as Captcha } from "./Captcha";
 export { default as ConfirmFunction } from "./ConfirmFunction";
+
+// Redesign primitives ("paper x ink x signal-yellow")
+export { default as Logo } from "./Logo";
+export { default as Icon } from "./Icon";
+export { default as Avatar, AvatarStack } from "./Avatar";
+export { default as GlassPanel } from "./GlassPanel";
+export { default as TopNav } from "./TopNav";
