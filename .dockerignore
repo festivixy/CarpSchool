@@ -1,5 +1,7 @@
 node_modules
+app/node_modules
 .meteor/local
+app/.meteor/local
 .git
 .gitignore
 README.md
@@ -9,3 +11,8 @@ config/
 docker-compose.yml
 Dockerfile
 .dockerignore
+build/
+mongo_data/
+osrmdata/
+openmaptilesdata/
+pgdataNominatimInternal/
