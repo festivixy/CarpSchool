@@ -11,7 +11,7 @@ WORKDIR /app
 
 # Cache npm deps layer before copying full source
 COPY app/package.json app/package-lock.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy full Meteor app source (node_modules and .meteor/local excluded via .dockerignore)
 COPY app/ ./
