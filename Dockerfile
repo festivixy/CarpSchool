@@ -11,7 +11,7 @@ WORKDIR /app
 
 # Cache npm deps layer before copying full source
 COPY app/package.json app/package-lock.json ./
-RUN npm install
+RUN npm ci
 
 # Copy full Meteor app source (node_modules and .meteor/local excluded via .dockerignore)
 COPY app/ ./
@@ -23,7 +23,7 @@ RUN meteor build /build --architecture os.linux.x86_64 --server-only
 RUN cd /build \
  && tar -xzf app.tar.gz \
  && cd bundle/programs/server \
- && npm install --production
+ && npm ci --omit=dev
 
 # ── Runner ────────────────────────────────────────────────────────────────────
 FROM node:20-slim AS runner
