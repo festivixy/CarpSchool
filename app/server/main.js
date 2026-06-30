@@ -1,9 +1,13 @@
-// Email configuration
 import { Meteor } from "meteor/meteor";
 import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
 
-// Load environment variables from .env file
-dotenv.config({ path: '../.env' });
+// Load environment variables from .env file if it exists
+const envPath = path.resolve(process.cwd(), "../.env");
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
 
 // First run setup
 import "../imports/startup/server/FirstRun";
