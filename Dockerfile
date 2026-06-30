@@ -10,20 +10,20 @@ RUN curl https://install.meteor.com/ | sh
 WORKDIR /app
 
 # Cache npm deps layer before copying full source
-COPY app/package.json app/package-lock.json ./
-RUN npm ci --legacy-peer-deps
+COPY app/package.json app/package-lock.json ./app/
+RUN cd app && npm ci --legacy-peer-deps
 
 # Copy full Meteor app source (node_modules and .meteor/local excluded via .dockerignore)
-COPY app/ ./
+COPY app/ ./app/
 
 # Build server-only production bundle
-RUN meteor build /build --architecture os.linux.x86_64 --server-only
+RUN cd app && meteor build /build --architecture os.linux.x86_64 --server-only
 
 # Extract bundle and install server npm dependencies
 RUN cd /build \
  && tar -xzf app.tar.gz \
  && cd bundle/programs/server \
- && npm ci --omit=dev
+ && npm install --omit=dev
 
 # ── Runner ────────────────────────────────────────────────────────────────────
 FROM node:20-slim AS runner
