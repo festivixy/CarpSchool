@@ -20,6 +20,14 @@ const pulse = keyframes`
   }
 `;
 
+const sizeFor = (size) => {
+  switch (size) {
+    case "small": return "40px";
+    case "large": return "80px";
+    default: return "60px";
+  }
+};
+
 export const LoadingContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -32,29 +40,20 @@ export const LoadingContainer = styled.div`
   height: 100vh;
   padding: 40px 20px;
   text-align: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--cream-0);
+  font-family: var(--font-ui);
   z-index: 9999;
-  
+
   @media (max-width: 768px) {
     padding: 30px 15px;
   }
 `;
 
-export const LoadingSpinner = styled.div`
-  width: ${props => {
-    switch (props.size) {
-      case "small": return "40px";
-      case "large": return "80px";
-      default: return "60px";
-    }
-  }};
-  height: ${props => {
-    switch (props.size) {
-      case "small": return "40px";
-      case "large": return "80px";
-      default: return "60px";
-    }
-  }};
+export const LoadingSpinner = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "size",
+})`
+  width: ${props => sizeFor(props.size)};
+  height: ${props => sizeFor(props.size)};
   margin-bottom: 24px;
   position: relative;
 `;
@@ -62,46 +61,44 @@ export const LoadingSpinner = styled.div`
 export const SpinnerCircle = styled.div`
   width: 100%;
   height: 100%;
-  border: 4px solid #e3e3e3;
-  border-top: 4px solid #3498db;
+  border: 3px solid var(--cream-2);
+  border-top: 3px solid var(--signal-yellow);
   border-radius: 50%;
-  animation: ${spin} 1s linear infinite;
-  
-  /* Add inner shadow for depth */
-  box-shadow: 
-    0 0 0 1px rgba(52, 152, 219, 0.1),
-    inset 0 0 10px rgba(52, 152, 219, 0.1);
+  animation: ${spin} 0.9s linear infinite;
 `;
 
 export const LoadingMessage = styled.h2`
-  color: #2c3e50;
+  font-family: var(--font-display);
+  color: var(--ink-1);
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   margin: 0 0 8px 0;
   animation: ${pulse} 2s ease-in-out infinite;
-  
+
   @media (max-width: 768px) {
     font-size: 20px;
   }
-  
+
   @media (max-width: 480px) {
     font-size: 18px;
   }
 `;
 
 export const LoadingSubMessage = styled.p`
-  color: #7f8c8d;
-  font-size: 16px;
+  color: var(--ink-3);
+  font-size: 15px;
   font-weight: 400;
   margin: 0;
   max-width: 400px;
   line-height: 1.5;
-  
+  letter-spacing: -0.005em;
+
   @media (max-width: 768px) {
     font-size: 14px;
     max-width: 300px;
   }
-  
+
   @media (max-width: 480px) {
     font-size: 13px;
     max-width: 250px;

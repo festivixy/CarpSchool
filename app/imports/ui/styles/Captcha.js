@@ -1,16 +1,19 @@
 import styled from "styled-components";
+import { inputBase } from "./tokens";
 
 // Styled Components for Captcha
 export const CaptchaSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  font-family: var(--font-ui);
 `;
 
 export const CaptchaLabel = styled.label`
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #333;
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
   margin-bottom: 4px;
 `;
 
@@ -19,9 +22,9 @@ export const CaptchaContainer = styled.div`
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  background: var(--cream-1);
+  border-radius: var(--r-md);
+  border: 1px solid var(--glass-stroke);
 `;
 
 export const CaptchaDisplay = styled.div`
@@ -29,11 +32,11 @@ export const CaptchaDisplay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
-  border-radius: 4px;
+  background: var(--cream-0);
+  border-radius: var(--r-sm);
   padding: 8px;
   min-height: 50px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--glass-stroke);
 
   svg {
     max-width: 100%;
@@ -46,37 +49,36 @@ export const CaptchaLoading = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
-  border-radius: 4px;
+  background: var(--cream-1);
+  border-radius: var(--r-sm);
   padding: 16px;
-  color: #6c757d;
-  font-size: 14px;
+  color: var(--ink-4);
+  font-size: 13px;
   min-height: 50px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--glass-stroke);
 `;
 
 export const CaptchaRefreshButton = styled.button`
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
   border: none;
   border-radius: 50%;
-  background: #007bff;
-  color: white;
+  background: var(--ink-1);
+  color: var(--cream-0);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+  transition: background 0.12s ease, transform 0.12s ease;
 
   &:hover:not(:disabled) {
-    background: #0056b3;
+    background: #000;
     transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
     transform: none;
   }
@@ -89,27 +91,18 @@ export const CaptchaRefreshButton = styled.button`
 `;
 
 export const CaptchaInput = styled.input`
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: all 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
-  }
+  ${inputBase}
+  font-family: var(--font-mono);
+  letter-spacing: 0.16em;
 
   &:disabled {
-    background: #f8f9fa;
+    background: var(--cream-1);
     cursor: not-allowed;
   }
 `;
 
 export const ErrorMessage = styled.div`
-  color: #dc3545;
+  color: var(--danger);
   font-size: 12px;
   margin-top: 4px;
 `;

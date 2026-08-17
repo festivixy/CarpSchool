@@ -1,19 +1,15 @@
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
+import { eyebrow } from "../../styles/tokens";
 
 // Styled Components for NavBar
 export const NavBarContainer = styled.nav`
-  background-color: rgba(0, 0, 0, 1);
-  color: white;
+  background: var(--ink-1);
+  color: var(--cream-0);
   position: sticky;
   top: 0;
   z-index: 1000;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
+  font-family: var(--font-ui);
 `;
 
 export const NavBarInner = styled.div`
@@ -34,7 +30,7 @@ export const Logo = styled(NavLink)`
 export const LogoImg = styled.img`
   height: 40px;
   width: auto;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
 `;
 
 export const DesktopNav = styled.div`
@@ -64,17 +60,19 @@ export const Dropdown = styled.div`
 export const DropdownTrigger = styled.button`
   background: none;
   border: none;
-  color: white;
-  font-size: 14px;
+  color: var(--cream-0);
+  font-size: 13.5px;
   font-weight: 500;
+  letter-spacing: -0.005em;
   cursor: pointer;
   padding: 8px 12px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  border-radius: var(--r-sm);
+  transition: background 0.12s ease, color 0.12s ease;
   font-family: inherit;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--signal-yellow);
   }
 `;
 
@@ -82,12 +80,14 @@ export const DropdownMenu = styled.div`
   position: absolute;
   top: 100%;
   left: 0;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 180px;
+  background: var(--cream-0);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-md);
+  box-shadow: var(--glass-shadow);
+  min-width: 190px;
   z-index: 1001;
-  margin-top: 4px;
+  margin-top: 6px;
+  overflow: hidden;
 
   &.right {
     left: auto;
@@ -99,16 +99,19 @@ const dropdownItemStyles = `
   display: block;
   width: 100%;
   padding: 12px 16px;
-  color: #333;
+  color: var(--ink-2);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
-  border-bottom: 1px solid #f0f0f0;
-  border: none;
+  letter-spacing: -0.005em;
+  border-bottom: 1px solid var(--glass-stroke);
+  border-left: none;
+  border-right: none;
+  border-top: none;
   background: none;
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.12s ease, color 0.12s ease;
   font-family: inherit;
 
   &:last-child {
@@ -116,12 +119,13 @@ const dropdownItemStyles = `
   }
 
   &:hover {
-    background-color: #f8f9fa;
-    color: #024731;
+    background: var(--signal-yellow-soft);
+    color: var(--ink-1);
   }
 
   &.active {
-    background-color: rgba(255, 255, 255, 0.15);
+    background: var(--signal-yellow-soft);
+    color: var(--ink-1);
   }
 `;
 
@@ -138,24 +142,25 @@ export const NavItem = styled.div`
 `;
 
 export const NavButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => prop !== 'primary',
+  shouldForwardProp: (prop) => prop !== "primary",
 })`
-  background: ${props => props.primary ? '#007bff' : 'none'};
+  background: ${props => (props.primary ? "var(--signal-yellow)" : "none")};
   border: none;
   cursor: pointer;
   font-family: inherit;
-  color: white;
+  color: ${props => (props.primary ? "var(--ink-1)" : "var(--cream-0)")};
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  font-size: 13.5px;
+  font-weight: ${props => (props.primary ? "600" : "500")};
+  letter-spacing: -0.005em;
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  transition: background 0.12s ease, color 0.12s ease;
   white-space: nowrap;
 
   &:hover {
-    background-color: ${props => props.primary ? '#0056b3' : 'rgba(255, 255, 255, 0.1)'};
-    color: white;
+    background: ${props => (props.primary ? "var(--signal-yellow-deep)" : "rgba(255, 255, 255, 0.1)")};
+    color: ${props => (props.primary ? "var(--ink-1)" : "var(--signal-yellow)")};
   }
 `;
 
@@ -163,15 +168,15 @@ export const MenuToggle = styled.button`
   display: block;
   background: none;
   border: none;
-  color: white;
+  color: var(--cream-0);
   font-size: 18px;
   cursor: pointer;
   padding: 8px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  border-radius: var(--r-sm);
+  transition: background 0.12s ease;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
   }
 
   @media (min-width: 768px) {
@@ -180,7 +185,7 @@ export const MenuToggle = styled.button`
 `;
 
 export const MobileMenu = styled.div`
-  background-color: rgba(0, 0, 0, 1);
+  background: var(--ink-1);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 
   @media (min-width: 768px) {
@@ -198,64 +203,63 @@ export const MobileSection = styled.div`
 `;
 
 export const MobileSectionTitle = styled.div`
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  ${eyebrow}
+  color: rgba(246, 245, 240, 0.55);
   margin-bottom: 8px;
 `;
 
 export const MobileItem = styled(NavLink)`
   display: block;
-  color: white;
+  color: var(--cream-0);
   text-decoration: none;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
+  letter-spacing: -0.005em;
   padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.2s ease;
+  transition: color 0.12s ease, padding-left 0.12s ease;
 
   &:last-child {
     border-bottom: none;
   }
 
   &:hover {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--signal-yellow);
     padding-left: 8px;
   }
 
   &.active {
-    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--signal-yellow);
   }
 `;
 
 export const MobileButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => prop !== 'primary',
+  shouldForwardProp: (prop) => prop !== "primary",
 })`
-  background: ${props => props.primary ? '#007bff' : 'none'};
+  background: ${props => (props.primary ? "var(--signal-yellow)" : "none")};
   border: none;
   width: 100%;
   text-align: left;
   cursor: pointer;
   font-family: inherit;
   display: block;
-  color: white;
+  color: ${props => (props.primary ? "var(--ink-1)" : "var(--cream-0)")};
   text-decoration: none;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 12px 0;
+  font-size: 15px;
+  font-weight: ${props => (props.primary ? "600" : "500")};
+  letter-spacing: -0.005em;
+  padding: ${props => (props.primary ? "12px 14px" : "12px 0")};
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.2s ease;
-  border-radius: ${props => props.primary ? '6px' : '0'};
+  transition: background 0.12s ease, color 0.12s ease, padding-left 0.12s ease;
+  border-radius: ${props => (props.primary ? "var(--r-pill)" : "0")};
 
   &:last-child {
     border-bottom: none;
   }
 
   &:hover {
-    color: rgba(255, 255, 255, 0.8);
-    padding-left: 8px;
-    background-color: ${props => props.primary ? '#0056b3' : 'transparent'};
+    color: ${props => (props.primary ? "var(--ink-1)" : "var(--signal-yellow)")};
+    padding-left: ${props => (props.primary ? "14px" : "8px")};
+    background: ${props => (props.primary ? "var(--signal-yellow-deep)" : "transparent")};
   }
 `;
