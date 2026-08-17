@@ -1,4 +1,10 @@
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
+import { btnBase, btnPrimary, btnCoral, eyebrow, inputBase } from "./tokens";
+
+/* Keep styled-only props off the DOM. */
+const block = (...names) => ({
+  shouldForwardProp: (prop) => !names.includes(prop),
+});
 
 // Animations
 const spin = keyframes`
@@ -13,7 +19,7 @@ const spin = keyframes`
 const modalSlideIn = keyframes`
   from {
     opacity: 0;
-    transform: scale(0.9) translateY(20px);
+    transform: scale(0.96) translateY(16px);
   }
   to {
     opacity: 1;
@@ -23,31 +29,29 @@ const modalSlideIn = keyframes`
 
 // Styled Components for Chat
 export const Container = styled.div`
-  background-color: rgba(248, 249, 250, 1);
+  background: var(--cream-0);
   height: 100%;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
+  font-family: var(--font-ui);
+  color: var(--ink-1);
   display: flex;
   flex-direction: column;
 `;
 
 export const Header = styled.div`
-  background-color: rgba(255, 255, 255, 1);
+  background: var(--cream-0);
   padding: 20px;
-  border-bottom: 1px solid rgba(240, 240, 240, 1);
+  border-bottom: 1px solid var(--glass-stroke);
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
 
 export const Title = styled.h1`
-  font-size: 24px;
+  font-family: var(--font-display);
+  font-size: 26px;
   font-weight: 700;
-  color: rgba(0, 0, 0, 0.87);
+  letter-spacing: -0.02em;
+  color: var(--ink-1);
   margin: 0;
 `;
 
@@ -57,51 +61,33 @@ export const HeaderButtons = styled.div`
 `;
 
 export const CreateButton = styled.button`
-  background-color: rgba(0, 0, 0, 1);
-  color: rgba(255, 255, 255, 1);
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(40, 40, 40, 1);
-    transform: translateY(-1px);
-  }
+  ${btnBase}
+  ${btnCoral}
+  padding: 9px 16px;
+  font-size: 13px;
 `;
 
 export const JoinButton = styled.button`
-  background-color: rgba(0, 0, 0, 1);
-  color: rgba(255, 255, 255, 1);
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(40, 40, 40, 1);
-    transform: translateY(-1px);
-  }
+  ${btnBase}
+  ${btnPrimary}
+  padding: 9px 16px;
+  font-size: 13px;
 `;
 
 export const ErrorMessage = styled.div`
-  background-color: rgba(244, 67, 54, 0.1);
-  color: rgba(244, 67, 54, 1);
+  background: var(--danger-soft);
+  color: var(--danger-deep);
   padding: 12px 20px;
-  border-left: 4px solid rgba(244, 67, 54, 1);
+  font-size: 13.5px;
+  border-left: 3px solid var(--danger);
 `;
 
 export const SuccessMessage = styled.div`
-  background-color: rgba(76, 175, 80, 0.1);
-  color: rgba(56, 142, 60, 1);
+  background: var(--leaf-soft);
+  color: var(--leaf);
   padding: 12px 20px;
-  border-left: 4px solid rgba(76, 175, 80, 1);
+  font-size: 13.5px;
+  border-left: 3px solid var(--leaf);
 `;
 
 export const Content = styled.div`
@@ -116,8 +102,8 @@ export const Content = styled.div`
 
 export const Sidebar = styled.div`
   width: 300px;
-  background-color: rgba(255, 255, 255, 1);
-  border-right: 1px solid rgba(240, 240, 240, 1);
+  background: var(--cream-1);
+  border-right: 1px solid var(--glass-stroke);
   display: flex;
   flex-direction: column;
 
@@ -129,13 +115,11 @@ export const Sidebar = styled.div`
 
 export const SidebarHeader = styled.div`
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(240, 240, 240, 1);
+  border-bottom: 1px solid var(--glass-stroke);
 
   h3 {
+    ${eyebrow}
     margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: rgba(0, 0, 0, 0.87);
   }
 `;
 
@@ -144,36 +128,38 @@ export const ChatList = styled.div`
   overflow-y: auto;
 `;
 
-export const ChatListItem = styled.div`
-  padding: 16px 20px;
+export const ChatListItem = styled.div.withConfig(block("active"))`
+  padding: 15px 20px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(245, 245, 245, 1);
-  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--glass-stroke);
+  transition: background 0.12s ease;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: ${(props) => (props.active ? "rgba(0, 0, 0, 0.05)" : "transparent")};
-  border-right: ${(props) => (props.active ? "3px solid rgba(0, 0, 0, 1)" : "none")};
+  background: ${props => (props.active ? "var(--signal-yellow-soft)" : "transparent")};
+  border-right: ${props => (props.active ? "3px solid var(--signal-yellow)" : "none")};
 
   &:hover {
-    background-color: rgba(245, 245, 245, 1);
+    background: ${props => (props.active ? "var(--signal-yellow-soft)" : "var(--cream-2)")};
   }
 `;
 
 export const ChatListItemContent = styled.div`
   flex: 1;
+  min-width: 0;
 `;
 
 export const ChatListItemName = styled.div`
   font-size: 14px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.87);
-  margin-bottom: 4px;
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
+  margin-bottom: 3px;
 `;
 
 export const ChatListItemLast = styled.div`
   font-size: 12px;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -181,12 +167,14 @@ export const ChatListItemLast = styled.div`
 `;
 
 export const ChatListItemCount = styled.div`
-  background-color: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.7);
-  border-radius: 12px;
+  background: var(--ink-1);
+  color: var(--signal-yellow);
+  border-radius: var(--r-pill);
   padding: 2px 8px;
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
+  flex-shrink: 0;
 `;
 
 export const ChatListEmpty = styled.div`
@@ -194,7 +182,8 @@ export const ChatListEmpty = styled.div`
   text-align: center;
 
   p {
-    color: rgba(100, 100, 100, 1);
+    color: var(--ink-3);
+    font-size: 14px;
     margin-bottom: 16px;
   }
 `;
@@ -207,27 +196,17 @@ export const EmptyButtons = styled.div`
 `;
 
 export const CreateFirstButton = styled.button`
-  background-color: rgba(0, 0, 0, 1);
-  color: rgba(255, 255, 255, 1);
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 140px;
+  ${btnBase}
+  ${btnCoral}
+  width: 150px;
+  font-size: 13px;
 `;
 
 export const JoinFirstButton = styled.button`
-  background-color: rgba(0, 0, 0, 1);
-  color: rgba(255, 255, 255, 1);
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 140px;
+  ${btnBase}
+  ${btnPrimary}
+  width: 150px;
+  font-size: 13px;
 `;
 
 export const Main = styled.div`
@@ -238,9 +217,9 @@ export const Main = styled.div`
 `;
 
 export const ConversationHeader = styled.div`
-  background-color: rgba(255, 255, 255, 1);
+  background: var(--cream-0);
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(240, 240, 240, 1);
+  border-bottom: 1px solid var(--glass-stroke);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -249,30 +228,29 @@ export const ConversationHeader = styled.div`
 export const ConversationInfo = styled.div``;
 
 export const ConversationName = styled.h3`
-  margin: 0 0 4px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.87);
+  font-family: var(--font-display);
+  margin: 0 0 3px 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ink-1);
 `;
 
 export const ConversationParticipants = styled.p`
+  ${eyebrow}
   margin: 0;
-  font-size: 12px;
-  color: rgba(100, 100, 100, 1);
 `;
 
 export const Messages = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-  background-color: rgba(248, 249, 250, 1);
+  background: var(--cream-1);
 `;
 
 export const DateSeparator = styled.div`
   text-align: center;
-  margin: 16px 0;
-  font-size: 12px;
-  color: rgba(100, 100, 100, 1);
+  margin: 18px 0;
   position: relative;
 
   &::before {
@@ -282,110 +260,110 @@ export const DateSeparator = styled.div`
     left: 0;
     right: 0;
     height: 1px;
-    background-color: rgba(224, 224, 224, 1);
+    background: var(--cream-3);
     z-index: 1;
   }
 
   &::after {
     content: attr(data-date);
-    background-color: rgba(248, 249, 250, 1);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    background: var(--cream-1);
     padding: 0 12px;
     position: relative;
     z-index: 2;
   }
 `;
 
-export const Message = styled.div`
+export const Message = styled.div.withConfig(block("own", "system"))`
   margin-bottom: 12px;
   max-width: 70%;
-  margin-left: ${(props) => (props.own ? "auto" : "0")};
-  text-align: ${(props) => (props.own ? "right" : "left")};
+  margin-left: ${props => (props.own ? "auto" : "0")};
+  text-align: ${props => (props.own ? "right" : "left")};
 
-  ${(props) => props.system &&
-    `
-    margin: 8px auto;
+  ${props => props.system && css`
+    margin: 10px auto;
     text-align: center;
     max-width: 80%;
   `}
 `;
 
 export const MessageSender = styled.div`
-  font-size: 11px;
-  color: rgba(100, 100, 100, 1);
-  margin-bottom: 2px;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 3px;
 `;
 
-export const MessageContent = styled.div`
-  background-color: rgba(255, 255, 255, 1);
-  padding: 10px 12px;
-  border-radius: 12px;
+export const MessageContent = styled.div.withConfig(block("own", "system"))`
+  display: inline-block;
+  text-align: left;
+  background: var(--cream-0);
+  border: 1px solid var(--glass-stroke);
+  color: var(--ink-1);
+  padding: 10px 13px;
+  border-radius: var(--r-lg);
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
   word-wrap: break-word;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
-  ${(props) => props.own &&
-    `
-    background-color: rgba(0, 0, 0, 1);
-    color: rgba(255, 255, 255, 1);
+  ${props => props.own && css`
+    background: var(--ink-1);
+    border-color: var(--ink-1);
+    color: var(--cream-0);
   `}
 
-  ${(props) => props.system &&
-    `
-    background-color: rgba(240, 240, 240, 1);
-    color: rgba(100, 100, 100, 1);
-    font-style: italic;
-    font-size: 12px;
+  ${props => props.system && css`
+    background: var(--cream-2);
+    border-color: transparent;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    text-align: center;
   `}
 `;
 
 export const MessageTime = styled.div`
+  font-family: var(--font-mono);
   font-size: 10px;
-  color: rgba(150, 150, 150, 1);
+  color: var(--ink-4);
   margin-top: 4px;
 `;
 
 export const InputForm = styled.form`
-  background-color: rgba(255, 255, 255, 1);
-  padding: 16px 20px;
-  border-top: 1px solid rgba(240, 240, 240, 1);
+  background: var(--cream-0);
+  padding: 14px 20px;
+  border-top: 1px solid var(--glass-stroke);
   display: flex;
-  gap: 12px;
+  gap: 10px;
 `;
 
 export const Input = styled.input`
+  ${inputBase}
   flex: 1;
-  padding: 10px 12px;
-  border: 1px solid rgba(224, 224, 224, 1);
-  border-radius: 20px;
+  border-radius: var(--r-pill);
+  padding: 11px 16px;
   font-size: 14px;
-  outline: none;
-  font-family: inherit;
-
-  &:focus {
-    border-color: rgba(0, 0, 0, 0.3);
-  }
 `;
 
 export const SendButton = styled.button`
-  background-color: rgba(0, 0, 0, 1);
-  color: rgba(255, 255, 255, 1);
-  border: none;
-  border-radius: 20px;
+  ${btnBase}
+  ${btnCoral}
   padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background-color: rgba(40, 40, 40, 1);
-  }
+  font-size: 13px;
 
   &:disabled {
-    background-color: rgba(200, 200, 200, 1);
+    background: var(--cream-2);
+    color: var(--ink-4);
+    box-shadow: none;
     cursor: not-allowed;
+    transform: none;
   }
 `;
 
@@ -394,26 +372,32 @@ export const NoSelection = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(248, 249, 250, 1);
+  background: var(--cream-1);
 `;
 
 export const NoSelectionContent = styled.div`
   text-align: center;
 
   h3 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
     margin: 0 0 8px 0;
-    color: rgba(0, 0, 0, 0.87);
+    color: var(--ink-1);
   }
 
   p {
     margin: 0;
-    color: rgba(100, 100, 100, 1);
+    font-size: 14px;
+    color: var(--ink-3);
   }
 `;
 
 export const NoSelectionIcon = styled.div`
-  font-size: 48px;
-  margin-bottom: 16px;
+  font-size: 44px;
+  margin-bottom: 14px;
+  opacity: 0.35;
 `;
 
 export const Loading = styled.div`
@@ -424,8 +408,8 @@ export const Loading = styled.div`
   height: 200px;
 
   p {
-    font-size: 16px;
-    color: rgba(100, 100, 100, 1);
+    font-size: 15px;
+    color: var(--ink-3);
     margin: 0;
   }
 `;
@@ -433,10 +417,10 @@ export const Loading = styled.div`
 export const LoadingSpinner = styled.div`
   width: 40px;
   height: 40px;
-  border: 3px solid rgba(240, 240, 240, 1);
-  border-top: 3px solid rgba(0, 0, 0, 1);
+  border: 3px solid var(--cream-2);
+  border-top: 3px solid var(--signal-yellow);
   border-radius: 50%;
-  animation: ${spin} 1s linear infinite;
+  animation: ${spin} 0.9s linear infinite;
   margin-bottom: 16px;
 `;
 
@@ -447,52 +431,45 @@ export const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(12, 12, 10, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 20px;
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 `;
 
 export const Modal = styled.div`
-  background-color: rgba(255, 255, 255, 1);
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  background: var(--cream-0);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-xl);
+  box-shadow: var(--glass-shadow);
   max-width: 500px;
   width: 100%;
   max-height: 80vh;
   overflow-y: auto;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
-  animation: ${modalSlideIn} 0.3s ease-out;
-
-  @media (max-width: 768px) {
-    margin: 0;
-    border-radius: 12px;
-  }
+  font-family: var(--font-ui);
+  color: var(--ink-1);
+  animation: ${modalSlideIn} 0.25s cubic-bezier(0.2, 0.7, 0.3, 1);
 `;
 
 export const ModalHeader = styled.div`
   padding: 24px 24px 16px 24px;
-  border-bottom: 1px solid rgba(240, 240, 240, 1);
+  border-bottom: 1px solid var(--glass-stroke);
   position: relative;
   text-align: center;
 `;
 
 export const ModalClose = styled.button`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 18px;
+  right: 18px;
   background: none;
   border: none;
   font-size: 18px;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -500,27 +477,28 @@ export const ModalClose = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: background 0.12s ease, color 0.12s ease;
 
   &:hover {
-    background-color: rgba(240, 240, 240, 1);
-    color: rgba(0, 0, 0, 1);
+    background: var(--cream-2);
+    color: var(--ink-1);
   }
 `;
 
 export const ModalTitle = styled.h2`
-  font-size: 20px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 1);
-  margin: 0 0 8px 0;
-  letter-spacing: -0.3px;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--ink-1);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
 `;
 
 export const ModalSubtitle = styled.div`
-  font-size: 14px;
-  color: rgba(100, 100, 100, 1);
+  font-size: 13.5px;
+  color: var(--ink-3);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
 `;
 
 export const ModalContent = styled.div`
@@ -532,27 +510,24 @@ export const FormGroup = styled.div`
 
   label {
     display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
+    margin-bottom: 7px;
+    font-size: 13px;
     font-weight: 600;
-    color: rgba(0, 0, 0, 0.87);
+    letter-spacing: -0.005em;
+    color: var(--ink-1);
   }
 
   input {
-    width: 100%;
-    border: 1px solid rgba(224, 224, 224, 1);
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: inherit;
+    ${inputBase}
     box-sizing: border-box;
   }
 `;
 
 export const FormHint = styled.p`
   font-size: 12px;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-4);
   margin-top: 8px;
-  line-height: 1.4;
+  line-height: 1.45;
 `;
 
 // Mobile-specific components
@@ -562,44 +537,45 @@ export const ChatOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 1);
+  background: var(--cream-0);
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
+  font-family: var(--font-ui);
+  color: var(--ink-1);
 `;
 
 export const OverlayHeader = styled.div`
-  background-color: rgba(255, 255, 255, 1);
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(240, 240, 240, 1);
+  background: var(--cream-0);
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--glass-stroke);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
 `;
 
-export const OverlayBackButton = styled.button`
+const overlayIconButton = `
   background: none;
   border: none;
-  font-size: 20px;
-  color: rgba(0, 0, 0, 0.87);
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease;
+  transition: background 0.12s ease, color 0.12s ease;
 
   &:hover {
-    background-color: rgba(240, 240, 240, 1);
+    background: var(--cream-2);
+    color: var(--ink-1);
   }
+`;
+
+export const OverlayBackButton = styled.button`
+  ${overlayIconButton}
+  font-size: 20px;
+  color: var(--ink-1);
 `;
 
 export const OverlayTitle = styled.h2`
@@ -607,9 +583,11 @@ export const OverlayTitle = styled.h2`
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
+  font-family: var(--font-display);
   font-size: 16px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.87);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ink-1);
   text-align: center;
   max-width: 60%;
   overflow: hidden;
@@ -618,50 +596,37 @@ export const OverlayTitle = styled.h2`
 `;
 
 export const OverlayCloseButton = styled.button`
-  background: none;
-  border: none;
+  ${overlayIconButton}
   font-size: 18px;
-  color: rgba(100, 100, 100, 1);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(240, 240, 240, 1);
-    color: rgba(0, 0, 0, 1);
-  }
+  color: var(--ink-3);
 `;
 
 export const MobileChatList = styled.div`
   flex: 1;
   overflow-y: auto;
-  background-color: rgba(255, 255, 255, 1);
+  background: var(--cream-0);
 `;
 
 export const MobileChatListItem = styled.div`
-  padding: 16px 20px;
+  padding: 15px 20px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(245, 245, 245, 1);
-  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--glass-stroke);
+  transition: background 0.12s ease;
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   &:hover {
-    background-color: rgba(245, 245, 245, 1);
+    background: var(--cream-1);
   }
 
   &:active {
-    background-color: rgba(230, 230, 230, 1);
+    background: var(--cream-2);
   }
 `;
 
 export const EmptyStateSubtext = styled.p`
-  font-size: 14px;
-  color: #666;
+  font-size: 13.5px;
+  color: var(--ink-3);
   margin-top: 8px;
 `;
