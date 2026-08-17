@@ -1,19 +1,21 @@
 import styled from "styled-components";
+import { eyebrow } from "../../styles/tokens";
+
+/* Keep styled-only props off the DOM. */
+const block = (...names) => ({
+  shouldForwardProp: (prop) => !names.includes(prop),
+});
 
 export const Container = styled.div`
-  background-color: rgba(255, 255, 255, 1);
+  background: var(--cream-0);
   min-height: 100vh;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
-  padding: 20px;
+  font-family: var(--font-ui);
+  color: var(--ink-1);
+  padding: 24px 20px 96px;
   box-sizing: border-box;
 
   @media (max-width: 480px) {
-    padding: 16px;
+    padding: 20px 16px 96px;
   }
 `;
 
@@ -24,31 +26,36 @@ export const Header = styled.div`
 export const BackButton = styled.button`
   background: none;
   border: none;
-  font-size: 16px;
-  color: rgba(33, 150, 243, 1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
   cursor: pointer;
   padding: 8px 0;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   font-weight: 500;
-  
+
   &:hover {
-    text-decoration: underline;
+    color: var(--ink-1);
   }
 `;
 
 export const Title = styled.h1`
-  font-size: 28px;
+  font-family: var(--font-display);
+  font-size: 32px;
   font-weight: 700;
-  color: rgba(0, 0, 0, 0.87);
+  color: var(--ink-1);
   margin: 0 0 8px 0;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.02em;
 `;
 
 export const Subtitle = styled.p`
-  font-size: 16px;
-  color: rgba(100, 100, 100, 1);
+  font-size: 15px;
+  color: var(--ink-3);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
 `;
 
 export const HistoryContent = styled.div`
@@ -58,42 +65,39 @@ export const HistoryContent = styled.div`
 
 export const HistorySection = styled.div`
   margin-bottom: 32px;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
 `;
 
 export const HistorySectionTitle = styled.h3`
-  font-size: 20px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.87);
-  margin: 0 0 16px 0;
+  ${eyebrow}
+  margin: 0 0 14px 0;
   padding-bottom: 8px;
-  border-bottom: 2px solid rgba(224, 224, 224, 1);
+  border-bottom: 1px solid var(--cream-3);
 `;
 
-export const TimelineItem = styled.div`
+export const TimelineItem = styled.div.withConfig(block("completed"))`
   display: flex;
   align-items: center;
   padding: 12px 0;
-  border-left: 3px solid ${props => (props.completed ? "rgba(76, 175, 80, 1)" : "rgba(224, 224, 224, 1)")};
+  border-left: 2px solid ${props => (props.completed ? "var(--leaf)" : "var(--cream-3)")};
   padding-left: 16px;
   margin-left: 12px;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
-    left: -8px;
+    left: -7px;
     top: 50%;
     transform: translateY(-50%);
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background-color: ${props => (props.completed ? "rgba(76, 175, 80, 1)" : "rgba(224, 224, 224, 1)")};
-    border: 2px solid white;
-    box-shadow: 0 0 0 2px ${props => (props.completed ? "rgba(76, 175, 80, 1)" : "rgba(224, 224, 224, 1)")};
+    background: ${props => (props.completed ? "var(--leaf)" : "var(--cream-3)")};
+    border: 2px solid var(--cream-0);
   }
 `;
 
@@ -102,27 +106,29 @@ export const TimelineInfo = styled.div`
 `;
 
 export const TimelineTitle = styled.div`
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.87);
-  margin-bottom: 4px;
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
+  margin-bottom: 3px;
 `;
 
 export const TimelineTime = styled.div`
-  font-size: 14px;
-  color: rgba(100, 100, 100, 1);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-4);
 `;
 
 export const RiderProgressItem = styled.div`
   padding: 16px;
-  border: 1px solid rgba(224, 224, 224, 1);
-  border-radius: 12px;
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-lg);
   margin-bottom: 12px;
-  background-color: rgba(249, 249, 249, 1);
-  transition: all 0.2s ease;
-  
+  background: var(--cream-1);
+  transition: box-shadow 0.12s ease;
+
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--glass-shadow);
   }
 `;
 
@@ -130,32 +136,35 @@ export const RiderProgressHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
   margin-bottom: 8px;
 `;
 
 export const RiderProgressName = styled.div`
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.87);
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
 `;
 
-export const RiderProgressStatus = styled.div`
-  font-size: 14px;
-  color: ${props => (props.completed ? "rgba(76, 175, 80, 1)" : "rgba(255, 152, 0, 1)")};
+export const RiderProgressStatus = styled.div.withConfig(block("completed"))`
+  font-size: 11.5px;
   font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
-  background-color: ${props => (props.completed ? "rgba(76, 175, 80, 0.1)" : "rgba(255, 152, 0, 0.1)")};
+  flex-shrink: 0;
+  color: ${props => (props.completed ? "var(--leaf)" : "var(--ink-2)")};
+  padding: 4px 9px;
+  border-radius: var(--r-pill);
+  background: ${props => (props.completed ? "var(--leaf-soft)" : "var(--signal-yellow-soft)")};
 `;
 
 export const RiderProgressDetails = styled.div`
-  font-size: 14px;
-  color: rgba(100, 100, 100, 1);
+  font-size: 13.5px;
+  color: var(--ink-3);
   line-height: 1.5;
-  
+
   div {
     margin-bottom: 4px;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
@@ -164,32 +173,34 @@ export const RiderProgressDetails = styled.div`
 
 export const EventItem = styled.div`
   padding: 12px 16px;
-  border-left: 4px solid rgba(33, 150, 243, 1);
+  border-left: 3px solid var(--signal-yellow);
   margin-bottom: 12px;
-  background-color: rgba(245, 245, 245, 1);
-  border-radius: 0 8px 8px 0;
-  transition: all 0.2s ease;
-  
+  background: var(--cream-1);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  transition: background 0.12s ease;
+
   &:hover {
-    background-color: rgba(240, 240, 240, 1);
+    background: var(--cream-2);
   }
 `;
 
 export const EventTitle = styled.div`
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.87);
-  margin-bottom: 6px;
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
+  margin-bottom: 5px;
 `;
 
 export const EventDetails = styled.div`
-  font-size: 13px;
-  color: rgba(100, 100, 100, 1);
-  line-height: 1.4;
-  
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  line-height: 1.45;
+
   div {
     margin-bottom: 2px;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
@@ -207,22 +218,25 @@ export const NotFound = styled.div`
 `;
 
 export const NotFoundIcon = styled.div`
-  font-size: 64px;
-  margin-bottom: 20px;
-  opacity: 0.5;
+  font-size: 56px;
+  margin-bottom: 18px;
+  opacity: 0.35;
 `;
 
 export const NotFoundTitle = styled.h2`
+  font-family: var(--font-display);
   font-size: 24px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.87);
-  margin: 0 0 12px 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink-1);
+  margin: 0 0 10px 0;
 `;
 
 export const NotFoundMessage = styled.p`
-  font-size: 16px;
-  color: rgba(100, 100, 100, 1);
+  font-size: 15px;
+  color: var(--ink-3);
   margin: 0;
   line-height: 1.5;
+  letter-spacing: -0.005em;
   max-width: 400px;
 `;
