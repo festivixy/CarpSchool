@@ -61,6 +61,34 @@
   --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
 }
 
+/* Base surface + type, per the design handoff. Without these the paper
+ * background and Geist stack only apply where a component happens to set
+ * them, which is why unstyled markup rendered as system-font on white.
+ *
+ * Selector is `html body`, not `body`: semantic-ui-css is still imported
+ * globally in layouts/App.jsx and its own `body` rule (Lato / #fff /
+ * rgba(0,0,0,.87)) otherwise wins on source order. Drop the `html` when
+ * Semantic UI is removed. */
+html body {
+  font-family: var(--font-ui);
+  color: var(--ink-1);
+  background: var(--cream-0);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings universally use the display face. Element-level specificity, so
+ * any styled-component heading still wins. */
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
 html,
 body {
   height: 100%;

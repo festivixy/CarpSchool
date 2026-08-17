@@ -126,6 +126,45 @@ export const chip = css`
   }
 `;
 
+// Selected filter chip — inverts to ink.
+export const chipActive = css`
+  background: var(--ink-1);
+  color: var(--cream-0);
+  border-color: var(--ink-1);
+`;
+
+// Soft yellow chip, for callouts rather than selection.
+export const chipCoral = css`
+  background: var(--signal-yellow-soft);
+  color: var(--ink-1);
+  border-color: var(--signal-yellow-deep);
+`;
+
+// Circular icon button. Compose after btnBase.
+export const btnIcon = css`
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+`;
+
+// Hairline divider.
+export const hr = css`
+  height: 1px;
+  background: var(--glass-stroke);
+  border: 0;
+`;
+
+// Scroll container with the scrollbar hidden.
+export const scrollY = css`
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
 // Long-form document typography. Applied to containers whose children are
 // generated (e.g. ReactMarkdown output), so the elements cannot be styled
 // individually.
