@@ -1,8 +1,16 @@
 import styled from "styled-components";
+import { btnBase, btnGhost, eyebrow } from "./tokens";
+
+/* Keep styled-only props off the DOM. */
+const block = (...names) => ({
+  shouldForwardProp: (prop) => !names.includes(prop),
+});
 
 export const Container = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--cream-1);
+  font-family: var(--font-ui);
+  color: var(--ink-1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,14 +18,15 @@ export const Container = styled.div`
 `;
 
 export const Content = styled.div`
-  background: white;
-  border-radius: 16px;
+  background: var(--cream-0);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-xl);
   padding: 40px;
   max-width: 600px;
   width: 100%;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  
+  box-shadow: var(--glass-shadow);
+
   @media (max-width: 768px) {
     padding: 30px 20px;
     margin: 20px;
@@ -25,68 +34,74 @@ export const Content = styled.div`
 `;
 
 export const Icon = styled.div`
-  font-size: 64px;
-  margin-bottom: 20px;
-  
+  font-size: 56px;
+  margin-bottom: 18px;
+  opacity: 0.5;
+
   @media (max-width: 768px) {
-    font-size: 48px;
+    font-size: 44px;
   }
 `;
 
 export const Title = styled.h1`
-  color: #333;
-  font-size: 28px;
+  font-family: var(--font-display);
+  color: var(--ink-1);
+  font-size: 30px;
   font-weight: 700;
+  letter-spacing: -0.02em;
   margin: 0 0 10px 0;
-  
+
   @media (max-width: 768px) {
-    font-size: 24px;
+    font-size: 25px;
   }
 `;
 
 export const Subtitle = styled.p`
-  color: #666;
-  font-size: 16px;
-  margin: 0 0 30px 0;
-  
+  color: var(--ink-3);
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  margin: 0 0 28px 0;
+
   @media (max-width: 768px) {
     font-size: 14px;
   }
 `;
 
-export const StatusCard = styled.div`
+export const StatusCard = styled.div.withConfig(block("pending"))`
   display: flex;
   align-items: center;
-  padding: 15px;
+  padding: 14px 15px;
   margin: 10px 0;
-  border-radius: 8px;
-  background: ${props => props.pending ? '#fff3cd' : '#d4edda'};
-  border: 1px solid ${props => props.pending ? '#ffeaa7' : '#c3e6cb'};
+  border-radius: var(--r-md);
+  background: ${props => (props.pending ? "var(--signal-yellow-soft)" : "var(--leaf-soft)")};
+  border: 1px solid ${props => (props.pending ? "var(--signal-yellow-deep)" : "var(--leaf)")};
   text-align: left;
 `;
 
-export const StatusIcon = styled.div`
+export const StatusIcon = styled.div.withConfig(block("pending"))`
   font-size: 20px;
-  margin-right: 15px;
-  opacity: ${props => props.pending ? 0.7 : 1};
+  margin-right: 14px;
+  opacity: ${props => (props.pending ? 0.7 : 1)};
 `;
 
-export const StatusText = styled.div`
-  color: ${props => props.pending ? '#856404' : '#155724'};
-  font-size: 14px;
+export const StatusText = styled.div.withConfig(block("pending"))`
+  color: ${props => (props.pending ? "var(--ink-2)" : "var(--leaf)")};
+  font-size: 13.5px;
   flex: 1;
 `;
 
 export const Message = styled.div`
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 25px;
-  margin: 30px 0;
-  color: #333;
-  font-size: 16px;
+  background: var(--cream-1);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-md);
+  padding: 24px;
+  margin: 28px 0;
+  color: var(--ink-2);
+  font-size: 15px;
   line-height: 1.6;
+  letter-spacing: -0.005em;
   text-align: left;
-  
+
   @media (max-width: 768px) {
     font-size: 14px;
     padding: 20px;
@@ -94,50 +109,36 @@ export const Message = styled.div`
 `;
 
 export const InfoSection = styled.div`
-  background: #e3f2fd;
-  border-radius: 8px;
+  background: var(--signal-yellow-soft);
+  border: 1px solid var(--signal-yellow-deep);
+  border-radius: var(--r-md);
   padding: 20px;
-  margin: 25px 0;
+  margin: 24px 0;
   text-align: left;
 `;
 
 export const InfoTitle = styled.h3`
-  color: #1976d2;
-  font-size: 16px;
-  margin: 0 0 10px 0;
-  font-weight: 600;
+  ${eyebrow}
+  color: var(--ink-1);
+  margin: 0 0 8px 0;
 `;
 
 export const InfoText = styled.p`
-  color: #333;
-  font-size: 14px;
+  color: var(--ink-2);
+  font-size: 13.5px;
   margin: 0;
   line-height: 1.5;
 `;
 
 export const Actions = styled.div`
-  margin-top: 30px;
+  margin-top: 28px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--glass-stroke);
 `;
 
 export const LogoutButton = styled.button`
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #5a6268;
-    transform: translateY(-1px);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
+  ${btnBase}
+  ${btnGhost}
+  padding: 12px 22px;
+  font-size: 13.5px;
 `;
