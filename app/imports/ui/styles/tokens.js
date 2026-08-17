@@ -126,6 +126,124 @@ export const chip = css`
   }
 `;
 
+// Long-form document typography. Applied to containers whose children are
+// generated (e.g. ReactMarkdown output), so the elements cannot be styled
+// individually.
+export const prose = css`
+  color: var(--ink-2);
+  font-size: 15.5px;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    color: var(--ink-1);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 1.6em 0 0.5em;
+  }
+
+  h1 {
+    font-size: 32px;
+    margin-top: 0;
+  }
+
+  h2 {
+    font-size: 23px;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--cream-3);
+  }
+
+  h3 {
+    font-size: 17px;
+  }
+
+  h4 {
+    ${eyebrow}
+  }
+
+  p {
+    margin: 0 0 1em;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 1em;
+    padding-left: 1.35em;
+  }
+
+  li {
+    margin-bottom: 0.4em;
+  }
+
+  li::marker {
+    color: var(--ink-4);
+  }
+
+  strong {
+    font-weight: 600;
+    color: var(--ink-1);
+  }
+
+  em {
+    color: var(--ink-3);
+  }
+
+  a {
+    color: var(--ink-1);
+    text-decoration: underline;
+    text-decoration-color: var(--signal-yellow-deep);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+
+    &:hover {
+      background: var(--signal-yellow-soft);
+    }
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--cream-3);
+    margin: 2em 0;
+  }
+
+  blockquote {
+    margin: 0 0 1em;
+    padding: 2px 0 2px 14px;
+    border-left: 3px solid var(--signal-yellow);
+    color: var(--ink-3);
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--cream-2);
+    border-radius: var(--r-sm);
+    padding: 0.15em 0.35em;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 1em;
+    font-size: 14px;
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--cream-3);
+  }
+
+  th {
+    ${eyebrow}
+  }
+`;
+
 // Text input.
 export const inputBase = css`
   font-family: var(--font-ui);

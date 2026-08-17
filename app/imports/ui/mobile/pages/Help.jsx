@@ -4,9 +4,9 @@ import { withRouter } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import {
   Container,
-  SectionHeader,
+  DocHeader,
   SectionTitle,
-  Content,
+  DocContent,
 } from "../styles/Landing";
 import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
 import { HeaderWithBack } from "../styles/Credits";
@@ -67,13 +67,13 @@ function MobileHelp({ history: _history }) {
         </HeaderWithBack>
       </MobileOnly>
       <DesktopOnly>
-        <SectionHeader>
+        <DocHeader>
           <SectionTitle>Help & Support</SectionTitle>
-        </SectionHeader>
+        </DocHeader>
       </DesktopOnly>
-      <Content>
+      <DocContent>
         <ReactMarkdown>{helpContent}</ReactMarkdown>
-      </Content>
+      </DocContent>
     </Container>
   );
 }

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { btnBase, btnCoral, btnGhost } from "../../styles/tokens";
+import { btnBase, btnCoral, btnGhost, prose } from "../../styles/tokens";
 
 export const Container = styled.div`
   min-height: 100vh;
@@ -76,6 +76,28 @@ export const Content = styled.div`
   display: flex;
   flex-direction: column;
   gap: 14px;
+`;
+
+/* Long-form markdown pages (About, Blog, Contact, Credits, FAQ, Help,
+ * Privacy, TOS) mount straight inside Container with no section wrapper to
+ * centre them, so this supplies the measure, gutters and prose typography
+ * that ReactMarkdown output would otherwise render without. */
+/* Fixed px rather than ch: `ch` resolves against each element's own font, so
+ * the display-face header and the body-copy content computed to different
+ * widths (631px vs 699px) and their centred left edges disagreed by 33px. */
+const DOC_MEASURE = "700px";
+
+export const DocContent = styled.div`
+  ${prose}
+  max-width: ${DOC_MEASURE};
+  margin: 0 auto;
+  padding: 8px 20px 40px;
+`;
+
+export const DocHeader = styled.div`
+  max-width: ${DOC_MEASURE};
+  margin: 0 auto;
+  padding: 32px 20px 0;
 `;
 
 export const Paragraph = styled.p`

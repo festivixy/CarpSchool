@@ -6,9 +6,9 @@ import { Meteor } from "meteor/meteor";
 import ReactMarkdown from "react-markdown";
 import {
   Container,
-  SectionHeader,
+  DocHeader,
   SectionTitle,
-  Content,
+  DocContent,
 } from "../styles/Landing";
 import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
 import { HeaderWithBack } from "../styles/TOS";
@@ -43,13 +43,13 @@ function MobileTOS({ history: _history, tosContent, ready }) {
         </HeaderWithBack>
       </MobileOnly>
       <DesktopOnly>
-        <SectionHeader>
+        <DocHeader>
           <SectionTitle>Terms of Service</SectionTitle>
-        </SectionHeader>
+        </DocHeader>
       </DesktopOnly>
-      <Content>
+      <DocContent>
         <ReactMarkdown>{content}</ReactMarkdown>
-      </Content>
+      </DocContent>
     </Container>
   );
 }

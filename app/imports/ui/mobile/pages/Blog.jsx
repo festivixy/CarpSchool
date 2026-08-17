@@ -6,9 +6,9 @@ import { Meteor } from "meteor/meteor";
 import ReactMarkdown from "react-markdown";
 import {
   Container,
-  SectionHeader,
+  DocHeader,
   SectionTitle,
-  Content,
+  DocContent,
 } from "../styles/Landing";
 import { MobileOnly, DesktopOnly } from "../../layouts/Devices";
 import { HeaderWithBack } from "../styles/Privacy";
@@ -72,13 +72,13 @@ function MobileBlog({ history: _history, blogContent, ready }) {
         </HeaderWithBack>
       </MobileOnly>
       <DesktopOnly>
-        <SectionHeader>
+        <DocHeader>
           <SectionTitle>CarpSchool Blog</SectionTitle>
-        </SectionHeader>
+        </DocHeader>
       </DesktopOnly>
-      <Content>
+      <DocContent>
         <ReactMarkdown>{content}</ReactMarkdown>
-      </Content>
+      </DocContent>
     </Container>
   );
 }
