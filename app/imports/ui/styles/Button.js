@@ -1,135 +1,102 @@
 import styled, { css } from "styled-components";
+import { btnBase } from "./tokens";
+
+/* Custom props consumed by the styled layer — never forward these to the DOM. */
+const CUSTOM_PROPS = ["variant", "size", "hasIcon", "position"];
+const forwardProp = (prop) => !CUSTOM_PROPS.includes(prop);
 
 // Base button styles
-export const StyledButton = styled.button`
-  /* Reset and base styles */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 8px;
-  font-family: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
+export const StyledButton = styled.button.withConfig({
+  shouldForwardProp: forwardProp,
+})`
+  ${btnBase}
   text-decoration: none;
   outline: none;
   position: relative;
-  overflow: hidden;
 
   /* Focus styles for accessibility */
   &:focus-visible {
-    outline: 2px solid #007AFF;
+    outline: 2px solid var(--ink-1);
     outline-offset: 2px;
   }
 
   /* Size variants */
   ${props => props.size === "small" && css`
-    padding: 8px 16px;
-    font-size: 14px;
+    padding: 8px 14px;
+    font-size: 12.5px;
     min-height: 32px;
-    border-radius: 6px;
   `}
 
   ${props => props.size === "medium" && css`
-    padding: 12px 24px;
-    font-size: 16px;
+    padding: 12px 20px;
+    font-size: 14px;
     min-height: 44px;
-    border-radius: 8px;
   `}
 
   ${props => props.size === "large" && css`
-    padding: 16px 32px;
-    font-size: 18px;
+    padding: 15px 28px;
+    font-size: 16px;
     min-height: 52px;
-    border-radius: 10px;
   `}
 
-  /* Primary variant */
+  /* Primary variant — ink on paper, the default call to action */
   ${props => props.variant === "primary" && css`
-    background-color: #007AFF;
-    color: white;
+    background: var(--ink-1);
+    color: var(--cream-0);
 
     &:hover:not(:disabled) {
-      background-color: #0051D0;
-      transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) {
-      background-color: #003999;
-      transform: translateY(0);
+      background: #000;
     }
   `}
 
   /* Secondary variant */
   ${props => props.variant === "secondary" && css`
-    background-color: #F2F2F7;
-    color: #1C1C1E;
+    background: var(--cream-2);
+    color: var(--ink-1);
 
     &:hover:not(:disabled) {
-      background-color: #E5E5EA;
-      transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) {
-      background-color: #D1D1D6;
-      transform: translateY(0);
+      background: var(--cream-3);
     }
   `}
 
   /* Danger variant */
   ${props => props.variant === "danger" && css`
-    background-color: #FF3B30;
-    color: white;
+    background: var(--danger);
+    color: var(--cream-0);
 
     &:hover:not(:disabled) {
-      background-color: #D70015;
-      transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) {
-      background-color: #A20000;
-      transform: translateY(0);
+      background: var(--danger-deep);
     }
   `}
 
   /* Outline variant */
   ${props => props.variant === "outline" && css`
-    background-color: transparent;
-    color: #007AFF;
-    border: 2px solid #007AFF;
+    background: transparent;
+    color: var(--ink-1);
+    border: 1.5px solid var(--ink-1);
 
     &:hover:not(:disabled) {
-      background-color: #007AFF;
-      color: white;
-      transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) {
-      background-color: #0051D0;
-      transform: translateY(0);
+      background: var(--ink-1);
+      color: var(--cream-0);
     }
   `}
 
   /* Ghost variant */
   ${props => props.variant === "ghost" && css`
-    background-color: transparent;
-    color: #007AFF;
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--ink-1);
+    border: 1px solid var(--glass-stroke);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 
     &:hover:not(:disabled) {
-      background-color: rgba(0, 122, 255, 0.1);
-      transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) {
-      background-color: rgba(0, 122, 255, 0.2);
-      transform: translateY(0);
+      background: rgba(255, 255, 255, 0.9);
     }
   `}
 
   /* Disabled state */
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.45;
     cursor: not-allowed;
     transform: none !important;
   }
@@ -137,10 +104,10 @@ export const StyledButton = styled.button`
   /* Mobile touch optimizations */
   @media (max-width: 768px) {
     min-height: 44px; /* iOS minimum touch target */
-    
+
     ${props => props.size === "small" && css`
       min-height: 36px;
-      padding: 10px 20px;
+      padding: 10px 18px;
     `}
   }
 
@@ -152,53 +119,28 @@ export const StyledButton = styled.button`
   /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
     transition: none;
-    
-    &:hover:not(:disabled), &:active:not(:disabled) {
+
+    &:active:not(:disabled) {
       transform: none;
     }
   }
 `;
 
-export const ButtonIcon = styled.span`
+export const ButtonIcon = styled.span.withConfig({
+  shouldForwardProp: forwardProp,
+})`
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  ${props => props.position === "left" && css`
-    margin-right: 8px;
-  `}
-  
-  ${props => props.position === "right" && css`
-    margin-left: 8px;
-  `}
-
-  /* Adjust icon spacing for different sizes */
-  ${StyledButton}[data-size="small"] & {
-    ${props => props.position === "left" && css`
-      margin-right: 6px;
-    `}
-    
-    ${props => props.position === "right" && css`
-      margin-left: 6px;
-    `}
-  }
-
-  ${StyledButton}[data-size="large"] & {
-    ${props => props.position === "left" && css`
-      margin-right: 10px;
-    `}
-    
-    ${props => props.position === "right" && css`
-      margin-left: 10px;
-    `}
-  }
 `;
 
-export const ButtonText = styled.span`
+export const ButtonText = styled.span.withConfig({
+  shouldForwardProp: forwardProp,
+})`
   display: flex;
   align-items: center;
   white-space: nowrap;
-  
+
   /* Ensure text doesn't break when there's an icon */
   ${props => props.hasIcon && css`
     min-width: 0;

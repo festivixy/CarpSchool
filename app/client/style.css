@@ -28,6 +28,12 @@
   --plum: #b03a6e;
   --amber: #ff8a00;
 
+  /* Semantic state colours (destructive / positive) */
+  --danger: #c2321c;
+  --danger-deep: #98240f;
+  --danger-soft: #fbe4df;
+  --leaf-soft: #dcefe4;
+
   /* Map / route */
   --map-bg: #ecebe4;
   --map-land: #f0efe8;
