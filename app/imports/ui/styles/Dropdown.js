@@ -1,110 +1,122 @@
 import styled, { css } from "styled-components";
 
+/* Keep styled-only props off the DOM (`size` in particular is a real numeric
+ * HTML attribute that our string values would violate). */
+const block = (...names) => ({
+  shouldForwardProp: (prop) => !names.includes(prop),
+});
+
 export const DropdownContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
   margin-bottom: 16px;
+  font-family: var(--font-ui);
 
   &:last-child {
     margin-bottom: 0;
   }
 `;
 
-export const DropdownLabel = styled.label`
+export const DropdownLabel = styled.label.withConfig(block("disabled"))`
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #1C1C1E;
-  margin-bottom: 8px;
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
+  margin-bottom: 7px;
 
   ${props => props.disabled && css`
-    color: #8E8E93;
+    color: var(--ink-4);
   `}
 `;
 
 export const RequiredIndicator = styled.span`
-  color: #FF3B30;
+  color: var(--danger);
   margin-left: 4px;
 `;
 
-export const DropdownTrigger = styled.button`
+export const DropdownTrigger = styled.button.withConfig(
+  block("size", "variant", "isOpen", "hasError"),
+)`
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  background-color: #F2F2F7;
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: border 0.12s, background 0.12s, box-shadow 0.12s;
   text-align: left;
   font-family: inherit;
+  letter-spacing: -0.005em;
   outline: none;
 
   /* Size variants */
   ${props => props.size === "small" && css`
     min-height: 36px;
     padding: 8px 12px;
-    border-radius: 6px;
+    border-radius: var(--r-sm);
     font-size: 14px;
   `}
 
   ${props => props.size === "medium" && css`
     min-height: 44px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 16px;
+    padding: 12px 14px;
+    font-size: 15px;
   `}
 
   ${props => props.size === "large" && css`
     min-height: 52px;
-    padding: 16px 20px;
-    border-radius: 10px;
-    font-size: 18px;
+    padding: 15px 18px;
+    border-radius: var(--r-lg);
+    font-size: 16px;
   `}
 
   /* Variant styles */
   ${props => props.variant === "outline" && css`
-    background-color: transparent;
-    border: 2px solid #D1D1D6;
+    background: transparent;
+    border: 1px solid var(--cream-3);
   `}
 
   ${props => props.variant === "filled" && css`
-    background-color: #E5E5EA;
+    background: var(--cream-1);
   `}
 
   /* Focus state */
   &:focus {
-    border-color: #007AFF;
-    box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.3);
+    border-color: var(--ink-1);
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--signal-yellow-soft);
   }
 
   /* Open state */
   ${props => props.isOpen && css`
-    border-color: #007AFF;
-    box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.3);
+    border-color: var(--ink-1);
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--signal-yellow-soft);
   `}
 
   /* Error state */
   ${props => props.hasError && css`
-    border-color: #FF3B30;
-    background-color: rgba(255, 59, 48, 0.05);
+    border-color: var(--danger);
+    background: var(--danger-soft);
 
     &:focus {
-      box-shadow: 0 0 0 1px rgba(255, 59, 48, 0.3);
+      box-shadow: 0 0 0 4px rgba(194, 50, 28, 0.14);
     }
   `}
 
   /* Disabled state */
   ${props => props.disabled && css`
-    background-color: #F2F2F7;
+    background: var(--cream-1);
     opacity: 0.6;
     cursor: not-allowed;
 
     &:focus {
-      border-color: transparent;
+      border-color: var(--glass-stroke);
       box-shadow: none;
     }
   `}
@@ -113,7 +125,7 @@ export const DropdownTrigger = styled.button`
   @media (prefers-contrast: high) {
     border-width: 2px;
     border-style: solid;
-    border-color: #1C1C1E;
+    border-color: var(--ink-1);
   }
 `;
 
@@ -123,7 +135,7 @@ export const TriggerContent = styled.div`
 `;
 
 export const TriggerValue = styled.span`
-  color: #1C1C1E;
+  color: var(--ink-1);
   font-weight: 500;
   display: block;
   white-space: nowrap;
@@ -132,17 +144,17 @@ export const TriggerValue = styled.span`
 `;
 
 export const TriggerPlaceholder = styled.span`
-  color: #8E8E93;
+  color: var(--ink-4);
   display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
-export const TriggerIcon = styled.span`
-  color: #8E8E93;
+export const TriggerIcon = styled.span.withConfig(block("isOpen"))`
+  color: var(--ink-3);
   margin-left: 8px;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.16s ease-in-out;
   font-size: 12px;
   display: flex;
   align-items: center;
@@ -152,17 +164,17 @@ export const TriggerIcon = styled.span`
   `}
 `;
 
-export const DropdownMenu = styled.div`
+export const DropdownMenu = styled.div.withConfig(block("maxHeight"))`
   position: absolute;
   top: 100%;
   left: 0;
   right: 0;
   z-index: 1000;
-  background: white;
-  border: 1px solid #D1D1D6;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  margin-top: 4px;
+  background: var(--cream-0);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-md);
+  box-shadow: var(--glass-shadow);
+  margin-top: 5px;
   overflow: hidden;
   max-height: ${props => props.maxHeight};
   overflow-y: auto;
@@ -173,77 +185,84 @@ export const DropdownMenu = styled.div`
   }
 
   &::-webkit-scrollbar-track {
-    background: #F2F2F7;
+    background: var(--cream-1);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #D1D1D6;
+    background: var(--cream-3);
     border-radius: 4px;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: #AEAEB2;
+    background: var(--ink-4);
   }
 `;
 
 export const SearchInput = styled.input`
   width: 100%;
   border: none;
-  border-bottom: 1px solid #E5E5EA;
-  padding: 12px 16px;
-  font-size: 16px;
+  border-bottom: 1px solid var(--glass-stroke);
+  padding: 12px 14px;
+  font-size: 15px;
   font-family: inherit;
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
   outline: none;
-  background: #F9F9F9;
+  background: var(--cream-1);
 
   &::placeholder {
-    color: #8E8E93;
+    color: var(--ink-4);
   }
 
   &:focus {
-    background: white;
-    border-bottom-color: #007AFF;
+    background: #fff;
+    border-bottom-color: var(--ink-1);
   }
 `;
 
-export const MenuItem = styled.div`
+export const MenuItem = styled.div.withConfig(
+  block("isFocused", "isSelected", "disabled"),
+)`
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  padding: 12px 14px;
   cursor: pointer;
-  transition: background-color 0.15s ease;
-  color: #1C1C1E;
-  font-size: 16px;
+  transition: background 0.12s ease, color 0.12s ease;
+  color: var(--ink-2);
+  font-size: 15px;
+  letter-spacing: -0.005em;
   border: none;
   text-align: left;
   width: 100%;
 
   &:hover {
-    background-color: #F2F2F7;
+    background: var(--cream-1);
+    color: var(--ink-1);
   }
 
   ${props => props.isFocused && css`
-    background-color: #F2F2F7;
+    background: var(--cream-1);
+    color: var(--ink-1);
   `}
 
   ${props => props.isSelected && css`
-    background-color: #E3F2FD;
-    color: #007AFF;
+    background: var(--signal-yellow-soft);
+    color: var(--ink-1);
     font-weight: 600;
   `}
 
   ${props => props.disabled && css`
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
 
     &:hover {
-      background-color: transparent;
+      background: transparent;
     }
   `}
 
   /* Active state */
   &:active:not(:disabled) {
-    background-color: #E5E5EA;
+    background: var(--cream-2);
   }
 `;
 
@@ -267,29 +286,29 @@ export const MenuItemText = styled.span`
 export const NoResults = styled.div`
   padding: 16px;
   text-align: center;
-  color: #8E8E93;
-  font-style: italic;
+  color: var(--ink-4);
+  font-size: 14px;
 `;
 
 export const ErrorMessage = styled.div`
-  font-size: 14px;
-  color: #FF3B30;
-  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--danger);
+  margin-top: 6px;
   font-weight: 500;
   display: flex;
   align-items: flex-start;
+  gap: 5px;
 
   &:before {
-    content: "⚠️";
-    margin-right: 4px;
-    font-size: 12px;
+    content: "—";
+    color: var(--danger);
   }
 `;
 
 export const HelperText = styled.div`
-  font-size: 14px;
-  color: #8E8E93;
-  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--ink-4);
+  margin-top: 6px;
   line-height: 1.4;
 `;
 

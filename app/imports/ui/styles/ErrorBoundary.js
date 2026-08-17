@@ -1,15 +1,30 @@
 import styled, { css } from "styled-components";
+import { btnBase, btnPrimary } from "./tokens";
 
-export const ErrorContainer = styled.div`
+/* This file predates the token layer but already shipped dark-mode support.
+ * The light path is on tokens; the dark path keeps literal values because the
+ * palette has no dark ramp yet. When a dark token set lands, replace the
+ * prefers-color-scheme blocks below. */
+const DARK_SURFACE = "#17171a";
+const DARK_SURFACE_2 = "#212125";
+const DARK_STROKE = "#31313a";
+const DARK_TEXT = "#ecebe4";
+const DARK_TEXT_DIM = "#a6a49c";
+
+export const ErrorContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "variant",
+})`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
   text-align: center;
-  background: #FAFAFA;
-  border-radius: 12px;
-  border: 1px solid #E5E5EA;
+  font-family: var(--font-ui);
+  color: var(--ink-1);
+  background: var(--cream-0);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--glass-stroke);
   margin: 20px;
   min-height: 200px;
 
@@ -26,14 +41,14 @@ export const ErrorContainer = styled.div`
     padding: 60px 40px;
     max-width: 600px;
     margin: 40px auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--glass-shadow);
   `}
 
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
-    background: #1C1C1E;
-    border-color: #2C2C2E;
-    color: #F2F2F7;
+    background: ${DARK_SURFACE};
+    border-color: ${DARK_STROKE};
+    color: ${DARK_TEXT};
   }
 `;
 
@@ -49,11 +64,13 @@ export const ErrorIcon = styled.div`
 `;
 
 export const ErrorTitle = styled.h2`
-  color: #1C1C1E;
-  font-size: 24px;
+  font-family: var(--font-display);
+  color: var(--ink-1);
+  font-size: 26px;
   font-weight: 700;
-  margin: 0 0 16px 0;
-  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px 0;
+  line-height: 1.2;
 
   ${ErrorContainer}[data-variant="minimal"] & {
     font-size: 18px;
@@ -62,14 +79,15 @@ export const ErrorTitle = styled.h2`
 
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
-    color: #F2F2F7;
+    color: ${DARK_TEXT};
   }
 `;
 
 export const ErrorMessage = styled.p`
-  color: #666;
-  font-size: 16px;
+  color: var(--ink-3);
+  font-size: 15px;
   line-height: 1.5;
+  letter-spacing: -0.005em;
   margin: 0 0 24px 0;
   max-width: 400px;
 
@@ -80,15 +98,16 @@ export const ErrorMessage = styled.p`
 
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
-    color: #AEAEB2;
+    color: ${DARK_TEXT_DIM};
   }
 `;
 
 export const ErrorDetails = styled.details`
   margin: 16px 0 24px 0;
   padding: 16px;
-  background: #F2F2F7;
-  border-radius: 8px;
+  background: var(--cream-1);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-md);
   text-align: left;
   max-width: 100%;
   overflow: auto;
@@ -96,7 +115,8 @@ export const ErrorDetails = styled.details`
   summary {
     cursor: pointer;
     font-weight: 600;
-    color: #007AFF;
+    font-size: 13px;
+    color: var(--ink-1);
     margin-bottom: 12px;
     outline: none;
 
@@ -105,17 +125,17 @@ export const ErrorDetails = styled.details`
     }
 
     &:focus {
-      outline: 2px solid #007AFF;
+      outline: 2px solid var(--ink-1);
       outline-offset: 2px;
-      border-radius: 4px;
+      border-radius: var(--r-sm);
     }
   }
 
   pre {
-    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
-    font-size: 12px;
-    line-height: 1.4;
-    color: #666;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: var(--ink-3);
     white-space: pre-wrap;
     word-break: break-word;
     margin: 0;
@@ -124,10 +144,15 @@ export const ErrorDetails = styled.details`
 
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
-    background: #2C2C2E;
+    background: ${DARK_SURFACE_2};
+    border-color: ${DARK_STROKE};
+
+    summary {
+      color: ${DARK_TEXT};
+    }
 
     pre {
-      color: #AEAEB2;
+      color: ${DARK_TEXT_DIM};
     }
   }
 `;
@@ -146,92 +171,75 @@ export const ErrorActions = styled.div`
 `;
 
 export const RetryButton = styled.button`
-  background: #007AFF;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  outline: none;
+  ${btnBase}
+  ${btnPrimary}
+  padding: 12px 22px;
+  font-size: 14px;
 
-  &:hover {
-    background: #0051D0;
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    background: #003999;
-    transform: translateY(0);
-  }
-
-  &:focus {
-    outline: 2px solid #007AFF;
+  &:focus-visible {
+    outline: 2px solid var(--ink-1);
     outline-offset: 2px;
   }
 
   ${ErrorContainer}[data-variant="minimal"] & {
     padding: 8px 16px;
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    background: var(--signal-yellow);
+    color: var(--ink-1);
+
+    &:hover {
+      background: var(--signal-yellow-deep);
+    }
   }
 `;
 
 export const ReportButton = styled.button`
+  ${btnBase}
   background: transparent;
-  color: #007AFF;
-  border: 2px solid #007AFF;
-  border-radius: 8px;
-  padding: 10px 22px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  outline: none;
+  color: var(--ink-1);
+  border: 1.5px solid var(--ink-1);
+  padding: 11px 20px;
+  font-size: 14px;
 
   &:hover {
-    background: #007AFF;
-    color: white;
-    transform: translateY(-1px);
+    background: var(--ink-1);
+    color: var(--cream-0);
   }
 
-  &:active {
-    background: #0051D0;
-    border-color: #0051D0;
-    transform: translateY(0);
-  }
-
-  &:focus {
-    outline: 2px solid #007AFF;
+  &:focus-visible {
+    outline: 2px solid var(--ink-1);
     outline-offset: 2px;
   }
 
   ${ErrorContainer}[data-variant="minimal"] & {
     padding: 6px 14px;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
-    color: #0A84FF;
-    border-color: #0A84FF;
+    color: ${DARK_TEXT};
+    border-color: ${DARK_STROKE};
 
     &:hover {
-      background: #0A84FF;
-      color: #000;
+      background: ${DARK_TEXT};
+      color: ${DARK_SURFACE};
     }
   }
 `;
 
 export const ErrorCode = styled.div`
-  font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
-  font-size: 12px;
-  color: #8E8E93;
-  background: #F2F2F7;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-4);
+  background: var(--cream-1);
   padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #E5E5EA;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--glass-stroke);
   user-select: all;
   cursor: text;
 
@@ -242,55 +250,58 @@ export const ErrorCode = styled.div`
 
   small {
     font-size: 10px;
-    color: #999;
+    color: var(--ink-4);
     display: block;
     margin-top: 4px;
   }
 
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
-    background: #2C2C2E;
-    border-color: #3A3A3C;
-    color: #AEAEB2;
+    background: ${DARK_SURFACE_2};
+    border-color: ${DARK_STROKE};
+    color: ${DARK_TEXT_DIM};
 
     small {
-      color: #8E8E93;
+      color: ${DARK_TEXT_DIM};
     }
   }
 `;
 
-export const ReportStatus = styled.div`
-  font-size: 14px;
+export const ReportStatus = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "status",
+})`
+  font-size: 13px;
+  font-weight: 500;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   text-align: center;
   margin: 12px 0;
 
   ${props => {
     switch (props.status) {
       case "reporting":
-        return `
-          background-color: #fff3cd;
-          color: #856404;
-          border: 1px solid #ffeaa7;
+        return css`
+          background: var(--signal-yellow-soft);
+          color: var(--ink-2);
+          border: 1px solid var(--signal-yellow-deep);
         `;
       case "success":
-        return `
-          background-color: #d4edda;
-          color: #155724;
-          border: 1px solid #c3e6cb;
+        return css`
+          background: var(--leaf-soft);
+          color: var(--leaf);
+          border: 1px solid var(--leaf);
         `;
       case "failed":
-        return `
-          background-color: #f8d7da;
-          color: #721c24;
-          border: 1px solid #f5c6cb;
+        return css`
+          background: var(--danger-soft);
+          color: var(--danger-deep);
+          border: 1px solid var(--danger);
         `;
       default:
-        return `
-          background-color: #e2e3e5;
-          color: #6c757d;
-          border: 1px solid #d6d8db;
+        return css`
+          background: var(--cream-1);
+          color: var(--ink-3);
+          border: 1px solid var(--glass-stroke);
         `;
     }
   }}
@@ -303,33 +314,8 @@ export const ReportStatus = styled.div`
 
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
-    ${props => {
-      switch (props.status) {
-        case "reporting":
-          return `
-            background-color: #3d3a00;
-            color: #f9e79f;
-            border-color: #b7a612;
-          `;
-        case "success":
-          return `
-            background-color: #1b3a1f;
-            color: #a9d3ab;
-            border-color: #28a745;
-          `;
-        case "failed":
-          return `
-            background-color: #3a1b1f;
-            color: #f5c6cb;
-            border-color: #dc3545;
-          `;
-        default:
-          return `
-            background-color: #2c2c2e;
-            color: #aeaeb2;
-            border-color: #3a3a3c;
-          `;
-      }
-    }}
+    background: ${DARK_SURFACE_2};
+    color: ${DARK_TEXT_DIM};
+    border-color: ${DARK_STROKE};
   }
 `;
