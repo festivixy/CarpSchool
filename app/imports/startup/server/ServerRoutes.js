@@ -15,9 +15,13 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
     } else {
       const cspHeader = [
         "default-src 'self'",
+        // challenges.cloudflare.com is required by Clerk's bot protection
+        // (Cloudflare Turnstile). Without it the CAPTCHA script is blocked and
+        // sign-up fails with a 400. See https://clerk.com/docs/security/clerk-csp
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
         "https://cdn.onesignal.com https://onesignal.com https://api.onesignal.com " +
-        "https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com",
+        "https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com " +
+        "https://challenges.cloudflare.com",
         "connect-src 'self' https://onesignal.com https://*.onesignal.com " +
         "https://api.onesignal.com https://cdn.onesignal.com wss: ws: " +
         "https://nominatim.carp.school https://tileserver.carp.school https://osrm.carp.school " +
@@ -26,7 +30,8 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' data: https: https://fonts.gstatic.com",
         "worker-src 'self' blob: https://cdn.onesignal.com",
-        "frame-src https://onesignal.com https://*.onesignal.com",
+        "frame-src https://onesignal.com https://*.onesignal.com " +
+        "https://challenges.cloudflare.com",
         "object-src 'none'",
         "base-uri 'self'",
       ].join("; ");
