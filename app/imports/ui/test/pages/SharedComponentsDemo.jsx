@@ -7,6 +7,7 @@ import {
   Dropdown,
   LoadingSpinner,
   ErrorBoundary,
+  TopNav,
 } from "../../components";
 import {
   DemoContainer,
@@ -22,6 +23,7 @@ import {
   MarginContainer,
   InlineText,
   CenteredContainer,
+  NavPreview,
 } from "../styles/SharedComponentsDemo";
 import BackButton from "../../mobile/components/BackButton";
 
@@ -255,6 +257,32 @@ const SharedComponentsDemo = ({ history }) => {
             </DemoCode>
           </ComponentDemo>
         </ComponentGrid>
+
+        <DemoSection>
+          <ComponentTitle>TopNav</ComponentTitle>
+          <DemoDescription>
+            The floating glass pill from the design handoff, shown on every
+            customer-facing screen when signed in. It is position:absolute so it
+            can float over a full-bleed map, hence the relative preview box.
+          </DemoDescription>
+          <NavPreview>
+            <TopNav
+              active="find"
+              user={{ id: "demo", name: "Maya Chen", hue: 38 }}
+              onNav={() => {}}
+              onOffer={() => {}}
+            />
+          </NavPreview>
+          <NavPreview $solid>
+            <TopNav
+              active="rides"
+              glass={false}
+              user={{ id: "demo2", name: "Theo Park", hue: 232 }}
+              onNav={() => {}}
+              onOffer={() => {}}
+            />
+          </NavPreview>
+        </DemoSection>
 
         <DemoSection>
           <ComponentTitle>Usage Guidelines</ComponentTitle>

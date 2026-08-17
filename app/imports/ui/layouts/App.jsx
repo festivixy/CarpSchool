@@ -28,7 +28,7 @@ import MobileLanding from "../mobile/pages/Landing";
 import MobileMyRides from "../mobile/pages/MyRides";
 import MobileMarketplace from "../mobile/pages/Marketplace";
 import MobileCreateRide from "../mobile/pages/CreateRide";
-import NavBar from "../desktop/components/NavBar";
+import TopNavAuto from "../components/TopNavAuto";
 import MobileChat from "../pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
 import MobileEditProfile from "../pages/EditProfile";
@@ -180,7 +180,7 @@ class AppLayout extends React.Component {
             <AutoSubscribeNotification />
             <PWAInstallPrompt />
             <DesktopOnly>
-              <NavBar />
+              <TopNavAuto />
             </DesktopOnly>
             <MainContent>
               <Switch>

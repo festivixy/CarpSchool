@@ -77,3 +77,15 @@ export const DemoCode = styled.pre`
   overflow-x: auto;
   margin: 16px 0;
 `;
+
+/* TopNav is position:absolute so it can float over a full-bleed map. This
+ * gives it a positioned ancestor and enough height to sit inside for the demo.
+ * $solid previews the glass={false} variant against a map-ish surface. */
+export const NavPreview = styled.div`
+  position: relative;
+  height: 110px;
+  margin-bottom: 16px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: ${props => (props.$solid ? "var(--cream-2)" : "var(--map-park)")};
+`;

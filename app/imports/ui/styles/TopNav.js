@@ -61,6 +61,14 @@ export const IconBtn = styled.button`
   cursor: pointer;
 `;
 
+/* The bar is position:absolute per the design (it is meant to float over a
+ * full-bleed map). On pages without a map underneath it would overlap the
+ * page heading, so callers render this spacer to reserve its height. */
+export const NavSpacer = styled.div`
+  height: 76px;
+  flex-shrink: 0;
+`;
+
 export const OfferBtn = styled.button`
   display: inline-flex;
   align-items: center;
