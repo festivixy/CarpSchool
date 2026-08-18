@@ -215,9 +215,23 @@ Title reflects FROM → TO. Make sort a real toggle (Soonest / Cheapest).
 **Step 6 — RideCard polish (P3-c)**
 `styles/RideCard.js` — add the idle inset highlight.
 
-**Step 7 — Deferred, needs schema work (P3-a, P3-b)**
-Add `Profiles.year` / `Profiles.dept`; decide the duration/distance source.
-Do not start until the schema questions below are answered.
+**Step 7 — Ride distance and duration (P3-b)**
+`imports/api/ride/Rides.js`, `imports/api/ride/RideMethods.js`,
+`imports/ui/utils/`, `components/RideCard.jsx`, `styles/RideCard.js`
+Add optional `distanceMi`, `durationMin`, `routeEstimated` to the schema.
+Add a haversine helper plus an average-speed duration estimate, used while
+OSRM is unreachable; mark those rides `routeEstimated: true` so real routed
+values can replace them later. Render the mono `52 min · 24.1 mi` line.
+*Verify:* cards with and without the fields both render; estimated rides are
+distinguishable in the data.
+
+**Step 8 — Profile year and department (P3-a)**
+`imports/api/profile/Profile.js`, onboarding step 2, `EditProfile`,
+`profiles.displayNames` publication, `RideCard`
+Add optional `year` (Freshman / Sophomore / Junior / Senior / Graduate) and
+`dept`. Extend the publication to carry them, and render the
+`{year} · {dept}` sub-line, omitting it entirely when neither is set.
+*Verify:* existing profiles without the fields still validate and render.
 
 ---
 
@@ -237,14 +251,29 @@ requires a signed-in session.
 
 ---
 
-## Open questions
+## Decisions
 
-1. **Free-text search.** The design replaces it with FROM/TO route entry. Keep
-   text search as well (for example behind `+ filter`), or drop it?
-2. **Do FROM/TO filter, or just describe?** In the design they are static
-   display values. Should they be real inputs bound to `Places`, and should
-   they drive the query?
-3. **Duration and distance.** Denormalise onto the ride at creation, compute
-   client-side, or defer until OSRM is reachable again?
-4. **`year` / `dept`.** Add to `Profiles` now (which also completes the
-   TODO.md onboarding plan), or ship the card without the sub-line?
+Resolved 2026-08-17.
+
+1. **Free-text search — keep it alongside FROM/TO.** The route fields are the
+   primary control per the design; the text filter stays as a secondary
+   input. Both narrow the same `filtered` memo and compose (text AND route).
+2. **FROM/TO filter for real.** They are not static display values. Each binds
+   to a place and drives the query, so the list reflects the chosen route.
+   Swap reverses both the fields and the query.
+3. **Duration and distance — denormalise, and compute client-side until OSRM
+   is reachable.** Store `durationMin` and `distanceMi` on the ride at
+   creation. Until `osrm.carp.school` resolves again, fill them with a
+   client-side haversine estimate so the card renders real values rather than
+   blanks. Estimated values must be marked as such so they can be backfilled
+   with true routed values later.
+4. **Add `year` and `dept` to `Profiles`.** Also completes the TODO.md
+   "School Registration Simplification Plan" step 2.
+
+### Consequences
+
+- `Rides` gains `durationMin`, `distanceMi`, `routeEstimated` (bool).
+- `Profiles` gains `year` (enum) and `dept` (free text, optional).
+- Both are additive and optional, so existing documents stay valid and the
+  card must degrade gracefully when the fields are absent.
+- Step 7 is no longer deferred; it becomes Steps 7-8 below.

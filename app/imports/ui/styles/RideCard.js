@@ -17,6 +17,7 @@ export const Card = styled.div`
     : css`
         background: rgba(255, 255, 255, 0.7);
         border: 1px solid var(--glass-stroke);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
       `)}
 `;
 

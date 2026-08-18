@@ -18,6 +18,11 @@ import { NavSpacer } from "../styles/TopNav";
  */
 const LEGACY_NAV_PREFIXES = ["/admin", "/system", "/_test"];
 
+/* Screens whose content runs full-bleed under the nav (a map fills the
+ * viewport). They must not get the spacer, or the map is pushed down and the
+ * design's floating-over-map effect is lost. */
+const FULL_BLEED_PREFIXES = ["/find"];
+
 const NAV_TARGETS = {
   home: "/",
   find: "/find",
@@ -66,6 +71,8 @@ function TopNavAuto({ currentUser, history, location }) {
     return <NavBar />;
   }
 
+  const fullBleed = FULL_BLEED_PREFIXES.some(p => pathname.startsWith(p));
+
   return (
     <>
       <TopNav
@@ -74,7 +81,7 @@ function TopNavAuto({ currentUser, history, location }) {
         onNav={id => history.push(NAV_TARGETS[id] || "/")}
         onOffer={() => history.push("/create")}
       />
-      <NavSpacer />
+      {!fullBleed && <NavSpacer />}
     </>
   );
 }
