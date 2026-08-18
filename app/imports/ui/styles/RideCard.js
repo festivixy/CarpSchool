@@ -135,3 +135,18 @@ export const RequestBtn = styled.button`
   padding: 7px 14px;
   font-size: 12px;
 `;
+
+export const DriverMeta = styled.div`
+  font-size: 11px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export const RouteMeta = styled.div`
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  white-space: nowrap;
+`;

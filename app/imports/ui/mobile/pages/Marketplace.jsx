@@ -125,14 +125,14 @@ const Marketplace = ({ history }) => {
     [allRides],
   );
 
-  const { nameById } = useTracker(() => {
-    if (driverIds.length === 0) return { nameById: {} };
+  const { driverById } = useTracker(() => {
+    if (driverIds.length === 0) return { driverById: {} };
     Meteor.subscribe("profiles.displayNames", driverIds);
     const map = {};
     Profiles.find({ Owner: { $in: driverIds } }).forEach((p) => {
-      map[p.Owner] = p.Name;
+      map[p.Owner] = { name: p.Name, year: p.year, dept: p.major };
     });
-    return { nameById: map };
+    return { driverById: map };
   }, [driverIds]);
 
   const origins = useMemo(() => uniqueSorted(allRides.map(originOf)), [allRides]);
@@ -188,7 +188,9 @@ const Marketplace = ({ history }) => {
           <RideCard
             key={r._id}
             ride={r}
-            driverName={nameById[r.driver]}
+            driverName={driverById[r.driver]?.name}
+            driverYear={driverById[r.driver]?.year}
+            driverDept={driverById[r.driver]?.dept}
             active={r._id === selectedId}
             onClick={ride => setSelectedId(ride._id)}
             onRequest={ride => history.push(`/ride/${ride._id}`)}

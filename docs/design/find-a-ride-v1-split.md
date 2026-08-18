@@ -145,14 +145,22 @@ The design's `ROUTES` fixtures carry fields our schema does not.
 |---|---|---|
 | `dur` (`52 min`) | **absent** from `Rides` | P3-b |
 | `dist` (`24.1 mi`) | **absent** from `Rides` | P3-b |
-| `year` (`Senior`) | **absent** from `Profiles` | P3-a |
-| `dept` (`Bio`) | **absent** from `Profiles` | P3-a |
+| `year` (`Senior`) | **already present** as `Profiles.year` | P3-a |
+| `dept` (`Bio`) | **already present** as `Profiles.major` | P3-a |
 | `note` | present as `Rides.notes` | not used by the V1 card (V3 / detail only) |
 | `price` | present as `Rides.fare` | done |
 
 `Rides` currently has: `schoolId, driver, riders, origin, destination, date,
 seats, fare, shareCode, notes, createdAt`.
-`Profiles` currently has: `Name, Location, Image, Ride, Phone`.
+`Profiles` currently has: `Name, Location, Image, Ride, Phone, Other,
+UserType, major, year, campus, verified, requested, rejected, schoolemail,
+identityVerified, Owner` and audit fields.
+
+**Correction (2026-08-17):** an earlier draft of this audit listed `year` and
+`dept` as absent. They already exist as `Profiles.year` (enum, including
+Faculty/Staff) and `Profiles.major`. The earlier grep only matched
+capitalised field names and missed the lowercase ones. No schema change is
+needed for P3-a — only the publication and the card.
 
 Duration and distance would normally come from OSRM (`osrm.carp.school`) —
 **currently unreachable, the domain has expired.** Options: denormalise onto
@@ -267,13 +275,15 @@ Resolved 2026-08-17.
    client-side haversine estimate so the card renders real values rather than
    blanks. Estimated values must be marked as such so they can be backfilled
    with true routed values later.
-4. **Add `year` and `dept` to `Profiles`.** Also completes the TODO.md
-   "School Registration Simplification Plan" step 2.
+4. **Surface `year` and `dept` on the card.** These turned out to already
+   exist as `Profiles.year` and `Profiles.major`, so this is a publication
+   and rendering change, not a schema change.
 
 ### Consequences
 
 - `Rides` gains `durationMin`, `distanceMi`, `routeEstimated` (bool).
-- `Profiles` gains `year` (enum) and `dept` (free text, optional).
+- `Profiles` needs no change; `profiles.displayNames` must publish the
+  existing `year` and `major` fields.
 - Both are additive and optional, so existing documents stay valid and the
   card must degrade gracefully when the fields are absent.
 - Step 7 is no longer deferred; it becomes Steps 7-8 below.

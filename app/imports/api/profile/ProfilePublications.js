@@ -79,10 +79,11 @@ Meteor.publish("profiles.displayNames", function publish(userIds) {
   // Limit the number of profiles that can be fetched at once
   const limitedUserIds = userIds.slice(0, 50);
 
-  // Return only Name and Owner fields for the requested users
+  // Return only the fields the discovery cards render: the driver's display
+  // name plus the year/major sub-line. Deliberately no contact details.
   return Profiles.find(
     { Owner: { $in: limitedUserIds } },
-    { fields: { Name: 1, Owner: 1 } }
+    { fields: { Name: 1, Owner: 1, year: 1, major: 1 } }
   );
 });
 

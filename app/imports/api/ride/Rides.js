@@ -17,6 +17,13 @@ const RidesSchema = Joi.object({
 .required(), // Number of available seats
   fare: Joi.number().min(0).max(100).default(0), // Price per seat (fair gas split)
   shareCode: Joi.string().optional(),
+  // Denormalised route figures. Populated at creation from OSRM when it is
+  // reachable, otherwise from a great-circle estimate; routeEstimated marks
+  // which is which so estimates can be backfilled later.
+  distanceMi: Joi.number().min(0).max(10000).optional(),
+  durationMin: Joi.number().integer().min(0).max(100000)
+    .optional(),
+  routeEstimated: Joi.boolean().optional(),
   notes: createSafeStringSchema({
     pattern: "generalText",
     min: 0,

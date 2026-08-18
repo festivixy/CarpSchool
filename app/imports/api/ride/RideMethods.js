@@ -3,6 +3,7 @@ import { check, Match } from "meteor/check";
 import { Rides, RidesSchema } from "./Rides";
 import { validateUserCanJoinRide, validateUserCanRemoveRider, validateUserCanCreateRide } from "./RideValidation";
 import { Profiles } from "../profile/Profile";
+import { estimateRoute } from "./routeEstimate";
 
 Meteor.methods({
   async "rides.remove"(rideId) {
@@ -69,6 +70,21 @@ Meteor.methods({
       ...rideData,
       schoolId: user.schoolId,
     };
+
+    // Denormalise route figures so discovery cards do not have to compute
+    // them per render. OSRM is the real source; until it is reachable this
+    // is a great-circle estimate, flagged so it can be backfilled.
+    const { Places: PlacesForRoute } = await import("../places/Places");
+    const [originPlace, destinationPlace] = await Promise.all([
+      PlacesForRoute.findOneAsync({ _id: rideData.origin }, { fields: { value: 1 } }),
+      PlacesForRoute.findOneAsync({ _id: rideData.destination }, { fields: { value: 1 } }),
+    ]);
+    const estimate = estimateRoute(originPlace?.value, destinationPlace?.value);
+    if (estimate) {
+      rideWithSchool.distanceMi = estimate.distanceMi;
+      rideWithSchool.durationMin = estimate.durationMin;
+      rideWithSchool.routeEstimated = true;
+    }
 
     const rideId = await Rides.insertAsync(rideWithSchool);
     return rideId;
@@ -390,18 +406,30 @@ Meteor.methods({
     const { Places } = await import("../places/Places");
     const places = await Places.find(
       { _id: { $in: placeIds } },
-      { fields: { text: 1 } },
+      { fields: { text: 1, value: 1 } },
     ).fetchAsync();
     const nameById = {};
+    const coordsById = {};
     places.forEach((place) => {
       nameById[place._id] = place.text;
+      coordsById[place._id] = place.value;
     });
 
-    return rides.map(ride => ({
-      ...ride,
-      originText: nameById[ride.origin] || null,
-      destinationText: nameById[ride.destination] || null,
-    }));
+    return rides.map((ride) => {
+      // Rides created before distanceMi/durationMin existed have no stored
+      // figures; estimate them here so the card still shows the data line.
+      const fallback = ride.distanceMi === undefined
+        ? estimateRoute(coordsById[ride.origin], coordsById[ride.destination])
+        : null;
+      return {
+        ...ride,
+        originText: nameById[ride.origin] || null,
+        destinationText: nameById[ride.destination] || null,
+        distanceMi: ride.distanceMi ?? fallback?.distanceMi,
+        durationMin: ride.durationMin ?? fallback?.durationMin,
+        routeEstimated: ride.routeEstimated ?? (fallback ? true : undefined),
+      };
+    });
   },
 
   /**
