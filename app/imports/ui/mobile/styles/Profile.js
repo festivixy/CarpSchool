@@ -146,3 +146,81 @@ export const Loading = styled.div`
   text-align: center;
   color: var(--ink-3);
 `;
+
+/* Design handoff: stat strip under the identity block. The handoff shows five
+ * cards; RATING and STREAK are omitted because the app has no ratings or
+ * streak data model to back them, and inventing numbers here would be worse
+ * than leaving them out. */
+export const StatStrip = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 8px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+`;
+
+export const StatCard = styled.div`
+  background: var(--cream-1);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-lg);
+  padding: 14px;
+`;
+
+export const StatLabel = styled.div`
+  ${eyebrow}
+`;
+
+export const StatValue = styled.div`
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-top: 4px;
+  color: ${props => props.$accent || "var(--ink-1)"};
+
+  @media (max-width: 560px) {
+    font-size: 22px;
+  }
+`;
+
+export const StatUnit = styled.div`
+  font-size: 11.5px;
+  color: var(--ink-3);
+`;
+
+/* Verified checklist */
+export const CheckRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+`;
+
+export const CheckMark = styled.div`
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cream-0);
+  background: ${props => (props.$ok ? "var(--leaf)" : "var(--cream-2)")};
+`;
+
+export const CheckLabel = styled.div`
+  font-size: 13.5px;
+  font-weight: 500;
+  flex: 1;
+`;
+
+export const CheckNote = styled.div`
+  font-size: 11.5px;
+  color: ${props => (props.$ok ? "var(--ink-3)" : "var(--signal-yellow-deep)")};
+`;
