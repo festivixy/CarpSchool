@@ -271,6 +271,14 @@ const SharedComponentsDemo = ({ history }) => {
               user={{ id: "demo", name: "Maya Chen", hue: 38 }}
               onNav={() => {}}
               onOffer={() => {}}
+              menuItems={[
+                { id: "profile", label: "My profile", icon: "user" },
+                { id: "editProfile", label: "Edit profile", icon: "edit" },
+                { id: "places", label: "Saved places", icon: "pin" },
+                { id: "history", label: "Ride history", icon: "clock" },
+                { id: "signOut", label: "Sign out", icon: "arrow", danger: true },
+              ]}
+              onMenuSelect={() => {}}
             />
           </NavPreview>
           <NavPreview $solid>

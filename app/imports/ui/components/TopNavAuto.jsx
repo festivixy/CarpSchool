@@ -28,7 +28,22 @@ const NAV_TARGETS = {
   find: "/find",
   rides: "/my-rides",
   inbox: "/chat",
+  // Account menu destinations. These carry the routes the legacy NavBar
+  // exposed; without them a signed-in desktop user has no way to reach their
+  // profile, places, history, admin or sign-out.
+  profile: "/mobile/profile",
+  editProfile: "/edit-profile",
+  places: "/places",
+  history: "/ride-history/me",
+  admin: "/admin/overview",
 };
+
+const MENU_BASE = [
+  { id: "profile", label: "My profile", icon: "user" },
+  { id: "editProfile", label: "Edit profile", icon: "edit" },
+  { id: "places", label: "Saved places", icon: "pin" },
+  { id: "history", label: "Ride history", icon: "clock" },
+];
 
 /* Longest prefix wins, so /ride-history maps to rides rather than home. */
 const ACTIVE_BY_PREFIX = [
@@ -63,7 +78,7 @@ const avatarUserFrom = (currentUser) => {
 };
 
 function TopNavAuto({ currentUser, history, location }) {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, signOut } = useAuth();
   const pathname = location?.pathname || "/";
   const isLegacyRoute = LEGACY_NAV_PREFIXES.some(p => pathname.startsWith(p));
 
@@ -73,6 +88,27 @@ function TopNavAuto({ currentUser, history, location }) {
 
   const fullBleed = FULL_BLEED_PREFIXES.some(p => pathname.startsWith(p));
 
+  const isAdmin = currentUser?.roles?.includes("system")
+    || currentUser?.roles?.some(r => r.startsWith("admin."));
+
+  const menuItems = [
+    ...MENU_BASE,
+    ...(isAdmin ? [{ id: "admin", label: "Admin panel", icon: "settings" }] : []),
+    { id: "signOut", label: "Sign out", icon: "arrow", danger: true },
+  ];
+
+  const handleMenuSelect = async (id) => {
+    if (id === "signOut") {
+      try {
+        await signOut({ redirectUrl: "/" });
+      } catch (error) {
+        console.error("Sign out error:", error);
+      }
+      return;
+    }
+    history.push(NAV_TARGETS[id] || "/");
+  };
+
   return (
     <>
       <TopNav
@@ -80,6 +116,8 @@ function TopNavAuto({ currentUser, history, location }) {
         user={avatarUserFrom(currentUser)}
         onNav={id => history.push(NAV_TARGETS[id] || "/")}
         onOffer={() => history.push("/create")}
+        menuItems={menuItems}
+        onMenuSelect={handleMenuSelect}
       />
       {!fullBleed && <NavSpacer />}
     </>

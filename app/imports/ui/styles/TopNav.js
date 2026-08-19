@@ -82,3 +82,63 @@ export const OfferBtn = styled.button`
   background: var(--signal-yellow);
   color: var(--ink-1);
 `;
+
+/* User menu hung off the avatar. TopNav shipped with a decorative avatar and
+ * no menu, which left signed-in desktop users unable to reach their profile,
+ * places, ride history, admin or sign-out. */
+export const UserWrap = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+export const AvatarBtn = styled.button`
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  border-radius: 50%;
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-1);
+    outline-offset: 2px;
+  }
+`;
+
+export const UserMenu = styled.div`
+  ${glassStrong}
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 196px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  z-index: 40;
+`;
+
+export const UserMenuItem = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  padding: 11px 14px;
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: ${props => (props.$danger ? "var(--danger)" : "var(--ink-2)")};
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--glass-stroke);
+  }
+
+  &:hover {
+    background: ${props => (props.$danger ? "var(--danger-soft)" : "var(--signal-yellow-soft)")};
+    color: ${props => (props.$danger ? "var(--danger-deep)" : "var(--ink-1)")};
+  }
+`;
