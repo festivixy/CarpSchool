@@ -16,9 +16,9 @@ export const SkeletonPulse = styled.div`
   height: 100%;
   background: linear-gradient(
     90deg,
-    #f0f0f0 25%,
-    #e0e0e0 37%,
-    #f0f0f0 63%
+    var(--cream-1) 25%,
+    var(--cream-2) 37%,
+    var(--cream-1) 63%
   );
   background-size: 400px 100%;
   animation: ${shimmer} 1.5s ease-in-out infinite;
@@ -27,10 +27,10 @@ export const SkeletonPulse = styled.div`
 
 // Page container
 export const SkeletonPageContainer = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
   min-height: 100vh;
   position: relative;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
 `;
 
 // Header
@@ -59,7 +59,7 @@ export const SkeletonHeaderTitle = styled.div`
 
 // Content
 export const SkeletonContent = styled.div`
-  background: #ffffff;
+  background: var(--cream-0);
   border-radius: 24px 24px 0 0;
   min-height: calc(100vh - 120px);
   padding: 32px 24px;
@@ -80,7 +80,7 @@ export const SkeletonContentTitle = styled.div`
   width: 160px;
   margin: 0 auto 12px;
   border-radius: 6px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -89,7 +89,7 @@ export const SkeletonContentSubtitle = styled.div`
   width: 200px;
   margin: 0 auto;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -111,7 +111,7 @@ export const SkeletonSectionTitle = styled.div`
   height: 20px;
   width: 80px;
   border-radius: 6px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -126,7 +126,7 @@ export const SkeletonLabel = styled.div`
   height: 16px;
   width: 60px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -141,8 +141,8 @@ export const SkeletonDropdownInput = styled.div`
   flex: 1;
   height: 48px;
   border-radius: 12px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--cream-1);
+  border: 1px solid var(--cream-2);
   padding: 12px 50px 12px 16px;
   overflow: hidden;
 `;
@@ -153,7 +153,7 @@ export const SkeletonDropdownArrow = styled.div`
   height: 16px;
   width: 16px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -162,7 +162,7 @@ export const SkeletonSwapButton = styled.div`
   height: 40px;
   width: 40px;
   border-radius: 20px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   margin: 12px auto;
 `;
@@ -189,8 +189,8 @@ export const SkeletonFieldHalf = styled.div`
 export const SkeletonInput = styled.div`
   height: 48px;
   border-radius: 12px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--cream-1);
+  border: 1px solid var(--cream-2);
   padding: 12px 16px;
   overflow: hidden;
 `;
@@ -199,8 +199,8 @@ export const SkeletonInput = styled.div`
 export const SkeletonTextarea = styled.div`
   height: 96px;
   border-radius: 12px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--cream-1);
+  border: 1px solid var(--cream-2);
   padding: 12px 16px;
   overflow: hidden;
 `;
@@ -209,7 +209,7 @@ export const SkeletonTextarea = styled.div`
 export const SkeletonSubmitButton = styled.div`
   height: 56px;
   border-radius: 28px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   margin-top: 24px;
 `;

@@ -16,9 +16,9 @@ export const SkeletonPulse = styled.div`
   height: 100%;
   background: linear-gradient(
     90deg,
-    #f0f0f0 25%,
-    #e0e0e0 37%,
-    #f0f0f0 63%
+    var(--cream-1) 25%,
+    var(--cream-2) 37%,
+    var(--cream-1) 63%
   );
   background-size: 400px 100%;
   animation: ${shimmer} 1.5s ease-in-out infinite;
@@ -27,18 +27,18 @@ export const SkeletonPulse = styled.div`
 
 // Main container
 export const SkeletonContainer = styled.div`
-  background-color: #f8f9fa;
+  background-color: var(--cream-1);
   width: 100%;
   min-height: 100vh;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   display: flex;
   flex-direction: column;
 `;
 
 // Top bar
 export const SkeletonTopBar = styled.div`
-  background: #ffffff;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--cream-0);
+  border-bottom: 1px solid var(--cream-2);
   padding: 16px 20px;
   display: flex;
   align-items: center;
@@ -56,7 +56,7 @@ export const SkeletonBackButton = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 16px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   position: absolute;
   left: 20px;
@@ -76,7 +76,7 @@ export const SkeletonTitle = styled.div`
   height: 20px;
   width: 140px;
   border-radius: 10px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   position: absolute;
   left: 50%;
@@ -109,7 +109,7 @@ export const SkeletonLine = styled.div`
   height: 16px;
   width: ${props => props.width || "90%"};
   border-radius: 8px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 
   &:nth-child(4n) {

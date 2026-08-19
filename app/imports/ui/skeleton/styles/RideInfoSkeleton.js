@@ -16,9 +16,9 @@ export const SkeletonPulse = styled.div`
   height: 100%;
   background: linear-gradient(
     90deg,
-    #f0f0f0 25%,
-    #e0e0e0 37%,
-    #f0f0f0 63%
+    var(--cream-1) 25%,
+    var(--cream-2) 37%,
+    var(--cream-1) 63%
   );
   background-size: 400px 100%;
   animation: ${shimmer} 1.5s ease-in-out infinite;
@@ -36,8 +36,8 @@ export const SkeletonContainer = styled.div`
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background-color: #ffffff;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  background-color: var(--cream-0);
+  font-family: var(--font-ui);
   overflow: hidden;
 `;
 
@@ -49,7 +49,7 @@ export const SkeletonBackButton = styled.div`
   width: 60px;
   height: 20px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   z-index: 10;
 `;
@@ -60,14 +60,14 @@ export const SkeletonMapSection = styled.div`
   width: 100%;
   position: relative;
   overflow: hidden;
-  background-color: #f5f5f5;
+  background-color: var(--cream-1);
   flex-shrink: 0;
 `;
 
 export const SkeletonMapPlaceholder = styled.div`
   width: 100%;
   height: 100%;
-  background-color: #e9ecef;
+  background-color: var(--cream-2);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -87,8 +87,8 @@ export const SkeletonMapPlaceholder = styled.div`
 export const SkeletonRideInfoSection = styled.div`
   height: 40%;
   width: 100%;
-  background-color: #ffffff;
-  border-top: 1px solid #e0e0e0;
+  background-color: var(--cream-0);
+  border-top: 1px solid var(--cream-2);
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
@@ -126,7 +126,7 @@ export const SkeletonRouteLabel = styled.div`
   height: 12px;
   width: 30px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -134,7 +134,7 @@ export const SkeletonRouteLocation = styled.div`
   height: 16px;
   width: 80%;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -142,7 +142,7 @@ export const SkeletonRouteArrow = styled.div`
   height: 16px;
   width: 16px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   margin: 0 4px;
 `;
@@ -151,7 +151,7 @@ export const SkeletonStatusBadge = styled.div`
   height: 24px;
   width: 120px;
   border-radius: 16px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   margin: 0 auto;
 `;
@@ -169,7 +169,7 @@ export const SkeletonDetailRow = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--cream-1);
 
   &:last-child {
     border-bottom: none;
@@ -180,7 +180,7 @@ export const SkeletonDetailLabel = styled.div`
   height: 14px;
   width: 60px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -188,7 +188,7 @@ export const SkeletonDetailValue = styled.div`
   height: 14px;
   width: 80px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -196,7 +196,7 @@ export const SkeletonDetailValue = styled.div`
 export const SkeletonNotesSection = styled.div`
   margin-bottom: 16px;
   padding: 12px;
-  background-color: #f8f9fa;
+  background-color: var(--cream-1);
   border-radius: 8px;
 `;
 
@@ -204,7 +204,7 @@ export const SkeletonNotesLabel = styled.div`
   height: 14px;
   width: 50px;
   border-radius: 4px;
-  background-color: #e9ecef;
+  background-color: var(--cream-2);
   overflow: hidden;
   margin-bottom: 8px;
 `;
@@ -213,7 +213,7 @@ export const SkeletonNotesText = styled.div`
   height: 40px;
   width: 100%;
   border-radius: 4px;
-  background-color: #e9ecef;
+  background-color: var(--cream-2);
   overflow: hidden;
 `;
 
@@ -221,8 +221,8 @@ export const SkeletonNotesText = styled.div`
 export const SkeletonNavbarClearance = styled.div`
   height: 10%;
   width: 100%;
-  background-color: #f8f9fa;
-  border-top: 1px solid #f0f0f0;
+  background-color: var(--cream-1);
+  border-top: 1px solid var(--cream-1);
   flex-shrink: 0;
   overflow: hidden;
 `;

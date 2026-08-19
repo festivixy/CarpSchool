@@ -16,9 +16,9 @@ export const SkeletonPulse = styled.div`
   height: 100%;
   background: linear-gradient(
     90deg,
-    #f0f0f0 25%,
-    #e0e0e0 37%,
-    #f0f0f0 63%
+    var(--cream-1) 25%,
+    var(--cream-2) 37%,
+    var(--cream-1) 63%
   );
   background-size: 400px 100%;
   animation: ${shimmer} 1.5s ease-in-out infinite;
@@ -27,18 +27,18 @@ export const SkeletonPulse = styled.div`
 
 // Main container
 export const SkeletonContainer = styled.div`
-  background-color: #f8f9fa;
+  background-color: var(--cream-1);
   width: 100%;
   min-height: 100vh;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   display: flex;
   flex-direction: column;
 `;
 
 // Header
 export const SkeletonHeader = styled.div`
-  background: #ffffff;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--cream-0);
+  border-bottom: 1px solid var(--cream-2);
   padding: 20px;
   text-align: center;
   
@@ -52,7 +52,7 @@ export const SkeletonTitle = styled.div`
   width: 120px;
   margin: 0 auto;
   border-radius: 6px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -85,8 +85,8 @@ export const SkeletonMobileOnly = styled.div`
 // Sidebar (desktop)
 export const SkeletonSidebar = styled.div`
   width: 300px;
-  background: #ffffff;
-  border-right: 1px solid #e9ecef;
+  background: var(--cream-0);
+  border-right: 1px solid var(--cream-2);
   display: flex;
   flex-direction: column;
   
@@ -99,7 +99,7 @@ export const SkeletonSidebarHeader = styled.div`
   height: 24px;
   margin: 20px;
   border-radius: 6px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -114,12 +114,12 @@ export const SkeletonChatListItem = styled.div`
   display: flex;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #f8f9fa;
-  background: ${props => (props.active ? "#f8f9fa" : "transparent")};
+  border-bottom: 1px solid var(--cream-1);
+  background: ${props => (props.active ? "var(--cream-1)" : "transparent")};
   cursor: pointer;
   
   &:hover {
-    background: #f8f9fa;
+    background: var(--cream-1);
   }
 `;
 
@@ -133,7 +133,7 @@ export const SkeletonChatItemName = styled.div`
   width: 120px;
   margin-bottom: 8px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -141,7 +141,7 @@ export const SkeletonChatItemLast = styled.div`
   height: 14px;
   width: 180px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -149,7 +149,7 @@ export const SkeletonChatItemCount = styled.div`
   height: 16px;
   width: 16px;
   border-radius: 8px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   margin-left: 12px;
   flex-shrink: 0;
@@ -160,13 +160,13 @@ export const SkeletonMain = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--cream-0);
 `;
 
 // Conversation header
 export const SkeletonConversationHeader = styled.div`
-  background: #ffffff;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--cream-0);
+  border-bottom: 1px solid var(--cream-2);
   padding: 20px;
 `;
 
@@ -180,7 +180,7 @@ export const SkeletonConversationName = styled.div`
   height: 20px;
   width: 160px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -188,7 +188,7 @@ export const SkeletonConversationParticipants = styled.div`
   height: 14px;
   width: 200px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -200,7 +200,7 @@ export const SkeletonMessages = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: #fafbfc;
+  background: var(--cream-1);
   
   @media (max-width: 768px) {
     padding: 16px;
@@ -213,7 +213,7 @@ export const SkeletonDateSeparator = styled.div`
   width: 80px;
   margin: 8px auto;
   border-radius: 8px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;
 
@@ -231,7 +231,7 @@ export const SkeletonMessageSender = styled.div`
   height: 12px;
   width: 60px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   margin-bottom: 4px;
 `;
@@ -240,14 +240,14 @@ export const SkeletonMessageContent = styled.div`
   height: 36px;
   width: ${props => (props.long ? "200px" : "120px")};
   border-radius: 18px;
-  background-color: ${props => (props.own ? "#e3f2fd" : "#f0f0f0")};
+  background-color: ${props => (props.own ? "var(--signal-yellow-soft)" : "var(--cream-1)")};
   overflow: hidden;
   padding: 8px 16px;
   
   ${SkeletonPulse} {
     background: ${props => (props.own
-      ? "linear-gradient(90deg, #d1e7dd 25%, #c3e6cb 37%, #d1e7dd 63%)"
-      : "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%)")
+      ? "linear-gradient(90deg, var(--leaf-soft) 25%, var(--leaf-soft) 37%, var(--leaf-soft) 63%)"
+      : "linear-gradient(90deg, var(--cream-1) 25%, var(--cream-2) 37%, var(--cream-1) 63%)")
     };
   }
 `;
@@ -256,15 +256,15 @@ export const SkeletonMessageTime = styled.div`
   height: 10px;
   width: 40px;
   border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
   margin-top: 2px;
 `;
 
 // Input form
 export const SkeletonInputForm = styled.div`
-  background: #ffffff;
-  border-top: 1px solid #e9ecef;
+  background: var(--cream-0);
+  border-top: 1px solid var(--cream-2);
   padding: 16px 20px;
   display: flex;
   gap: 12px;
@@ -279,8 +279,8 @@ export const SkeletonInput = styled.div`
   flex: 1;
   height: 40px;
   border-radius: 20px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--cream-1);
+  border: 1px solid var(--cream-2);
   overflow: hidden;
 `;
 
@@ -288,6 +288,6 @@ export const SkeletonSendButton = styled.div`
   height: 40px;
   width: 60px;
   border-radius: 20px;
-  background-color: #f0f0f0;
+  background-color: var(--cream-1);
   overflow: hidden;
 `;

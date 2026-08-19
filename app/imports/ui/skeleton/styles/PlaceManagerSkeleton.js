@@ -16,9 +16,9 @@ export const SkeletonPulse = styled.div`
   height: 100%;
   background: linear-gradient(
     90deg,
-    #f0f0f0 25%,
-    #e0e0e0 37%,
-    #f0f0f0 63%
+    var(--cream-1) 25%,
+    var(--cream-2) 37%,
+    var(--cream-1) 63%
   );
   background-size: 400px 100%;
   animation: ${shimmer} 1.5s ease-in-out infinite;
@@ -27,10 +27,10 @@ export const SkeletonPulse = styled.div`
 
 // Main container
 export const SkeletonContainer = styled.div`
-  background-color: #ffffff;
+  background-color: var(--cream-0);
   width: 100%;
   min-height: 100vh;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   padding: 20px;
   
   @media (max-width: 480px) {
@@ -99,8 +99,8 @@ export const SkeletonPlacesGrid = styled.div`
 
 // Place card skeleton
 export const SkeletonPlaceCard = styled.div`
-  background-color: #ffffff;
-  border: 1px solid #e1e5e9;
+  background-color: var(--cream-0);
+  border: 1px solid var(--cream-2);
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
