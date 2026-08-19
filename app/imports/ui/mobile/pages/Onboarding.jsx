@@ -11,8 +11,9 @@ import {
   Header,
   AppName,
   ProgressContainer,
-  ProgressBar,
-  ProgressFill,
+  StepDots,
+  StepDot,
+  StepConnector,
   ProgressText,
   Content,
   Step,
@@ -360,12 +361,17 @@ function MobileOnboarding({ profileData, loading }) {
   };
 
   const renderProgressBar = () => {
-    const progress = (currentStep / totalSteps) * 100;
+    const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
     return (
       <ProgressContainer>
-        <ProgressBar>
-          <ProgressFill progress={progress} />
-        </ProgressBar>
+        <StepDots>
+          {steps.map((step, i) => (
+            <React.Fragment key={step}>
+              {i > 0 && <StepConnector $on={step <= currentStep} />}
+              <StepDot $on={step <= currentStep} $current={step === currentStep} />
+            </React.Fragment>
+          ))}
+        </StepDots>
         <ProgressText>Step {currentStep} of {totalSteps}</ProgressText>
       </ProgressContainer>
     );

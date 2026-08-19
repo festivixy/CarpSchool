@@ -253,3 +253,27 @@ export const SecondaryButton = styled.button`
   ${btnBase}
   ${btnGhost}
 `;
+
+/* Design handoff wizard: step indicator dots with hairline connectors,
+ * yellow once active or complete, replacing the plain progress bar. */
+export const StepDots = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0;
+`;
+
+export const StepDot = styled.span`
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: ${props => (props.$on ? "var(--signal-yellow)" : "var(--cream-2)")};
+  box-shadow: ${props => (props.$current ? "0 0 0 3px var(--signal-yellow-soft)" : "none")};
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+`;
+
+export const StepConnector = styled.span`
+  flex: 1;
+  height: 1px;
+  background: ${props => (props.$on ? "var(--signal-yellow-deep)" : "var(--cream-3)")};
+`;
