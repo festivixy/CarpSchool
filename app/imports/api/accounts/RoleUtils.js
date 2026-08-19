@@ -167,62 +167,21 @@ export async function addSystemRole(managerId, targetUserId) {
   return true;
 }
 
-/**
- * SYNCHRONOUS VERSIONS FOR USE IN PUBLICATIONS
- * (Publications cannot use async/await)
+/*
+ * The former "*Sync" helpers (isSystemAdminSync, isSchoolAdminSync,
+ * isAnyAdminSync, getUserAdminSchoolsSync) were removed.
+ *
+ * They were declared `async` despite the name and the "publications cannot use
+ * async/await" comment above them, so each returned a Promise. Callers used
+ * them un-awaited inside boolean guards — `if (!isAnyAdminSync(this.userId))`
+ * — and `!Promise` is always false, so the admin check never fired. Every
+ * authenticated user was served the full allVerifications set and the
+ * rateLimit.admin / rateLimit.stats records.
+ *
+ * The guards went unnoticed because the publications early-return when
+ * this.userId is null, and Meteor sessions were never established until the
+ * Clerk login handler landed.
+ *
+ * Publications can be async in Meteor 3. Use the awaited isSystemAdmin,
+ * isSchoolAdmin, isAnyAdmin and getUserAdminSchools above instead.
  */
-
-/**
- * Check if user has system role (global access) - SYNC VERSION
- */
-export async function isSystemAdminSync(userId = null) {
-  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
-  return user?.roles?.includes("system") || false;
-}
-
-/**
- * Check if user is admin of a specific school - SYNC VERSION
- */
-export async function isSchoolAdminSync(userId = null, schoolId = null) {
-  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
-  if (!user?.roles) return false;
-
-  // If no schoolId provided, check if user is admin of their own school
-  const targetSchoolId = schoolId || user.schoolId;
-  if (!targetSchoolId) return false;
-
-  return user.roles.includes(`admin.${targetSchoolId}`);
-}
-
-/**
- * Check if user has any admin role (system or school-specific) - SYNC VERSION
- */
-export async function isAnyAdminSync(userId = null) {
-  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
-  if (!user?.roles) return false;
-
-  // Check for system role
-  if (user.roles.includes("system")) return true;
-
-  // Check for any school admin role
-  return user.roles.some(role => role.startsWith("admin."));
-}
-
-/**
- * Get user's admin schools (returns array of schoolIds user can admin) - SYNC VERSION
- */
-export async function getUserAdminSchoolsSync(userId = null) {
-  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
-  if (!user?.roles) return [];
-
-  // System admins can admin all schools
-  if (user.roles.includes("system")) {
-    const allSchools = Schools.find({ isActive: true }).fetch();
-    return allSchools.map(school => school._id);
-  }
-
-  // Extract school IDs from admin roles
-  return user.roles
-    .filter(role => role.startsWith("admin."))
-    .map(role => role.replace("admin.", ""));
-}

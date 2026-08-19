@@ -33,7 +33,11 @@ const resolveMeteorUserId = async (clerkUserId, claims) => {
   if (existing) return existing._id;
 
   // Mirrors clerk.getMeteorUser so both paths produce identical records.
-  const userId = Accounts.createUser({
+  // Must be createUserAsync: in Meteor 3 Accounts.createUser is async on the
+  // server, so an un-awaited call yields a Promise and setUserId then throws
+  // "must be called on string or null" — breaking the first login of every
+  // new user, the exact case this handler exists to serve.
+  const userId = await Accounts.createUserAsync({
     username: `clerk_${clerkUserId}`,
     email: claims?.email || `clerk_${clerkUserId}@clerk.local`,
     profile: {

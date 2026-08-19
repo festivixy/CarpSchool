@@ -27,7 +27,11 @@ Meteor.methods({
 
     // Create new Meteor user linked to Clerk
     // Note: Clerk handles password/auth, we just create the Meteor record
-    const userId = Accounts.createUser({
+    // Must be createUserAsync. In Meteor 3 the sync form returns a Promise,
+    // which findOneAsync below then received as its selector; a Promise
+    // serializes to an empty selector {} and returns an arbitrary OTHER
+    // user's document to the caller.
+    const userId = await Accounts.createUserAsync({
       username: `clerk_${clerkUserId}`, // Generate unique username from Clerk ID
       email: `clerk_${clerkUserId}@clerk.local`, // Dummy email for system compatibility
       profile: {

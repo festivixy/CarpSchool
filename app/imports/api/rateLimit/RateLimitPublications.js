@@ -2,7 +2,7 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { RateLimit } from "./RateLimit";
-import { isSystemAdminSync, isSchoolAdminSync } from "../accounts/RoleUtils";
+import { isSystemAdmin, isSchoolAdmin } from "../accounts/RoleUtils";
 
 /**
  * Publication rate limiting cache
@@ -115,7 +115,7 @@ Meteor.publish("rateLimit.byName", function rateLimitByName(name) { // eslint-di
  * Admin publication: all rate limit records
  * Rate limited to prevent abuse, admin only
  */
-Meteor.publish("rateLimit.admin", function rateLimitAdmin() { // eslint-disable-line consistent-return
+Meteor.publish("rateLimit.admin", async function rateLimitAdmin() { // eslint-disable-line consistent-return
   // Rate limit this publication to 1 call per 10 seconds
   if (!checkPublicationRateLimit(this.userId, "rateLimit.admin", 10000)) {
     this.ready();
@@ -127,7 +127,7 @@ Meteor.publish("rateLimit.admin", function rateLimitAdmin() { // eslint-disable-
     return;
   }
 
-  if (!isSystemAdminSync(this.userId) && !isSchoolAdminSync(this.userId)) {
+  if (!(await isSystemAdmin(this.userId)) && !(await isSchoolAdmin(this.userId))) {
     this.ready();
     return;
   }
@@ -148,7 +148,7 @@ Meteor.publish("rateLimit.admin", function rateLimitAdmin() { // eslint-disable-
  * Admin publication: rate limit statistics
  * Rate limited to prevent abuse, admin only
  */
-Meteor.publish("rateLimit.stats", function rateLimitStats() {
+Meteor.publish("rateLimit.stats", async function rateLimitStats() {
   // Rate limit this publication to 1 call per 30 seconds
   if (!checkPublicationRateLimit(this.userId, "rateLimit.stats", 30000)) {
     this.ready();
@@ -160,7 +160,7 @@ Meteor.publish("rateLimit.stats", function rateLimitStats() {
     return;
   }
 
-  if (!isSystemAdminSync(this.userId) && !isSchoolAdminSync(this.userId)) {
+  if (!(await isSystemAdmin(this.userId)) && !(await isSchoolAdmin(this.userId))) {
     this.ready();
     return;
   }
@@ -170,13 +170,13 @@ Meteor.publish("rateLimit.stats", function rateLimitStats() {
   const self = this;
 
   // Count total records
-  const totalRecords = RateLimit.find().count();
+  const totalRecords = await RateLimit.find().countAsync();
 
   // Count unique users
   const uniqueUsers = new Set();
   const uniqueEndpoints = new Set();
 
-  RateLimit.find({}, { fields: { userId: 1, name: 1 } }).forEach(doc => {
+  await RateLimit.find({}, { fields: { userId: 1, name: 1 } }).forEachAsync(doc => {
     uniqueUsers.add(doc.userId);
     uniqueEndpoints.add(doc.name);
   });
