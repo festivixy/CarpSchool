@@ -49,64 +49,63 @@ if (Meteor.isServer) {
 /**
  * Publication for unread notification count
  */
-Meteor.publish("notifications.unreadCount", function () {
+/*
+ * Meteor 3 notes for this handler:
+ * - a server cursor's count() does not return a promise, it throws outright
+ *   ("count() is not available on the server"), so every count() here aborted
+ *   the publication
+ * - observeChanges() resolves to a promise on the server, so the old `handle`
+ *   was a Promise and handle.stop() in onStop threw
+ * The body never ran before because Meteor sessions were never established.
+ */
+Meteor.publish("notifications.unreadCount", async function () {
   if (!this.userId) {
     this.ready();
     return;
   }
 
-  // Use a reactive computation to publish count
-  let initializing = true;
   const self = this;
+  const selector = {
+    userId: self.userId,
+    status: { $ne: NOTIFICATION_STATUS.READ },
+  };
 
-  const handle = Notifications.find(
-    {
-      userId: this.userId,
-      status: { $ne: NOTIFICATION_STATUS.READ },
-    },
-  ).observeChanges({
-    added: function () {
-      if (!initializing) {
-        self.changed("notificationCounts", self.userId, {
-          unreadCount: Notifications.find({
-            userId: self.userId,
-            status: { $ne: NOTIFICATION_STATUS.READ },
-          }).count(),
-        });
-      }
-    },
-    removed: function () {
-      self.changed("notificationCounts", self.userId, {
-        unreadCount: Notifications.find({
-          userId: self.userId,
-          status: { $ne: NOTIFICATION_STATUS.READ },
-        }).count(),
-      });
-    },
-    changed: function () {
-      self.changed("notificationCounts", self.userId, {
-        unreadCount: Notifications.find({
-          userId: self.userId,
-          status: { $ne: NOTIFICATION_STATUS.READ },
-        }).count(),
-      });
-    },
+  // Suppress observe callbacks until the initial `added` has been sent, so we
+  // never emit `changed` for a document the client does not have yet.
+  let started = false;
+
+  const publishCount = async () => {
+    if (!started) return;
+    self.changed("notificationCounts", self.userId, {
+      unreadCount: await Notifications.find(selector).countAsync(),
+    });
+  };
+
+  // observeChanges callbacks are synchronous, so publishCount() is fired and
+  // forgotten - it needs an explicit catch or a failed recount (or a changed()
+  // on an already-torn-down session) surfaces as an unhandled rejection.
+  const onChange = () => {
+    publishCount().catch(error => {
+      console.error("[Pub] notifications.unreadCount update failed:", error);
+    });
+  };
+
+  const handle = await Notifications.find(selector).observeChanges({
+    added: onChange,
+    removed: onChange,
+    changed: onChange,
   });
-
-  initializing = false;
 
   // Send initial count
   self.added("notificationCounts", self.userId, {
-    unreadCount: Notifications.find({
-      userId: self.userId,
-      status: { $ne: NOTIFICATION_STATUS.READ },
-    }).count(),
+    unreadCount: await Notifications.find(selector).countAsync(),
   });
 
+  started = true;
   self.ready();
 
   // Clean up observer on stop
-  self.onStop(function () {
+  self.onStop(() => {
     handle.stop();
   });
 });

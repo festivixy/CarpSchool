@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
 
@@ -7,6 +8,7 @@ const RideSessions = new Mongo.Collection("RideSessions");
 const RideSessionSchema = Joi.object({
   _id: Joi.string().optional(),
   rideId: Joi.string().required().label("Ride ID"),
+  schoolId: Joi.string().required().label("School ID"),
   driverId: Joi.string().required().label("Driver ID"),
   riders: Joi.array().items(Joi.string()).default([]).label("Rider IDs"),
   activeRiders: Joi.array().items(Joi.string()).default([]).label("Active Rider IDs"),
@@ -58,12 +60,18 @@ const RideSessionSchema = Joi.object({
 
 // Create indexes for better performance
 if (Meteor.isServer) {
-  RideSessions.createIndex({ rideId: 1 });
-  RideSessions.createIndex({ driverId: 1 });
-  RideSessions.createIndex({ riders: 1 });
-  RideSessions.createIndex({ status: 1, "timeline.created": -1 });
-  RideSessions.createIndex({ activeRiders: 1 });
-  RideSessions.createIndex({ "timeline.created": -1 });
+  // createIndex returns a promise in Meteor 3. Awaiting inside an async startup hook
+  // makes a failure a logged boot error instead of an unhandled rejection, and
+  // guarantees the indexes exist before the publications start querying.
+  Meteor.startup(async () => {
+    await RideSessions.createIndexAsync({ rideId: 1 });
+    await RideSessions.createIndexAsync({ schoolId: 1 });
+    await RideSessions.createIndexAsync({ driverId: 1 });
+    await RideSessions.createIndexAsync({ riders: 1 });
+    await RideSessions.createIndexAsync({ status: 1, "timeline.created": -1 });
+    await RideSessions.createIndexAsync({ activeRiders: 1 });
+    await RideSessions.createIndexAsync({ "timeline.created": -1 });
+  });
 }
 
 /** Make the collection and schema available to other code. */

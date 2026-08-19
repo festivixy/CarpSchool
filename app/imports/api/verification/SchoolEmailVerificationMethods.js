@@ -5,6 +5,7 @@ import { Profiles } from "../profile/Profile";
 import { Schools } from "../schools/Schools";
 import { Random } from "meteor/random";
 import { Email } from "meteor/email";
+import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
 
 Meteor.methods({
   /**
@@ -19,12 +20,14 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized", "You must be logged in to verify school email.");
     }
 
-    // Validate CAPTCHA first
-    const { validateCaptcha } = await import("../captcha/CaptchaMethods");
-    const isCaptchaValid = await validateCaptcha(captchaInput, captchaSessionId);
-    if (!isCaptchaValid) {
+    // Validate CAPTCHA first. CaptchaMethods.js only registers Meteor methods and
+    // exports nothing, so the previous dynamic import yielded undefined and threw.
+    if (!(await isCaptchaSolved(captchaSessionId))) {
       throw new Meteor.Error("invalid-captcha", "Invalid security code. Please try again.");
     }
+
+    // Use the captcha (invalidate it)
+    await useCaptcha(captchaSessionId);
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -235,7 +238,9 @@ Meteor.methods({
 async function sendSchoolVerificationEmail(school, email, verificationCode, userName) {
   const smtpSettings = school.smtpSettings;
 
-  // Configure SMTP for this email
+  // Configure SMTP for this email. MAIL_URL is process-global, so it must be
+  // restored afterwards or every later outbound email routes through this school.
+  const oldMailUrl = process.env.MAIL_URL;
   process.env.MAIL_URL = `smtp://${encodeURIComponent(smtpSettings.email)}:${encodeURIComponent(smtpSettings.password)}@${smtpSettings.host}:${smtpSettings.port}`;
 
   const emailTemplate = `
@@ -287,10 +292,18 @@ async function sendSchoolVerificationEmail(school, email, verificationCode, user
     </div>
   `;
 
-  await Email.sendAsync({
-    to: email,
-    from: `${school.schoolName} <${smtpSettings.email}>`,
-    subject: `${school.schoolName} - Email Verification Code: ${verificationCode}`,
-    html: emailTemplate,
-  });
+  try {
+    await Email.sendAsync({
+      to: email,
+      from: `${school.schoolName} <${smtpSettings.email}>`,
+      subject: `${school.schoolName} - Email Verification Code: ${verificationCode}`,
+      html: emailTemplate,
+    });
+  } finally {
+    if (oldMailUrl !== undefined) {
+      process.env.MAIL_URL = oldMailUrl;
+    } else {
+      delete process.env.MAIL_URL;
+    }
+  }
 }

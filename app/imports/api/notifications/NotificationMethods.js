@@ -16,6 +16,102 @@ import { Chats } from "../chat/Chat";
 import { PushNotificationService } from "../../startup/server/PushNotificationService";
 import { WebPushService } from "../../startup/server/WebPushService";
 
+/**
+ * Core notification fan-out.
+ *
+ * `actorUserId` is the user who triggered the send, or null for server-originated
+ * sends. Server-originated callers (collection observers, triggers, cron) run with
+ * no enclosing DDP invocation, so `this.userId` there is always null - they must
+ * call this function directly instead of going back through Meteor.callAsync.
+ */
+export async function sendNotifications(actorUserId, recipients, title, body, options = {}) {
+  const notificationIds = [];
+  const batchId = Random.id();
+
+  for (const userId of recipients) { // eslint-disable-line no-restricted-syntax
+    const notificationData = NotificationHelpers.createNotification({
+      userId,
+      title,
+      body,
+      type: options.type || NOTIFICATION_TYPES.SYSTEM,
+      priority: options.priority || NOTIFICATION_PRIORITY.NORMAL,
+      data: options.data || {},
+      pushPayload: options.pushPayload || {},
+      scheduledAt: options.scheduledAt,
+      expiresAt: options.expiresAt || NotificationHelpers.getDefaultExpiry(options.type),
+      groupKey: options.groupKey || NotificationHelpers.generateGroupKey(options.type, options.data?.rideId),
+      batchId,
+      // createdBy is Joi.string().optional() with no .allow(null), so it has to be
+      // omitted entirely - not set to null - for server-originated sends.
+      ...(actorUserId ? { createdBy: actorUserId } : {}),
+      platform: options.platform,
+    });
+
+    const notificationId = await Notifications.insertAsync(notificationData);
+    notificationIds.push(notificationId);
+
+    // Send push notification immediately if not scheduled
+    if (!options.scheduledAt) {
+      Meteor.defer(() => {
+        PushNotificationService.sendToUser(userId, {
+          title,
+          body,
+          data: options.data || {},
+          priority: options.priority,
+          notificationId,
+        });
+      });
+    }
+  }
+
+  return { batchId, notificationIds };
+}
+
+/**
+ * Send a notification to every participant of a ride.
+ *
+ * A null `actorUserId` means server-originated: there is no sender to
+ * permission-check, and nobody to filter out of the recipient list.
+ */
+export async function sendToRideParticipants(actorUserId, rideId, title, body, options = {}) {
+  const ride = await Rides.findOneAsync(rideId);
+  if (!ride) {
+    throw new Meteor.Error("ride-not-found", "Ride not found");
+  }
+
+  if (actorUserId) {
+    // Verify user has permission to send notifications for this ride
+    const isDriver = ride.driver === actorUserId;
+    const isRider = ride.riders.includes(actorUserId);
+    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+    const isAdmin = await isSystemAdmin(actorUserId) || await isSchoolAdmin(actorUserId);
+
+    if (!isDriver && !isRider && !isAdmin) {
+      throw new Meteor.Error("not-authorized", "Not authorized to send notifications for this ride");
+    }
+  }
+
+  // Get all participants except the sender (unless explicitly included)
+  const recipients = [ride.driver, ...ride.riders];
+  const filteredRecipients = (!actorUserId || options.includeSender)
+    ? recipients
+    : recipients.filter(userId => userId !== actorUserId);
+
+  // Set ride-specific options
+  const rideOptions = {
+    ...options,
+    type: options.type || NOTIFICATION_TYPES.RIDE_UPDATE,
+    data: {
+      rideId,
+      action: options.action || "view_ride",
+      ...options.data,
+    },
+    groupKey: NotificationHelpers.generateGroupKey(options.type || NOTIFICATION_TYPES.RIDE_UPDATE, rideId),
+  };
+
+  return sendNotifications(actorUserId, filteredRecipients, title, body, rideOptions);
+}
+
 Meteor.methods({
   /**
    * Register a push token for the current user
@@ -48,10 +144,22 @@ Meteor.methods({
         createdAt: new Date(),
       });
 
-      const tokenId = await PushTokens.insertAsync(pushTokenData);
+      // Upsert keyed on the token rather than insert: re-registering the same
+      // device used to add another row with the same token, and those duplicates
+      // are what make the unique { token: 1 } index fail to build.
+      const { createdAt, ...tokenFields } = pushTokenData;
+      const result = await PushTokens.upsertAsync(
+        { token },
+        { $set: tokenFields, $setOnInsert: { createdAt } },
+      );
 
       // console.log(`[Push] Registered token for user ${this.userId} on ${platform}`);
-      return tokenId;
+      if (result.insertedId) {
+        return result.insertedId;
+      }
+
+      const existingToken = await PushTokens.findOneAsync({ token }, { fields: { _id: 1 } });
+      return existingToken?._id;
 
     } catch (error) {
       console.error("[Push] Token registration failed:", error);
@@ -98,45 +206,7 @@ Meteor.methods({
     }
 
     try {
-      const notifications = [];
-      const batchId = Random.id();
-
-      for (const userId of recipients) { // eslint-disable-line no-restricted-syntax
-        const notificationData = NotificationHelpers.createNotification({
-          userId,
-          title,
-          body,
-          type: options.type || NOTIFICATION_TYPES.SYSTEM,
-          priority: options.priority || NOTIFICATION_PRIORITY.NORMAL,
-          data: options.data || {},
-          pushPayload: options.pushPayload || {},
-          scheduledAt: options.scheduledAt,
-          expiresAt: options.expiresAt || NotificationHelpers.getDefaultExpiry(options.type),
-          groupKey: options.groupKey || NotificationHelpers.generateGroupKey(options.type, options.data?.rideId),
-          batchId,
-          createdBy: this.userId,
-          platform: options.platform,
-        });
-
-        const notificationId = await Notifications.insertAsync(notificationData);
-        notifications.push(notificationId);
-
-        // Send push notification immediately if not scheduled
-        if (!options.scheduledAt) {
-          Meteor.defer(() => {
-            PushNotificationService.sendToUser(userId, {
-              title,
-              body,
-              data: options.data || {},
-              priority: options.priority,
-              notificationId,
-            });
-          });
-        }
-      }
-
-      // console.log(`[Notifications] Sent ${notifications.length} notifications in batch ${batchId}`);
-      return { batchId, notificationIds: notifications };
+      return await sendNotifications(this.userId, recipients, title, body, options);
 
     } catch (error) {
       console.error("[Notifications] Send failed:", error);
@@ -158,40 +228,7 @@ Meteor.methods({
     }
 
     try {
-      const ride = await Rides.findOneAsync(rideId);
-      if (!ride) {
-        throw new Meteor.Error("ride-not-found", "Ride not found");
-      }
-
-      // Verify user has permission to send notifications for this ride
-      const isDriver = ride.driver === this.userId;
-      const isRider = ride.riders.includes(this.userId);
-      const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-      const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
-
-      if (!isDriver && !isRider && !isAdmin) {
-        throw new Meteor.Error("not-authorized", "Not authorized to send notifications for this ride");
-      }
-
-      // Get all participants except the sender (unless explicitly included)
-      const recipients = [ride.driver, ...ride.riders];
-      const filteredRecipients = options.includeSender
-        ? recipients
-        : recipients.filter(userId => userId !== this.userId);
-
-      // Set ride-specific options
-      const rideOptions = {
-        ...options,
-        type: options.type || NOTIFICATION_TYPES.RIDE_UPDATE,
-        data: {
-          rideId,
-          action: options.action || "view_ride",
-          ...options.data,
-        },
-        groupKey: NotificationHelpers.generateGroupKey(options.type || NOTIFICATION_TYPES.RIDE_UPDATE, rideId),
-      };
-
-      return await Meteor.callAsync("notifications.send", filteredRecipients, title, body, rideOptions);
+      return await sendToRideParticipants(this.userId, rideId, title, body, options);
 
     } catch (error) {
       console.error("[Notifications] Ride notification failed:", error);
@@ -456,8 +493,8 @@ export const NotificationUtils = {
    * Send ride cancellation notification
    */
   async sendRideCancellation(rideId, reason = "The ride has been cancelled") {
-    return Meteor.callAsync(
-      "notifications.sendToRideParticipants",
+    return sendToRideParticipants(
+      null,
       rideId,
       "Ride Cancelled",
       reason,
@@ -473,8 +510,8 @@ export const NotificationUtils = {
    * Send rider joined notification
    */
   async sendRiderJoined(rideId, riderName) {
-    return Meteor.callAsync(
-      "notifications.sendToRideParticipants",
+    return sendToRideParticipants(
+      null,
       rideId,
       "New Rider",
       `${riderName} joined your ride`,
@@ -482,7 +519,6 @@ export const NotificationUtils = {
         type: NOTIFICATION_TYPES.RIDER_JOINED,
         priority: NOTIFICATION_PRIORITY.NORMAL,
         action: "view_ride",
-        includeSender: false, // Don't notify the rider who just joined
       },
     );
   },
@@ -496,8 +532,8 @@ export const NotificationUtils = {
       ? `Your ride is starting in ${estimatedTime}`
       : "Your ride is starting soon";
 
-    return Meteor.callAsync(
-      "notifications.sendToRideParticipants",
+    return sendToRideParticipants(
+      null,
       rideId,
       title,
       body,
@@ -520,8 +556,8 @@ export const NotificationUtils = {
     const offlineParticipants = []; // TODO: Implement offline user detection
 
     if (offlineParticipants.length > 0) {
-      return Meteor.callAsync(
-        "notifications.send",
+      return sendNotifications(
+        null,
         offlineParticipants,
         `Message from ${senderName}`,
         messageContent.length > 50 ? `${messageContent.substring(0, 47)}...` : messageContent,
@@ -531,59 +567,6 @@ export const NotificationUtils = {
           data: { chatId, rideId, action: "open_chat" },
         },
       );
-    }
-  },
-
-  /**
-   * Debug ride notification setup - helps troubleshoot ride notification issues
-   */
-  async "notifications.debugRideNotification"(rideId) {
-    check(rideId, String);
-
-    if (!this.userId) {
-      throw new Meteor.Error("not-authorized", "Must be logged in");
-    }
-
-    try {
-      const currentUser = await Meteor.users.findOneAsync(this.userId);
-      const ride = await Rides.findOneAsync(rideId);
-
-      const debugInfo = {
-        user: {
-          id: this.userId,
-          username: currentUser?.username,
-          roles: currentUser?.roles || [],
-        },
-        ride: ride ? {
-          id: ride._id,
-          driver: ride.driver,
-          riders: ride.riders || [],
-          participants: [ride.driver, ...ride.riders],
-        } : null,
-        permissions: {
-          rideExists: !!ride,
-          isDriver: ride ? ride.driver === this.userId : false,
-          isRider: ride ? ride.riders.includes(this.userId) : false,
-          isAdmin: await (async () => {
-            const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-            return isSystemAdmin(this.userId) || isSchoolAdmin(this.userId);
-          })() || false,
-        },
-        timestamp: new Date().toISOString(),
-      };
-
-      if (ride) {
-        debugInfo.notifications = {
-          wouldSendTo: [ride.driver, ...ride.riders].filter(userId => userId !== this.userId),
-          allParticipants: [ride.driver, ...ride.riders],
-        };
-      }
-
-      return debugInfo;
-
-    } catch (error) {
-      console.error("[Notifications] Debug failed:", error);
-      throw new Meteor.Error("debug-failed", error.reason || "Debug failed");
     }
   },
 
@@ -626,8 +609,8 @@ export const NotificationUtils = {
    * Send emergency notification
    */
   async sendEmergency(rideId, message, priority = NOTIFICATION_PRIORITY.URGENT) {
-    return Meteor.callAsync(
-      "notifications.sendToRideParticipants",
+    return sendToRideParticipants(
+      null,
       rideId,
       "⚠️ Emergency Alert",
       message,

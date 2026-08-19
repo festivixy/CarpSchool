@@ -57,7 +57,25 @@ Meteor.publish("schools.all", async function publishAllSchools() {
     return this.ready();
   }
 
-  return Schools.find({}, { sort: { name: 1 } });
+  // Allowlist the fields AdminSchools.jsx reads. An unprojected find() would ship
+  // smtpSettings.password (stored in plaintext) to every system admin's minimongo.
+  return Schools.find(
+    {},
+    {
+      fields: {
+        name: 1,
+        shortName: 1,
+        code: 1,
+        domain: 1,
+        location: 1,
+        settings: 1,
+        isActive: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      },
+      sort: { name: 1 },
+    },
+  );
 });
 
 /**
@@ -90,6 +108,10 @@ Meteor.publish("schools.onboarding", function publishSchoolsForOnboarding() {
  */
 Meteor.publish("schools.byId", function publishSchoolById(schoolId) {
   check(schoolId, String);
+
+  if (!this.userId) {
+    return this.ready();
+  }
 
   return Schools.find(
     { _id: schoolId, isActive: true },

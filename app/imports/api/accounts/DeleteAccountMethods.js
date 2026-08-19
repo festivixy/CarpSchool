@@ -53,21 +53,41 @@ Meteor.methods({
       console.log(`  ✅ Transferred place ownership to deleted_user`);
 
       // 5. Remove user from ride sessions
-      await RideSessions.removeAsync({ userId });
-      console.log(`  ✅ Deleted ride sessions`);
+      // RideSessions has no `userId` field; the user appears as driverId/riders/activeRiders
+      // and as a key inside the liveLocations and progress maps.
+      const deletedSessionsCount = await RideSessions.removeAsync({ driverId: userId });
+      await RideSessions.updateAsync(
+        { $or: [{ riders: userId }, { activeRiders: userId }] },
+        {
+          $pull: { riders: userId, activeRiders: userId },
+          // $pull cannot remove object keys, so the per-user GPS history and pickup
+          // verification entries have to be unset by path.
+          $unset: {
+            [`liveLocations.${userId}`]: "",
+            [`progress.${userId}`]: "",
+          },
+        },
+        { multi: true },
+      );
+      console.log(`  ✅ Deleted ${deletedSessionsCount} driver ride sessions, scrubbed rider data`);
 
       // 6. Mark chats as from deleted user
       // (Keep chat history but anonymize sender)
+      // Sender only exists inside the Messages[] subdocuments, never at the top
+      // level, so this needs a filtered positional update rather than a plain $set.
       await Chats.updateAsync(
-        { Sender: userId },
-        { $set: { Sender: "deleted_user", SenderDeleted: true } },
-        { multi: true }
+        { "Messages.Sender": userId },
+        { $set: { "Messages.$[m].Sender": "deleted_user" } },
+        { multi: true, arrayFilters: [{ "m.Sender": userId }] },
       );
       console.log(`  ✅ Anonymized chat messages`);
 
       // 7. Delete user images
-      await Images.removeAsync({ UserId: userId });
-      console.log(`  ✅ Deleted user images`);
+      // Images stores ownership as `user`/`uploadedBy`; there is no `UserId` field.
+      const deletedImagesCount = await Images.removeAsync({
+        $or: [{ user: userId }, { uploadedBy: userId }],
+      });
+      console.log(`  ✅ Deleted ${deletedImagesCount} user images`);
 
       // 8. Finally, delete the user account
       await Meteor.users.removeAsync(userId);

@@ -18,10 +18,16 @@ export const canCreateRideSession = async (userId, rideId, driverId, riders = []
   // Check if user is the driver or an admin
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
   const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
-  const isDriver = ride.driver === userId || driverId === userId;
+  const isDriver = ride.driver === userId;
 
   if (!isDriver && !isAdmin) {
     return { allowed: false, reason: "Only the driver or admin can create a ride session" };
+  }
+
+  // driverId is client-supplied and is persisted as session.driverId, which every
+  // downstream session permission check trusts. It must match the ride's driver.
+  if (driverId !== ride.driver) {
+    return { allowed: false, reason: "Session driver must be the ride's driver" };
   }
 
   // Check if session already exists for this ride
@@ -152,7 +158,9 @@ export const canPickupRider = async (userId, sessionId, riderId, location) => {
     return { allowed: false, reason: "Valid location coordinates are required" };
   }
 
-  const proximityCheck = await validateLocationProximity(userId, riderId, location, 1000);
+  // Must be the session's driver, not the acting user: an admin performing the pickup
+  // would otherwise miss the lookup and skip the proximity check entirely.
+  const proximityCheck = await validateLocationProximity(session.driverId, riderId, location, 1000);
   if (!proximityCheck.allowed) {
     return proximityCheck;
   }

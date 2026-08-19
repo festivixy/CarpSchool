@@ -156,9 +156,17 @@ Meteor.methods({
     // Build query with school filtering for school admins
     const query = { updatedAt: { $lt: cutoffDate } };
 
+    // RateLimit documents are keyed by userId and carry no schoolId field, so a
+    // school admin's cleanup has to be scoped to the users in their school.
     if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
       const currentUser = await Meteor.users.findOneAsync(this.userId);
-      query.schoolId = currentUser.schoolId;
+      const schoolUsers = currentUser?.schoolId
+        ? await Meteor.users.find(
+          { schoolId: currentUser.schoolId },
+          { fields: { _id: 1 } },
+        ).fetchAsync()
+        : [];
+      query.userId = { $in: schoolUsers.map(user => user._id) };
     }
 
     const result = await RateLimit.removeAsync(query);

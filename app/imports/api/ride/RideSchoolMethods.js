@@ -80,8 +80,7 @@ Meteor.methods({
       throw new Meteor.Error("school-mismatch", "You can only join rides from your school");
     }
 
-    // Get user and profile for role validation
-    const user = await Meteor.users.findOneAsync(userId);
+    // Get profile for role validation (user is already loaded above)
     const { Profiles } = await import("../profile/Profile");
     const userProfile = await Profiles.findOneAsync({ Owner: userId });
 

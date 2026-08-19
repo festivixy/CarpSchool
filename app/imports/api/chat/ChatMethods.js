@@ -4,7 +4,7 @@ import { check } from "meteor/check";
 import DOMPurify from "dompurify";
 import { Chats } from "./Chat";
 import { Rides } from "../ride/Rides";
-import { isEmailVerified } from "../accounts/Accounts";
+import { syncChatParticipants } from "./ChatParticipants";
 import { createSafeStringSchema } from "../../ui/utils/validation";
 
 // Set up DOMPurify for server-side use
@@ -43,8 +43,13 @@ Meteor.methods({
   async "chats.createForRide"(rideId) {
     check(rideId, String);
 
-    // Check if user is logged in
-    if (!await isEmailVerified(this.userId)) {
+    // Check if user is logged in.
+    // Previously gated on isEmailVerified, which reads user.emails[0].verified.
+    // Clerk-bridged accounts are created with an unverified clerk.local
+    // placeholder address, so that guard rejected every real user and a chat
+    // could never be created. Clerk owns email verification; what this method
+    // needs is a session.
+    if (!this.userId) {
       throw new Meteor.Error(
         "not-authorized",
         "You must be logged in to create a chat.",
@@ -77,6 +82,10 @@ Meteor.methods({
     // Check if chat already exists for this ride
     const existingChat = await Chats.findOneAsync({ rideId: rideId });
     if (existingChat) {
+      // Participants was snapshotted at creation and the ride join/leave paths
+      // never update it, so resync before handing the chat back. Without this a
+      // rider who joined after the chat existed is rejected by sendMessage.
+      await syncChatParticipants(ride);
       return existingChat._id;
     }
 
@@ -126,8 +135,9 @@ Meteor.methods({
       throw new Meteor.Error("validation-error", error.details[0].message);
     }
 
-    // Check if user is logged in
-    if (!await isEmailVerified(this.userId)) {
+    // Check if user is logged in. See chats.createForRide above for why this
+    // no longer gates on isEmailVerified.
+    if (!this.userId) {
       throw new Meteor.Error(
         "not-authorized",
         "You must be logged in to send messages.",

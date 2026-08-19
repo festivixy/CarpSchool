@@ -151,8 +151,15 @@ Meteor.methods({
 
     // 5. Send Verification Email (if configured)
     if (school.settings && school.settings.requireEmailVerification) {
-        Meteor.defer(() => {
-            Accounts.sendVerificationEmail(userId);
+        Meteor.defer(async () => {
+            try {
+                // sendVerificationEmail is async in Meteor 3; Meteor.defer drops the
+                // returned promise, so it has to be awaited and caught here or an SMTP
+                // failure becomes an untraceable unhandled rejection.
+                await Accounts.sendVerificationEmail(userId);
+            } catch (error) {
+                console.error(`Failed to send verification email to ${data.email}:`, error.message);
+            }
         });
     }
 

@@ -2,6 +2,7 @@ import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
 import { Random } from "meteor/random";
 import { RideSessions, RideSessionSchema } from "./RideSession";
+import { Rides } from "../ride/Rides";
 import {
   canCreateRideSession,
   canStartRideSession,
@@ -11,7 +12,6 @@ import {
   canDropoffRider,
   canModifyRideSession,
   validateRiderSequence,
-  validateTimeConstraints,
 } from "./RideSessionsSafety";
 
 // Helper function to generate 4-digit pickup codes using cryptographically secure random
@@ -25,8 +25,10 @@ Meteor.methods({
     check(rideId, String);
     check(driverId, String);
     check(riderIds, [String]);
-    check(location, { lat: Number, lng: Number });
-    
+    // Match.Maybe, so a null location reaches the explicit guard below and returns the
+    // actionable GPS message instead of a bare "Match failed".
+    check(location, Match.Maybe({ lat: Number, lng: Number }));
+
     // GPS location is required for ride safety
     if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
       throw new Meteor.Error("validation-error", "GPS location is required for ride safety. Please enable location services.");
@@ -54,9 +56,17 @@ Meteor.methods({
       };
     });
 
+    // Re-read the ride so schoolId and driverId come from the server-side document
+    // rather than from the client-supplied arguments.
+    const ride = await Rides.findOneAsync(rideId);
+    if (!ride?.schoolId) {
+      throw new Meteor.Error("validation-error", "Ride is not assigned to a school");
+    }
+
     const sessionData = {
       rideId,
-      driverId,
+      schoolId: ride.schoolId,
+      driverId: ride.driver,
       riders: riderIds,
       activeRiders: [...riderIds], // Copy rider IDs array
       progress,
@@ -185,7 +195,9 @@ Meteor.methods({
     check(sessionId, String);
     check(riderId, String);
     check(lastTwoDigits, String);
-    check(location, { lat: Number, lng: Number });
+    // Match.Maybe, so a null location reaches the explicit guard below rather than
+    // failing the check with "Match failed".
+    check(location, Match.Maybe({ lat: Number, lng: Number }));
 
     const userId = this.userId;
 
@@ -259,47 +271,6 @@ Meteor.methods({
     });
 
     return { success: true, message: "Rider pickup confirmed successfully!" };
-  },
-
-  async "rideSessions.pickupRider"(sessionId, riderId, location) {
-    check(sessionId, String);
-    check(riderId, String);
-    check(location, { lat: Number, lng: Number });
-
-    const userId = this.userId;
-
-    // Safety validations
-    const canPickup = await canPickupRider(userId, sessionId, riderId, location);
-    if (!canPickup.allowed) {
-      throw new Meteor.Error("access-denied", canPickup.reason);
-    }
-
-    const sequenceValidation = await validateRiderSequence(sessionId, riderId, "pickup");
-    if (!sequenceValidation.allowed) {
-      throw new Meteor.Error("validation-error", sequenceValidation.reason);
-    }
-
-    const timeValidation = await validateTimeConstraints(sessionId, "pickup");
-    if (!timeValidation.allowed) {
-      throw new Meteor.Error("validation-error", timeValidation.reason);
-    }
-
-    const updateData = {
-      [`progress.${riderId}.pickedUp`]: true,
-      [`progress.${riderId}.pickupTime`]: new Date(),
-    };
-
-    await RideSessions.updateAsync(sessionId, { $set: updateData });
-
-    // Log pickup event
-    await Meteor.callAsync("rideSessions.logEvent", sessionId, "riderPickedUp", {
-      location,
-      time: new Date(),
-      by: userId,
-      riderId,
-    });
-
-    return true;
   },
 
   async "rideSessions.getPickupCodeHint"(sessionId, riderId) {

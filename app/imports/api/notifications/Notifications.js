@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
 
@@ -164,20 +165,26 @@ export const PushTokenSchema = Joi.object({
 export const PushTokens = new Mongo.Collection("pushTokens");
 
 // Indexes for better performance
+// createIndex() is only a wrapper around createIndexAsync() in Meteor 3, so these
+// have to be awaited - unawaited, a rejected index build (most likely the unique
+// token index) is an unhandled rejection at import time and the index silently
+// does not exist.
 if (Meteor.isServer) {
-  // Notifications indexes
-  Notifications.createIndex({ userId: 1, createdAt: -1 });
-  Notifications.createIndex({ status: 1, scheduledAt: 1 });
-  Notifications.createIndex({ type: 1, createdAt: -1 });
-  Notifications.createIndex({ groupKey: 1, createdAt: -1 });
-  Notifications.createIndex({ batchId: 1 });
-  Notifications.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+  Meteor.startup(async () => {
+    // Notifications indexes
+    await Notifications.createIndexAsync({ userId: 1, createdAt: -1 });
+    await Notifications.createIndexAsync({ status: 1, scheduledAt: 1 });
+    await Notifications.createIndexAsync({ type: 1, createdAt: -1 });
+    await Notifications.createIndexAsync({ groupKey: 1, createdAt: -1 });
+    await Notifications.createIndexAsync({ batchId: 1 });
+    await Notifications.createIndexAsync({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-  // PushTokens indexes
-  PushTokens.createIndex({ userId: 1, platform: 1 });
-  PushTokens.createIndex({ token: 1 }, { unique: true });
-  PushTokens.createIndex({ isActive: 1, lastUsedAt: -1 });
-  PushTokens.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+    // PushTokens indexes
+    await PushTokens.createIndexAsync({ userId: 1, platform: 1 });
+    await PushTokens.createIndexAsync({ token: 1 }, { unique: true });
+    await PushTokens.createIndexAsync({ isActive: 1, lastUsedAt: -1 });
+    await PushTokens.createIndexAsync({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+  });
 }
 
 // Helper functions

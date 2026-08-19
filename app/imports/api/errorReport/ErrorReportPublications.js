@@ -158,8 +158,18 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
   let unresolvedCount = 0;
   let criticalCount = 0;
 
-  // Set up observers
-  const totalHandle = ErrorReports.find({}).observeChanges({
+  // Publish the count documents BEFORE observing. In Meteor 3 observeChanges is
+  // async and delivers its initial `added` callbacks before it resolves, so the
+  // self.changed() calls below would otherwise throw
+  // "Could not find element with id total to change".
+  self.added("errorReportCounts", "total", { count: totalCount });
+  self.added("errorReportCounts", "unresolved", { count: unresolvedCount });
+  self.added("errorReportCounts", "critical", { count: criticalCount });
+
+  // Set up observers. The await matters: in Meteor 3 observeChanges returns a
+  // Promise, so without it these handles could never be stopped and every
+  // subscription leaked a live observer.
+  const totalHandle = await ErrorReports.find({}).observeChangesAsync({
     added: () => {
       totalCount++;
       self.changed("errorReportCounts", "total", { count: totalCount });
@@ -170,7 +180,7 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
     },
   });
 
-  const unresolvedHandle = ErrorReports.find({ resolved: false }).observeChanges({
+  const unresolvedHandle = await ErrorReports.find({ resolved: false }).observeChangesAsync({
     added: () => {
       unresolvedCount++;
       self.changed("errorReportCounts", "unresolved", { count: unresolvedCount });
@@ -189,10 +199,15 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
     },
   });
 
-  const criticalHandle = ErrorReports.find({
+  // No `changed` callback here: a document entering or leaving
+  // { severity: "critical", resolved: false } fires added/removed instead, and
+  // `changed` only carries the fields that actually changed -- so the previous
+  // handler saw fields.severity === undefined and decremented the count on every
+  // unrelated update (e.g. an admin saving notes on a critical report).
+  const criticalHandle = await ErrorReports.find({
     severity: "critical",
     resolved: false,
-  }).observeChanges({
+  }).observeChangesAsync({
     added: () => {
       criticalCount++;
       self.changed("errorReportCounts", "critical", { count: criticalCount });
@@ -201,35 +216,18 @@ Meteor.publish("errorReports.count", async function publishErrorCount() {
       criticalCount--;
       self.changed("errorReportCounts", "critical", { count: criticalCount });
     },
-    changed: (id, fields) => {
-      if (fields.resolved === true || fields.severity !== "critical") {
-        criticalCount--;
-      } else if (fields.resolved === false && fields.severity === "critical") {
-        criticalCount++;
-      }
-      self.changed("errorReportCounts", "critical", { count: criticalCount });
-    },
   });
 
-  // Send initial counts
-  self.added("errorReportCounts", "total", { count: totalCount });
-  self.added("errorReportCounts", "unresolved", { count: unresolvedCount });
-  self.added("errorReportCounts", "critical", { count: criticalCount });
-
-  self.ready();
-
-  // Clean up observers when subscription stops
-  self.onStop(() => {
-    if (totalHandle && typeof totalHandle.stop === "function") {
-      totalHandle.stop();
-    }
-    if (unresolvedHandle && typeof unresolvedHandle.stop === "function") {
-      unresolvedHandle.stop();
-    }
-    if (criticalHandle && typeof criticalHandle.stop === "function") {
-      criticalHandle.stop();
-    }
-  });
+  // Clean up observers when subscription stops. ObserveHandle.stop() is async in
+  // Meteor 3 and stop callbacks are not awaited, so catch here rather than leak
+  // an unhandled rejection.
+  self.onStop(() => Promise.all([
+    totalHandle.stop(),
+    unresolvedHandle.stop(),
+    criticalHandle.stop(),
+  ]).catch((error) => {
+    console.error("[ErrorReports] Failed to stop count observers:", error);
+  }));
 
   return self.ready();
 });

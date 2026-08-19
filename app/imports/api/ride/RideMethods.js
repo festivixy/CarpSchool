@@ -4,6 +4,7 @@ import { Rides, RidesSchema } from "./Rides";
 import { validateUserCanJoinRide, validateUserCanRemoveRider, validateUserCanCreateRide } from "./RideValidation";
 import { Profiles } from "../profile/Profile";
 import { estimateRoute } from "./routeEstimate";
+import { syncChatParticipants } from "../chat/ChatParticipants";
 
 Meteor.methods({
   async "rides.remove"(rideId) {
@@ -11,6 +12,13 @@ Meteor.methods({
 
     // Check if user is admin
     const user = await Meteor.userAsync();
+    if (!user) {
+      throw new Meteor.Error(
+        "not-authorized",
+        "You must be logged in to delete rides",
+      );
+    }
+
     const { isSystemAdmin } = await import("../accounts/RoleUtils");
 
     if (!await isSystemAdmin(user._id)) {
@@ -104,6 +112,13 @@ Meteor.methods({
 
     // Check if user is system admin
     const user = await Meteor.userAsync();
+    if (!user) {
+      throw new Meteor.Error(
+        "not-authorized",
+        "You must be logged in to edit rides",
+      );
+    }
+
     const { isSystemAdmin } = await import("../accounts/RoleUtils");
 
     if (!await isSystemAdmin(user._id)) {
@@ -113,8 +128,17 @@ Meteor.methods({
       );
     }
 
+    const existingRide = await Rides.findOneAsync(rideId);
+    if (!existingRide) {
+      throw new Meteor.Error("not-found", "Ride not found");
+    }
+
     // Prepare update data with proper types
     const fieldsToUpdate = {
+      // schoolId is required by RidesSchema but is not admin-editable. Carry the
+      // stored value through so validation can pass; it is stripped before the
+      // $set below. Without it every validate() call fails on "schoolId is required".
+      schoolId: existingRide.schoolId,
       driver: updateData.driver,
       riders: updateData.riders,
       origin: updateData.origin,
@@ -132,8 +156,9 @@ Meteor.methods({
       throw new Meteor.Error("validation-error", error.details[0].message);
     }
 
-    // Remove _id from fields before updating (not needed for update)
+    // Remove validation-only fields before updating (not needed for update)
     delete fieldsToUpdate._id;
+    delete fieldsToUpdate.schoolId;
 
     await Rides.updateAsync(rideId, { $set: fieldsToUpdate });
   },
@@ -269,6 +294,10 @@ Meteor.methods({
       });
     }
 
+    // Chats.Participants is a snapshot taken at chat creation; keep it in step
+    // with the ride or this rider cannot post to the ride chat.
+    await syncChatParticipants(await Rides.findOneAsync(ride._id));
+
     return { rideId: ride._id, message: "Successfully joined ride!" };
   },
 
@@ -276,6 +305,13 @@ Meteor.methods({
     check(rideId, String);
 
     const user = await Meteor.userAsync();
+    if (!user) {
+      throw new Meteor.Error(
+        "not-authorized",
+        "You must be logged in to join a ride",
+      );
+    }
+
     const ride = await Rides.findOneAsync(rideId);
 
     // Get user profile for role validation
@@ -292,6 +328,9 @@ Meteor.methods({
     await Rides.updateAsync(rideId, {
       $push: { riders: user._id },
     });
+
+    // Keep the ride chat's participant snapshot in step with the ride.
+    await syncChatParticipants(await Rides.findOneAsync(rideId));
 
     return { message: "Successfully joined ride!" };
   },
@@ -322,6 +361,10 @@ Meteor.methods({
       $pull: { riders: user._id },
     });
 
+    // Drop them from the chat too, otherwise a departed rider keeps receiving
+    // and can keep posting to the ride chat.
+    await syncChatParticipants(await Rides.findOneAsync(rideId));
+
     return { message: "Successfully left ride!" };
   },
 
@@ -332,8 +375,10 @@ Meteor.methods({
     const user = await Meteor.userAsync();
     const ride = await Rides.findOneAsync(rideId);
 
-    // Use centralized validation
-    const validation = validateUserCanRemoveRider(ride, user, riderUserId);
+    // Use centralized validation. validateUserCanRemoveRider is async (it awaits
+    // the RoleUtils admin checks), so without the await `validation` is a Promise
+    // and `validation.isValid` is undefined, making the guard below always throw.
+    const validation = await validateUserCanRemoveRider(ride, user, riderUserId);
 
     if (!validation.isValid) {
       throw new Meteor.Error("validation-error", validation.error);
@@ -343,6 +388,9 @@ Meteor.methods({
     await Rides.updateAsync(rideId, {
       $pull: { riders: riderUserId },
     });
+
+    // Revoke their chat access along with the seat.
+    await syncChatParticipants(await Rides.findOneAsync(rideId));
 
     return { message: "Rider removed successfully!" };
   },
@@ -450,10 +498,22 @@ Meteor.methods({
       throw new Meteor.Error("not-found", "Ride not found.");
     }
 
-    // Restrict cross-school access.
+    // Restrict cross-school access. Fail closed: a missing schoolId on either
+    // side must deny rather than skip the check (rides created through the REST
+    // route carry no schoolId). Participants and system admins keep access.
     const user = await Meteor.users.findOneAsync(userId);
-    if (user && user.schoolId && ride.schoolId && user.schoolId !== ride.schoolId) {
-      throw new Meteor.Error("access-denied", "This ride is not at your school.");
+    const isParticipant = ride.driver === userId
+      || (Array.isArray(ride.riders) && ride.riders.includes(userId));
+
+    if (!isParticipant) {
+      const sameSchool = Boolean(user?.schoolId)
+        && Boolean(ride.schoolId)
+        && user.schoolId === ride.schoolId;
+      const { isSystemAdmin } = await import("../accounts/RoleUtils");
+
+      if (!sameSchool && !await isSystemAdmin(userId)) {
+        throw new Meteor.Error("access-denied", "This ride is not at your school.");
+      }
     }
 
     const { Places } = await import("../places/Places");

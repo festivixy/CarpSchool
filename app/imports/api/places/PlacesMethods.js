@@ -16,9 +16,18 @@ Meteor.methods({
       );
     }
 
+    const currentUser = await Meteor.users.findOneAsync(this.userId);
+
+    // The server owns schoolId: PlacesSchema allows it, so a client could
+    // otherwise plant a place into another school's admin list.
+    const { schoolId: clientSchoolId, ...clientPlaceData } = placeData;
+
     // Validate input
     const { error, value } = PlacesSchema.validate({
-      ...placeData,
+      ...clientPlaceData,
+      // Only set the key when there is a school, so the stored document keeps
+      // matching `{ schoolId: ... }` filters without an explicit null/undefined.
+      ...(currentUser?.schoolId ? { schoolId: currentUser.schoolId } : {}),
       createdBy: this.userId,
       createdAt: new Date(),
     });

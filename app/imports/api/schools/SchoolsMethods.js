@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
+import Joi from "joi";
 import { Schools, SchoolsSchema } from "./Schools";
 import { isSystemAdmin, isSchoolAdmin } from "../accounts/RoleUtils";
 

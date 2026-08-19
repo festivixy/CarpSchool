@@ -129,25 +129,20 @@ Meteor.methods({
       throw new Meteor.Error("smtp-not-configured", "SMTP settings not configured for this school.");
     }
 
-    try {
-      const smtpSettings = school.smtpSettings;
+    const smtpSettings = school.smtpSettings;
+    const oldMailUrl = process.env.MAIL_URL;
 
+    try {
       // Configure SMTP for this test
-      const oldMailUrl = process.env.MAIL_URL;
       process.env.MAIL_URL = `smtp://${encodeURIComponent(smtpSettings.email)}:${encodeURIComponent(smtpSettings.password)}@${smtpSettings.host}:${smtpSettings.port}`;
 
       // Send test email
       await Email.sendAsync({
         to: smtpSettings.email,
-        from: `${school.schoolName} <${smtpSettings.email}>`,
+        from: `${school.name} <${smtpSettings.email}>`,
         subject: "SMTP Test - Carp School",
-        text: `This is a test email to verify SMTP configuration for ${school.schoolName}.\n\nIf you receive this email, your SMTP settings are working correctly.`,
+        text: `This is a test email to verify SMTP configuration for ${school.name}.\n\nIf you receive this email, your SMTP settings are working correctly.`,
       });
-
-      // Restore original MAIL_URL
-      if (oldMailUrl) {
-        process.env.MAIL_URL = oldMailUrl;
-      }
 
       return {
         success: true,
@@ -157,6 +152,14 @@ Meteor.methods({
     } catch (error) {
       console.error("SMTP test failed:", error);
       throw new Meteor.Error("smtp-test-failed", `SMTP test failed: ${error.message}`);
+    } finally {
+      // MAIL_URL is process-global: it must be restored even when sendAsync throws,
+      // or every later email on this server goes out through this school's SMTP account.
+      if (oldMailUrl === undefined) {
+        delete process.env.MAIL_URL;
+      } else {
+        process.env.MAIL_URL = oldMailUrl;
+      }
     }
   },
 });

@@ -167,10 +167,14 @@ Meteor.methods({
     ];
     const allowedExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
 
-    // Validate actual file type matches detected signature
-    const invalidMimeType = !allowedMimeTypes.includes(detectedFileType.mime);
-    const invalidExtension = !allowedExtensions.includes(detectedFileType.ext);
-    if (!detectedFileType || invalidMimeType || invalidExtension) {
+    // Validate actual file type matches detected signature.
+    // fileType() returns undefined for unrecognized magic bytes, so the null
+    // check must short-circuit before either property is dereferenced.
+    if (
+      !detectedFileType
+      || !allowedMimeTypes.includes(detectedFileType.mime)
+      || !allowedExtensions.includes(detectedFileType.ext)
+    ) {
       throw new Meteor.Error(
         "invalid-file-type",
         "File type not allowed. Only JPEG, PNG, GIF, and WebP images are supported.",
