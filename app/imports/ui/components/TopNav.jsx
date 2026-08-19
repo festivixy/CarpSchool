@@ -35,7 +35,7 @@ const DEFAULT_ITEMS = [
  * sign-out.
  */
 const TopNav = ({
-  active, items, onNav, onOffer, glass, user, menuItems, onMenuSelect,
+  active, items, onNav, onOffer, glass, user, menuItems, onMenuSelect, showOffer,
 }) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const wrapRef = React.useRef(null);
@@ -84,10 +84,12 @@ const TopNav = ({
       >
         <Icon name="bell" size={18} />
       </IconBtn>
-      <OfferBtn type="button" onClick={onOffer}>
-        <Icon name="plus" size={16} />
-        Offer ride
-      </OfferBtn>
+      {showOffer && (
+        <OfferBtn type="button" onClick={onOffer}>
+          <Icon name="plus" size={16} />
+          Offer ride
+        </OfferBtn>
+      )}
       <UserWrap ref={wrapRef}>
         <AvatarBtn
           type="button"
@@ -136,6 +138,7 @@ TopNav.propTypes = {
     danger: PropTypes.bool,
   })),
   onMenuSelect: PropTypes.func,
+  showOffer: PropTypes.bool,
 };
 
 TopNav.defaultProps = {
@@ -147,6 +150,7 @@ TopNav.defaultProps = {
   user: null,
   menuItems: [],
   onMenuSelect: undefined,
+  showOffer: true,
 };
 
 export default TopNav;

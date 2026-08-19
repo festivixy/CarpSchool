@@ -4,6 +4,7 @@ import { withRouter } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { useAuth } from "@clerk/clerk-react";
+import { Profiles } from "../../api/profile/Profile";
 import TopNav from "./TopNav";
 import NavBar from "../desktop/components/NavBar";
 import { NavSpacer } from "../styles/TopNav";
@@ -77,7 +78,7 @@ const avatarUserFrom = (currentUser) => {
   return { id: currentUser._id, name, hue: hueFor(currentUser._id) };
 };
 
-function TopNavAuto({ currentUser, history, location }) {
+function TopNavAuto({ currentUser, myProfile, history, location }) {
   const { isSignedIn, signOut } = useAuth();
   const pathname = location?.pathname || "/";
   const isLegacyRoute = LEGACY_NAV_PREFIXES.some(p => pathname.startsWith(p));
@@ -90,6 +91,8 @@ function TopNavAuto({ currentUser, history, location }) {
 
   const isAdmin = currentUser?.roles?.includes("system")
     || currentUser?.roles?.some(r => r.startsWith("admin."));
+
+  const canDrive = myProfile?.UserType !== "Rider";
 
   const menuItems = [
     ...MENU_BASE,
@@ -115,7 +118,8 @@ function TopNavAuto({ currentUser, history, location }) {
         active={activeFor(pathname)}
         user={avatarUserFrom(currentUser)}
         onNav={id => history.push(NAV_TARGETS[id] || "/")}
-        onOffer={() => history.push("/create")}
+        onOffer={canDrive ? () => history.push("/create") : undefined}
+        showOffer={canDrive}
         menuItems={menuItems}
         onMenuSelect={handleMenuSelect}
       />
@@ -126,17 +130,24 @@ function TopNavAuto({ currentUser, history, location }) {
 
 TopNavAuto.propTypes = {
   currentUser: PropTypes.object,
+  myProfile: PropTypes.object,
   history: PropTypes.object.isRequired,
   location: PropTypes.object,
 };
 
 TopNavAuto.defaultProps = {
   currentUser: null,
+  myProfile: null,
   location: null,
 };
 
-const TopNavAutoTracked = withTracker(() => ({
-  currentUser: Meteor.user(),
-}))(TopNavAuto);
+const TopNavAutoTracked = withTracker(() => {
+  const uid = Meteor.userId();
+  Meteor.subscribe("profiles.mineWithApprovalStatus");
+  return {
+    currentUser: Meteor.user(),
+    myProfile: uid ? Profiles.findOne({ Owner: uid }) : null,
+  };
+})(TopNavAuto);
 
 export default withRouter(TopNavAutoTracked);
