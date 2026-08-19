@@ -201,3 +201,29 @@ export const Empty = styled.div`
   color: var(--ink-3);
   font-size: 14px;
 `;
+
+/* Design handoff: mini sparkline bars along the bottom of a metric card. */
+export const Spark = styled.div`
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 28px;
+  margin-top: 10px;
+`;
+
+export const SparkBar = styled.div`
+  flex: 1;
+  min-width: 2px;
+  border-radius: 1px;
+  background: ${props => (props.$active ? "var(--signal-yellow-deep)" : "var(--cream-2)")};
+  height: ${props => Math.max(3, props.$pct)}%;
+`;
+
+export const SparkCaption = styled.div`
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-top: 6px;
+`;
