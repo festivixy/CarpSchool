@@ -1,4 +1,5 @@
 import { Meteor } from "meteor/meteor";
+import { Accounts } from "meteor/accounts-base";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 
@@ -43,8 +44,31 @@ export function useClerkPublishableKey() {
  * Clerk-Meteor integration hook
  * Provides Meteor user data based on Clerk session
  */
+/**
+ * Exchange a Clerk session token for a Meteor session.
+ *
+ * Clerk alone never logged Meteor in, so Meteor.userId() stayed null and every
+ * publication and method that gates on this.userId silently returned nothing.
+ * The server verifies the token before honouring it; see
+ * imports/api/accounts/ClerkLoginHandler.js.
+ */
+export const loginToMeteorWithClerk = getToken => new Promise((resolve, reject) => {
+  getToken()
+    .then((clerkToken) => {
+      if (!clerkToken) {
+        reject(new Error("No Clerk session token available"));
+        return;
+      }
+      Accounts.callLoginMethod({
+        methodArguments: [{ type: "clerk", clerkToken }],
+        userCallback: (err) => (err ? reject(err) : resolve()),
+      });
+    })
+    .catch(reject);
+});
+
 export function useClerkUser() {
-  const { isSignedIn, userId: clerkUserId, isLoaded: clerkLoaded } = useAuth();
+  const { isSignedIn, userId: clerkUserId, isLoaded: clerkLoaded, getToken } = useAuth();
   const { user: clerkUser, isLoaded: userLoaded } = useUser();
   const [meteorUser, setMeteorUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,6 +88,12 @@ export function useClerkUser() {
           setMeteorUser(cachedUser);
           setLoading(false);
           return;
+        }
+
+        // Establish the Meteor session first. Without this Meteor.userId() is
+        // null and every gated publication and method fails.
+        if (!Meteor.userId()) {
+          await loginToMeteorWithClerk(getToken);
         }
 
         // Call method to get/create Meteor user from Clerk
@@ -86,7 +116,7 @@ export function useClerkUser() {
     if (clerkLoaded) {
       fetchMeteorUser();
     }
-  }, [isSignedIn, clerkUserId, clerkLoaded]);
+  }, [isSignedIn, clerkUserId, clerkLoaded, getToken]);
 
   return {
     isLoaded: clerkLoaded && userLoaded && !loading,
@@ -122,10 +152,10 @@ export function useIsSystemAdmin() {
 export function useIsAdmin() {
   const { meteorUser } = useClerkUser();
   if (!meteorUser?.roles) return false;
-  
+
   // Check for system role
   if (meteorUser.roles.includes("system")) return true;
-  
+
   // Check for any school admin role
   return meteorUser.roles.some(role => role.startsWith("admin."));
 }
@@ -136,11 +166,11 @@ export function useIsAdmin() {
 export function useIsSchoolAdmin(schoolId = null) {
   const { meteorUser } = useClerkUser();
   if (!meteorUser?.roles) return false;
-  
+
   // If no schoolId provided, check if user is admin of their own school
   const targetSchoolId = schoolId || meteorUser.schoolId;
   if (!targetSchoolId) return false;
-  
+
   return meteorUser.roles.includes(`admin.${targetSchoolId}`);
 }
 
