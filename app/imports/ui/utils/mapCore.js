@@ -3,6 +3,8 @@
  * This module contains the base functionality without circular dependencies
  */
 
+import { getOsrmUrl } from "./mapConfig";
+
 /**
  * Core route calculation using OSRM API
  * @param {object} startCoord - Start coordinates {lat, lng}
@@ -20,7 +22,7 @@ export const calculateCoreRoute = async (startCoord, endCoord, options = {}) => 
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const baseUrl = "https://osrm.carp.school/route/v1";
+    const baseUrl = `${getOsrmUrl()}/route/v1`;
     const coords = `${startCoord.lng},${startCoord.lat};${endCoord.lng},${endCoord.lat}`;
     const routeUrl = `${baseUrl}/${service}/${coords}?overview=full&geometries=geojson`;
 

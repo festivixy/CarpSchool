@@ -25,6 +25,10 @@ WebApp.connectHandlers.use("/", (req, res, next) => {
         "connect-src 'self' https://onesignal.com https://*.onesignal.com " +
         "https://api.onesignal.com https://cdn.onesignal.com wss: ws: " +
         "https://nominatim.carp.school https://tileserver.carp.school https://osrm.carp.school " +
+        // Public OSM stack, used when the carp.school map services are
+        // unreachable (see settings.public.map / ui/utils/mapConfig).
+        "https://nominatim.openstreetmap.org https://router.project-osrm.org " +
+        "https://tile.openstreetmap.org " +
         "https://*.clerk.accounts.dev https://clerk.com https://*.clerk.com",
         "img-src 'self' data: blob: https: http: https://onesignal.com https://*.onesignal.com https://*.carp.school",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",

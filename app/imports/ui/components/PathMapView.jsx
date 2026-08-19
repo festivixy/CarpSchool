@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { AsyncTileLayer } from "../utils/AsyncTileLayer";
+import { getTileUrlTemplate } from "../utils/mapConfig";
 import {
   MapContainer,
   MapWrapper,
@@ -76,15 +77,8 @@ const PathMapView = ({
     return 13;
   };
 
-  // Get tile server URL
-  const getTileUrl = () => {
-    const effectiveTileServerUrl =
-      tileServerUrl && tileServerUrl.trim() !== ""
-        ? tileServerUrl
-        : "https://tileserver.carp.school";
-
-    return `${effectiveTileServerUrl}/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png`;
-  };
+  // Get tile server URL (settings-overridable; see utils/mapConfig)
+  const getTileUrl = () => getTileUrlTemplate(tileServerUrl);
 
   // Create custom markers for start and end points
   const createStartIcon = () => L.divIcon({

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Map, Marker, Popup } from "react-leaflet";
 import { MapContainer } from "../styles/MapView";
 import { AsyncTileLayer } from "../utils/AsyncTileLayer";
+import { getTileUrlTemplate } from "../utils/mapConfig";
 
 /**
  * MapView component that displays an interactive Leaflet map with coordinate points
@@ -79,15 +80,8 @@ export default function MapView({ coordinates, tileServerUrl }) {
     }
   };
 
-  // Get tile server URL
-  const getTileUrl = () => {
-    const effectiveTileServerUrl =
-      tileServerUrl && tileServerUrl.trim() !== ""
-        ? tileServerUrl
-        : "https://tileserver.carp.school";
-
-    return `${effectiveTileServerUrl}/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png`;
-  };
+  // Get tile server URL (settings-overridable; see utils/mapConfig)
+  const getTileUrl = () => getTileUrlTemplate(tileServerUrl);
 
   // Add async tile layer to map and fit bounds
   useEffect(() => {

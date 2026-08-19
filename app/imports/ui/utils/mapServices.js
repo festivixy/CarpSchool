@@ -5,6 +5,8 @@
  * with automatic caching, request debouncing, and deduplication.
  */
 
+import { getNominatimUrl } from "./mapConfig";
+
 // Cache for storing search results
 const searchCache = new Map();
 const routeCache = new Map();
@@ -140,7 +142,7 @@ const searchLocations = async (query, options = {}) => {
         addressdetails = 1,
       } = options;
 
-      const searchUrl = new URL("https://nominatim.carp.school/search");
+      const searchUrl = new URL(`${getNominatimUrl()}/search`);
       searchUrl.searchParams.set("q", query);
       searchUrl.searchParams.set("format", "json");
       searchUrl.searchParams.set("limit", limit.toString());

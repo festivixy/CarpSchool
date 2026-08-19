@@ -91,7 +91,7 @@ Meteor.publish("profiles.displayNames", function publish(userIds) {
  * Publication for all profiles the current user interacts with
  * Returns basic display info for chat participants and ride members
  */
-Meteor.publish("profiles.interacted", function publish() {
+Meteor.publish("profiles.interacted", async function publish() {
   if (!this.userId) {
     return this.ready();
   }
@@ -100,17 +100,18 @@ Meteor.publish("profiles.interacted", function publish() {
   const { Chats } = require("../chat/Chat");
   const { Rides } = require("../ride/Rides");
 
-  // Get all chats the user is in
-  const userChats = Chats.find(
+  // Meteor 3: server-side reads are async. Calling fetch() here returned a
+  // Promise, so the forEach below threw. This body never ran until Meteor
+  // sessions started being established, which is why it went unnoticed.
+  const userChats = await Chats.find(
     { Participants: this.userId },
     { fields: { Participants: 1 } }
-  ).fetch();
+  ).fetchAsync();
 
-  // Get all rides the user is in
-  const userRides = Rides.find(
+  const userRides = await Rides.find(
     { $or: [{ driver: this.userId }, { riders: this.userId }] },
     { fields: { driver: 1, riders: 1 } }
-  ).fetch();
+  ).fetchAsync();
 
   // Collect all unique user IDs
   const userIdSet = new Set();

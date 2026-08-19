@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { AsyncTileLayer } from "../utils/AsyncTileLayer";
+import { getTileUrlTemplate } from "../utils/mapConfig";
 import {
   RouteMapContainer,
   RouteMapWrapper,
@@ -65,8 +66,8 @@ const RouteMapView = ({
     return 13;
   };
 
-  // Get tile server URL
-  const getTileUrl = () => "https://tileserver.carp.school/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png";
+  // Get tile server URL (settings-overridable; see utils/mapConfig)
+  const getTileUrl = () => getTileUrlTemplate();
 
   // Create custom markers for start and end points
   const createStartIcon = () => L.divIcon({
