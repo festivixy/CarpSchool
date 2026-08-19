@@ -10,6 +10,7 @@ import { Profiles } from "../../../api/profile/Profile";
 import RideCard from "../../components/RideCard";
 import MapBg from "../../components/MapBg";
 import { MyRidesSkeleton } from "../../skeleton";
+import { estimateRoute } from "../../../api/ride/routeEstimate";
 import {
   Page,
   Inner,
@@ -31,6 +32,7 @@ import {
   StatCard,
   StatValue,
   StatLabel,
+  StatUnit,
   Section,
   SectionTitle,
   Grid,
@@ -40,6 +42,13 @@ import {
   Mono,
   Empty,
 } from "../styles/MyRides";
+
+/* Stat basis, stated so the numbers are auditable rather than magic:
+ * EPA puts an average passenger vehicle at ~404 g CO2/mile (0.89 lb), and a
+ * typical UberX runs about $1.75/mile in this market. Sharing a ride avoids
+ * the rider's own solo trip, so miles shared drive both figures. */
+const CO2_LB_PER_MILE = 0.89;
+const RIDESHARE_USD_PER_MILE = 1.75;
 
 const fmtDay = (date) => new Date(date)
   .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
@@ -53,7 +62,7 @@ const fmtWhen = (date) => {
 
 const MobileMyRides = ({ history }) => {
   const {
-    ready, rides, placeName, userName, me,
+    ready, rides, placeName, placeCoords, userName, me,
   } = useTracker(() => {
     const uid = Meteor.userId();
     const subs = [
@@ -62,8 +71,10 @@ const MobileMyRides = ({ history }) => {
       Meteor.subscribe("profiles.interacted"),
     ];
     const placeMap = {};
+    const coordMap = {};
     Places.find({}).forEach((p) => {
       placeMap[p._id] = p.text;
+      coordMap[p._id] = p.value;
     });
     const nameMap = {};
     Profiles.find({}).forEach((p) => {
@@ -73,6 +84,7 @@ const MobileMyRides = ({ history }) => {
       ready: subs.every(s => s.ready()),
       rides: Rides.find({}, { sort: { date: 1 } }).fetch(),
       placeName: placeMap,
+      placeCoords: coordMap,
       userName: nameMap,
       me: uid,
     };
@@ -105,11 +117,20 @@ const MobileMyRides = ({ history }) => {
   if (!ready) return <MyRidesSkeleton numberOfRides={3} />;
 
   const now = new Date();
-  const withNames = rides.map(r => ({
-    ...r,
-    originText: placeName[r.origin],
-    destinationText: placeName[r.destination],
-  }));
+  const withNames = rides.map((r) => {
+    // Rides created before distanceMi existed carry no stored figure, so
+    // estimate from the place coordinates exactly as rides.forMySchool does.
+    const fallback = r.distanceMi === undefined
+      ? estimateRoute(placeCoords[r.origin], placeCoords[r.destination])
+      : null;
+    return {
+      ...r,
+      originText: placeName[r.origin],
+      destinationText: placeName[r.destination],
+      distanceMi: r.distanceMi ?? fallback?.distanceMi,
+      durationMin: r.durationMin ?? fallback?.durationMin,
+    };
+  });
   const upcoming = withNames
     .filter(r => new Date(r.date) >= now)
     .sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -119,8 +140,13 @@ const MobileMyRides = ({ history }) => {
 
   const featured = upcoming[0];
   const alsoUpcoming = upcoming.slice(1);
-  const asDriver = rides.filter(r => r.driver === me).length;
-  const asRider = rides.filter(r => (r.riders || []).includes(me)).length;
+  const milesShared = past.reduce((sum, r) => sum + (r.distanceMi || 0), 0);
+  const co2AvoidedLb = Math.round(milesShared * CO2_LB_PER_MILE);
+  const faresPaid = past.reduce((sum, r) => sum + (r.fare || 0), 0);
+  const savedUsd = Math.max(
+    0,
+    Math.round(milesShared * RIDESHARE_USD_PER_MILE - faresPaid),
+  );
 
   let featuredNode = null;
   if (featured) {
@@ -184,20 +210,24 @@ const MobileMyRides = ({ history }) => {
 
         <StatRow>
           <StatCard>
-            <StatValue $accent="var(--signal-yellow-deep)">{upcoming.length}</StatValue>
-            <StatLabel>UPCOMING</StatLabel>
+            <StatLabel>RIDES TAKEN</StatLabel>
+            <StatValue $accent="var(--signal-yellow-deep)">{past.length}</StatValue>
+            <StatUnit>this semester</StatUnit>
           </StatCard>
           <StatCard>
-            <StatValue>{asDriver}</StatValue>
-            <StatLabel>AS DRIVER</StatLabel>
+            <StatLabel>MILES SHARED</StatLabel>
+            <StatValue $accent="var(--sky)">{Math.round(milesShared)}</StatValue>
+            <StatUnit>with classmates</StatUnit>
           </StatCard>
           <StatCard>
-            <StatValue>{asRider}</StatValue>
-            <StatLabel>AS RIDER</StatLabel>
+            <StatLabel>CO&#8322; AVOIDED</StatLabel>
+            <StatValue $accent="var(--leaf)">{co2AvoidedLb}</StatValue>
+            <StatUnit>lb vs. solo trips</StatUnit>
           </StatCard>
           <StatCard>
-            <StatValue $accent="var(--leaf)">{past.length}</StatValue>
-            <StatLabel>COMPLETED</StatLabel>
+            <StatLabel>SAVED</StatLabel>
+            <StatValue $accent="var(--amber)">{`$${savedUsd}`}</StatValue>
+            <StatUnit>vs. rideshare</StatUnit>
           </StatCard>
         </StatRow>
 

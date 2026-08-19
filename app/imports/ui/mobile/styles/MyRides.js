@@ -139,19 +139,29 @@ export const StatCard = styled.div`
   background: var(--cream-1);
   border: 1px solid var(--glass-stroke);
   border-radius: var(--r-lg);
-  padding: 16px;
+  padding: 18px;
 `;
 
 export const StatValue = styled.div`
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 40px;
   font-weight: 700;
+  line-height: 1;
+  margin: 8px 0 4px;
   color: ${props => props.$accent || "var(--ink-1)"};
+
+  @media (max-width: 720px) {
+    font-size: 32px;
+  }
 `;
 
 export const StatLabel = styled.div`
   ${eyebrow}
-  margin-top: 4px;
+`;
+
+export const StatUnit = styled.div`
+  font-size: 12px;
+  color: var(--ink-3);
 `;
 
 export const Section = styled.div`
