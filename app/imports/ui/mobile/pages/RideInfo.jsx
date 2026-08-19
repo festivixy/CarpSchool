@@ -7,6 +7,7 @@ import { Chats } from "../../../api/chat/Chat";
 import { Profiles } from "../../../api/profile/Profile";
 import RouteMapView from "../../components/RouteMapView";
 import MapBg from "../../components/MapBg";
+import { estimateRoute, formatDuration, formatDistance } from "../../../api/ride/routeEstimate";
 import Avatar from "../../components/Avatar";
 import Icon from "../../components/Icon";
 import LoadingPage from "../../components/LoadingPage";
@@ -16,6 +17,7 @@ import {
   Inner,
   HeroCard,
   MapWrap,
+  RoutePill,
   HeroBody,
   Eyebrow,
   RouteTitle,
@@ -199,6 +201,16 @@ const RideInfo = ({ match }) => {
 
   const messages = (chat && chat.Messages) || [];
 
+  // Prefer the denormalised figures; fall back to the same estimate the
+  // discovery query uses so older rides still show a route summary.
+  const routeFallback = ride.distanceMi === undefined
+    ? estimateRoute(ride.originCoords, ride.destinationCoords)
+    : null;
+  const routeSummary = [
+    formatDuration(ride.durationMin ?? routeFallback?.durationMin),
+    formatDistance(ride.distanceMi ?? routeFallback?.distanceMi),
+  ].filter(Boolean).join(" · ");
+
   return (
     <Page>
       <Inner>
@@ -210,6 +222,12 @@ const RideInfo = ({ match }) => {
               <RouteMapView startCoord={start} endCoord={end} height="100%" />
             ) : (
               <MapBg />
+            )}
+            {routeSummary && (
+              <RoutePill>
+                <Icon name="car" size={13} />
+                {routeSummary}
+              </RoutePill>
             )}
           </MapWrap>
           <HeroBody>

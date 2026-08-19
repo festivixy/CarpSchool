@@ -258,3 +258,21 @@ export const ErrorBody = styled.p`
   margin: 0;
   max-width: 320px;
 `;
+
+/* Design handoff: glass pill over the hero map carrying the routed figures. */
+export const RoutePill = styled.div`
+  ${glass}
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-1);
+`;
