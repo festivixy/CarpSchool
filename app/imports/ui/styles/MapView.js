@@ -4,7 +4,7 @@ export const MapContainer = styled.div`
   width: 376px;
   height: 272px;
   flex-shrink: 0;
-  background: #fafcff;
+  background: var(--cream-1);
   position: relative;
   overflow: hidden;
 `;
@@ -34,7 +34,7 @@ export const PriceChip = styled.div`
     background: rgba(0, 0, 0, 0.8999999761581421);
   `
       : `
-    background: #FCFEFF;
+    background: var(--cream-0);
     box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.08);
   `)}
 `;
@@ -58,6 +58,6 @@ export const PriceText = styled.div`
     color: #FFF;
   `
       : `
-    color: #1B2228;
+    color: var(--ink-1);
   `)}
 `;

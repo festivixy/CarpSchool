@@ -131,7 +131,7 @@ export const SearchIcon = styled.span`
 `;
 
 export const CreateButton = styled.button`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -632,7 +632,7 @@ export const Button = styled.button`
     switch (props.variant) {
       case "primary":
         return `
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
           color: white;
           
           &:hover {
@@ -642,7 +642,7 @@ export const Button = styled.button`
         `;
       case "danger":
         return `
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          background: linear-gradient(135deg, var(--danger) 0%, var(--danger-deep) 100%);
           color: white;
           
           &:hover {

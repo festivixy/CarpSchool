@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const SelectorContainer = styled.div`
-  background-color: #ffffff;
+  background-color: var(--cream-0);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -24,7 +24,7 @@ export const SelectorHeader = styled.div`
 export const SelectorTitle = styled.h2`
   font-size: 24px;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--ink-1);
   margin: 0 0 8px 0;
 
   @media (max-width: 480px) {
@@ -34,7 +34,7 @@ export const SelectorTitle = styled.h2`
 
 export const SelectorSubtitle = styled.p`
   font-size: 16px;
-  color: #666;
+  color: var(--ink-3);
   margin: 0;
   line-height: 1.5;
 
@@ -46,7 +46,7 @@ export const SelectorSubtitle = styled.p`
 export const SearchInput = styled.input`
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--cream-2);
   border-radius: 8px;
   font-size: 16px;
   margin-bottom: 16px;
@@ -55,11 +55,11 @@ export const SearchInput = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--ink-2);
   }
 
   &::placeholder {
-    color: #999;
+    color: var(--ink-4);
   }
 
   @media (max-width: 480px) {
@@ -70,9 +70,9 @@ export const SearchInput = styled.input`
 export const SchoolsList = styled.div`
   max-height: 400px;
   overflow-y: auto;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--cream-2);
   border-radius: 8px;
-  background-color: #fafafa;
+  background-color: var(--cream-1);
 `;
 
 export const SchoolItem = styled.div`
@@ -80,18 +80,18 @@ export const SchoolItem = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--cream-2);
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: ${props => (props.selected ? "#667eea" : "#ffffff")};
-  color: ${props => (props.selected ? "#ffffff" : "#333")};
+  background-color: ${props => (props.selected ? "var(--ink-2)" : "var(--cream-0)")};
+  color: ${props => (props.selected ? "var(--cream-0)" : "var(--ink-1)")};
 
   &:last-child {
     border-bottom: none;
   }
 
   &:hover {
-    background-color: ${props => (props.selected ? "#5a6fd8" : "#f0f0f0")};
+    background-color: ${props => (props.selected ? "var(--sky)" : "var(--cream-1)")};
     transform: translateY(-1px);
   }
 
@@ -123,8 +123,8 @@ export const SchoolLocation = styled.div`
 `;
 
 export const SchoolCode = styled.div`
-  background-color: ${props => (props.theme?.selected ? "rgba(255, 255, 255, 0.2)" : "#f0f0f0")};
-  color: ${props => (props.theme?.selected ? "#ffffff" : "#666")};
+  background-color: ${props => (props.theme?.selected ? "rgba(255, 255, 255, 0.2)" : "var(--cream-1)")};
+  color: ${props => (props.theme?.selected ? "var(--cream-0)" : "var(--ink-3)")};
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -139,7 +139,7 @@ export const LoadingContainer = styled.div`
   padding: 40px;
   text-align: center;
   font-size: 16px;
-  color: #666;
+  color: var(--ink-3);
 `;
 
 export const ErrorContainer = styled.div`
@@ -149,8 +149,8 @@ export const ErrorContainer = styled.div`
   padding: 40px;
   text-align: center;
   font-size: 16px;
-  color: #e74c3c;
-  background-color: #fdf2f2;
+  color: var(--danger);
+  background-color: var(--danger-soft);
   border-radius: 8px;
-  border: 1px solid #fad7d7;
+  border: 1px solid var(--danger-soft);
 `;

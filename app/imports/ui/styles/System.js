@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const Container = styled.div`
   min-height: 100vh;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
 `;
 
 export const Header = styled.div`
@@ -35,7 +35,7 @@ export const ContentSection = styled.div`
 `;
 
 export const SectionTitle = styled.h2`
-  color: #2d3748;
+  color: var(--ink-1);
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 20px 0;
@@ -54,7 +54,7 @@ export const FormField = styled.div`
 
 export const Label = styled.label`
   display: block;
-  color: #4a5568;
+  color: var(--ink-2);
   font-weight: 500;
   margin-bottom: 8px;
   font-size: 0.9rem;
@@ -64,7 +64,7 @@ export const TextArea = styled.textarea`
   width: 100%;
   min-height: 200px;
   padding: 12px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--cream-2);
   border-radius: 8px;
   font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9rem;
@@ -74,12 +74,12 @@ export const TextArea = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--ink-2);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
 
   &::placeholder {
-    color: #a0aec0;
+    color: var(--ink-4);
   }
 `;
 
@@ -92,7 +92,7 @@ export const ButtonGroup = styled.div`
 `;
 
 export const SaveButton = styled.button`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -116,8 +116,8 @@ export const SaveButton = styled.button`
 
 export const PreviewButton = styled.button`
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: var(--ink-2);
+  border: 2px solid var(--ink-2);
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 500;
@@ -126,7 +126,7 @@ export const PreviewButton = styled.button`
   transition: all 0.3s ease;
 
   &:hover {
-    background: #667eea;
+    background: var(--ink-2);
     color: white;
   }
 `;
@@ -138,37 +138,37 @@ export const StatusMessage = styled.div`
   font-weight: 500;
   
   ${props => props.type === "success" && `
-    background: #f0fff4;
-    color: #38a169;
-    border: 1px solid #9ae6b4;
+    background: var(--leaf-soft);
+    color: var(--leaf);
+    border: 1px solid var(--leaf-soft);
   `}
   
   ${props => props.type === "error" && `
-    background: #fff5f5;
-    color: #e53e3e;
-    border: 1px solid #feb2b2;
+    background: var(--danger-soft);
+    color: var(--danger);
+    border: 1px solid var(--danger-soft);
   `}
 `;
 
 export const LastUpdated = styled.div`
-  color: #718096;
+  color: var(--ink-3);
   font-size: 0.8rem;
   margin-top: 10px;
   font-style: italic;
 `;
 
 export const CharacterCount = styled.div`
-  color: #718096;
+  color: var(--ink-3);
   font-size: 0.8rem;
   text-align: right;
   margin-top: 5px;
   
   ${props => props.warning && `
-    color: #ed8936;
+    color: var(--amber);
   `}
   
   ${props => props.error && `
-    color: #e53e3e;
+    color: var(--danger);
   `}
 `;
 
@@ -202,11 +202,11 @@ export const PreviewHeader = styled.div`
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid var(--cream-2);
 `;
 
 export const PreviewTitle = styled.h3`
-  color: #2d3748;
+  color: var(--ink-1);
   margin: 0;
 `;
 
@@ -214,10 +214,10 @@ export const CloseButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #718096;
+  color: var(--ink-3);
   cursor: pointer;
   
   &:hover {
-    color: #2d3748;
+    color: var(--ink-1);
   }
 `;

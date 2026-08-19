@@ -7,7 +7,7 @@ export const Container = styled.div`
   width: 100%;
   flex-direction: column;
   align-items: center;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   margin: 0 auto;
   padding: 20px 0;
   min-height: 100vh;
@@ -71,7 +71,7 @@ export const StatsContainer = styled.div`
 `;
 
 export const StatCard = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
   border-radius: 12px;
   padding: 20px;
   text-align: center;
@@ -101,18 +101,18 @@ export const FiltersContainer = styled.div`
 
 export const FilterButton = styled.button`
   padding: 8px 16px;
-  border: 2px solid ${props => (props.active ? "#667eea" : "#e1e5e9")};
+  border: 2px solid ${props => (props.active ? "var(--ink-2)" : "var(--cream-2)")};
   border-radius: 8px;
-  background-color: ${props => (props.active ? "#667eea" : "white")};
-  color: ${props => (props.active ? "white" : "#333")};
+  background-color: ${props => (props.active ? "var(--ink-2)" : "white")};
+  color: ${props => (props.active ? "white" : "var(--ink-1)")};
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #667eea;
-    background-color: ${props => (props.active ? "#5a6fd8" : "#f8f9ff")};
+    border-color: var(--ink-2);
+    background-color: ${props => (props.active ? "var(--sky)" : "var(--cream-1)")};
   }
 `;
 
@@ -228,7 +228,7 @@ export const ErrorReportsGrid = styled.div`
 
 export const ErrorReportCard = styled.div`
   background-color: white;
-  border: 2px solid ${props => (props.resolved ? "#d4edda" : "#e1e5e9")};
+  border: 2px solid ${props => (props.resolved ? "var(--leaf-soft)" : "var(--cream-2)")};
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -287,9 +287,9 @@ export const ActionButtons = styled.div`
 
 export const ActionButton = styled.button`
   padding: 6px 12px;
-  border: 1px solid ${props => props.color || "#6c757d"};
+  border: 1px solid ${props => props.color || "var(--ink-3)"};
   border-radius: 6px;
-  background-color: ${props => props.color || "#6c757d"};
+  background-color: ${props => props.color || "var(--ink-3)"};
   color: white;
   font-size: 12px;
   font-weight: 500;
@@ -309,10 +309,10 @@ export const ActionButton = styled.button`
 
 export const ViewButton = styled.button`
   padding: 6px 12px;
-  border: 2px solid #007bff;
+  border: 2px solid var(--sky);
   border-radius: 6px;
   background-color: white;
-  color: #007bff;
+  color: var(--sky);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -320,7 +320,7 @@ export const ViewButton = styled.button`
   white-space: nowrap;
 
   &:hover {
-    background-color: #007bff;
+    background-color: var(--sky);
     color: white;
     transform: translateY(-1px);
   }
@@ -388,7 +388,7 @@ export const CategoryBadge = styled.span`
 export const ResolvedBadge = styled.span`
   padding: 4px 8px;
   border-radius: 4px;
-  background-color: #28a745;
+  background-color: var(--leaf);
   color: white;
   font-size: 10px;
   font-weight: 700;

@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const MapContainer = styled.div`
   width: 100%;
   max-width: 800px;
-  background: #fafcff;
+  background: var(--cream-1);
   position: relative;
   overflow: hidden;
   border-radius: 8px;
@@ -67,11 +67,11 @@ export const PointIcon = styled.div`
   flex-shrink: 0;
 
   &.origin {
-    background-color: #28a745;
+    background-color: var(--leaf);
   }
 
   &.destination {
-    background-color: #dc3545;
+    background-color: var(--danger);
   }
 `;
 
@@ -81,7 +81,7 @@ export const PointDetails = styled.div`
 
 export const PointLabel = styled.div`
   font-size: 12px;
-  color: #666;
+  color: var(--ink-3);
   margin-bottom: 2px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -90,7 +90,7 @@ export const PointLabel = styled.div`
 export const PointName = styled.div`
   font-size: 16px;
   font-weight: 500;
-  color: #333;
+  color: var(--ink-1);
   line-height: 1.3;
 `;
 
@@ -98,7 +98,7 @@ export const RouteStats = styled.div`
   display: flex;
   gap: 16px;
   padding: 16px;
-  background: #f8f9fa;
+  background: var(--cream-1);
   border-radius: 8px;
   margin-bottom: 20px;
 
@@ -122,7 +122,7 @@ export const StatItem = styled.div`
 export const StatValue = styled.div`
   font-size: 20px;
   font-weight: bold;
-  color: #007bff;
+  color: var(--sky);
   margin-bottom: 4px;
 
   @media (max-width: 768px) {
@@ -132,7 +132,7 @@ export const StatValue = styled.div`
 
 export const StatLabel = styled.div`
   font-size: 12px;
-  color: #666;
+  color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
@@ -143,7 +143,7 @@ export const LoadingMessage = styled.div`
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  color: #666;
+  color: var(--ink-3);
 
   &::before {
     content: "🗺️";
@@ -167,9 +167,9 @@ export const ErrorMessage = styled.div`
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  color: #dc3545;
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-soft);
   border-radius: 8px;
 
   &::before {
@@ -188,10 +188,10 @@ export const MapViewContainer = styled.div`
 `;
 
 export const RouteLabel = styled.div`
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 600;
-  color: #1b2228;
+  color: var(--ink-1);
   margin-bottom: 4px;
 
   @media (max-width: 768px) {
@@ -200,9 +200,9 @@ export const RouteLabel = styled.div`
 `;
 
 export const RouteValue = styled.div`
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
-  color: #6c757d;
+  color: var(--ink-3);
   line-height: 1.4;
 
   @media (max-width: 768px) {

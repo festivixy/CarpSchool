@@ -30,7 +30,7 @@ export const BackButtonContainer = styled.button`
   
   /* Accessibility */
   &:focus {
-    outline: 2px solid #007AFF;
+    outline: 2px solid var(--sky);
     outline-offset: 2px;
   }
   

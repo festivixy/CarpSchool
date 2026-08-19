@@ -83,13 +83,13 @@ const getColorStyles = (color) => {
   switch (color) {
     case "primary":
       return css`
-        color: #007AFF;
-        border-color: #007AFF;
+        color: var(--sky);
+        border-color: var(--sky);
       `;
     case "secondary":
       return css`
-        color: #8E8E93;
-        border-color: #8E8E93;
+        color: var(--ink-4);
+        border-color: var(--ink-4);
       `;
     case "white":
       return css`
@@ -98,13 +98,13 @@ const getColorStyles = (color) => {
       `;
     case "dark":
       return css`
-        color: #1C1C1E;
-        border-color: #1C1C1E;
+        color: var(--ink-1);
+        border-color: var(--ink-1);
       `;
     default:
       return css`
-        color: #007AFF;
-        border-color: #007AFF;
+        color: var(--sky);
+        border-color: var(--sky);
       `;
   }
 };
@@ -218,11 +218,11 @@ export const RingSpinner = styled.div`
     fill: none;
     stroke: ${props => {
       switch (props.color) {
-        case "primary": return "#007AFF";
-        case "secondary": return "#8E8E93";
+        case "primary": return "var(--sky)";
+        case "secondary": return "var(--ink-4)";
         case "white": return "white";
-        case "dark": return "#1C1C1E";
-        default: return "#007AFF";
+        case "dark": return "var(--ink-1)";
+        default: return "var(--sky)";
       }
     }};
     stroke-width: 2;
@@ -234,7 +234,7 @@ export const RingSpinner = styled.div`
 `;
 
 export const SpinnerText = styled.div`
-  color: #1C1C1E;
+  color: var(--ink-1);
   font-weight: 500;
   text-align: center;
 
@@ -261,6 +261,6 @@ export const SpinnerText = styled.div`
 
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
-    color: #F2F2F7;
+    color: var(--cream-1);
   }
 `;

@@ -4,7 +4,7 @@ export const Container = styled.div`
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  background-color: #f8f9fa;
+  background-color: var(--cream-1);
   min-height: 100vh;
 `;
 
@@ -16,7 +16,7 @@ export const Title = styled.h1`
   margin: 0;
   font-size: 28px;
   font-weight: 700;
-  color: #333;
+  color: var(--ink-1);
 `;
 
 export const Section = styled.div`
@@ -31,7 +31,7 @@ export const SectionTitle = styled.h2`
   margin: 0 0 20px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--ink-1);
   display: flex;
   align-items: center;
 `;
@@ -43,7 +43,7 @@ export const StatsGrid = styled.div`
 `;
 
 export const StatCard = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
   color: white;
   padding: 20px;
   border-radius: 8px;
@@ -64,10 +64,10 @@ export const StatLabel = styled.div`
 `;
 
 export const FormSection = styled.div`
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--cream-2);
   border-radius: 8px;
   padding: 20px;
-  background-color: #fafafa;
+  background-color: var(--cream-1);
 `;
 
 export const FormGroup = styled.div`
@@ -78,21 +78,21 @@ export const Label = styled.label`
   display: block;
   margin-bottom: 6px;
   font-weight: 500;
-  color: #333;
+  color: var(--ink-1);
   font-size: 14px;
 `;
 
 export const Input = styled.input`
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--cream-3);
   border-radius: 6px;
   font-size: 14px;
   transition: border-color 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: #4285f4;
+    border-color: var(--sky);
     box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
   }
 `;
@@ -100,7 +100,7 @@ export const Input = styled.input`
 export const TextArea = styled.textarea`
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--cream-3);
   border-radius: 6px;
   font-size: 14px;
   font-family: inherit;
@@ -109,7 +109,7 @@ export const TextArea = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: #4285f4;
+    border-color: var(--sky);
     box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
   }
 `;
@@ -117,7 +117,7 @@ export const TextArea = styled.textarea`
 export const Select = styled.select`
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--cream-3);
   border-radius: 6px;
   font-size: 14px;
   background-color: white;
@@ -125,13 +125,13 @@ export const Select = styled.select`
 
   &:focus {
     outline: none;
-    border-color: #4285f4;
+    border-color: var(--sky);
     box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
   }
 `;
 
 export const Button = styled.button`
-  background-color: #4285f4;
+  background-color: var(--sky);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -142,12 +142,12 @@ export const Button = styled.button`
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: #3367d6;
+    background-color: var(--sky);
     transform: translateY(-1px);
   }
 
   &:disabled {
-    background-color: #ccc;
+    background-color: var(--cream-3);
     cursor: not-allowed;
     transform: none;
   }
@@ -160,13 +160,13 @@ export const ActionButtons = styled.div`
 `;
 
 export const NotificationList = styled.div`
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--cream-2);
   border-radius: 8px;
   overflow: hidden;
 `;
 
 export const NotificationItem = styled.div`
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--cream-2);
   
   &:last-child {
     border-bottom: none;
@@ -177,7 +177,7 @@ export const NotificationContent = styled.div`
   padding: 16px;
   
   &:hover {
-    background-color: #f8f9fa;
+    background-color: var(--cream-1);
   }
 `;
 
@@ -189,13 +189,13 @@ export const StatusBadge = styled.span`
   font-weight: 500;
   text-transform: uppercase;
   color: white;
-  background-color: ${props => props.color || "#9e9e9e"};
+  background-color: ${props => props.color || "var(--ink-4)"};
 `;
 
 export const ErrorMessage = styled.div`
-  background-color: #fff3e0;
-  border: 1px solid #ffb74d;
-  color: #e65100;
+  background-color: var(--signal-yellow-soft);
+  border: 1px solid var(--amber);
+  color: var(--amber);
   padding: 12px 16px;
   border-radius: 6px;
   margin-bottom: 20px;
@@ -203,9 +203,9 @@ export const ErrorMessage = styled.div`
 `;
 
 export const SuccessMessage = styled.div`
-  background-color: #e8f5e8;
-  border: 1px solid #81c784;
-  color: #2e7d32;
+  background-color: var(--leaf-soft);
+  border: 1px solid var(--leaf);
+  color: var(--leaf);
   padding: 12px 16px;
   border-radius: 6px;
   margin-bottom: 20px;

@@ -48,7 +48,7 @@ export const LoadingIndicator = styled.div`
   border-top: 0.5px solid rgba(0, 0, 0, 0.2);
 
   font-size: 14px;
-  color: #666;
+  color: var(--ink-3);
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
 `;
 
@@ -72,7 +72,7 @@ export const NativeIndicator = styled.div`
 
 export const StatusText = styled.div`
   font-size: 14px;
-  color: #666;
+  color: var(--ink-3);
 `;
 
 export const FallbackContainer = styled.div`
@@ -92,7 +92,7 @@ export const FallbackContainer = styled.div`
 export const FallbackButton = styled.button`
   background: none;
   border: none;
-  color: ${props => (props.isActive ? "#007AFF" : "white")};
+  color: ${props => (props.isActive ? "var(--sky)" : "white")};
   font-size: 24px;
   padding: 8px;
   border-radius: 8px;
@@ -134,18 +134,18 @@ export const FallbackItemIcon = styled.div`
 export const FallbackItemText = styled.div`
   font-size: 10px;
   font-weight: 500;
-  color: #333;
+  color: var(--ink-1);
   text-align: center;
 
   .active & {
-    color: #007AFF;
+    color: var(--sky);
   }
 `;
 
 export const StatusContainer = styled.div`
   text-align: center;
   padding: 20px;
-  color: #666;
+  color: var(--ink-3);
 `;
 
 export const FallbackIndicator = styled.div`

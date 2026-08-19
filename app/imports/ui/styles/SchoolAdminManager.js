@@ -1,12 +1,12 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  background: #fff;
+  background: var(--cream-0);
   border-radius: 16px;
   padding: 24px;
   margin-top: 32px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e1e8ed;
+  border: 1px solid var(--cream-2);
 `;
 
 export const Header = styled.div`
@@ -16,7 +16,7 @@ export const Header = styled.div`
 export const Title = styled.h2`
   font-size: 24px;
   font-weight: 700;
-  color: #333;
+  color: var(--ink-1);
   margin: 0 0 8px 0;
   display: flex;
   align-items: center;
@@ -29,7 +29,7 @@ export const Title = styled.h2`
 `;
 
 export const Subtitle = styled.p`
-  color: #666;
+  color: var(--ink-3);
   font-size: 16px;
   margin: 0;
   line-height: 1.5;
@@ -55,24 +55,24 @@ export const SearchSection = styled.div`
 export const SearchInput = styled.input`
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--cream-3);
   border-radius: 8px;
   font-size: 16px;
   transition: border-color 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: #4caf50;
+    border-color: var(--leaf);
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
   }
 
   &::placeholder {
-    color: #999;
+    color: var(--ink-4);
   }
 `;
 
 export const SearchButton = styled.button`
-  background: #4caf50;
+  background: var(--leaf);
   color: white;
   border: none;
   border-radius: 8px;
@@ -84,7 +84,7 @@ export const SearchButton = styled.button`
   white-space: nowrap;
 
   &:hover:not(:disabled) {
-    background: #45a049;
+    background: var(--leaf);
     transform: translateY(-1px);
   }
 
@@ -103,12 +103,12 @@ export const SchoolSelector = styled.div`
   label {
     font-size: 14px;
     font-weight: 600;
-    color: #333;
+    color: var(--ink-1);
   }
 
   select {
     padding: 12px 16px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--cream-3);
     border-radius: 8px;
     font-size: 16px;
     background: white;
@@ -116,7 +116,7 @@ export const SchoolSelector = styled.div`
 
     &:focus {
       outline: none;
-      border-color: #4caf50;
+      border-color: var(--leaf);
       box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
     }
   }
@@ -131,9 +131,9 @@ export const FilterSection = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   padding: 20px;
-  background: #f8fafb;
+  background: var(--cream-1);
   border-radius: 12px;
-  border: 1px solid #e1e8ed;
+  border: 1px solid var(--cream-2);
 `;
 
 export const FilterGroup = styled.div`
@@ -145,14 +145,14 @@ export const FilterGroup = styled.div`
 export const FilterLabel = styled.label`
   font-size: 12px;
   font-weight: 600;
-  color: #666;
+  color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
 
 export const FilterSelect = styled.select`
   padding: 8px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--cream-3);
   border-radius: 6px;
   font-size: 14px;
   background: white;
@@ -161,12 +161,12 @@ export const FilterSelect = styled.select`
 
   &:focus {
     outline: none;
-    border-color: #4caf50;
+    border-color: var(--leaf);
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
   }
 
   &:hover {
-    border-color: #ccc;
+    border-color: var(--cream-3);
   }
 `;
 
@@ -177,8 +177,8 @@ export const UsersList = styled.div`
 `;
 
 export const UserCard = styled.div`
-  background: #f8fafb;
-  border: 1px solid #e1e8ed;
+  background: var(--cream-1);
+  border: 1px solid var(--cream-2);
   border-radius: 12px;
   padding: 20px;
   display: flex;
@@ -212,13 +212,13 @@ export const UserInfo = styled.div`
 export const UserEmail = styled.div`
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: var(--ink-1);
   font-family: monospace;
 `;
 
 export const UserSchool = styled.div`
   font-size: 14px;
-  color: #666;
+  color: var(--ink-3);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -238,18 +238,18 @@ export const UserRoles = styled.div`
     letter-spacing: 0.5px;
 
     &.system-admin {
-      background: #fff3cd;
-      color: #856404;
+      background: var(--signal-yellow-soft);
+      color: var(--ink-2);
     }
 
     &.school-admin {
-      background: #d1ecf1;
-      color: #0c5460;
+      background: var(--signal-yellow-soft);
+      color: var(--ink-2);
     }
 
     &.regular-user {
-      background: #e2e3e5;
-      color: #495057;
+      background: var(--cream-2);
+      color: var(--ink-2);
     }
   }
 `;
@@ -266,7 +266,7 @@ export const Actions = styled.div`
 `;
 
 export const AddAdminButton = styled.button`
-  background: #28a745;
+  background: var(--leaf);
   color: white;
   border: none;
   border-radius: 8px;
@@ -278,7 +278,7 @@ export const AddAdminButton = styled.button`
   white-space: nowrap;
 
   &:hover:not(:disabled) {
-    background: #218838;
+    background: var(--leaf);
     transform: translateY(-1px);
   }
 
@@ -290,7 +290,7 @@ export const AddAdminButton = styled.button`
 `;
 
 export const RemoveAdminButton = styled.button`
-  background: #dc3545;
+  background: var(--danger);
   color: white;
   border: none;
   border-radius: 8px;
@@ -302,7 +302,7 @@ export const RemoveAdminButton = styled.button`
   white-space: nowrap;
 
   &:hover:not(:disabled) {
-    background: #c82333;
+    background: var(--danger-deep);
     transform: translateY(-1px);
   }
 
@@ -318,7 +318,7 @@ export const LoadingState = styled.div`
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
-  color: #666;
+  color: var(--ink-3);
   font-size: 16px;
 
   div {
@@ -331,8 +331,8 @@ export const LoadingState = styled.div`
     content: "";
     width: 20px;
     height: 20px;
-    border: 2px solid #e1e8ed;
-    border-top: 2px solid #4caf50;
+    border: 2px solid var(--cream-2);
+    border-top: 2px solid var(--leaf);
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -346,7 +346,7 @@ export const LoadingState = styled.div`
 export const EmptyState = styled.div`
   text-align: center;
   padding: 40px 20px;
-  color: #666;
+  color: var(--ink-3);
 
   div {
     font-size: 48px;
@@ -354,7 +354,7 @@ export const EmptyState = styled.div`
   }
 
   h3 {
-    color: #333;
+    color: var(--ink-1);
     font-size: 20px;
     margin: 0 0 8px 0;
   }
@@ -367,21 +367,21 @@ export const EmptyState = styled.div`
 `;
 
 export const ErrorMessage = styled.div`
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: var(--danger-soft);
+  color: var(--danger-deep);
+  border: 1px solid var(--danger-soft);
   border-radius: 8px;
   padding: 16px;
   font-size: 14px;
-  border-left: 4px solid #dc3545;
+  border-left: 4px solid var(--danger);
 `;
 
 export const SuccessMessage = styled.div`
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  border: 1px solid var(--leaf-soft);
   border-radius: 8px;
   padding: 16px;
   font-size: 14px;
-  border-left: 4px solid #28a745;
+  border-left: 4px solid var(--leaf);
 `;

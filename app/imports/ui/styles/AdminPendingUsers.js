@@ -25,7 +25,7 @@ export const Header = styled.div`
 `;
 
 export const Title = styled.h1`
-  color: #333;
+  color: var(--ink-1);
   font-size: 28px;
   font-weight: 700;
   margin: 0;
@@ -36,7 +36,7 @@ export const Title = styled.h1`
 `;
 
 export const Subtitle = styled.p`
-  color: #666;
+  color: var(--ink-3);
   font-size: 16px;
   margin: 5px 0 0 0;
 
@@ -46,7 +46,7 @@ export const Subtitle = styled.p`
 `;
 
 export const RefreshButton = styled.button`
-  background: #007bff;
+  background: var(--sky);
   color: white;
   border: none;
   border-radius: 8px;
@@ -57,7 +57,7 @@ export const RefreshButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: #0056b3;
+    background: var(--sky);
     transform: translateY(-1px);
   }
 
@@ -75,7 +75,7 @@ export const Content = styled.div`
 
 export const UserCard = styled.div`
   background: white;
-  border: 1px solid #e1e8ed;
+  border: 1px solid var(--cream-2);
   border-radius: 12px;
   padding: 24px;
   display: flex;
@@ -88,7 +88,7 @@ export const UserCard = styled.div`
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
-    border-color: #4caf50;
+    border-color: var(--leaf);
   }
 
   &:active {
@@ -119,7 +119,7 @@ export const UserAvatar = styled.div`
   height: 64px;
   border-radius: 50%;
   overflow: hidden;
-  background: #f0f0f0;
+  background: var(--cream-1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,7 +134,7 @@ export const UserAvatar = styled.div`
   .placeholder {
     font-size: 24px;
     font-weight: bold;
-    color: #666;
+    color: var(--ink-3);
   }
 
   @media (max-width: 768px) {
@@ -155,7 +155,7 @@ export const UserDetails = styled.div`
 `;
 
 export const UserName = styled.h3`
-  color: #333;
+  color: var(--ink-1);
   font-size: 18px;
   font-weight: 600;
   margin: 0;
@@ -166,32 +166,32 @@ export const UserName = styled.h3`
 `;
 
 export const UserType = styled.span`
-  color: ${props => props.userType === "Driver" ? "#28a745" : "#007bff"};
+  color: ${props => props.userType === "Driver" ? "var(--leaf)" : "var(--sky)"};
   font-size: 14px;
   font-weight: 500;
   padding: 4px 8px;
-  background: ${props => props.userType === "Driver" ? "#d4edda" : "#d1ecf1"};
+  background: ${props => props.userType === "Driver" ? "var(--leaf-soft)" : "var(--signal-yellow-soft)"};
   border-radius: 4px;
   display: inline-block;
   width: fit-content;
 `;
 
 export const UserEmail = styled.p`
-  color: #666;
+  color: var(--ink-3);
   font-size: 14px;
   margin: 0;
   font-family: monospace;
 `;
 
 export const UserSchool = styled.p`
-  color: #495057;
+  color: var(--ink-2);
   font-size: 14px;
   margin: 0;
   font-weight: 500;
 `;
 
 export const UserMeta = styled.p`
-  color: #6c757d;
+  color: var(--ink-3);
   font-size: 12px;
   margin: 0;
 `;
@@ -207,7 +207,7 @@ export const Actions = styled.div`
 `;
 
 export const ApproveButton = styled.button`
-  background: #28a745;
+  background: var(--leaf);
   color: white;
   border: none;
   border-radius: 8px;
@@ -219,7 +219,7 @@ export const ApproveButton = styled.button`
   min-width: 100px;
 
   &:hover:not(:disabled) {
-    background: #218838;
+    background: var(--leaf);
     transform: translateY(-1px);
   }
 
@@ -230,7 +230,7 @@ export const ApproveButton = styled.button`
 `;
 
 export const RejectButton = styled.button`
-  background: #dc3545;
+  background: var(--danger);
   color: white;
   border: none;
   border-radius: 8px;
@@ -242,7 +242,7 @@ export const RejectButton = styled.button`
   min-width: 100px;
 
   &:hover:not(:disabled) {
-    background: #c82333;
+    background: var(--danger-deep);
     transform: translateY(-1px);
   }
 
@@ -257,14 +257,14 @@ export const LoadingState = styled.div`
   justify-content: center;
   align-items: center;
   padding: 60px 20px;
-  color: #666;
+  color: var(--ink-3);
   font-size: 16px;
 `;
 
 export const EmptyState = styled.div`
   text-align: center;
   padding: 60px 20px;
-  color: #666;
+  color: var(--ink-3);
 
   div {
     font-size: 48px;
@@ -272,7 +272,7 @@ export const EmptyState = styled.div`
   }
 
   h3 {
-    color: #333;
+    color: var(--ink-1);
     font-size: 24px;
     margin: 0 0 10px 0;
   }
@@ -287,9 +287,9 @@ export const EmptyState = styled.div`
 `;
 
 export const ErrorMessage = styled.div`
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: var(--danger-soft);
+  color: var(--danger-deep);
+  border: 1px solid var(--danger-soft);
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 20px;
@@ -297,9 +297,9 @@ export const ErrorMessage = styled.div`
 `;
 
 export const SuccessMessage = styled.div`
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  border: 1px solid var(--leaf-soft);
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 20px;
@@ -348,10 +348,10 @@ export const ModalContent = styled.div`
 
 export const ModalHeader = styled.div`
   padding: 24px 24px 0 24px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--cream-2);
 
   h3 {
-    color: #333;
+    color: var(--ink-1);
     font-size: 18px;
     font-weight: 600;
     margin: 0 0 16px 0;
@@ -362,7 +362,7 @@ export const ModalBody = styled.div`
   padding: 24px;
 
   p {
-    color: #666;
+    color: var(--ink-3);
     font-size: 14px;
     line-height: 1.5;
     margin: 0 0 20px 0;
@@ -379,7 +379,7 @@ export const ModalActions = styled.div`
 export const RejectInput = styled.textarea`
   width: 100%;
   min-height: 80px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--cream-3);
   border-radius: 8px;
   padding: 12px;
   font-size: 14px;
@@ -388,17 +388,17 @@ export const RejectInput = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: var(--sky);
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
   }
 
   &::placeholder {
-    color: #999;
+    color: var(--ink-4);
   }
 `;
 
 export const ModalButton = styled.button`
-  background: ${props => props.primary ? "#dc3545" : "#6c757d"};
+  background: ${props => props.primary ? "var(--danger)" : "var(--ink-3)"};
   color: white;
   border: none;
   border-radius: 8px;
@@ -409,7 +409,7 @@ export const ModalButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: ${props => props.primary ? "#c82333" : "#5a6268"};
+    background: ${props => props.primary ? "var(--danger-deep)" : "var(--ink-2)"};
     transform: translateY(-1px);
   }
 

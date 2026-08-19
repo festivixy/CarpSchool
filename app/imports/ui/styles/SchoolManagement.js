@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const Container = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
   color: white;
   padding: 20px;
   box-sizing: border-box;
@@ -230,7 +230,7 @@ export const LocationGrid = styled.div`
 export const SuccessMessage = styled.div`
   background: rgba(76, 175, 80, 0.2);
   border: 1px solid rgba(76, 175, 80, 0.5);
-  color: #a5d6a7;
+  color: var(--leaf-soft);
   padding: 12px 16px;
   border-radius: 8px;
   margin: 16px 0;
@@ -240,7 +240,7 @@ export const SuccessMessage = styled.div`
 export const ErrorMessage = styled.div`
   background: rgba(244, 67, 54, 0.2);
   border: 1px solid rgba(244, 67, 54, 0.5);
-  color: #ef9a9a;
+  color: var(--danger-soft);
   padding: 12px 16px;
   border-radius: 8px;
   margin: 16px 0;
@@ -261,7 +261,7 @@ export const ButtonContainer = styled.div`
 `;
 
 export const SaveButton = styled.button`
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  background: linear-gradient(135deg, var(--leaf) 0%, var(--leaf) 100%);
   color: white;
   border: none;
   padding: 14px 32px;

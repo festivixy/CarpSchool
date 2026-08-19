@@ -50,7 +50,7 @@ export const ModalOverlay = styled.div`
 export const ModalContent = styled.div`
   width: 100%;
   max-width: 400px;
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  background: linear-gradient(145deg, var(--cream-0), var(--cream-1));
   border-radius: 24px 24px 16px 16px;
   padding: 32px 24px 24px 24px;
   position: relative;
@@ -68,7 +68,7 @@ export const ModalContent = styled.div`
     transform: translateX(-50%);
     width: 36px;
     height: 4px;
-    background: linear-gradient(90deg, #e2e8f0, #cbd5e0);
+    background: linear-gradient(90deg, var(--cream-2), var(--cream-3));
     border-radius: 2px;
   }
 
@@ -77,7 +77,7 @@ export const ModalContent = styled.div`
     font-weight: 700;
     margin: 0 0 16px 0;
     text-align: center;
-    background: linear-gradient(135deg, #1a202c, #2d3748);
+    background: linear-gradient(135deg, var(--ink-1), var(--ink-1));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -123,16 +123,16 @@ export const AppName = styled.h2`
   text-align: center;
   font-size: 18px;
   font-weight: 600;
-  color: #2d3748;
+  color: var(--ink-1);
   letter-spacing: -0.01em;
 `;
 
 export const InstallButton = styled.button`
   width: 100%;
   background: ${props => (props.disabled
-    ? "linear-gradient(135deg, #e2e8f0, #cbd5e0)"
-    : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)")};
-  color: ${props => (props.disabled ? "#718096" : "#ffffff")};
+    ? "linear-gradient(135deg, var(--cream-2), var(--cream-3))"
+    : "linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%)")};
+  color: ${props => (props.disabled ? "var(--ink-3)" : "var(--cream-0)")};
   border: none;
   border-radius: 16px;
   font-size: 16px;
@@ -160,7 +160,7 @@ export const InstallButton = styled.button`
   }
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    background: linear-gradient(135deg, var(--sky) 0%, var(--sky) 100%);
     transform: translateY(-2px);
     box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4), 0 8px 16px rgba(0, 0, 0, 0.15);
 
@@ -181,7 +181,7 @@ export const SkipButton = styled.button`
   width: 100%;
   text-align: center;
   cursor: pointer;
-  color: #718096;
+  color: var(--ink-3);
   font-size: 14px;
   font-weight: 500;
   margin-top: 16px;
@@ -191,7 +191,7 @@ export const SkipButton = styled.button`
   background: transparent;
 
   &:hover {
-    color: #4a5568;
+    color: var(--ink-2);
     background: rgba(113, 128, 150, 0.1);
   }
 
@@ -201,7 +201,7 @@ export const SkipButton = styled.button`
 `;
 
 export const IOSInstructions = styled.div`
-  background: linear-gradient(135deg, #f7fafc, #edf2f7);
+  background: linear-gradient(135deg, var(--cream-1), var(--cream-2));
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 20px;
@@ -219,13 +219,13 @@ export const IOSInstructions = styled.div`
     padding-left: 8px;
     font-size: 15px;
     line-height: 1.5;
-    color: #4a5568;
+    color: var(--ink-2);
     counter-increment: step-counter;
     position: relative;
 
     &::marker {
       font-weight: 600;
-      color: #667eea;
+      color: var(--ink-2);
     }
 
     &:last-child {
@@ -245,7 +245,7 @@ export const ShareIcon = styled.span`
   vertical-align: middle;
   margin: 0 6px;
   padding: 4px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--ink-2), var(--ink-1));
   border-radius: 6px;
   color: white;
 

@@ -73,7 +73,7 @@ export const BadgeCount = styled.span`
   position: absolute;
   top: -2px;
   right: -2px;
-  background-color: #f44336;
+  background-color: var(--danger);
   color: white;
   font-size: 10px;
   font-weight: 600;
@@ -134,7 +134,7 @@ export const NotificationItem = styled.div`
   }
 
   ${props => !props.isRead && `
-    border-left: 3px solid #2196f3;
+    border-left: 3px solid var(--sky);
   `}
 `;
 
@@ -187,7 +187,7 @@ export const NotificationActions = styled.div`
 export const NotificationButton = styled.button`
   background: none;
   border: none;
-  color: #2196f3;
+  color: var(--sky);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -204,7 +204,7 @@ export const NotificationButton = styled.button`
 export const MarkAllReadButton = styled.button`
   background: none;
   border: none;
-  color: #2196f3;
+  color: var(--sky);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;

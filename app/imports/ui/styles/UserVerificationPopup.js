@@ -15,7 +15,7 @@ export const PopupOverlay = styled.div`
 `;
 
 export const PopupContent = styled.div`
-  background: #fff;
+  background: var(--cream-0);
   border-radius: 16px;
   max-width: 600px;
   width: 100%;
@@ -29,10 +29,10 @@ export const PopupHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 24px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--cream-2);
   position: sticky;
   top: 0;
-  background: #fff;
+  background: var(--cream-0);
   border-radius: 16px 16px 0 0;
 `;
 
@@ -40,7 +40,7 @@ export const PopupTitle = styled.h2`
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  color: #333;
+  color: var(--ink-1);
 `;
 
 export const CloseButton = styled.button`
@@ -48,14 +48,14 @@ export const CloseButton = styled.button`
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #666;
+  color: var(--ink-3);
   padding: 8px;
   border-radius: 8px;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f5f5f5;
-    color: #333;
+    background: var(--cream-1);
+    color: var(--ink-1);
   }
 `;
 
@@ -69,7 +69,7 @@ export const UserSection = styled.div`
   gap: 16px;
   margin-bottom: 24px;
   padding: 16px;
-  background: #f8fafb;
+  background: var(--cream-1);
   border-radius: 12px;
 `;
 
@@ -78,7 +78,7 @@ export const UserAvatar = styled.div`
   height: 60px;
   border-radius: 50%;
   overflow: hidden;
-  background: #e1e5e9;
+  background: var(--cream-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -92,7 +92,7 @@ export const UserAvatar = styled.div`
   .placeholder {
     font-size: 24px;
     font-weight: 600;
-    color: #666;
+    color: var(--ink-3);
   }
 `;
 
@@ -104,7 +104,7 @@ export const UserName = styled.h3`
   margin: 0 0 8px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--ink-1);
 `;
 
 export const UserBadge = styled.div`
@@ -115,8 +115,8 @@ export const UserBadge = styled.div`
   border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
-  background: ${props => props.userType === "Driver" ? "#e3f2fd" : "#f3e5f5"};
-  color: ${props => props.userType === "Driver" ? "#1976d2" : "#7b1fa2"};
+  background: ${props => props.userType === "Driver" ? "var(--signal-yellow-soft)" : "var(--signal-yellow-soft)"};
+  color: ${props => props.userType === "Driver" ? "var(--sky)" : "var(--plum)"};
 `;
 
 export const InfoGrid = styled.div`
@@ -132,14 +132,14 @@ export const InfoGrid = styled.div`
 
 export const InfoItem = styled.div`
   padding: 12px;
-  background: #f8fafb;
+  background: var(--cream-1);
   border-radius: 8px;
 `;
 
 export const InfoLabel = styled.div`
   font-size: 12px;
   font-weight: 600;
-  color: #666;
+  color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
@@ -147,7 +147,7 @@ export const InfoLabel = styled.div`
 
 export const InfoValue = styled.div`
   font-size: 14px;
-  color: #333;
+  color: var(--ink-1);
   word-break: break-word;
 `;
 
@@ -164,7 +164,7 @@ export const Actions = styled.div`
 export const ApproveButton = styled.button`
   flex: 1;
   padding: 14px 24px;
-  background: #4caf50;
+  background: var(--leaf);
   color: white;
   border: none;
   border-radius: 8px;
@@ -174,7 +174,7 @@ export const ApproveButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: #45a049;
+    background: var(--leaf);
     transform: translateY(-2px);
   }
 
@@ -188,7 +188,7 @@ export const ApproveButton = styled.button`
 export const RejectButton = styled.button`
   flex: 1;
   padding: 14px 24px;
-  background: #f44336;
+  background: var(--danger);
   color: white;
   border: none;
   border-radius: 8px;
@@ -198,7 +198,7 @@ export const RejectButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: #da190b;
+    background: var(--danger-deep);
     transform: translateY(-2px);
   }
 
@@ -223,7 +223,7 @@ export const RejectModal = styled.div`
 `;
 
 export const RejectModalContent = styled.div`
-  background: #fff;
+  background: var(--cream-0);
   border-radius: 12px;
   width: 90%;
   max-width: 400px;
@@ -237,7 +237,7 @@ export const RejectModalHeader = styled.div`
     margin: 0;
     font-size: 18px;
     font-weight: 600;
-    color: #333;
+    color: var(--ink-1);
   }
 `;
 
@@ -246,7 +246,7 @@ export const RejectModalBody = styled.div`
 
   p {
     margin: 0 0 16px;
-    color: #666;
+    color: var(--ink-3);
     line-height: 1.5;
   }
 `;
@@ -254,14 +254,14 @@ export const RejectModalBody = styled.div`
 export const RejectInput = styled.input`
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--cream-3);
   border-radius: 8px;
   font-size: 14px;
   box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: #4caf50;
+    border-color: var(--leaf);
   }
 `;
 
@@ -282,18 +282,18 @@ export const ModalButton = styled.button`
   transition: all 0.2s ease;
 
   ${props => props.primary ? `
-    background: #f44336;
+    background: var(--danger);
     color: white;
 
     &:hover:not(:disabled) {
-      background: #da190b;
+      background: var(--danger-deep);
     }
   ` : `
-    background: #f5f5f5;
-    color: #333;
+    background: var(--cream-1);
+    color: var(--ink-1);
 
     &:hover:not(:disabled) {
-      background: #eee;
+      background: var(--cream-2);
     }
   `}
 
@@ -304,11 +304,11 @@ export const ModalButton = styled.button`
 `;
 
 export const ErrorMessage = styled.div`
-  background: #ffebee;
-  color: #c62828;
+  background: var(--danger-soft);
+  color: var(--danger-deep);
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 16px;
   font-size: 14px;
-  border-left: 4px solid #f44336;
+  border-left: 4px solid var(--danger);
 `;

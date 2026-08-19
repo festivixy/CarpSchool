@@ -29,7 +29,7 @@ const successPulse = keyframes`
 // Page container with normal page styling
 export const MainPageContainer = styled.div`
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--cream-1);
   padding: 20px 0; /* Only top/bottom padding, no left/right */
   overflow: hidden;
 `;

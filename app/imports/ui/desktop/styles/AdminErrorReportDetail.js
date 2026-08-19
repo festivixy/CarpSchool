@@ -7,7 +7,7 @@ export const Container = styled.div`
   width: 100%;
   flex-direction: column;
   align-items: center;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   margin: 0 auto;
   padding: 20px 0;
   min-height: 100vh;
@@ -234,7 +234,7 @@ export const CategoryBadge = styled.span`
 export const ResolvedBadge = styled.span`
   padding: 4px 8px;
   border-radius: 4px;
-  background-color: #28a745;
+  background-color: var(--leaf);
   color: white;
   font-size: 10px;
   font-weight: 700;
@@ -250,9 +250,9 @@ export const ActionButtons = styled.div`
 
 export const ActionButton = styled.button`
   padding: 10px 20px;
-  border: 2px solid ${props => props.color || "#6c757d"};
+  border: 2px solid ${props => props.color || "var(--ink-3)"};
   border-radius: 8px;
-  background-color: ${props => props.color || "#6c757d"};
+  background-color: ${props => props.color || "var(--ink-3)"};
   color: white;
   font-size: 14px;
   font-weight: 600;
@@ -384,9 +384,9 @@ export const NotesTextarea = styled.textarea`
 export const SaveButton = styled.button`
   align-self: flex-start;
   padding: 8px 16px;
-  border: 2px solid #28a745;
+  border: 2px solid var(--leaf);
   border-radius: 6px;
-  background-color: #28a745;
+  background-color: var(--leaf);
   color: white;
   font-size: 14px;
   font-weight: 500;
@@ -394,8 +394,8 @@ export const SaveButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: #218838;
-    border-color: #218838;
+    background-color: var(--leaf);
+    border-color: var(--leaf);
     transform: translateY(-1px);
   }
 

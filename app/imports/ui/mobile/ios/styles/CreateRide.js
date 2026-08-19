@@ -18,11 +18,11 @@ const successPulse = keyframes`
 // Page container with gradient background limited to middle section
 export const CreateRidePageContainer = styled.div`
   background:
-    linear-gradient(135deg, #667eea 0%, #764ba2 100%) 0 0 / 100% 200px no-repeat,
-    #f8f9fa;
+    linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%) 0 0 / 100% 200px no-repeat,
+    var(--cream-1);
   min-height: 100vh;
   position: relative;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   margin: 0;
   padding: 0;
   width: 100%;
@@ -31,7 +31,7 @@ export const CreateRidePageContainer = styled.div`
 
 // Page content with modern rounded design like skeleton
 export const CreateRideContent = styled.div`
-  background: #ffffff;
+  background: var(--cream-0);
   border-radius: 24px 24px 0 0;
   min-height: 100vh;
   margin-top: 120px;
@@ -115,18 +115,18 @@ export const Input = styled.input`
   width: 100%;
   height: 48px;
   padding: 12px 16px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--cream-2);
   border-radius: 12px;
   font-size: 16px;
   font-family: inherit;
-  background-color: #f8f9fa;
+  background-color: var(--cream-1);
   transition: all 0.2s ease;
   box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: #667eea;
-    background-color: #ffffff;
+    border-color: var(--ink-2);
+    background-color: var(--cream-0);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
 `;
@@ -135,18 +135,18 @@ export const Select = styled.select`
   width: 100%;
   height: 48px;
   padding: 12px 16px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--cream-2);
   border-radius: 12px;
   font-size: 16px;
   font-family: inherit;
-  background-color: #f8f9fa;
+  background-color: var(--cream-1);
   transition: all 0.2s ease;
   box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: #667eea;
-    background-color: #ffffff;
+    border-color: var(--ink-2);
+    background-color: var(--cream-0);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
 `;
@@ -155,19 +155,19 @@ export const Textarea = styled.textarea`
   width: 100%;
   min-height: 96px;
   padding: 12px 16px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--cream-2);
   border-radius: 12px;
   font-size: 16px;
   font-family: inherit;
-  background-color: #f8f9fa;
+  background-color: var(--cream-1);
   transition: all 0.2s ease;
   box-sizing: border-box;
   resize: vertical;
 
   &:focus {
     outline: none;
-    border-color: #667eea;
-    background-color: #ffffff;
+    border-color: var(--ink-2);
+    background-color: var(--cream-0);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
 `;
@@ -215,17 +215,17 @@ export const DropdownInput = styled.input`
   padding: 12px 50px 12px 16px;
   cursor: pointer;
   box-sizing: border-box;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--cream-2);
   border-radius: 12px;
   font-size: 16px;
   font-family: inherit;
-  background-color: #f8f9fa;
+  background-color: var(--cream-1);
   transition: all 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: #667eea;
-    background-color: #ffffff;
+    border-color: var(--ink-2);
+    background-color: var(--cream-0);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
 `;
@@ -247,7 +247,7 @@ export const DropdownMenu = styled.div`
   left: 0;
   right: 0;
   background-color: rgba(255, 255, 255, 1);
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--cream-2);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 1000;
@@ -259,7 +259,7 @@ export const DropdownMenu = styled.div`
 export const DropdownItem = styled.div`
   padding: 16px;
   cursor: pointer;
-  border-bottom: 1px solid #f8f9fa;
+  border-bottom: 1px solid var(--cream-1);
   transition: all 0.2s ease;
   font-size: 16px;
 
@@ -268,7 +268,7 @@ export const DropdownItem = styled.div`
   }
 
   &:hover {
-    background-color: #f8f9fa;
+    background-color: var(--cream-1);
   }
 
   &.no-results {
@@ -289,8 +289,8 @@ export const SwapContainer = styled.div`
 `;
 
 export const SwapButton = styled.button`
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--cream-1);
+  border: 1px solid var(--cream-2);
   border-radius: 20px;
   width: 40px;
   height: 40px;
@@ -299,14 +299,14 @@ export const SwapButton = styled.button`
   justify-content: center;
   cursor: pointer;
   font-size: 16px;
-  color: #667eea;
+  color: var(--ink-2);
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: #667eea;
+    background-color: var(--ink-2);
     color: white;
     transform: scale(1.05);
-    border-color: #667eea;
+    border-color: var(--ink-2);
   }
 `;
 
@@ -334,7 +334,7 @@ export const Actions = styled.div`
 export const ButtonPrimary = styled.button`
   width: 100%;
   height: 56px;
-  background: #000000;
+  background: var(--ink-1);
   color: rgba(255, 255, 255, 1);
   border: none;
   border-radius: 28px;
@@ -347,14 +347,14 @@ export const ButtonPrimary = styled.button`
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 
   &:hover:not(:disabled) {
-    background: #333333;
+    background: var(--ink-1);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   }
 
   &:disabled {
-    background: #e9ecef;
-    color: #adb5bd;
+    background: var(--cream-2);
+    color: var(--ink-4);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;

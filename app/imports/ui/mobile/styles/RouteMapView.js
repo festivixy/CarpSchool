@@ -12,7 +12,7 @@ const spin = keyframes`
 export const RouteMapContainer = styled.div`
   width: 100%;
   height: 100%;
-  background: #fafcff;
+  background: var(--cream-1);
   position: relative;
   overflow: hidden;
   border-radius: 8px;
@@ -64,7 +64,7 @@ export const RefreshButton = styled.button`
   justify-content: center;
   transition: all 0.2s ease;
   z-index: 1000;
-  color: #333;
+  color: var(--ink-1);
   font-weight: bold;
 
   &:hover:not(:disabled) {
