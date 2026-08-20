@@ -77,7 +77,9 @@ Meteor.methods({
       createdAt: new Date(),
     };
 
-    Profiles.insert(profileDoc);
+    // insertAsync: sync insert throws on the Meteor 3 server, so onboarding
+    // could never create the profile.
+    await Profiles.insertAsync(profileDoc);
 
     return { success: true };
   },
@@ -92,7 +94,10 @@ Meteor.methods({
       throw new Meteor.Error("auth-required", "Authentication required");
     }
 
-    Meteor.users.update(this.userId, {
+    // updateAsync: the sync form throws on the Meteor 3 server, so this method
+    // failed and the user's schoolId was never set - leaving every school-scoped
+    // query reporting "User has no school assigned".
+    await Meteor.users.updateAsync(this.userId, {
       $set: { schoolId }
     });
 
@@ -127,7 +132,7 @@ Meteor.methods({
     }
 
     if (Object.keys(updateData).length > 0) {
-      Meteor.users.update(this.userId, {
+      await Meteor.users.updateAsync(this.userId, {
         $set: updateData
       });
     }

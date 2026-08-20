@@ -1,7 +1,12 @@
 import styled from "styled-components";
 
+/* Fills its (positioned) parent. The only child is an absolutely positioned
+ * SVG, so a relative wrapper with no height of its own collapsed to zero and
+ * the map pane rendered blank. Every caller already wraps this in a
+ * position:relative box that has height. */
 export const MapWrap = styled.div`
-  position: relative;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   background: var(--map-bg);
 
