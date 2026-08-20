@@ -5,6 +5,37 @@ import { validateUserCanJoinRide, validateUserCanRemoveRider, validateUserCanCre
 import { Profiles } from "../profile/Profile";
 import { estimateRoute } from "./routeEstimate";
 import { syncChatParticipants } from "../chat/ChatParticipants";
+import { sendNotifications } from "../notifications/NotificationMethods";
+import { NOTIFICATION_TYPES, NOTIFICATION_PRIORITY } from "../notifications/Notifications";
+
+/**
+ * Tell the driver that a seat has been taken.
+ *
+ * Joining is immediate - there is no request/approve step - so without this
+ * the driver learns about a new rider only by re-opening the ride. Failure to
+ * notify must never fail the join, so this swallows its own errors.
+ */
+const notifyDriverOfJoin = async (ride, rider) => {
+  if (!ride?.driver || ride.driver === rider?._id) return;
+  try {
+    const profile = await Profiles.findOneAsync({ Owner: rider._id });
+    const name = profile?.Name || rider.username || "A rider";
+    await sendNotifications(
+      rider._id,
+      [ride.driver],
+      "New rider",
+      `${name} joined your ride`,
+      {
+        type: NOTIFICATION_TYPES.RIDER_JOINED,
+        priority: NOTIFICATION_PRIORITY.NORMAL,
+        action: "view_ride",
+        data: { rideId: ride._id },
+      },
+    );
+  } catch (error) {
+    console.warn("[rides] Could not notify driver of join:", error?.message || error);
+  }
+};
 
 Meteor.methods({
   async "rides.remove"(rideId) {
@@ -301,7 +332,9 @@ Meteor.methods({
 
     // Chats.Participants is a snapshot taken at chat creation; keep it in step
     // with the ride or this rider cannot post to the ride chat.
-    await syncChatParticipants(await Rides.findOneAsync(ride._id));
+    const joinedViaCode = await Rides.findOneAsync(ride._id);
+    await syncChatParticipants(joinedViaCode);
+    await notifyDriverOfJoin(joinedViaCode, user);
 
     return { rideId: ride._id, message: "Successfully joined ride!" };
   },
@@ -335,7 +368,9 @@ Meteor.methods({
     });
 
     // Keep the ride chat's participant snapshot in step with the ride.
-    await syncChatParticipants(await Rides.findOneAsync(rideId));
+    const joinedRide = await Rides.findOneAsync(rideId);
+    await syncChatParticipants(joinedRide);
+    await notifyDriverOfJoin(joinedRide, user);
 
     return { message: "Successfully joined ride!" };
   },

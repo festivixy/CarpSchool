@@ -89,8 +89,14 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
 
   const fullBleed = FULL_BLEED_PREFIXES.some(p => pathname.startsWith(p));
 
-  const isAdmin = currentUser?.roles?.includes("system")
-    || currentUser?.roles?.some(r => r.startsWith("admin."));
+  // Accept every admin role shape in use. The legacy NavBar gated on
+  // "admin" or "admin.<schoolId>", while RoleUtils uses "system" or
+  // "admin.<schoolId>". Checking only one set hid the admin portal from
+  // accounts holding the other.
+  const roles = currentUser?.roles || [];
+  const isAdmin = roles.includes("system")
+    || roles.includes("admin")
+    || roles.some(r => r.startsWith("admin."));
 
   const canDrive = myProfile?.UserType !== "Rider";
 
