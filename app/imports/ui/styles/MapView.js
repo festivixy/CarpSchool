@@ -12,6 +12,13 @@ export const MapContainer = styled.div`
   position: relative;
   overflow: hidden;
 
+  /* Leaflet's internal panes run to z-index 800 (markers 600, popups 700,
+   * controls 800), which paints straight over the floating nav and the glass
+   * overlays. Making this a stacking context traps those values inside the
+   * map, so any sibling with z-index >= 1 still sits on top. */
+  z-index: 0;
+  isolation: isolate;
+
   /* Absolute, not height:100%. The wrapper often gets its size from
    * min-height, leaving its computed height auto — a percentage height then
    * resolves against an indefinite value and collapses the map to 0. */
