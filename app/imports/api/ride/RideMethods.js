@@ -473,6 +473,10 @@ Meteor.methods({
         ...ride,
         originText: nameById[ride.origin] || null,
         destinationText: nameById[ride.destination] || null,
+        // Raw "lat,lng" strings, so the discovery map can plot real markers
+        // instead of decorative pins.
+        originCoords: coordsById[ride.origin] || null,
+        destinationCoords: coordsById[ride.destination] || null,
         distanceMi: ride.distanceMi ?? fallback?.distanceMi,
         durationMin: ride.durationMin ?? fallback?.durationMin,
         routeEstimated: ride.routeEstimated ?? (fallback ? true : undefined),

@@ -5,8 +5,7 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Profiles } from "../../../api/profile/Profile";
 import Icon from "../../components/Icon";
-import MapBg from "../../components/MapBg";
-import Pin from "../../components/Pin";
+import MapView from "../../components/MapView";
 import RideCard from "../../components/RideCard";
 import LoadingPage from "../../components/LoadingPage";
 import {
@@ -42,15 +41,6 @@ import {
   EmptyState,
 } from "../styles/Marketplace";
 
-// Decorative pin placements on the stylized map (not geographic).
-const PIN_SPOTS = [
-  { x: 22, y: 68, color: "var(--signal-yellow)" },
-  { x: 48, y: 36, color: "var(--sky)" },
-  { x: 72, y: 58, color: "var(--leaf)" },
-  { x: 36, y: 20, color: "var(--plum)" },
-  { x: 62, y: 78, color: "var(--amber)" },
-];
-
 const ANY = "";
 const MAX_FARE = 10;
 
@@ -71,6 +61,15 @@ const isToday = (date) => {
 const isWeekend = (date) => {
   const day = new Date(date).getDay();
   return day === 0 || day === 6;
+};
+
+const parseCoord = (value, label) => {
+  if (typeof value !== "string") return null;
+  const [latRaw, lngRaw] = value.split(",");
+  const lat = Number(latRaw);
+  const lng = Number(lngRaw);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return { lat, lng, label };
 };
 
 const uniqueSorted = list => [...new Set(list.filter(Boolean))].sort();
@@ -161,6 +160,17 @@ const Marketplace = ({ history }) => {
       : new Date(a.date) - new Date(b.date)));
   }, [allRides, query, fromPlace, toPlace, when, cheapOnly, sort]);
 
+  // Plot every filtered ride's endpoints. The selected ride is hoisted to the
+  // front so MapView centres on it.
+  const rank = (r) => (r._id === selectedId ? 0 : 1);
+  const ordered = selectedId
+    ? [...filtered].sort((a, b) => rank(a) - rank(b))
+    : filtered;
+  const mapPoints = ordered.flatMap(r => [
+    parseCoord(r.originCoords, `${originOf(r)} — ${fmtTime(r.date)}`),
+    parseCoord(r.destinationCoords, destinationOf(r)),
+  ]).filter(Boolean);
+
   if (loading) return <LoadingPage message="Finding rides..." />;
 
   const swap = () => {
@@ -203,47 +213,9 @@ const Marketplace = ({ history }) => {
   return (
     <Screen>
       <MapPane>
-        <MapBg>
-          {filtered.slice(0, PIN_SPOTS.length).map((r, i) => (
-            <Pin
-              key={r._id}
-              x={PIN_SPOTS[i].x}
-              y={PIN_SPOTS[i].y}
-              type="label"
-              color={r._id === selectedId ? "var(--ink-1)" : PIN_SPOTS[i].color}
-              label={fmtTime(r.date)}
-            />
-          ))}
-          {/* Highlighted route. Shares MapBg's viewBox and slice behaviour so
-              the path stays registered with the streets beneath it. */}
-          <svg
-            viewBox="0 0 1280 800"
-            preserveAspectRatio="xMidYMid slice"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-            }}
-          >
-            <path
-              d="M 130 460 Q 280 380 360 320 T 540 240"
-              stroke="#fff"
-              strokeWidth="6"
-              fill="none"
-              strokeLinecap="round"
-              opacity="0.95"
-            />
-            <path
-              d="M 130 460 Q 280 380 360 320 T 540 240"
-              stroke="var(--signal-yellow-deep)"
-              strokeWidth="3"
-              fill="none"
-              strokeLinecap="round"
-            />
-          </svg>
-        </MapBg>
+        {/* Real Leaflet map. Markers are the actual pickup/drop-off places of
+            the rides currently in the list, so the map reflects the query. */}
+        <MapView coordinates={mapPoints} />
 
         <SearchPanel className="glass-strong">
           <RouteRow>

@@ -1,12 +1,27 @@
 import styled from "styled-components";
 
+/* Fills its parent. This was a fixed 376x272 box, which meant the map could
+ * never fill a full-bleed pane; callers that want a fixed size set it
+ * themselves. Leaflet requires a container with a resolved height. */
 export const MapContainer = styled.div`
-  width: 376px;
-  height: 272px;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
   flex-shrink: 0;
   background: var(--cream-1);
   position: relative;
   overflow: hidden;
+
+  /* Absolute, not height:100%. The wrapper often gets its size from
+   * min-height, leaving its computed height auto — a percentage height then
+   * resolves against an indefinite value and collapses the map to 0. */
+  .leaflet-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--map-bg);
+  }
 `;
 
 export const MapImage = styled.img`

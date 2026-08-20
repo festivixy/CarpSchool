@@ -22,12 +22,16 @@ export const Screen = styled.div`
   }
 `;
 
+/* Leaflet needs a container with a resolved height, so give the pane one
+ * rather than relying on the grid row alone. */
 export const MapPane = styled.div`
   position: relative;
   overflow: hidden;
+  min-height: calc(100vh - 64px);
 
   @media (max-width: ${BREAK}) {
     height: 240px;
+    min-height: 240px;
   }
 `;
 

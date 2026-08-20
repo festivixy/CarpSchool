@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { Map, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 import { MapContainer } from "../styles/MapView";
 import { AsyncTileLayer } from "../utils/AsyncTileLayer";
 import { getTileUrlTemplate } from "../utils/mapConfig";
