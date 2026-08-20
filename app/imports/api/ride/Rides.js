@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
 import { createSafeStringSchema } from "../../ui/utils/validation";
@@ -92,6 +93,24 @@ const RidesSchema = Joi.object({
   "ride.sameLocation": "Origin and destination cannot be the same location: {{#location}}",
   "ride.pastDate": "Ride date cannot be in the past ({{#rideDate}} is before {{#currentDate}})",
 });
+
+/*
+ * Indexes. The collection had none, so every ride query was a full scan whose
+ * cost grew with total ride volume across all schools, not just the caller's.
+ *
+ * shareCode is unique+sparse so two rides can never hold the same invite code:
+ * rides.generateShareCode relies on the duplicate-key error to retry rather
+ * than on a read-then-write check, which could race.
+ */
+if (Meteor.isServer) {
+  Meteor.startup(async () => {
+    await Rides.createIndexAsync({ shareCode: 1 }, { unique: true, sparse: true });
+    await Rides.createIndexAsync({ schoolId: 1, date: 1 });
+    await Rides.createIndexAsync({ driver: 1 });
+    await Rides.createIndexAsync({ riders: 1 });
+    await Rides.createIndexAsync({ date: 1 });
+  });
+}
 
 /** Make the collection available to other code. */
 export { Rides, RidesSchema };

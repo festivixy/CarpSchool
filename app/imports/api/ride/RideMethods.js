@@ -202,27 +202,32 @@ Meteor.methods({
       return code;
     };
 
+    // Claim a code atomically. The previous read-then-write could hand the
+    // same code to two concurrent callers, letting a rider join a stranger's
+    // ride with a friend's code. A unique sparse index on shareCode (see
+    // Rides.js) makes a collision fail loudly instead of silently
+    // overwriting, and we retry on that error.
     let shareCode;
-    let attempts = 0;
-    let existingRide;
-    do {
+    let claimed = false;
+    for (let attempts = 0; attempts < 10 && !claimed; attempts += 1) {
       shareCode = generateCode();
-      attempts++;
-      // Check if code already exists
-      // eslint-disable-next-line no-await-in-loop
-      existingRide = await Rides.findOneAsync({ shareCode });
-      if (!existingRide) break;
-    } while (attempts < 10);
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await Rides.updateAsync(rideId, { $set: { shareCode } });
+        claimed = true;
+      } catch (error) {
+        // 11000 is Mongo's duplicate-key error: another ride took this code
+        // between generating it and writing it. Try another.
+        if (error?.code !== 11000) throw error;
+      }
+    }
 
-    if (attempts >= 10) {
+    if (!claimed) {
       throw new Meteor.Error(
         "code-generation-failed",
         "Failed to generate unique share code",
       );
     }
-
-    // Update ride with share code
-    await Rides.updateAsync(rideId, { $set: { shareCode } });
 
     return shareCode;
   },
