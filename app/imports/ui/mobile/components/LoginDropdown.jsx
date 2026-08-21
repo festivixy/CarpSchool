@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
-import { useAuth } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownContainer,
@@ -14,24 +13,10 @@ import {
 } from "../styles/LoginDropdown";
 
 /**
- * Animated call-to-action dropdown on the landing page.
- *
- * Signed-out visitors get sign-up / sign-in. Signed-in users used to get the
- * same two options, which offered an account they already had; they now get
- * the actions that actually move them into the app.
+ * Animated dropdown component for login/signup actions
+ * Uses framer-motion for smooth animations
  */
-const SIGNED_OUT_ITEMS = [
-  { id: "signup", icon: "🚀", text: "Create Account", path: "/signup" },
-  { id: "signin", icon: "🔐", text: "Sign In", path: "/login" },
-];
-
-const SIGNED_IN_ITEMS = [
-  { id: "find", icon: "🔎", text: "Find a ride", path: "/find" },
-  { id: "rides", icon: "🚗", text: "My rides", path: "/my-rides" },
-];
-
 function LoginDropdown({ history }) {
-  const { isSignedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -61,12 +46,27 @@ function LoginDropdown({ history }) {
     history.push(path);
   };
 
-  const menuItems = isSignedIn ? SIGNED_IN_ITEMS : SIGNED_OUT_ITEMS;
+  const menuItems = [
+    {
+      id: 1,
+      icon: "🚀",
+      text: "Create Account",
+      path: "/signup",
+      description: "Get started with CarpSchool",
+    },
+    {
+      id: 2,
+      icon: "🔐",
+      text: "Sign In",
+      path: "/login",
+      description: "Access your account",
+    },
+  ];
 
   return (
     <DropdownContainer ref={dropdownRef}>
       <DropdownButton onClick={handleToggle}>
-        {isSignedIn ? "Open CarpSchool" : "Get Started"}
+        Get Started
         <DropdownArrow $isOpen={isOpen}>▼</DropdownArrow>
       </DropdownButton>
 

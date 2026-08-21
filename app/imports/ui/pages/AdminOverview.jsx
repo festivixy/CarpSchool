@@ -3,7 +3,6 @@ import { Meteor } from "meteor/meteor";
 import { useTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
-import { Rides } from "../../api/ride/Rides";
 import { Profiles } from "../../api/profile/Profile";
 import Logo from "../components/Logo";
 import {
@@ -20,9 +19,6 @@ import {
   StatCard,
   StatValue,
   StatLabel,
-  Spark,
-  SparkBar,
-  SparkCaption,
   Grid,
   Card,
   CardTitle,
@@ -51,22 +47,8 @@ const SERVICES = [
 ];
 
 const AdminOverview = ({ history }) => {
-  const { ready, pending, rideSeries } = useTracker(() => {
+  const { ready, pending } = useTracker(() => {
     const sub = Meteor.subscribe("admin.pendingUsers");
-    Meteor.subscribe("Rides");
-
-    // Rides per day for the last 7 days, oldest first.
-    const days = [];
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    for (let i = 6; i >= 0; i -= 1) {
-      const from = new Date(start);
-      from.setDate(from.getDate() - i);
-      const to = new Date(from);
-      to.setDate(to.getDate() + 1);
-      days.push(Rides.find({ date: { $gte: from, $lt: to } }).count());
-    }
-
     return {
       ready: sub.ready(),
       pending: Profiles.find({
@@ -74,7 +56,6 @@ const AdminOverview = ({ history }) => {
         verified: { $ne: true },
         rejected: { $ne: true },
       }).fetch(),
-      rideSeries: days,
     };
   }, []);
 
@@ -119,20 +100,6 @@ const AdminOverview = ({ history }) => {
           <StatCard>
             <StatValue $accent="var(--signal-yellow-deep)">{ready ? pending.length : "—"}</StatValue>
             <StatLabel>PENDING APPROVALS</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatValue>{rideSeries.reduce((a, b) => a + b, 0)}</StatValue>
-            <StatLabel>RIDES</StatLabel>
-            <Spark>
-              {rideSeries.map((count, i) => (
-                <SparkBar
-                  key={`d${i}`}
-                  $pct={(count / Math.max(1, ...rideSeries)) * 100}
-                  $active={i === rideSeries.length - 1}
-                />
-              ))}
-            </Spark>
-            <SparkCaption>last 7 days</SparkCaption>
           </StatCard>
           <StatCard $link onClick={() => go("/admin/users")}>
             <StatValue>›</StatValue>
