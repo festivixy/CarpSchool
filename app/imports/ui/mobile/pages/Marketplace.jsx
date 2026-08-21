@@ -5,9 +5,7 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Profiles } from "../../../api/profile/Profile";
 import Icon from "../../components/Icon";
-import MapBg from "../../components/MapBg";
-import Pin from "../../components/Pin";
-import RouteLine from "../../components/RouteLine";
+import MapView from "../../components/MapView";
 import RideCard from "../../components/RideCard";
 import LoadingPage from "../../components/LoadingPage";
 import {
@@ -28,14 +26,15 @@ import {
   EmptyState,
 } from "../styles/Marketplace";
 
-// Decorative pin placements on the stylized map (not geographic).
-const PIN_SPOTS = [
-  { x: 22, y: 68, color: "var(--signal-yellow)" },
-  { x: 48, y: 36, color: "var(--sky)" },
-  { x: 72, y: 58, color: "var(--leaf)" },
-  { x: 36, y: 20, color: "var(--plum)" },
-  { x: 62, y: 78, color: "var(--amber)" },
-];
+/* "lat,lng" (as stored on a Place) -> a MapView marker. */
+const parseCoord = (value, label) => {
+  if (typeof value !== "string") return null;
+  const [latRaw, lngRaw] = value.split(",");
+  const lat = Number(latRaw);
+  const lng = Number(lngRaw);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return { lat, lng, label };
+};
 
 const fmtTime = (date) => new Date(date)
   .toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
@@ -135,22 +134,23 @@ const Marketplace = ({ history }) => {
     );
   }
 
+  // Plot the endpoints of whatever is currently in the list; the selected
+  // ride goes first so MapView centres on it.
+  const mapPoints = (selected ? [selected, ...filtered.filter(r => r !== selected)] : filtered)
+    .flatMap(r => [
+      parseCoord(r.originCoords, `${r.originText || r.origin || ""} · ${fmtTime(r.date)}`),
+      parseCoord(r.destinationCoords, r.destinationText || r.destination || ""),
+    ])
+    .filter(Boolean);
+
   return (
     <Screen>
       <MapPane>
-        <MapBg>
-          {filtered.slice(0, PIN_SPOTS.length).map((r, i) => (
-            <Pin
-              key={r._id}
-              x={PIN_SPOTS[i].x}
-              y={PIN_SPOTS[i].y}
-              type="label"
-              color={r._id === selectedId ? "var(--ink-1)" : PIN_SPOTS[i].color}
-              label={fmtTime(r.date)}
-            />
-          ))}
-          {selected && <RouteLine from={{ x: 22, y: 68 }} to={{ x: 72, y: 30 }} />}
-        </MapBg>
+        {/* Real map tiles. MapBg was a decorative SVG whose pins sat at fixed
+            percentages unrelated to any real place; these markers are the
+            rides' actual pickup and drop-off points. Selection, filtering and
+            search behaviour are unchanged. */}
+        <MapView coordinates={mapPoints} />
 
         <SearchPanel className="glass-strong">
           <SearchBox>
