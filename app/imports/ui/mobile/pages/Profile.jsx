@@ -4,6 +4,10 @@ import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
+import { Rides } from "../../../api/ride/Rides";
+import { Places } from "../../../api/places/Places";
+import { Profiles } from "../../../api/profile/Profile";
+import { estimateRoute } from "../../../api/ride/routeEstimate";
 import Avatar from "../../components/Avatar";
 import {
   Page,
@@ -21,6 +25,15 @@ import {
   MenuItemIcon,
   MenuItemLabel,
   MenuArrow,
+  StatStrip,
+  StatCard,
+  StatLabel,
+  StatValue,
+  StatUnit,
+  CheckRow,
+  CheckMark,
+  CheckLabel,
+  CheckNote,
   SignOutBtn,
   Loading,
 } from "../styles/Profile";
@@ -40,7 +53,12 @@ const LEGAL_LINKS = [
   { icon: "💰", label: "Credits", path: "/credits" },
 ];
 
-const Profile = ({ history, currentUser, isAdmin, userReady }) => {
+const CO2_LB_PER_MILE = 0.89;
+
+const Profile = ({
+  history, currentUser, isAdmin, userReady,
+  myProfile, ridesTaken, milesShared, co2AvoidedLb,
+}) => {
   const go = (path) => history.push(path);
 
   const verifyIdentity = () => {
@@ -88,6 +106,32 @@ const Profile = ({ history, currentUser, isAdmin, userReady }) => {
   const email = currentUser?.emails?.[0]?.address || "";
   const verified = currentUser?.profile?.identityVerified;
 
+  const statNodes = (
+    <StatStrip>
+      <StatCard>
+        <StatLabel>RIDES</StatLabel>
+        <StatValue $accent="var(--signal-yellow-deep)">{ridesTaken}</StatValue>
+        <StatUnit>completed</StatUnit>
+      </StatCard>
+      <StatCard>
+        <StatLabel>MILES</StatLabel>
+        <StatValue $accent="var(--sky)">{Math.round(milesShared)}</StatValue>
+        <StatUnit>shared</StatUnit>
+      </StatCard>
+      <StatCard>
+        <StatLabel>CO&#8322; SAVED</StatLabel>
+        <StatValue $accent="var(--leaf)">{`${co2AvoidedLb} lb`}</StatValue>
+        <StatUnit>vs. solo</StatUnit>
+      </StatCard>
+    </StatStrip>
+  );
+
+  const checklist = [
+    [".edu email", Boolean(myProfile?.schoolemail || email), myProfile?.schoolemail || email || "not on file"],
+    ["Student ID", Boolean(myProfile?.verified), myProfile?.verified ? "approved" : "awaiting review"],
+    ["Phone", Boolean(myProfile?.Phone), myProfile?.Phone ? "on file" : "add a number"],
+  ];
+
   return (
     <Page>
       <Banner>
@@ -102,6 +146,23 @@ const Profile = ({ history, currentUser, isAdmin, userReady }) => {
       </Banner>
 
       <Body>
+        <Section>
+          {statNodes}
+        </Section>
+
+        <Section>
+          <SectionTitle>VERIFIED</SectionTitle>
+          <MenuList>
+            {checklist.map(([label, ok, note]) => (
+              <CheckRow key={label}>
+                <CheckMark $ok={ok}>{ok ? "✓" : ""}</CheckMark>
+                <CheckLabel>{label}</CheckLabel>
+                <CheckNote $ok={ok}>{note}</CheckNote>
+              </CheckRow>
+            ))}
+          </MenuList>
+        </Section>
+
         <Section>
           <SectionTitle>ACCOUNT</SectionTitle>
           <MenuList>
@@ -177,17 +238,52 @@ Profile.propTypes = {
   currentUser: PropTypes.object,
   isAdmin: PropTypes.bool,
   userReady: PropTypes.bool,
+  myProfile: PropTypes.object,
+  ridesTaken: PropTypes.number,
+  milesShared: PropTypes.number,
+  co2AvoidedLb: PropTypes.number,
 };
 
 Profile.defaultProps = {
   currentUser: null,
   isAdmin: false,
   userReady: false,
+  myProfile: null,
+  ridesTaken: 0,
+  milesShared: 0,
+  co2AvoidedLb: 0,
 };
 
 export default withRouter(withTracker(() => {
   const currentUser = Meteor.user();
   const userReady = Meteor.userId() !== undefined;
   const isAdmin = currentUser ? isAdminRole(currentUser) : false;
-  return { currentUser, isAdmin, userReady };
+
+  Meteor.subscribe("Rides");
+  Meteor.subscribe("places.options");
+  Meteor.subscribe("profiles.interacted");
+
+  const uid = Meteor.userId();
+  const coords = {};
+  Places.find({}).forEach((place) => {
+    coords[place._id] = place.value;
+  });
+
+  const now = new Date();
+  const completed = Rides.find({}).fetch().filter(r => new Date(r.date) < now);
+  const milesShared = completed.reduce((sum, r) => {
+    if (typeof r.distanceMi === "number") return sum + r.distanceMi;
+    const est = estimateRoute(coords[r.origin], coords[r.destination]);
+    return sum + (est ? est.distanceMi : 0);
+  }, 0);
+
+  return {
+    currentUser,
+    isAdmin,
+    userReady,
+    myProfile: uid ? Profiles.findOne({ Owner: uid }) : null,
+    ridesTaken: completed.length,
+    milesShared,
+    co2AvoidedLb: Math.round(milesShared * CO2_LB_PER_MILE),
+  };
 })(Profile));

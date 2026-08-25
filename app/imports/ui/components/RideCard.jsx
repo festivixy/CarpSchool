@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Avatar from "./Avatar";
 import Icon from "./Icon";
+import { formatDuration, formatDistance } from "../../api/ride/routeEstimate";
 import {
   Card,
   Top,
@@ -19,6 +20,8 @@ import {
   SeatRow,
   SeatPill,
   RequestBtn,
+  DriverMeta,
+  RouteMeta,
 } from "../styles/RideCard";
 
 const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -44,12 +47,16 @@ const hueFor = (seed) => {
  * Discovery / list ride card. Maps a real Rides document (place names
  * resolved server-side, driver name resolved via profiles.displayNames).
  */
-const RideCard = ({ ride, driverName, compact, active, onClick, onRequest }) => {
+const RideCard = ({ ride, driverName, driverYear, driverDept, compact, active, onClick, onRequest }) => {
   const seatsLeft = Math.max(0, (ride.seats || 0) - (ride.riders ? ride.riders.length : 0));
   const from = ride.originText || ride.origin || "Unknown";
   const to = ride.destinationText || ride.destination || "Unknown";
   const name = driverName || "Driver";
   const driverUser = { name, hue: hueFor(ride.driver || name) };
+  const subLine = [driverYear, driverDept].filter(Boolean).join(" · ");
+  const routeMeta = [formatDuration(ride.durationMin), formatDistance(ride.distanceMi)]
+    .filter(Boolean)
+    .join(" · ");
 
   const handleRequest = (e) => {
     e.stopPropagation();
@@ -80,9 +87,13 @@ const RideCard = ({ ride, driverName, compact, active, onClick, onRequest }) => 
       <Bottom>
         <DriverRow>
           <Avatar user={driverUser} size={32} />
-          <DriverName>{name}</DriverName>
+          <div>
+            <DriverName>{name}</DriverName>
+            {subLine ? <DriverMeta>{subLine}</DriverMeta> : null}
+          </div>
         </DriverRow>
         <SeatRow>
+          {routeMeta ? <RouteMeta>{routeMeta}</RouteMeta> : null}
           <SeatPill $open={seatsLeft > 0}>
             <Icon name="seat" size={12} />
             {`${seatsLeft} left`}
@@ -110,8 +121,12 @@ RideCard.propTypes = {
     riders: PropTypes.arrayOf(PropTypes.string),
     fare: PropTypes.number,
     driver: PropTypes.string,
+    distanceMi: PropTypes.number,
+    durationMin: PropTypes.number,
   }).isRequired,
   driverName: PropTypes.string,
+  driverYear: PropTypes.string,
+  driverDept: PropTypes.string,
   compact: PropTypes.bool,
   active: PropTypes.bool,
   onClick: PropTypes.func,
@@ -120,6 +135,8 @@ RideCard.propTypes = {
 
 RideCard.defaultProps = {
   driverName: "",
+  driverYear: "",
+  driverDept: "",
   compact: false,
   active: false,
   onClick: undefined,

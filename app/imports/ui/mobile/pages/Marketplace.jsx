@@ -13,20 +13,56 @@ import {
   MapPane,
   ListPane,
   SearchPanel,
+  RouteRow,
+  RouteIndicator,
+  OriginDot,
+  IndicatorBar,
+  RouteFields,
+  FieldRow,
+  FieldLabel,
+  FieldSelect,
+  SwapBtn,
+  ChipRow,
+  FilterChip,
   SearchBox,
   SearchInput,
   MapControls,
   ControlBtn,
+  ControlDivider,
+  CenterPill,
+  PulseDot,
   ListHeader,
   Eyebrow,
   TitleRow,
   ListTitle,
   SortBtn,
+  SortValue,
   RidesScroll,
   EmptyState,
 } from "../styles/Marketplace";
 
-/* "lat,lng" (as stored on a Place) -> a MapView marker. */
+const ANY = "";
+const MAX_FARE = 10;
+
+const fmtTime = (date) => new Date(date)
+  .toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+const originOf = r => r.originText || r.origin || "";
+const destinationOf = r => r.destinationText || r.destination || "";
+
+const isToday = (date) => {
+  const d = new Date(date);
+  const now = new Date();
+  return d.getDate() === now.getDate()
+    && d.getMonth() === now.getMonth()
+    && d.getFullYear() === now.getFullYear();
+};
+
+const isWeekend = (date) => {
+  const day = new Date(date).getDay();
+  return day === 0 || day === 6;
+};
+
 const parseCoord = (value, label) => {
   if (typeof value !== "string") return null;
   const [latRaw, lngRaw] = value.split(",");
@@ -36,21 +72,27 @@ const parseCoord = (value, label) => {
   return { lat, lng, label };
 };
 
-const fmtTime = (date) => new Date(date)
-  .toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+const uniqueSorted = list => [...new Set(list.filter(Boolean))].sort();
 
 /**
- * Find a ride — split discovery screen. Pulls future rides at the user's
- * school via the rides.forMySchool method (place names resolved server-side),
- * resolves driver names via profiles.displayNames, and filters to joinable
- * rides (not yours, seats available).
+ * Find a ride — split discovery screen (design handoff V1 Split). Pulls
+ * future rides at the user's school via rides.forMySchool, resolves driver
+ * names via profiles.displayNames, and filters to joinable rides.
  */
 const Marketplace = ({ history }) => {
   const [allRides, setAllRides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+
+  // Filters
+  const [fromPlace, setFromPlace] = useState(ANY);
+  const [toPlace, setToPlace] = useState(ANY);
+  const [when, setWhen] = useState("any");
+  const [cheapOnly, setCheapOnly] = useState(false);
+  const [showText, setShowText] = useState(false);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("soonest");
 
   useEffect(() => {
     let active = true;
@@ -82,31 +124,63 @@ const Marketplace = ({ history }) => {
     [allRides],
   );
 
-  const { nameById } = useTracker(() => {
-    if (driverIds.length === 0) return { nameById: {} };
+  const { driverById } = useTracker(() => {
+    if (driverIds.length === 0) return { driverById: {} };
     Meteor.subscribe("profiles.displayNames", driverIds);
     const map = {};
     Profiles.find({ Owner: { $in: driverIds } }).forEach((p) => {
-      map[p.Owner] = p.Name;
+      map[p.Owner] = { name: p.Name, year: p.year, dept: p.major };
     });
-    return { nameById: map };
+    return { driverById: map };
   }, [driverIds]);
+
+  const origins = useMemo(() => uniqueSorted(allRides.map(originOf)), [allRides]);
+  const destinations = useMemo(
+    () => uniqueSorted(allRides.map(destinationOf)),
+    [allRides],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = q
-      ? allRides.filter((r) => {
-        const from = (r.originText || r.origin || "").toLowerCase();
-        const to = (r.destinationText || r.destination || "").toLowerCase();
-        return from.includes(q) || to.includes(q);
-      })
-      : allRides;
-    return [...list].sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [allRides, query]);
+    const list = allRides.filter((r) => {
+      const from = originOf(r);
+      const to = destinationOf(r);
+      if (fromPlace && from !== fromPlace) return false;
+      if (toPlace && to !== toPlace) return false;
+      if (when === "today" && !isToday(r.date)) return false;
+      if (when === "weekend" && !isWeekend(r.date)) return false;
+      if (cheapOnly && (r.fare || 0) > MAX_FARE) return false;
+      if (q && !from.toLowerCase().includes(q) && !to.toLowerCase().includes(q)) {
+        return false;
+      }
+      return true;
+    });
+    return [...list].sort((a, b) => (sort === "cheapest"
+      ? (a.fare || 0) - (b.fare || 0)
+      : new Date(a.date) - new Date(b.date)));
+  }, [allRides, query, fromPlace, toPlace, when, cheapOnly, sort]);
+
+  // Plot every filtered ride's endpoints. The selected ride is hoisted to the
+  // front so MapView centres on it.
+  const rank = (r) => (r._id === selectedId ? 0 : 1);
+  const ordered = selectedId
+    ? [...filtered].sort((a, b) => rank(a) - rank(b))
+    : filtered;
+  const mapPoints = ordered.flatMap(r => [
+    parseCoord(r.originCoords, `${originOf(r)} — ${fmtTime(r.date)}`),
+    parseCoord(r.destinationCoords, destinationOf(r)),
+  ]).filter(Boolean);
 
   if (loading) return <LoadingPage message="Finding rides..." />;
 
-  const selected = filtered.find(r => r._id === selectedId);
+  const swap = () => {
+    setFromPlace(toPlace);
+    setToPlace(fromPlace);
+  };
+
+  const routeTitle = fromPlace || toPlace
+    ? `${fromPlace || "Anywhere"} → ${toPlace || "Anywhere"}`
+    : "Find a ride";
 
   let body;
   if (error) {
@@ -114,7 +188,7 @@ const Marketplace = ({ history }) => {
   } else if (filtered.length === 0) {
     body = (
       <EmptyState>
-        No rides at your school match yet. Check back later, or offer your own.
+        No rides match those filters yet. Try widening them, or offer your own.
       </EmptyState>
     );
   } else {
@@ -124,7 +198,9 @@ const Marketplace = ({ history }) => {
           <RideCard
             key={r._id}
             ride={r}
-            driverName={nameById[r.driver]}
+            driverName={driverById[r.driver]?.name}
+            driverYear={driverById[r.driver]?.year}
+            driverDept={driverById[r.driver]?.dept}
             active={r._id === selectedId}
             onClick={ride => setSelectedId(ride._id)}
             onRequest={ride => history.push(`/ride/${ride._id}`)}
@@ -134,44 +210,106 @@ const Marketplace = ({ history }) => {
     );
   }
 
-  // Plot the endpoints of whatever is currently in the list; the selected
-  // ride goes first so MapView centres on it.
-  const mapPoints = (selected ? [selected, ...filtered.filter(r => r !== selected)] : filtered)
-    .flatMap(r => [
-      parseCoord(r.originCoords, `${r.originText || r.origin || ""} · ${fmtTime(r.date)}`),
-      parseCoord(r.destinationCoords, r.destinationText || r.destination || ""),
-    ])
-    .filter(Boolean);
-
   return (
     <Screen>
       <MapPane>
-        {/* Real map tiles. MapBg was a decorative SVG whose pins sat at fixed
-            percentages unrelated to any real place; these markers are the
-            rides' actual pickup and drop-off points. Selection, filtering and
-            search behaviour are unchanged. */}
+        {/* Real Leaflet map. Markers are the actual pickup/drop-off places of
+            the rides currently in the list, so the map reflects the query. */}
         <MapView coordinates={mapPoints} />
 
         <SearchPanel className="glass-strong">
-          <SearchBox>
-            <Icon name="search" size={16} color="var(--ink-3)" />
-            <SearchInput
-              type="text"
-              placeholder="Search origin or destination"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-            />
-          </SearchBox>
+          <RouteRow>
+            <RouteIndicator>
+              <OriginDot />
+              <IndicatorBar />
+              <Icon name="pin" size={12} color="var(--ink-1)" />
+            </RouteIndicator>
+            <RouteFields>
+              <FieldRow $divided>
+                <FieldLabel htmlFor="find-from">FROM</FieldLabel>
+                <FieldSelect
+                  id="find-from"
+                  value={fromPlace}
+                  onChange={e => setFromPlace(e.target.value)}
+                >
+                  <option value={ANY}>Anywhere</option>
+                  {origins.map(o => <option key={o} value={o}>{o}</option>)}
+                </FieldSelect>
+              </FieldRow>
+              <FieldRow>
+                <FieldLabel htmlFor="find-to">TO</FieldLabel>
+                <FieldSelect
+                  id="find-to"
+                  value={toPlace}
+                  onChange={e => setToPlace(e.target.value)}
+                >
+                  <option value={ANY}>Anywhere</option>
+                  {destinations.map(d => <option key={d} value={d}>{d}</option>)}
+                </FieldSelect>
+              </FieldRow>
+            </RouteFields>
+            <SwapBtn type="button" onClick={swap} aria-label="Swap origin and destination">
+              <Icon name="arrow" size={16} />
+            </SwapBtn>
+          </RouteRow>
+
+          <ChipRow>
+            <FilterChip type="button" $active={when === "any"} onClick={() => setWhen("any")}>
+              Any time
+            </FilterChip>
+            <FilterChip type="button" $active={when === "today"} onClick={() => setWhen("today")}>
+              Today
+            </FilterChip>
+            <FilterChip
+              type="button"
+              $active={when === "weekend"}
+              onClick={() => setWhen("weekend")}
+            >
+              This weekend
+            </FilterChip>
+            <FilterChip
+              type="button"
+              $active={cheapOnly}
+              onClick={() => setCheapOnly(v => !v)}
+            >
+              {`≤ $${MAX_FARE}`}
+            </FilterChip>
+            <FilterChip
+              type="button"
+              $active={showText}
+              onClick={() => setShowText(v => !v)}
+            >
+              + filter
+            </FilterChip>
+          </ChipRow>
+
+          {showText && (
+            <SearchBox>
+              <Icon name="search" size={16} color="var(--ink-3)" />
+              <SearchInput
+                type="text"
+                placeholder="Search origin or destination"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+              />
+            </SearchBox>
+          )}
         </SearchPanel>
 
         <MapControls className="glass">
           <ControlBtn type="button" aria-label="Zoom in">
             <Icon name="plus" size={16} />
           </ControlBtn>
+          <ControlDivider />
           <ControlBtn type="button" aria-label="Zoom out">
             &minus;
           </ControlBtn>
         </MapControls>
+
+        <CenterPill type="button" className="glass">
+          <PulseDot className="pulse" />
+          Center on me
+        </CenterPill>
       </MapPane>
 
       <ListPane>
@@ -180,8 +318,16 @@ const Marketplace = ({ history }) => {
             {`RESULTS · ${filtered.length} RIDE${filtered.length === 1 ? "" : "S"}`}
           </Eyebrow>
           <TitleRow>
-            <ListTitle>Find a ride</ListTitle>
-            <SortBtn type="button">Soonest ↓</SortBtn>
+            <ListTitle>{routeTitle}</ListTitle>
+            <SortBtn
+              type="button"
+              onClick={() => setSort(s => (s === "soonest" ? "cheapest" : "soonest"))}
+            >
+              {"Sort: "}
+              <SortValue>
+                {sort === "soonest" ? "Soonest ↓" : "Cheapest ↓"}
+              </SortValue>
+            </SortBtn>
           </TitleRow>
         </ListHeader>
         {body}
