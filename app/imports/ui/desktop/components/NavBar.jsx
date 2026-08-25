@@ -96,6 +96,27 @@ function NavBar({ currentUser, userProfile }) {
     setSystemMenuOpen(false);
   };
 
+  // The menus had no dismissal path: `open`/`onToggle` were passed to a plain
+  // styled div, which ignores them, so an opened menu stayed open.
+  const navRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const anyOpen = userMenuOpen || adminMenuOpen || systemMenuOpen || mobileMenuOpen;
+    if (!anyOpen) return undefined;
+
+    const onDocClick = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) closeAllMenus();
+    };
+    const onEsc = event => event.key === "Escape" && closeAllMenus();
+
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [userMenuOpen, adminMenuOpen, systemMenuOpen, mobileMenuOpen]);
+
   const handleSignOut = async () => {
     try {
       await signOut({ redirectUrl: "/" });
@@ -109,7 +130,7 @@ function NavBar({ currentUser, userProfile }) {
   const isSystem = currentUser?.roles?.includes("system");
 
   return (
-    <NavBarContainer>
+    <NavBarContainer ref={navRef}>
       <NavBarInner>
         <Logo to="/">
           <LogoImg src="/images/logo.png" alt="CarpSchool" />
@@ -132,11 +153,11 @@ function NavBar({ currentUser, userProfile }) {
           )}
 
           {isAdmin && (
-            <Dropdown open={adminMenuOpen} onToggle={toggleAdminMenu}>
-              <DropdownTrigger as={NavButton}>
+            <Dropdown>
+              <DropdownTrigger as={NavButton} onClick={toggleAdminMenu}>
                 Admin ▾
               </DropdownTrigger>
-              <DropdownMenu>
+              <DropdownMenu $open={adminMenuOpen}>
                 <DropdownItem as={Link} to="/admin/rides" onClick={closeAllMenus}>
                   Manage Rides
                 </DropdownItem>
@@ -160,11 +181,11 @@ function NavBar({ currentUser, userProfile }) {
           )}
 
           {isSystem && (
-            <Dropdown open={systemMenuOpen} onToggle={toggleSystemMenu}>
-              <DropdownTrigger as={NavButton}>
+            <Dropdown>
+              <DropdownTrigger as={NavButton} onClick={toggleSystemMenu}>
                 System ▾
               </DropdownTrigger>
-              <DropdownMenu>
+              <DropdownMenu $open={systemMenuOpen}>
                 <DropdownItem as={Link} to="/admin/schools" onClick={closeAllMenus}>
                   Manage Schools
                 </DropdownItem>
@@ -178,11 +199,11 @@ function NavBar({ currentUser, userProfile }) {
 
         <UserSection>
           {isSignedIn ? (
-            <Dropdown open={userMenuOpen} onToggle={toggleUserMenu}>
-              <DropdownTrigger as={NavButton}>
+            <Dropdown>
+              <DropdownTrigger as={NavButton} onClick={toggleUserMenu}>
                 {currentUser?.username || "User"} ▾
               </DropdownTrigger>
-              <DropdownMenu>
+              <DropdownMenu $open={userMenuOpen}>
                 <DropdownItem as={Link} to="/mobile/profile" onClick={closeAllMenus}>
                   My Profile
                 </DropdownItem>
@@ -305,7 +326,7 @@ NavBar.propTypes = {
 const NavBarTracked = withTracker(() => {
   const currentUser = Meteor.user();
   const profileSubscription = Meteor.subscribe("Profiles");
-  
+
   return {
     currentUser,
     userProfile: currentUser ? Profiles.findOne({ Owner: currentUser._id }) : null,

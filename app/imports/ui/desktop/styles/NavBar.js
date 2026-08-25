@@ -76,7 +76,11 @@ export const DropdownTrigger = styled.button`
   }
 `;
 
+/* $open drives visibility. The menu previously had none, so it was always
+ * rendered: the `open`/`onToggle` props the navbar passes land on a plain
+ * div, where they do nothing. That is why the menu never closed. */
 export const DropdownMenu = styled.div`
+  display: ${props => (props.$open ? "block" : "none")};
   position: absolute;
   top: 100%;
   left: 0;
