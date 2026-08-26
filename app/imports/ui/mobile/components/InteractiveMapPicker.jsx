@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { AsyncTileLayer } from "../../utils/AsyncTileLayer";
+import { getTileUrlTemplate } from "../../utils/mapConfig";
 import {
   MapContainer,
   MapWrapper,
@@ -62,10 +63,7 @@ const InteractiveMapPicker = React.memo(({
   const [successMessage, setSuccessMessage] = useState("");
 
   // Memoize tile URL to prevent recreation on every render
-  const tileUrl = useMemo(
-() => "https://tileserver.carp.school/styles/OSM%20OpenMapTiles/{z}/{x}/{y}.png",
-    [],
-  );
+  const tileUrl = useMemo(() => getTileUrlTemplate(), []);
 
   // Memoize location select callback to prevent unnecessary re-renders
   const handleLocationSelect = useCallback((location) => {

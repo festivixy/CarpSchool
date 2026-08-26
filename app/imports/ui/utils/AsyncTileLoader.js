@@ -11,8 +11,10 @@
  * - Error handling and fallbacks
  */
 
+import { getTileServerUrl, getTileUrlTemplate } from "./mapConfig";
+
 class AsyncTileLoader {
-  constructor(tileServerUrl = "https://tileserver.carp.school") {
+  constructor(tileServerUrl = getTileServerUrl()) {
     this.tileServerUrl = tileServerUrl;
     this.cache = new Map();
     this.loadingTiles = new Set();
@@ -27,7 +29,19 @@ class AsyncTileLoader {
   initWorker() {
     try {
       // Define allowed tile domains (prevent hijacking from untrusted sources)
-      const ALLOWED_DOMAINS = ["tileserver.carp.school", "cdn.carp.school"];
+      // Derive the allowlist from the configured tile endpoint (see
+      // settings.public.map / ui/utils/mapConfig) so the endpoint can be
+      // repointed without a code change, while this stays a real allowlist
+      // rather than a wildcard.
+      const ALLOWED_DOMAINS = ["cdn.carp.school"];
+      [this.tileServerUrl, getTileServerUrl()].forEach((candidate) => {
+        try {
+          const host = new URL(candidate).hostname;
+          if (!ALLOWED_DOMAINS.includes(host)) ALLOWED_DOMAINS.push(host);
+        } catch (err) {
+          // Malformed endpoint: skip it rather than widening the allowlist.
+        }
+      });
 
       // Create inline worker to avoid separate file dependency
       const workerScript = `
@@ -128,7 +142,13 @@ class AsyncTileLoader {
    * Get tile URL for given coordinates
    */
   getTileUrl(z, x, y) {
-    return `${this.tileServerUrl}/styles/OSM%20OpenMapTiles/${z}/${x}/${y}.png`;
+    // The style path differs per endpoint (carp.school serves styled tiles
+    // under /styles/..., a plain OSM server serves them from the root), so
+    // build from the shared template instead of hardcoding one server's shape.
+    return getTileUrlTemplate(this.tileServerUrl)
+      .replace("{z}", z)
+      .replace("{x}", x)
+      .replace("{y}", y);
   }
 
   /**
