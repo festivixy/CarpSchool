@@ -81,13 +81,6 @@ import {
   Empty,
 } from "../styles/MyRides";
 
-/* Stat basis, stated so the numbers are auditable rather than magic:
- * EPA puts an average passenger vehicle at ~404 g CO2/mile (0.89 lb), and a
- * typical UberX runs about $1.75/mile in this market. Sharing a ride avoids
- * the rider's own solo trip, so miles shared drive both figures. */
-const CO2_LB_PER_MILE = 0.89;
-const RIDESHARE_USD_PER_MILE = 1.75;
-
 /* The design shows four history rows with a "see all" affordance beside the
  * heading; the rest expand in place. */
 const HISTORY_PREVIEW_ROWS = 4;
@@ -262,12 +255,6 @@ const MobileMyRides = ({ history }) => {
 
   const termPast = past.filter(r => new Date(r.date) >= semesterStart(now));
   const milesShared = termPast.reduce((sum, r) => sum + (r.distanceMi || 0), 0);
-  const co2AvoidedLb = Math.round(milesShared * CO2_LB_PER_MILE);
-  const faresPaid = termPast.reduce((sum, r) => sum + (r.fare || 0), 0);
-  const savedUsd = Math.max(
-    0,
-    Math.round(milesShared * RIDESHARE_USD_PER_MILE - faresPaid),
-  );
 
   const firstName = myProfile && myProfile.Name ? myProfile.Name.trim().split(" ")[0] : "";
   const canDrive = Boolean(myProfile) && myProfile.UserType !== "Rider";
@@ -460,16 +447,6 @@ const MobileMyRides = ({ history }) => {
             <StatLabel>MILES SHARED</StatLabel>
             <StatValue $accent="var(--sky)">{Math.round(milesShared)}</StatValue>
             <StatUnit>with classmates</StatUnit>
-          </StatCard>
-          <StatCard>
-            <StatLabel>CO&#8322; AVOIDED</StatLabel>
-            <StatValue $accent="var(--leaf)">{co2AvoidedLb}</StatValue>
-            <StatUnit>lb vs. solo trips</StatUnit>
-          </StatCard>
-          <StatCard>
-            <StatLabel>SAVED</StatLabel>
-            <StatValue $accent="var(--amber)">{`$${savedUsd}`}</StatValue>
-            <StatUnit>vs. rideshare</StatUnit>
           </StatCard>
         </StatRow>
 
