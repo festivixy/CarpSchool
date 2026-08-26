@@ -4,6 +4,7 @@ import { withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import ReactMarkdown from "react-markdown";
+import { stripLeadingH1 } from "../../utils/docContent";
 import {
   Container,
   DocHeader,
@@ -78,7 +79,7 @@ function MobileContact({ history: _history, contactContent, ready }) {
         </DocHeader>
       </DesktopOnly>
       <DocContent>
-        <ReactMarkdown>{content}</ReactMarkdown>
+        <ReactMarkdown>{stripLeadingH1(content)}</ReactMarkdown>
       </DocContent>
     </Container>
   );

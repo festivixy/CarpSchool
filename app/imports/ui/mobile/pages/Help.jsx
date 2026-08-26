@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import { stripLeadingH1 } from "../../utils/docContent";
 import {
   Container,
   DocHeader,
@@ -72,7 +73,7 @@ function MobileHelp({ history: _history }) {
         </DocHeader>
       </DesktopOnly>
       <DocContent>
-        <ReactMarkdown>{helpContent}</ReactMarkdown>
+        <ReactMarkdown>{stripLeadingH1(helpContent)}</ReactMarkdown>
       </DocContent>
     </Container>
   );
