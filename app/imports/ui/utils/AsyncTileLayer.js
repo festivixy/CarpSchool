@@ -154,40 +154,17 @@ export const AsyncTileLayer = L.TileLayer.extend({
       document.head.appendChild(style);
     }
 
-    // Preload tiles on map move
-    map.on("moveend zoomend", this._preloadVisibleTiles, this);
+    // Deliberately no prefetching here. Leaflet already requests every tile
+    // in view, so preloading only duplicated those requests as an unthrottled
+    // parallel burst on each moveend/zoomend -- which reads as bulk
+    // downloading and gets the client blocked (HTTP 403) under the
+    // OpenStreetMap tile usage policy.
   },
 
   onRemove: function (map) {
-    map.off("moveend zoomend", this._preloadVisibleTiles, this);
     L.TileLayer.prototype.onRemove.call(this, map);
   },
 
-  _preloadVisibleTiles: function () {
-    if (!this._map) return;
-
-    const bounds = this._map.getBounds();
-    const zoom = this._map.getZoom();
-
-    // Preload tiles for current view + 1 tile buffer
-    const tileBounds = {
-      north: bounds.getNorth(),
-      south: bounds.getSouth(),
-      east: bounds.getEast(),
-      west: bounds.getWest(),
-    };
-
-    // Use requestIdleCallback to avoid blocking
-    const preload = () => {
-      this.asyncLoader.preloadTiles(tileBounds, zoom);
-    };
-
-    if (window.requestIdleCallback) {
-      window.requestIdleCallback(preload);
-    } else {
-      setTimeout(preload, 100);
-    }
-  },
 });
 
 // Factory function

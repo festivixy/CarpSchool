@@ -7,7 +7,6 @@
  * - Web Worker-based tile loading
  * - Intelligent caching with IndexedDB
  * - Progressive loading with placeholders
- * - Tile preloading for better UX
  * - Error handling and fallbacks
  */
 
@@ -345,65 +344,6 @@ class AsyncTileLoader {
       console.warn("Failed to get cached tile from IndexedDB:", error);
       return null;
     }
-  }
-
-  /**
-   * Preload tiles for given bounds
-   */
-  async preloadTiles(bounds, zoom) {
-    const { north, south, east, west } = bounds;
-    const tiles = this.getTilesInBounds(north, south, east, west, zoom);
-
-    // Load tiles with priority (center first)
-    const centerX = Math.floor((tiles.minX + tiles.maxX) / 2);
-    const centerY = Math.floor((tiles.minY + tiles.maxY) / 2);
-
-    const loadPromises = [];
-
-    // Load center tiles first
-    for (let x = centerX; x <= tiles.maxX; x++) {
-      for (let y = centerY; y <= tiles.maxY; y++) {
-        loadPromises.push(this.loadTile(zoom, x, y));
-      }
-    }
-
-    // Load remaining tiles
-    for (let x = tiles.minX; x < centerX; x++) {
-      for (let y = tiles.minY; y <= tiles.maxY; y++) {
-        loadPromises.push(this.loadTile(zoom, x, y));
-      }
-    }
-
-    // Don't wait for all tiles, just start loading
-    Promise.allSettled(loadPromises).catch(() => {});
-  }
-
-  /**
-   * Calculate tiles needed for given bounds
-   */
-  getTilesInBounds(north, south, east, west, zoom) {
-    const minX = Math.floor(this.lon2tile(west, zoom));
-    const maxX = Math.floor(this.lon2tile(east, zoom));
-    const minY = Math.floor(this.lat2tile(north, zoom));
-    const maxY = Math.floor(this.lat2tile(south, zoom));
-
-    return { minX, maxX, minY, maxY };
-  }
-
-  /**
-   * Convert longitude to tile X coordinate
-   */
-  lon2tile(lon, zoom) {
-    return ((lon + 180) / 360) * (2 ** zoom);
-  }
-
-  /**
-   * Convert latitude to tile Y coordinate
-   */
-  lat2tile(lat, zoom) {
-    const latRad = (lat * Math.PI) / 180;
-    const logValue = Math.log(Math.tan(latRad) + (1 / Math.cos(latRad)));
-    return ((1 - (logValue / Math.PI)) / 2) * (2 ** zoom);
   }
 
   /**
