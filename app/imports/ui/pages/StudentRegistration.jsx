@@ -4,31 +4,30 @@ import { Meteor } from "meteor/meteor";
 import { Redirect } from "react-router-dom";
 import {
   Container,
-  Header,
-  AppName,
+  BrandPanel,
+  BrandInner,
+  BrandEyebrow,
+  BrandTitle,
+  FormPane,
   Content,
   Step,
   StepTitle,
   StepSubtitle,
-  Form,
-  InputSection,
   Field,
   Input,
   InputHint,
-  SubmitButton,
   ErrorMessage,
   Navigation,
+  PrimaryButton,
   SecondaryButton,
   UserTypeOptions,
   UserTypeOption,
   UserTypeTitle,
   UserTypeDesc,
-  PhotoSections,
-  PhotoSection,
-  PhotoPreview,
+  UploadSection,
+  UploadBtn,
   PreviewImg,
   FileInput,
-  FileLabel,
 } from "../mobile/styles/Onboarding"; // Using existing styles
 import Captcha from "../components/Captcha";
 
@@ -127,19 +126,9 @@ const StudentRegistration = ({ location }) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       setFormData(prev => ({ ...prev, imagePreview: event.target.result }));
-      
-      // We need to upload this immediately to get a UUID? 
-      // Or we can modify the backend to accept base64.
-      // Existing backend expects UUIDs for images, so we should upload.
-      // Ideally we should do this after registration, but for now we follow the pattern.
-      // HOWEVER, we don't have a user ID yet!
-      // This is a Catch-22 in the old design.
-      // Solution: We will pass the Base64 to the registration method and let the server handle it/upload it
-      // OR we just accept that we can't upload until registered.
-      // Let's defer image upload to "Edit Profile" for simplicity/robustness if needed.
-      // BUT, let's try to pass the base64 to the server method if possible.
-      // The current plan said "Profile ID server side".
-      // Let's store the base64 and send it to registerStudent method.
+      // The base64 preview travels with the registration payload below; the
+      // server stores it once the account exists, since there is no user id
+      // to attach an upload to before registration completes.
     };
     reader.readAsDataURL(file);
   };
@@ -149,14 +138,14 @@ const StudentRegistration = ({ location }) => {
     if (!captchaRef.current) return;
 
     setIsSubmitting(true);
-    
+
     captchaRef.current.verify((captchaError, isValid) => {
        if (captchaError || !isValid) {
            setError("Invalid security code.");
            setIsSubmitting(false);
            return;
        }
-       
+
        const captchaToken = captchaRef.current.getCaptchaData().sessionId;
 
        // Prepare payload
@@ -172,7 +161,7 @@ const StudentRegistration = ({ location }) => {
                userType: formData.userType,
                phone: formData.phone,
                // Extract base64 part if image exists
-               imageBase64: formData.imagePreview ? formData.imagePreview.split(',')[1] : null,
+               imageBase64: formData.imagePreview ? formData.imagePreview.split(",")[1] : null,
            }
        };
 
@@ -181,7 +170,7 @@ const StudentRegistration = ({ location }) => {
            if (err) {
                setError(err.reason || "Registration failed.");
            } else {
-               // Success! Login the user automatically?
+               // Success - log the user in automatically.
                Meteor.loginWithPassword(formData.email, formData.password, (loginErr) => {
                    if (loginErr) {
                        setRedirectTo("/login"); // Fallback
@@ -200,177 +189,173 @@ const StudentRegistration = ({ location }) => {
 
   return (
     <Container>
-      <Header>
-        <AppName onClick={() => setRedirectTo("/")}>CarpSchool</AppName>
-      </Header>
+      <BrandPanel>
+        <BrandInner>
+          <BrandEyebrow>CarpSchool</BrandEyebrow>
+          <BrandTitle>Join your school community</BrandTitle>
+        </BrandInner>
+      </BrandPanel>
 
-      <Content>
-        {/* Progress Indicator could go here */}
-        
-        <Form onSubmit={(e) => e.preventDefault()}>
-        
-          {/* STEP 1: IDENTITY */}
-          {step === 1 && (
-            <Step>
-               <StepTitle>Join Your School Community</StepTitle>
-               <StepSubtitle>Use your school email to connect with students near you.</StepSubtitle>
-               
-               <InputSection>
-                   <Field>
-                       <Input 
-                           type="email" 
-                           name="email" 
-                            placeholder="Email address"
-                           value={formData.email}
-                           onChange={handleChange}
-                           autoFocus
-                       />
-                       {matchedSchool && (
-                           <InputHint style={{ color: "#2ecc71" }}>
-                               ✅ Available at {matchedSchool.name}
-                           </InputHint>
-                       )}
-                   </Field>
-                   <Field>
-                       <Input 
-                           type="password" 
-                           name="password" 
-                           placeholder="Create a password" 
-                           value={formData.password}
-                           onChange={handleChange}
-                       />
-                   </Field>
-               </InputSection>
-            </Step>
-          )}
+      <FormPane>
+        <Content>
+          <form onSubmit={(e) => e.preventDefault()}>
 
-          {/* STEP 2: PROFILE */}
-          {step === 2 && (
-             <Step>
-                <StepTitle>Create Your Profile</StepTitle>
-                <StepSubtitle>Tell us a bit about yourself.</StepSubtitle>
-                
-                <InputSection>
-                    <Field>
-                        <Input 
-                            name="name" 
-                            placeholder="Full Name" 
-                            value={formData.name}
-                            onChange={handleChange}
-                        />
-                    </Field>
-                    <Field>
-                        <Input 
-                            name="major" 
-                            placeholder="Major (Optional)" 
-                            value={formData.major}
-                            onChange={handleChange}
-                        />
-                    </Field>
-                    <Field>
-                      <select 
-                        name="year" 
-                        value={formData.year} 
-                        onChange={handleChange}
-                        style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #ddd" }}
-                      >
-                         <option value="">Select Year (Optional)</option>
-                         <option value="Freshman">Freshman</option>
-                         <option value="Sophomore">Sophomore</option>
-                         <option value="Junior">Junior</option>
-                         <option value="Senior">Senior</option>
-                         <option value="Graduate">Graduate</option>
-                      </select>
-                    </Field>
-                </InputSection>
-             </Step>
-          )}
-
-          {/* STEP 3: PREFERENCES */}
-          {step === 3 && (
+            {/* STEP 1: IDENTITY */}
+            {step === 1 && (
               <Step>
-                 <StepTitle>Ride Preferences</StepTitle>
-                 <StepSubtitle>How will you use CarpSchool?</StepSubtitle>
-                 
-                 <UserTypeOptions>
-                    <UserTypeOption 
-                        selected={formData.userType === "Driver"}
-                        onClick={() => setFormData({ ...formData, userType: "Driver" })}
-                    >
-                        <UserTypeTitle>Driver Only</UserTypeTitle>
-                        <UserTypeDesc>I can offer rides</UserTypeDesc>
-                    </UserTypeOption>
-                    <UserTypeOption 
-                        selected={formData.userType === "Rider"}
-                        onClick={() => setFormData({ ...formData, userType: "Rider" })}
-                    >
-                        <UserTypeTitle>Rider Only</UserTypeTitle>
-                        <UserTypeDesc>I need rides</UserTypeDesc>
-                    </UserTypeOption>
-                    <UserTypeOption 
-                        selected={formData.userType === "Both"}
-                        onClick={() => setFormData({ ...formData, userType: "Both" })}
-                    >
-                        <UserTypeTitle>Both</UserTypeTitle>
-                        <UserTypeDesc>I drive and need rides</UserTypeDesc>
-                    </UserTypeOption>
-                 </UserTypeOptions>
+                 <StepTitle>Join Your School Community</StepTitle>
+                 <StepSubtitle>Use your school email to connect with students near you.</StepSubtitle>
 
-                 <InputSection>
-                    <Field>
-                       <Input 
-                           name="phone" 
-                           placeholder="Phone Number (Optional)" 
-                           value={formData.phone}
-                           onChange={handleChange}
-                       />
-                    </Field>
-
-                    <PhotoSections>
-                        <PhotoSection>
-                            {formData.imagePreview && (
-                                <PhotoPreview>
-                                    <PreviewImg src={formData.imagePreview} alt="Profile Preview" />
-                                </PhotoPreview>
-                            )}
-                            <FileInput
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageSelect}
-                                id="profile-upload-reg"
-                            />
-                            <FileLabel htmlFor="profile-upload-reg">
-                                {formData.imagePreview ? "Change Photo" : "Upload Profile Photo (Optional)"}
-                            </FileLabel>
-                        </PhotoSection>
-                    </PhotoSections>
-                    
-                    {/* Final Captcha */}
-                    <Field>
-                         <Captcha ref={captchaRef} autoGenerate={true} />
-                    </Field>
-                 </InputSection>
+                 <Field>
+                     <Input
+                         type="email"
+                         name="email"
+                         placeholder="Email address"
+                         value={formData.email}
+                         onChange={handleChange}
+                         autoFocus
+                     />
+                     {matchedSchool && (
+                         <InputHint style={{ color: "var(--leaf, #2ecc71)" }}>
+                             Available at {matchedSchool.name}
+                         </InputHint>
+                     )}
+                 </Field>
+                 <Field>
+                     <Input
+                         type="password"
+                         name="password"
+                         placeholder="Create a password"
+                         value={formData.password}
+                         onChange={handleChange}
+                     />
+                 </Field>
               </Step>
-          )}
+            )}
 
-          {error && <ErrorMessage>{error}</ErrorMessage>}
+            {/* STEP 2: PROFILE */}
+            {step === 2 && (
+               <Step>
+                  <StepTitle>Create Your Profile</StepTitle>
+                  <StepSubtitle>Tell us a bit about yourself.</StepSubtitle>
 
-          <Navigation hasBackButton={step > 1}>
-             {step > 1 && (
-                 <SecondaryButton onClick={prevStep} type="button">Back</SecondaryButton>
-             )}
-             
-             {step < 3 ? (
-                 <SubmitButton onClick={nextStep} type="button">Next</SubmitButton>
-             ) : (
-                 <SubmitButton onClick={handleSubmit} disabled={isSubmitting}>
-                     {isSubmitting ? "Creating Account..." : "Finish Registration"}
-                 </SubmitButton>
-             )}
-          </Navigation>
+                  <Field>
+                      <Input
+                          name="name"
+                          placeholder="Full Name"
+                          value={formData.name}
+                          onChange={handleChange}
+                      />
+                  </Field>
+                  <Field>
+                      <Input
+                          name="major"
+                          placeholder="Major (Optional)"
+                          value={formData.major}
+                          onChange={handleChange}
+                      />
+                  </Field>
+                  <Field>
+                    <select
+                      name="year"
+                      value={formData.year}
+                      onChange={handleChange}
+                      style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #ddd" }}
+                    >
+                       <option value="">Select Year (Optional)</option>
+                       <option value="Freshman">Freshman</option>
+                       <option value="Sophomore">Sophomore</option>
+                       <option value="Junior">Junior</option>
+                       <option value="Senior">Senior</option>
+                       <option value="Graduate">Graduate</option>
+                    </select>
+                  </Field>
+               </Step>
+            )}
 
-        </Form>
-      </Content>
+            {/* STEP 3: PREFERENCES */}
+            {step === 3 && (
+                <Step>
+                   <StepTitle>Ride Preferences</StepTitle>
+                   <StepSubtitle>How will you use CarpSchool?</StepSubtitle>
+
+                   <UserTypeOptions>
+                      <UserTypeOption
+                          type="button"
+                          $selected={formData.userType === "Driver"}
+                          onClick={() => setFormData({ ...formData, userType: "Driver" })}
+                      >
+                          <UserTypeTitle>Driver Only</UserTypeTitle>
+                          <UserTypeDesc>I can offer rides</UserTypeDesc>
+                      </UserTypeOption>
+                      <UserTypeOption
+                          type="button"
+                          $selected={formData.userType === "Rider"}
+                          onClick={() => setFormData({ ...formData, userType: "Rider" })}
+                      >
+                          <UserTypeTitle>Rider Only</UserTypeTitle>
+                          <UserTypeDesc>I need rides</UserTypeDesc>
+                      </UserTypeOption>
+                      <UserTypeOption
+                          type="button"
+                          $selected={formData.userType === "Both"}
+                          onClick={() => setFormData({ ...formData, userType: "Both" })}
+                      >
+                          <UserTypeTitle>Both</UserTypeTitle>
+                          <UserTypeDesc>I drive and need rides</UserTypeDesc>
+                      </UserTypeOption>
+                   </UserTypeOptions>
+
+                   <Field>
+                      <Input
+                          name="phone"
+                          placeholder="Phone Number (Optional)"
+                          value={formData.phone}
+                          onChange={handleChange}
+                      />
+                   </Field>
+
+                   <UploadSection>
+                       {formData.imagePreview && (
+                           <PreviewImg src={formData.imagePreview} alt="Profile Preview" />
+                       )}
+                       <FileInput
+                           type="file"
+                           accept="image/*"
+                           onChange={handleImageSelect}
+                           id="profile-upload-reg"
+                       />
+                       <UploadBtn as="label" htmlFor="profile-upload-reg">
+                           {formData.imagePreview ? "Change Photo" : "Upload Profile Photo (Optional)"}
+                       </UploadBtn>
+                   </UploadSection>
+
+                   {/* Final Captcha */}
+                   <Field>
+                        <Captcha ref={captchaRef} autoGenerate={true} />
+                   </Field>
+                </Step>
+            )}
+
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+
+            <Navigation>
+               {step > 1 && (
+                   <SecondaryButton onClick={prevStep} type="button">Back</SecondaryButton>
+               )}
+
+               {step < 3 ? (
+                   <PrimaryButton onClick={nextStep} type="button">Next</PrimaryButton>
+               ) : (
+                   <PrimaryButton onClick={handleSubmit} disabled={isSubmitting}>
+                       {isSubmitting ? "Creating Account..." : "Finish Registration"}
+                   </PrimaryButton>
+               )}
+            </Navigation>
+
+          </form>
+        </Content>
+      </FormPane>
     </Container>
   );
 };
