@@ -29,6 +29,7 @@ import "../imports/api/errorReport/ErrorReportPublications";
 import "../imports/api/notifications/NotificationPublications";
 import "../imports/api/system/SystemPublications";
 import "../imports/api/schools/SchoolsPublications";
+import "../imports/api/reviews/ReviewPublications";
 
 // Routes
 import "../imports/startup/server/ApiRoutes";
@@ -54,11 +55,14 @@ import "../imports/api/notifications/OneSignalMethods";
 import "../imports/api/system/SystemMethods";
 import "../imports/api/schools/SchoolsMethods";
 import "../imports/api/accounts/AdminMethods";
+// eslint-disable-next-line import/first -- every import below the dotenv block trips this rule
+import "../imports/api/admin/AdminDashboardMethods";
 import "../imports/api/accounts/ClerkMethods";
 import "../imports/api/accounts/ClerkLoginHandler";
 import "../imports/api/accounts/RegistrationMethods";
 import "../imports/api/accounts/RegistrationRateLimits";
 import "../imports/api/accounts/DeleteAccountMethods";
+import "../imports/api/reviews/ReviewMethods";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers"; // Login validation and logout handlers

@@ -1,33 +1,124 @@
 import styled from "styled-components";
 import {
+  glass,
+  glassStrong,
   eyebrow,
   inputBase,
   btnBase,
   btnIcon,
   chip,
   chipActive,
-  hr,
+  scrollY,
 } from "../../styles/tokens";
 
+/* Below this the split collapses to a stacked map + list. */
 const BREAK = "900px";
+
+/* The floating TopNav only mounts on desktop (DesktopOnly, 768px), so the
+ * overlays only need to clear it above that width. Tying the offsets to
+ * BREAK made the nav pill and the search panel collide between 768 and 900. */
+const NAV_BREAK = "767px";
 
 export const Screen = styled.div`
   display: grid;
   grid-template-columns: 1fr 440px;
-  min-height: calc(100vh - 64px);
+  /* Definite height: the map pane and the list scroller both resolve their
+   * height from this, and the list scrolls internally rather than the page. */
+  height: 100vh;
   background: var(--cream-0);
 
   @media (max-width: ${BREAK}) {
     grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
   }
 `;
 
-/* Leaflet needs a container with a resolved height, so give the pane one
- * rather than relying on the grid row alone. */
+/* Leaflet needs a container with a resolved height, so the pane takes the
+ * full grid row rather than relying on a min-height. */
 export const MapPane = styled.div`
   position: relative;
   overflow: hidden;
-  min-height: calc(100vh - 64px);
+  height: 100%;
+  min-height: 0;
+
+  /* Leaflet ships its own zoom control; rather than duplicate it with dead
+   * buttons, it is repositioned and restyled into the design's glass cluster.
+   * These are Leaflet's internal class names — re-check on a Leaflet upgrade. */
+  .leaflet-top.leaflet-left {
+    top: 92px;
+    left: auto;
+    right: 24px;
+  }
+
+  .leaflet-control-zoom.leaflet-bar {
+    ${glass}
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 6px;
+    border-radius: var(--r-lg);
+  }
+
+  /* Selectors carry the zoom-in / zoom-out classes so they out-specify
+   * Leaflet's own .leaflet-bar a:first-child and .leaflet-touch rules. */
+  .leaflet-control-zoom .leaflet-control-zoom-in,
+  .leaflet-control-zoom .leaflet-control-zoom-out {
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    border: 0;
+    border-radius: var(--r-md);
+    background: transparent;
+    color: var(--ink-1);
+    font-family: var(--font-ui);
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .leaflet-control-zoom .leaflet-control-zoom-in:hover,
+  .leaflet-control-zoom .leaflet-control-zoom-out:hover {
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--ink-1);
+  }
+
+  /* Keep the at-max-zoom affordance Leaflet provides. */
+  .leaflet-control-zoom .leaflet-control-zoom-in.leaflet-disabled,
+  .leaflet-control-zoom .leaflet-control-zoom-out.leaflet-disabled {
+    background: transparent;
+    color: var(--ink-4);
+    cursor: default;
+  }
+
+  /* Hairline between the two buttons, inset like the design's divider. */
+  .leaflet-control-zoom a + a {
+    position: relative;
+  }
+
+  .leaflet-control-zoom a + a::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 4px;
+    right: 4px;
+    height: 1px;
+    background: var(--glass-stroke);
+  }
+
+  /* Attribution is required, but bottom-right is where the Center-on-me pill
+   * lives, so move it clear of it. */
+  .leaflet-bottom.leaflet-right {
+    right: auto;
+    left: 0;
+  }
+
+  @media (max-width: ${NAV_BREAK}) {
+    .leaflet-top.leaflet-left {
+      top: 16px;
+      right: 16px;
+    }
+  }
 
   @media (max-width: ${BREAK}) {
     height: 240px;
@@ -38,6 +129,7 @@ export const MapPane = styled.div`
 export const ListPane = styled.div`
   display: flex;
   flex-direction: column;
+  min-height: 0;
   background: var(--cream-0);
   border-left: 1px solid var(--glass-stroke);
 
@@ -48,6 +140,7 @@ export const ListPane = styled.div`
 
 /* top: 92 clears the floating TopNav, which overlays this pane. */
 export const SearchPanel = styled.div`
+  ${glassStrong}
   position: absolute;
   top: 92px;
   left: 24px;
@@ -56,7 +149,7 @@ export const SearchPanel = styled.div`
   padding: 14px;
   border-radius: 24px;
 
-  @media (max-width: ${BREAK}) {
+  @media (max-width: ${NAV_BREAK}) {
     top: 16px;
     left: 16px;
     width: min(360px, calc(100% - 32px));
@@ -182,31 +275,10 @@ export const SearchInput = styled.input`
   }
 `;
 
-export const MapControls = styled.div`
-  position: absolute;
-  top: 92px;
-  right: 24px;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 6px;
-  border-radius: var(--r-lg);
-
-  @media (max-width: ${BREAK}) {
-    top: 16px;
-    right: 16px;
-  }
-`;
-
-export const ControlDivider = styled.span`
-  ${hr}
-  margin: 0 4px;
-`;
-
 /* Bottom-right "Center on me" pill. The dot carries the shared .pulse
  * animation from client/style.css. */
 export const CenterPill = styled.button`
+  ${glass}
   position: absolute;
   right: 24px;
   bottom: 24px;
@@ -215,13 +287,17 @@ export const CenterPill = styled.button`
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border: 0;
   border-radius: var(--r-pill);
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 600;
   color: var(--ink-1);
   cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    color: var(--ink-3);
+  }
 
   @media (max-width: ${BREAK}) {
     right: 16px;
@@ -237,24 +313,6 @@ export const PulseDot = styled.span`
   background: var(--sky);
   color: var(--sky);
   flex-shrink: 0;
-`;
-
-export const ControlBtn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: var(--r-md);
-  background: transparent;
-  color: var(--ink-1);
-  font-size: 18px;
-  cursor: pointer;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.6);
-  }
 `;
 
 export const ListHeader = styled.div`
@@ -296,12 +354,17 @@ export const SortValue = styled.span`
   font-weight: 600;
 `;
 
+/* flex-basis auto + min-height 0 so the column fills the pane and scrolls
+ * inside it when the split is live, and simply sizes to content once the
+ * layout collapses and the page scrolls instead. */
 export const RidesScroll = styled.div`
+  ${scrollY}
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 0 24px 32px;
-  overflow-y: auto;
+  padding: 0 24px 24px;
 `;
 
 export const EmptyState = styled.div`

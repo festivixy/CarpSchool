@@ -2,6 +2,8 @@ import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { Accounts } from "meteor/accounts-base";
 import { Profiles } from "../profile/Profile";
+import { Schools } from "../schools/Schools";
+import { Rides } from "../ride/Rides";
 
 Meteor.methods({
 
@@ -71,6 +73,11 @@ Meteor.methods({
       campus: profileData.campus || "",
       Phone: profileData.phone || "",
       Other: profileData.other || "",
+      // Onboarding uploads the photos through images.upload and passes the
+      // returned uuids here. Without these two fields the uuids were dropped
+      // and the profile was created with no avatar or vehicle photo.
+      Image: profileData.image || "",
+      Ride: profileData.ride || "",
       verified: false,
       requested: true,
       rejected: false,
@@ -187,5 +194,24 @@ Meteor.methods({
       schoolId: user.schoolId || null,
       isClerkUser: !!user.profile?.clerkUserId,
     };
+  },
+
+  /**
+   * Aggregate counts for the onboarding wizard's social-proof panel.
+   *
+   * Totals only - no document contents - so nothing about another student is
+   * exposed to an account that has not been approved yet.
+   */
+  async "onboarding.stats"() {
+    if (!this.userId) {
+      throw new Meteor.Error("auth-required", "Authentication required");
+    }
+
+    const [schoolCount, rideCount] = await Promise.all([
+      Schools.find({ isActive: true }).countAsync(),
+      Rides.find({}).countAsync(),
+    ]);
+
+    return { schoolCount, rideCount };
   },
 });

@@ -1,91 +1,266 @@
 import styled from "styled-components";
+import MapBg from "../../components/MapBg";
 import {
   btnBase,
   btnCoral,
   btnGhost,
   eyebrow,
   inputBase,
+  marker,
+  scrollY,
 } from "../../styles/tokens";
 
+/* Below this width the 480px brand column collapses into a short top band. */
+const BREAK = "900px";
+/* Below this the two-up field rows stack. */
+const NARROW = "520px";
+
+/* App.jsx mounts TopNavAuto (+ a 76px NavSpacer) above every signed-in
+ * desktop route, /onboarding included, so the wizard cannot be the design's
+ * position:absolute; inset:0. It fills what is left of the viewport instead. */
 export const Container = styled.div`
-  min-height: 100vh;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  min-height: calc(100vh - 76px);
   background: var(--cream-0);
   color: var(--ink-1);
   font-family: var(--font-ui);
+
+  @media (max-width: ${BREAK}) {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+`;
+
+/* ── Left brand panel ─────────────────────────────────────── */
+
+export const BrandPanel = styled.aside`
+  position: relative;
+  overflow: hidden;
+  padding: 40px;
+  background: var(--ink-1);
+  color: var(--cream-0);
+  display: flex;
+  flex-direction: column;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background: var(--signal-yellow);
+    z-index: 2;
+  }
+
+  @media (max-width: ${BREAK}) {
+    padding: 26px 20px 24px;
+  }
+`;
+
+/* Decorative street map, inverted so it reads as chalk on the ink panel. */
+export const BrandMap = styled(MapBg)`
+  opacity: 0.18;
+  filter: invert(0.9);
+  pointer-events: none;
+`;
+
+export const BrandInner = styled.div`
+  position: relative;
+  z-index: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
 `;
 
-export const Header = styled.div`
-  width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 24px 20px 16px;
+export const BrandFoot = styled.div`
+  margin-top: auto;
+  padding-top: 40px;
+
+  @media (max-width: ${BREAK}) {
+    padding-top: 16px;
+  }
 `;
 
-export const AppName = styled.div`
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-`;
-
-export const ProgressContainer = styled.div`
-  margin-top: 16px;
-`;
-
-export const ProgressBar = styled.div`
-  height: 6px;
-  border-radius: var(--r-pill);
-  background: var(--cream-2);
-  overflow: hidden;
-`;
-
-export const ProgressFill = styled.div`
-  height: 100%;
-  width: ${props => props.progress || 0}%;
-  background: var(--signal-yellow);
-  transition: width 0.3s ease;
-`;
-
-export const ProgressText = styled.div`
+export const BrandEyebrow = styled.div`
   ${eyebrow}
-  margin-top: 8px;
+  color: var(--signal-yellow);
+`;
+
+export const BrandTitle = styled.h1`
+  margin: 14px 0 18px;
+  font-family: var(--font-display);
+  font-size: clamp(38px, 4.4vw, 56px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+
+  @media (max-width: ${BREAK}) {
+    margin: 10px 0 0;
+    font-size: 32px;
+  }
+`;
+
+/* Stabilo-Boss highlight. At most one phrase per heading. */
+export const Mark = styled.span`
+  ${marker}
+`;
+
+export const BrandCopy = styled.p`
+  margin: 0 0 28px;
+  max-width: 380px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--cream-3);
+
+  @media (max-width: ${BREAK}) {
+    display: none;
+  }
+`;
+
+export const ProofPanel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  @media (max-width: ${BREAK}) {
+    display: none;
+  }
+`;
+
+export const ProofTile = styled.div`
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 212, 0, 0.16);
+  color: var(--signal-yellow);
+`;
+
+export const ProofBody = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const ProofPrimary = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+`;
+
+export const ProofSecondary = styled.div`
+  margin-top: 1px;
+  font-size: 12px;
+  color: var(--cream-3);
+`;
+
+/* ── Right form column ────────────────────────────────────── */
+
+export const FormPane = styled.div`
+  position: relative;
 `;
 
 export const Content = styled.div`
-  flex: 1;
-  width: 100%;
-  max-width: 640px;
+  max-width: 460px;
   margin: 0 auto;
-  padding: 8px 20px 40px;
+  padding: 88px 24px 40px;
+
+  @media (max-width: ${BREAK}) {
+    padding: 32px 20px 32px;
+  }
 `;
 
-export const Step = styled.div`
+export const StepRow = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
 `;
 
-export const StepTitle = styled.h1`
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 30px;
+export const StepBadge = styled.div`
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  background: ${props => (props.$on ? "var(--signal-yellow)" : "var(--cream-2)")};
+  color: ${props => (props.$on ? "var(--ink-1)" : "var(--ink-3)")};
+  transition: background 0.2s ease, color 0.2s ease;
+`;
+
+export const StepConnector = styled.div`
+  flex: 1;
+  height: 2px;
+  border-radius: 1px;
+  background: ${props => (props.$on ? "var(--signal-yellow)" : "var(--cream-2)")};
+  transition: background 0.2s ease;
+`;
+
+export const StepEyebrow = styled.div`
+  ${eyebrow}
+`;
+
+export const StepTitle = styled.h2`
+  margin: 8px 0;
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+
+  @media (max-width: ${BREAK}) {
+    font-size: 28px;
+  }
 `;
 
 export const StepSubtitle = styled.p`
   margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--ink-3);
-  font-size: 15px;
 `;
 
-export const InputGroup = styled.div`
+/* Each step's body replays the entry animation, so it carries .fade-in and a
+ * key on the step index. */
+export const Step = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 24px;
+`;
+
+export const Field = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 8px;
+`;
+
+export const FieldRow = styled.div`
+  display: flex;
+  gap: 12px;
+
+  > * {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @media (max-width: ${NARROW}) {
+    flex-direction: column;
+  }
 `;
 
 export const Label = styled.label`
@@ -96,10 +271,161 @@ export const Input = styled.input`
   ${inputBase}
 `;
 
+/* The address was verified by Clerk at signup and the school derived from its
+ * domain, so step 1 confirms it rather than collecting it. */
+export const ReadOnlyInput = styled.input`
+  ${inputBase}
+  background: var(--cream-1);
+  color: var(--ink-2);
+  cursor: default;
+
+  &:focus {
+    border-color: var(--glass-stroke);
+    background: var(--cream-1);
+    box-shadow: none;
+  }
+`;
+
 export const InputHint = styled.div`
   font-size: 12px;
   color: var(--ink-4);
 `;
+
+export const SelectWrap = styled.div`
+  position: relative;
+`;
+
+export const Select = styled.select`
+  ${inputBase}
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 38px;
+  cursor: pointer;
+`;
+
+export const SelectChevron = styled.span`
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  pointer-events: none;
+  display: flex;
+  color: var(--ink-3);
+`;
+
+/* Cream bar used for the detected-school row and the photo rows. */
+export const InfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--cream-1);
+  margin-top: 4px;
+`;
+
+export const InfoTile = styled.div`
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream-2);
+  color: var(--ink-2);
+`;
+
+export const InfoBody = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const InfoTitle = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+`;
+
+export const InfoDesc = styled.div`
+  font-size: 12px;
+  color: var(--ink-3);
+`;
+
+export const InfoMono = styled.div`
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+`;
+
+/* Reassurance pill. The design tints the copy yellow-deep; on the soft yellow
+ * ground that is unreadable, so the ink stays and the icon carries the accent. */
+export const NotePill = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin-top: 4px;
+  border-radius: 12px;
+  background: var(--signal-yellow-soft);
+  color: var(--ink-1);
+  font-size: 13px;
+  font-weight: 500;
+`;
+
+export const NoteIcon = styled.span`
+  display: flex;
+  flex-shrink: 0;
+`;
+
+/* ── School picker (accounts with no domain-matched school) ── */
+
+export const SchoolList = styled.div`
+  ${scrollY}
+  max-height: 220px;
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.7);
+`;
+
+export const SchoolOption = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 0;
+  border-bottom: 1px solid var(--glass-stroke);
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--ink-1);
+  background: ${props => (props.$selected ? "var(--signal-yellow-soft)" : "transparent")};
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background: ${props => (props.$selected ? "var(--signal-yellow-soft)" : "var(--cream-1)")};
+  }
+`;
+
+export const SchoolCode = styled.span`
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  flex-shrink: 0;
+`;
+
+export const SchoolEmpty = styled.div`
+  padding: 16px 13px;
+  font-size: 13px;
+  color: var(--ink-3);
+`;
+
+/* ── Step 3 role cards ────────────────────────────────────── */
 
 export const UserTypeOptions = styled.div`
   display: flex;
@@ -107,119 +433,116 @@ export const UserTypeOptions = styled.div`
   gap: 10px;
 `;
 
-export const UserTypeOption = styled.div`
+export const UserTypeOption = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
   padding: 16px;
   border-radius: var(--r-lg);
+  text-align: left;
   cursor: pointer;
-  transition: all 0.15s;
-  border: 1.5px solid ${props => (props.selected ? "var(--signal-yellow)" : "var(--glass-stroke)")};
-  background: ${props => (props.selected ? "var(--signal-yellow-soft)" : "var(--cream-1)")};
+  font-family: var(--font-ui);
+  transition: background 0.15s ease, border-color 0.15s ease;
+  background: ${props => (props.$selected ? "var(--signal-yellow-soft)" : "var(--cream-1)")};
+  border: ${props => (props.$selected
+    ? "1.5px solid var(--signal-yellow)"
+    : "1px solid var(--glass-stroke)")};
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-1);
+    outline-offset: 2px;
+  }
 `;
 
-export const UserTypeTitle = styled.div`
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 700;
+export const RoleIconTile = styled.span`
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${props => (props.$selected ? "var(--signal-yellow)" : "var(--cream-2)")};
+  color: ${props => (props.$selected ? "var(--ink-1)" : "var(--ink-2)")};
 `;
 
-export const UserTypeDesc = styled.div`
-  margin-top: 2px;
+export const RoleBody = styled.span`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const UserTypeTitle = styled.span`
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-1);
+`;
+
+export const UserTypeDesc = styled.span`
+  display: block;
   font-size: 13px;
   color: var(--ink-3);
 `;
 
-export const ContactSection = styled.div`
-  margin-top: 16px;
+export const RoleRadio = styled.span`
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  h3 {
-    margin: 8px 0 0;
-    font-family: var(--font-display);
-    font-size: 18px;
-  }
+  align-items: center;
+  justify-content: center;
+  background: ${props => (props.$selected ? "var(--signal-yellow)" : "transparent")};
+  border: ${props => (props.$selected ? "0" : "2px solid var(--cream-3)")};
 `;
 
-export const PhotoSections = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-
-  h3 {
-    margin: 0 0 8px;
-    font-family: var(--font-display);
-    font-size: 18px;
-  }
-`;
-
-export const PhotoSection = styled.div`
-  padding: 16px;
-  background: var(--cream-1);
-  border: 1px solid var(--glass-stroke);
-  border-radius: var(--r-lg);
-`;
-
-export const PhotoPreview = styled.div`
-  margin-bottom: 12px;
-`;
+/* ── Photo upload ─────────────────────────────────────────── */
 
 export const PreviewImg = styled.img`
-  max-width: 100%;
-  border-radius: var(--r-md);
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
 `;
 
 export const FileInput = styled.input`
   display: none;
 `;
 
-export const FileLabel = styled.label`
+export const UploadBtn = styled.button`
   ${btnBase}
   ${btnGhost}
-  display: inline-flex;
-  cursor: pointer;
-`;
-
-export const FileInfo = styled.div`
-  margin-top: 8px;
   font-size: 12px;
-  color: var(--ink-4);
+  padding: 7px 14px;
+  flex-shrink: 0;
 `;
 
 export const UploadSection = styled.div`
-  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--cream-1);
 `;
 
 export const UploadButton = styled.button`
   ${btnBase}
   ${btnCoral}
+  ${props => props.disabled && "opacity: 0.5; pointer-events: none;"}
 `;
 
-export const Summary = styled.div`
-  margin-top: 20px;
-  padding: 16px;
-  background: var(--cream-1);
-  border: 1px solid var(--glass-stroke);
-  border-radius: var(--r-lg);
-
-  h3 {
-    margin: 0 0 8px;
-    font-family: var(--font-display);
-    font-size: 18px;
-  }
+export const FileInfo = styled.div`
+  font-size: 12px;
+  color: var(--ink-4);
 `;
 
-export const SummaryItem = styled.div`
-  padding: 3px 0;
-  font-size: 14px;
-  color: var(--ink-2);
-`;
+/* ── Messages + footer ────────────────────────────────────── */
 
 export const ErrorMessage = styled.div`
-  margin-top: 12px;
+  margin-top: 16px;
   padding: 10px 14px;
   border-radius: var(--r-md);
   background: rgba(176, 58, 110, 0.1);
@@ -228,7 +551,7 @@ export const ErrorMessage = styled.div`
 `;
 
 export const SuccessMessage = styled.div`
-  margin-top: 12px;
+  margin-top: 16px;
   padding: 10px 14px;
   border-radius: var(--r-md);
   background: rgba(31, 138, 91, 0.12);
@@ -238,42 +561,21 @@ export const SuccessMessage = styled.div`
 
 export const Navigation = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  margin-top: 24px;
-  justify-content: ${props => (props.hasBackButton ? "space-between" : "flex-end")};
+  margin-top: 28px;
 `;
 
 export const PrimaryButton = styled.button`
   ${btnBase}
   ${btnCoral}
+  padding: 12px 24px;
   ${props => props.disabled && "opacity: 0.5; pointer-events: none;"}
 `;
 
 export const SecondaryButton = styled.button`
   ${btnBase}
   ${btnGhost}
-`;
-
-/* Design handoff wizard: step indicator dots with hairline connectors,
- * yellow once active or complete, replacing the plain progress bar. */
-export const StepDots = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0;
-`;
-
-export const StepDot = styled.span`
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: ${props => (props.$on ? "var(--signal-yellow)" : "var(--cream-2)")};
-  box-shadow: ${props => (props.$current ? "0 0 0 3px var(--signal-yellow-soft)" : "none")};
-  transition: background 0.2s ease, box-shadow 0.2s ease;
-`;
-
-export const StepConnector = styled.span`
-  flex: 1;
-  height: 1px;
-  background: ${props => (props.$on ? "var(--signal-yellow-deep)" : "var(--cream-3)")};
+  ${props => props.disabled && "opacity: 0.45; pointer-events: none;"}
 `;

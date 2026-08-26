@@ -25,13 +25,27 @@ import {
 } from "../styles/RideCard";
 
 const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+/* Whole days between two instants, counted from local midnight so a ride at
+ * 11pm tonight and one at 1am tomorrow do not both read "TODAY". */
+const daysFromToday = (d) => {
+  const startOfDay = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  return Math.round((startOfDay(d) - startOfDay(new Date())) / MS_PER_DAY);
+};
+
+const dayLabel = (d) => {
+  const offset = daysFromToday(d);
+  if (offset === 0) return "TODAY";
+  if (offset === 1) return "TOMORROW";
+  return WEEKDAYS[d.getDay()];
+};
 
 const formatWhen = (date) => {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return "";
-  const day = WEEKDAYS[d.getDay()];
   const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  return `${day} · ${time}`;
+  return `${dayLabel(d)} · ${time}`;
 };
 
 // Deterministic pastel hue from a seed (driver id / name).
@@ -58,13 +72,35 @@ const RideCard = ({ ride, driverName, driverYear, driverDept, compact, active, o
     .filter(Boolean)
     .join(" · ");
 
+  const hasFare = Number.isFinite(ride.fare);
+
   const handleRequest = (e) => {
     e.stopPropagation();
     if (onRequest) onRequest(ride);
   };
 
+  const handleClick = () => onClick && onClick(ride);
+
+  // The card is the primary selection control on the discovery screen, so it
+  // has to be reachable and operable from the keyboard when it is clickable.
+  const handleKeyDown = (e) => {
+    if (!onClick) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick(ride);
+    }
+  };
+
   return (
-    <Card $compact={compact} $active={active} onClick={() => onClick && onClick(ride)}>
+    <Card
+      $compact={compact}
+      $active={active}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-current={active ? "true" : undefined}
+    >
       <Top>
         <RouteCol>
           <TimeLabel>{formatWhen(ride.date)}</TimeLabel>
@@ -74,10 +110,10 @@ const RideCard = ({ ride, driverName, driverYear, driverDept, compact, active, o
             <Place as="span" $compact={compact}>{to}</Place>
           </ToRow>
         </RouteCol>
-        {ride.fare ? (
+        {hasFare ? (
           <Fare>
-            <FareValue>{`$${ride.fare}`}</FareValue>
-            <FareUnit>PER SEAT</FareUnit>
+            <FareValue>{ride.fare > 0 ? `$${ride.fare}` : "Free"}</FareValue>
+            {ride.fare > 0 ? <FareUnit>PER SEAT</FareUnit> : null}
           </Fare>
         ) : null}
       </Top>

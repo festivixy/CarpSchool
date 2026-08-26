@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { btnBase, btnCoral } from "./tokens";
+import { btnBase, btnGhost } from "./tokens";
 
 export const Card = styled.div`
   width: 100%;
@@ -19,6 +19,11 @@ export const Card = styled.div`
         border: 1px solid var(--glass-stroke);
         box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
       `)}
+
+  &:focus-visible {
+    outline: 2px solid var(--ink-1);
+    outline-offset: 2px;
+  }
 `;
 
 export const Top = styled.div`
@@ -48,6 +53,9 @@ export const Place = styled.div`
   line-height: 1.15;
   letter-spacing: -0.01em;
   color: var(--ink-1);
+  /* A flex item defaults to min-width:auto, which defeats the ellipsis when
+   * this renders inside ToRow. */
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -129,9 +137,11 @@ export const SeatPill = styled.div`
   color: ${props => (props.$open ? "oklch(0.4 0.13 152)" : "var(--ink-3)")};
 `;
 
+/* Ghost, not the yellow CTA: the split-view card in the design carries no
+ * button at all, so this affordance must not out-shout the fare. */
 export const RequestBtn = styled.button`
   ${btnBase}
-  ${btnCoral}
+  ${btnGhost}
   padding: 7px 14px;
   font-size: 12px;
 `;

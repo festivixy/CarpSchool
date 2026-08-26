@@ -37,6 +37,28 @@ const notifyDriverOfJoin = async (ride, rider) => {
   }
 };
 
+/**
+ * Read gate shared by the single-ride methods. Participants always pass;
+ * anyone else must be at the ride's school, or be a system admin. Fails
+ * closed: a missing schoolId on either side denies rather than skips the
+ * check (rides created through the REST route carry no schoolId).
+ */
+const assertRideVisible = async (userId, ride) => {
+  const isParticipant = ride.driver === userId
+    || (Array.isArray(ride.riders) && ride.riders.includes(userId));
+  if (isParticipant) return;
+
+  const user = await Meteor.users.findOneAsync(userId);
+  const sameSchool = Boolean(user?.schoolId)
+    && Boolean(ride.schoolId)
+    && user.schoolId === ride.schoolId;
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+
+  if (!sameSchool && !await isSystemAdmin(userId)) {
+    throw new Meteor.Error("access-denied", "This ride is not at your school.");
+  }
+};
+
 Meteor.methods({
   async "rides.remove"(rideId) {
     check(rideId, String);
@@ -542,23 +564,7 @@ Meteor.methods({
       throw new Meteor.Error("not-found", "Ride not found.");
     }
 
-    // Restrict cross-school access. Fail closed: a missing schoolId on either
-    // side must deny rather than skip the check (rides created through the REST
-    // route carry no schoolId). Participants and system admins keep access.
-    const user = await Meteor.users.findOneAsync(userId);
-    const isParticipant = ride.driver === userId
-      || (Array.isArray(ride.riders) && ride.riders.includes(userId));
-
-    if (!isParticipant) {
-      const sameSchool = Boolean(user?.schoolId)
-        && Boolean(ride.schoolId)
-        && user.schoolId === ride.schoolId;
-      const { isSystemAdmin } = await import("../accounts/RoleUtils");
-
-      if (!sameSchool && !await isSystemAdmin(userId)) {
-        throw new Meteor.Error("access-denied", "This ride is not at your school.");
-      }
-    }
+    await assertRideVisible(userId, ride);
 
     const { Places } = await import("../places/Places");
     const ids = [ride.origin, ride.destination].filter(Boolean);
@@ -577,6 +583,44 @@ Meteor.methods({
       destinationText: byId[ride.destination] ? byId[ride.destination].text : null,
       originCoords: byId[ride.origin] ? byId[ride.origin].value : null,
       destinationCoords: byId[ride.destination] ? byId[ride.destination].value : null,
+    };
+  },
+
+  /**
+   * Driver credentials for the ride detail sidecard: the verification flags on
+   * the driver's profile plus how many rides they have already driven.
+   *
+   * profiles.displayNames deliberately publishes only Name/year/major, and the
+   * Rides publication only exposes rides you already participate in, so a
+   * ride-scoped method is the narrowest way to surface these two facts.
+   */
+  async "rides.driverCredentials"(rideId) {
+    check(rideId, String);
+
+    const userId = Meteor.userId();
+    if (!userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to view a ride.");
+    }
+
+    const ride = await Rides.findOneAsync(rideId);
+    if (!ride) {
+      throw new Meteor.Error("not-found", "Ride not found.");
+    }
+
+    await assertRideVisible(userId, ride);
+
+    const profile = await Profiles.findOneAsync(
+      { Owner: ride.driver },
+      { fields: { verified: 1, identityVerified: 1 } },
+    );
+
+    return {
+      verified: Boolean(profile && profile.verified),
+      identityVerified: Boolean(profile && profile.identityVerified),
+      ridesDriven: await Rides.find({
+        driver: ride.driver,
+        date: { $lt: new Date() },
+      }).countAsync(),
     };
   },
 });

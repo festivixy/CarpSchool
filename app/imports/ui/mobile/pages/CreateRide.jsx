@@ -1,46 +1,100 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Meteor } from "meteor/meteor";
 import { useTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Places } from "../../../api/places/Places";
+import {
+  parseCoords,
+  estimateRoute,
+  formatDuration,
+  formatDistance,
+} from "../../../api/ride/routeEstimate";
+import Icon from "../../components/Icon";
+import MapView from "../../components/MapView";
 import LoadingPage from "../../components/LoadingPage";
 import {
-  Page,
-  Inner,
-  Title,
+  Screen,
+  MapPane,
+  RouteChip,
+  Panel,
+  PanelHead,
+  HeadText,
+  Eyebrow,
+  PanelTitle,
   Mark,
-  Form,
-  Section,
-  SectionTitle,
-  Row,
-  Row2,
-  Field,
-  Label,
-  Input,
-  Select,
-  Textarea,
+  CloseBtn,
+  PanelBody,
+  RouteCard,
+  RouteRow,
+  Indicator,
+  OriginDot,
+  IndicatorBar,
+  DestSquare,
+  RouteFields,
+  FieldRow,
+  FieldLabel,
+  FieldSelect,
   SwapBtn,
-  Stepper,
+  QuickChipRow,
+  QuickChip,
+  Group,
+  GroupLabel,
+  WhenRow,
+  DateField,
+  TimeField,
+  PlainInput,
+  StepperRow,
+  StepperCol,
+  StepperBox,
   StepBtn,
+  StepCenter,
   StepValue,
+  StepCaption,
+  FairNote,
+  NoteBox,
   Hint,
+  ErrorMessage,
   Footer,
   PostBtn,
-  ErrorMessage,
   Notice,
+  NoticeBtn,
 } from "../styles/CreateRide";
 
+/* RidesSchema bounds. Keeping the UI inside them means the stepper can never
+ * build a payload the server will reject. */
+const MIN_SEATS = 1;
+const MAX_SEATS = 7;
+const MIN_FARE = 0;
+const MAX_FARE = 100;
+const MAX_NOTES = 200;
+
+/* The design's gas-split reference: a fare at or below this per-mile rate is
+ * labelled a fair split. */
+const FAIR_RATE_PER_MI = 0.33;
+
+/* Saved-place shortcut chips shown under the route card. */
+const MAX_QUICK_PLACES = 3;
+
+const pointOf = (place) => {
+  if (!place) return null;
+  const coords = parseCoords(place.value);
+  return coords ? { ...coords, label: place.text } : null;
+};
+
 /**
- * Offer a ride — web create form wired to the rides.create method.
- * Origin/destination are picked from the user's saved places (places.options).
+ * Offer a ride — map-first create screen (design handoff "Offer a ride" V1).
+ * A real Leaflet map fills the screen behind a glass form panel; origin and
+ * destination come from the user's places (places.options) and the route
+ * preview uses the same estimator rides.create denormalises onto the ride.
  */
 const CreateRide = ({ history }) => {
-  const { ready, places } = useTracker(() => {
+  const { ready, places, userId } = useTracker(() => {
     const sub = Meteor.subscribe("places.options");
     return {
       ready: sub.ready(),
       places: Places.find({}, { sort: { text: 1 } }).fetch(),
+      userId: Meteor.userId(),
     };
   }, []);
 
@@ -56,9 +110,45 @@ const CreateRide = ({ history }) => {
 
   const today = new Date().toISOString().split("T")[0];
 
+  /* MapView re-adds its tile layer whenever this array's identity changes, so
+   * it must not be rebuilt on every keystroke. */
+  const mapPoints = useMemo(() => {
+    const from = pointOf(places.find(p => p._id === origin));
+    const to = pointOf(places.find(p => p._id === destination));
+    const picked = [from, to].filter(Boolean);
+    if (picked.length > 0) return picked;
+    return places.map(pointOf).filter(Boolean);
+  }, [origin, destination, places]);
+
+  const route = useMemo(() => {
+    const from = places.find(p => p._id === origin);
+    const to = places.find(p => p._id === destination);
+    if (!from || !to || from._id === to._id) return null;
+    return estimateRoute(from.value, to.value);
+  }, [origin, destination, places]);
+
+  /* places.options also carries places merely used in the user's rides; only
+   * the ones they created are theirs to offer as shortcuts. */
+  const quickPlaces = useMemo(
+    () => places.filter(p => p.createdBy === userId).slice(0, MAX_QUICK_PLACES),
+    [places, userId],
+  );
+
   const swap = () => {
     setOrigin(destination);
     setDestination(origin);
+  };
+
+  const applyQuickPlace = (id) => {
+    if (origin === id) {
+      setOrigin("");
+    } else if (destination === id) {
+      setDestination("");
+    } else if (!origin) {
+      setOrigin(id);
+    } else {
+      setDestination(id);
+    }
   };
 
   const submit = (e) => {
@@ -109,118 +199,252 @@ const CreateRide = ({ history }) => {
 
   if (!ready) return <LoadingPage message="Loading..." />;
 
+  const head = (
+    <PanelHead>
+      <HeadText>
+        <Eyebrow>OFFER A RIDE</Eyebrow>
+        <PanelTitle>
+          <Mark>Where</Mark>
+          {" are you headed?"}
+        </PanelTitle>
+      </HeadText>
+      <CloseBtn type="button" aria-label="Close" onClick={() => history.goBack()}>
+        <Icon name="close" size={16} />
+      </CloseBtn>
+    </PanelHead>
+  );
+
   if (places.length === 0) {
     return (
-      <Page>
-        <Inner>
-          <Title>Offer a <Mark>ride.</Mark></Title>
-          <Notice>
-            You have no saved places yet. Add your pickup and drop-off spots in
-            Places first, then come back to post a ride.
-          </Notice>
-        </Inner>
-      </Page>
+      <Screen>
+        <MapPane>
+          <MapView coordinates={mapPoints} />
+        </MapPane>
+        <Panel as="div" className="fade-in">
+          {head}
+          <PanelBody>
+            <Notice>
+              You have no saved places yet. Add your pickup and drop-off spots in
+              Places first, then come back to post a ride.
+            </Notice>
+            <NoticeBtn type="button" onClick={() => history.push("/places")}>
+              Add a place
+              <Icon name="arrow" size={14} />
+            </NoticeBtn>
+          </PanelBody>
+        </Panel>
+      </Screen>
     );
   }
 
+  const ratePerMi = route && route.distanceMi > 0 ? fare / route.distanceMi : null;
+  const isFairRate = ratePerMi !== null && ratePerMi <= FAIR_RATE_PER_MI;
+
+  /* Both halves have to format, or the pill would advertise a blank figure. */
+  const routeDuration = route && formatDuration(route.durationMin);
+  const routeDistance = route && formatDistance(route.distanceMi);
+
   return (
-    <Page>
-      <Inner>
-        <Title>Offer a <Mark>ride.</Mark></Title>
-        <Form onSubmit={submit}>
-          <Section>
-            <SectionTitle>01 · ROUTE</SectionTitle>
-            <Row>
-              <Field>
-                <Label>From</Label>
-                <Select value={origin} onChange={e => setOrigin(e.target.value)}>
-                  <option value="">Select origin…</option>
-                  {places.map(p => (
-                    <option key={p._id} value={p._id}>{p.text}</option>
-                  ))}
-                </Select>
-              </Field>
-              <SwapBtn type="button" onClick={swap} title="Swap locations">⇅</SwapBtn>
-              <Field>
-                <Label>To</Label>
-                <Select value={destination} onChange={e => setDestination(e.target.value)}>
-                  <option value="">Select destination…</option>
-                  {places.map(p => (
-                    <option key={p._id} value={p._id}>{p.text}</option>
-                  ))}
-                </Select>
-              </Field>
-            </Row>
-          </Section>
+    <Screen>
+      <MapPane>
+        {/* Real Leaflet map. Markers are the chosen pickup and drop-off places,
+            or every saved place until both ends are picked. */}
+        <MapView coordinates={mapPoints} />
 
-          <Section>
-            <SectionTitle>02 · WHEN</SectionTitle>
-            <Row2>
-              <Field>
-                <Label>Date</Label>
-                <Input type="date" min={today} value={date} onChange={e => setDate(e.target.value)} />
-              </Field>
-              <Field>
-                <Label>Time</Label>
-                <Input type="time" value={time} onChange={e => setTime(e.target.value)} />
-              </Field>
-            </Row2>
-          </Section>
+        {routeDuration && routeDistance && (
+          <RouteChip>
+            <Icon name="car" size={16} color="var(--signal-yellow)" />
+            {`Est. route — ${routeDuration} · ${routeDistance}`}
+          </RouteChip>
+        )}
+      </MapPane>
 
-          <Section>
-            <SectionTitle>03 · SEATS &amp; FARE</SectionTitle>
-            <Row2>
-              <Field>
-                <Label>Seats</Label>
-                <Stepper>
-                  <StepBtn type="button" onClick={() => setSeats(s => Math.max(1, s - 1))}>−</StepBtn>
-                  <StepValue>{seats}</StepValue>
-                  <StepBtn type="button" onClick={() => setSeats(s => Math.min(7, s + 1))}>+</StepBtn>
-                </Stepper>
-              </Field>
-              <Field>
-                <Label>Fare per seat ($)</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={fare}
-                  onChange={e => setFare(e.target.value)}
+      <Panel className="fade-in" onSubmit={submit}>
+        {head}
+
+        <PanelBody>
+          <RouteCard>
+            <RouteRow>
+              <Indicator>
+                <OriginDot />
+                <IndicatorBar />
+                <DestSquare />
+              </Indicator>
+              <RouteFields>
+                <FieldRow $divided>
+                  <FieldLabel htmlFor="create-from">FROM</FieldLabel>
+                  <FieldSelect
+                    id="create-from"
+                    value={origin}
+                    onChange={e => setOrigin(e.target.value)}
+                  >
+                    <option value="">Select origin</option>
+                    {places.map(p => (
+                      <option key={p._id} value={p._id}>{p.text}</option>
+                    ))}
+                  </FieldSelect>
+                </FieldRow>
+                <FieldRow>
+                  <FieldLabel htmlFor="create-to">TO</FieldLabel>
+                  <FieldSelect
+                    id="create-to"
+                    value={destination}
+                    onChange={e => setDestination(e.target.value)}
+                  >
+                    <option value="">Select destination</option>
+                    {places.map(p => (
+                      <option key={p._id} value={p._id}>{p.text}</option>
+                    ))}
+                  </FieldSelect>
+                </FieldRow>
+              </RouteFields>
+              <SwapBtn
+                type="button"
+                onClick={swap}
+                aria-label="Reverse origin and destination"
+              >
+                <Icon name="arrowDown" size={14} />
+              </SwapBtn>
+            </RouteRow>
+
+            {quickPlaces.length > 0 && (
+              <QuickChipRow>
+                {quickPlaces.map(p => (
+                  <QuickChip
+                    key={p._id}
+                    type="button"
+                    $active={p._id === origin || p._id === destination}
+                    onClick={() => applyQuickPlace(p._id)}
+                  >
+                    {`Saved · ${p.text}`}
+                  </QuickChip>
+                ))}
+              </QuickChipRow>
+            )}
+          </RouteCard>
+
+          <Group>
+            <GroupLabel as="label" htmlFor="create-date">WHEN</GroupLabel>
+            <WhenRow>
+              <DateField>
+                <Icon name="clock" size={15} color="var(--ink-3)" />
+                <PlainInput
+                  id="create-date"
+                  type="date"
+                  min={today}
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
                 />
-                <Hint>A fair gas split is roughly $0.33 / mile.</Hint>
-              </Field>
-            </Row2>
-          </Section>
+              </DateField>
+              <TimeField>
+                <PlainInput
+                  type="time"
+                  aria-label="Departure time"
+                  value={time}
+                  onChange={e => setTime(e.target.value)}
+                />
+              </TimeField>
+            </WhenRow>
+          </Group>
 
-          <Section>
-            <SectionTitle>04 · NOTE</SectionTitle>
-            <Field>
-              <Textarea
-                placeholder="Anything riders should know (luggage, stops, music)…"
-                maxLength="200"
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-              />
-              <Hint>{`${notes.length}/200`}</Hint>
-            </Field>
-          </Section>
+          <StepperRow>
+            <StepperCol>
+              <GroupLabel>SEATS</GroupLabel>
+              <StepperBox>
+                <StepBtn
+                  type="button"
+                  aria-label="One seat fewer"
+                  disabled={seats <= MIN_SEATS}
+                  onClick={() => setSeats(s => Math.max(MIN_SEATS, s - 1))}
+                >
+                  &minus;
+                </StepBtn>
+                <StepCenter>
+                  <StepValue>{seats}</StepValue>
+                  <StepCaption>OPEN SEATS</StepCaption>
+                </StepCenter>
+                <StepBtn
+                  type="button"
+                  aria-label="One seat more"
+                  disabled={seats >= MAX_SEATS}
+                  onClick={() => setSeats(s => Math.min(MAX_SEATS, s + 1))}
+                >
+                  <Icon name="plus" size={14} />
+                </StepBtn>
+              </StepperBox>
+            </StepperCol>
 
-          {error && <ErrorMessage>{error}</ErrorMessage>}
+            <StepperCol>
+              <GroupLabel>FARE / SEAT</GroupLabel>
+              <StepperBox>
+                <StepBtn
+                  type="button"
+                  aria-label="One dollar less"
+                  disabled={fare <= MIN_FARE}
+                  onClick={() => setFare(f => Math.max(MIN_FARE, f - 1))}
+                >
+                  &minus;
+                </StepBtn>
+                <StepCenter>
+                  <StepValue>{`$${fare}`}</StepValue>
+                  <StepCaption>GAS SPLIT</StepCaption>
+                </StepCenter>
+                <StepBtn
+                  type="button"
+                  aria-label="One dollar more"
+                  disabled={fare >= MAX_FARE}
+                  onClick={() => setFare(f => Math.min(MAX_FARE, f + 1))}
+                >
+                  <Icon name="plus" size={14} />
+                </StepBtn>
+              </StepperBox>
+              {ratePerMi !== null && (
+                <FairNote $fair={isFairRate}>
+                  <Icon name="leaf" size={11} />
+                  {isFairRate
+                    ? `Fair split — $${ratePerMi.toFixed(2)}/mi`
+                    : `Above a fair split — $${ratePerMi.toFixed(2)}/mi`}
+                </FairNote>
+              )}
+            </StepperCol>
+          </StepperRow>
 
-          <Footer>
-            <PostBtn type="submit" disabled={submitting}>
-              {submitting ? "Posting…" : "Post ride"}
-            </PostBtn>
-          </Footer>
-        </Form>
-      </Inner>
-    </Page>
+          <Group>
+            <GroupLabel as="label" htmlFor="create-notes">
+              NOTE TO RIDERS · OPTIONAL
+            </GroupLabel>
+            <NoteBox
+              id="create-notes"
+              rows="3"
+              maxLength={MAX_NOTES}
+              placeholder="Going home for fall break - happy to take 2 more, can swing by Allston."
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+            />
+            <Hint>{`${notes.length}/${MAX_NOTES}`}</Hint>
+          </Group>
+        </PanelBody>
+
+        {error && <ErrorMessage role="alert">{error}</ErrorMessage>}
+
+        <Footer>
+          <PostBtn type="submit" disabled={submitting}>
+            {submitting
+              ? "Posting…"
+              : `Post ride · ${seats} seat${seats === 1 ? "" : "s"}`}
+            <Icon name="arrow" size={15} color="var(--ink-1)" />
+          </PostBtn>
+        </Footer>
+      </Panel>
+    </Screen>
   );
 };
 
 CreateRide.propTypes = {
-  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  history: PropTypes.shape({
+    push: PropTypes.func,
+    goBack: PropTypes.func,
+  }).isRequired,
 };
 
 export default withRouter(CreateRide);

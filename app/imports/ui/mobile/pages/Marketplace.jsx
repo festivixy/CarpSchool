@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Meteor } from "meteor/meteor";
 import { useTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
@@ -7,7 +7,6 @@ import { Profiles } from "../../../api/profile/Profile";
 import Icon from "../../components/Icon";
 import MapView from "../../components/MapView";
 import RideCard from "../../components/RideCard";
-import LoadingPage from "../../components/LoadingPage";
 import {
   Screen,
   MapPane,
@@ -26,9 +25,6 @@ import {
   FilterChip,
   SearchBox,
   SearchInput,
-  MapControls,
-  ControlBtn,
-  ControlDivider,
   CenterPill,
   PulseDot,
   ListHeader,
@@ -43,6 +39,7 @@ import {
 
 const ANY = "";
 const MAX_FARE = 10;
+const GEO_TIMEOUT_MS = 10000;
 
 const fmtTime = (date) => new Date(date)
   .toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
@@ -93,6 +90,10 @@ const Marketplace = ({ history }) => {
   const [showText, setShowText] = useState(false);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("soonest");
+
+  // Viewer's own position, only ever set from a real geolocation fix.
+  const [myPosition, setMyPosition] = useState(null);
+  const [geoState, setGeoState] = useState("idle");
 
   useEffect(() => {
     let active = true;
@@ -160,18 +161,48 @@ const Marketplace = ({ history }) => {
       : new Date(a.date) - new Date(b.date)));
   }, [allRides, query, fromPlace, toPlace, when, cheapOnly, sort]);
 
-  // Plot every filtered ride's endpoints. The selected ride is hoisted to the
-  // front so MapView centres on it.
-  const rank = (r) => (r._id === selectedId ? 0 : 1);
-  const ordered = selectedId
-    ? [...filtered].sort((a, b) => rank(a) - rank(b))
-    : filtered;
-  const mapPoints = ordered.flatMap(r => [
-    parseCoord(r.originCoords, `${originOf(r)} — ${fmtTime(r.date)}`),
-    parseCoord(r.destinationCoords, destinationOf(r)),
-  ]).filter(Boolean);
+  // The design ships one card outlined. Point that at the first real result
+  // in the current sort order, and re-point it when the current pick is
+  // filtered away, so the outline never dangles.
+  useEffect(() => {
+    if (filtered.length === 0) {
+      if (selectedId !== null) setSelectedId(null);
+      return;
+    }
+    if (!filtered.some(r => r._id === selectedId)) setSelectedId(filtered[0]._id);
+  }, [filtered, selectedId]);
 
-  if (loading) return <LoadingPage message="Finding rides..." />;
+  // Endpoints of every filtered ride, plus the viewer's own fix once they ask
+  // for it. MapView fits its bounds to this set.
+  const mapPoints = useMemo(() => {
+    const points = filtered.flatMap(r => [
+      parseCoord(r.originCoords, `${originOf(r)} — ${fmtTime(r.date)}`),
+      parseCoord(r.destinationCoords, destinationOf(r)),
+    ]).filter(Boolean);
+    return myPosition ? [myPosition, ...points] : points;
+  }, [filtered, myPosition]);
+
+  const locateMe = useCallback(() => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoState("unsupported");
+      return;
+    }
+    setGeoState("locating");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setMyPosition({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          label: "You are here",
+        });
+        setGeoState("ready");
+      },
+      () => setGeoState("denied"),
+      { enableHighAccuracy: true, timeout: GEO_TIMEOUT_MS },
+    );
+  }, []);
+
+  const geoBlocked = geoState === "denied" || geoState === "unsupported";
 
   const swap = () => {
     setFromPlace(toPlace);
@@ -182,9 +213,15 @@ const Marketplace = ({ history }) => {
     ? `${fromPlace || "Anywhere"} → ${toPlace || "Anywhere"}`
     : "Find a ride";
 
+  const resultsLabel = loading
+    ? "FINDING RIDES"
+    : `RESULTS · ${filtered.length} RIDE${filtered.length === 1 ? "" : "S"}`;
+
   let body;
   if (error) {
     body = <EmptyState>{error}</EmptyState>;
+  } else if (loading) {
+    body = <EmptyState>Finding rides…</EmptyState>;
   } else if (filtered.length === 0) {
     body = (
       <EmptyState>
@@ -217,7 +254,7 @@ const Marketplace = ({ history }) => {
             the rides currently in the list, so the map reflects the query. */}
         <MapView coordinates={mapPoints} />
 
-        <SearchPanel className="glass-strong">
+        <SearchPanel className="fade-in">
           <RouteRow>
             <RouteIndicator>
               <OriginDot />
@@ -296,27 +333,20 @@ const Marketplace = ({ history }) => {
           )}
         </SearchPanel>
 
-        <MapControls className="glass">
-          <ControlBtn type="button" aria-label="Zoom in">
-            <Icon name="plus" size={16} />
-          </ControlBtn>
-          <ControlDivider />
-          <ControlBtn type="button" aria-label="Zoom out">
-            &minus;
-          </ControlBtn>
-        </MapControls>
-
-        <CenterPill type="button" className="glass">
+        <CenterPill
+          type="button"
+          onClick={locateMe}
+          disabled={geoBlocked || geoState === "locating"}
+          title={geoBlocked ? "Location is unavailable in this browser" : undefined}
+        >
           <PulseDot className="pulse" />
-          Center on me
+          {geoState === "locating" ? "Locating…" : "Center on me"}
         </CenterPill>
       </MapPane>
 
       <ListPane>
         <ListHeader>
-          <Eyebrow>
-            {`RESULTS · ${filtered.length} RIDE${filtered.length === 1 ? "" : "S"}`}
-          </Eyebrow>
+          <Eyebrow>{resultsLabel}</Eyebrow>
           <TitleRow>
             <ListTitle>{routeTitle}</ListTitle>
             <SortBtn

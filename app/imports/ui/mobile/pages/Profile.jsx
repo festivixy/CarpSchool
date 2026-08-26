@@ -1,23 +1,74 @@
-import React from "react";
+import React, { useMemo, useRef } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
-import { withTracker } from "meteor/react-meteor-data";
+import { useTracker } from "meteor/react-meteor-data";
 import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import { Rides } from "../../../api/ride/Rides";
 import { Places } from "../../../api/places/Places";
 import { Profiles } from "../../../api/profile/Profile";
+import { Schools } from "../../../api/schools/Schools";
+import { Reviews } from "../../../api/reviews/Reviews";
 import { estimateRoute } from "../../../api/ride/routeEstimate";
 import Avatar from "../../components/Avatar";
+import Icon from "../../components/Icon";
+import MapBg from "../../components/MapBg";
 import {
   Page,
   Banner,
-  BannerInner,
-  Identity,
+  BannerMap,
+  Inner,
+  Header,
+  AvatarFrame,
+  HeaderMain,
+  NameRow,
   Name,
-  Email,
   VerifiedChip,
-  Body,
+  VerifyChip,
+  MetaRow,
+  MetaItem,
+  MetaSep,
+  Bio,
+  HeaderActions,
+  GhostBtn,
+  PrimaryBtn,
+  StatStrip,
+  StatCard,
+  StatLabel,
+  StatValue,
+  StatUnit,
+  StatStar,
+  Columns,
+  Col,
+  Card,
+  CardHead,
+  CardTitle,
+  CardFoot,
+  LinkBtn,
+  PlaceGrid,
+  PlaceTile,
+  PlaceIcon,
+  PlaceText,
+  PlaceName,
+  PlaceSub,
+  ReviewList,
+  ReviewRow,
+  ReviewBody,
+  ReviewHead,
+  ReviewName,
+  Stars,
+  Quote,
+  PrefList,
+  PrefRow,
+  PrefLabel,
+  PrefValue,
+  CheckList,
+  CheckRow,
+  CheckMark,
+  CheckLabel,
+  CheckNote,
+  Empty,
+  SettingsSection,
   Section,
   SectionTitle,
   MenuList,
@@ -25,15 +76,6 @@ import {
   MenuItemIcon,
   MenuItemLabel,
   MenuArrow,
-  StatStrip,
-  StatCard,
-  StatLabel,
-  StatValue,
-  StatUnit,
-  CheckRow,
-  CheckMark,
-  CheckLabel,
-  CheckNote,
   SignOutBtn,
   Loading,
 } from "../styles/Profile";
@@ -53,13 +95,133 @@ const LEGAL_LINKS = [
   { icon: "💰", label: "Credits", path: "/credits" },
 ];
 
+/* EPA puts an average passenger vehicle at ~404 g CO2/mile (0.89 lb). Riding
+ * together avoids the rider's own solo trip, so shared miles drive the figure. */
 const CO2_LB_PER_MILE = 0.89;
 
-const Profile = ({
-  history, currentUser, isAdmin, userReady,
-  myProfile, ridesTaken, milesShared, co2AvoidedLb,
-}) => {
-  const go = (path) => history.push(path);
+/* Decoration only — the tile colour says nothing about the place. */
+const PLACE_TINTS = [
+  "var(--signal-yellow-deep)",
+  "var(--sky)",
+  "var(--leaf)",
+  "var(--plum)",
+];
+
+const ROLE_COPY = {
+  Both: "Rider · sometimes driver",
+  Driver: "Mostly driving",
+  Rider: "Mostly riding",
+};
+
+const MAX_SAVED_PLACES = 4;
+const MAX_REVIEWS_SHOWN = 3;
+
+/* Deterministic hue so an account always gets the same avatar colour, matching
+ * the nav avatar. */
+const hueFor = (seed) => {
+  if (!seed) return 220;
+  let total = 0;
+  for (let i = 0; i < seed.length; i += 1) total += seed.charCodeAt(i);
+  return total % 360;
+};
+
+const startOfWeek = (value) => {
+  const d = new Date(value);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - d.getDay());
+  return d.getTime();
+};
+
+/* Consecutive week buckets, ending with the current week, that contain at
+ * least one completed ride. Stepping back through Date rather than subtracting
+ * a fixed 7-day span keeps the buckets aligned across daylight-saving shifts. */
+const weekStreak = (dates, now) => {
+  if (dates.length === 0) return 0;
+  const weeks = new Set(dates.map(startOfWeek));
+  let cursor = startOfWeek(now);
+  let streak = 0;
+  while (weeks.has(cursor)) {
+    streak += 1;
+    const previous = new Date(cursor);
+    previous.setDate(previous.getDate() - 7);
+    cursor = startOfWeek(previous);
+  }
+  return streak;
+};
+
+/* Show only the last four digits. The country code is not modelled, so the
+ * mask keeps the shape without asserting one. */
+const maskPhone = (raw) => {
+  const digits = String(raw).replace(/\D/g, "");
+  if (digits.length < 4) return "on file";
+  return `(•••) •••-${digits.slice(-4)}`;
+};
+
+const fmtMonth = date => new Date(date)
+  .toLocaleDateString("en-US", { month: "short", year: "numeric" });
+
+const Profile = ({ history }) => {
+  const settingsRef = useRef(null);
+
+  const {
+    ready, currentUser, isAdmin, myProfile, school, places, placeCoords, rides, reviews,
+  } = useTracker(() => {
+    const uid = Meteor.userId();
+    const user = Meteor.user();
+    const subs = [
+      // userProfile publishes the caller's own document unprojected, so the
+      // year / major / campus / identityVerified fields this page reads are
+      // actually present. profiles.interacted projects to {Name, Owner}.
+      Meteor.subscribe("userProfile"),
+      Meteor.subscribe("Rides"),
+      Meteor.subscribe("places.mine"),
+    ];
+    if (uid) subs.push(Meteor.subscribe("reviews.forUser", uid));
+    if (user?.schoolId) subs.push(Meteor.subscribe("schools.byId", user.schoolId));
+
+    const coords = {};
+    Places.find({}).forEach((place) => {
+      coords[place._id] = place.value;
+    });
+
+    return {
+      ready: subs.every(s => s.ready()),
+      currentUser: user,
+      isAdmin: user ? isAdminRole(user) : false,
+      myProfile: uid ? Profiles.findOne({ Owner: uid }) : null,
+      school: user?.schoolId ? Schools.findOne(user.schoolId) : null,
+      places: Places.find({}, { sort: { createdAt: -1 } }).fetch(),
+      placeCoords: coords,
+      rides: Rides.find({}).fetch(),
+      reviews: uid ? Reviews.find({ subject: uid }, { sort: { createdAt: -1 } }).fetch() : [],
+    };
+  }, []);
+
+  // Keyed on a string so the dependent subscription only re-runs when the set
+  // of authors actually changes, not on every reactive re-fetch.
+  const authorKey = reviews.map(r => r.author).join(",");
+  const authorIds = useMemo(
+    () => (authorKey ? Array.from(new Set(authorKey.split(","))) : []),
+    [authorKey],
+  );
+
+  const authorName = useTracker(() => {
+    if (authorIds.length === 0) return {};
+    Meteor.subscribe("profiles.displayNames", authorIds);
+    const map = {};
+    Profiles.find({ Owner: { $in: authorIds } }).forEach((p) => {
+      map[p.Owner] = p.Name;
+    });
+    return map;
+  }, [authorIds]);
+
+  const go = path => history.push(path);
+
+  const goSettings = () => {
+    if (settingsRef.current) {
+      settingsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const verifyIdentity = () => {
     const inquiryTemplateId = "itmpl_PygaeTqwQpVeoiAMmVmZzrWwezCN";
@@ -91,106 +253,310 @@ const Profile = ({
     });
   };
 
-  if (!userReady) {
+  if (!ready) {
     return (
       <Page>
-        <Banner><BannerInner><Name>Profile</Name></BannerInner></Banner>
-        <Body><Loading>Loading…</Loading></Body>
+        <Banner>
+          <BannerMap><MapBg /></BannerMap>
+        </Banner>
+        <Inner><Loading>Loading…</Loading></Inner>
       </Page>
     );
   }
 
-  const firstName = currentUser?.profile?.firstName || "";
-  const lastName = currentUser?.profile?.lastName || "";
-  const fullName = `${firstName} ${lastName}`.trim() || "Your profile";
   const email = currentUser?.emails?.[0]?.address || "";
-  const verified = currentUser?.profile?.identityVerified;
+  const accountName = `${currentUser?.profile?.firstName || ""} ${currentUser?.profile?.lastName || ""}`.trim();
+  const fullName = myProfile?.Name || accountName || email.split("@")[0] || "Your profile";
 
-  const statNodes = (
-    <StatStrip>
-      <StatCard>
-        <StatLabel>RIDES</StatLabel>
-        <StatValue $accent="var(--signal-yellow-deep)">{ridesTaken}</StatValue>
-        <StatUnit>completed</StatUnit>
-      </StatCard>
-      <StatCard>
-        <StatLabel>MILES</StatLabel>
-        <StatValue $accent="var(--sky)">{Math.round(milesShared)}</StatValue>
-        <StatUnit>shared</StatUnit>
-      </StatCard>
-      <StatCard>
-        <StatLabel>CO&#8322; SAVED</StatLabel>
-        <StatValue $accent="var(--leaf)">{`${co2AvoidedLb} lb`}</StatValue>
-        <StatUnit>vs. solo</StatUnit>
-      </StatCard>
-    </StatStrip>
-  );
+  const eduVerified = Boolean(myProfile?.schoolemail);
+  const identityVerified = Boolean(myProfile?.identityVerified);
+  const schoolName = school?.shortName || school?.name || "";
+
+  // Stats, all derived from rides this user drove or rode in.
+  const now = new Date();
+  const completed = rides.filter(r => new Date(r.date) < now);
+  const milesShared = completed.reduce((sum, r) => {
+    if (typeof r.distanceMi === "number") return sum + r.distanceMi;
+    const est = estimateRoute(placeCoords[r.origin], placeCoords[r.destination]);
+    return sum + (est ? est.distanceMi : 0);
+  }, 0);
+  const co2AvoidedLb = Math.round(milesShared * CO2_LB_PER_MILE);
+  const streak = weekStreak(completed.map(r => r.date), now);
+  const ratingCount = reviews.length;
+  const ratingAvg = ratingCount === 0
+    ? 0
+    : reviews.reduce((sum, r) => sum + r.stars, 0) / ratingCount;
+
+  const metaItems = [];
+  if (schoolName) {
+    metaItems.push(
+      <MetaItem key="school"><Icon name="school" size={13} />{schoolName}</MetaItem>,
+    );
+  }
+  if (myProfile?.year) metaItems.push(<MetaItem key="year">{myProfile.year}</MetaItem>);
+  if (myProfile?.major) metaItems.push(<MetaItem key="major">{myProfile.major}</MetaItem>);
+  if (myProfile?.campus) {
+    metaItems.push(
+      <MetaItem key="campus"><Icon name="pin" size={13} />{myProfile.campus}</MetaItem>,
+    );
+  }
+
+  const savedPlaces = places.slice(0, MAX_SAVED_PLACES);
+
+  const prefs = [
+    ["Role", ROLE_COPY[myProfile?.UserType]],
+    ["Vehicle", myProfile?.Ride],
+    ["Pickup area", myProfile?.campus],
+    ["Home base", myProfile?.Location],
+  ].filter(([, value]) => Boolean(value));
+
+  let studentIdNote = "not submitted";
+  if (myProfile?.approvedAt) studentIdNote = `approved ${fmtMonth(myProfile.approvedAt)}`;
+  else if (myProfile?.verified) studentIdNote = "approved";
+  else if (myProfile?.requested) studentIdNote = "awaiting review";
+  else if (myProfile?.rejected) studentIdNote = "not approved";
+
+  let identityNote = "verify to drive";
+  if (myProfile?.verifiedAt) identityNote = `verified ${fmtMonth(myProfile.verifiedAt)}`;
+  else if (identityVerified) identityNote = "verified";
 
   const checklist = [
-    [".edu email", Boolean(myProfile?.schoolemail || email), myProfile?.schoolemail || email || "not on file"],
-    ["Student ID", Boolean(myProfile?.verified), myProfile?.verified ? "approved" : "awaiting review"],
-    ["Phone", Boolean(myProfile?.Phone), myProfile?.Phone ? "on file" : "add a number"],
+    [".edu email", eduVerified, myProfile?.schoolemail || "not verified"],
+    ["Student ID", Boolean(myProfile?.verified), studentIdNote],
+    ["Phone", Boolean(myProfile?.Phone), myProfile?.Phone ? maskPhone(myProfile.Phone) : "add a number"],
+    // The app's real document check is Persona, written to the profile by the
+    // webhook; the Verifications collection holds a self-attestation instead.
+    ["Identity", identityVerified, identityNote],
   ];
 
   return (
     <Page>
       <Banner>
-        <BannerInner>
-          <Avatar user={{ name: fullName, hue: 38 }} size={72} ring="var(--signal-yellow)" />
-          <Identity>
-            <Name>{fullName}</Name>
-            {email && <Email>{email}</Email>}
-            {verified && <VerifiedChip>✓ VERIFIED</VerifiedChip>}
-          </Identity>
-        </BannerInner>
+        <BannerMap><MapBg /></BannerMap>
       </Banner>
 
-      <Body>
-        <Section>
-          {statNodes}
-        </Section>
+      <Inner>
+        <Header>
+          <AvatarFrame>
+            <Avatar user={{ name: fullName, hue: hueFor(currentUser?._id) }} size={120} />
+          </AvatarFrame>
 
-        <Section>
-          <SectionTitle>VERIFIED</SectionTitle>
-          <MenuList>
-            {checklist.map(([label, ok, note]) => (
-              <CheckRow key={label}>
-                <CheckMark $ok={ok}>{ok ? "✓" : ""}</CheckMark>
-                <CheckLabel>{label}</CheckLabel>
-                <CheckNote $ok={ok}>{note}</CheckNote>
-              </CheckRow>
-            ))}
-          </MenuList>
-        </Section>
+          <HeaderMain>
+            <NameRow>
+              <Name>{fullName}</Name>
+              {eduVerified ? (
+                <VerifiedChip>
+                  <Icon name="check" size={11} color="#fff" strokeWidth={2.6} />
+                  .edu verified
+                </VerifiedChip>
+              ) : (
+                <VerifyChip type="button" onClick={() => go("/verify")}>
+                  <Icon name="school" size={11} />
+                  Verify .edu
+                </VerifyChip>
+              )}
+            </NameRow>
 
-        <Section>
-          <SectionTitle>ACCOUNT</SectionTitle>
-          <MenuList>
-            {!verified && (
-              <MenuItem type="button" onClick={verifyIdentity}>
-                <MenuItemIcon>🛡️</MenuItemIcon>
-                <MenuItemLabel>Verify identity</MenuItemLabel>
+            {metaItems.length > 0 && (
+              <MetaRow>
+                {metaItems.map((node, i) => (
+                  <React.Fragment key={node.key}>
+                    {i > 0 && <MetaSep>·</MetaSep>}
+                    {node}
+                  </React.Fragment>
+                ))}
+              </MetaRow>
+            )}
+
+            {myProfile?.Other && <Bio>{myProfile.Other}</Bio>}
+          </HeaderMain>
+
+          <HeaderActions>
+            <GhostBtn type="button" onClick={() => go("/edit-profile")}>
+              <Icon name="edit" size={14} />
+              Edit profile
+            </GhostBtn>
+            <PrimaryBtn type="button" onClick={goSettings}>
+              <Icon name="settings" size={14} color="var(--cream-0)" />
+              Settings
+            </PrimaryBtn>
+          </HeaderActions>
+        </Header>
+
+        <StatStrip>
+          <StatCard>
+            <StatLabel>RATING</StatLabel>
+            <StatValue>{ratingCount === 0 ? "—" : ratingAvg.toFixed(1)}</StatValue>
+            <StatUnit>
+              {ratingCount === 0 ? "no reviews yet" : (
+                <>
+                  <StatStar>★</StatStar>
+                  {` from ${ratingCount} rider${ratingCount === 1 ? "" : "s"}`}
+                </>
+              )}
+            </StatUnit>
+          </StatCard>
+          <StatCard>
+            <StatLabel>RIDES</StatLabel>
+            <StatValue>{completed.length}</StatValue>
+            <StatUnit>completed</StatUnit>
+          </StatCard>
+          <StatCard>
+            <StatLabel>MILES</StatLabel>
+            <StatValue>{Math.round(milesShared)}</StatValue>
+            <StatUnit>shared</StatUnit>
+          </StatCard>
+          <StatCard>
+            <StatLabel>CO&#8322; SAVED</StatLabel>
+            <StatValue>{`${co2AvoidedLb} lb`}</StatValue>
+            <StatUnit>vs. solo</StatUnit>
+          </StatCard>
+          <StatCard>
+            <StatLabel>STREAK</StatLabel>
+            <StatValue>{streak}</StatValue>
+            <StatUnit>weeks in a row</StatUnit>
+          </StatCard>
+        </StatStrip>
+
+        <Columns>
+          <Col>
+            <Card>
+              <CardHead>
+                <CardTitle>Saved places</CardTitle>
+                <LinkBtn type="button" onClick={() => go("/places")}>+ Add</LinkBtn>
+              </CardHead>
+              {savedPlaces.length === 0 ? (
+                <Empty>No saved places yet.</Empty>
+              ) : (
+                <PlaceGrid>
+                  {savedPlaces.map((place, i) => {
+                    const mine = place.createdBy === currentUser?._id;
+                    const tint = PLACE_TINTS[i % PLACE_TINTS.length];
+                    return (
+                      <PlaceTile key={place._id}>
+                        <PlaceIcon $tint={tint}>
+                          <Icon name={mine ? "star" : "pin"} size={16} />
+                        </PlaceIcon>
+                        <PlaceText>
+                          <PlaceName>{place.text}</PlaceName>
+                          <PlaceSub>{place.value}</PlaceSub>
+                        </PlaceText>
+                      </PlaceTile>
+                    );
+                  })}
+                </PlaceGrid>
+              )}
+            </Card>
+
+            {reviews.length > 0 && (
+              <Card>
+                <CardTitle>What riders say</CardTitle>
+                <ReviewList>
+                  {reviews.slice(0, MAX_REVIEWS_SHOWN).map((review) => {
+                    const name = authorName[review.author] || "Rider";
+                    return (
+                      <ReviewRow key={review._id}>
+                        <Avatar user={{ name, hue: hueFor(review.author) }} size={36} />
+                        <ReviewBody>
+                          <ReviewHead>
+                            <ReviewName>{name}</ReviewName>
+                            <Stars>
+                              {"★".repeat(review.stars)}
+                              {"☆".repeat(5 - review.stars)}
+                            </Stars>
+                          </ReviewHead>
+                          {review.text && <Quote>{`“${review.text}”`}</Quote>}
+                        </ReviewBody>
+                      </ReviewRow>
+                    );
+                  })}
+                </ReviewList>
+              </Card>
+            )}
+          </Col>
+
+          <Col>
+            <Card>
+              <CardTitle>Ride preferences</CardTitle>
+              {prefs.length === 0 ? (
+                <Empty>Nothing set yet.</Empty>
+              ) : (
+                <PrefList>
+                  {prefs.map(([label, value]) => (
+                    <PrefRow key={label}>
+                      <PrefLabel>{label}</PrefLabel>
+                      <PrefValue>{value}</PrefValue>
+                    </PrefRow>
+                  ))}
+                </PrefList>
+              )}
+              <CardFoot>
+                <LinkBtn type="button" onClick={() => go("/edit-profile")}>
+                  Add more in Edit profile
+                </LinkBtn>
+              </CardFoot>
+            </Card>
+
+            <Card>
+              <CardTitle $tight>Verified</CardTitle>
+              <CheckList>
+                {checklist.map(([label, ok, note]) => (
+                  <CheckRow key={label}>
+                    <CheckMark $ok={ok}>
+                      {ok && <Icon name="check" size={12} color="#fff" strokeWidth={3} />}
+                    </CheckMark>
+                    <CheckLabel>{label}</CheckLabel>
+                    <CheckNote $ok={ok}>{note}</CheckNote>
+                  </CheckRow>
+                ))}
+              </CheckList>
+            </Card>
+          </Col>
+        </Columns>
+
+        <SettingsSection ref={settingsRef}>
+          <Section>
+            <SectionTitle>ACCOUNT</SectionTitle>
+            <MenuList>
+              {!identityVerified && (
+                <MenuItem type="button" onClick={verifyIdentity}>
+                  <MenuItemIcon>🛡️</MenuItemIcon>
+                  <MenuItemLabel>Verify identity</MenuItemLabel>
+                  <MenuArrow>›</MenuArrow>
+                </MenuItem>
+              )}
+              <MenuItem type="button" onClick={() => go("/edit-profile")}>
+                <MenuItemIcon>📝</MenuItemIcon>
+                <MenuItemLabel>Edit profile</MenuItemLabel>
                 <MenuArrow>›</MenuArrow>
               </MenuItem>
-            )}
-            <MenuItem type="button" onClick={() => go("/edit-profile")}>
-              <MenuItemIcon>📝</MenuItemIcon>
-              <MenuItemLabel>Edit profile</MenuItemLabel>
-              <MenuArrow>›</MenuArrow>
-            </MenuItem>
-            <MenuItem type="button" onClick={() => go("/places")}>
-              <MenuItemIcon>📍</MenuItemIcon>
-              <MenuItemLabel>My places</MenuItemLabel>
-              <MenuArrow>›</MenuArrow>
-            </MenuItem>
-          </MenuList>
-        </Section>
+              <MenuItem type="button" onClick={() => go("/places")}>
+                <MenuItemIcon>📍</MenuItemIcon>
+                <MenuItemLabel>My places</MenuItemLabel>
+                <MenuArrow>›</MenuArrow>
+              </MenuItem>
+            </MenuList>
+          </Section>
 
-        {isAdmin && (
+          {isAdmin && (
+            <Section>
+              <SectionTitle>ADMIN</SectionTitle>
+              <MenuList>
+                {ADMIN_LINKS.map(item => (
+                  <MenuItem key={item.path} type="button" onClick={() => go(item.path)}>
+                    <MenuItemIcon>{item.icon}</MenuItemIcon>
+                    <MenuItemLabel>{item.label}</MenuItemLabel>
+                    <MenuArrow>›</MenuArrow>
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Section>
+          )}
+
           <Section>
-            <SectionTitle>ADMIN</SectionTitle>
+            <SectionTitle>LEGAL &amp; INFO</SectionTitle>
             <MenuList>
-              {ADMIN_LINKS.map(item => (
+              {LEGAL_LINKS.map(item => (
                 <MenuItem key={item.path} type="button" onClick={() => go(item.path)}>
                   <MenuItemIcon>{item.icon}</MenuItemIcon>
                   <MenuItemLabel>{item.label}</MenuItemLabel>
@@ -199,91 +565,29 @@ const Profile = ({
               ))}
             </MenuList>
           </Section>
-        )}
 
-        <Section>
-          <SectionTitle>LEGAL &amp; INFO</SectionTitle>
-          <MenuList>
-            {LEGAL_LINKS.map(item => (
-              <MenuItem key={item.path} type="button" onClick={() => go(item.path)}>
-                <MenuItemIcon>{item.icon}</MenuItemIcon>
-                <MenuItemLabel>{item.label}</MenuItemLabel>
+          <Section>
+            <SectionTitle $danger>DANGER ZONE</SectionTitle>
+            <MenuList>
+              <MenuItem type="button" $danger onClick={deleteAccount}>
+                <MenuItemIcon>🗑️</MenuItemIcon>
+                <MenuItemLabel>Delete account</MenuItemLabel>
                 <MenuArrow>›</MenuArrow>
               </MenuItem>
-            ))}
-          </MenuList>
-        </Section>
+            </MenuList>
+          </Section>
 
-        <Section>
-          <SectionTitle $danger>DANGER ZONE</SectionTitle>
-          <MenuList>
-            <MenuItem type="button" $danger onClick={deleteAccount}>
-              <MenuItemIcon>🗑️</MenuItemIcon>
-              <MenuItemLabel>Delete account</MenuItemLabel>
-              <MenuArrow>›</MenuArrow>
-            </MenuItem>
-          </MenuList>
-        </Section>
-
-        <SignOutBtn type="button" onClick={() => go("/signout")}>
-          Sign out
-        </SignOutBtn>
-      </Body>
+          <SignOutBtn type="button" onClick={() => go("/signout")}>
+            Sign out
+          </SignOutBtn>
+        </SettingsSection>
+      </Inner>
     </Page>
   );
 };
 
 Profile.propTypes = {
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
-  currentUser: PropTypes.object,
-  isAdmin: PropTypes.bool,
-  userReady: PropTypes.bool,
-  myProfile: PropTypes.object,
-  ridesTaken: PropTypes.number,
-  milesShared: PropTypes.number,
-  co2AvoidedLb: PropTypes.number,
 };
 
-Profile.defaultProps = {
-  currentUser: null,
-  isAdmin: false,
-  userReady: false,
-  myProfile: null,
-  ridesTaken: 0,
-  milesShared: 0,
-  co2AvoidedLb: 0,
-};
-
-export default withRouter(withTracker(() => {
-  const currentUser = Meteor.user();
-  const userReady = Meteor.userId() !== undefined;
-  const isAdmin = currentUser ? isAdminRole(currentUser) : false;
-
-  Meteor.subscribe("Rides");
-  Meteor.subscribe("places.options");
-  Meteor.subscribe("profiles.interacted");
-
-  const uid = Meteor.userId();
-  const coords = {};
-  Places.find({}).forEach((place) => {
-    coords[place._id] = place.value;
-  });
-
-  const now = new Date();
-  const completed = Rides.find({}).fetch().filter(r => new Date(r.date) < now);
-  const milesShared = completed.reduce((sum, r) => {
-    if (typeof r.distanceMi === "number") return sum + r.distanceMi;
-    const est = estimateRoute(coords[r.origin], coords[r.destination]);
-    return sum + (est ? est.distanceMi : 0);
-  }, 0);
-
-  return {
-    currentUser,
-    isAdmin,
-    userReady,
-    myProfile: uid ? Profiles.findOne({ Owner: uid }) : null,
-    ridesTaken: completed.length,
-    milesShared,
-    co2AvoidedLb: Math.round(milesShared * CO2_LB_PER_MILE),
-  };
-})(Profile));
+export default withRouter(Profile);
