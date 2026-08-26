@@ -7,6 +7,12 @@
     },
     "vapid": {
       "publicKey": "BEl62iUYgUivxIkv69yViEuiBIa40HI0DLLuxazjBF..."
+    },
+    "map": {
+      "tileServerUrl": "https://tileserver.carp.school",
+      "tileStylePath": "/styles/OSM%20OpenMapTiles",
+      "nominatimUrl": "https://nominatim.carp.school",
+      "osrmUrl": "https://osrm.carp.school"
     }
   },
   "private": {
