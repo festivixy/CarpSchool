@@ -815,7 +815,7 @@ class Ride extends React.Component {
 
   joinWithCode = (shareCode) => {
     // Call the join ride method
-    Meteor.call("rides.joinRide", shareCode, (error) => {
+    Meteor.call("rides.joinWithCode", shareCode, (error) => {
       if (error) {
         swal("Error", error.reason || error.message, "error");
       } else {

@@ -24,7 +24,7 @@ export function withMeteorUser(WrappedComponent) {
  */
 export function withProfile(WrappedComponent) {
   const container = withTracker((props) => {
-    const profileSubscription = Meteor.subscribe("profiles.mine");
+    const profileSubscription = Meteor.subscribe("userProfile");
     const profileData = Profiles.findOne({ Owner: Meteor.userId() });
 
     return {

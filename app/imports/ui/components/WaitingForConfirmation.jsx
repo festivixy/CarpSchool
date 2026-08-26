@@ -130,7 +130,7 @@ WaitingForConfirmation.propTypes = {
 };
 
 export default withTracker(() => {
-  const profileSubscription = Meteor.subscribe("profiles.mine");
+  const profileSubscription = Meteor.subscribe("userProfile");
   const profile = Profiles.findOne({ Owner: Meteor.userId() });
 
   return {
