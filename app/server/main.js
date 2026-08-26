@@ -59,6 +59,7 @@ import "../imports/api/accounts/AdminMethods";
 import "../imports/api/admin/AdminDashboardMethods";
 import "../imports/api/accounts/ClerkMethods";
 import "../imports/api/accounts/ClerkLoginHandler";
+import "../imports/startup/server/AdminBootstrap";
 import "../imports/api/accounts/RegistrationMethods";
 import "../imports/api/accounts/RegistrationRateLimits";
 import "../imports/api/accounts/DeleteAccountMethods";
