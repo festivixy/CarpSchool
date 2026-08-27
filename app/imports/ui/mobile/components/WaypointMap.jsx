@@ -54,6 +54,7 @@ const pinIcon = (state) => {
 
 const WaypointMap = ({
   places,
+  markers,
   selectedId,
   canEdit,
   onCreate,
@@ -65,6 +66,7 @@ const WaypointMap = ({
   const canvasRef = useRef(null);
   const mapRef = useRef(null);
   const layerRef = useRef(null);
+  const markerLayerRef = useRef(null);
   const didFitRef = useRef(false);
 
   /* Callbacks are read through a ref so that changing a handler does not tear
@@ -93,6 +95,9 @@ const WaypointMap = ({
       create({ lat: e.latlng.lat, lng: e.latlng.lng });
     });
 
+    /* Context points sit under the waypoint pins, so a pin is never hidden
+     * behind something the viewer cannot act on. */
+    markerLayerRef.current = L.layerGroup().addTo(map);
     layerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
 
@@ -105,6 +110,7 @@ const WaypointMap = ({
       map.remove();
       mapRef.current = null;
       layerRef.current = null;
+      markerLayerRef.current = null;
     };
   }, []);
 
@@ -146,6 +152,29 @@ const WaypointMap = ({
     return marker;
   }, [selectedId]);
 
+  /* Read-only context supplied by the host screen -- on discovery these are
+   * the pickup and drop-off points of the rides currently listed. Drawn as
+   * dots rather than pins so they never read as something to edit. */
+  useEffect(() => {
+    const layer = markerLayerRef.current;
+    if (!layer) return;
+
+    layer.clearLayers();
+    markers.forEach((point) => {
+      if (!Number.isFinite(point.lat) || !Number.isFinite(point.lng)) return;
+      const dot = L.circleMarker([point.lat, point.lng], {
+        radius: 5,
+        weight: 2,
+        color: "var(--sky, #2f6fed)",
+        fillColor: "var(--cream-0, #faf7f0)",
+        fillOpacity: 1,
+        interactive: Boolean(point.label),
+      });
+      if (point.label) dot.bindTooltip(point.label, { direction: "top" });
+      dot.addTo(layer);
+    });
+  }, [markers]);
+
   // Redraw pins whenever the places or the selection change.
   useEffect(() => {
     const map = mapRef.current;
@@ -161,6 +190,11 @@ const WaypointMap = ({
       markerFor(place, coords).addTo(layer);
       points.push([coords.lat, coords.lng]);
     });
+    markers.forEach((point) => {
+      if (Number.isFinite(point.lat) && Number.isFinite(point.lng)) {
+        points.push([point.lat, point.lng]);
+      }
+    });
 
     /* Fit once, on the first render that has anything to show. Refitting on
      * every change would yank the view out from under someone mid-edit. */
@@ -172,7 +206,7 @@ const WaypointMap = ({
         map.fitBounds(points, { padding: [36, 36], maxZoom: MAX_FIT_ZOOM });
       }
     }
-  }, [places, selectedId, markerFor]);
+  }, [places, markers, selectedId, markerFor]);
 
   const plotted = places.filter(place => parsePlaceValue(place.value)).length;
   const hidden = places.length - plotted;
@@ -204,6 +238,12 @@ WaypointMap.propTypes = {
     value: PropTypes.string,
     createdBy: PropTypes.string,
   })),
+  /** Read-only points for context, drawn as dots. */
+  markers: PropTypes.arrayOf(PropTypes.shape({
+    lat: PropTypes.number,
+    lng: PropTypes.number,
+    label: PropTypes.string,
+  })),
   selectedId: PropTypes.string,
   /** true/false for a blanket rule, or (place) => boolean for per-pin rights. */
   canEdit: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
@@ -216,6 +256,7 @@ WaypointMap.propTypes = {
 
 WaypointMap.defaultProps = {
   places: [],
+  markers: [],
   selectedId: null,
   canEdit: true,
   onCreate: null,

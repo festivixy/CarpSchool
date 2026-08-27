@@ -3,9 +3,12 @@ import { Meteor } from "meteor/meteor";
 import { useTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
+import swal from "sweetalert";
 import { Profiles } from "../../../api/profile/Profile";
+import { Places } from "../../../api/places/Places";
 import Icon from "../../components/Icon";
-import MapView from "../../components/MapView";
+import WaypointMap from "../components/WaypointMap";
+import { formatPlaceValue, canEditPlace } from "../../utils/placeCoords";
 import RideCard from "../../components/RideCard";
 import {
   Screen,
@@ -134,6 +137,15 @@ const Marketplace = ({ history }) => {
     [allRides],
   );
 
+  /* Waypoints are edited straight from this map, so the page needs the
+   * school's places as well as the rides. */
+  const { myPlaces } = useTracker(() => {
+    const sub = Meteor.subscribe("places.options");
+    return {
+      myPlaces: sub.ready() ? Places.find({}, { sort: { text: 1 } }).fetch() : [],
+    };
+  }, []);
+
   const { driverById } = useTracker(() => {
     if (driverIds.length === 0) return { driverById: {} };
     Meteor.subscribe("profiles.displayNames", driverIds);
@@ -195,8 +207,8 @@ const Marketplace = ({ history }) => {
   }, [filtered, selectedId]);
 
   // Every point each filtered ride calls at -- endpoints and any stops along
-  // the way -- plus the viewer's own fix once they ask for it. MapView fits
-  // its bounds to this set.
+  // the way -- plus the viewer's own fix once they ask for it. The map fits
+  // its bounds to these and to the waypoints drawn over them.
   const mapPoints = useMemo(() => {
     const points = filtered.flatMap(r => [
       parseCoord(r.originCoords, `${originOf(r)} — ${fmtTime(r.date)}`),
@@ -205,6 +217,64 @@ const Marketplace = ({ history }) => {
     ]).filter(Boolean);
     return myPosition ? [myPosition, ...points] : points;
   }, [filtered, myPosition]);
+
+  /* Name is asked for up front: a waypoint with no name is useless in the
+   * origin and destination pickers, which is where these end up. */
+  const addWaypointAt = useCallback((coords) => {
+    swal({
+      title: "New waypoint",
+      text: "What should this place be called?",
+      content: { element: "input", attributes: { placeholder: "e.g. Cedar Ave & 4th" } },
+      buttons: { cancel: "Cancel", confirm: { text: "Add" } },
+    }).then((name) => {
+      const trimmed = (name || "").trim();
+      if (!trimmed) return;
+      Meteor.call(
+        "places.insert",
+        { text: trimmed, value: formatPlaceValue(coords.lat, coords.lng) },
+        (err) => {
+          if (err) swal("Could not add waypoint", err.reason || err.message, "error");
+        },
+      );
+    });
+  }, []);
+
+  const editWaypoint = useCallback((place) => {
+    swal({
+      title: place.text,
+      text: "Rename this waypoint, or remove it.",
+      content: { element: "input", attributes: { value: place.text } },
+      buttons: {
+        cancel: "Cancel",
+        remove: { text: "Remove", className: "swal-button--danger", value: "remove" },
+        confirm: { text: "Save" },
+      },
+    }).then((result) => {
+      if (!result) return;
+      if (result === "remove") {
+        Meteor.call("places.remove", place._id, (err) => {
+          if (err) swal("Could not remove", err.reason || err.message, "error");
+        });
+        return;
+      }
+      const trimmed = String(result).trim();
+      if (!trimmed || trimmed === place.text) return;
+      Meteor.call("places.update", place._id, { text: trimmed }, (err) => {
+        if (err) swal("Could not rename", err.reason || err.message, "error");
+      });
+    });
+  }, []);
+
+  const moveWaypoint = useCallback((place, coords) => {
+    Meteor.call(
+      "places.update",
+      place._id,
+      { value: formatPlaceValue(coords.lat, coords.lng) },
+      (err) => {
+        if (err) swal("Could not move", err.reason || err.message, "error");
+      },
+    );
+  }, []);
 
   const locateMe = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -276,7 +346,15 @@ const Marketplace = ({ history }) => {
       <MapPane>
         {/* Real Leaflet map. Markers are the actual pickup/drop-off places of
             the rides currently in the list, so the map reflects the query. */}
-        <MapView coordinates={mapPoints} />
+        <WaypointMap
+          places={myPlaces}
+          markers={mapPoints}
+          canEdit={place => canEditPlace(place, Meteor.userId())}
+          onCreate={addWaypointAt}
+          onSelect={editWaypoint}
+          onMove={moveWaypoint}
+          height={520}
+        />
 
         <SearchPanel className="fade-in">
           <RouteRow>
