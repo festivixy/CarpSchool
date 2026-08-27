@@ -5,6 +5,8 @@ import { withTracker } from "meteor/react-meteor-data";
 import swal from "sweetalert";
 import { Places } from "../../../api/places/Places";
 import InteractiveMapPicker from "./InteractiveMapPicker";
+import WaypointMap from "./WaypointMap";
+import { formatPlaceValue, canEditPlace } from "../../utils/placeCoords";
 import { PlaceManagerSkeleton } from "../../skeleton";
 import { SkeletonPulse } from "../../skeleton/styles/PlaceManagerSkeleton";
 import {
@@ -105,6 +107,35 @@ class PlaceManager extends React.Component {
       formData: { text: "", value: "" },
       errors: {},
     });
+  };
+
+  /* Map click: open the usual add form with the clicked point already filled
+   * in, so the only thing left to supply is the name. */
+  openAddModalAt = (coords) => {
+    this.setState({
+      modalOpen: true,
+      editingPlace: null,
+      formData: { text: "", value: formatPlaceValue(coords.lat, coords.lng) },
+      errors: {},
+      selectedCoordinates: coords,
+      showMapPicker: false,
+    });
+  };
+
+  /* Drag a pin: persist the new position straight away. Only pins the viewer
+   * may edit are draggable, so this should not be refused server-side, but the
+   * error is surfaced rather than swallowed if it is. */
+  handleWaypointMove = (place, coords) => {
+    Meteor.call(
+      "places.update",
+      place._id,
+      { value: formatPlaceValue(coords.lat, coords.lng) },
+      (error) => {
+        if (error) {
+          swal("Error", error.reason || "Could not move that waypoint", "error");
+        }
+      },
+    );
   };
 
   openEditModal = (place) => {
@@ -283,6 +314,14 @@ class PlaceManager extends React.Component {
         </Header>
 
         <Content>
+          <WaypointMap
+            places={places}
+            canEdit={place => canEditPlace(place, Meteor.userId())}
+            onCreate={this.openAddModalAt}
+            onSelect={this.openEditModal}
+            onMove={this.handleWaypointMove}
+          />
+
           {places.length === 0 ? (
             <EmptyState>
               <EmptyStateIcon>📍</EmptyStateIcon>

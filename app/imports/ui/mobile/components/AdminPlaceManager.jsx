@@ -5,6 +5,8 @@ import { withTracker } from "meteor/react-meteor-data";
 import swal from "sweetalert";
 import { Places } from "../../../api/places/Places";
 import InteractiveMapPicker from "./InteractiveMapPicker";
+import WaypointMap from "./WaypointMap";
+import { formatPlaceValue } from "../../utils/placeCoords";
 import {
   Container,
   Header,
@@ -101,6 +103,35 @@ class AdminPlaceManager extends React.Component {
       formData: { text: "", value: "" },
       errors: {},
     });
+  };
+
+  /* Map click: open the usual add form with the clicked point already filled
+   * in, so the only thing left to supply is the name. */
+  openAddModalAt = (coords) => {
+    this.setState({
+      modalOpen: true,
+      editingPlace: null,
+      formData: { text: "", value: formatPlaceValue(coords.lat, coords.lng) },
+      errors: {},
+      selectedCoordinates: coords,
+      showMapPicker: false,
+    });
+  };
+
+  /* Drag a pin: persist the new position straight away. Only pins the viewer
+   * may edit are draggable, so this should not be refused server-side, but the
+   * error is surfaced rather than swallowed if it is. */
+  handleWaypointMove = (place, coords) => {
+    Meteor.call(
+      "places.update",
+      place._id,
+      { value: formatPlaceValue(coords.lat, coords.lng) },
+      (error) => {
+        if (error) {
+          swal("Error", error.reason || "Could not move that waypoint", "error");
+        }
+      },
+    );
   };
 
   openEditModal = (place) => {
@@ -322,6 +353,15 @@ class AdminPlaceManager extends React.Component {
         </Header>
 
         <Content>
+          {/* Shows the filtered set, so map and list always agree. */}
+          <WaypointMap
+            places={filteredPlaces}
+            canEdit
+            onCreate={this.openAddModalAt}
+            onSelect={this.openEditModal}
+            onMove={this.handleWaypointMove}
+          />
+
           <SearchContainer>
             <SearchIcon>🔍</SearchIcon>
             <SearchInput
