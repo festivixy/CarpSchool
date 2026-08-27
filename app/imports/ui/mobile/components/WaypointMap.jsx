@@ -61,6 +61,7 @@ const WaypointMap = ({
   onSelect,
   onMove,
   height,
+  fill,
   readOnlyNote,
 }) => {
   const canvasRef = useRef(null);
@@ -105,8 +106,18 @@ const WaypointMap = ({
      * still sizing), and Leaflet caches the size it saw at init. */
     const settle = setTimeout(() => map.invalidateSize(), 0);
 
+    /* A filling map also changes size whenever its pane does -- window
+     * resizes, the list column reflowing -- and Leaflet does not notice on
+     * its own, leaving grey where tiles should be. */
+    let observer = null;
+    if (typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => map.invalidateSize());
+      observer.observe(canvasRef.current);
+    }
+
     return () => {
       clearTimeout(settle);
+      if (observer) observer.disconnect();
       map.remove();
       mapRef.current = null;
       layerRef.current = null;
@@ -212,7 +223,7 @@ const WaypointMap = ({
   const hidden = places.length - plotted;
 
   return (
-    <MapShell>
+    <MapShell $fill={fill}>
       <Bar>
         <BarHint>
           <Count>{plotted}</Count>
@@ -223,7 +234,7 @@ const WaypointMap = ({
           {canEdit ? "Click the map to add · click a pin to edit" : readOnlyNote}
         </BarHint>
       </Bar>
-      <MapCanvas ref={canvasRef} $height={height} />
+      <MapCanvas ref={canvasRef} $height={height} $fill={fill} />
       {plotted === 0 && canEdit && (
         <EmptyNote>Click anywhere on the map to add your first waypoint</EmptyNote>
       )}
@@ -251,6 +262,8 @@ WaypointMap.propTypes = {
   onSelect: PropTypes.func,
   onMove: PropTypes.func,
   height: PropTypes.number,
+  /** Fill the containing element instead of using a fixed height. */
+  fill: PropTypes.bool,
   readOnlyNote: PropTypes.string,
 };
 
@@ -263,6 +276,7 @@ WaypointMap.defaultProps = {
   onSelect: null,
   onMove: null,
   height: 340,
+  fill: false,
   readOnlyNote: "Read only",
 };
 

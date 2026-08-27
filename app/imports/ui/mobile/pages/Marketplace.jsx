@@ -353,7 +353,7 @@ const Marketplace = ({ history }) => {
           onCreate={addWaypointAt}
           onSelect={editWaypoint}
           onMove={moveWaypoint}
-          height={520}
+          fill
         />
 
         <SearchPanel className="fade-in">

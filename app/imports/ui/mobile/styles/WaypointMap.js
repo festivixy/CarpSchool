@@ -1,11 +1,24 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 export const MapShell = styled.div`
   position: relative;
-  border-radius: var(--r-lg, 14px);
   overflow: hidden;
   background: var(--cream-1, #f0ece3);
-  border: 1px solid var(--cream-3, #ddd6c8);
+
+  /* $fill: take the height of whatever contains it, and drop the card framing,
+   * for hosts like discovery whose pane is already a definite full-height box.
+   * Without this the map keeps its own fixed height and leaves the rest of the
+   * pane blank. */
+  ${props => (props.$fill
+    ? css`
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      `
+    : css`
+        border-radius: var(--r-lg, 14px);
+        border: 1px solid var(--cream-3, #ddd6c8);
+      `)}
 `;
 
 /*
@@ -14,15 +27,29 @@ export const MapShell = styled.div`
  * the other way round, so the height is set explicitly.
  */
 export const MapCanvas = styled.div`
+  position: relative;
   width: 100%;
-  height: ${props => props.$height || 340}px;
+
+  ${props => (props.$fill
+    ? css`
+        flex: 1;
+        min-height: 0;
+      `
+    : css`
+        height: ${props.$height || 340}px;
+      `)}
 
   /* Leaflet's own panes sit at z-index 400-800 and would otherwise paint over
    * the page's navigation. */
   z-index: 0;
   isolation: isolate;
 
+  /* Absolute, not height:100%. When this box takes its height from a flex
+   * parent its computed height can still read as auto, against which a
+   * percentage height resolves to zero and collapses the map. */
   .leaflet-container {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     background: var(--cream-1, #f0ece3);
