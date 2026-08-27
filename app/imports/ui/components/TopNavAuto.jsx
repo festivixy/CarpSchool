@@ -46,18 +46,8 @@ const NAV_TARGETS = {
   places: "/places",
   history: "/ride-history/me",
   admin: "/admin/overview",
-  // Admin-area destinations that are not sections of the admin panel itself.
-  schoolManagement: "/admin/school-management",
   site: "/",
 };
-
-/* The pill mirrors the admin panel's own sections, so these two extras ride in
- * the account menu. School settings is not one of the panel's sections, but
- * dropping the legacy NavBar would otherwise leave desktop admins no route to
- * it at all. */
-const ADMIN_EXTRA_MENU = [
-  { id: "schoolManagement", label: "School settings", icon: "school" },
-];
 
 const MENU_BASE = [
   { id: "profile", label: "My profile", icon: "user" },
@@ -138,7 +128,6 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
      * side nav -- both read the one list. */
     const sections = adminNavFor(isSystemRole(currentUser));
     const adminMenu = [
-      ...ADMIN_EXTRA_MENU,
       { id: "site", label: "Back to site", icon: "home" },
       { id: "signOut", label: "Sign out", icon: "arrow", danger: true },
     ];

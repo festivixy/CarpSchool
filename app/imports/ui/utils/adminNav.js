@@ -31,6 +31,12 @@ export const ADMIN_NAV_ITEMS = [
   },
   { id: "places", label: "Places", icon: "pin", path: "/admin/places", countKey: "places" },
   {
+    id: "schoolSettings",
+    label: "School settings",
+    icon: "edit",
+    path: "/admin/school-management",
+  },
+  {
     id: "schools",
     label: "Schools",
     icon: "school",
