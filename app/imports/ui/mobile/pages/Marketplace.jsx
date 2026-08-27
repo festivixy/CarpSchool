@@ -172,11 +172,13 @@ const Marketplace = ({ history }) => {
     if (!filtered.some(r => r._id === selectedId)) setSelectedId(filtered[0]._id);
   }, [filtered, selectedId]);
 
-  // Endpoints of every filtered ride, plus the viewer's own fix once they ask
-  // for it. MapView fits its bounds to this set.
+  // Every point each filtered ride calls at -- endpoints and any stops along
+  // the way -- plus the viewer's own fix once they ask for it. MapView fits
+  // its bounds to this set.
   const mapPoints = useMemo(() => {
     const points = filtered.flatMap(r => [
       parseCoord(r.originCoords, `${originOf(r)} — ${fmtTime(r.date)}`),
+      ...(r.waypointStops || []).map(stop => parseCoord(stop.value, `${stop.text} (stop)`)),
       parseCoord(r.destinationCoords, destinationOf(r)),
     ]).filter(Boolean);
     return myPosition ? [myPosition, ...points] : points;

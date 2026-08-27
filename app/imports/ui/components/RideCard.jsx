@@ -22,6 +22,7 @@ import {
   RequestBtn,
   DriverMeta,
   RouteMeta,
+  ViaLine,
 } from "../styles/RideCard";
 
 const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -68,6 +69,18 @@ const RideCard = ({ ride, driverName, driverYear, driverDept, compact, active, o
   const name = driverName || "Driver";
   const driverUser = { name, hue: hueFor(ride.driver || name) };
   const subLine = [driverYear, driverDept].filter(Boolean).join(" · ");
+  /* Stops the ride passes through. Named while there is room, then counted,
+   * so a long route does not push the card's route column out of shape. */
+  const stops = Array.isArray(ride.waypointStops) ? ride.waypointStops : [];
+  let via = null;
+  if (stops.length === 1) {
+    via = `via ${stops[0].text}`;
+  } else if (stops.length === 2) {
+    via = `via ${stops[0].text} · ${stops[1].text}`;
+  } else if (stops.length > 2) {
+    via = `via ${stops[0].text} +${stops.length - 1} more`;
+  }
+
   const routeMeta = [formatDuration(ride.durationMin), formatDistance(ride.distanceMi)]
     .filter(Boolean)
     .join(" · ");
@@ -109,6 +122,7 @@ const RideCard = ({ ride, driverName, driverYear, driverDept, compact, active, o
             <Icon name="arrowDown" size={13} />
             <Place as="span" $compact={compact}>{to}</Place>
           </ToRow>
+          {via ? <ViaLine title={stops.map(s => s.text).join(" · ")}>{via}</ViaLine> : null}
         </RouteCol>
         {hasFare ? (
           <Fare>
@@ -152,6 +166,10 @@ RideCard.propTypes = {
     destination: PropTypes.string,
     originText: PropTypes.string,
     destinationText: PropTypes.string,
+    waypointStops: PropTypes.arrayOf(PropTypes.shape({
+      _id: PropTypes.string,
+      text: PropTypes.string,
+    })),
     date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
     seats: PropTypes.number,
     riders: PropTypes.arrayOf(PropTypes.string),

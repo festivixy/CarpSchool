@@ -154,6 +154,16 @@ export const DriverMeta = styled.div`
   text-overflow: ellipsis;
 `;
 
+export const ViaLine = styled.div`
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--ink-3, #8a857c);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
 export const RouteMeta = styled.div`
   font-family: var(--font-mono);
   font-size: 11px;

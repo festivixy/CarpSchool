@@ -232,6 +232,11 @@ const MobileMyRides = ({ history }) => {
       ...r,
       originText: placeName[r.origin],
       destinationText: placeName[r.destination],
+      /* Resolved locally, in the driver's order, so these cards can show the
+       * stops the same way the discovery feed's do. */
+      waypointStops: (r.waypoints || [])
+        .filter(id => placeName[id])
+        .map(id => ({ _id: id, text: placeName[id], value: placeCoords[id] })),
       distanceMi: r.distanceMi ?? fallback?.distanceMi,
       durationMin: r.durationMin ?? fallback?.durationMin,
     };

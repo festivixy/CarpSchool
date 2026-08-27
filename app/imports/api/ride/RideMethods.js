@@ -519,7 +519,11 @@ Meteor.methods({
     // Resolve place names so the discovery UI can show human-readable labels.
     const placeIds = [
       ...new Set(
-        rides.flatMap(ride => [ride.origin, ride.destination]).filter(Boolean),
+        rides.flatMap(ride => [
+          ride.origin,
+          ride.destination,
+          ...(Array.isArray(ride.waypoints) ? ride.waypoints : []),
+        ]).filter(Boolean),
       ),
     ];
     const { Places } = await import("../places/Places");
@@ -548,6 +552,12 @@ Meteor.methods({
         // instead of decorative pins.
         originCoords: coordsById[ride.origin] || null,
         destinationCoords: coordsById[ride.destination] || null,
+        /* Stops in the driver's order, so a card can say what a ride passes
+         * and the discovery map can plot them. Stops whose place has since
+         * been deleted are dropped rather than shown unnamed. */
+        waypointStops: (Array.isArray(ride.waypoints) ? ride.waypoints : [])
+          .filter(id => nameById[id])
+          .map(id => ({ _id: id, text: nameById[id], value: coordsById[id] })),
         distanceMi: ride.distanceMi ?? fallback?.distanceMi,
         durationMin: ride.durationMin ?? fallback?.durationMin,
         routeEstimated: ride.routeEstimated ?? (fallback ? true : undefined),
