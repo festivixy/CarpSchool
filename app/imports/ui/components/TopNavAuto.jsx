@@ -7,17 +7,25 @@ import { useAuth } from "@clerk/clerk-react";
 import { Profiles } from "../../api/profile/Profile";
 import TopNav from "./TopNav";
 import NavBar from "../desktop/components/NavBar";
+import { isSystemRole } from "../desktop/components/NavBarRoleUtils";
 import { NavSpacer } from "../styles/TopNav";
 
 /**
  * Chooses the desktop navigation for the current route.
  *
  * The design handoff specifies the floating TopNav pill on every
- * customer-facing screen. Admin, system and test routes keep the legacy
- * NavBar, which carries the role menus and auth actions TopNav has no slot
- * for. Signed-out visitors also keep NavBar for its sign in / sign up links.
+ * customer-facing screen. The admin area uses it too, carrying the admin
+ * sections as its nav items -- the handoff never covered admin, and leaving
+ * it on the legacy NavBar made the portal read as a different product.
+ *
+ * Test routes keep the legacy NavBar, as do signed-out visitors, who need
+ * its sign in / sign up links.
  */
-const LEGACY_NAV_PREFIXES = ["/admin", "/system", "/_test"];
+const LEGACY_NAV_PREFIXES = ["/_test"];
+
+/* No admin page carries its own navigation, so whatever the nav offers here
+ * is the only way to move between admin sections. */
+const ADMIN_PREFIXES = ["/admin", "/system"];
 
 /* Screens whose content runs full-bleed under the nav (a map fills the
  * viewport). They must not get the spacer, or the map is pushed down and the
@@ -37,6 +45,51 @@ const NAV_TARGETS = {
   places: "/places",
   history: "/ride-history/me",
   admin: "/admin/overview",
+  // Admin area. Split between the nav pill and the account menu below.
+  adminOverview: "/admin/overview",
+  adminRides: "/admin/rides",
+  adminUsers: "/admin/users",
+  adminPlaces: "/admin/places",
+  adminPending: "/admin/pending-users",
+  adminSchoolManagement: "/admin/school-management",
+  adminErrors: "/admin/error-reports",
+  systemSchools: "/admin/schools",
+  systemAdmin: "/system",
+  site: "/",
+};
+
+/* The pill fits four items at the design's density, so the busiest sections
+ * ride there and the rest live in the account menu. */
+const ADMIN_ITEMS = [
+  { id: "adminOverview", label: "Overview" },
+  { id: "adminRides", label: "Rides" },
+  { id: "adminUsers", label: "Users" },
+  { id: "adminPlaces", label: "Places" },
+];
+
+const ADMIN_MENU = [
+  { id: "adminPending", label: "Pending users", icon: "user" },
+  { id: "adminSchoolManagement", label: "School management", icon: "school" },
+  { id: "adminErrors", label: "Error reports", icon: "bell" },
+];
+
+/* System-role destinations, matching the legacy NavBar's System menu. */
+const SYSTEM_MENU = [
+  { id: "systemSchools", label: "All schools", icon: "school" },
+  { id: "systemAdmin", label: "System admin", icon: "settings" },
+];
+
+/* Longest prefix wins: /admin/pending-users must not match /admin/users. */
+const ADMIN_ACTIVE_BY_PREFIX = [
+  ["/admin/overview", "adminOverview"],
+  ["/admin/rides", "adminRides"],
+  ["/admin/users", "adminUsers"],
+  ["/admin/places", "adminPlaces"],
+];
+
+const adminActiveFor = (pathname) => {
+  const hit = ADMIN_ACTIVE_BY_PREFIX.find(([prefix]) => pathname.startsWith(prefix));
+  return hit ? hit[1] : "";
 };
 
 const MENU_BASE = [
@@ -82,6 +135,7 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
   const { isSignedIn, signOut } = useAuth();
   const pathname = location?.pathname || "/";
   const isLegacyRoute = LEGACY_NAV_PREFIXES.some(p => pathname.startsWith(p));
+  const isAdminArea = ADMIN_PREFIXES.some(p => pathname.startsWith(p));
 
   if (isLegacyRoute || !isSignedIn) {
     return <NavBar />;
@@ -111,6 +165,30 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
     }
     history.push(NAV_TARGETS[id] || "/");
   };
+
+  if (isAdminArea) {
+    const adminMenu = [
+      ...ADMIN_MENU,
+      ...(isSystemRole(currentUser) ? SYSTEM_MENU : []),
+      { id: "site", label: "Back to site", icon: "home" },
+      { id: "signOut", label: "Sign out", icon: "arrow", danger: true },
+    ];
+
+    return (
+      <>
+        <TopNav
+          active={adminActiveFor(pathname)}
+          items={ADMIN_ITEMS}
+          user={avatarUserFrom(currentUser)}
+          onNav={id => history.push(NAV_TARGETS[id] || "/")}
+          showOffer={false}
+          menuItems={adminMenu}
+          onMenuSelect={handleMenuSelect}
+        />
+        <NavSpacer />
+      </>
+    );
+  }
 
   return (
     <>
