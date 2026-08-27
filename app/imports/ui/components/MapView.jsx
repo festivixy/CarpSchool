@@ -1,14 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { Map, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapContainer } from "../styles/MapView";
-import { AsyncTileLayer } from "../utils/AsyncTileLayer";
 import { getTileUrlTemplate } from "../utils/mapConfig";
 
 /**
  * MapView component that displays an interactive Leaflet map with coordinate points
- * Uses AsyncTileLayer for non-blocking tile loading to improve performance
  * Takes coordinates array as input to display multiple points on the map
  * Optional tileServerUrl prop for self-hosted OpenMapTiles server
  */
@@ -91,13 +90,13 @@ export default function MapView({ coordinates, tileServerUrl }) {
         const map = mapRef.current.leafletElement;
 
         // Create and add async tile layer
-        const asyncTileLayer = new AsyncTileLayer(getTileUrl(), {
+        const tileLayer = L.tileLayer(getTileUrl(), {
           attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
           maxZoom: 18,
           tileSize: 256,
         });
 
-        asyncTileLayer.addTo(map);
+        tileLayer.addTo(map);
 
         // Fit bounds to show all coordinates
         if (coordinates && coordinates.length > 1) {
@@ -122,8 +121,8 @@ export default function MapView({ coordinates, tileServerUrl }) {
         // Cleanup on unmount
         return () => {
           try {
-            if (map && map.hasLayer && map.hasLayer(asyncTileLayer)) {
-              map.removeLayer(asyncTileLayer);
+            if (map && map.hasLayer && map.hasLayer(tileLayer)) {
+              map.removeLayer(tileLayer);
             }
           } catch (cleanupError) {
             console.warn("Error during map cleanup:", cleanupError);
@@ -150,7 +149,7 @@ export default function MapView({ coordinates, tileServerUrl }) {
         zoomControl={true}
         scrollWheelZoom={true}
       >
-        {/* AsyncTileLayer is added programmatically in useEffect */}
+        {/* Tile layer is added programmatically in useEffect */}
 
         {coordinates &&
           coordinates.map((coord, index) => (

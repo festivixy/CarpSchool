@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState, useMemo, useCallback } from "react"
 import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { AsyncTileLayer } from "../../utils/AsyncTileLayer";
 import { getTileUrlTemplate } from "../../utils/mapConfig";
 import {
   MapContainer,
@@ -36,7 +35,6 @@ L.Icon.Default.mergeOptions({
 
 /**
  * Interactive map picker component that allows users to click on a map to select coordinates
- * Uses AsyncTileLayer with the tileserver proxy for non-blocking tile loading
  * Optimized with React.memo and useMemo for better performance
  */
 const InteractiveMapPicker = React.memo(({
@@ -113,12 +111,12 @@ const InteractiveMapPicker = React.memo(({
     });
 
     // Add async tile layer using our tileserver for better performance
-    const asyncTileLayer = new AsyncTileLayer(tileUrl, {
+    const tileLayer = L.tileLayer(tileUrl, {
       attribution: "© OpenStreetMap contributors",
       maxZoom: 18,
       tileSize: 256,
     });
-    asyncTileLayer.addTo(map);
+    tileLayer.addTo(map);
 
     // Add initial marker
     const marker = L.marker([currentLocation.lat, currentLocation.lng], {

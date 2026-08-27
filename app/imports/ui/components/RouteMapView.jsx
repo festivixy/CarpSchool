@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { AsyncTileLayer } from "../utils/AsyncTileLayer";
 import { getTileUrlTemplate } from "../utils/mapConfig";
 import {
   RouteMapContainer,
@@ -201,12 +200,12 @@ const RouteMapView = ({
     });
 
     // Add async tile layer
-    const asyncTileLayer = new AsyncTileLayer(getTileUrl(), {
+    const tileLayer = L.tileLayer(getTileUrl(), {
       attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
       maxZoom: 18,
       tileSize: 256,
     });
-    asyncTileLayer.addTo(map);
+    tileLayer.addTo(map);
 
     mapInstanceRef.current = map;
 
