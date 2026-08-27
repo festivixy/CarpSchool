@@ -20,10 +20,15 @@ export const Bar = styled.nav`
       `)}
 `;
 
-export const Brand = styled.div`
+export const Brand = styled.button`
   display: flex;
   align-items: center;
   padding: 4px 12px 4px 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-family: var(--font-ui);
 `;
 
 export const Divider = styled.span`

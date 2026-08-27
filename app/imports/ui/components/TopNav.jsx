@@ -61,7 +61,11 @@ const TopNav = ({
 
   return (
     <Bar $glass={glass}>
-      <Brand>
+      <Brand
+        type="button"
+        aria-label="carp.school home"
+        onClick={() => onNav && onNav("home")}
+      >
         <Logo size={22} />
       </Brand>
       <Divider />

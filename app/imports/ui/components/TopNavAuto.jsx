@@ -8,6 +8,7 @@ import { Profiles } from "../../api/profile/Profile";
 import TopNav from "./TopNav";
 import NavBar from "../desktop/components/NavBar";
 import { isSystemRole } from "../desktop/components/NavBarRoleUtils";
+import { adminNavFor, adminPathFor, adminSectionFor } from "../utils/adminNav";
 import { NavSpacer } from "../styles/TopNav";
 
 /**
@@ -45,52 +46,18 @@ const NAV_TARGETS = {
   places: "/places",
   history: "/ride-history/me",
   admin: "/admin/overview",
-  // Admin area. Split between the nav pill and the account menu below.
-  adminOverview: "/admin/overview",
-  adminRides: "/admin/rides",
-  adminUsers: "/admin/users",
-  adminPlaces: "/admin/places",
-  adminPending: "/admin/pending-users",
-  adminSchoolManagement: "/admin/school-management",
-  adminErrors: "/admin/error-reports",
-  systemSchools: "/admin/schools",
-  systemAdmin: "/system",
+  // Admin-area destinations that are not sections of the admin panel itself.
+  schoolManagement: "/admin/school-management",
   site: "/",
 };
 
-/* The pill fits four items at the design's density, so the busiest sections
- * ride there and the rest live in the account menu. */
-const ADMIN_ITEMS = [
-  { id: "adminOverview", label: "Overview" },
-  { id: "adminRides", label: "Rides" },
-  { id: "adminUsers", label: "Users" },
-  { id: "adminPlaces", label: "Places" },
+/* The pill mirrors the admin panel's own sections, so these two extras ride in
+ * the account menu. School settings is not one of the panel's sections, but
+ * dropping the legacy NavBar would otherwise leave desktop admins no route to
+ * it at all. */
+const ADMIN_EXTRA_MENU = [
+  { id: "schoolManagement", label: "School settings", icon: "school" },
 ];
-
-const ADMIN_MENU = [
-  { id: "adminPending", label: "Pending users", icon: "user" },
-  { id: "adminSchoolManagement", label: "School management", icon: "school" },
-  { id: "adminErrors", label: "Error reports", icon: "bell" },
-];
-
-/* System-role destinations, matching the legacy NavBar's System menu. */
-const SYSTEM_MENU = [
-  { id: "systemSchools", label: "All schools", icon: "school" },
-  { id: "systemAdmin", label: "System admin", icon: "settings" },
-];
-
-/* Longest prefix wins: /admin/pending-users must not match /admin/users. */
-const ADMIN_ACTIVE_BY_PREFIX = [
-  ["/admin/overview", "adminOverview"],
-  ["/admin/rides", "adminRides"],
-  ["/admin/users", "adminUsers"],
-  ["/admin/places", "adminPlaces"],
-];
-
-const adminActiveFor = (pathname) => {
-  const hit = ADMIN_ACTIVE_BY_PREFIX.find(([prefix]) => pathname.startsWith(prefix));
-  return hit ? hit[1] : "";
-};
 
 const MENU_BASE = [
   { id: "profile", label: "My profile", icon: "user" },
@@ -167,9 +134,11 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
   };
 
   if (isAdminArea) {
+    /* Same sections, same order, same role filtering as the admin dashboard's
+     * side nav -- both read the one list. */
+    const sections = adminNavFor(isSystemRole(currentUser));
     const adminMenu = [
-      ...ADMIN_MENU,
-      ...(isSystemRole(currentUser) ? SYSTEM_MENU : []),
+      ...ADMIN_EXTRA_MENU,
       { id: "site", label: "Back to site", icon: "home" },
       { id: "signOut", label: "Sign out", icon: "arrow", danger: true },
     ];
@@ -177,10 +146,10 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
     return (
       <>
         <TopNav
-          active={adminActiveFor(pathname)}
-          items={ADMIN_ITEMS}
+          active={adminSectionFor(pathname)}
+          items={sections.map(({ id, label }) => ({ id, label }))}
           user={avatarUserFrom(currentUser)}
-          onNav={id => history.push(NAV_TARGETS[id] || "/")}
+          onNav={id => history.push(adminPathFor(id) || NAV_TARGETS[id] || "/")}
           showOffer={false}
           menuItems={adminMenu}
           onMenuSelect={handleMenuSelect}

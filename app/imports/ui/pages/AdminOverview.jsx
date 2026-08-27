@@ -8,6 +8,7 @@ import { Notifications } from "../../api/notifications/Notifications";
 import Logo from "../components/Logo";
 import Icon from "../components/Icon";
 import { Avatar } from "../components/Avatar";
+import { adminNavFor } from "../utils/adminNav";
 import {
   Shell,
   Sidebar,
@@ -385,37 +386,13 @@ const AdminOverview = ({ history }) => {
   const rows = queue.data?.rows || [];
   const counts = queue.data?.counts || {};
 
-  const navItems = useMemo(() => [
-    { id: "overview", label: "Overview", icon: "grid", path: "/admin/overview" },
-    { id: "rides", label: "Rides", icon: "car", path: "/admin/rides", count: navCounts.rides },
-    { id: "users", label: "Users", icon: "user", path: "/admin/users", count: navCounts.users },
-    {
-      id: "queue",
-      label: "Verification queue",
-      icon: "check",
-      path: "/admin/pending-users",
-      count: pendingCount,
-      pulse: pendingCount > 0,
-    },
-    {
-      id: "reports",
-      label: "Reports",
-      icon: "flame",
-      path: "/admin/error-reports",
-      count: navCounts.reports,
-      danger: true,
-    },
-    { id: "places", label: "Places", icon: "pin", path: "/admin/places", count: navCounts.places },
-    {
-      id: "schools",
-      label: "Schools",
-      icon: "school",
-      path: "/admin/schools",
-      count: navCounts.schools,
-      systemOnly: true,
-    },
-    { id: "system", label: "System health", icon: "settings", path: "/system", systemOnly: true },
-  ].filter(item => !item.systemOnly || isSystem), [navCounts, pendingCount, isSystem]);
+  /* Sections come from the shared list so this and the top nav cannot drift;
+   * the counts are added here because only this screen loads the stats. */
+  const navItems = useMemo(() => adminNavFor(isSystem).map(item => ({
+    ...item,
+    count: item.id === "queue" ? pendingCount : navCounts[item.countKey],
+    pulse: item.id === "queue" && pendingCount > 0,
+  })), [navCounts, pendingCount, isSystem]);
 
   const cards = useMemo(() => {
     const s = stats.data?.stats;
