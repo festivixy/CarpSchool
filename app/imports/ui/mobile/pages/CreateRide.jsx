@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Meteor } from "meteor/meteor";
 import { useTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
@@ -7,6 +7,7 @@ import { Places } from "../../../api/places/Places";
 import {
   parseCoords,
   estimateRoute,
+  estimateRouteVia,
   formatDuration,
   formatDistance,
 } from "../../../api/ride/routeEstimate";
@@ -38,6 +39,11 @@ import {
   SwapBtn,
   QuickChipRow,
   QuickChip,
+  StopList,
+  StopRow,
+  StopIndex,
+  StopName,
+  StopBtn,
   Group,
   GroupLabel,
   WhenRow,
@@ -100,6 +106,7 @@ const CreateRide = ({ history }) => {
 
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [waypoints, setWaypoints] = useState([]);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [seats, setSeats] = useState(3);
@@ -113,19 +120,55 @@ const CreateRide = ({ history }) => {
   /* MapView re-adds its tile layer whenever this array's identity changes, so
    * it must not be rebuilt on every keystroke. */
   const mapPoints = useMemo(() => {
-    const from = pointOf(places.find(p => p._id === origin));
-    const to = pointOf(places.find(p => p._id === destination));
-    const picked = [from, to].filter(Boolean);
+    const byId = id => pointOf(places.find(p => p._id === id));
+    const picked = [origin, ...waypoints, destination].map(byId).filter(Boolean);
     if (picked.length > 0) return picked;
     return places.map(pointOf).filter(Boolean);
-  }, [origin, destination, places]);
+  }, [origin, destination, waypoints, places]);
 
   const route = useMemo(() => {
     const from = places.find(p => p._id === origin);
     const to = places.find(p => p._id === destination);
     if (!from || !to || from._id === to._id) return null;
-    return estimateRoute(from.value, to.value);
-  }, [origin, destination, places]);
+    if (waypoints.length === 0) return estimateRoute(from.value, to.value);
+
+    /* Follow the stops in order, so the figure shown matches the one the
+     * server will store. */
+    const values = [from, ...waypoints.map(id => places.find(p => p._id === id)), to]
+      .map(place => place && place.value);
+    return estimateRouteVia(values) || estimateRoute(from.value, to.value);
+  }, [origin, destination, waypoints, places]);
+
+  /* A place cannot be both an end of the route and a stop on it, so picking it
+   * as origin or destination drops it from the stops. */
+  useEffect(() => {
+    setWaypoints(prev => prev.filter(id => id !== origin && id !== destination));
+  }, [origin, destination]);
+
+  const stopOptions = useMemo(
+    () => places.filter(p => p._id !== origin
+      && p._id !== destination
+      && !waypoints.includes(p._id)),
+    [places, origin, destination, waypoints],
+  );
+
+  const addStop = (id) => {
+    if (!id) return;
+    setWaypoints(prev => (prev.includes(id) ? prev : [...prev, id]));
+  };
+
+  const removeStop = id => setWaypoints(prev => prev.filter(stop => stop !== id));
+
+  const moveStop = (index, delta) => setWaypoints((prev) => {
+    const target = index + delta;
+    if (target < 0 || target >= prev.length) return prev;
+    const next = [...prev];
+    next[index] = prev[target];
+    next[target] = prev[index];
+    return next;
+  });
+
+  const nameOf = id => (places.find(p => p._id === id) || {}).text || "Unknown place";
 
   /* places.options also carries places merely used in the user's rides; only
    * the ones they created are theirs to offer as shortcuts. */
@@ -182,6 +225,7 @@ const CreateRide = ({ history }) => {
       riders: [],
       origin,
       destination,
+      waypoints,
       date: when,
       seats: Number(seats),
       fare: Number(fare) || 0,
@@ -322,6 +366,58 @@ const CreateRide = ({ history }) => {
               </QuickChipRow>
             )}
           </RouteCard>
+
+          <Group>
+            <GroupLabel as="label" htmlFor="create-stop">STOPS ALONG THE WAY</GroupLabel>
+            {waypoints.length > 0 && (
+              <StopList>
+                {waypoints.map((id, index) => (
+                  <StopRow key={id}>
+                    <StopIndex>{index + 1}</StopIndex>
+                    <StopName>{nameOf(id)}</StopName>
+                    <StopBtn
+                      type="button"
+                      onClick={() => moveStop(index, -1)}
+                      disabled={index === 0}
+                      aria-label={`Move ${nameOf(id)} earlier`}
+                    >
+                      &#9650;
+                    </StopBtn>
+                    <StopBtn
+                      type="button"
+                      onClick={() => moveStop(index, 1)}
+                      disabled={index === waypoints.length - 1}
+                      aria-label={`Move ${nameOf(id)} later`}
+                    >
+                      &#9660;
+                    </StopBtn>
+                    <StopBtn
+                      type="button"
+                      $danger
+                      onClick={() => removeStop(id)}
+                      aria-label={`Remove ${nameOf(id)}`}
+                    >
+                      &#10005;
+                    </StopBtn>
+                  </StopRow>
+                ))}
+              </StopList>
+            )}
+            <FieldSelect
+              id="create-stop"
+              value=""
+              onChange={e => addStop(e.target.value)}
+              disabled={stopOptions.length === 0}
+            >
+              <option value="">
+                {stopOptions.length > 0 ? "Add a stop…" : "No other places to stop at"}
+              </option>
+              {stopOptions.map(p => (
+                <option key={p._id} value={p._id}>{p.text}</option>
+              ))}
+            </FieldSelect>
+            <Hint>Optional. The estimate follows the stops in the order shown.</Hint>
+          </Group>
 
           <Group>
             <GroupLabel as="label" htmlFor="create-date">WHEN</GroupLabel>

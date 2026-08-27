@@ -271,6 +271,64 @@ export const QuickChip = styled.button`
   ${props => (props.$active ? chipActive : "")}
 `;
 
+export const StopList = styled.ol`
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+export const StopRow = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--r-md, 10px);
+  background: var(--cream-1, #f0ece3);
+`;
+
+export const StopIndex = styled.span`
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--signal-yellow, #ffd400);
+  color: var(--ink-1, #1a1815);
+  font-size: 11px;
+  font-weight: 700;
+`;
+
+export const StopName = styled.span`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13.5px;
+`;
+
+export const StopBtn = styled.button`
+  flex-shrink: 0;
+  border: 0;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: transparent;
+  color: ${props => (props.$danger ? "var(--danger, #c0392b)" : "var(--ink-2, #5b5750)")};
+  font-size: 13px;
+  line-height: 1;
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+`;
+
 export const Group = styled.div`
   min-width: 0;
 `;

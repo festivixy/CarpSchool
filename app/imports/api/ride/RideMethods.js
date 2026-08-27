@@ -3,7 +3,7 @@ import { check, Match } from "meteor/check";
 import { Rides, RidesSchema } from "./Rides";
 import { validateUserCanJoinRide, validateUserCanRemoveRider, validateUserCanCreateRide } from "./RideValidation";
 import { Profiles } from "../profile/Profile";
-import { estimateRoute } from "./routeEstimate";
+import { estimateRoute, estimateRouteVia } from "./routeEstimate";
 import { syncChatParticipants } from "../chat/ChatParticipants";
 import { sendNotifications } from "../notifications/NotificationMethods";
 import { NOTIFICATION_TYPES, NOTIFICATION_PRIORITY } from "../notifications/Notifications";
@@ -90,6 +90,7 @@ Meteor.methods({
       riders: Array,
       origin: String,
       destination: String,
+      waypoints: Match.Optional([String]),
       date: Date,
       seats: Number,
       fare: Match.Optional(Number),
@@ -136,11 +137,19 @@ Meteor.methods({
     // them per render. OSRM is the real source; until it is reachable this
     // is a great-circle estimate, flagged so it can be backfilled.
     const { Places: PlacesForRoute } = await import("../places/Places");
-    const [originPlace, destinationPlace] = await Promise.all([
-      PlacesForRoute.findOneAsync({ _id: rideData.origin }, { fields: { value: 1 } }),
-      PlacesForRoute.findOneAsync({ _id: rideData.destination }, { fields: { value: 1 } }),
-    ]);
-    const estimate = estimateRoute(originPlace?.value, destinationPlace?.value);
+    const stops = Array.isArray(rideData.waypoints) ? rideData.waypoints : [];
+    const legIds = [rideData.origin, ...stops, rideData.destination];
+
+    /* One query for every point on the route, then read back in order: the
+     * estimate has to follow the stops as given, and Mongo does not preserve
+     * the order of an $in. */
+    const routePlaces = await PlacesForRoute.find(
+      { _id: { $in: legIds } },
+      { fields: { value: 1 } },
+    ).fetchAsync();
+    const valueById = Object.fromEntries(routePlaces.map(p => [p._id, p.value]));
+
+    const estimate = estimateRouteVia(legIds.map(id => valueById[id]));
     if (estimate) {
       rideWithSchool.distanceMi = estimate.distanceMi;
       rideWithSchool.durationMin = estimate.durationMin;
@@ -567,7 +576,8 @@ Meteor.methods({
     await assertRideVisible(userId, ride);
 
     const { Places } = await import("../places/Places");
-    const ids = [ride.origin, ride.destination].filter(Boolean);
+    const stops = Array.isArray(ride.waypoints) ? ride.waypoints : [];
+    const ids = [ride.origin, ...stops, ride.destination].filter(Boolean);
     const places = await Places.find(
       { _id: { $in: ids } },
       { fields: { text: 1, value: 1 } },
@@ -583,6 +593,12 @@ Meteor.methods({
       destinationText: byId[ride.destination] ? byId[ride.destination].text : null,
       originCoords: byId[ride.origin] ? byId[ride.origin].value : null,
       destinationCoords: byId[ride.destination] ? byId[ride.destination].value : null,
+      /* Resolved in the driver's order, so the detail screen can list the
+       * stops without a second round trip. A stop whose place has since been
+       * deleted is dropped rather than shown as a blank line. */
+      waypointStops: stops
+        .filter(id => byId[id])
+        .map(id => ({ _id: id, text: byId[id].text, value: byId[id].value })),
     };
   },
 

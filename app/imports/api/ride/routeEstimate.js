@@ -61,6 +61,36 @@ export const estimateRoute = (originValue, destinationValue) => {
 };
 
 /** "52 min" / "1h 50" in the design's format. */
+/**
+ * Estimate a route that calls at each point in order.
+ *
+ * Takes place `value` strings (origin, any stops, destination) and sums the
+ * legs. Returns null if any leg is unreadable, so a ride with one broken stop
+ * reports no estimate rather than a distance that quietly omits part of the
+ * journey.
+ *
+ * Time spent stopped is not modelled: this is drive time only, the same
+ * measure a direct ride reports.
+ */
+export const estimateRouteVia = (values) => {
+  if (!Array.isArray(values) || values.length < 2) return null;
+
+  let distanceMi = 0;
+  let durationMin = 0;
+
+  for (let i = 0; i < values.length - 1; i += 1) {
+    const leg = estimateRoute(values[i], values[i + 1]);
+    if (!leg) return null;
+    distanceMi += leg.distanceMi;
+    durationMin += leg.durationMin;
+  }
+
+  return {
+    distanceMi: Math.round(distanceMi * 10) / 10,
+    durationMin,
+  };
+};
+
 export const formatDuration = (minutes) => {
   if (!Number.isFinite(minutes) || minutes <= 0) return null;
   if (minutes < 60) return `${minutes} min`;

@@ -13,6 +13,10 @@ const RidesSchema = Joi.object({
   riders: Joi.array().items(Joi.string()).default([]), // Array of rider user IDs
   origin: Joi.string().required(), // Now validated against dynamic places collection
   destination: Joi.string().required(), // Now validated against dynamic places collection
+  /* Ordered intermediate stops, as Places ids like origin and destination.
+   * Capped because every extra stop is another leg to route and another
+   * detour the riders already on board have to accept. */
+  waypoints: Joi.array().items(Joi.string()).max(5).default([]),
   date: Joi.date().required(),
   seats: Joi.number().integer().min(1).max(7)
 .required(), // Number of available seats
@@ -70,7 +74,21 @@ const RidesSchema = Joi.object({
     });
   }
 
-  // 5. Ensure ride date is not in the past (only for new rides)
+  // 5. Stops must be real detours: no repeats, and none at either end
+  if (obj.waypoints && obj.waypoints.length > 0) {
+    const unique = [...new Set(obj.waypoints)];
+    if (unique.length !== obj.waypoints.length) {
+      return helpers.error("ride.duplicateWaypoints");
+    }
+
+    const ends = [obj.origin, obj.destination].filter(Boolean);
+    const atEnd = obj.waypoints.find(stop => ends.includes(stop));
+    if (atEnd) {
+      return helpers.error("ride.waypointAtEnd", { location: atEnd });
+    }
+  }
+
+  // 6. Ensure ride date is not in the past (only for new rides)
   if (obj.date && !obj._id) { // Only validate for new rides (no _id)
     const now = new Date();
     const rideDate = new Date(obj.date);
@@ -92,6 +110,8 @@ const RidesSchema = Joi.object({
   "ride.duplicateRiders": "Ride contains duplicate riders ({{#originalCount}} riders, {{#uniqueCount}} unique)",
   "ride.sameLocation": "Origin and destination cannot be the same location: {{#location}}",
   "ride.pastDate": "Ride date cannot be in the past ({{#rideDate}} is before {{#currentDate}})",
+  "ride.duplicateWaypoints": "A ride cannot stop at the same place twice",
+  "ride.waypointAtEnd": "A stop cannot also be the ride's start or end: {{#location}}",
 });
 
 /*

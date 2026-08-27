@@ -300,8 +300,8 @@ const RideInfo = ({ match, history }) => {
 
   const messages = (chat && chat.Messages) || [];
 
-  /* Three steps built from what the schema actually carries: this app models a
-   * single origin -> destination leg, with no intermediate stops. */
+  /* Built from what the schema carries: pickup, the drive, any stops the
+   * driver added along the way, then drop-off. */
   const steps = [
     {
       icon: "pin",
@@ -318,6 +318,15 @@ const RideInfo = ({ match, history }) => {
       sub: ride.routeEstimated || routeFallback ? "Estimated drive time" : "Drive time",
     });
   }
+  /* Stops are resolved server-side by rides.getById, in the driver's order. */
+  (ride.waypointStops || []).forEach((stop, index) => {
+    steps.push({
+      icon: "pin",
+      time: "",
+      label: stop.text,
+      sub: `Stop ${index + 1} of ${ride.waypointStops.length}`,
+    });
+  });
   steps.push({
     icon: "check",
     time: arriveAt ? fmtTime(arriveAt) : "",
