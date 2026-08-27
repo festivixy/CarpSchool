@@ -71,6 +71,15 @@ const parseCoord = (value, label) => {
 
 const uniqueSorted = list => [...new Set(list.filter(Boolean))].sort();
 
+/* Every place a ride calls at, in travel order: origin, stops, destination.
+ * Riders can board and alight at a stop, so discovery matches the whole
+ * sequence rather than just the endpoints. */
+const routeOf = r => [
+  originOf(r),
+  ...(r.waypointStops || []).map(stop => stop.text),
+  destinationOf(r),
+].filter(Boolean);
+
 /**
  * Find a ride — split discovery screen (design handoff V1 Split). Pulls
  * future rides at the user's school via rides.forMySchool, resolves driver
@@ -135,25 +144,38 @@ const Marketplace = ({ history }) => {
     return { driverById: map };
   }, [driverIds]);
 
-  const origins = useMemo(() => uniqueSorted(allRides.map(originOf)), [allRides]);
+  /* You can board anywhere except the last place, and get off anywhere except
+   * the first, so each list is the route minus the end you cannot use. */
+  const origins = useMemo(
+    () => uniqueSorted(allRides.flatMap(r => routeOf(r).slice(0, -1))),
+    [allRides],
+  );
   const destinations = useMemo(
-    () => uniqueSorted(allRides.map(destinationOf)),
+    () => uniqueSorted(allRides.flatMap(r => routeOf(r).slice(1))),
     [allRides],
   );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = allRides.filter((r) => {
-      const from = originOf(r);
-      const to = destinationOf(r);
-      if (fromPlace && from !== fromPlace) return false;
-      if (toPlace && to !== toPlace) return false;
+      const route = routeOf(r);
+
+      /* Board as early as possible and alight as late as possible, then
+       * require that the two happen in that order: a ride passing B then A
+       * is no use to someone travelling A to B. */
+      const fromIndex = fromPlace ? route.indexOf(fromPlace) : -1;
+      const toIndex = toPlace ? route.lastIndexOf(toPlace) : -1;
+
+      // Boarding at the final stop would go nowhere.
+      if (fromPlace && (fromIndex === -1 || fromIndex === route.length - 1)) return false;
+      // Alighting at the origin likewise.
+      if (toPlace && toIndex <= 0) return false;
+      if (fromPlace && toPlace && fromIndex >= toIndex) return false;
+
       if (when === "today" && !isToday(r.date)) return false;
       if (when === "weekend" && !isWeekend(r.date)) return false;
       if (cheapOnly && (r.fare || 0) > MAX_FARE) return false;
-      if (q && !from.toLowerCase().includes(q) && !to.toLowerCase().includes(q)) {
-        return false;
-      }
+      if (q && !route.some(name => name.toLowerCase().includes(q))) return false;
       return true;
     });
     return [...list].sort((a, b) => (sort === "cheapest"
@@ -327,7 +349,7 @@ const Marketplace = ({ history }) => {
               <Icon name="search" size={16} color="var(--ink-3)" />
               <SearchInput
                 type="text"
-                placeholder="Search origin or destination"
+                placeholder="Search origin, stops or destination"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
               />
