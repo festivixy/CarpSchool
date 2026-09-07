@@ -21,6 +21,50 @@ const ADMIN_ROLE = "admin";
 
 const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+/*
+ * An administrator must be able to use the product, not just the admin
+ * screens: the approval gate requires an approved profile and every
+ * school-scoped query requires a schoolId. Give the account both if missing.
+ */
+const ensureAdminIsUsable = async (user, address) => {
+  const { Profiles } = await import("../../api/profile/Profile");
+  const { Schools } = await import("../../api/schools/Schools");
+
+  let { schoolId } = user;
+  if (!schoolId) {
+    const code = Meteor.settings?.private?.testSchoolCode;
+    const school = (code && await Schools.findOneAsync({ code: String(code).toUpperCase(), isActive: true }))
+      || await Schools.findOneAsync({ isActive: true }, { sort: { createdAt: 1 } });
+    if (school) {
+      schoolId = school._id;
+      await Meteor.users.updateAsync(user._id, { $set: { schoolId } });
+      console.log(`[AdminBootstrap] Assigned ${address} to school ${school.shortName || school.code}`);
+    }
+  }
+
+  const profile = await Profiles.findOneAsync({ Owner: user._id });
+  if (!profile) {
+    await Profiles.insertAsync({
+      Owner: user._id,
+      Name: user.profile?.name || user.profile?.firstName || "Administrator",
+      Location: "",
+      UserType: "Both",
+      verified: true,
+      requested: false,
+      rejected: false,
+      identityVerified: true,
+      createdAt: new Date(),
+    });
+    console.log(`[AdminBootstrap] Created an approved profile for ${address}`);
+  } else if (!profile.verified || profile.rejected) {
+    await Profiles.updateAsync(profile._id, {
+      $set: { verified: true, requested: false, rejected: false },
+      $unset: { rejectedAt: "", rejectedBy: "", rejectionReason: "" },
+    });
+    console.log(`[AdminBootstrap] Approved the profile for ${address}`);
+  }
+};
+
 Meteor.startup(async () => {
   const emails = Meteor.settings?.private?.adminEmails;
   if (!Array.isArray(emails) || emails.length === 0) return;
@@ -41,12 +85,15 @@ Meteor.startup(async () => {
 
     const roles = user.roles || [];
     const missing = [SYSTEM_ROLE, ADMIN_ROLE].filter(r => !roles.includes(r));
-    if (missing.length === 0) continue;
+    if (missing.length > 0) {
+      // eslint-disable-next-line no-await-in-loop
+      await Meteor.users.updateAsync(user._id, {
+        $addToSet: { roles: { $each: missing } },
+      });
+      console.log(`[AdminBootstrap] Granted ${missing.join(", ")} to ${address}`);
+    }
 
     // eslint-disable-next-line no-await-in-loop
-    await Meteor.users.updateAsync(user._id, {
-      $addToSet: { roles: { $each: missing } },
-    });
-    console.log(`[AdminBootstrap] Granted ${missing.join(", ")} to ${address}`);
+    await ensureAdminIsUsable(user, address);
   }
 });

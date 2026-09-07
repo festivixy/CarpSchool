@@ -46,6 +46,37 @@ const primaryEmailFor = async (clerkUserId, claims) => {
 };
 
 /** Find, or lazily create, the Meteor user that mirrors a Clerk account. */
+/*
+ * Emails exempt from the school-domain rule: settings.private.adminEmails and
+ * settings.private.testEmails. A test entry may be a full address or a
+ * "user+*@host" pattern, which admits every plus-alias of that mailbox so a
+ * fresh sign-up can be created for each onboarding walkthrough.
+ */
+const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const isAllowListedEmail = (email) => {
+  const settings = Meteor.settings?.private || {};
+  const entries = [...(settings.adminEmails || []), ...(settings.testEmails || [])]
+    .filter(e => typeof e === "string" && e.trim());
+  const candidate = email.trim().toLowerCase();
+  return entries.some((entry) => {
+    const pattern = entry.trim().toLowerCase();
+    if (!pattern.includes("*")) return pattern === candidate;
+    const re = new RegExp(`^${pattern.split("*").map(escapeRegex).join(".*")}$`);
+    return re.test(candidate);
+  });
+};
+
+const allowListSchool = async () => {
+  const { Schools } = await import("../schools/Schools");
+  const code = Meteor.settings?.private?.testSchoolCode;
+  if (code) {
+    const byCode = await Schools.findOneAsync({ code: String(code).toUpperCase(), isActive: true });
+    if (byCode) return byCode;
+  }
+  return Schools.findOneAsync({ isActive: true }, { sort: { createdAt: 1 } });
+};
+
 const resolveMeteorUserId = async (clerkUserId, claims) => {
   const existing = await Meteor.users.findOneAsync({
     "profile.clerkUserId": clerkUserId,
@@ -64,7 +95,14 @@ const resolveMeteorUserId = async (clerkUserId, claims) => {
     );
   }
 
-  const { school, error } = await schoolForEmail(email);
+  let { school, error } = await schoolForEmail(email);
+  if (error && isAllowListedEmail(email)) {
+    // Administrators and test accounts from settings may sign in with any
+    // domain; they are placed in the configured test school (or the first
+    // active one) so every school-scoped query still works for them.
+    school = await allowListSchool();
+    error = school ? null : "No active school exists to assign this account to";
+  }
   if (error) {
     console.warn(`[ClerkLogin] Rejected signup for ${email}: ${error}`);
     throw new Meteor.Error("school-email-required", error);

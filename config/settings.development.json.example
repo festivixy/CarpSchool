@@ -23,7 +23,7 @@
       "environmentId": "env_your_environment_id_here"
     },
     "map": {
-      "_note": "Public OpenStreetMap endpoints — fine for local development, but subject to OSM's usage policy and rate limits. Do not point production at these; use the carp.school-hosted tileserver/nominatim/osrm from settings.production.json.example instead.",
+      "_note": "Public OpenStreetMap endpoints \u2014 fine for local development, but subject to OSM's usage policy and rate limits. Do not point production at these; use the carp.school-hosted tileserver/nominatim/osrm from settings.production.json.example instead.",
       "tileServerUrl": "https://tile.openstreetmap.org",
       "tileStylePath": "",
       "nominatimUrl": "https://nominatim.openstreetmap.org",
@@ -43,7 +43,11 @@
     },
     "adminEmails": [
       "admin@carp.school"
-    ]
+    ],
+    "testEmails": [
+      "you+*@example.com"
+    ],
+    "testSchoolCode": "CTU"
   },
   "defaultPlaces": [],
   "defaultRides": []
