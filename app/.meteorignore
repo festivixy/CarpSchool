@@ -1,0 +1,8 @@
+# Playwright E2E files are not Meteor app code -- they must not be swept
+# into Meteor's build (client or server bundle, or `meteor test`). Without
+# this, files outside imports/ are eagerly loaded by Meteor, and Playwright's
+# test.describe() blocks fail at eval time outside a Playwright test run.
+e2e/
+playwright.config.js
+playwright-report/
+test-results/
