@@ -80,5 +80,8 @@
     "build:server:prod": "cd .. && ./build-prod.sh",
     "clean": "cd .. && ./clean.sh",
     "clean:all": "source ../tools/meteor-utils.sh && meteor_clean_ios"
+  },
+  "meteor": {
+    "testModule": "imports/tests/main.js"
   }
 }
