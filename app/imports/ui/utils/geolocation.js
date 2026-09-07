@@ -2,6 +2,20 @@
  * Geolocation utility functions with improved accuracy, fallbacks, and triangulation
  */
 
+import { useEffect, useState } from "react";
+
+/** Returns `value`, updated only after it has stopped changing for `delay`ms. */
+export const useDebounce = (value, delay) => {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const handle = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handle);
+  }, [value, delay]);
+
+  return debounced;
+};
+
 // Cache for recent positions (with timestamp)
 let positionCache = null;
 const CACHE_VALIDITY_MS = 30000; // 30 seconds
@@ -142,7 +156,7 @@ const averagePositions = (positions) => {
 };
 
 
-const getErrorDetails = (error) => {
+export const getErrorDetails = (error) => {
   const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.toLowerCase().includes("firefox");
   const isMobile = isCordova();
   

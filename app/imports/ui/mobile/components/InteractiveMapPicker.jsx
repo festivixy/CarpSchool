@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getTileUrlTemplate } from "../../utils/mapConfig";
+import { useDebounce, getErrorDetails } from "../../utils/geolocation";
+import { installDefaultIcon, attachTileErrorTracking, TileFailureNotice } from "../../utils/leafletIcons";
 import {
   MapContainer,
   MapWrapper,
@@ -22,16 +24,10 @@ import {
   MapViewContainer,
 } from "../styles/InteractiveMapPicker";
 
-// Fix for default markers in Leaflet
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
+installDefaultIcon();
+
+const SEARCH_DEBOUNCE_MS = 600;
+const MIN_REQUEST_INTERVAL_MS = 1100;
 
 /**
  * Interactive map picker component that allows users to click on a map to select coordinates
@@ -59,6 +55,11 @@ const InteractiveMapPicker = React.memo(({
   const [currentLocation, setCurrentLocation] = useState(initialCoordinates);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [tilesFailed, setTilesFailed] = useState(false);
+
+  const successTimeoutRef = useRef(null);
+  const lastRequestAtRef = useRef(0);
+  const rateLimitTimerRef = useRef(null);
 
   // Memoize tile URL to prevent recreation on every render
   const tileUrl = useMemo(() => getTileUrlTemplate(), []);
@@ -74,10 +75,9 @@ const InteractiveMapPicker = React.memo(({
   const clearMessages = () => {
     setErrorMessage("");
     setSuccessMessage("");
-    // Clear any pending success message timeout
-    if (showSuccess.currentTimeout) {
-      clearTimeout(showSuccess.currentTimeout);
-      showSuccess.currentTimeout = null;
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current);
+      successTimeoutRef.current = null;
     }
   };
 
@@ -87,21 +87,8 @@ const InteractiveMapPicker = React.memo(({
     setSuccessMessage("");
   };
 
-  // Show success message
-  const showSuccess = (message) => {
-    setSuccessMessage(message);
-    setErrorMessage("");
-    // Auto-dismiss success messages after 5 seconds
-    const dismissTimeout = setTimeout(() => {
-      setSuccessMessage("");
-    }, 5000);
-
-    // Store the timeout reference for potential cleanup
-    showSuccess.currentTimeout = dismissTimeout;
-  };
-
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    if (!mapRef.current || mapInstanceRef.current) return undefined;
 
     // Initialize the map
     const map = L.map(mapRef.current, {
@@ -117,6 +104,7 @@ const InteractiveMapPicker = React.memo(({
       tileSize: 256,
     });
     tileLayer.addTo(map);
+    const detachTileTracking = attachTileErrorTracking(tileLayer, () => setTilesFailed(true));
 
     // Add initial marker
     const marker = L.marker([currentLocation.lat, currentLocation.lng], {
@@ -134,7 +122,8 @@ const InteractiveMapPicker = React.memo(({
       handleLocationSelect(newLocation);
     });
 
-    // Handle map clicks
+    // Handle map clicks -- this is the manual coordinate-entry path: click
+    // (or drag the marker) anywhere to set an exact lat/lng.
     map.on("click", (e) => {
       const newLocation = {
         lat: parseFloat(e.latlng.lat.toFixed(6)),
@@ -150,6 +139,7 @@ const InteractiveMapPicker = React.memo(({
 
     // Cleanup function
     return () => { // eslint-disable-line consistent-return
+      detachTileTracking();
       if (mapInstanceRef.current) {
         try {
           // Remove marker first if it exists
@@ -169,10 +159,13 @@ const InteractiveMapPicker = React.memo(({
         }
       }
 
-      // Clear any pending success message timeout
-      if (showSuccess.currentTimeout) {
-        clearTimeout(showSuccess.currentTimeout);
-        showSuccess.currentTimeout = null;
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+        successTimeoutRef.current = null;
+      }
+      if (rateLimitTimerRef.current) {
+        clearTimeout(rateLimitTimerRef.current);
+        rateLimitTimerRef.current = null;
       }
     };
   }, []);
@@ -190,44 +183,6 @@ const InteractiveMapPicker = React.memo(({
       }
     }
   }, [selectedLocation]);
-
-  // Fallback IP-based location detection
-  const tryIpBasedLocation = async () => {
-    try {
-      // Use a simple IP geolocation service
-      const response = await fetch("https://ipapi.co/json/");
-      if (!response.ok) throw new Error("IP location service unavailable");
-
-      const data = await response.json();
-      if (data.latitude && data.longitude) {
-        const newLocation = {
-          lat: parseFloat(data.latitude.toFixed(6)),
-          lng: parseFloat(data.longitude.toFixed(6)),
-        };
-
-        if (mapInstanceRef.current && markerRef.current) {
-            mapInstanceRef.current.setView([newLocation.lat, newLocation.lng], 10); // Lower zoom for IP location
-            markerRef.current.setLatLng([newLocation.lat, newLocation.lng]);
-            setCurrentLocation(newLocation);
-            handleLocationSelect(newLocation);
-
-          // Show success message
-          const successTimeout = setTimeout(() => {
-            showSuccess(
-              `Located you in ${data.city || "your area"} using network location. ` +
-              "This is less precise than GPS - you may want to refine the marker position manually.",
-            );
-          }, 500);
-
-          // Store timeout for potential cleanup
-          return () => clearTimeout(successTimeout);
-        }
-      }
-    } catch (ipError) {
-      console.warn("IP-based location failed:", ipError);
-      // Silent fallback failure - user already got the main error message
-    }
-  };
 
   // Center map on current location
   const centerOnLocation = () => {
@@ -251,7 +206,6 @@ const InteractiveMapPicker = React.memo(({
       return;
     }
 
-    // Detect Firefox browser
     const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
 
     navigator.geolocation.getCurrentPosition(
@@ -278,44 +232,7 @@ const InteractiveMapPicker = React.memo(({
       },
       (error) => {
         console.warn("Geolocation error:", error);
-
-        let geoErrorMessage;
-
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            geoErrorMessage = "Location access was denied. Please enable location permissions in your " +
-              "browser settings and try again.";
-            break;
-          case error.POSITION_UNAVAILABLE:
-            if (isFirefox) {
-              geoErrorMessage = "Firefox couldn't determine your location. This might be due to:\n\n" +
-                "• macOS Location Services not enabled for Firefox\n" +
-                "• Firefox privacy settings blocking location\n" +
-                "• Network connectivity issues\n\n" +
-                "Try:\n" +
-                "1. System Preferences → Security & Privacy → Location Services → Enable for Firefox\n" +
-                "2. Firefox Settings → Privacy & Security → Permissions → Location → Allow\n" +
-                "3. Or manually click on the map to set your location";
-            } else {
-              geoErrorMessage = "Location information is unavailable. Please check your device's location settings.";
-            }
-            break;
-          case error.TIMEOUT:
-            geoErrorMessage = "Location request timed out. Please try again or click on the map to " +
-              "manually set your location.";
-            break;
-          default:
-            geoErrorMessage = `An unknown error occurred while retrieving your location (Error: ${error.message}). ` +
-              "Please click on the map to manually set your location.";
-            break;
-        }
-
-        showError(geoErrorMessage);
-
-        // For Firefox, try fallback IP-based location as last resort
-        if (isFirefox && error.code === error.POSITION_UNAVAILABLE) {
-          tryIpBasedLocation();
-        }
+        showError(getErrorDetails(error));
       },
       {
         enableHighAccuracy: !isFirefox, // Firefox often fails with high accuracy on macOS
@@ -325,45 +242,65 @@ const InteractiveMapPicker = React.memo(({
     );
   };
 
-  // Search for locations using optimized map service (non-blocking)
+  // Run one search request against the map service and show its results.
+  const performSearch = useCallback(async (queryText) => {
+    lastRequestAtRef.current = Date.now();
+    setIsSearching(true);
+    setSearchResults([]);
+    clearMessages();
+
+    try {
+      const { searchLocation: optimizedSearch } = await import("../../utils/mapServices");
+      const results = await optimizedSearch(queryText, { limit: 5, addressdetails: 1 });
+      setSearchResults(results);
+    } catch (error) {
+      // A superseded (debounced) request rejects with AbortError -- not a
+      // real failure, just an older keystroke losing to a newer one.
+      if (error?.name === "AbortError") return;
+      console.error("Search error:", error);
+      if (error.message?.includes("timeout")) {
+        showError("Search timed out. Please try again.");
+      } else {
+        showError("Search failed. Please try again.");
+      }
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  // Search as the user types, debounced and rate-limited so Nominatim never
+  // sees more than one request roughly every second.
+  const debouncedQuery = useDebounce(searchQuery, SEARCH_DEBOUNCE_MS);
+  useEffect(() => {
+    if (rateLimitTimerRef.current) {
+      clearTimeout(rateLimitTimerRef.current);
+      rateLimitTimerRef.current = null;
+    }
+
+    if (!debouncedQuery.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return undefined;
+    }
+
+    const elapsed = Date.now() - lastRequestAtRef.current;
+    const wait = Math.max(0, MIN_REQUEST_INTERVAL_MS - elapsed);
+    setIsSearching(true);
+    rateLimitTimerRef.current = setTimeout(() => performSearch(debouncedQuery), wait);
+
+    return () => {
+      if (rateLimitTimerRef.current) clearTimeout(rateLimitTimerRef.current);
+    };
+  }, [debouncedQuery, performSearch]);
+
+  // Explicit search action (Enter key / search button) -- runs immediately.
   const searchLocation = () => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
       setIsSearching(false);
       return;
     }
-
-    // Immediately show loading state (non-blocking UI update)
-    setIsSearching(true);
-    setSearchResults([]);
-    clearMessages();
-
-    // Use setTimeout to ensure UI updates immediately before starting async work
-    setTimeout(async () => {
-      try {
-        // Use optimized map service with debouncing and caching
-        const { searchLocation: optimizedSearch } = await import("../../utils/mapServices");
-        const results = await optimizedSearch(searchQuery, {
-          limit: 5,
-          countrycodes: "ca",
-          addressdetails: 1,
-        });
-
-        // Only update if search query hasn't changed (user is still on same search)
-        if (searchQuery.trim()) {
-          setSearchResults(results);
-        }
-      } catch (error) {
-        console.error("Search error:", error);
-        if (error.message.includes("timeout")) {
-          showError("Search timed out. Please try again.");
-        } else {
-          showError("Search failed. Please try again.");
-        }
-      } finally {
-        setIsSearching(false);
-      }
-    }, 0); // Immediate execution but non-blocking
+    performSearch(searchQuery);
   };
 
   // Handle search result selection
@@ -419,11 +356,7 @@ const InteractiveMapPicker = React.memo(({
           type="text"
           placeholder="Search for a location..."
           value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            // Trigger optimized search automatically as user types
-            searchLocation();
-          }}
+          onChange={(e) => setSearchQuery(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && searchLocation()}
         />
         <SearchButton onClick={searchLocation} disabled={isSearching}>
@@ -446,6 +379,7 @@ const InteractiveMapPicker = React.memo(({
 
       <MapWrapper style={{ height }}>
         <MapViewContainer ref={mapRef} />
+        {tilesFailed && <TileFailureNotice />}
 
         <MapControls>
           <ControlButton onClick={zoomIn} title="Zoom in">

@@ -115,16 +115,28 @@ const CreateRide = ({ history }) => {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const today = new Date().toISOString().split("T")[0];
+  /* Local date, not UTC -- toISOString() shifts the calendar day for anyone
+   * west of UTC in the evening, letting them pick a "today" the server (and
+   * everyone east of them) sees as tomorrow. */
+  const now = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+
+  /* Parsed once per places change instead of on every mapPoints/byId call. */
+  const pointsByPlaceId = useMemo(() => {
+    const map = new Map();
+    places.forEach(p => map.set(p._id, pointOf(p)));
+    return map;
+  }, [places]);
 
   /* MapView re-adds its tile layer whenever this array's identity changes, so
    * it must not be rebuilt on every keystroke. */
   const mapPoints = useMemo(() => {
-    const byId = id => pointOf(places.find(p => p._id === id));
+    const byId = id => pointsByPlaceId.get(id);
     const picked = [origin, ...waypoints, destination].map(byId).filter(Boolean);
     if (picked.length > 0) return picked;
-    return places.map(pointOf).filter(Boolean);
-  }, [origin, destination, waypoints, places]);
+    return [...pointsByPlaceId.values()].filter(Boolean);
+  }, [origin, destination, waypoints, pointsByPlaceId]);
 
   const route = useMemo(() => {
     const from = places.find(p => p._id === origin);

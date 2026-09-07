@@ -1,24 +1,27 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getTileUrlTemplate } from "../../utils/mapConfig";
 import { parsePlaceValue } from "../../utils/placeCoords";
+import { attachTileErrorTracking, TileFailureNotice } from "../../utils/leafletIcons";
 import {
   MapShell,
   MapCanvas,
   Bar,
   BarHint,
   Count,
+  BarButton,
   EmptyNote,
 } from "../styles/WaypointMap";
 
 /**
  * Every waypoint on one map, with editing done on the map itself.
  *
- * Click empty map to place a new one, click a pin to edit it, drag a pin to
- * move it. Pins the viewer may not edit are shown but neither draggable nor
- * clickable, matching what places.update would allow -- see canEditPlace.
+ * Click empty map to place a new one (once "Add waypoint" mode is switched
+ * on), click a pin to edit it, drag a pin to move it. Pins the viewer may not
+ * edit are shown but neither draggable nor clickable, matching what
+ * places.update would allow -- see canEditPlace.
  *
  * Purely presentational: it reports intent through the callbacks and holds no
  * opinion about how a waypoint is created or saved.
@@ -28,6 +31,7 @@ import {
 const DEFAULT_CENTER = [49.345196, -123.149805];
 const DEFAULT_ZOOM = 13;
 const MAX_FIT_ZOOM = 16;
+const DOUBLE_CLICK_GUARD_MS = 250;
 
 /* Drawn as markup rather than an image so the pin needs no external asset and
  * can take its colours from the design tokens. */
@@ -63,17 +67,24 @@ const WaypointMap = ({
   height,
   fill,
   readOnlyNote,
+  centerOn,
 }) => {
   const canvasRef = useRef(null);
   const mapRef = useRef(null);
   const layerRef = useRef(null);
   const markerLayerRef = useRef(null);
   const didFitRef = useRef(false);
+  const clickTimerRef = useRef(null);
+  const [addMode, setAddMode] = useState(false);
+  const [tilesFailed, setTilesFailed] = useState(false);
 
   /* Callbacks are read through a ref so that changing a handler does not tear
    * the map down and rebuild it on every render of the parent. */
   const handlersRef = useRef({ onCreate, onSelect, onMove, canEdit });
   handlersRef.current = { onCreate, onSelect, onMove, canEdit };
+
+  const addModeRef = useRef(addMode);
+  addModeRef.current = addMode;
 
   // Create the map once.
   useEffect(() => {
@@ -85,15 +96,33 @@ const WaypointMap = ({
       zoomControl: true,
     });
 
-    L.tileLayer(getTileUrlTemplate(), {
+    const tileLayer = L.tileLayer(getTileUrlTemplate(), {
       attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
       maxZoom: 19,
-    }).addTo(map);
+    });
+    tileLayer.addTo(map);
+    const detachTileTracking = attachTileErrorTracking(tileLayer, () => setTilesFailed(true));
 
+    /* A plain click creates a waypoint, but only once we know it was not the
+     * first half of a double-click (which zooms). Leaflet fires "click"
+     * before "dblclick", so the create is delayed and cancelled if a
+     * dblclick follows within the window. */
     map.on("click", (e) => {
       const { onCreate: create } = handlersRef.current;
-      if (!handlersRef.current.canEdit || !create) return;
-      create({ lat: e.latlng.lat, lng: e.latlng.lng });
+      if (!addModeRef.current || !handlersRef.current.canEdit || !create) return;
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+      const { lat, lng } = e.latlng;
+      clickTimerRef.current = setTimeout(() => {
+        clickTimerRef.current = null;
+        create({ lat, lng });
+      }, DOUBLE_CLICK_GUARD_MS);
+    });
+
+    map.on("dblclick", () => {
+      if (clickTimerRef.current) {
+        clearTimeout(clickTimerRef.current);
+        clickTimerRef.current = null;
+      }
     });
 
     /* Context points sit under the waypoint pins, so a pin is never hidden
@@ -117,13 +146,23 @@ const WaypointMap = ({
 
     return () => {
       clearTimeout(settle);
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
       if (observer) observer.disconnect();
+      detachTileTracking();
       map.remove();
       mapRef.current = null;
       layerRef.current = null;
       markerLayerRef.current = null;
     };
   }, []);
+
+  // Recenter on demand (e.g. "center on me").
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !centerOn) return;
+    if (!Number.isFinite(centerOn.lat) || !Number.isFinite(centerOn.lng)) return;
+    map.setView([centerOn.lat, centerOn.lng], 15);
+  }, [centerOn]);
 
   const markerFor = useCallback((place, coords) => {
     const rule = handlersRef.current.canEdit;
@@ -188,18 +227,29 @@ const WaypointMap = ({
 
   // Redraw pins whenever the places or the selection change.
   useEffect(() => {
-    const map = mapRef.current;
     const layer = layerRef.current;
-    if (!map || !layer) return;
+    if (!layer) return;
 
     layer.clearLayers();
 
-    const points = [];
     places.forEach((place) => {
       const coords = parsePlaceValue(place.value);
       if (!coords) return; // legacy or malformed: leave it off the map
       markerFor(place, coords).addTo(layer);
-      points.push([coords.lat, coords.lng]);
+    });
+  }, [places, selectedId, markerFor]);
+
+  // Fit once, on the first render that has anything to show. Refitting on
+  // every change would yank the view out from under someone mid-edit; use
+  // the "Fit to results" button for that afterwards.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || didFitRef.current) return;
+
+    const points = [];
+    places.forEach((place) => {
+      const coords = parsePlaceValue(place.value);
+      if (coords) points.push([coords.lat, coords.lng]);
     });
     markers.forEach((point) => {
       if (Number.isFinite(point.lat) && Number.isFinite(point.lng)) {
@@ -207,17 +257,37 @@ const WaypointMap = ({
       }
     });
 
-    /* Fit once, on the first render that has anything to show. Refitting on
-     * every change would yank the view out from under someone mid-edit. */
-    if (!didFitRef.current && points.length > 0) {
-      didFitRef.current = true;
-      if (points.length === 1) {
-        map.setView(points[0], DEFAULT_ZOOM);
-      } else {
-        map.fitBounds(points, { padding: [36, 36], maxZoom: MAX_FIT_ZOOM });
-      }
+    if (points.length === 0) return;
+    didFitRef.current = true;
+    if (points.length === 1) {
+      map.setView(points[0], DEFAULT_ZOOM);
+    } else {
+      map.fitBounds(points, { padding: [36, 36], maxZoom: MAX_FIT_ZOOM });
     }
-  }, [places, markers, selectedId, markerFor]);
+  }, [places, markers]);
+
+  const fitToResults = () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const points = [];
+    places.forEach((place) => {
+      const coords = parsePlaceValue(place.value);
+      if (coords) points.push([coords.lat, coords.lng]);
+    });
+    markers.forEach((point) => {
+      if (Number.isFinite(point.lat) && Number.isFinite(point.lng)) {
+        points.push([point.lat, point.lng]);
+      }
+    });
+
+    if (points.length === 0) return;
+    if (points.length === 1) {
+      map.setView(points[0], DEFAULT_ZOOM);
+    } else {
+      map.fitBounds(points, { padding: [36, 36], maxZoom: MAX_FIT_ZOOM });
+    }
+  };
 
   const plotted = places.filter(place => parsePlaceValue(place.value)).length;
   const hidden = places.length - plotted;
@@ -231,11 +301,19 @@ const WaypointMap = ({
           {hidden > 0 && ` (${hidden} without usable coordinates)`}
         </BarHint>
         <BarHint>
-          {canEdit ? "Click the map to add · click a pin to edit" : readOnlyNote}
+          {canEdit && (
+            <BarButton type="button" $active={addMode} onClick={() => setAddMode((prev) => !prev)}>
+              {addMode ? "Adding…" : "Add waypoint"}
+            </BarButton>
+          )}
+          <BarButton type="button" onClick={fitToResults}>Fit to results</BarButton>
+          {!canEdit && readOnlyNote}
         </BarHint>
       </Bar>
-      <MapCanvas ref={canvasRef} $height={height} $fill={fill} />
-      {plotted === 0 && canEdit && (
+      <MapCanvas ref={canvasRef} $height={height} $fill={fill} data-add-mode={addMode}>
+        {tilesFailed && <TileFailureNotice />}
+      </MapCanvas>
+      {plotted === 0 && canEdit && addMode && (
         <EmptyNote>Click anywhere on the map to add your first waypoint</EmptyNote>
       )}
     </MapShell>
@@ -265,6 +343,11 @@ WaypointMap.propTypes = {
   /** Fill the containing element instead of using a fixed height. */
   fill: PropTypes.bool,
   readOnlyNote: PropTypes.string,
+  /** Recenters the map on {lat, lng} when it changes, e.g. "center on me". */
+  centerOn: PropTypes.shape({
+    lat: PropTypes.number,
+    lng: PropTypes.number,
+  }),
 };
 
 WaypointMap.defaultProps = {
@@ -278,6 +361,7 @@ WaypointMap.defaultProps = {
   height: 340,
   fill: false,
   readOnlyNote: "Read only",
+  centerOn: null,
 };
 
 export default WaypointMap;

@@ -10,7 +10,7 @@ import Icon from "../../components/Icon";
 import WaypointMap from "../components/WaypointMap";
 import { formatPlaceValue, canEditPlace } from "../../utils/placeCoords";
 import { useDebounce } from "../../utils/geolocation";
-import useGeolocation from "../../utils/useGeolocation";
+import { useGeolocation } from "../../utils/useGeolocation";
 import RideCard from "../../components/RideCard";
 import {
   Screen,

@@ -5,67 +5,82 @@ import { Schools } from "../schools/Schools";
  * School-aware role management utilities
  */
 
+const ROLE_FIELDS = { fields: { roles: 1, schoolId: 1 } };
+
+/**
+ * Resolves everything the admin checks below need from a single user read:
+ * whether they're a system admin, which schools (if any) they admin, and
+ * their own schoolId. Every helper in this file that only needs a role
+ * lookup should go through this instead of its own findOneAsync, so a
+ * caller checking several of isSystemAdmin/isSchoolAdmin/isAnyAdmin never
+ * pays for more than one query.
+ */
+export async function resolveRole(userId) {
+  const user = userId ? await Meteor.users.findOneAsync(userId, ROLE_FIELDS) : null;
+  const roles = user?.roles || [];
+  const isSystem = roles.includes("system");
+  const adminSchoolIds = roles
+    .filter(role => role.startsWith("admin."))
+    .map(role => role.replace("admin.", ""));
+
+  return {
+    isSystem,
+    isSchoolAdmin: adminSchoolIds.length > 0,
+    adminSchoolIds,
+    schoolId: user?.schoolId || null,
+  };
+}
+
 /**
  * Check if user has system role (global access)
  */
 export async function isSystemAdmin(userId = null) {
-  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
-  return user?.roles?.includes("system") || false;
+  const { isSystem } = await resolveRole(userId || Meteor.userId());
+  return isSystem;
 }
 
 /**
  * Check if user is admin of a specific school
  */
 export async function isSchoolAdmin(userId = null, schoolId = null) {
-  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
-  if (!user?.roles) return false;
+  const role = await resolveRole(userId || Meteor.userId());
 
   // If no schoolId provided, check if user is admin of their own school
-  const targetSchoolId = schoolId || user.schoolId;
+  const targetSchoolId = schoolId || role.schoolId;
   if (!targetSchoolId) return false;
 
-  return user.roles.includes(`admin.${targetSchoolId}`);
+  return role.adminSchoolIds.includes(targetSchoolId);
 }
 
 /**
  * Check if user has any admin role (system or school-specific)
  */
 export async function isAnyAdmin(userId = null) {
-  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
-  if (!user?.roles) return false;
-
-  // Check for system role
-  if (user.roles.includes("system")) return true;
-
-  // Check for any school admin role
-  return user.roles.some(role => role.startsWith("admin."));
+  const role = await resolveRole(userId || Meteor.userId());
+  return role.isSystem || role.isSchoolAdmin;
 }
 
 /**
  * Get user's admin schools (returns array of schoolIds user can admin)
  */
 export async function getUserAdminSchools(userId = null) {
-  const user = await Meteor.users.findOneAsync(userId || Meteor.userId());
-  if (!user?.roles) return [];
+  const role = await resolveRole(userId || Meteor.userId());
 
   // System admins can admin all schools
-  if (user.roles.includes("system")) {
+  if (role.isSystem) {
     const allSchools = await Schools.find({ isActive: true }).fetchAsync();
     return allSchools.map(school => school._id);
   }
 
-  // Extract school IDs from admin roles
-  return user.roles
-    .filter(role => role.startsWith("admin."))
-    .map(role => role.replace("admin.", ""));
+  return role.adminSchoolIds;
 }
 
 /**
  * Check if user can manage another user (based on school and role hierarchy)
  */
 export async function canManageUser(managerId, targetUserId) {
-  const manager = await Meteor.users.findOneAsync(managerId);
-  const target = await Meteor.users.findOneAsync(targetUserId);
+  const manager = await Meteor.users.findOneAsync(managerId, ROLE_FIELDS);
+  const target = await Meteor.users.findOneAsync(targetUserId, ROLE_FIELDS);
 
   if (!manager || !target) return false;
 
@@ -87,7 +102,7 @@ export async function validateAdminAction(
   targetSchoolId = null,
   action = "manage",
 ) { // eslint-disable-line no-unused-vars
-  const user = await Meteor.users.findOneAsync(userId);
+  const user = await Meteor.users.findOneAsync(userId, ROLE_FIELDS);
 
   if (!user) {
     throw new Meteor.Error("user-not-found", "User not found");

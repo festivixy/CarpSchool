@@ -34,10 +34,23 @@ const CACHE_CONFIG = {
  */
 const debounce = (func, delay) => {
   let timeoutId;
+  let pendingReject = null;
   return (...args) => {
-    clearTimeout(timeoutId);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      // A superseded call's promise must settle, or its .finally() (loading
+      // spinners, etc.) never runs.
+      if (pendingReject) {
+        const abortError = new Error("Debounced request superseded");
+        abortError.name = "AbortError";
+        pendingReject(abortError);
+        pendingReject = null;
+      }
+    }
     return new Promise((resolve, reject) => {
+      pendingReject = reject;
       timeoutId = setTimeout(async () => {
+        pendingReject = null;
         try {
           const result = await func(...args);
           resolve(result);
@@ -138,7 +151,7 @@ const searchLocations = async (query, options = {}) => {
     try {
       const {
         limit = 5,
-        countrycodes = "ca",
+        countrycodes,
         addressdetails = 1,
       } = options;
 
@@ -147,7 +160,9 @@ const searchLocations = async (query, options = {}) => {
       searchUrl.searchParams.set("format", "json");
       searchUrl.searchParams.set("limit", limit.toString());
       searchUrl.searchParams.set("addressdetails", addressdetails.toString());
-      searchUrl.searchParams.set("countrycodes", countrycodes);
+      if (countrycodes) {
+        searchUrl.searchParams.set("countrycodes", countrycodes);
+      }
 
       console.log("[MapServices] Fetching search results for:", normalizedQuery);
 
@@ -263,23 +278,7 @@ export const getRoute = async (startCoord, endCoord, options = {}) => {
   // Create new request with timeout handling
   const requestPromise = (async () => {
     try {
-      const { service = "driving", timeout = 3000, useWorker = false } = options; // Reduced to 3 seconds
-
-      // Use Web Worker for heavy calculations if requested
-      if (useWorker && typeof Worker !== "undefined") {
-        try {
-          const { calculateRouteInWorker } = await import("./mapWorker");
-          const workerResult = await calculateRouteInWorker(startCoord, endCoord, { timeout });
-
-          // Cache the result
-          CacheManager.set(routeCache, cacheKey, workerResult);
-
-          return workerResult;
-        } catch (workerError) {
-          console.warn("[MapServices] Worker route calculation failed, using main thread:", workerError);
-          // Continue with main thread calculation
-        }
-      }
+      const { service = "driving", timeout = 3000 } = options; // Reduced to 3 seconds
 
       // Use core route calculation
       const { calculateCoreRoute } = await import("./mapCore");
@@ -427,9 +426,23 @@ export const searchLocation = debouncedSearch;
  */
 export const searchLocationImmediate = searchLocations;
 
-// Periodic cache cleanup (every 10 minutes)
+/**
+ * Clears every map cache and cancels in-flight requests. Meant to be called
+ * on logout, so a signed-out viewer's next session does not see cached
+ * search/route results from the previous account.
+ *
+ * NEEDS OTHER OWNER: imports/ui/utils/logout.js (and any other call site of
+ * Meteor.logout -- see also AccountsHandlers.js, clerkAuth.js) is not in
+ * this agent's file set. Have it call `clearMapCaches()` (import from
+ * "imports/ui/utils/mapServices") wherever it handles Meteor.logout.
+ */
+export const clearMapCaches = () => MapServiceCache.clearAll();
+
+// Periodic cache cleanup (every 10 minutes), stopped on unload so it does
+// not keep firing against a torn-down page.
 if (typeof window !== "undefined") {
-  setInterval(() => {
+  const cleanupIntervalId = setInterval(() => {
     MapServiceCache.cleanup();
   }, 10 * 60 * 1000);
+  window.addEventListener("beforeunload", () => clearInterval(cleanupIntervalId));
 }
