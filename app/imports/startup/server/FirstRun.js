@@ -51,20 +51,19 @@ async function createUser(email, firstName, lastName, password, role, schoolCode
   }
 
   console.log(`  Creating user ${email}${school ? ` for school ${school.name}` : ""}${roles.length ? ` with role(s): ${roles.join(", ")}` : ""}.`);
-  const userID = await new Promise((resolve, _reject) => {
-    const id = Accounts.createUser({
-      username: email,
-      profile: {
-        firstName: firstName,
-        lastName: lastName,
-        captchaSessionId: captchaSessionId,
-      },
-      email: email,
-      password: password,
+  // createUserAsync: the sync form returns a Promise on the Meteor 3 server,
+  // so userID was a Promise and the role assignment below matched nothing.
+  const userID = await Accounts.createUserAsync({
+    username: email,
+    profile: {
+      firstName: firstName,
+      lastName: lastName,
       captchaSessionId: captchaSessionId,
-      schoolId: school ? school._id : null,
-    });
-    resolve(id);
+    },
+    email: email,
+    password: password,
+    captchaSessionId: captchaSessionId,
+    schoolId: school ? school._id : null,
   });
 
   // Assign roles atomically using findOneAndUpdate to prevent race conditions (V009 fix)
@@ -313,6 +312,15 @@ async function migrateLegacyRides() {
 Meteor.startup(async () => {
   // Migrate any existing legacy ride data
   await migrateLegacyRides();
+
+  // Seeding is a development convenience. In production an empty database
+  // must not receive the settings file's default accounts (a known password)
+  // or a test school with registration wide open. Set SEED_DATABASE=1 to
+  // opt in deliberately.
+  const seedingAllowed = Meteor.isDevelopment || process.env.SEED_DATABASE === "1";
+  if (!seedingAllowed) {
+    return;
+  }
 
   // Create default schools first
   if ((await Schools.find().countAsync()) === 0) {

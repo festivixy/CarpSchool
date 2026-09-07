@@ -30,10 +30,14 @@ else
 fi
 
 if [ -e /settings.json ]; then
-  METEOR_SETTINGS=$(cat /settings.json)
+  # Must be exported: a plain assignment is not inherited by the node process,
+  # which then started with Meteor.settings empty and no way to log in.
+  METEOR_SETTINGS="$(cat /settings.json)"
+  export METEOR_SETTINGS
   echo "=> set meteor settings"
 fi
 
-export PORT=${PORT:-3000}
+export PORT="${PORT:-3000}"
 echo "=> Starting meteor app on port $PORT"
-node main.js
+# exec so node is PID 1 and receives SIGTERM directly on docker stop.
+exec node main.js

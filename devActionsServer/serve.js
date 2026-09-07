@@ -1,10 +1,41 @@
 const express = require('express');
 const util = require('util');
+const crypto = require('crypto');
 const exec = util.promisify(require('child_process').exec);
 
 const app = express();
 
-app.post('/webhook', express.json({ type: 'application/json' }), async (request, response) => {
+// Every delivery must carry a valid X-Hub-Signature-256 computed with the
+// webhook secret GitHub was configured with. Without this check any POST to
+// this port took production down and redeployed whatever artifact was latest.
+const WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
+const ALLOWED_REPOSITORY = process.env.GITHUB_REPOSITORY_FULL_NAME || 'zlc1004/Carpool';
+
+const rawBodySaver = (req, res, buf) => { req.rawBody = buf; };
+
+const signatureValid = (request) => {
+    if (!WEBHOOK_SECRET) return false;
+    const header = request.headers['x-hub-signature-256'];
+    if (typeof header !== 'string' || !request.rawBody) return false;
+    const expected = 'sha256=' + crypto.createHmac('sha256', WEBHOOK_SECRET).update(request.rawBody).digest('hex');
+    const a = Buffer.from(expected);
+    const b = Buffer.from(header);
+    return a.length === b.length && crypto.timingSafeEqual(a, b);
+};
+
+app.post('/webhook', express.json({ type: 'application/json', verify: rawBodySaver }), async (request, response) => {
+    if (!WEBHOOK_SECRET) {
+        console.error('GITHUB_WEBHOOK_SECRET is not set; refusing all deliveries');
+        return response.status(503).send('Webhook not configured');
+    }
+    if (!signatureValid(request)) {
+        console.warn('Rejected webhook delivery with a missing or invalid signature');
+        return response.status(401).send('Invalid signature');
+    }
+    if (!request.body || !request.body.repository || request.body.repository.full_name !== ALLOWED_REPOSITORY) {
+        console.warn('Rejected webhook delivery for an unexpected repository');
+        return response.status(403).send('Unexpected repository');
+    }
 
     // Respond to indicate that the delivery was successfully received.
     // Your server should respond with a 2XX response within 10 seconds of receiving a webhook delivery. If your server takes longer than that to respond, then GitHub terminates the connection and considers the delivery a failure.

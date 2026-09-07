@@ -205,6 +205,16 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized", "Must be logged in to send notifications");
     }
 
+    // Free-form pushes to arbitrary user ids are an administrative action.
+    // Server code calls sendNotifications() directly and never needs this.
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
+    if (!(await isSystemAdmin(this.userId))) {
+      throw new Meteor.Error("not-authorized", "Only system administrators can send direct notifications");
+    }
+    if (recipients.length > 500) {
+      throw new Meteor.Error("too-many-recipients", "At most 500 recipients per call");
+    }
+
     try {
       return await sendNotifications(this.userId, recipients, title, body, options);
 
@@ -225,6 +235,22 @@ Meteor.methods({
 
     if (!this.userId) {
       throw new Meteor.Error("not-authorized", "Must be logged in");
+    }
+
+    // Only the driver (or an admin of the ride's school) may broadcast to a
+    // ride; a rider could otherwise send every co-rider a spoofed
+    // "Ride Cancelled".
+    const ride = await Rides.findOneAsync(rideId, { fields: { driver: 1, schoolId: 1 } });
+    if (!ride) {
+      throw new Meteor.Error("ride-not-found", "Ride not found");
+    }
+    if (ride.driver !== this.userId) {
+      const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+      const allowed = (await isSystemAdmin(this.userId))
+        || (await isSchoolAdmin(this.userId, ride.schoolId));
+      if (!allowed) {
+        throw new Meteor.Error("not-authorized", "Only the driver can notify this ride's participants");
+      }
     }
 
     try {

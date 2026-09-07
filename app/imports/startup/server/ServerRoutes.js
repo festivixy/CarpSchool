@@ -1,3 +1,5 @@
+import crypto from "crypto";
+import { Meteor } from "meteor/meteor";
 import { WebApp } from "meteor/webapp";
 import { Accounts } from "meteor/accounts-base";
 import { Images } from "../../api/images/Images";
@@ -207,6 +209,32 @@ WebApp.connectHandlers.use("/image", async (req, res, _next) => {
   }
 });
 
+/*
+ * Persona signs webhooks as "t=<unix ts>,v1=<hex hmac>" over "<t>.<raw body>"
+ * with the webhook secret. Reject anything older than five minutes so a
+ * captured request cannot be replayed.
+ */
+const PERSONA_MAX_AGE_SECONDS = 300;
+
+const verifyPersonaSignature = (header, rawBody, secret) => {
+  if (typeof header !== "string") return false;
+  const parts = Object.fromEntries(
+    header.split(",").map((p) => p.trim().split("=")).filter((kv) => kv.length === 2),
+  );
+  const ts = Number(parts.t);
+  const given = parts.v1;
+  if (!Number.isFinite(ts) || !given) return false;
+  if (Math.abs(Date.now() / 1000 - ts) > PERSONA_MAX_AGE_SECONDS) return false;
+
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(`${ts}.${rawBody}`)
+    .digest("hex");
+  const a = Buffer.from(expected, "utf8");
+  const b = Buffer.from(String(given), "utf8");
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+};
+
 // Persona Webhook Endpoint
 WebApp.connectHandlers.use("/webhooks/persona", async (req, res, _next) => {
   if (req.method !== "POST") {
@@ -222,6 +250,22 @@ WebApp.connectHandlers.use("/webhooks/persona", async (req, res, _next) => {
 
   req.on("end", async () => {
     try {
+      // Fail closed: without a verified signature anyone who can reach this
+      // URL could mark any profile identity-verified.
+      const secret = Meteor.settings?.private?.persona?.webhookSecret
+        || process.env.PERSONA_WEBHOOK_SECRET;
+      if (!secret) {
+        console.error("Persona webhook rejected: PERSONA_WEBHOOK_SECRET is not configured");
+        res.writeHead(503);
+        res.end("Webhook not configured");
+        return;
+      }
+      if (!verifyPersonaSignature(req.headers["persona-signature"], body, secret)) {
+        res.writeHead(401);
+        res.end("Invalid signature");
+        return;
+      }
+
       const payload = JSON.parse(body);
       const { data } = payload;
 

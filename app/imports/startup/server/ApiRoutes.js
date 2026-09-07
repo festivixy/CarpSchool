@@ -102,24 +102,17 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
 
       let passwordValid = false;
 
-      // Since this is a Meteor environment and bcrypt modules have compatibility issues,
-      // we'll use Meteor's native password verification method
+      // Real bcrypt comparison through accounts-password. The previous code
+      // accepted the literal string "testpass123" for every account.
       try {
-        // Check if the password matches by creating a test user login
-        const loginAttempt = {
-          type: 'password',
-          allowed: true,
-          user: user,
-          methodName: 'login'
-        };
-
-        // Basic password validation - in production you'd want proper bcrypt
-        // For now, we'll validate password length and basic format matching
-        // This is a simplified validation for demonstration purposes
-        passwordValid = (hashedPassword.startsWith('$2') && password.length >= 6 && password === 'testpass123');
-
+        const checker = Accounts._checkPasswordAsync || null;
+        if (typeof checker !== "function") {
+          throw new Error("password verification unavailable");
+        }
+        const result = await checker(user, password);
+        passwordValid = Boolean(result && result.userId && !result.error);
       } catch (error) {
-        console.log(`API: Password verification failed for user ${user.username || email}`);
+        console.log(`API: Password verification failed for user ${user._id}`);
         passwordValid = false;
       }
 
@@ -447,7 +440,11 @@ WebApp.connectHandlers.use("/api", async (req, res, next) => {
    if (req.method === "GET" && url === "/schools") {
      try {
        const { Schools } = await import("../../api/schools/Schools");
-       const schools = await Schools.find({}, { limit: 100 }).fetchAsync();
+       // Public listing: never the smtpSettings block (it holds a password).
+       const schools = await Schools.find(
+         { isActive: true },
+         { limit: 100, fields: { name: 1, shortName: 1, code: 1, domain: 1, location: 1, isActive: 1 } },
+       ).fetchAsync();
 
        return sendJson(res, 200, { status: "success", data: schools });
      } catch (e) {

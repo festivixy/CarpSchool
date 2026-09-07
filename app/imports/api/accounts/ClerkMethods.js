@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
+import { check, Match } from "meteor/check";
 import { Accounts } from "meteor/accounts-base";
 import { Profiles } from "../profile/Profile";
 import { Schools } from "../schools/Schools";
@@ -14,38 +14,34 @@ Meteor.methods({
   "clerk.getMeteorUser": async function(clerkUserId) {
     check(clerkUserId, String);
 
-    if (!clerkUserId) {
-      throw new Meteor.Error("invalid-clerk-id", "Invalid Clerk user ID");
+    // The caller's identity comes from the DDP session, never from the
+    // argument. Previously this method took an arbitrary Clerk id from an
+    // anonymous caller and returned that user's whole document (login token
+    // hashes included), or created an account for it with no school check.
+    // Account creation belongs to the login handler alone.
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in");
     }
 
-    // Check if user already exists with this Clerk ID
-    const existingUser = await Meteor.users.findOneAsync({
-      "profile.clerkUserId": clerkUserId
-    });
-
-    if (existingUser) {
-      return existingUser;
-    }
-
-    // Create new Meteor user linked to Clerk
-    // Note: Clerk handles password/auth, we just create the Meteor record
-    // Must be createUserAsync. In Meteor 3 the sync form returns a Promise,
-    // which findOneAsync below then received as its selector; a Promise
-    // serializes to an empty selector {} and returns an arbitrary OTHER
-    // user's document to the caller.
-    const userId = await Accounts.createUserAsync({
-      username: `clerk_${clerkUserId}`, // Generate unique username from Clerk ID
-      email: `clerk_${clerkUserId}@clerk.local`, // Dummy email for system compatibility
-      profile: {
-        clerkUserId,
-        name: "",
+    const user = await Meteor.users.findOneAsync(this.userId, {
+      fields: {
+        roles: 1,
+        schoolId: 1,
+        emails: 1,
+        "profile.clerkUserId": 1,
+        "profile.firstName": 1,
+        "profile.lastName": 1,
+        "profile.name": 1,
+        "profile.imageUrl": 1,
+        createdAt: 1,
       },
-      roles: [], // Initialize empty roles array for role system compatibility
     });
 
-    const newUser = await Meteor.users.findOneAsync(userId);
-    console.log(`✅ Created Meteor user for Clerk ID ${clerkUserId}:`, userId);
-    return newUser;
+    if (!user) {
+      throw new Meteor.Error("user-not-found", "User not found");
+    }
+
+    return user;
   },
 
   /**
@@ -62,6 +58,28 @@ Meteor.methods({
     if (!user) {
       throw new Meteor.Error("user-not-found", "User not found");
     }
+
+    // One profile per user. Four code paths can insert a profile and only
+    // one of them checked for an existing one.
+    const existingProfile = await Profiles.findOneAsync({ Owner: this.userId }, { fields: { _id: 1 } });
+    if (existingProfile) {
+      throw new Meteor.Error("profile-exists", "You have already completed onboarding");
+    }
+
+    // Every field is an optional, bounded string. check(Object) alone let
+    // objects and unbounded strings through into the profile document.
+    const bounded = (max) => Match.Where((v) => typeof v === "string" && v.length <= max);
+    check(profileData, {
+      name: Match.Optional(bounded(100)),
+      userType: Match.Optional(Match.OneOf("Driver", "Rider", "Both")),
+      major: Match.Optional(bounded(100)),
+      year: Match.Optional(bounded(30)),
+      campus: Match.Optional(bounded(100)),
+      phone: Match.Optional(bounded(20)),
+      other: Match.Optional(bounded(500)),
+      image: Match.Optional(bounded(64)),
+      ride: Match.Optional(bounded(64)),
+    });
 
     const profileDoc = {
       Owner: this.userId,
@@ -101,6 +119,24 @@ Meteor.methods({
       throw new Meteor.Error("auth-required", "Authentication required");
     }
 
+    // Only an active school that accepts public sign-ups may be chosen, and
+    // only once: a user who already belongs to a school cannot move
+    // themselves into another tenant.
+    const currentUser = await Meteor.users.findOneAsync(this.userId, { fields: { schoolId: 1 } });
+    if (currentUser?.schoolId) {
+      throw new Meteor.Error("school-already-set", "Your account already belongs to a school");
+    }
+    const school = await Schools.findOneAsync(
+      { _id: schoolId, isActive: true },
+      { fields: { _id: 1, settings: 1 } },
+    );
+    if (!school) {
+      throw new Meteor.Error("school-not-found", "School not found");
+    }
+    if (school.settings && school.settings.allowPublicRegistration === false) {
+      throw new Meteor.Error("registration-closed", "This school does not accept self-service sign-ups");
+    }
+
     // updateAsync: the sync form throws on the Meteor 3 server, so this method
     // failed and the user's schoolId was never set - leaving every school-scoped
     // query reporting "User has no school assigned".
@@ -133,10 +169,9 @@ Meteor.methods({
       updateData["profile.imageUrl"] = clerkData.imageUrl;
     }
 
-    // Sync roles from Clerk metadata if provided
-    if (clerkData.publicMetadata?.roles) {
-      updateData.roles = clerkData.publicMetadata.roles;
-    }
+    // Roles are never taken from the client. They are granted only by the
+    // admin methods and AdminBootstrap; the previous branch here let any
+    // user write publicMetadata.roles onto their own account.
 
     if (Object.keys(updateData).length > 0) {
       await Meteor.users.updateAsync(this.userId, {

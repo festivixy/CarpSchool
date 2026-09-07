@@ -4,6 +4,12 @@ import Joi from "joi";
 import { Schools, SchoolsSchema } from "./Schools";
 import { isSystemAdmin, isSchoolAdmin } from "../accounts/RoleUtils";
 
+/* What an unauthenticated caller may learn about a school. Anything beyond
+ * this -- settings, SMTP credentials, timestamps -- needs a role. */
+const PUBLIC_SCHOOL_FIELDS = {
+  name: 1, shortName: 1, code: 1, domain: 1, location: 1, isActive: 1,
+};
+
 Meteor.methods({
   /**
    * Create a new school (Admin only)
@@ -49,10 +55,10 @@ Meteor.methods({
   async "schools.getByCode"(schoolCode) {
     check(schoolCode, String);
 
-    const school = await Schools.findOneAsync({
-      code: schoolCode.toUpperCase(),
-      isActive: true,
-    });
+    const school = await Schools.findOneAsync(
+      { code: schoolCode.toUpperCase(), isActive: true },
+      { fields: PUBLIC_SCHOOL_FIELDS },
+    );
 
     if (!school) {
       throw new Meteor.Error("school-not-found", `School with code '${schoolCode}' not found`);
@@ -72,10 +78,10 @@ Meteor.methods({
       throw new Meteor.Error("invalid-email", "Invalid email format");
     }
 
-    const school = await Schools.findOneAsync({
-      domain: domain,
-      isActive: true,
-    });
+    const school = await Schools.findOneAsync(
+      { domain: domain, isActive: true },
+      { fields: PUBLIC_SCHOOL_FIELDS },
+    );
 
     return school; // May be null if no school found
   },
@@ -193,7 +199,9 @@ Meteor.methods({
       throw new Meteor.Error("no-school", "No school assigned to your account");
     }
 
-    const school = await Schools.findOneAsync(currentUser.schoolId);
+    // SMTP credentials are reachable only through schools.getSmtpSettings,
+    // which masks the password.
+    const school = await Schools.findOneAsync(currentUser.schoolId, { fields: { smtpSettings: 0 } });
     if (!school) {
       throw new Meteor.Error("school-not-found", "School not found");
     }

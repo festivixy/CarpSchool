@@ -115,7 +115,6 @@ codepush_configure_cli() {
     if ! code-push whoami &>/dev/null; then
         echo -e "${YELLOW}⚠️  Not logged in to CodePush server${NC}"
         echo -e "${YELLOW}💡 Please run: code-push login $server_url${NC}"
-        echo -e "${YELLOW}💡 Use credentials - Username: admin, Password: 123456${NC}"
         return 1
     fi
 
@@ -269,7 +268,6 @@ codepush_show_status() {
         else
             echo -e "${YELLOW}⚠️  Not logged in to CodePush server${NC}"
             echo -e "${YELLOW}💡 Run: code-push login $DEFAULT_CODEPUSH_SERVER${NC}"
-            echo -e "${YELLOW}💡 Use credentials - Username: admin, Password: 123456${NC}"
         fi
     else
         echo -e "${RED}❌ CodePush CLI not installed${NC}"

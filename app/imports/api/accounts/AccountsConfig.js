@@ -1,5 +1,12 @@
 import { Accounts } from "meteor/accounts-base";
 
+// Clerk is the identity provider. The accounts-password createUser DDP method
+// must not be reachable from clients: its onCreateUser hook copies roles,
+// schoolId and profile.clerkUserId straight out of the caller's options, so an
+// anonymous client could mint a system admin or bind a victim's Clerk id to a
+// password it controls. Server-side createUserAsync is unaffected.
+Accounts.config({ forbidClientAccountCreation: true });
+
 // Email sender configuration
 Accounts.emailTemplates.resetPassword.from = () => "CarpSchool <no-reply@carp.school>";
 Accounts.emailTemplates.verifyEmail.from = () => "CarpSchool <no-reply@carp.school>";

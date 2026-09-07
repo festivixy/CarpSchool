@@ -31,7 +31,9 @@ codepush_mysql_data/
 codepush_redis_data/
 
 config/settings.development.json
-# settings.json
+config/settings.json
+config/*.bak
+*.bak
 
 # Claude Code (local AI config)
 CLAUDE.md
