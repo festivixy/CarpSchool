@@ -26,14 +26,9 @@ Meteor.publish("ImagesMetadata", async function () {
         },
       );
     } else {
-      // Regular users can only see public images and their own private images
+      // Regular users see the metadata of their own uploads only
       return Images.find(
-        {
-          $or: [
-            { private: { $ne: true } }, // Public images
-            { user: this.userId }, // Their own private images
-          ],
-        },
+        { user: this.userId },
         {
           fields: {
             uuid: 1,

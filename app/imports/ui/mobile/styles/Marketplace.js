@@ -365,6 +365,10 @@ export const RidesScroll = styled.div`
   flex-direction: column;
   gap: 12px;
   padding: 0 24px 24px;
+
+  @media (max-width: ${BREAK}) {
+    padding-bottom: 96px;
+  }
 `;
 
 export const EmptyState = styled.div`

@@ -16,8 +16,10 @@ const BackButton = ({ history, onClick, style, className, ...props }) => {
   const handleClick = () => {
     if (onClick) {
       onClick();
-    } else {
+    } else if (history.length > 1) {
       history.goBack();
+    } else {
+      history.push("/my-rides");
     }
   };
 

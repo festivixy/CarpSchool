@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
 import { createSafeStringSchema, createSafeUriSchema } from "../../ui/utils/validation";
@@ -96,8 +97,40 @@ const ProfileSchema = Joi.object({
   identityVerified: Joi.boolean().default(false),
   personaInquiryId: Joi.string().optional(),
   verifiedAt: Joi.date().optional(),
+  createdAt: Joi.date().optional(),
   Owner: Joi.string().required(),
 });
+
+/*
+ * One profile per user. Every read is `{ Owner }` + findOne, so a second
+ * document for the same Owner is invisible and can silently carry a different
+ * approval state. Duplicates are collapsed to the newest before the unique
+ * index is created; if that still fails it is logged, never thrown.
+ */
+if (Meteor.isServer) {
+  Meteor.startup(async () => {
+    try {
+      const duplicates = await Profiles.rawCollection().aggregate([
+        { $group: { _id: "$Owner", count: { $sum: 1 } } },
+        { $match: { count: { $gt: 1 } } },
+      ]).toArray();
+
+      for (const { _id: owner } of duplicates) { // eslint-disable-line no-restricted-syntax
+        const docs = await Profiles.find( // eslint-disable-line no-await-in-loop
+          { Owner: owner },
+          { fields: { _id: 1, createdAt: 1 }, sort: { createdAt: -1, _id: -1 } },
+        ).fetchAsync();
+        const stale = docs.slice(1).map(doc => doc._id);
+        await Profiles.removeAsync({ _id: { $in: stale } }); // eslint-disable-line no-await-in-loop
+        console.warn(`[Profiles] Removed ${stale.length} duplicate profile(s) for ${owner}`);
+      }
+
+      await Profiles.createIndexAsync({ Owner: 1 }, { unique: true });
+    } catch (error) {
+      console.error("[Profiles] Could not create Owner index", error?.message || error);
+    }
+  });
+}
 
 /** Make the collection and schema available to other code. */
 export { Profiles, ProfileSchema };

@@ -1,6 +1,8 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { Places, PlacesSchema } from "./Places";
+import { Rides } from "../ride/Rides";
+import { assertProfileApproved } from "../profile/approvalGuard";
 
 /**
  * Create a new place (user can only create places for themselves)
@@ -15,6 +17,9 @@ Meteor.methods({
         "You must be logged in to create places",
       );
     }
+
+    // Places feed the ride pickers; a pending or rejected account may not add them.
+    await assertProfileApproved(this.userId);
 
     const currentUser = await Meteor.users.findOneAsync(this.userId);
 
@@ -157,6 +162,23 @@ Meteor.methods({
       throw new Meteor.Error(
         "access-denied",
         "You can only delete places you created",
+      );
+    }
+
+    /* A place that an upcoming ride still starts at, ends at or stops by
+     * cannot go: the ride would lose its route. Past rides keep their ids
+     * and resolve to nothing, which the readers already tolerate. */
+    const inUse = await Rides.findOneAsync(
+      {
+        date: { $gte: new Date() },
+        $or: [{ origin: placeId }, { destination: placeId }, { waypoints: placeId }],
+      },
+      { fields: { _id: 1 } },
+    );
+    if (inUse) {
+      throw new Meteor.Error(
+        "place-in-use",
+        "This place is part of an upcoming ride and cannot be deleted",
       );
     }
 

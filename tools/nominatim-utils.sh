@@ -17,7 +17,7 @@ nominatim_prompt_download() {
     echo -n "Download Nominatim database? (y/N): "
 
     if read -r download_nominatim; then
-        case "${download_nominatim,,}" in
+        case "$(echo "$download_nominatim" | tr '[:upper:]' '[:lower:]')" in
             y|yes)
                 return 0
                 ;;
@@ -85,10 +85,16 @@ nominatim_download_chunks() {
     # Download chunks.txt
     case "$download_tool" in
         "curl")
-            curl -L -f --progress-bar -o "$nominatim_chunks_file" "$nominatim_chunks_url"
+            curl -L -f -C - --retry 3 --progress-bar -o "$nominatim_chunks_file" "$nominatim_chunks_url" || {
+                echo "✗ Error: Failed to download $nominatim_chunks_url"
+                return 1
+            }
             ;;
         "wget")
-            wget --progress=bar:force -O "$nominatim_chunks_file" "$nominatim_chunks_url"
+            wget --progress=bar:force -O "$nominatim_chunks_file" "$nominatim_chunks_url" || {
+                echo "✗ Error: Failed to download $nominatim_chunks_url"
+                return 1
+            }
             ;;
         *)
             echo "✗ Error: Invalid download tool"
@@ -98,10 +104,12 @@ nominatim_download_chunks() {
 
     # Download individual chunks
     echo "Reading nominatim_chunks.txt and downloading tarball chunks..."
-    local total_chunks=$(wc -l < "$nominatim_chunks_file")
+    local total_chunks
+    total_chunks=$(wc -l < "$nominatim_chunks_file")
     local current_chunk=0
 
-    for chunk_filename in $(cat "$nominatim_chunks_file"); do
+    while IFS= read -r chunk_filename; do
+        [ -z "$chunk_filename" ] && continue
         current_chunk=$((current_chunk + 1))
         echo "[$current_chunk/$total_chunks] Downloading: $chunk_filename"
 
@@ -110,13 +118,19 @@ nominatim_download_chunks() {
 
         case "$download_tool" in
             "curl")
-                curl -L -f --progress-bar -o "$chunk_target" "$chunk_url"
+                curl -L -f -C - --retry 3 --progress-bar -o "$chunk_target" "$chunk_url" || {
+                    echo "✗ Error: Failed to download $chunk_url"
+                    return 1
+                }
                 ;;
             "wget")
-                wget --progress=bar:force -O "$chunk_target" "$chunk_url"
+                wget --progress=bar:force -O "$chunk_target" "$chunk_url" || {
+                    echo "✗ Error: Failed to download $chunk_url"
+                    return 1
+                }
                 ;;
         esac
-    done
+    done < "$nominatim_chunks_file"
 
     NOMINATIM_CHUNKS_DIR="$nominatim_dir"
     return 0

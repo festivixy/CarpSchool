@@ -5,6 +5,21 @@ import { useAuth } from "@clerk/clerk-react";
 import MobileNavBarCSS from "./MobileNavBarCSS";
 import NativeNavBar from "../ios/components/NativeNavBar";
 
+/* Tabs offered to the native iOS bar. Mirrors the CSS bottom bar's signed-in
+ * items -- "More" stands in for the profile/settings menu. */
+const NATIVE_TAB_ITEMS = [
+  { label: "Rides", path: "/my-rides", icon: "car" },
+  { label: "Find", path: "/find", icon: "search" },
+  { label: "Places", path: "/places", icon: "pin" },
+  { label: "Chat", path: "/chat", icon: "chat" },
+  { label: "More", path: "/mobile/profile", icon: "user" },
+];
+
+const activeIndexFor = (pathname) => {
+  const index = NATIVE_TAB_ITEMS.findIndex(item => pathname && pathname.startsWith(item.path));
+  return index === -1 ? 0 : index;
+};
+
 /**
  * MobileNavBarAuto - Smart navbar component that automatically detects the environment
  * and renders the appropriate navigation bar (CSS or native iOS)
@@ -37,7 +52,14 @@ function MobileNavBarAuto({ history }) {
   }
 
   if (shouldUseNativeNavBar()) {
-    return <NativeNavBar {...{ isSignedIn }} />;
+    return (
+      <NativeNavBar
+        items={NATIVE_TAB_ITEMS}
+        activeIndex={activeIndexFor(location?.pathname)}
+        history={history}
+        {...{ isSignedIn }}
+      />
+    );
   }
 
   return <MobileNavBarCSS {...{ isSignedIn }} />;

@@ -7,6 +7,34 @@ import { Random } from "meteor/random";
 import { Email } from "meteor/email";
 import { isCaptchaSolved, useCaptcha } from "../captcha/Captcha";
 
+/*
+ * userId backs every lookup; expiresAt is a TTL index (expireAfterSeconds 0)
+ * so stale codes are purged by Mongo itself. Logged, never thrown, at boot.
+ */
+if (Meteor.isServer) {
+  Meteor.startup(async () => {
+    const indexes = [
+      [{ userId: 1 }],
+      [{ expiresAt: 1 }, { expireAfterSeconds: 0 }],
+    ];
+    for (const [keys, options] of indexes) { // eslint-disable-line no-restricted-syntax
+      try {
+        await SchoolEmailVerifications.createIndexAsync(keys, options); // eslint-disable-line no-await-in-loop
+      } catch (error) {
+        console.error("[SchoolEmailVerifications] Could not create index", keys, error?.message || error);
+      }
+    }
+  });
+}
+
+/** Minimal HTML escaping for values interpolated into the email template. */
+const escapeHtml = value => String(value ?? "")
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;")
+  .replace(/'/g, "&#39;");
+
 Meteor.methods({
   /**
    * Send verification code to school email
@@ -62,6 +90,15 @@ Meteor.methods({
     // Check if school has SMTP settings configured
     if (!school.smtpSettings || !school.smtpSettings.enabled) {
       throw new Meteor.Error("smtp-not-configured", "School email verification is not available. Contact your school administrator.");
+    }
+
+    // The school's mail account must not become an open relay: when the
+    // school has a domain, only addresses on it may be sent a code.
+    if (school.domain) {
+      const recipientDomain = email.toLowerCase().split("@")[1];
+      if (recipientDomain !== school.domain.toLowerCase()) {
+        throw new Meteor.Error("wrong-domain", `Please use your @${school.domain} email address.`);
+      }
     }
 
     // Check if email is already used by another user
@@ -237,6 +274,8 @@ Meteor.methods({
  */
 async function sendSchoolVerificationEmail(school, email, verificationCode, userName) {
   const smtpSettings = school.smtpSettings;
+  const schoolName = escapeHtml(school.name);
+  const safeUserName = escapeHtml(userName);
 
   // Configure SMTP for this email. MAIL_URL is process-global, so it must be
   // restored afterwards or every later outbound email routes through this school.
@@ -247,13 +286,13 @@ async function sendSchoolVerificationEmail(school, email, verificationCode, user
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
       <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #333; margin: 0; font-size: 28px;">🚗 ${school.schoolName}</h1>
+          <h1 style="color: #333; margin: 0; font-size: 28px;">🚗 ${schoolName}</h1>
           <h2 style="color: #666; margin: 10px 0 0 0; font-size: 18px;">School Email Verification</h2>
         </div>
 
         <div style="margin-bottom: 30px;">
           <p style="color: #333; font-size: 16px; line-height: 1.5; margin: 0 0 15px 0;">
-            Hi ${userName},
+            Hi ${safeUserName},
           </p>
           <p style="color: #333; font-size: 16px; line-height: 1.5; margin: 0 0 15px 0;">
             You have requested to verify your school email address for rider access on Carp School.
@@ -295,8 +334,8 @@ async function sendSchoolVerificationEmail(school, email, verificationCode, user
   try {
     await Email.sendAsync({
       to: email,
-      from: `${school.schoolName} <${smtpSettings.email}>`,
-      subject: `${school.schoolName} - Email Verification Code: ${verificationCode}`,
+      from: `${school.name} <${smtpSettings.email}>`,
+      subject: `${school.name} - Email Verification Code`,
       html: emailTemplate,
     });
   } finally {

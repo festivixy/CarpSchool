@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
@@ -11,11 +11,15 @@ import {
   VerifyHeader,
   VerifyTitle,
   VerifyContent,
+  VerifyText,
+  VerifyButton,
   ErrorMessage,
 } from "../styles/Verify";
 import BackButton from "../mobile/components/BackButton";
 
 const Verify = ({ profileData, ready, currentUser }) => {
+  const [bothChoice, setBothChoice] = useState(null);
+
   if (!currentUser) {
     return (
       <VerifyContainer>
@@ -51,6 +55,32 @@ const Verify = ({ profileData, ready, currentUser }) => {
   }
 
   const userType = profileData.UserType;
+
+  if (userType === "Both") {
+    if (bothChoice === "Driver") return <DriverVerify />;
+    if (bothChoice === "Rider") return <RiderVerify />;
+
+    return (
+      <VerifyContainer>
+        <BackButton />
+        <VerifyHeader>
+          <VerifyTitle>Verification</VerifyTitle>
+        </VerifyHeader>
+        <VerifyContent>
+          <VerifyText>
+            You drive and ride, so let&apos;s verify both. Start with one — you
+            can come back and verify the other afterward.
+          </VerifyText>
+          <VerifyButton onClick={() => setBothChoice("Driver")}>
+            Verify as Driver
+          </VerifyButton>
+          <VerifyButton onClick={() => setBothChoice("Rider")}>
+            Verify as Rider
+          </VerifyButton>
+        </VerifyContent>
+      </VerifyContainer>
+    );
+  }
 
   // Route to appropriate verification component based on user type
   switch (userType) {

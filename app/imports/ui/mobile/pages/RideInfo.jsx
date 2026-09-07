@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, {
+  useState, useEffect, useMemo,
+} from "react";
 import { Meteor } from "meteor/meteor";
+import { Random } from "meteor/random";
 import { useTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
+import swal from "sweetalert";
 import { Chats } from "../../../api/chat/Chat";
 import { Profiles } from "../../../api/profile/Profile";
 import RouteMapView from "../../components/RouteMapView";
@@ -38,6 +42,8 @@ import {
   PrimaryBtn,
   GhostBtn,
   ErrorNote,
+  SuccessNote,
+  StatusPill,
   SideCol,
   Card,
   CardHead,
@@ -55,6 +61,12 @@ import {
   PersonRow,
   PersonName,
   PersonSub,
+  RemoveBtn,
+  ShareCodeValue,
+  EditForm,
+  EditField,
+  EditInput,
+  EditTextarea,
   OpenSeatRow,
   OpenSeatIcon,
   OpenSeatLabel,
@@ -121,6 +133,19 @@ const fmtEyebrow = (date) => {
   return `${weekday} · ${dayMonth} · ${relativeDeparture(d)}`.toUpperCase();
 };
 
+/* Ride.status display text, when the schema carries a status field. */
+const STATUS_LABELS = {
+  confirmed: "Confirmed",
+  cancelled: "Cancelled",
+  completed: "Completed",
+};
+
+/* "YYYY-MM-DDTHH:mm" for a datetime-local input, in local time. */
+const toDatetimeLocal = (d) => {
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 const RideInfo = ({ match, history }) => {
   const rideId = match.params.rideId;
   const me = Meteor.userId();
@@ -128,14 +153,29 @@ const RideInfo = ({ match, history }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [joining, setJoining] = useState(false);
+  const [joinSuccess, setJoinSuccess] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [draft, setDraft] = useState("");
   const [credentials, setCredentials] = useState(null);
+  const [leaving, setLeaving] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [removingRiderId, setRemovingRiderId] = useState(null);
+  const [generatingCode, setGeneratingCode] = useState(false);
+  const [copyLabel, setCopyLabel] = useState("Copy");
+  const [editing, setEditing] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editForm, setEditForm] = useState(null);
 
   const fetchRide = () => Meteor.callAsync("rides.getById", rideId);
 
+  // Reset stale state from the previous ride before loading the new one, so a
+  // navigation from one ride detail to another never flashes the old ride's
+  // data, loading state, or error under the new route param.
   useEffect(() => {
     let active = true;
+    setRide(null);
+    setLoading(true);
+    setError(null);
     fetchRide()
       .then((r) => {
         if (!active) return;
@@ -172,11 +212,11 @@ const RideInfo = ({ match, history }) => {
   const isParticipant = !!ride
     && (ride.driver === me || (ride.riders || []).includes(me));
 
-  const { profileById, myMajor, chat } = useTracker(() => {
+  const { profileById, myMajor, chat, chatReady } = useTracker(() => {
     Meteor.subscribe("userProfile");
     const mine = Profiles.findOne({ Owner: me });
     const major = (mine && mine.major) || "";
-    if (!ride) return { profileById: {}, myMajor: major, chat: null };
+    if (!ride) return { profileById: {}, myMajor: major, chat: null, chatReady: false };
 
     const ids = [ride.driver, ...(ride.riders || [])].filter(Boolean);
     Meteor.subscribe("profiles.displayNames", ids);
@@ -185,14 +225,32 @@ const RideInfo = ({ match, history }) => {
       map[p.Owner] = { name: p.Name, year: p.year, major: p.major };
     });
     let doc = null;
+    let ready = false;
     if (isParticipant) {
-      Meteor.subscribe("chats.forRide", rideId);
+      const sub = Meteor.subscribe("chats.forRide", rideId);
+      ready = sub.ready();
       doc = Chats.findOne({ rideId });
     }
-    return { profileById: map, myMajor: major, chat: doc };
+    return {
+      profileById: map, myMajor: major, chat: doc, chatReady: ready,
+    };
   }, [ride, rideId, isParticipant, me]);
 
+  // Coordinate objects for the map. parseCoord builds a new object on every
+  // call, so these are keyed on the raw "lat,lng" strings rather than on
+  // `ride` itself - typing in the edit form re-renders this component, but it
+  // does not change the ride's coordinates, so the map must not rebuild.
+  const start = useMemo(
+    () => parseCoord(ride && ride.originCoords),
+    [ride && ride.originCoords],
+  );
+  const end = useMemo(
+    () => parseCoord(ride && ride.destinationCoords),
+    [ride && ride.destinationCoords],
+  );
+
   const handleJoin = async () => {
+    if (joining) return;
     setJoining(true);
     setError(null);
     try {
@@ -200,10 +258,132 @@ const RideInfo = ({ match, history }) => {
       const r = await fetchRide();
       setRide(r);
       setShowChat(true);
+      setJoinSuccess(true);
     } catch (err) {
       setError(err.reason || err.message || "Could not join ride.");
+      try {
+        const r = await fetchRide();
+        setRide(r);
+      } catch (refreshErr) {
+        // The join error already surfaced above; a failed refresh just
+        // leaves the previous ride state in place.
+      }
     } finally {
       setJoining(false);
+    }
+  };
+
+  const handleLeave = async () => {
+    if (leaving) return;
+    setLeaving(true);
+    setError(null);
+    try {
+      await Meteor.callAsync("rides.leave", rideId);
+      const r = await fetchRide();
+      setRide(r);
+    } catch (err) {
+      setError(err.reason || err.message || "Could not leave ride.");
+    } finally {
+      setLeaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    swal({
+      title: "Cancel this ride?",
+      text: "This notifies all riders and can't be undone.",
+      icon: "warning",
+      buttons: ["Keep", "Cancel ride"],
+      dangerMode: true,
+    }).then(async (yes) => {
+      if (!yes) return;
+      setCancelling(true);
+      setError(null);
+      try {
+        await Meteor.callAsync("rides.cancel", rideId);
+        const r = await fetchRide();
+        setRide(r);
+      } catch (err) {
+        setError(err.reason || err.message || "Could not cancel ride.");
+      } finally {
+        setCancelling(false);
+      }
+    });
+  };
+
+  const handleRemoveRider = async (riderUserId) => {
+    if (removingRiderId) return;
+    setRemovingRiderId(riderUserId);
+    setError(null);
+    try {
+      await Meteor.callAsync("rides.removeRider", rideId, riderUserId);
+      const r = await fetchRide();
+      setRide(r);
+    } catch (err) {
+      setError(err.reason || err.message || "Could not remove rider.");
+    } finally {
+      setRemovingRiderId(null);
+    }
+  };
+
+  const handleGenerateShareCode = async () => {
+    if (generatingCode) return;
+    setGeneratingCode(true);
+    setError(null);
+    try {
+      await Meteor.callAsync("rides.generateShareCode", rideId);
+      const r = await fetchRide();
+      setRide(r);
+    } catch (err) {
+      setError(err.reason || err.message || "Could not generate share code.");
+    } finally {
+      setGeneratingCode(false);
+    }
+  };
+
+  const handleCopyCode = async () => {
+    if (!ride || !ride.shareCode) return;
+    try {
+      await navigator.clipboard.writeText(ride.shareCode);
+      setCopyLabel("Copied!");
+      setTimeout(() => setCopyLabel("Copy"), 1500);
+    } catch (err) {
+      setError("Could not copy code.");
+    }
+  };
+
+  const openEdit = () => {
+    if (!ride) return;
+    const d = new Date(ride.date);
+    setEditForm({
+      date: Number.isNaN(d.getTime()) ? "" : toDatetimeLocal(d),
+      seats: ride.seats != null ? String(ride.seats) : "",
+      fare: ride.fare != null ? String(ride.fare) : "",
+      notes: ride.notes || "",
+    });
+    setEditing(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (savingEdit) return;
+    setSavingEdit(true);
+    setError(null);
+    try {
+      const patch = {
+        date: new Date(editForm.date),
+        seats: parseInt(editForm.seats, 10),
+        fare: editForm.fare === "" ? 0 : parseFloat(editForm.fare),
+        notes: editForm.notes,
+      };
+      await Meteor.callAsync("rides.edit", rideId, patch);
+      const r = await fetchRide();
+      setRide(r);
+      setEditing(false);
+    } catch (err) {
+      setError(err.reason || err.message || "Could not save changes.");
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -215,7 +395,8 @@ const RideInfo = ({ match, history }) => {
     try {
       let chatId = chat && chat._id;
       if (!chatId) chatId = await Meteor.callAsync("chats.createForRide", rideId);
-      await Meteor.callAsync("chats.sendMessage", chatId, text);
+      const messageId = Random.id();
+      await Meteor.callAsync("chats.sendMessage", chatId, text, messageId);
     } catch (err) {
       setError(err.reason || err.message || "Could not send message.");
       setDraft(text);
@@ -243,12 +424,11 @@ const RideInfo = ({ match, history }) => {
   const seatsLeft = Math.max(0, totalSeats - riders.length);
   const from = ride.originText || ride.origin || "Unknown";
   const to = ride.destinationText || ride.destination || "Unknown";
-  const start = parseCoord(ride.originCoords);
-  const end = parseCoord(ride.destinationCoords);
 
   const driver = profileById[ride.driver] || {};
   const driverName = driver.name || "Driver";
   const driverSub = [driver.year, driver.major].filter(Boolean).join(" · ");
+  const iDrive = ride.driver === me;
 
   // The one affinity signal this app models: a shared major.
   const sharesMajor = Boolean(myMajor)
@@ -279,6 +459,17 @@ const RideInfo = ({ match, history }) => {
     ? new Date(departAt.getTime() + durationMin * MS_PER_MINUTE)
     : null;
 
+  // Prefer an explicit ride.status field; fall back to a date/seat-derived
+  // read when the ride carries none.
+  let statusText = "";
+  if (ride.status && STATUS_LABELS[ride.status]) {
+    statusText = STATUS_LABELS[ride.status];
+  } else if (departValid) {
+    if (seatsLeft <= 0 && totalSeats > 0) statusText = "Full";
+    else if (departAt.getTime() <= Date.now()) statusText = "Departed";
+    else statusText = "Upcoming";
+  }
+
   let actionNode;
   if (isParticipant) {
     actionNode = (
@@ -289,13 +480,13 @@ const RideInfo = ({ match, history }) => {
     );
   } else if (seatsLeft > 0) {
     actionNode = (
-      <PrimaryBtn type="button" onClick={handleJoin} $disabled={joining}>
-        {joining ? "Requesting..." : "Request a seat"}
+      <PrimaryBtn type="button" onClick={handleJoin} $disabled={joining} disabled={joining}>
+        {joining ? "Joining..." : "Join this ride"}
         <Icon name="arrow" size={15} color="var(--ink-1)" />
       </PrimaryBtn>
     );
   } else {
-    actionNode = <PrimaryBtn type="button" $disabled>Ride full</PrimaryBtn>;
+    actionNode = <PrimaryBtn type="button" $disabled disabled>Ride full</PrimaryBtn>;
   }
 
   const messages = (chat && chat.Messages) || [];
@@ -361,7 +552,10 @@ const RideInfo = ({ match, history }) => {
               )}
             </MapWrap>
             <HeroBody>
-              <Eyebrow>{fmtEyebrow(ride.date)}</Eyebrow>
+              <Eyebrow>
+                {fmtEyebrow(ride.date)}
+                {statusText ? <StatusPill>{statusText}</StatusPill> : null}
+              </Eyebrow>
               <RouteTitle>
                 {from} → <Mark>{to}</Mark>
               </RouteTitle>
@@ -398,6 +592,7 @@ const RideInfo = ({ match, history }) => {
               </DataRow>
 
               <Actions>{actionNode}</Actions>
+              {joinSuccess ? <SuccessNote>You&apos;re in — seat confirmed.</SuccessNote> : null}
               {error ? <ErrorNote>{error}</ErrorNote> : null}
             </HeroBody>
           </HeroCard>
@@ -447,6 +642,15 @@ const RideInfo = ({ match, history }) => {
                         <PersonName>{name}</PersonName>
                         {sub ? <PersonSub>{sub}</PersonSub> : null}
                       </div>
+                      {iDrive ? (
+                        <RemoveBtn
+                          type="button"
+                          onClick={() => handleRemoveRider(id)}
+                          disabled={removingRiderId === id}
+                        >
+                          {removingRiderId === id ? "Removing..." : "Remove"}
+                        </RemoveBtn>
+                      ) : null}
                     </PersonRow>
                   );
                 })}
@@ -462,6 +666,100 @@ const RideInfo = ({ match, history }) => {
                 ) : null}
               </RiderList>
             </Card>
+
+            {isParticipant ? (
+              <Card>
+                <CardHead>
+                  <CardTitle>MANAGE</CardTitle>
+                </CardHead>
+                {iDrive ? (
+                  <React.Fragment>
+                    <Actions>
+                      <GhostBtn type="button" onClick={handleCancel} disabled={cancelling}>
+                        {cancelling ? "Cancelling..." : "Cancel ride"}
+                      </GhostBtn>
+                      <GhostBtn
+                        type="button"
+                        onClick={editing ? () => setEditing(false) : openEdit}
+                      >
+                        {editing ? "Close edit" : "Edit"}
+                      </GhostBtn>
+                    </Actions>
+
+                    <Actions>
+                      <GhostBtn
+                        type="button"
+                        onClick={handleGenerateShareCode}
+                        disabled={generatingCode}
+                      >
+                        {generatingCode ? "Generating..." : "Share code"}
+                      </GhostBtn>
+                      {ride.shareCode ? (
+                        <React.Fragment>
+                          <ShareCodeValue>{ride.shareCode}</ShareCodeValue>
+                          <GhostBtn type="button" onClick={handleCopyCode}>{copyLabel}</GhostBtn>
+                        </React.Fragment>
+                      ) : null}
+                    </Actions>
+
+                    {editing && editForm ? (
+                      <EditForm onSubmit={handleEditSubmit}>
+                        <EditField>
+                          <MetaLabel>DATE &amp; TIME</MetaLabel>
+                          <EditInput
+                            type="datetime-local"
+                            value={editForm.date}
+                            onChange={e => setEditForm(f => ({ ...f, date: e.target.value }))}
+                          />
+                        </EditField>
+                        <EditField>
+                          <MetaLabel>SEATS</MetaLabel>
+                          <EditInput
+                            type="number"
+                            min="1"
+                            max="7"
+                            value={editForm.seats}
+                            onChange={e => setEditForm(f => ({ ...f, seats: e.target.value }))}
+                          />
+                        </EditField>
+                        <EditField>
+                          <MetaLabel>FARE</MetaLabel>
+                          <EditInput
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={editForm.fare}
+                            onChange={e => setEditForm(f => ({ ...f, fare: e.target.value }))}
+                          />
+                        </EditField>
+                        <EditField>
+                          <MetaLabel>NOTES</MetaLabel>
+                          <EditTextarea
+                            value={editForm.notes}
+                            onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))}
+                          />
+                        </EditField>
+                        <Actions>
+                          <PrimaryBtn
+                            type="submit"
+                            $disabled={savingEdit}
+                            disabled={savingEdit}
+                          >
+                            {savingEdit ? "Saving..." : "Save changes"}
+                          </PrimaryBtn>
+                        </Actions>
+                      </EditForm>
+                    ) : null}
+                  </React.Fragment>
+                ) : (
+                  <Actions>
+                    <GhostBtn type="button" onClick={handleLeave} disabled={leaving}>
+                      {leaving ? "Leaving..." : "Leave ride"}
+                    </GhostBtn>
+                  </Actions>
+                )}
+              </Card>
+            ) : null}
 
             {sharesMajor ? (
               <HeadsUp>
@@ -496,7 +794,7 @@ const RideInfo = ({ match, history }) => {
           </ItinRow>
         </ItinCard>
 
-        {isParticipant && showChat ? (
+        {isParticipant && showChat && chatReady ? (
           <ChatCard>
             <ChatHead>
               <Eyebrow>{`RIDE CHAT · ${riders.length + 1} MEMBERS`}</Eyebrow>

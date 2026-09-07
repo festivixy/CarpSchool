@@ -106,7 +106,7 @@ app.post('/webhook', express.json({ type: 'application/json', verify: rawBodySav
     }
 });
 
-const port = 3000;
+const port = process.env.PORT || 3100;
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

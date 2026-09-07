@@ -22,8 +22,8 @@ Meteor.methods({
     }
 
     const userType = userProfile.UserType;
-    if (!userType || !["Driver", "Rider"].includes(userType)) {
-      throw new Meteor.Error("invalid-role", "Invalid user type. Must be Driver or Rider.");
+    if (!userType || !["Driver", "Rider", "Both"].includes(userType)) {
+      throw new Meteor.Error("invalid-role", "Invalid user type. Must be Driver, Rider or Both.");
     }
 
     // Check if verification already exists

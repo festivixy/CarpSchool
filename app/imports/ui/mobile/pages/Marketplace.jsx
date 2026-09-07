@@ -9,6 +9,8 @@ import { Places } from "../../../api/places/Places";
 import Icon from "../../components/Icon";
 import WaypointMap from "../components/WaypointMap";
 import { formatPlaceValue, canEditPlace } from "../../utils/placeCoords";
+import { useDebounce } from "../../utils/geolocation";
+import useGeolocation from "../../utils/useGeolocation";
 import RideCard from "../../components/RideCard";
 import {
   Screen,
@@ -42,7 +44,7 @@ import {
 
 const ANY = "";
 const MAX_FARE = 10;
-const GEO_TIMEOUT_MS = 10000;
+const RIDES_POLL_MS = 60000;
 
 const fmtTime = (date) => new Date(date)
   .toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
@@ -100,18 +102,25 @@ const Marketplace = ({ history }) => {
   const [when, setWhen] = useState("any");
   const [cheapOnly, setCheapOnly] = useState(false);
   const [showText, setShowText] = useState(false);
-  const [query, setQuery] = useState("");
+  const [queryInput, setQueryInput] = useState("");
+  const query = useDebounce(queryInput, 300);
   const [sort, setSort] = useState("soonest");
+  const [refreshing, setRefreshing] = useState(false);
 
   // Viewer's own position, only ever set from a real geolocation fix.
   const [myPosition, setMyPosition] = useState(null);
-  const [geoState, setGeoState] = useState("idle");
+  const geo = useGeolocation();
 
   useEffect(() => {
-    let active = true;
-    Meteor.callAsync("rides.forMySchool", {})
+    if (geo.status === "granted" && geo.position) {
+      setMyPosition({ ...geo.position, label: "You are here" });
+    }
+  }, [geo.status, geo.position]);
+
+  const fetchRides = useCallback((isManualRefresh = false) => {
+    if (isManualRefresh) setRefreshing(true);
+    return Meteor.callAsync("rides.forMySchool", {})
       .then((rides) => {
-        if (!active) return;
         const me = Meteor.userId();
         const joinable = (rides || []).filter((r) => {
           const seatsLeft = (r.seats || 0) - (r.riders ? r.riders.length : 0);
@@ -121,16 +130,34 @@ const Marketplace = ({ history }) => {
         });
         setAllRides(joinable);
         setLoading(false);
+        setError(null);
       })
       .catch((err) => {
-        if (!active) return;
         setError(err.reason || err.message || "Could not load rides.");
         setLoading(false);
+      })
+      .finally(() => {
+        if (isManualRefresh) setRefreshing(false);
       });
-    return () => {
-      active = false;
-    };
   }, []);
+
+  // Refresh on a timer, and whenever the tab regains attention -- results
+  // seats fill up while the tab is backgrounded otherwise.
+  useEffect(() => {
+    fetchRides();
+    const interval = setInterval(() => fetchRides(), RIDES_POLL_MS);
+    const onFocus = () => fetchRides();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") fetchRides();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [fetchRides]);
 
   const driverIds = useMemo(
     () => [...new Set(allRides.map(r => r.driver).filter(Boolean))],
@@ -276,27 +303,7 @@ const Marketplace = ({ history }) => {
     );
   }, []);
 
-  const locateMe = useCallback(() => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      setGeoState("unsupported");
-      return;
-    }
-    setGeoState("locating");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setMyPosition({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          label: "You are here",
-        });
-        setGeoState("ready");
-      },
-      () => setGeoState("denied"),
-      { enableHighAccuracy: true, timeout: GEO_TIMEOUT_MS },
-    );
-  }, []);
-
-  const geoBlocked = geoState === "denied" || geoState === "unsupported";
+  const geoBlocked = geo.status === "denied";
 
   const swap = () => {
     setFromPlace(toPlace);
@@ -353,6 +360,7 @@ const Marketplace = ({ history }) => {
           onCreate={addWaypointAt}
           onSelect={editWaypoint}
           onMove={moveWaypoint}
+          centerOn={geo.status === "granted" ? geo.position : null}
           fill
         />
 
@@ -428,8 +436,8 @@ const Marketplace = ({ history }) => {
               <SearchInput
                 type="text"
                 placeholder="Search origin, stops or destination"
-                value={query}
-                onChange={e => setQuery(e.target.value)}
+                value={queryInput}
+                onChange={e => setQueryInput(e.target.value)}
               />
             </SearchBox>
           )}
@@ -437,12 +445,12 @@ const Marketplace = ({ history }) => {
 
         <CenterPill
           type="button"
-          onClick={locateMe}
-          disabled={geoBlocked || geoState === "locating"}
+          onClick={geo.request}
+          disabled={geoBlocked || geo.status === "locating"}
           title={geoBlocked ? "Location is unavailable in this browser" : undefined}
         >
           <PulseDot className="pulse" />
-          {geoState === "locating" ? "Locating…" : "Center on me"}
+          {geo.status === "locating" ? "Locating…" : "Center on me"}
         </CenterPill>
       </MapPane>
 
@@ -451,6 +459,14 @@ const Marketplace = ({ history }) => {
           <Eyebrow>{resultsLabel}</Eyebrow>
           <TitleRow>
             <ListTitle>{routeTitle}</ListTitle>
+            <SortBtn
+              type="button"
+              onClick={() => fetchRides(true)}
+              disabled={refreshing}
+              title="Refresh results"
+            >
+              {refreshing ? "Refreshing…" : "Refresh"}
+            </SortBtn>
             <SortBtn
               type="button"
               onClick={() => setSort(s => (s === "soonest" ? "cheapest" : "soonest"))}

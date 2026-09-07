@@ -8,7 +8,10 @@ import { withRouter } from "react-router-dom";
 const ScrollToTop = ({ history }) => {
   useEffect(() => {
     const unlisten = history.listen(() => {
-      window.scrollTo(0, 0);
+      const scrollContainer = document.getElementById("root");
+      if (scrollContainer) {
+        scrollContainer.scrollTo(0, 0);
+      }
     });
     return unlisten;
   }, [history]);

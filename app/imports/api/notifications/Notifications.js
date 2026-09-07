@@ -26,6 +26,9 @@ export const NOTIFICATION_PRIORITY = {
   URGENT: "urgent",
 };
 
+// How long a notification row is kept before the TTL index removes it
+export const NOTIFICATION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
 // Notification status
 export const NOTIFICATION_STATUS = {
   PENDING: "pending",
@@ -138,8 +141,8 @@ export const PushTokenSchema = Joi.object({
   token: Joi.string().required()
     .description("Push notification token from device"),
 
-  platform: Joi.string().valid("ios", "android", "web").required()
-    .description("Device platform"),
+  platform: Joi.string().valid("ios", "android", "web", "onesignal").required()
+    .description("Device platform (\"onesignal\" rows hold a OneSignal player/subscription id)"),
 
   deviceInfo: Joi.object({
     model: Joi.string().optional(),
@@ -212,20 +215,11 @@ export const NotificationHelpers = {
   },
 
   /**
-   * Get notification expiry time based on type
+   * Get notification expiry time. Every type is kept for 30 days so the
+   * in-app notification list still shows recent history; the TTL index on
+   * expiresAt removes them after that.
    */
-  getDefaultExpiry: (type) => {
-    const expiryHours = {
-      [NOTIFICATION_TYPES.EMERGENCY]: 1, // 1 hour
-      [NOTIFICATION_TYPES.RIDE_STARTING]: 2, // 2 hours
-      [NOTIFICATION_TYPES.CHAT_MESSAGE]: 24, // 24 hours
-      [NOTIFICATION_TYPES.RIDE_UPDATE]: 6, // 6 hours
-      [NOTIFICATION_TYPES.SYSTEM]: 72, // 72 hours
-    };
-
-    const hours = expiryHours[type] || 24; // Default 24 hours
-    return new Date(Date.now() + hours * 60 * 60 * 1000);
-  },
+  getDefaultExpiry: () => new Date(Date.now() + NOTIFICATION_TTL_MS),
 
   /**
    * Generate group key for related notifications

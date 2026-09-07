@@ -30,6 +30,10 @@ import {
   EventItem,
   EventTitle,
   EventDetails,
+  SessionList,
+  SessionRow,
+  SessionRoute,
+  SessionMeta,
   NotFound,
   NotFoundIcon,
   NotFoundTitle,
@@ -64,11 +68,76 @@ class RideHistory extends React.Component {
     return isDriver || isRider || isAdmin;
   };
 
+  /**
+   * `/ride-history/me` lands here with match.params.id === "me" - there is no
+   * single session to show, so this renders the current user's completed
+   * ride sessions as a list instead of the permission error a missing
+   * session id would otherwise produce.
+   */
+  renderMyHistory = () => {
+    const { sessions, rides, history } = this.props;
+    const rideById = {};
+    (rides || []).forEach((r) => {
+      rideById[r._id] = r;
+    });
+
+    return (
+      <Container>
+        <Header>
+          <BackButton onClick={this.handleBack}>← Back</BackButton>
+          <Title>Ride History</Title>
+          <Subtitle>Your completed rides</Subtitle>
+        </Header>
+
+        <HistoryContent>
+          <HistorySection>
+            <HistorySectionTitle>Completed rides</HistorySectionTitle>
+            {sessions.length === 0 ? (
+              <RiderProgressDetails>No completed rides yet.</RiderProgressDetails>
+            ) : (
+              <SessionList>
+                {sessions.map((s) => {
+                  const ride = rideById[s.rideId];
+                  const isDriver = s.driverId === Meteor.userId();
+                  return (
+                    <SessionRow
+                      key={s._id}
+                      type="button"
+                      onClick={() => history.push(`/ride-history/${s._id}`)}
+                    >
+                      <SessionRoute>
+                        {ride ? `${ride.origin} → ${ride.destination}` : "Ride"}
+                      </SessionRoute>
+                      <SessionMeta>
+                        {isDriver ? "Drove" : "Rode"}
+                        {s.timeline && s.timeline.ended
+                          ? ` · ${new Date(s.timeline.ended).toLocaleDateString()}`
+                          : ""}
+                      </SessionMeta>
+                    </SessionRow>
+                  );
+                })}
+              </SessionList>
+            )}
+          </HistorySection>
+        </HistoryContent>
+
+        <Spacer />
+      </Container>
+    );
+  };
+
   render() {
-    const { ready, session, ride } = this.props;
+    const {
+      ready, isMe, session, ride,
+    } = this.props;
 
     if (!ready) {
       return <MobileGenericSkeleton />;
+    }
+
+    if (isMe) {
+      return this.renderMyHistory();
     }
 
     if (!session || !this.canViewSession()) {
@@ -239,16 +308,50 @@ class RideHistory extends React.Component {
 
 RideHistory.propTypes = {
   ready: PropTypes.bool.isRequired,
+  isMe: PropTypes.bool,
   session: PropTypes.object,
   ride: PropTypes.object,
+  sessions: PropTypes.array,
+  rides: PropTypes.array,
   users: PropTypes.array.isRequired,
   history: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,
 };
 
+RideHistory.defaultProps = {
+  isMe: false,
+  session: null,
+  ride: null,
+  sessions: [],
+  rides: [],
+};
+
 export default withRouter(
   withTracker(({ match }) => {
     const sessionId = match.params.id;
+
+    if (sessionId === "me") {
+      // No single session to show here - list the current user's completed
+      // sessions instead. "rideSessions" already scopes to sessions where the
+      // caller is driver or rider; this narrows further to finished ones.
+      const sessionsSubscription = Meteor.subscribe("rideSessions");
+      const ridesSubscription = Meteor.subscribe("Rides");
+      const sessions = RideSessions.find(
+        { status: "completed" },
+        { sort: { "timeline.ended": -1 } },
+      ).fetch();
+
+      return {
+        ready: sessionsSubscription.ready() && ridesSubscription.ready(),
+        isMe: true,
+        sessions,
+        rides: Rides.find({}).fetch(),
+        session: null,
+        ride: null,
+        users: Meteor.users.find({}).fetch(),
+      };
+    }
+
     const sessionsSubscription = Meteor.subscribe("rideSession", sessionId);
     const ridesSubscription = Meteor.subscribe("Rides");
 
@@ -273,6 +376,7 @@ export default withRouter(
 
     return {
       ready: sessionsSubscription.ready() && ridesSubscription.ready() && usersSubscription.ready(),
+      isMe: false,
       session,
       ride,
       users: Meteor.users.find({}).fetch(), // Users already filtered by publication

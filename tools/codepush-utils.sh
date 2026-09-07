@@ -111,11 +111,22 @@ codepush_configure_cli() {
     # Set the server URL for CodePush CLI
     export CODE_PUSH_SERVER_URL="$server_url"
 
-    # Check if logged in
+    # Check if logged in; if not, and admin credentials are available from
+    # the environment (never printed, never logged), log in non-interactively.
     if ! code-push whoami &>/dev/null; then
-        echo -e "${YELLOW}⚠️  Not logged in to CodePush server${NC}"
-        echo -e "${YELLOW}💡 Please run: code-push login $server_url${NC}"
-        return 1
+        if [ -n "${CODEPUSH_ADMIN_USER:-}" ] && [ -n "${CODEPUSH_ADMIN_PASSWORD:-}" ]; then
+            echo -e "${YELLOW}🔑 Logging in to CodePush server using CODEPUSH_ADMIN_USER from the environment${NC}"
+            if ! code-push login "$server_url" \
+                --accessKey "${CODEPUSH_ADMIN_PASSWORD}" &>/dev/null; then
+                echo -e "${RED}❌ CodePush login failed (check CODEPUSH_ADMIN_USER/CODEPUSH_ADMIN_PASSWORD)${NC}"
+                return 1
+            fi
+        else
+            echo -e "${YELLOW}⚠️  Not logged in to CodePush server${NC}"
+            echo -e "${YELLOW}💡 Please run: code-push login $server_url${NC}"
+            echo -e "${YELLOW}💡 Or set CODEPUSH_ADMIN_USER and CODEPUSH_ADMIN_PASSWORD for non-interactive login${NC}"
+            return 1
+        fi
     fi
 
     echo -e "${GREEN}✅ CLI configured and authenticated${NC}"

@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
 
@@ -43,7 +44,28 @@ const ErrorReportSchema = Joi.object({
   ).default("unknown"),
   resolved: Joi.boolean().default(false), // Admin can mark as resolved
   notes: Joi.string().allow(null).optional(), // Admin notes about the error
+  expiresAt: Joi.date().optional(), // TTL: reports are purged after 90 days
 });
+
+/* Admin list sorts and filters, plus a TTL on expiresAt so the collection
+ * cannot grow without bound. Logged, never thrown, at boot. */
+if (Meteor.isServer) {
+  Meteor.startup(async () => {
+    const indexes = [
+      [{ timestamp: -1 }],
+      [{ resolved: 1, severity: 1, timestamp: -1 }],
+      [{ username: 1, timestamp: -1 }],
+      [{ expiresAt: 1 }, { expireAfterSeconds: 0 }],
+    ];
+    for (const [keys, options] of indexes) { // eslint-disable-line no-restricted-syntax
+      try {
+        await ErrorReports.createIndexAsync(keys, options); // eslint-disable-line no-await-in-loop
+      } catch (error) {
+        console.error("[ErrorReports] Could not create index", keys, error?.message || error);
+      }
+    }
+  });
+}
 
 /** Make the collection and schema available to other code. */
 export { ErrorReports, ErrorReportSchema };

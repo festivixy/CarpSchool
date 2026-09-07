@@ -1,6 +1,14 @@
 import { RideSessions } from "./RideSession";
 import { Rides } from "../ride/Rides";
 import { Places } from "../places/Places";
+import { parsePlaceValue } from "../places/placeCoords";
+
+/** System admin, or admin of the school the document belongs to. */
+const isAdminFor = async (userId, schoolId) => {
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  if (await isSystemAdmin(userId)) return true;
+  return Boolean(schoolId) && isSchoolAdmin(userId, schoolId);
+};
 
 /**
  * Safety validation functions for RideSession operations
@@ -16,8 +24,7 @@ export const canCreateRideSession = async (userId, rideId, driverId, riders = []
   if (!ride) return { allowed: false, reason: "Ride not found" };
 
   // Check if user is the driver or an admin
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+  const isAdmin = await isAdminFor(userId, ride.schoolId);
   const isDriver = ride.driver === userId;
 
   if (!isDriver && !isAdmin) {
@@ -36,11 +43,15 @@ export const canCreateRideSession = async (userId, rideId, driverId, riders = []
     return { allowed: false, reason: "A session already exists for this ride" };
   }
 
-    // Validate riders are part of the original ride (ride.riders now contains user IDs)
-    const invalidRiders = riders.filter(riderId => !ride.riders.includes(riderId));
-    if (invalidRiders.length > 0) {
-      return { allowed: false, reason: "Some riders are not part of the original ride" };
-    }
+  // The session's rider list must be the ride's rider list, no more and no
+  // less: a session cannot quietly drop a passenger or add a stranger.
+  const expected = [...(ride.riders || [])].sort();
+  const given = [...new Set(riders)].sort();
+  const sameRiders = expected.length === given.length
+    && expected.every((id, i) => id === given[i]);
+  if (!sameRiders) {
+    return { allowed: false, reason: "Session riders must match the ride's riders exactly" };
+  }
 
   return { allowed: true };
 };
@@ -51,8 +62,7 @@ export const canStartRideSession = async (userId, sessionId) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+  const isAdmin = await isAdminFor(userId, session.schoolId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -76,8 +86,7 @@ export const canFinishRideSession = async (userId, sessionId) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+  const isAdmin = await isAdminFor(userId, session.schoolId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -107,8 +116,7 @@ export const canCancelRideSession = async (userId, sessionId, reason) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+  const isAdmin = await isAdminFor(userId, session.schoolId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -133,8 +141,7 @@ export const canPickupRider = async (userId, sessionId, riderId, location) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+  const isAdmin = await isAdminFor(userId, session.schoolId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -160,7 +167,7 @@ export const canPickupRider = async (userId, sessionId, riderId, location) => {
 
   // Must be the session's driver, not the acting user: an admin performing the pickup
   // would otherwise miss the lookup and skip the proximity check entirely.
-  const proximityCheck = await validateLocationProximity(session.driverId, riderId, location, 1000);
+  const proximityCheck = await validateLocationProximity(sessionId, riderId, location, 1000);
   if (!proximityCheck.allowed) {
     return proximityCheck;
   }
@@ -174,8 +181,7 @@ export const canDropoffRider = async (userId, sessionId, riderId, location) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+  const isAdmin = await isAdminFor(userId, session.schoolId);
   const isDriver = session.driverId === userId;
   const isRider = userId === riderId; // Allow rider to dropoff themselves
 
@@ -200,7 +206,7 @@ export const canDropoffRider = async (userId, sessionId, riderId, location) => {
     return { allowed: false, reason: "Valid location coordinates are required" };
   }
 
-  const proximityCheck = await validateLocationProximity(session.driverId, riderId, location, 1000);
+  const proximityCheck = await validateLocationProximity(sessionId, riderId, location, 1000);
   if (!proximityCheck.allowed) {
     return proximityCheck;
   }
@@ -215,8 +221,7 @@ export const canViewRideSession = async (userId, sessionId) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+  const isAdmin = await isAdminFor(userId, session.schoolId);
   const isDriver = session.driverId === userId;
   const isRider = session.riders.includes(userId);
 
@@ -233,8 +238,7 @@ export const canModifyRideSession = async (userId, sessionId) => {
   const session = await RideSessions.findOneAsync(sessionId);
   if (!session) return { allowed: false, reason: "Session not found" };
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+  const isAdmin = await isAdminFor(userId, session.schoolId);
   const isDriver = session.driverId === userId;
 
   if (!isDriver && !isAdmin) {
@@ -301,54 +305,48 @@ const calculateDistance = (lat1, lng1, lat2, lng2) => {
   return R * c;
 };
 
+/*
+ * Is the caller close enough to the rider's pickup (or, once picked up,
+ * dropoff) point? Fails closed: a session, ride or place that cannot be
+ * resolved denies the action rather than waiving the check, because this is
+ * the one control that stops a pickup being confirmed from anywhere.
+ */
 export const validateLocationProximity = async (
-  driverId,
+  sessionId,
   riderId,
   location,
   maxDistance = 1000,
 ) => {
-  if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") {
+  if (!location || !Number.isFinite(location.lat) || !Number.isFinite(location.lng)) {
     return { allowed: false, reason: "Valid location coordinates are required" };
   }
 
-  const session = await RideSessions.findOneAsync({ driverId, riders: riderId, finished: false });
+  const session = await RideSessions.findOneAsync(sessionId);
   if (!session) {
-    return { allowed: true };
+    return { allowed: false, reason: "Session not found" };
   }
 
   const ride = await Rides.findOneAsync(session.rideId);
   if (!ride) {
-    return { allowed: true };
+    return { allowed: false, reason: "The ride for this session no longer exists" };
   }
 
-  const origin = await Places.findOneAsync({ _id: ride.origin });
-  const destination = await Places.findOneAsync({ _id: ride.destination });
+  const riderProgress = session.progress?.[riderId];
+  const isPickedUp = Boolean(riderProgress?.pickedUp);
 
-  if (!origin || !destination) {
-    return { allowed: true };
+  const target = await Places.findOneAsync(
+    { _id: isPickedUp ? ride.destination : ride.origin },
+    { fields: { value: 1 } },
+  );
+  const coords = parsePlaceValue(target?.value);
+  if (!coords) {
+    return {
+      allowed: false,
+      reason: `The ${isPickedUp ? "dropoff" : "pickup"} place has no usable coordinates`,
+    };
   }
 
-  const [originLat, originLng] = origin.value.split(",").map(Number);
-  const [destLat, destLng] = destination.value.split(",").map(Number);
-
-  if (!Number.isFinite(originLat) || !Number.isFinite(originLng) ||
-      !Number.isFinite(destLat) || !Number.isFinite(destLng)) {
-    return { allowed: true };
-  }
-
-  const riderProgress = session.progress[riderId];
-  const isPickedUp = riderProgress?.pickedUp;
-
-  let targetLat, targetLng;
-  if (!isPickedUp) {
-    targetLat = originLat;
-    targetLng = originLng;
-  } else {
-    targetLat = destLat;
-    targetLng = destLng;
-  }
-
-  const distance = calculateDistance(location.lat, location.lng, targetLat, targetLng);
+  const distance = calculateDistance(location.lat, location.lng, coords.lat, coords.lng);
 
   if (distance > maxDistance) {
     const distanceKm = (distance / 1000).toFixed(1);

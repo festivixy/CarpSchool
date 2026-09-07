@@ -3,23 +3,60 @@ import { check, Match } from "meteor/check";
 import { Rides, RidesSchema } from "./Rides";
 import { validateUserCanJoinRide, validateUserCanRemoveRider, validateUserCanCreateRide } from "./RideValidation";
 import { Profiles } from "../profile/Profile";
+import { assertProfileApproved } from "../profile/approvalGuard";
+import { Places } from "../places/Places";
+import { Chats } from "../chat/Chat";
+import { RideSessions } from "../rideSession/RideSession";
 import { estimateRoute, estimateRouteVia } from "./routeEstimate";
 import { syncChatParticipants } from "../chat/ChatParticipants";
-import { sendNotifications } from "../notifications/NotificationMethods";
+import { sendNotifications, sendToRideParticipants } from "../notifications/NotificationMethods";
 import { NOTIFICATION_TYPES, NOTIFICATION_PRIORITY } from "../notifications/Notifications";
+
+/* NotificationsSchema only accepts the values in NOTIFICATION_TYPES. Until
+ * "ride_updated" / "rider_removed" are added there, fall back to the nearest
+ * existing type so the send does not fail validation. */
+const TYPE_RIDE_UPDATED = Object.values(NOTIFICATION_TYPES).includes("ride_updated")
+  ? "ride_updated" : NOTIFICATION_TYPES.RIDE_UPDATE;
+const TYPE_RIDER_REMOVED = Object.values(NOTIFICATION_TYPES).includes("rider_removed")
+  ? "rider_removed" : NOTIFICATION_TYPES.RIDER_LEFT;
+
+/* Joining is refused this long after the ride's departure time; mirrors the
+ * buffer validateUserCanJoinRide uses for its friendly message. */
+const JOIN_GRACE_MS = 30 * 60 * 1000;
+
+const EDITABLE_KEYS = ["origin", "destination", "waypoints", "date", "seats", "fare", "notes"];
+
+const formatRideDate = date => new Date(date).toLocaleString("en-US", {
+  weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+});
+
+const displayName = async (userId, fallback) => {
+  const profile = await Profiles.findOneAsync({ Owner: userId }, { fields: { Name: 1 } });
+  return profile?.Name || fallback;
+};
+
+/**
+ * Notification failures must never fail the ride mutation they follow, so
+ * every send goes through here and logs instead of throwing.
+ */
+const notifyQuietly = async (label, send) => {
+  try {
+    await send();
+  } catch (error) {
+    console.warn(`[rides] Could not send ${label} notification:`, error?.message || error);
+  }
+};
 
 /**
  * Tell the driver that a seat has been taken.
  *
  * Joining is immediate - there is no request/approve step - so without this
- * the driver learns about a new rider only by re-opening the ride. Failure to
- * notify must never fail the join, so this swallows its own errors.
+ * the driver learns about a new rider only by re-opening the ride.
  */
 const notifyDriverOfJoin = async (ride, rider) => {
   if (!ride?.driver || ride.driver === rider?._id) return;
-  try {
-    const profile = await Profiles.findOneAsync({ Owner: rider._id });
-    const name = profile?.Name || rider.username || "A rider";
+  await notifyQuietly("rider joined", async () => {
+    const name = await displayName(rider._id, rider.username || "A rider");
     await sendNotifications(
       rider._id,
       [ride.driver],
@@ -32,9 +69,7 @@ const notifyDriverOfJoin = async (ride, rider) => {
         data: { rideId: ride._id },
       },
     );
-  } catch (error) {
-    console.warn("[rides] Could not notify driver of join:", error?.message || error);
-  }
+  });
 };
 
 /**
@@ -59,13 +94,101 @@ const assertRideVisible = async (userId, ride) => {
   }
 };
 
+/** Driver of the ride, a system admin, or an admin of the ride's school. */
+const canManageRide = async (userId, ride) => {
+  if (ride.driver === userId) return true;
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  if (await isSystemAdmin(userId)) return true;
+  if (!ride.schoolId) return false;
+  return isSchoolAdmin(userId, ride.schoolId);
+};
+
+/**
+ * Every point on a route must be a Place at the driver's school. One $in
+ * query; returns the "lat,lng" value of each id so callers can estimate the
+ * route without a second read.
+ */
+const resolveRoutePlaces = async (schoolId, ids) => {
+  const unique = [...new Set(ids.filter(Boolean))];
+  const places = await Places.find(
+    { _id: { $in: unique }, schoolId },
+    { fields: { value: 1 } },
+  ).fetchAsync();
+  if (places.length !== unique.length) {
+    throw new Meteor.Error("invalid-place", "Every stop must be a place at your school.");
+  }
+  return Object.fromEntries(places.map(p => [p._id, p.value]));
+};
+
+/** Denormalised distance/duration for the route, or {} when unreadable. */
+const routeFigures = (legIds, valueById) => {
+  const estimate = estimateRouteVia(legIds.map(id => valueById[id]));
+  if (!estimate) return {};
+  return {
+    distanceMi: estimate.distanceMi,
+    durationMin: estimate.durationMin,
+    routeEstimated: true,
+  };
+};
+
+/**
+ * Take a seat if, and only if, one is free right now. The selector carries
+ * every eligibility rule so two concurrent joins cannot both pass a
+ * read-then-write capacity check. Returns the number of documents matched.
+ */
+const claimSeat = (rideId, userId) => Rides.updateAsync(
+  {
+    _id: rideId,
+    driver: { $ne: userId },
+    riders: { $ne: userId },
+    date: { $gte: new Date(Date.now() - JOIN_GRACE_MS) },
+    $expr: { $lt: [{ $size: { $ifNull: ["$riders", []] } }, "$seats"] },
+  },
+  { $addToSet: { riders: userId } },
+);
+
+/** Pre-checks shared by rides.join and rides.joinWithCode. */
+const assertCanJoin = async (ride, user) => {
+  const profile = await assertProfileApproved(user._id);
+  const validation = validateUserCanJoinRide(ride, user, profile);
+  if (!validation.isValid) {
+    throw new Meteor.Error("validation-error", validation.error);
+  }
+};
+
+/**
+ * Remove a ride and everything hanging off it. Riders are told first, while
+ * the list is still in hand; the ride chat and any session go with it so a
+ * cancelled ride cannot keep a live chat or a startable session behind.
+ */
+const cancelRide = async (actorId, ride) => {
+  const riders = Array.isArray(ride.riders) ? ride.riders : [];
+  if (riders.length > 0) {
+    await notifyQuietly("ride cancelled", async () => {
+      const name = await displayName(ride.driver, "Your driver");
+      await sendNotifications(
+        actorId,
+        riders,
+        "Ride cancelled",
+        `${name} cancelled the ride on ${formatRideDate(ride.date)}`,
+        {
+          type: NOTIFICATION_TYPES.RIDE_CANCELLED,
+          priority: NOTIFICATION_PRIORITY.HIGH,
+          data: { rideId: ride._id },
+        },
+      );
+    });
+  }
+  await Chats.removeAsync({ rideId: ride._id });
+  await RideSessions.removeAsync({ rideId: ride._id });
+  await Rides.removeAsync(ride._id);
+};
+
 Meteor.methods({
   async "rides.remove"(rideId) {
     check(rideId, String);
 
-    // Check if user is admin
-    const user = await Meteor.userAsync();
-    if (!user) {
+    if (!this.userId) {
       throw new Meteor.Error(
         "not-authorized",
         "You must be logged in to delete rides",
@@ -74,14 +197,43 @@ Meteor.methods({
 
     const { isSystemAdmin } = await import("../accounts/RoleUtils");
 
-    if (!await isSystemAdmin(user._id)) {
+    if (!await isSystemAdmin(this.userId)) {
       throw new Meteor.Error(
         "access-denied",
         "You must be a system admin to delete rides",
       );
     }
 
-    await Rides.removeAsync(rideId);
+    const ride = await Rides.findOneAsync(rideId);
+    if (!ride) {
+      throw new Meteor.Error("not-found", "Ride not found");
+    }
+
+    await cancelRide(this.userId, ride);
+  },
+
+  /**
+   * Driver's own cancel. Also open to admins of the ride's school so they
+   * can clean up after a driver who has gone quiet.
+   */
+  async "rides.cancel"(rideId) {
+    check(rideId, String);
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to cancel a ride");
+    }
+
+    const ride = await Rides.findOneAsync(rideId);
+    if (!ride) {
+      throw new Meteor.Error("not-found", "Ride not found");
+    }
+
+    if (!await canManageRide(this.userId, ride)) {
+      throw new Meteor.Error("access-denied", "Only the driver can cancel this ride");
+    }
+
+    await cancelRide(this.userId, ride);
+    return { message: "Ride cancelled" };
   },
 
   async "rides.create"(rideData) {
@@ -107,18 +259,10 @@ Meteor.methods({
       throw new Meteor.Error("access-denied", "You cannot create a ride for someone else.");
     }
 
-    // Check if user has driver permissions
-    const userProfile = await Profiles.findOneAsync({ Owner: this.userId });
+    const userProfile = await assertProfileApproved(this.userId);
     const roleValidation = validateUserCanCreateRide(userProfile);
     if (!roleValidation.isValid) {
       throw new Meteor.Error("role-error", roleValidation.error);
-    }
-
-    // Validate data using schema via simple check or reusing schema logic if needed
-    // For now, basic checks are sufficient as schema validation happens on insert generally,
-    // but explicit validation is better.
-    if (!rideData.origin || !rideData.destination || !rideData.date) {
-        throw new Meteor.Error("invalid-data", "Missing required fields.");
     }
 
     // Get user's school ID (required by schema)
@@ -127,37 +271,108 @@ Meteor.methods({
       throw new Meteor.Error("no-school", "You must be associated with a school to create rides.");
     }
 
-    // Add schoolId to ride data
-    const rideWithSchool = {
-      ...rideData,
+    /* riders and createdAt are server-owned: a client may not seed a ride
+     * with passengers or backdate it. */
+    const { error, value } = RidesSchema.validate({
+      driver: this.userId,
       schoolId: user.schoolId,
-    };
+      origin: rideData.origin,
+      destination: rideData.destination,
+      waypoints: Array.isArray(rideData.waypoints) ? rideData.waypoints : [],
+      date: rideData.date,
+      seats: rideData.seats,
+      fare: rideData.fare,
+      notes: rideData.notes,
+      riders: [],
+      createdAt: new Date(),
+    });
+    if (error) {
+      throw new Meteor.Error("validation-error", error.details[0].message);
+    }
 
     // Denormalise route figures so discovery cards do not have to compute
     // them per render. OSRM is the real source; until it is reachable this
     // is a great-circle estimate, flagged so it can be backfilled.
-    const { Places: PlacesForRoute } = await import("../places/Places");
-    const stops = Array.isArray(rideData.waypoints) ? rideData.waypoints : [];
-    const legIds = [rideData.origin, ...stops, rideData.destination];
+    const legIds = [value.origin, ...value.waypoints, value.destination];
+    const valueById = await resolveRoutePlaces(user.schoolId, legIds);
 
-    /* One query for every point on the route, then read back in order: the
-     * estimate has to follow the stops as given, and Mongo does not preserve
-     * the order of an $in. */
-    const routePlaces = await PlacesForRoute.find(
-      { _id: { $in: legIds } },
-      { fields: { value: 1 } },
-    ).fetchAsync();
-    const valueById = Object.fromEntries(routePlaces.map(p => [p._id, p.value]));
+    return Rides.insertAsync({ ...value, ...routeFigures(legIds, valueById) });
+  },
 
-    const estimate = estimateRouteVia(legIds.map(id => valueById[id]));
-    if (estimate) {
-      rideWithSchool.distanceMi = estimate.distanceMi;
-      rideWithSchool.durationMin = estimate.durationMin;
-      rideWithSchool.routeEstimated = true;
+  /**
+   * Driver's own edit. Everything not listed in EDITABLE_KEYS is server-owned
+   * (riders, schoolId, shareCode, route figures).
+   */
+  async "rides.edit"(rideId, patch) {
+    check(rideId, String);
+    check(patch, {
+      origin: Match.Optional(String),
+      destination: Match.Optional(String),
+      waypoints: Match.Optional([String]),
+      date: Match.Optional(Date),
+      seats: Match.Optional(Number),
+      fare: Match.Optional(Number),
+      notes: Match.Optional(String),
+    });
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to edit a ride");
     }
 
-    const rideId = await Rides.insertAsync(rideWithSchool);
-    return rideId;
+    const ride = await Rides.findOneAsync(rideId);
+    if (!ride) {
+      throw new Meteor.Error("not-found", "Ride not found");
+    }
+    if (ride.driver !== this.userId) {
+      throw new Meteor.Error("access-denied", "Only the driver can edit this ride");
+    }
+
+    const changedKeys = EDITABLE_KEYS.filter(key => patch[key] !== undefined);
+    if (changedKeys.length === 0) {
+      throw new Meteor.Error("no-data", "Nothing to update");
+    }
+
+    const riders = Array.isArray(ride.riders) ? ride.riders : [];
+    if (patch.seats !== undefined && patch.seats < riders.length) {
+      throw new Meteor.Error(
+        "seats-below-riders",
+        `${riders.length} riders have already joined; seats cannot go below that`,
+      );
+    }
+
+    // _id present, so the past-date rule is skipped for rides already on the books.
+    const { error, value } = RidesSchema.validate({ ...ride, ...patch });
+    if (error) {
+      throw new Meteor.Error("validation-error", error.details[0].message);
+    }
+
+    const $set = Object.fromEntries(changedKeys.map(key => [key, value[key]]));
+
+    const routeChanged = ["origin", "destination", "waypoints"].some(key => patch[key] !== undefined);
+    if (routeChanged) {
+      const legIds = [value.origin, ...(value.waypoints || []), value.destination];
+      const valueById = await resolveRoutePlaces(ride.schoolId, legIds);
+      Object.assign($set, routeFigures(legIds, valueById));
+    }
+
+    await Rides.updateAsync(rideId, { $set });
+
+    if (riders.length > 0) {
+      await notifyQuietly("ride updated", async () => {
+        const labels = {
+          origin: "pickup", destination: "destination", waypoints: "stops",
+          date: "time", seats: "seats", fare: "fare", notes: "notes",
+        };
+        const changedList = changedKeys.map(key => labels[key]).join(", ");
+        const summary = `The ${changedList} changed on your ride on ${formatRideDate(value.date)}`;
+        await sendToRideParticipants(this.userId, rideId, "Ride updated", summary, {
+          type: TYPE_RIDE_UPDATED,
+          data: { rideId },
+        });
+      });
+    }
+
+    return { message: "Ride updated" };
   },
 
   async "rides.update"(rideId, updateData) {
@@ -222,7 +437,24 @@ Meteor.methods({
     delete fieldsToUpdate._id;
     delete fieldsToUpdate.schoolId;
 
+    /* Endpoints may have moved: refresh the denormalised route figures. The
+     * stored stops are kept, as this form does not edit them. */
+    const stops = Array.isArray(existingRide.waypoints) ? existingRide.waypoints : [];
+    const legIds = [fieldsToUpdate.origin, ...stops, fieldsToUpdate.destination];
+    const routePlaces = await Places.find(
+      { _id: { $in: legIds } },
+      { fields: { value: 1 } },
+    ).fetchAsync();
+    const valueById = Object.fromEntries(routePlaces.map(p => [p._id, p.value]));
+    Object.assign(fieldsToUpdate, routeFigures(legIds, valueById));
+
     await Rides.updateAsync(rideId, { $set: fieldsToUpdate });
+
+    const before = [...(existingRide.riders || [])].sort().join(",");
+    const after = [...updateData.riders].sort().join(",");
+    if (before !== after || existingRide.driver !== updateData.driver) {
+      await syncChatParticipants(await Rides.findOneAsync(rideId));
+    }
   },
   async "rides.generateShareCode"(rideId) {
     check(rideId, String);
@@ -339,23 +571,17 @@ Meteor.methods({
       throw new Meteor.Error("invalid-code", "Invalid share code");
     }
 
-    // Get user profile for role validation
-    const userProfile = await Profiles.findOneAsync({ Owner: user._id });
+    /* A share code is an invitation, so unlike rides.join it deliberately
+     * crosses school boundaries. */
+    await assertCanJoin(ride, user);
 
-    // Use centralized validation with profile
-    const validation = validateUserCanJoinRide(ride, user, userProfile);
-
-    if (!validation.isValid) {
-      throw new Meteor.Error("validation-error", validation.error);
+    if (await claimSeat(ride._id, user._id) === 0) {
+      throw new Meteor.Error("ride-full", "This ride is full or no longer open to join");
     }
 
-    // Add user to riders array
-    await Rides.updateAsync(ride._id, {
-      $push: { riders: user._id },
-    });
-
     // If ride is now full, remove the share code
-    if (ride.riders.length + 1 >= ride.seats) {
+    const joinedViaCode = await Rides.findOneAsync(ride._id);
+    if (joinedViaCode.riders.length >= joinedViaCode.seats) {
       await Rides.updateAsync(ride._id, {
         $unset: { shareCode: "" },
       });
@@ -363,7 +589,6 @@ Meteor.methods({
 
     // Chats.Participants is a snapshot taken at chat creation; keep it in step
     // with the ride or this rider cannot post to the ride chat.
-    const joinedViaCode = await Rides.findOneAsync(ride._id);
     await syncChatParticipants(joinedViaCode);
     await notifyDriverOfJoin(joinedViaCode, user);
 
@@ -382,21 +607,19 @@ Meteor.methods({
     }
 
     const ride = await Rides.findOneAsync(rideId);
-
-    // Get user profile for role validation
-    const userProfile = await Profiles.findOneAsync({ Owner: user._id });
-
-    // Use centralized validation with profile
-    const validation = validateUserCanJoinRide(ride, user, userProfile);
-
-    if (!validation.isValid) {
-      throw new Meteor.Error("validation-error", validation.error);
+    if (!ride) {
+      throw new Meteor.Error("not-found", "Ride not found");
     }
 
-    // Add user to riders array
-    await Rides.updateAsync(rideId, {
-      $push: { riders: user._id },
-    });
+    if (!user.schoolId || user.schoolId !== ride.schoolId) {
+      throw new Meteor.Error("access-denied", "This ride is not at your school.");
+    }
+
+    await assertCanJoin(ride, user);
+
+    if (await claimSeat(rideId, user._id) === 0) {
+      throw new Meteor.Error("ride-full", "This ride is full or no longer open to join");
+    }
 
     // Keep the ride chat's participant snapshot in step with the ride.
     const joinedRide = await Rides.findOneAsync(rideId);
@@ -427,6 +650,16 @@ Meteor.methods({
       throw new Meteor.Error("not-a-rider", "You are not a rider on this trip");
     }
 
+    /* Once the driver has started the trip the session's rider list is fixed;
+     * leaving the ride underneath it would orphan the pickup/dropoff state. */
+    const active = await RideSessions.findOneAsync(
+      { rideId, status: "active" },
+      { fields: { _id: 1 } },
+    );
+    if (active) {
+      throw new Meteor.Error("ride-in-progress", "You cannot leave a ride that is in progress");
+    }
+
     // Remove user from riders array
     await Rides.updateAsync(rideId, {
       $pull: { riders: user._id },
@@ -435,6 +668,20 @@ Meteor.methods({
     // Drop them from the chat too, otherwise a departed rider keeps receiving
     // and can keep posting to the ride chat.
     await syncChatParticipants(await Rides.findOneAsync(rideId));
+
+    await notifyQuietly("rider left", async () => {
+      const name = await displayName(user._id, user.username || "A rider");
+      await sendNotifications(
+        user._id,
+        [ride.driver],
+        "Rider left",
+        `${name} left your ride on ${formatRideDate(ride.date)}`,
+        {
+          type: NOTIFICATION_TYPES.RIDER_LEFT,
+          data: { rideId },
+        },
+      );
+    });
 
     return { message: "Successfully left ride!" };
   },
@@ -462,6 +709,19 @@ Meteor.methods({
 
     // Revoke their chat access along with the seat.
     await syncChatParticipants(await Rides.findOneAsync(rideId));
+
+    await notifyQuietly("rider removed", async () => {
+      await sendNotifications(
+        user._id,
+        [riderUserId],
+        "Removed from ride",
+        `You were removed from the ride on ${formatRideDate(ride.date)}`,
+        {
+          type: TYPE_RIDER_REMOVED,
+          data: { rideId },
+        },
+      );
+    });
 
     return { message: "Rider removed successfully!" };
   },
@@ -495,7 +755,10 @@ Meteor.methods({
    * not have those places published to them).
    */
   async "rides.forMySchool"(filters = {}) {
-    check(filters, Match.Optional(Object));
+    check(filters, Match.Optional({
+      from: Match.Optional(Date),
+      to: Match.Optional(Date),
+    }));
 
     const userId = Meteor.userId();
     if (!userId) {
@@ -505,15 +768,23 @@ Meteor.methods({
     const { getSchoolFilter } = await import("../accounts/AccountsSchoolUtils");
     const schoolFilter = await getSchoolFilter(userId);
 
+    /* Client input is translated field by field, never spread: a spread would
+     * let a caller override the school scope or the date floor. */
+    const now = new Date();
+    const dateRange = { $gte: filters?.from && filters.from > now ? filters.from : now };
+    if (filters?.to) {
+      dateRange.$lte = filters.to;
+    }
+
     const query = {
+      date: dateRange,
       ...schoolFilter,
-      ...filters,
-      date: { $gte: new Date() },
     };
 
     const rides = await Rides.find(query, {
       sort: { date: 1 },
       limit: 50,
+      fields: { shareCode: 0 },
     }).fetchAsync();
 
     // Resolve place names so the discovery UI can show human-readable labels.
@@ -526,7 +797,6 @@ Meteor.methods({
         ]).filter(Boolean),
       ),
     ];
-    const { Places } = await import("../places/Places");
     const places = await Places.find(
       { _id: { $in: placeIds } },
       { fields: { text: 1, value: 1 } },
@@ -585,7 +855,6 @@ Meteor.methods({
 
     await assertRideVisible(userId, ride);
 
-    const { Places } = await import("../places/Places");
     const stops = Array.isArray(ride.waypoints) ? ride.waypoints : [];
     const ids = [ride.origin, ...stops, ride.destination].filter(Boolean);
     const places = await Places.find(
@@ -597,8 +866,12 @@ Meteor.methods({
       byId[place._id] = place;
     });
 
+    // The invite code is the driver's to hand out; nobody else needs it.
+    const { shareCode, ...visible } = ride;
+
     return {
-      ...ride,
+      ...visible,
+      ...(ride.driver === userId && shareCode ? { shareCode } : {}),
       originText: byId[ride.origin] ? byId[ride.origin].text : null,
       destinationText: byId[ride.destination] ? byId[ride.destination].text : null,
       originCoords: byId[ride.origin] ? byId[ride.origin].value : null,

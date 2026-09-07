@@ -111,8 +111,9 @@ class MobileAdminUsers extends React.Component {
         Meteor.call("users.remove", userId, (error) => {
           this.setState({ loading: false });
           if (error) {
-            this.setState({ error: error.message });
-            swal("Error", error.message, "error");
+            const message = error.reason || error.message;
+            this.setState({ error: message });
+            swal("Error", message, "error");
           } else {
             swal(
               "Deleted!",
@@ -159,7 +160,7 @@ class MobileAdminUsers extends React.Component {
     Meteor.call("users.update", editingUser._id, editForm, (error) => {
       this.setState({ loading: false });
       if (error) {
-        this.setState({ error: error.message });
+        this.setState({ error: error.reason || error.message });
       } else {
         swal("Success!", "The user has been successfully updated.", "success");
         this.setState({ editModalOpen: false, editingUser: null, error: "" });
@@ -200,8 +201,9 @@ class MobileAdminUsers extends React.Component {
         Meteor.call("users.removeProfilePicture", editingUser._id, (error) => {
           this.setState({ loading: false });
           if (error) {
-            this.setState({ error: error.message });
-            swal("Error", error.message, "error");
+            const message = error.reason || error.message;
+            this.setState({ error: message });
+            swal("Error", message, "error");
           } else {
             swal(
               "Removed!",
@@ -248,8 +250,9 @@ class MobileAdminUsers extends React.Component {
         Meteor.call("users.toggleAdmin", userId, action, (error) => {
           this.setState({ loading: false });
           if (error) {
-            this.setState({ error: error.message });
-            swal("Error", error.message, "error");
+            const message = error.reason || error.message;
+            this.setState({ error: message });
+            swal("Error", message, "error");
           } else {
             swal("Success!", `Admin role ${action}ed successfully.`, "success");
           }
@@ -413,7 +416,7 @@ class MobileAdminUsers extends React.Component {
                             }
                             disabled={loading || isCurrentUser}
                             title={
-                              isAdmin ? "Remove admin role" : "Grant admin role"
+                              isAdmin ? "Remove admin role" : "Grant system admin"
                             }
                           >
                             {isAdmin ? "⬇️" : "⬆️"}

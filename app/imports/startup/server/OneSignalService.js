@@ -229,6 +229,12 @@ class OneSignalServiceClass {
       ...targeting,
     };
 
+    // Web clicks open the ride directly; the Cordova click handler navigates
+    // from additionalData.rideId itself, so this is web-only (web_url).
+    if (notification.data?.rideId) {
+      baseNotification.web_url = Meteor.absoluteUrl(`ride/${notification.data.rideId}`);
+    }
+
     // Add priority-based settings
     if (notification.priority === "urgent") {
       baseNotification.priority = 10;
@@ -346,27 +352,16 @@ class OneSignalServiceClass {
    */
   async registerPlayerForUser(userId, playerId, deviceInfo = {}) {
     try {
-      // Store player ID as a push token
-      // const tokenData = {
-      //   userId,
-      //   token: playerId,
-      //   platform: "onesignal",
-      //   deviceInfo: {
-      //     ...deviceInfo,
-      //     oneSignalPlayerId: playerId,
-      //   },
-      //   isActive: true,
-      //   lastUsedAt: new Date(),
-      //   createdAt: new Date(),
-      // };
+      // A device belongs to whoever is logged in on it right now: drop any row
+      // another user holds for this player id, then upsert ours. The upsert is
+      // keyed on the token because of the unique { token: 1 } index.
+      await PushTokens.removeAsync({ token: playerId, userId: { $ne: userId } });
 
-      // Use upsert to handle both insert and update cases
-      // This prevents duplicate key errors on the unique token index
       const result = await PushTokens.upsertAsync(
-        { token: playerId }, // Find by token only (since token has unique index)
+        { token: playerId },
         {
           $set: {
-            userId, // Update userId (handles case where same device switches users)
+            userId,
             platform: "onesignal",
             deviceInfo: {
               ...deviceInfo,

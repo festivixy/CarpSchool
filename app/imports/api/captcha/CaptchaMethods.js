@@ -1,7 +1,9 @@
 import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import svgCaptcha from "svg-captcha";
-import { Captcha } from "./Captcha";
+import { Captcha, CAPTCHA_TTL_MS } from "./Captcha";
+
+const MAX_ATTEMPTS = 5;
 
 Meteor.methods({
   async "captcha.generate"() {
@@ -24,11 +26,8 @@ Meteor.methods({
       timestamp: Date.now(),
       solved: false,
       used: false,
+      attempts: 0,
     });
-
-    // Clean up old sessions (older than 10 minutes)
-    const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
-    await Captcha.removeAsync({ timestamp: { $lt: tenMinutesAgo } });
 
     return {
       sessionId: sessionId,
@@ -39,16 +38,22 @@ Meteor.methods({
   async "captcha.verify"(sessionId, userInput) {
     check(sessionId, String);
     check(userInput, String);
-    const session = await Captcha.findOneAsync({ _id: sessionId });
+
+    // A session that has been spent cannot be re-verified: `used: false` in
+    // the selector, so a consumed captcha reads as missing.
+    const session = await Captcha.findOneAsync({ _id: sessionId, used: false });
 
     if (!session) {
       throw new Meteor.Error("invalid-captcha", "CAPTCHA session not found or expired");
     }
 
-    // Check if session is expired (10 minutes)
-    const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
-    if (session.timestamp < tenMinutesAgo) {
+    // Check if session is expired
+    if (session.timestamp < Date.now() - CAPTCHA_TTL_MS) {
       throw new Meteor.Error("expired-captcha", "CAPTCHA has expired");
+    }
+
+    if ((session.attempts || 0) >= MAX_ATTEMPTS) {
+      throw new Meteor.Error("too-many-attempts", "Too many attempts. Please request a new CAPTCHA");
     }
 
     // Verify the CAPTCHA (case-insensitive for better UX)
@@ -57,19 +62,17 @@ Meteor.methods({
     if (isValid) {
       // Mark as solved on correct answer
       await Captcha.updateAsync(
-        { _id: sessionId },
-        { $set: { solved: true } }
+        { _id: sessionId, used: false },
+        { $set: { solved: true } },
       );
     } else {
-      // Mark as used on incorrect answer to prevent brute force attacks
+      // Count the miss; after MAX_ATTEMPTS the session is spent.
+      const attempts = (session.attempts || 0) + 1;
       await Captcha.updateAsync(
         { _id: sessionId },
-        { $set: { used: true } }
+        { $inc: { attempts: 1 }, ...(attempts >= MAX_ATTEMPTS ? { $set: { used: true } } : {}) },
       );
     }
-
-    // Clean up old sessions (older than 10 minutes)
-    await Captcha.removeAsync({ timestamp: { $lt: tenMinutesAgo } });
 
     return isValid;
   },

@@ -87,9 +87,11 @@ export const validateUserCanRemoveRider = async (ride, currentUser, riderToRemov
     return { isValid: false, error: "User is not a rider on this trip" };
   }
 
-  // Check permissions - only driver or admin can remove riders
+  // Check permissions - only the driver, a system admin, or an admin of the
+  // ride's own school can remove riders.
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(currentUser._id) || await isSchoolAdmin(currentUser._id);
+  const isAdmin = await isSystemAdmin(currentUser._id)
+    || (Boolean(ride.schoolId) && await isSchoolAdmin(currentUser._id, ride.schoolId));
   const isDriver = ride.driver === currentUser._id;
 
   if (!isDriver && !isAdmin) {

@@ -108,17 +108,28 @@ osrm_prompt_pbf_selection() {
     return 1
 }
 
-# Function to run OSRM Docker command with error handling
+# Function to validate a region name before it is used in paths/docker args
+osrm_validate_region() {
+    local region="$1"
+    if [[ ! "$region" =~ ^[A-Za-z0-9._-]+$ ]]; then
+        echo -e "${RED}❌ Invalid region name: '$region' (allowed: letters, digits, dot, underscore, hyphen)${NC}"
+        return 1
+    fi
+    return 0
+}
+
+# Function to run an OSRM docker command with error handling.
+# Takes the description first, then the full "docker run ..." argument list
+# (no shell string, no eval — every argument is passed through as-is).
 osrm_run_docker_command() {
-    local command="$1"
-    local description="$2"
-    local input_file="$3"
+    local description="$1"
+    shift
 
     echo ""
     echo -e "${YELLOW}🔄 $description...${NC}"
-    echo -e "${BLUE}Command: $command${NC}"
+    echo -e "${BLUE}Command: $*${NC}"
 
-    if eval "$command"; then
+    if "$@"; then
         echo -e "${GREEN}✓ $description completed successfully${NC}"
         return 0
     else
@@ -167,27 +178,34 @@ osrm_setup_data_dir() {
 osrm_run_pipeline() {
     local region="$1"
 
+    if ! osrm_validate_region "$region"; then
+        return 1
+    fi
+
     echo ""
     echo -e "${CYAN}🚀 Starting OSRM processing pipeline for: $region${NC}"
     echo ""
 
     # Step 1: Extract
-    local extract_cmd="docker run -t -v \"./$OSRM_DATA_DIR:/data\" ghcr.io/project-osrm/osrm-backend osrm-extract -p /opt/car.lua /data/$region.osm.pbf"
-    if ! osrm_run_docker_command "$extract_cmd" "OSRM Extract (parsing OSM data)" "$region.osm.pbf"; then
+    if ! osrm_run_docker_command "OSRM Extract (parsing OSM data)" \
+        docker run -t -v "./$OSRM_DATA_DIR:/data" ghcr.io/project-osrm/osrm-backend \
+        osrm-extract -p /opt/car.lua "/data/$region.osm.pbf"; then
         echo -e "${RED}❌ OSRM extract step failed${NC}"
         return 1
     fi
 
     # Step 2: Partition
-    local partition_cmd="docker run -t -v \"./$OSRM_DATA_DIR:/data\" ghcr.io/project-osrm/osrm-backend osrm-partition /data/$region.osrm"
-    if ! osrm_run_docker_command "$partition_cmd" "OSRM Partition (creating routing graph)" "$region.osrm"; then
+    if ! osrm_run_docker_command "OSRM Partition (creating routing graph)" \
+        docker run -t -v "./$OSRM_DATA_DIR:/data" ghcr.io/project-osrm/osrm-backend \
+        osrm-partition "/data/$region.osrm"; then
         echo -e "${RED}❌ OSRM partition step failed${NC}"
         return 1
     fi
 
     # Step 3: Customize
-    local customize_cmd="docker run -t -v \"./$OSRM_DATA_DIR:/data\" ghcr.io/project-osrm/osrm-backend osrm-customize /data/$region.osrm"
-    if ! osrm_run_docker_command "$customize_cmd" "OSRM Customize (optimizing for routing)" "$region.osrm"; then
+    if ! osrm_run_docker_command "OSRM Customize (optimizing for routing)" \
+        docker run -t -v "./$OSRM_DATA_DIR:/data" ghcr.io/project-osrm/osrm-backend \
+        osrm-customize "/data/$region.osrm"; then
         echo -e "${RED}❌ OSRM customize step failed${NC}"
         return 1
     fi
@@ -477,6 +495,9 @@ main() {
 
         # Extract region name from existing .osrm file
         local region=$(basename "$region_files" .osrm)
+        if ! osrm_validate_region "$region"; then
+            exit 1
+        fi
         echo -e "${GREEN}✓ Found existing OSRM data for region: $region${NC}"
 
         # Ask about tarball creation
@@ -499,6 +520,10 @@ main() {
     if [[ -z "$REGION" ]]; then
         echo -e "${YELLOW}⚠️  Region name is empty, using default: $DEFAULT_REGION${NC}"
         REGION="$DEFAULT_REGION"
+    fi
+
+    if ! osrm_validate_region "$REGION"; then
+        exit 1
     fi
 
     # Validate PBF file exists

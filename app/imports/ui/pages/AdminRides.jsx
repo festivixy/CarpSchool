@@ -4,7 +4,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import swal from "sweetalert";
 import { Rides } from "../../api/ride/Rides";
-import { PlacesSchema, Places } from "../../api/places/Places";
+import { Places } from "../../api/places/Places";
 import {
   Container,
   Header,
@@ -61,10 +61,12 @@ class MobileAdminRides extends React.Component {
       editingRide: null,
       editForm: {
         driver: "",
-        rider: "",
+        riders: [],
         origin: "",
         destination: "",
         date: "",
+        seats: "",
+        notes: "",
       },
       loading: false,
       error: "",
@@ -95,8 +97,9 @@ class MobileAdminRides extends React.Component {
         Meteor.call("rides.remove", rideId, (error) => {
           this.setState({ loading: false });
           if (error) {
-            this.setState({ error: error.message });
-            swal("Error", error.message, "error");
+            const message = error.reason || error.message;
+            this.setState({ error: message });
+            swal("Error", message, "error");
           } else {
             swal(
               "Deleted!",
@@ -115,10 +118,12 @@ class MobileAdminRides extends React.Component {
       editingRide: ride,
       editForm: {
         driver: ride.driver || "",
-        rider: ride.rider || "",
+        riders: Array.isArray(ride.riders) ? ride.riders : [],
         origin: ride.origin || "",
         destination: ride.destination || "",
         date: ride.date ? new Date(ride.date).toISOString().split("T")[0] : "",
+        seats: ride.seats !== undefined ? String(ride.seats) : "",
+        notes: ride.notes || "",
       },
       error: "",
     });
@@ -126,6 +131,12 @@ class MobileAdminRides extends React.Component {
 
   handleFormChange = (e) => {
     const { name, value } = e.target;
+    if (name === "riders") {
+      this.setState({
+        editForm: { ...this.state.editForm, riders: value ? [value] : [] },
+      });
+      return;
+    }
     this.setState({
       editForm: { ...this.state.editForm, [name]: value },
     });
@@ -137,10 +148,22 @@ class MobileAdminRides extends React.Component {
 
     this.setState({ loading: true, error: "" });
 
-    Meteor.call("rides.update", editingRide._id, editForm, (error) => {
+    // Match the rides.update method's check() shape exactly: driver, riders,
+    // origin, destination, date (ISO string), seats, notes.
+    const payload = {
+      driver: editForm.driver,
+      riders: editForm.riders,
+      origin: editForm.origin,
+      destination: editForm.destination,
+      date: editForm.date ? new Date(editForm.date).toISOString() : "",
+      seats: parseInt(editForm.seats, 10) || 0,
+      notes: editForm.notes,
+    };
+
+    Meteor.call("rides.update", editingRide._id, payload, (error) => {
       this.setState({ loading: false });
       if (error) {
-        this.setState({ error: error.message });
+        this.setState({ error: error.reason || error.message });
       } else {
         swal("Success!", "The ride has been successfully updated.", "success");
         this.setState({ editModalOpen: false, editingRide: null, error: "" });
@@ -358,13 +381,12 @@ class MobileAdminRides extends React.Component {
                     <FormField>
                       <Label>Rider</Label>
                       <Select
-                        name="rider"
-                        value={editForm.rider}
+                        name="riders"
+                        value={editForm.riders[0] || ""}
                         onChange={this.handleFormChange}
                         disabled={loading}
                       >
                         <option value="">Select Rider</option>
-                        <option value="TBD">TBD</option>
                         {users.map((user) => (
                           <option key={user._id} value={user._id}>
                             {this.formatUserOption(user)}
@@ -382,8 +404,8 @@ class MobileAdminRides extends React.Component {
                         disabled={loading}
                       >
                         <option value="">Select Origin</option>
-                        {PlacesSchema.map((place) => (
-                          <option key={place.key} value={place.value}>
+                        {this.props.places.map((place) => (
+                          <option key={place._id} value={place._id}>
                             {place.text}
                           </option>
                         ))}
@@ -399,8 +421,8 @@ class MobileAdminRides extends React.Component {
                         disabled={loading}
                       >
                         <option value="">Select Destination</option>
-                        {PlacesSchema.map((place) => (
-                          <option key={place.key} value={place.value}>
+                        {this.props.places.map((place) => (
+                          <option key={place._id} value={place._id}>
                             {place.text}
                           </option>
                         ))}
@@ -413,6 +435,28 @@ class MobileAdminRides extends React.Component {
                         type="date"
                         name="date"
                         value={editForm.date}
+                        onChange={this.handleFormChange}
+                        disabled={loading}
+                      />
+                    </FormField>
+
+                    <FormField>
+                      <Label>Seats</Label>
+                      <Input
+                        type="number"
+                        name="seats"
+                        value={editForm.seats}
+                        onChange={this.handleFormChange}
+                        disabled={loading}
+                      />
+                    </FormField>
+
+                    <FormField>
+                      <Label>Notes</Label>
+                      <Input
+                        type="text"
+                        name="notes"
+                        value={editForm.notes}
                         onChange={this.handleFormChange}
                         disabled={loading}
                       />
@@ -459,7 +503,7 @@ MobileAdminRides.propTypes = {
 /** withTracker connects Meteor data to React components. */
 export default withTracker(() => {
   // Get access to all Rides documents and Users for dropdowns
-  const ridesSubscription = Meteor.subscribe("Rides");
+  const ridesSubscription = Meteor.subscribe("rides.admin");
   const usersSubscription = Meteor.subscribe("AllUsers");
   const placesSubscription = Meteor.subscribe("places.options");
 

@@ -40,10 +40,14 @@ const tabBase = `
   flex-direction: column;
   gap: 3px;
   padding: 8px 4px 7px;
+  border: 0;
   cursor: pointer;
   border-radius: var(--r-lg);
   position: relative;
   background: transparent;
+  font: inherit;
+  color: inherit;
+  text-decoration: none;
   transition: background 0.12s ease, color 0.12s ease;
   -webkit-tap-highlight-color: transparent;
 
@@ -63,7 +67,7 @@ export const TabBarItem = styled.div`
   }
 `;
 
-export const TabWithBadge = styled.div`
+export const TabWithBadge = styled.button`
   ${tabBase}
   color: ${(props) => (props.$active ? "var(--ink-1)" : "var(--ink-3)")};
   background: ${(props) => (props.$active ? "var(--signal-yellow-soft)" : "transparent")};
@@ -146,10 +150,14 @@ export const DropdownMenu = styled.div`
   transition: transform 0.16s ease, opacity 0.16s ease;
 `;
 
-export const DropdownItem = styled.div`
+export const DropdownItem = styled.button`
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
   padding: 13px 16px;
   font-family: var(--font-ui);
   font-size: 14px;
@@ -157,6 +165,7 @@ export const DropdownItem = styled.div`
   letter-spacing: -0.005em;
   color: var(--ink-2);
   cursor: pointer;
+  text-decoration: none;
   transition: background 0.12s ease, color 0.12s ease;
 
   &:hover {

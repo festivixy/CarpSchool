@@ -207,6 +207,43 @@ export const EventDetails = styled.div`
   }
 `;
 
+export const SessionList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const SessionRow = styled.button`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  padding: 16px;
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-lg);
+  background: var(--cream-1);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: box-shadow 0.12s ease;
+
+  &:hover {
+    box-shadow: var(--glass-shadow);
+  }
+`;
+
+export const SessionRoute = styled.div`
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
+`;
+
+export const SessionMeta = styled.div`
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+`;
+
 export const NotFound = styled.div`
   display: flex;
   flex-direction: column;

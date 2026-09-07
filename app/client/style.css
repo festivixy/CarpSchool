@@ -95,7 +95,6 @@ body {
   margin: 0;
   padding: 0;
   /* Mobile-specific fixes */
-  -webkit-user-select: none;
   -webkit-touch-callout: none;
   -webkit-text-size-adjust: none;
   -webkit-tap-highlight-color: transparent;
@@ -103,6 +102,14 @@ body {
   position: fixed;
   overflow: hidden;
   width: 100%;
+}
+
+/* Body text stays selectable; only chrome-like controls suppress selection. */
+nav,
+button,
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #root {
@@ -147,4 +154,17 @@ body.ios {
   border-radius: 50%;
   background: currentColor;
   animation: pulse 2s ease-out infinite;
+}
+
+/* Respect the OS-level reduced-motion preference by neutralizing animations
+ * and transitions everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

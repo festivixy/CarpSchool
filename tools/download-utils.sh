@@ -14,6 +14,12 @@ download_draw_progress_bar() {
     local current="$1"
     local total="$2"
     local width=50
+
+    if [ "$total" -le 0 ]; then
+        printf "\r[%*s] 0%% (%d/%d)" "$width" "" "$current" "$total"
+        return 0
+    fi
+
     local percentage=$((current * 100 / total))
     local filled=$((current * width / total))
     local empty=$((width - filled))

@@ -28,7 +28,7 @@
   - [ Prerequisites](#-prerequisites)
   - [ Installation](#-installation)
   - [ Usage](#-usage)
-  - [ Testing](#-testing)
+  - [ Component demos (manual)](#-component-demos-manual)
 - [ Project Roadmap](#-project-roadmap)
 - [ Contributing](#-contributing)
 - [ License](#-license)
@@ -132,13 +132,23 @@ Install carp.school using the following method:
 ❯ meteor npm install
 ```
 
-4. **Optional - Set up external services:**
+4. **Set up your local settings:**
+```sh
+❯ cp config/settings.development.json.example config/settings.development.json
+❯ # then edit config/settings.development.json with your own keys
+```
+
+5. **Optional - Set up external services:**
 ```sh
 ❯ cd .. && ./install.sh  # Sets up TileServer, Nominatim, OSRM
 ```
 
-
-
+**Note on script platforms:** the data-pipeline scripts (`download-data.sh`,
+`build-osrm.sh`, `build-openmaptiles.sh`) expect Linux/GNU coreutils (`split`,
+`sha256sum`, GNU `sed`, etc.) and are meant to run on Linux or WSL. The mobile
+build scripts (`meteor_build_ios`/`meteor_run_ios` in `tools/meteor-utils.sh`,
+invoked via `build-app.sh ios` or `npm start -- ios`) require Xcode and
+CocoaPods, so they only run on macOS.
 
 ###  Usage
 
@@ -146,14 +156,14 @@ Run carp.school in different modes:
 
 **Development Mode** &nbsp; [<img align="center" src="https://img.shields.io/badge/Meteor-DE4F4F.svg?style={badge_style}&logo=meteor&logoColor=white" />](https://www.meteor.com/)
 ```sh
-❯ cd app && npm start        # Web development server
-❯ cd app && npm start ios    # iOS development with simulator
-❯ cd app && npm start android # Android development
+❯ cd app && npm start           # Web development server
+❯ cd app && npm start -- ios    # iOS development with simulator (macOS only)
+❯ cd app && npm start -- android # Android development
 ```
 
 **Production Mode** &nbsp; [<img align="center" src="https://img.shields.io/badge/Docker-2CA5E0.svg?style={badge_style}&logo=docker&logoColor=white" />](https://www.docker.com/)
 ```sh
-❯ cd app && npm start prod   # Production build with Docker
+❯ cd app && npm start -- prod   # Production build with Docker
 ```
 
 **Development Tools**
@@ -162,20 +172,22 @@ Run carp.school in different modes:
 ❯ cd app && npm run lint:fix # Auto-fix linting issues
 ```
 
-The application will be available at:
-- **Web:** `http://localhost:3001`
-- **MongoDB:** `mongodb://127.0.0.1:3002/meteor`
+The development server listens on two ports:
+- **Web (app):** `http://localhost:3001`
+- **MongoDB (local, used by `meteor` itself):** `mongodb://127.0.0.1:3002/meteor`
 
-###  Testing
+###  Component demos (manual)
 
-carp.school includes comprehensive component testing and demos:
+carp.school includes a manual component library and demo pages for visually
+reviewing UI components; these are not automated tests. Automated tests live
+under `app/tests`.
 
 ```sh
 ❯ cd app && npm start
 ❯ # Navigate to http://localhost:3001/_test for component demos
 ```
 
-**Available Test Pages:**
+**Available Demo Pages:**
 - **Component Library:** Desktop & mobile component showcase
 - **Skeleton Components:** Loading state demonstrations
 - **LiquidGlass Components:** UI component library

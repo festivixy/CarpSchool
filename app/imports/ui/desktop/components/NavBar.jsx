@@ -8,11 +8,12 @@ import { Profiles } from "../../../api/profile/Profile";
 import { canDrive, canRide } from "../../../api/profile/RoleUtils";
 import JoinRideModal from "../../components/JoinRideModal";
 import AddRidesModal from "../../components/AddRides";
+import BrandLogo from "../../components/Logo";
+import { fullSignOut } from "../../utils/signOut";
 import {
   NavBarContainer,
   NavBarInner,
   Logo,
-  LogoImg,
   DesktopNav,
   UserSection,
   Dropdown,
@@ -117,13 +118,7 @@ function NavBar({ currentUser, userProfile }) {
     };
   }, [userMenuOpen, adminMenuOpen, systemMenuOpen, mobileMenuOpen]);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut({ redirectUrl: "/" });
-    } catch (error) {
-      console.error("Sign out error:", error);
-    }
-  };
+  const handleSignOut = () => fullSignOut(signOut);
 
   const isAdmin = currentUser?.roles?.includes("admin") ||
     currentUser?.roles?.some(r => r.startsWith("admin."));
@@ -133,7 +128,7 @@ function NavBar({ currentUser, userProfile }) {
     <NavBarContainer ref={navRef}>
       <NavBarInner>
         <Logo to="/">
-          <LogoImg src="/images/logo.png" alt="CarpSchool" />
+          <BrandLogo />
         </Logo>
 
         <DesktopNav>

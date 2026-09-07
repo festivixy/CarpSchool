@@ -65,13 +65,17 @@ Meteor.publish("users.byIds", function (userIds) {
     return this.ready();
   }
 
-  // Only return basic user info (username and profile) for security
+  // Only the display fields. `profile` as a whole is not publishable: it
+  // carries clerkUserId, and the user document captchaSessionId.
   return Meteor.users.find(
-    { _id: { $in: userIds } },
+    { _id: { $in: userIds.slice(0, 50) } },
     {
       fields: {
         username: 1,
-        profile: 1,
+        "profile.firstName": 1,
+        "profile.lastName": 1,
+        "profile.name": 1,
+        "profile.imageUrl": 1,
       },
     },
   );

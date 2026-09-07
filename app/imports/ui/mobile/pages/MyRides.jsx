@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, {
+  useEffect, useMemo, useState,
+} from "react";
 import { Meteor } from "meteor/meteor";
 import { useTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
@@ -79,6 +81,7 @@ import {
   WithCell,
   FareCell,
   Empty,
+  EmptyActions,
 } from "../styles/MyRides";
 
 /* The design shows four history rows with a "see all" affordance beside the
@@ -203,7 +206,10 @@ const MobileMyRides = ({ history }) => {
       buttons: ["Keep", "Cancel ride"],
       dangerMode: true,
     }).then((yes) => {
-      if (yes) Meteor.call("rides.remove", rideId);
+      if (!yes) return;
+      Meteor.call("rides.cancel", rideId, (error) => {
+        if (error) swal("Error", error.reason || error.message, "error");
+      });
     });
   };
 
@@ -215,14 +221,23 @@ const MobileMyRides = ({ history }) => {
       buttons: ["Stay", "Leave"],
       dangerMode: true,
     }).then((yes) => {
-      if (yes) Meteor.call("rides.leave", rideId);
+      if (!yes) return;
+      Meteor.call("rides.leave", rideId, (error) => {
+        if (error) swal("Error", error.reason || error.message, "error");
+      });
     });
   };
 
-  if (!ready) return <LoadingPage message="Loading your rides..." />;
+  // Ticks once a minute so the upcoming/past split below re-evaluates against
+  // the clock even while this page is left open across a ride's departure.
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 60000);
+    return () => clearInterval(id);
+  }, []);
+  const now = useMemo(() => new Date(), [tick]);
 
-  const now = new Date();
-  const withNames = rides.map((r) => {
+  const withNames = useMemo(() => rides.map((r) => {
     // Rides created before distanceMi existed carry no stored figure, so
     // estimate from the place coordinates exactly as rides.forMySchool does.
     const fallback = r.distanceMi === undefined
@@ -240,19 +255,58 @@ const MobileMyRides = ({ history }) => {
       distanceMi: r.distanceMi ?? fallback?.distanceMi,
       durationMin: r.durationMin ?? fallback?.durationMin,
     };
-  });
+  }), [rides, placeName, placeCoords]);
 
-  const matchesRole = (r) => {
-    if (roleFilter === "driving") return r.driver === me;
-    if (roleFilter === "riding") return r.driver !== me;
-    return true;
-  };
-  const upcoming = withNames
-    .filter(r => new Date(r.date) >= now && matchesRole(r))
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
-  const past = withNames
-    .filter(r => new Date(r.date) < now && matchesRole(r))
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  const upcoming = useMemo(() => withNames
+    .filter((r) => {
+      if (new Date(r.date) < now) return false;
+      if (roleFilter === "driving") return r.driver === me;
+      if (roleFilter === "riding") return r.driver !== me;
+      return true;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date)), [withNames, now, roleFilter, me]);
+
+  const past = useMemo(() => withNames
+    .filter((r) => {
+      if (new Date(r.date) >= now) return false;
+      if (roleFilter === "driving") return r.driver === me;
+      if (roleFilter === "riding") return r.driver !== me;
+      return true;
+    })
+    .sort((a, b) => new Date(b.date) - new Date(a.date)), [withNames, now, roleFilter, me]);
+
+  if (!ready) return <LoadingPage message="Loading your rides..." />;
+
+  const firstName = myProfile && myProfile.Name ? myProfile.Name.trim().split(" ")[0] : "";
+
+  if (upcoming.length === 0 && past.length === 0) {
+    return (
+      <Page>
+        <Inner>
+          <Header>
+            <div>
+              <Eyebrow>YOUR RIDES</Eyebrow>
+              <H1>
+                {firstName ? `Hey ${firstName} — ` : ""}
+                <Mark>No rides yet.</Mark>
+              </H1>
+            </div>
+          </Header>
+          <Empty $spaced>
+            <div>You haven&apos;t taken or offered a ride yet.</div>
+            <EmptyActions>
+              <GhostBtn type="button" onClick={() => history.push("/find")}>
+                Find a ride
+              </GhostBtn>
+              <CoralBtn type="button" onClick={() => history.push("/create")}>
+                Offer a ride
+              </CoralBtn>
+            </EmptyActions>
+          </Empty>
+        </Inner>
+      </Page>
+    );
+  }
 
   const featured = upcoming[0];
   const alsoUpcoming = upcoming.slice(1);
@@ -261,7 +315,6 @@ const MobileMyRides = ({ history }) => {
   const termPast = past.filter(r => new Date(r.date) >= semesterStart(now));
   const milesShared = termPast.reduce((sum, r) => sum + (r.distanceMi || 0), 0);
 
-  const firstName = myProfile && myProfile.Name ? myProfile.Name.trim().split(" ")[0] : "";
   const canDrive = Boolean(myProfile) && myProfile.UserType !== "Rider";
   const tripPhrase = upcoming.length > 0
     ? `${upcoming.length} trip${upcoming.length === 1 ? "" : "s"} coming up.`
@@ -466,6 +519,7 @@ const MobileMyRides = ({ history }) => {
             <Grid>
               {alsoUpcoming.map((r) => {
                 const d = driverById[r.driver] || {};
+                const iDriveThis = r.driver === me;
                 return (
                   <RideCard
                     key={r._id}
@@ -476,6 +530,8 @@ const MobileMyRides = ({ history }) => {
                     driverDept={d.dept}
                     onClick={ride => history.push(`/ride/${ride._id}`)}
                     onRequest={ride => history.push(`/ride/${ride._id}`)}
+                    onCancel={iDriveThis ? (ride => handleCancel(ride._id)) : undefined}
+                    onLeave={!iDriveThis ? (ride => handleLeave(ride._id)) : undefined}
                   />
                 );
               })}

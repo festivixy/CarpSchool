@@ -525,3 +525,10 @@ export const Empty = styled.div`
   border-radius: 16px;
   margin-bottom: ${props => (props.$spaced ? "26px" : "0")};
 `;
+
+export const EmptyActions = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 14px;
+`;

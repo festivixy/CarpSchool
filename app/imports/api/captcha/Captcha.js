@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
 import { check } from "meteor/check";
@@ -12,7 +13,34 @@ const CaptchaSchema = Joi.object({
   timestamp: Joi.date().required(),
   solved: Joi.boolean().required(),
   used: Joi.boolean().required(),
+  attempts: Joi.number().integer().min(0).default(0),
 });
+
+/* A captcha is valid for this long after generation. */
+const CAPTCHA_TTL_MS = 10 * 60 * 1000;
+
+/*
+ * timestamp is a number (Date.now()), so a Mongo TTL index cannot expire on
+ * it; the index backs the sweep below, which runs on an interval rather
+ * than inline in the methods.
+ */
+if (Meteor.isServer) {
+  Meteor.startup(async () => {
+    try {
+      await Captcha.createIndexAsync({ timestamp: 1 });
+    } catch (error) {
+      console.error("[Captcha] Could not create timestamp index", error?.message || error);
+    }
+
+    Meteor.setInterval(async () => {
+      try {
+        await Captcha.removeAsync({ timestamp: { $lt: Date.now() - CAPTCHA_TTL_MS } });
+      } catch (error) {
+        console.error("[Captcha] Cleanup failed", error?.message || error);
+      }
+    }, CAPTCHA_TTL_MS);
+  });
+}
 
 async function isCaptchaSolved(sessionId) {
   check(sessionId, String);
@@ -62,4 +90,4 @@ async function useCaptcha(sessionId) {
 }
 
 /** Make the collection and schema available to other code. */
-export { Captcha, CaptchaSchema, isCaptchaSolved, useCaptcha };
+export { Captcha, CaptchaSchema, CAPTCHA_TTL_MS, isCaptchaSolved, useCaptcha };

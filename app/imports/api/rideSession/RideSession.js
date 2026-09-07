@@ -63,14 +63,39 @@ if (Meteor.isServer) {
   // createIndex returns a promise in Meteor 3. Awaiting inside an async startup hook
   // makes a failure a logged boot error instead of an unhandled rejection, and
   // guarantees the indexes exist before the publications start querying.
+  //
+  // rideId is unique: canCreateRideSession refuses a second session per ride,
+  // but only after a read, so the index is what actually closes the race. If
+  // duplicates already exist the unique index fails; that is logged rather
+  // than allowed to abort boot.
   Meteor.startup(async () => {
-    await RideSessions.createIndexAsync({ rideId: 1 });
-    await RideSessions.createIndexAsync({ schoolId: 1 });
-    await RideSessions.createIndexAsync({ driverId: 1 });
-    await RideSessions.createIndexAsync({ riders: 1 });
-    await RideSessions.createIndexAsync({ status: 1, "timeline.created": -1 });
-    await RideSessions.createIndexAsync({ activeRiders: 1 });
-    await RideSessions.createIndexAsync({ "timeline.created": -1 });
+    // Existing databases carry a non-unique {rideId:1} under the auto-generated
+    // name the unique one would also get, and Mongo refuses the conflict. Drop
+    // the old one first; the unique index below replaces it.
+    try {
+      await RideSessions.rawCollection().dropIndex("rideId_1");
+    } catch (error) {
+      // Not present, or already unique: nothing to do.
+    }
+
+    const indexes = [
+      [{ rideId: 1 }, { unique: true }],
+      [{ schoolId: 1 }],
+      [{ driverId: 1 }],
+      [{ driverId: 1, finished: 1 }],
+      [{ status: 1, finished: 1 }],
+      [{ riders: 1 }],
+      [{ status: 1, "timeline.created": -1 }],
+      [{ activeRiders: 1 }],
+      [{ "timeline.created": -1 }],
+    ];
+    for (const [keys, options] of indexes) { // eslint-disable-line no-restricted-syntax
+      try {
+        await RideSessions.createIndexAsync(keys, options); // eslint-disable-line no-await-in-loop
+      } catch (error) {
+        console.error("[RideSessions] Could not create index", keys, error?.message || error);
+      }
+    }
   });
 }
 

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { withRouter } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import {
   ErrorContainer,
@@ -29,6 +30,7 @@ class ErrorBoundary extends Component {
       errorId: null,
       reportStatus: null, // null, 'reporting', 'success', 'failed'
       retryCount: 0,
+      reportMessage: null,
     };
   }
 
@@ -198,16 +200,10 @@ class ErrorBoundary extends Component {
   };
 
   handleGoBack = () => {
-    // Try to go back in browser history and refresh
-    if (window.history.length > 1) {
-      window.history.back();
-      // Refresh after a short delay to ensure navigation completes
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
-    } else {
-      // Fallback: refresh current page if no history
-      window.location.reload();
+    // Navigate back to a known-good screen instead of reloading the page,
+    // which would just re-trigger the same crash on the same route.
+    if (this.props.history) {
+      this.props.history.push("/my-rides");
     }
 
     // Call custom retry handler if provided (for backward compatibility)
@@ -222,7 +218,7 @@ class ErrorBoundary extends Component {
 
     if (!idToShare) {
       console.error("No error ID available to copy");
-      alert("❌ Error: No error ID available to copy. Please try refreshing the page.");
+      this.setState({ reportMessage: "No error ID available to copy. Please try refreshing the page." });
       return;
     }
 
@@ -230,38 +226,32 @@ class ErrorBoundary extends Component {
       // Try modern clipboard API first
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(idToShare);
-        console.log("✅ Error ID copied to clipboard:", idToShare);
-        alert(`✅ Error ID "${idToShare}" copied to clipboard. Please share with support.`);
-        return;
-      }
-
-      // Fallback: try legacy execCommand method
-      const textArea = document.createElement("textarea");
-      textArea.value = idToShare;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-999999px";
-      textArea.style.top = "-999999px";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
-      const successful = document.execCommand("copy");
-      document.body.removeChild(textArea);
-
-      if (successful) {
-        console.log("✅ Error ID copied to clipboard:", idToShare);
-        alert(`✅ Error ID "${idToShare}" copied to clipboard. Please share with support.`);
+        this.setState({ reportMessage: `Error ID "${idToShare}" copied to clipboard. Please share with support.` });
       } else {
-        throw new Error("Copy command failed");
+        // Fallback: try legacy execCommand method
+        const textArea = document.createElement("textarea");
+        textArea.value = idToShare;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textArea);
+
+        if (successful) {
+          this.setState({ reportMessage: `Error ID "${idToShare}" copied to clipboard. Please share with support.` });
+        } else {
+          throw new Error("Copy command failed");
+        }
       }
     } catch (err) {
       console.warn("Failed to copy to clipboard:", err);
-      console.log("📋 Manual copy - Error ID:", idToShare);
-      // Final fallback: show error ID for manual copying
-      const message = `📋 Error ID: ${idToShare}\n\n` +
-                     "Please manually copy this ID and report it to support.\n\n" +
-                     "Tip: Select the ID above and use Ctrl+C (or Cmd+C on Mac) to copy.";
-      alert(message);
+      this.setState({
+        reportMessage: `Error ID: ${idToShare} - please copy this manually and report it to support.`,
+      });
     }
 
     // Call custom report handler if provided
@@ -272,7 +262,7 @@ class ErrorBoundary extends Component {
 
   render() {
     if (this.state.hasError) {
-      const { error, errorId, serverErrorId, reportStatus } = this.state;
+      const { error, errorId, serverErrorId, reportStatus, reportMessage } = this.state;
       const {
         fallback,
         title,
@@ -348,6 +338,10 @@ class ErrorBoundary extends Component {
               )}
             </ErrorCode>
           )}
+
+          {reportMessage && (
+            <ErrorMessage>{reportMessage}</ErrorMessage>
+          )}
         </ErrorContainer>
       );
     }
@@ -368,6 +362,9 @@ ErrorBoundary.propTypes = {
   onError: PropTypes.func,
   onRetry: PropTypes.func,
   onReport: PropTypes.func,
+  history: PropTypes.shape({
+    push: PropTypes.func,
+  }),
 };
 
 ErrorBoundary.defaultProps = {
@@ -377,4 +374,4 @@ ErrorBoundary.defaultProps = {
   variant: "default",
 };
 
-export default ErrorBoundary;
+export default withRouter(ErrorBoundary);

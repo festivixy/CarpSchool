@@ -132,6 +132,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
   const { isLoaded, isSignedIn, clerkUser, meteorUser } = useClerkUser();
   const captchaRef = React.useRef(null);
   const prefilled = React.useRef(false);
+  const roleRefs = React.useRef({});
 
   const [currentStep, setCurrentStep] = React.useState(1);
   const [name, setName] = React.useState("");
@@ -367,6 +368,24 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
     });
   };
 
+  /* Roving tabindex: only the checked option is in the tab order, and
+   * arrow keys move both focus and the checked value between options. */
+  const handleRoleKeyDown = (event) => {
+    const currentIndex = ROLES.findIndex(role => role.id === userType);
+    let nextIndex;
+    if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+      nextIndex = (currentIndex + 1) % ROLES.length;
+    } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+      nextIndex = (currentIndex - 1 + ROLES.length) % ROLES.length;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    const nextRole = ROLES[nextIndex].id;
+    setUserType(nextRole);
+    roleRefs.current[nextRole]?.focus();
+  };
+
   const renderStepIndicator = () => (
     <StepRow>
       {STEPS.map((s, i) => (
@@ -588,13 +607,19 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
 
   const renderStep3 = () => (
     <Step className="fade-in" key="step-3">
-      <UserTypeOptions role="radiogroup" aria-label="How you will use carp.school">
+      <UserTypeOptions
+        role="radiogroup"
+        aria-label="How you will use carp.school"
+        onKeyDown={handleRoleKeyDown}
+      >
         {ROLES.map(role => (
           <UserTypeOption
             key={role.id}
+            ref={el => { roleRefs.current[role.id] = el; }}
             type="button"
             role="radio"
             aria-checked={userType === role.id}
+            tabIndex={userType === role.id ? 0 : -1}
             $selected={userType === role.id}
             onClick={() => setUserType(role.id)}
           >

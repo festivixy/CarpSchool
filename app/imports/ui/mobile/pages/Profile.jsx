@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { useTracker } from "meteor/react-meteor-data";
+import swal from "sweetalert";
 import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import { Rides } from "../../../api/ride/Rides";
 import { Places } from "../../../api/places/Places";
@@ -224,32 +225,54 @@ const Profile = ({ history }) => {
   };
 
   const verifyIdentity = () => {
-    const inquiryTemplateId = "itmpl_PygaeTqwQpVeoiAMmVmZzrWwezCN";
-    const environmentId = "env_5ZRRvhfj6N4FoUoQ2e4KSv19gUuG";
+    const persona = Meteor.settings.public?.persona;
+    const inquiryTemplateId = persona?.templateId || "itmpl_PygaeTqwQpVeoiAMmVmZzrWwezCN";
+    const environmentId = persona?.environmentId || "env_5ZRRvhfj6N4FoUoQ2e4KSv19gUuG";
     const referenceId = currentUser._id;
     const redirectUri = encodeURIComponent("https://carp.school");
-    window.location.href = `https://miniapp.withpersona.com/verify?inquiry-template-id=${inquiryTemplateId}`
+    const url = `https://miniapp.withpersona.com/verify?inquiry-template-id=${inquiryTemplateId}`
       + `&environment-id=${environmentId}&reference-id=${referenceId}&redirect-uri=${redirectUri}`;
+    window.open(url, "_blank", "noopener");
   };
 
   const deleteAccount = () => {
-    const ok = window.confirm(
-      "Delete your account? This permanently removes your profile, rides, "
-      + "saved places, and chat history and cannot be undone.",
-    );
-    if (!ok) return;
-    const confirmation = window.prompt("Type DELETE (uppercase) to confirm:");
-    if (confirmation !== "DELETE") {
-      if (confirmation !== null) window.alert("Cancelled — you must type DELETE exactly.");
-      return;
-    }
-    Meteor.call("accounts.deleteMyAccount", (error) => {
-      if (error) {
-        window.alert(`Failed to delete account: ${error.reason || error.message}`);
-      } else {
-        window.alert("Your account has been deleted. Signing you out.");
-        history.push("/");
-      }
+    swal({
+      title: "Delete your account?",
+      text: "This permanently removes your profile, rides, saved places, "
+        + "and chat history and cannot be undone.",
+      icon: "warning",
+      buttons: {
+        cancel: "Cancel",
+        confirm: { text: "Delete", className: "swal-button--danger" },
+      },
+    }).then((confirmed) => {
+      if (!confirmed) return;
+
+      swal({
+        title: "Type DELETE to confirm",
+        content: {
+          element: "input",
+          attributes: { placeholder: "DELETE" },
+        },
+        buttons: {
+          cancel: "Cancel",
+          confirm: { text: "Confirm", className: "swal-button--danger" },
+        },
+      }).then((typed) => {
+        if (typed !== "DELETE") {
+          if (typed !== null) swal("Cancelled", "You must type DELETE exactly.", "info");
+          return;
+        }
+        Meteor.call("accounts.deleteMyAccount", (error) => {
+          if (error) {
+            swal("Error", error.reason || error.message, "error");
+          } else {
+            swal("Account deleted", "Signing you out.", "success").then(() => {
+              history.push("/");
+            });
+          }
+        });
+      });
     });
   };
 

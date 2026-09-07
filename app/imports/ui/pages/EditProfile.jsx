@@ -384,6 +384,9 @@ class MobileEditProfile extends React.Component {
 
   // Handle role change confirmation start
   handleConfirmStart = () => {
+    // Guard against starting a second interval if one is already running.
+    if (this.state.confirmTimer) return;
+
     this.setState({
       isConfirmingRole: true,
       confirmProgress: 0
@@ -407,6 +410,19 @@ class MobileEditProfile extends React.Component {
     }, 100);
 
     this.setState({ confirmTimer: timer });
+  };
+
+  // Handle role change confirmation start via keyboard (Space/Enter)
+  handleConfirmKeyDown = (e) => {
+    if (e.key !== " " && e.key !== "Enter") return;
+    e.preventDefault();
+    this.handleConfirmStart();
+  };
+
+  // Handle role change confirmation end via keyboard (Space/Enter)
+  handleConfirmKeyUp = (e) => {
+    if (e.key !== " " && e.key !== "Enter") return;
+    this.handleConfirmEnd();
   };
 
   // Handle role change confirmation end
@@ -475,63 +491,31 @@ class MobileEditProfile extends React.Component {
 
     this.setState({ isSubmitting: true, error: "", success: "" });
 
-    // Use granular update methods instead of direct database operations
-    const basicInfo = {
+    const fields = {
       Name: name,
       Location: location,
-    };
-
-    const contactInfo = {
       Phone: phone,
       Other: other,
-    };
-
-    const imageInfo = {
       Image: profileImage,
       Ride: rideImage,
     };
 
-    // Update basic info first
-    Meteor.call("profile.updateBasicInfo", basicInfo, (basicError) => {
+    Meteor.call("profile.update", fields, (error) => {
       if (!this._isMounted) return;
+      this.setState({ isSubmitting: false });
 
-      if (basicError) {
-        this.setState({
-          isSubmitting: false,
-          error: basicError.reason || basicError.message
-        });
+      if (error) {
+        this.setState({ error: error.reason || error.message });
         return;
       }
 
-      // Update contact info
-      Meteor.call("profile.updateContactInfo", contactInfo, (contactError) => {
-        if (!this._isMounted) return;
-
-        if (contactError) {
-          this.setState({
-            isSubmitting: false,
-            error: contactError.reason || contactError.message
-          });
-          return;
+      this.setState({ success: "Profile updated successfully!" });
+      // Show the confirmation before navigating away.
+      setTimeout(() => {
+        if (this._isMounted) {
+          this.setState({ redirectToReferer: true });
         }
-
-        // Update images
-        Meteor.call("profile.updateImages", imageInfo, (imageError) => {
-          if (!this._isMounted) return;
-          this.setState({ isSubmitting: false });
-
-          if (imageError) {
-            this.setState({
-              error: imageError.reason || imageError.message
-            });
-          } else {
-            this.setState({
-              success: "Profile updated successfully!",
-              redirectToReferer: true,
-            });
-          }
-        });
-      });
+      }, 2000);
     });
   };
 
@@ -569,8 +553,9 @@ class MobileEditProfile extends React.Component {
                 <SectionTitle>Basic Information</SectionTitle>
 
                 <Field>
-                  <Label>Full Name *</Label>
+                  <Label htmlFor="editProfile-name">Full Name *</Label>
                   <Input
+                    id="editProfile-name"
                     type="text"
                     name="name"
                     placeholder="Enter your full name"
@@ -581,8 +566,9 @@ class MobileEditProfile extends React.Component {
                 </Field>
 
                 <Field>
-                  <Label>School</Label>
+                  <Label htmlFor="editProfile-school">School</Label>
                   <Input
+                    id="editProfile-school"
                     type="text"
                     value={this.props.schoolData?.name || "No school assigned"}
                     readOnly
@@ -595,8 +581,9 @@ class MobileEditProfile extends React.Component {
                 </Field>
 
                 <Field>
-                  <Label>Location *</Label>
+                  <Label htmlFor="editProfile-location">Location *</Label>
                   <Input
+                    id="editProfile-location"
                     type="text"
                     name="location"
                     placeholder="Your home city"
@@ -612,8 +599,9 @@ class MobileEditProfile extends React.Component {
                 <SectionTitle>Contact Information</SectionTitle>
 
                 <Field>
-                  <Label>Phone Number</Label>
+                  <Label htmlFor="editProfile-phone">Phone Number</Label>
                   <Input
+                    id="editProfile-phone"
                     type="tel"
                     name="phone"
                     placeholder="Your phone number"
@@ -623,8 +611,9 @@ class MobileEditProfile extends React.Component {
                 </Field>
 
                 <Field>
-                  <Label>Other Contact</Label>
+                  <Label htmlFor="editProfile-other">Other Contact</Label>
                   <Input
+                    id="editProfile-other"
                     type="text"
                     name="other"
                     placeholder="Email, social media, etc."
@@ -652,8 +641,9 @@ class MobileEditProfile extends React.Component {
                 )}
 
                 <Field>
-                  <Label>Upload Profile Photo</Label>
+                  <Label htmlFor="editProfile-profileImage">Upload Profile Photo</Label>
                   <FileInput
+                    id="editProfile-profileImage"
                     type="file"
                     accept="image/*"
                     onChange={(e) => this.handleImageSelect(e, "profile")}
@@ -703,8 +693,9 @@ class MobileEditProfile extends React.Component {
                 )}
 
                 <Field>
-                  <Label>Upload Vehicle Photo</Label>
+                  <Label htmlFor="editProfile-rideImage">Upload Vehicle Photo</Label>
                   <FileInput
+                    id="editProfile-rideImage"
                     type="file"
                     accept="image/*"
                     onChange={(e) => this.handleImageSelect(e, "ride")}
@@ -753,14 +744,16 @@ class MobileEditProfile extends React.Component {
                 <SectionTitle>Change Role</SectionTitle>
 
                 <Field>
-                  <Label>User Type</Label>
+                  <Label htmlFor="editProfile-userType">User Type</Label>
                   <Select
+                    id="editProfile-userType"
                     name="userType"
                     value={this.state.userType}
                     onChange={this.handleChange}
                   >
                     <option value="Driver">Driver</option>
                     <option value="Rider">Rider</option>
+                    <option value="Both">Both</option>
                   </Select>
                 </Field>
 
@@ -813,6 +806,8 @@ class MobileEditProfile extends React.Component {
                     onMouseLeave={this.handleConfirmEnd}
                     onTouchStart={this.handleConfirmStart}
                     onTouchEnd={this.handleConfirmEnd}
+                    onKeyDown={this.handleConfirmKeyDown}
+                    onKeyUp={this.handleConfirmKeyUp}
                     disabled={this.state.isConfirmingRole && this.state.confirmProgress >= 100}
                   >
                     <ConfirmProgress progress={this.state.confirmProgress} />

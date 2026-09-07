@@ -94,6 +94,17 @@ source "./tools/nominatim-utils.sh"
 
 ui_show_header "Data Download Script" "Downloads chunks.txt for OpenMapTiles and OSRM data releases"
 
+# Pre-flight: map/OSRM data plus chunks/tarballs can easily need tens of GB
+MIN_FREE_GB=30
+AVAILABLE_GB=$(df -Pk . | awk 'NR==2 {print int($4 / 1024 / 1024)}')
+if [ -n "$AVAILABLE_GB" ] && [ "$AVAILABLE_GB" -lt "$MIN_FREE_GB" ]; then
+    echo "⚠ Warning: only ${AVAILABLE_GB}GB free on this filesystem; downloads and extraction here can need ${MIN_FREE_GB}GB+."
+    if ! ui_ask_yes_no "Continue anyway?" "N"; then
+        echo "Aborting."
+        exit 1
+    fi
+fi
+
 # Show configuration
 echo "Configuration:"
 echo "  GitHub Base URL: $GITHUB_BASE_URL"
@@ -158,8 +169,10 @@ if ui_ask_yes_no "Download OpenMapTiles data?" "N"; then
     # Display file information and download chunks
     if download_show_file_info "$TARGET_FILE"; then
         # Download all chunks listed in the file
-        download_chunks_from_file "$TARGET_FILE" "$RELEASE" "$TARGET_DIR" "$DOWNLOAD_TOOL" "$GITHUB_BASE_URL"
-        failed_downloads=$?
+        failed_downloads=0
+        if ! download_chunks_from_file "$TARGET_FILE" "$RELEASE" "$TARGET_DIR" "$DOWNLOAD_TOOL" "$GITHUB_BASE_URL"; then
+            failed_downloads=1
+        fi
 
         # Concatenate chunk parts into final tar.gz file
         if [[ $failed_downloads -eq 0 ]]; then
@@ -283,8 +296,10 @@ if ui_ask_yes_no "Do you want to download OSRM routing data?" "N"; then
     # Display file information and download OSRM chunks
     if download_show_file_info "$OSRM_TARGET_FILE"; then
         # Download all chunks listed in the file
-        download_chunks_from_file "$OSRM_TARGET_FILE" "$OSRM_RELEASE" "$OSRM_TARGET_DIR" "$DOWNLOAD_TOOL" "$GITHUB_BASE_URL"
-        osrm_failed_downloads=$?
+        osrm_failed_downloads=0
+        if ! download_chunks_from_file "$OSRM_TARGET_FILE" "$OSRM_RELEASE" "$OSRM_TARGET_DIR" "$DOWNLOAD_TOOL" "$GITHUB_BASE_URL"; then
+            osrm_failed_downloads=1
+        fi
 
         # Concatenate chunk parts into final tar.gz file
         if [[ $osrm_failed_downloads -eq 0 ]]; then

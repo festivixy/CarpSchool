@@ -5,8 +5,22 @@
       "appId": "your-app-id-here",
       "safariWebId": "web.onesignal.auto.313afc18-65a3-4cb5-bd8a-eabd69c6e4d8"
     },
+    "notifications": {
+      "backend": "onesignal"
+    },
     "vapid": {
       "publicKey": "BEl62iUYgUivxIkv69yViEuiBIa40HI0DLLuxazjBF..."
+    },
+    "clerk": {
+      "publishableKey": "pk_test_your_publishable_key_here",
+      "signInUrl": "/login",
+      "signUpUrl": "/signup",
+      "signInFallbackRedirectUrl": "/my-rides",
+      "signUpFallbackRedirectUrl": "/onboarding"
+    },
+    "persona": {
+      "templateId": "itmpl_your_template_id_here",
+      "environmentId": "env_your_environment_id_here"
     },
     "map": {
       "tileServerUrl": "https://tileserver.carp.school",
@@ -19,15 +33,17 @@
     "vapid": {
       "privateKey": "4OM3EtXb1HI0DLLuxazjBF...",
       "subject": "mailto:your-email@domain.com"
-    }
+    },
+    "clerk": {
+      "secretKey": "sk_test_your_secret_key_here"
+    },
+    "persona": {
+      "webhookSecret": "your-persona-webhook-secret-here"
+    },
+    "adminEmails": [
+      "admin@carp.school"
+    ]
   },
-  "defaultAccounts": [
-    {
-      "email": "admin@carp.school",
-      "password": "admin",
-      "role": "admin"
-    }
-  ],
   "defaultPlaces": [],
   "defaultRides": []
 }

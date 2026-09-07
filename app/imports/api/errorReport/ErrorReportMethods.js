@@ -11,6 +11,30 @@ function generateErrorId() {
   return `ERR_${Date.now()}_${Random.id(6)}`;
 }
 
+const REPORT_TTL_MS = 90 * 24 * 60 * 60 * 1000;
+
+// Field names that must never be stored, at any depth.
+const SENSITIVE_KEYS = [
+  "password", "token", "secret", "key", "auth", "session",
+  "credit", "card", "ssn", "social", "phone", "email",
+];
+const MAX_SANITIZE_DEPTH = 6;
+
+/** Redact sensitive keys at every level of a nested value. */
+function redact(value, depth = 0) {
+  if (!value || typeof value !== "object") return value;
+  if (depth >= MAX_SANITIZE_DEPTH) return "[TRUNCATED]";
+  if (Array.isArray(value)) return value.map(item => redact(item, depth + 1));
+
+  return Object.fromEntries(Object.entries(value).map(([key, entry]) => {
+    const lowerKey = key.toLowerCase();
+    if (SENSITIVE_KEYS.some(sensitive => lowerKey.includes(sensitive))) {
+      return [key, "[REDACTED]"];
+    }
+    return [key, redact(entry, depth + 1)];
+  }));
+}
+
 /**
  * Sanitize sensitive data from props/state before storing
  */
@@ -19,20 +43,7 @@ function sanitizeData(data) {
     return {};
   }
 
-  const sanitized = { ...data };
-
-  // Remove sensitive fields
-  const sensitiveKeys = [
-    "password", "token", "secret", "key", "auth", "session",
-    "credit", "card", "ssn", "social", "phone", "email",
-  ];
-
-  Object.keys(sanitized).forEach(key => {
-    const lowerKey = key.toLowerCase();
-    if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
-      sanitized[key] = "[REDACTED]";
-    }
-  });
+  const sanitized = redact(data);
 
   // Truncate large objects
   const jsonString = JSON.stringify(sanitized);
@@ -41,6 +52,13 @@ function sanitizeData(data) {
   }
 
   return sanitized;
+}
+
+/** Page URL without its query string or fragment, which can carry tokens. */
+function stripQuery(url) {
+  if (typeof url !== "string") return undefined;
+  const end = url.search(/[?#]/);
+  return end === -1 ? url : url.slice(0, end);
 }
 
 /**
@@ -145,7 +163,7 @@ Meteor.methods({
 
       // Environment info
       userAgent: value.userAgent || undefined,
-      url: value.url || undefined,
+      url: stripQuery(value.url) || undefined,
       platform: value.platform || "Web",
 
       // App context
@@ -158,6 +176,7 @@ Meteor.methods({
       category: categorizeError(value),
       resolved: false,
       notes: undefined,
+      expiresAt: new Date(Date.now() + REPORT_TTL_MS),
     };
 
     // Validate against schema

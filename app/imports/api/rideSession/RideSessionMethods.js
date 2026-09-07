@@ -20,6 +20,27 @@ const generatePickupCode = () => {
   return Math.floor(1000 + Random.fraction() * 9000).toString();
 };
 
+const MAX_CODE_ATTEMPTS = 5;
+
+/* Every event type the server itself records. logEvent is a public method,
+ * so anything outside this list is refused rather than stored. */
+const EVENT_TYPES = [
+  "rideCreated", "rideStarted", "rideCompleted", "rideCancelled",
+  "riderPickedUp", "riderDroppedOff",
+];
+const MAX_EVENTS = 500;
+
+const isFiniteLocation = location => Boolean(location)
+  && Number.isFinite(location.lat) && Number.isFinite(location.lng)
+  && Math.abs(location.lat) <= 90 && Math.abs(location.lng) <= 180;
+
+/** System admin, or admin of the school the session belongs to. */
+const isAdminFor = async (userId, schoolId) => {
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  if (await isSystemAdmin(userId)) return true;
+  return Boolean(schoolId) && isSchoolAdmin(userId, schoolId);
+};
+
 Meteor.methods({
   async "rideSessions.create"(rideId, driverId, riderIds = [], location) {
     check(rideId, String);
@@ -147,7 +168,8 @@ Meteor.methods({
       "timeline.ended": new Date(),
     };
 
-    await RideSessions.updateAsync(sessionId, { $set: updateData });
+    // Nobody's last position outlives the trip.
+    await RideSessions.updateAsync(sessionId, { $set: updateData, $unset: { liveLocations: "" } });
 
     // Log completion event
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "rideCompleted", {
@@ -178,7 +200,7 @@ Meteor.methods({
       "timeline.ended": new Date(),
     };
 
-    await RideSessions.updateAsync(sessionId, { $set: updateData });
+    await RideSessions.updateAsync(sessionId, { $set: updateData, $unset: { liveLocations: "" } });
 
     // Log cancellation event
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "rideCancelled", {
@@ -191,10 +213,10 @@ Meteor.methods({
     return true;
   },
 
-  async "rideSessions.verifyPickupCode"(sessionId, riderId, lastTwoDigits, location) {
+  async "rideSessions.verifyPickupCode"(sessionId, riderId, code, location) {
     check(sessionId, String);
     check(riderId, String);
-    check(lastTwoDigits, String);
+    check(code, String);
     // Match.Maybe, so a null location reaches the explicit guard below rather than
     // failing the check with "Match failed".
     check(location, Match.Maybe({ lat: Number, lng: Number }));
@@ -229,38 +251,42 @@ Meteor.methods({
       throw new Meteor.Error("already-picked-up", "Rider has already been picked up");
     }
 
-    // Validate last two digits
-    const fullCode = riderProgress.code;
-    const expectedLastTwo = fullCode.slice(-2);
+    // The whole code, not a suffix: two digits leave only 100 guesses.
+    if (!/^\d{4}$/.test(code) || code !== riderProgress.code) {
+      /* Count the miss atomically, and only while attempts remain, so
+       * parallel guesses cannot each read "4 attempts" and all get through. */
+      const attemptsKey = `progress.${riderId}.codeAttempts`;
+      const counted = await RideSessions.updateAsync(
+        { _id: sessionId, [attemptsKey]: { $not: { $gte: MAX_CODE_ATTEMPTS } } },
+        { $inc: { [attemptsKey]: 1 } },
+      );
+      const after = counted === 0
+        ? MAX_CODE_ATTEMPTS
+        : (await RideSessions.findOneAsync(sessionId))?.progress?.[riderId]?.codeAttempts ?? MAX_CODE_ATTEMPTS;
 
-    if (lastTwoDigits !== expectedLastTwo) {
-      // Increment attempt counter
-      const newAttempts = (riderProgress.codeAttempts || 0) + 1;
-      const updateData = {
-        [`progress.${riderId}.codeAttempts`]: newAttempts,
-      };
-
-      // Mark as error if 5 attempts reached
-      if (newAttempts >= 5) {
-        updateData[`progress.${riderId}.codeError`] = true;
-        await RideSessions.updateAsync(sessionId, { $set: updateData });
+      if (after >= MAX_CODE_ATTEMPTS) {
+        await RideSessions.updateAsync(sessionId, { $set: { [`progress.${riderId}.codeError`]: true } });
         throw new Meteor.Error(
           "verification-failed",
           "Too many failed attempts. Code verification disabled for this rider.",
         );
       }
-
-      await RideSessions.updateAsync(sessionId, { $set: updateData });
-      throw new Meteor.Error("verification-failed", `Invalid code. ${5 - newAttempts} attempts remaining.`);
+      throw new Meteor.Error("verification-failed", `Invalid code. ${MAX_CODE_ATTEMPTS - after} attempts remaining.`);
     }
 
-    // Code is correct - mark as picked up
-    const updateData = {
-      [`progress.${riderId}.pickedUp`]: true,
-      [`progress.${riderId}.pickupTime`]: new Date(),
-    };
-
-    await RideSessions.updateAsync(sessionId, { $set: updateData });
+    // Code is correct - mark as picked up (once; a second correct entry is a no-op)
+    const pickedUp = await RideSessions.updateAsync(
+      { _id: sessionId, [`progress.${riderId}.pickedUp`]: { $ne: true } },
+      {
+        $set: {
+          [`progress.${riderId}.pickedUp`]: true,
+          [`progress.${riderId}.pickupTime`]: new Date(),
+        },
+      },
+    );
+    if (pickedUp === 0) {
+      throw new Meteor.Error("already-picked-up", "Rider has already been picked up");
+    }
 
     // Log pickup event with actual location
     await Meteor.callAsync("rideSessions.logEvent", sessionId, "riderPickedUp", {
@@ -286,8 +312,7 @@ Meteor.methods({
     }
 
     // Check if user is driver or the specific rider
-    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-    const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+    const isAdmin = await isAdminFor(userId, session.schoolId);
     const isDriver = session.driverId === userId;
     const isRider = session.riders.includes(userId) && riderId === userId;
 
@@ -367,6 +392,13 @@ Meteor.methods({
       reason: Match.Optional(String),
     });
 
+    if (!EVENT_TYPES.includes(eventType)) {
+      throw new Meteor.Error("invalid-event", "Unknown event type");
+    }
+    if (!isFiniteLocation(eventData.location)) {
+      throw new Meteor.Error("validation-error", "Invalid location coordinates");
+    }
+
     const userId = this.userId;
 
     // Basic permission check - only participants can log events
@@ -375,13 +407,16 @@ Meteor.methods({
       throw new Meteor.Error("not-found", "Session not found");
     }
 
-    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-    const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+    const isAdmin = await isAdminFor(userId, session.schoolId);
     const isDriver = session.driverId === userId;
     const isRider = session.riders.includes(userId);
 
     if (!isDriver && !isRider && !isAdmin) {
       throw new Meteor.Error("access-denied", "You don't have permission to log events for this session");
+    }
+
+    if (Object.keys(session.events || {}).length >= MAX_EVENTS) {
+      throw new Meteor.Error("too-many-events", "This session has reached its event limit");
     }
 
     const eventKey = `${eventType}_${Date.now()}`;
@@ -442,8 +477,9 @@ Meteor.methods({
       throw new Meteor.Error("validation-error", "GPS location is required for live location sharing. Please enable location services.");
     }
 
-    // Validate coordinates are within valid ranges
-    if (Math.abs(location.lat) > 90 || Math.abs(location.lng) > 180) {
+    // Finite and within range: NaN passes typeof, and would poison the
+    // speed check below for every later update.
+    if (!isFiniteLocation(location)) {
       throw new Meteor.Error("validation-error", "Invalid location coordinates");
     }
 
@@ -454,8 +490,7 @@ Meteor.methods({
     }
 
     // Check if user is driver or rider in this session
-    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-    const isAdmin = await isSystemAdmin(userId) || await isSchoolAdmin(userId);
+    const isAdmin = await isAdminFor(userId, session.schoolId);
     const isDriver = session.driverId === userId;
     const isRider = session.riders.includes(userId);
 
@@ -476,7 +511,7 @@ Meteor.methods({
     };
 
     // Include accuracy if provided
-    if (location.accuracy !== undefined && typeof location.accuracy === "number") {
+    if (Number.isFinite(location.accuracy)) {
       liveLocationData.accuracy = location.accuracy;
     }
 

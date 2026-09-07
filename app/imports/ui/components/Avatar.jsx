@@ -20,12 +20,21 @@ const userShape = PropTypes.shape({
 /**
  * Hue-based pastel avatar showing the rider's initials.
  */
-export const Avatar = ({ user, size, ring }) => {
+export const Avatar = ({
+  user, size, ring, nameAdjacent,
+}) => {
   if (!user) return null;
   const initials = user.initials || (user.name ? initialsFromName(user.name) : "?");
   const hue = typeof user.hue === "number" ? user.hue : 220;
+  /* When the caller already renders the name as visible text next to this
+   * avatar, the image is decorative to a screen reader (aria-hidden).
+   * Otherwise it is the only label for the person, so it needs its own
+   * accessible name (role="img" + aria-label). */
+  const a11yProps = nameAdjacent
+    ? { "aria-hidden": "true" }
+    : { role: "img", "aria-label": user.name || initials };
   return (
-    <AvatarCircle $size={size} $hue={hue} $ring={ring}>
+    <AvatarCircle $size={size} $hue={hue} $ring={ring} {...a11yProps}>
       {initials}
     </AvatarCircle>
   );
@@ -35,12 +44,14 @@ Avatar.propTypes = {
   user: userShape,
   size: PropTypes.number,
   ring: PropTypes.string,
+  nameAdjacent: PropTypes.bool,
 };
 
 Avatar.defaultProps = {
   user: null,
   size: 32,
   ring: null,
+  nameAdjacent: false,
 };
 
 /**

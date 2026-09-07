@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import Joi from "joi";
 
@@ -23,6 +24,24 @@ const ImagesSchema = Joi.object({
   school: Joi.string().optional(), // School ID for school-restricted images
   user: Joi.string().optional(), // User ID for user-restricted images
 });
+
+/* uuid is the public handle for every image fetch; sha256Hash backs the
+ * upload dedupe lookup. Failures are logged, never thrown at boot. */
+if (Meteor.isServer) {
+  Meteor.startup(async () => {
+    const indexes = [
+      [{ uuid: 1 }, { unique: true }],
+      [{ sha256Hash: 1 }],
+    ];
+    for (const [keys, options] of indexes) { // eslint-disable-line no-restricted-syntax
+      try {
+        await Images.createIndexAsync(keys, options); // eslint-disable-line no-await-in-loop
+      } catch (error) {
+        console.error("[Images] Could not create index", keys, error?.message || error);
+      }
+    }
+  });
+}
 
 /** Make the collection available to other code. */
 export { Images, ImagesSchema };

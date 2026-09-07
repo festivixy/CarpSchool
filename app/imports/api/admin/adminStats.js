@@ -65,6 +65,10 @@ const chatTimestamps = async (scope, from) => {
   const pipeline = [];
   if (rideIds) pipeline.push({ $match: { rideId: { $in: rideIds } } });
   pipeline.push(
+    // Matching on the array field before $unwind drops chats with no recent
+    // messages before they ever get expanded, instead of unwinding every
+    // message a chat has ever had just to throw most of them away after.
+    { $match: { "Messages.Timestamp": { $gte: from } } },
     { $unwind: "$Messages" },
     { $match: { "Messages.Timestamp": { $gte: from } } },
     { $project: { _id: 0, t: "$Messages.Timestamp" } },

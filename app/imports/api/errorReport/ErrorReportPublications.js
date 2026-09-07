@@ -137,97 +137,33 @@ Meteor.publish("errorReports.recent", async function publishRecentErrors(hours =
 });
 
 /**
- * Publish error report count for admin statistics
+ * Error report counts for the admin dashboard.
+ *
+ * Used to be a reactive publication with three live observeChangesAsync
+ * scans over the whole (collection-wide, unbounded by school) ErrorReports
+ * collection -- one full table observer each for the total, unresolved and
+ * critical counts, held open for as long as any admin had the dashboard
+ * tab open. A polled method that just counts on demand is far cheaper for a
+ * number the dashboard only needs refreshed every so often; see
+ * AdminOverview.jsx, which now calls this every 30s instead of subscribing.
  */
-Meteor.publish("errorReports.count", async function publishErrorCount() {
-  // Check if user is admin
-  if (!this.userId) {
-    return this.ready();
-  }
+Meteor.methods({
+  async "errorReports.counts"() {
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in");
+    }
 
-  const { isSystemAdmin } = await import("../accounts/RoleUtils");
-  if (!await isSystemAdmin(this.userId)) {
-    return this.ready();
-  }
+    const { isSystemAdmin } = await import("../accounts/RoleUtils");
+    if (!await isSystemAdmin(this.userId)) {
+      throw new Meteor.Error("not-authorized", "Admin access required");
+    }
 
-  // This is a reactive publication that publishes counts
-  const self = this;
+    const [total, unresolved, critical] = await Promise.all([
+      ErrorReports.find({}).countAsync(),
+      ErrorReports.find({ resolved: false }).countAsync(),
+      ErrorReports.find({ severity: "critical", resolved: false }).countAsync(),
+    ]);
 
-  // Initialize counters
-  let totalCount = 0;
-  let unresolvedCount = 0;
-  let criticalCount = 0;
-
-  // Publish the count documents BEFORE observing. In Meteor 3 observeChanges is
-  // async and delivers its initial `added` callbacks before it resolves, so the
-  // self.changed() calls below would otherwise throw
-  // "Could not find element with id total to change".
-  self.added("errorReportCounts", "total", { count: totalCount });
-  self.added("errorReportCounts", "unresolved", { count: unresolvedCount });
-  self.added("errorReportCounts", "critical", { count: criticalCount });
-
-  // Set up observers. The await matters: in Meteor 3 observeChanges returns a
-  // Promise, so without it these handles could never be stopped and every
-  // subscription leaked a live observer.
-  const totalHandle = await ErrorReports.find({}).observeChangesAsync({
-    added: () => {
-      totalCount++;
-      self.changed("errorReportCounts", "total", { count: totalCount });
-    },
-    removed: () => {
-      totalCount--;
-      self.changed("errorReportCounts", "total", { count: totalCount });
-    },
-  });
-
-  const unresolvedHandle = await ErrorReports.find({ resolved: false }).observeChangesAsync({
-    added: () => {
-      unresolvedCount++;
-      self.changed("errorReportCounts", "unresolved", { count: unresolvedCount });
-    },
-    removed: () => {
-      unresolvedCount--;
-      self.changed("errorReportCounts", "unresolved", { count: unresolvedCount });
-    },
-    changed: (id, fields) => {
-      if (fields.resolved === true) {
-        unresolvedCount--;
-      } else if (fields.resolved === false) {
-        unresolvedCount++;
-      }
-      self.changed("errorReportCounts", "unresolved", { count: unresolvedCount });
-    },
-  });
-
-  // No `changed` callback here: a document entering or leaving
-  // { severity: "critical", resolved: false } fires added/removed instead, and
-  // `changed` only carries the fields that actually changed -- so the previous
-  // handler saw fields.severity === undefined and decremented the count on every
-  // unrelated update (e.g. an admin saving notes on a critical report).
-  const criticalHandle = await ErrorReports.find({
-    severity: "critical",
-    resolved: false,
-  }).observeChangesAsync({
-    added: () => {
-      criticalCount++;
-      self.changed("errorReportCounts", "critical", { count: criticalCount });
-    },
-    removed: () => {
-      criticalCount--;
-      self.changed("errorReportCounts", "critical", { count: criticalCount });
-    },
-  });
-
-  // Clean up observers when subscription stops. ObserveHandle.stop() is async in
-  // Meteor 3 and stop callbacks are not awaited, so catch here rather than leak
-  // an unhandled rejection.
-  self.onStop(() => Promise.all([
-    totalHandle.stop(),
-    unresolvedHandle.stop(),
-    criticalHandle.stop(),
-  ]).catch((error) => {
-    console.error("[ErrorReports] Failed to stop count observers:", error);
-  }));
-
-  return self.ready();
+    return { total, unresolved, critical };
+  },
 });

@@ -7,6 +7,7 @@ import { Places } from "../../../api/places/Places";
 import InteractiveMapPicker from "./InteractiveMapPicker";
 import WaypointMap from "./WaypointMap";
 import { formatPlaceValue, canEditPlace } from "../../utils/placeCoords";
+import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import { PlaceManagerSkeleton } from "../../skeleton";
 import { SkeletonPulse } from "../../skeleton/styles/PlaceManagerSkeleton";
 import {
@@ -52,6 +53,7 @@ import {
 class PlaceManager extends React.Component {
   constructor(props) {
     super(props);
+    this.modalRef = React.createRef();
     this.state = {
       modalOpen: false,
       editingPlace: null,
@@ -64,6 +66,7 @@ class PlaceManager extends React.Component {
       showMapPicker: false,
       selectedCoordinates: null,
       creatorNames: {}, // Cache for creator usernames
+      isDirty: false,
     };
   }
 
@@ -71,12 +74,20 @@ class PlaceManager extends React.Component {
     this.fetchCreatorNames();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     // Fetch creator names when places change
     if (prevProps.places !== this.props.places) {
       this.fetchCreatorNames();
     }
+
+    // Move focus into the modal as soon as it opens.
+    if (this.state.modalOpen && !prevState.modalOpen && this.modalRef.current) {
+      this.modalRef.current.focus();
+    }
   }
+
+  canManagePlace = (place) => place.createdBy === Meteor.userId()
+    || isAdminRole(this.props.currentUser);
 
   fetchCreatorNames = () => {
     const { places } = this.props;
@@ -106,6 +117,7 @@ class PlaceManager extends React.Component {
       editingPlace: null,
       formData: { text: "", value: "" },
       errors: {},
+      isDirty: false,
     });
   };
 
@@ -119,6 +131,7 @@ class PlaceManager extends React.Component {
       errors: {},
       selectedCoordinates: coords,
       showMapPicker: false,
+      isDirty: false,
     });
   };
 
@@ -147,6 +160,7 @@ class PlaceManager extends React.Component {
         value: place.value,
       },
       errors: {},
+      isDirty: false,
     });
   };
 
@@ -159,7 +173,55 @@ class PlaceManager extends React.Component {
       loading: false,
       showMapPicker: false,
       selectedCoordinates: null,
+      isDirty: false,
     });
+  };
+
+  /* Backdrop click / Escape: close directly unless the form has unsaved
+   * changes, in which case confirm first. */
+  handleModalDismiss = () => {
+    if (!this.state.isDirty) {
+      this.closeModal();
+      return;
+    }
+
+    swal({
+      title: "Discard changes?",
+      text: "You have unsaved changes. Close without saving?",
+      icon: "warning",
+      buttons: {
+        cancel: "Keep editing",
+        confirm: { text: "Discard", className: "swal-button--danger" },
+      },
+    }).then((confirmed) => {
+      if (confirmed) this.closeModal();
+    });
+  };
+
+  handleModalKeyDown = (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      this.handleModalDismiss();
+      return;
+    }
+
+    if (e.key === "Tab" && this.modalRef.current) {
+      const focusables = this.modalRef.current.querySelectorAll(
+        "button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])",
+      );
+      if (focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
   };
 
   toggleMapPicker = () => {
@@ -204,6 +266,7 @@ class PlaceManager extends React.Component {
         ...this.state.errors,
         value: null,
       },
+      isDirty: true,
     });
   };
 
@@ -217,6 +280,7 @@ class PlaceManager extends React.Component {
         ...this.state.errors,
         [name]: null,
       },
+      isDirty: true,
     });
   };
 
@@ -258,7 +322,7 @@ class PlaceManager extends React.Component {
       this.setState({ loading: false });
 
       if (error) {
-        swal("Error", error.message, "error");
+        swal("Error", error.reason || error.message, "error");
       } else {
         swal(
           "Success",
@@ -286,7 +350,7 @@ class PlaceManager extends React.Component {
       if (willDelete) {
         Meteor.call("places.remove", place._id, (error) => {
           if (error) {
-            swal("Error", error.message, "error");
+            swal("Error", error.reason || error.message, "error");
           } else {
             swal("Deleted", "Place deleted successfully!", "success");
           }
@@ -359,17 +423,23 @@ class PlaceManager extends React.Component {
                         ) : "Legacy user"}
                       </PlaceDate>
                     </PlaceInfo>
-                    <ActionButtons>
-                      <ActionButton onClick={() => this.openEditModal(place)}>
-                        ✏️
-                      </ActionButton>
-                      <ActionButton
-                        variant="delete"
-                        onClick={() => this.handleDelete(place)}
-                      >
-                        🗑️
-                      </ActionButton>
-                    </ActionButtons>
+                    {this.canManagePlace(place) && (
+                      <ActionButtons>
+                        <ActionButton
+                          aria-label={`Edit ${place.text}`}
+                          onClick={() => this.openEditModal(place)}
+                        >
+                          ✏️
+                        </ActionButton>
+                        <ActionButton
+                          aria-label={`Delete ${place.text}`}
+                          variant="delete"
+                          onClick={() => this.handleDelete(place)}
+                        >
+                          🗑️
+                        </ActionButton>
+                      </ActionButtons>
+                    )}
                   </PlaceHeader>
                 </PlaceCard>
               ))}
@@ -378,8 +448,16 @@ class PlaceManager extends React.Component {
         </Content>
 
         {modalOpen && (
-          <ModalOverlay onClick={this.closeModal}>
-            <ModalContent onClick={(e) => e.stopPropagation()}>
+          <ModalOverlay onClick={this.handleModalDismiss}>
+            <ModalContent
+              ref={this.modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label={editingPlace ? "Edit Place" : "Add New Place"}
+              tabIndex={-1}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={this.handleModalKeyDown}
+            >
               <ModalHeader>
                 <ModalTitle>
                   📍 {editingPlace ? "Edit Place" : "Add New Place"}
@@ -466,6 +544,11 @@ class PlaceManager extends React.Component {
 PlaceManager.propTypes = {
   places: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
+  currentUser: PropTypes.object,
+};
+
+PlaceManager.defaultProps = {
+  currentUser: null,
 };
 
 export default withTracker(() => {
@@ -475,5 +558,6 @@ export default withTracker(() => {
   return {
     places: ready ? Places.find({}, { sort: { text: 1 } }).fetch() : [],
     ready,
+    currentUser: Meteor.user(),
   };
 })(PlaceManager);

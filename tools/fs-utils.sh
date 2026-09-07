@@ -23,20 +23,28 @@ fs_remove_with_confirmation() {
     local dir_path="$1"
     local dir_name="$2"
     local prompt_msg="$3"
+    local default="${4:-Y}"  # "Y" or "N" — what an empty answer means
 
-    echo -e "${YELLOW}${prompt_msg} (Y/n): ${NC}"
+    if [ "$default" = "N" ]; then
+        echo -e "${YELLOW}${prompt_msg} (y/N): ${NC}"
+    else
+        echo -e "${YELLOW}${prompt_msg} (Y/n): ${NC}"
+    fi
     local yn
     if read -r yn; then
+        if [ -z "$yn" ]; then
+            yn="$default"
+        fi
         case $yn in
-            [Nn]* )
-                echo -e "${YELLOW}Skipping removal of ${dir_name}.${NC}"
-                return 1
-                ;;
-            * )
+            [Yy]* )
                 echo -e "${YELLOW}🗑️  Removing ${dir_name}...${NC}"
                 rm -rf "$dir_path"
                 echo -e "${GREEN}   Removed ${dir_path}${NC}"
                 return 0
+                ;;
+            * )
+                echo -e "${YELLOW}Skipping removal of ${dir_name}.${NC}"
+                return 1
                 ;;
         esac
     else
@@ -47,15 +55,12 @@ fs_remove_with_confirmation() {
 
 # Function to remove database directories
 fs_clean_databases() {
-    fs_remove_with_confirmation "mongo_data" "database folders" "Do you want to remove database folders (mongo_data/)?"
+    fs_remove_with_confirmation "mongo_data" "database folders" "Do you want to remove database folders (mongo_data/)?" "N"
 }
 
 # Function to remove openmaptiles directory
 fs_clean_openmaptiles() {
-    if fs_remove_with_confirmation "openmaptiles/*" "openmaptiles directory" "Do you want to remove the openmaptiles directory?"; then
-        # Only remove contents, not the directory itself
-        echo -e "${YELLOW}  Removing openmaptiles directory contents...${NC}"
-    fi
+    fs_remove_with_confirmation "openmaptiles" "openmaptiles directory" "Do you want to remove the openmaptiles directory?"
 }
 
 # Function to remove PostgreSQL data

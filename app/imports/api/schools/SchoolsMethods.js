@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
+import { check, Match } from "meteor/check";
 import Joi from "joi";
 import { Schools, SchoolsSchema } from "./Schools";
 import { isSystemAdmin, isSchoolAdmin } from "../accounts/RoleUtils";
@@ -213,11 +213,14 @@ Meteor.methods({
    * Update school admin's own school basic information
    */
   async "schools.updateMySchool"(updateData) {
+    // code and domain are identity: only a system admin may change them,
+    // through schools.update. They are accepted here and ignored so an older
+    // client's form does not fail the check.
     check(updateData, {
       name: String,
       shortName: String,
-      code: String,
-      domain: String,
+      code: Match.Optional(String),
+      domain: Match.Optional(Match.OneOf(String, null)),
       location: Object,
       settings: Object,
     });
@@ -240,8 +243,8 @@ Meteor.methods({
     const updateSchema = Joi.object({
       name: Joi.string().required().min(2).max(100),
       shortName: Joi.string().required().min(2).max(20),
-      code: Joi.string().required().min(2).max(10).uppercase(),
-      domain: Joi.string().pattern(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).allow("").allow(null).optional(),
+      code: Joi.any().strip(),
+      domain: Joi.any().strip(),
       location: Joi.object({
         city: Joi.string().allow("").optional(),
         province: Joi.string().allow("").optional(),
@@ -266,36 +269,11 @@ Meteor.methods({
       throw new Meteor.Error("validation-error", error.details[0].message);
     }
 
-    // Check if code is being changed and if it conflicts with another school
-    const currentSchool = await Schools.findOneAsync(currentUser.schoolId);
-    if (value.code !== currentSchool.code) {
-      const existingSchool = await Schools.findOneAsync({
-        code: value.code,
-        _id: { $ne: currentUser.schoolId }
-      });
-      if (existingSchool) {
-        throw new Meteor.Error("duplicate-code", `School with code '${value.code}' already exists`);
-      }
-    }
-
-    // Check if domain is being changed and if it conflicts with another school
-    if (value.domain && value.domain !== currentSchool.domain) {
-      const existingDomain = await Schools.findOneAsync({
-        domain: value.domain,
-        _id: { $ne: currentUser.schoolId }
-      });
-      if (existingDomain) {
-        throw new Meteor.Error("duplicate-domain", `School with domain '${value.domain}' already exists`);
-      }
-    }
-
     // Update the school
     await Schools.updateAsync(currentUser.schoolId, {
       $set: {
         name: value.name,
         shortName: value.shortName,
-        code: value.code,
-        domain: value.domain || null,
         location: value.location,
         settings: value.settings,
         updatedAt: new Date(),

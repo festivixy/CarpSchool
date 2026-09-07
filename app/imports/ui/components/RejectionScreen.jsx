@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
+import { useClerk } from "@clerk/clerk-react";
 import { Profiles } from "../../api/profile/Profile";
+import { fullSignOut } from "../utils/signOut";
 import {
   Container,
   Content,
@@ -28,6 +30,7 @@ import {
  * RejectionScreen component - Shows rejection message with re-verification option
  */
 const RejectionScreen = ({ profile, loading }) => {
+  const { signOut } = useClerk();
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -54,13 +57,11 @@ const RejectionScreen = ({ profile, loading }) => {
     });
   };
 
+  // Meteor.logout() alone left the Clerk session alive, so the bridge signed
+  // the user straight back in on reload; fullSignOut ends both.
   const handleLogout = () => {
-    Meteor.logout((error) => {
-      if (error) {
-        console.error("Logout error:", error);
-      } else {
-        window.location.href = "/";
-      }
+    fullSignOut(signOut).catch((error) => {
+      console.error("Logout error:", error);
     });
   };
 

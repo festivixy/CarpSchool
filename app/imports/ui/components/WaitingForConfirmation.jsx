@@ -2,7 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
+import { useClerk } from "@clerk/clerk-react";
 import { Profiles } from "../../api/profile/Profile";
+import { fullSignOut } from "../utils/signOut";
 import {
   Container,
   Content,
@@ -24,13 +26,13 @@ import {
  * WaitingForConfirmation component - Shows pending admin approval status
  */
 const WaitingForConfirmation = ({ profile, loading }) => {
+  const { signOut } = useClerk();
+
+  // Meteor.logout() alone left the Clerk session alive, so the bridge signed
+  // the user straight back in on reload; fullSignOut ends both.
   const handleLogout = () => {
-    Meteor.logout((error) => {
-      if (error) {
-        console.error("Logout error:", error);
-      } else {
-        window.location.href = "/";
-      }
+    fullSignOut(signOut).catch((error) => {
+      console.error("Logout error:", error);
     });
   };
 

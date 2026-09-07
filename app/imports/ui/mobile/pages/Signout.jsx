@@ -1,5 +1,6 @@
 import React from "react";
-import { useSignOut } from "@clerk/clerk-react";
+import { useClerk } from "@clerk/clerk-react";
+import { fullSignOut } from "../../utils/signOut";
 import {
   Container,
   Content,
@@ -17,27 +18,27 @@ import {
 
 /** Mobile signout page with Clerk authentication */
 export default function MobileSignout() {
-  const { signOut, isLoaded } = useSignOut();
+  // @clerk/clerk-react has no useSignOut hook; signOut lives on the Clerk
+  // instance. `loaded` gates the call until Clerk has restored its session.
+  const { signOut, loaded } = useClerk();
   const [isSigningOut, setIsSigningOut] = React.useState(true);
-  const [signedOut, setSignedOut] = React.useState(false);
+  const started = React.useRef(false);
 
   React.useEffect(() => {
-    if (!isLoaded) return;
+    if (!loaded || started.current) return undefined;
+    started.current = true;
 
-    const handleSignOut = async () => {
+    const timer = setTimeout(async () => {
       try {
-        await signOut({ redirectUrl: "/" });
+        await fullSignOut(signOut);
       } catch (error) {
         console.error("Sign out error:", error);
         setIsSigningOut(false);
-        setSignedOut(true);
       }
-    };
-
-    setTimeout(() => {
-      handleSignOut();
     }, 800);
-  }, [isLoaded, signOut]);
+
+    return () => clearTimeout(timer);
+  }, [loaded, signOut]);
 
   return (
     <Container>

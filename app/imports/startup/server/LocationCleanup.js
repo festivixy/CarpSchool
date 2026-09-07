@@ -14,12 +14,12 @@ Meteor.startup(() => {
     try {
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
-      // Find sessions with active live locations
-      const activeSessions = await RideSessions.find({
-        status: "active",
-        finished: false,
-        liveLocations: { $exists: true, $ne: {} },
-      }).fetchAsync();
+      // Every session still carrying live locations, whatever its status:
+      // a finished or cancelled session must not keep anyone's last position.
+      const activeSessions = await RideSessions.find(
+        { liveLocations: { $exists: true, $ne: {} } },
+        { fields: { liveLocations: 1 } },
+      ).fetchAsync();
 
       for (const session of activeSessions) {
         if (!session.liveLocations) continue;

@@ -3,6 +3,25 @@ import { Meteor } from "meteor/meteor";
 import { Places } from "./Places";
 import { Rides } from "../ride/Rides";
 
+/* Admin lists are bounded; the UI has search, not paging, past this. */
+const ADMIN_LIMIT = 500;
+
+/** Ids of every place a user's rides start at, end at or stop by. */
+const placeIdsFromRides = async (userId) => {
+  const userRides = await Rides.find(
+    { $or: [{ driver: userId }, { riders: userId }] },
+    { fields: { origin: 1, destination: 1, waypoints: 1 } },
+  ).fetchAsync();
+
+  const placeIds = new Set();
+  userRides.forEach((ride) => {
+    if (ride.origin) placeIds.add(ride.origin);
+    if (ride.destination) placeIds.add(ride.destination);
+    (Array.isArray(ride.waypoints) ? ride.waypoints : []).forEach(id => placeIds.add(id));
+  });
+  return Array.from(placeIds);
+};
+
 /**
  * Publish places that the current user created or places used in their rides
  */
@@ -12,21 +31,9 @@ Meteor.publish("places.mine", async function publishMyPlaces() {
     return;
   }
 
-  // Find rides where user is driver or rider
-  const userRides = await Rides.find({
-    $or: [{ driver: this.userId }, { riders: this.userId }],
-  }).fetchAsync();
-
-  // Extract unique place IDs from origin and destination
-  const placeIds = new Set();
-  userRides.forEach((ride) => {
-    if (ride.origin) placeIds.add(ride.origin);
-    if (ride.destination) placeIds.add(ride.destination);
-  });
-
   // Query for places created by user OR used in their rides
   const query = {
-    $or: [{ createdBy: this.userId }, { _id: { $in: Array.from(placeIds) } }],
+    $or: [{ createdBy: this.userId }, { _id: { $in: await placeIdsFromRides(this.userId) } }],
   };
 
   return Places.find(query, {
@@ -70,6 +77,7 @@ Meteor.publish("places.admin", async function publishAllPlaces() {
   return Places.find(
     filter,
     {
+      limit: ADMIN_LIMIT,
       fields: {
         _id: 1,
         text: 1,
@@ -100,29 +108,20 @@ Meteor.publish("places.options", async function publishPlaceOptions() {
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
 
   let query;
+  let limit;
 
   if (await isSystemAdmin(this.userId)) {
     // System admins see all places
     query = {};
+    limit = ADMIN_LIMIT;
   } else if (await isSchoolAdmin(this.userId)) {
     // School admins see places from their school
     query = { schoolId: currentUser.schoolId };
+    limit = ADMIN_LIMIT;
   } else {
-    // Find rides where user is driver or rider
-    const userRides = await Rides.find({
-      $or: [{ driver: this.userId }, { riders: this.userId }],
-    }).fetchAsync();
-
-    // Extract unique place IDs from origin and destination
-    const placeIds = new Set();
-    userRides.forEach((ride) => {
-      if (ride.origin) placeIds.add(ride.origin);
-      if (ride.destination) placeIds.add(ride.destination);
-    });
-
     // Query for places created by user OR used in their rides
     query = {
-      $or: [{ createdBy: this.userId }, { _id: { $in: Array.from(placeIds) } }],
+      $or: [{ createdBy: this.userId }, { _id: { $in: await placeIdsFromRides(this.userId) } }],
     };
   }
 
@@ -137,5 +136,6 @@ Meteor.publish("places.options", async function publishPlaceOptions() {
       schoolId: 1,
     },
     sort: { text: 1 },
+    ...(limit ? { limit } : {}),
   });
 });

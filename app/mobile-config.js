@@ -21,7 +21,7 @@ App.setPreference("ShowSplashScreenSpinner", "false");
 App.setPreference("Orientation", "portrait", "ios");
 App.setPreference("EnableViewportScale", "true", "ios");
 App.setPreference("MediaTypesRequiringUserActionForPlayback", "none", "ios");
-App.setPreference("AllowInlineMediaPlaybook", "true", "ios");
+App.setPreference("AllowInlineMediaPlayback", "true", "ios");
 App.setPreference("BackupWebStorage", "cloud", "ios");
 App.setPreference("TopActivityIndicator", "gray", "ios");
 App.setPreference("GapBetweenPages", "0", "ios");
@@ -33,7 +33,7 @@ App.setPreference("PaginationMode", "unpaginated", "ios");
 App.setPreference("deployment-target", "15.0", "ios");
 
 // iOS 26 Liquid Glass specific preferences
-App.setPreference("StatusBarOverlaysWebView", "true", "ios");
+App.setPreference("StatusBarOverlaysWebView", "false", "ios");
 App.setPreference("WKWebViewOnly", "true", "ios");
 App.setPreference("StatusBarBackgroundColor", "transparent", "ios");
 App.setPreference("WKWebViewDecelerationRate", "normal", "ios");
@@ -49,7 +49,7 @@ App.setPreference("android-installLocation", "auto");
 
 // Android signing preferences for release builds
 App.setPreference("android-signed", "true");
-App.setPreference("android-versionCode", "1");
+App.setPreference("android-versionCode", process.env.ANDROID_VERSION_CODE || "2");
 
 // OneSignal Configuration
 App.setPreference('ONESIGNAL_APP_ID', 'a1f06572-fc69-4ec0-9402-b6e8a56bf14c');
@@ -61,13 +61,34 @@ App.setPreference('ONESIGNAL_IOS_SETTINGS', JSON.stringify({
 }));
 
 // Access origins for external resources
-App.accessRule("*");
 App.accessRule("https://carp.school/*");
 App.accessRule("https://*.carp.school/*");
 App.accessRule("https://onesignal.com/*");
 App.accessRule("https://*.onesignal.com/*");
+App.accessRule("https://*.clerk.accounts.dev/*");
+App.accessRule("https://clerk.com/*");
+App.accessRule("https://*.clerk.com/*");
+App.accessRule("https://challenges.cloudflare.com/*");
+App.accessRule("https://tileserver.carp.school/*");
+App.accessRule("https://nominatim.carp.school/*");
+App.accessRule("https://osrm.carp.school/*");
+App.accessRule("https://cdn.onesignal.com/*");
+App.accessRule("https://api.onesignal.com/*");
 
 // iOS App Transport Security (ATS) configuration moved to cordova-plugin-transport-security plugin
+
+// iOS usage description strings (Info.plist)
+App.appendToConfig(`
+  <edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="replace">
+    <string>CarpSchool uses your location to match you with nearby rides.</string>
+  </edit-config>
+  <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="replace">
+    <string>CarpSchool uses your camera to scan verification documents and take a profile photo.</string>
+  </edit-config>
+  <edit-config target="NSPhotoLibraryUsageDescription" file="*-Info.plist" mode="replace">
+    <string>CarpSchool accesses your photo library so you can upload a profile photo.</string>
+  </edit-config>
+`);
 
 // Set up resources such as icons and launch screens.
 App.icons({

@@ -27,7 +27,7 @@ const PWAInstallPrompt = () => {
     hideInstallPrompt,
   } = usePWAInstall();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [setIsInstallable] = useState(false);
+  const [, setIsInstallable] = useState(false);
   const [buttonText, setButtonText] = useState("Loading app info...");
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [appInfo, setAppInfo] = useState({ name: "", logo: "" });
@@ -79,7 +79,7 @@ const PWAInstallPrompt = () => {
       console.log("[PWA] App was installed");
       setDeferredPrompt(null);
       setIsInstallable(false);
-      onClose();
+      hideInstallPrompt();
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);

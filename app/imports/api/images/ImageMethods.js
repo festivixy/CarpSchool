@@ -139,9 +139,15 @@ Meteor.methods({
     check(captchaSessionId, String);
     check(privacyOptions, {
       private: Match.Optional(Boolean),
+      // Accepted for compatibility; the server sets both from the caller.
       school: Match.Optional(String),
       user: Match.Optional(String),
     });
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to upload images");
+    }
+    const uploader = await Meteor.users.findOneAsync(this.userId, { fields: { schoolId: 1 } });
 
     // Verify captcha
     if (!(await isCaptchaSolved(captchaSessionId))) {
@@ -201,13 +207,13 @@ Meteor.methods({
       );
     }
 
-    // Validate file size (max 20MB for upload)
-    const maxUploadSize = 20 * 1024 * 1024; // 20MB in bytes
+    // Validate file size (max 5MB decoded; a profile photo needs far less)
+    const maxUploadSize = 5 * 1024 * 1024; // 5MB in bytes
     const originalFileSize = originalBinaryData.length;
     if (originalFileSize > maxUploadSize) {
       throw new Meteor.Error(
         "file-too-large",
-        "File size must be less than 20MB",
+        "File size must be less than 5MB",
       );
     }
 
@@ -278,11 +284,13 @@ Meteor.methods({
       uncompressedFileSize: compressionResult.uncompressedSize, // Uncompressed PNG size
       compressionRatio: compressionResult.compressionRatio,
       uploadedAt: new Date(),
-      uploadedBy: this.userId || null,
-      // Privacy settings
+      uploadedBy: this.userId,
+      // Privacy settings. Owner and school come from the caller's account,
+      // never from the request: a user may not file an image under someone
+      // else's name or another school.
       private: privacyOptions.private || false,
-      school: privacyOptions.school || null,
-      user: privacyOptions.user || this.userId || null, // Default to uploader
+      school: uploader?.schoolId || null,
+      user: this.userId,
     };
 
     // Validate the document (skip imageData validation for binary)

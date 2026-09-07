@@ -146,6 +146,20 @@ export const RequestBtn = styled.button`
   font-size: 12px;
 `;
 
+/* Leave/Cancel affordance on a card among many, so it reads even quieter
+ * than the ghost View button rather than competing with it. */
+export const QuietBtn = styled.button`
+  ${btnBase}
+  padding: 7px 10px;
+  font-size: 12px;
+  background: transparent;
+  color: var(--ink-3);
+
+  &:hover {
+    color: var(--ink-1);
+  }
+`;
+
 export const DriverMeta = styled.div`
   font-size: 11px;
   color: var(--ink-3);

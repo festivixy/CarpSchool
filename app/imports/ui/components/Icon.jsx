@@ -115,6 +115,8 @@ const Icon = ({ name, size, color, strokeWidth }) => (
     strokeWidth={strokeWidth}
     strokeLinecap="round"
     strokeLinejoin="round"
+    aria-hidden="true"
+    focusable="false"
   >
     {PATHS[name] || PATHS.pin}
   </svg>

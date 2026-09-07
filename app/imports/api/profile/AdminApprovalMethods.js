@@ -31,15 +31,6 @@ Meteor.methods({
       throw new Meteor.Error("profile-not-found", "User profile not found.");
     }
 
-    // Check if profile is in the correct state for approval
-    if (profileToApprove.verified) {
-      throw new Meteor.Error("already-verified", "User is already verified and approved.");
-    }
-
-    if (!profileToApprove.requested) {
-      throw new Meteor.Error("not-requested", "User is not pending approval.");
-    }
-
     // For school admins, ensure they can only approve users from their school
     if (isSchoolAdminUser && !isSystem) {
       const targetUser = await Meteor.users.findOneAsync(userId);
@@ -48,18 +39,28 @@ Meteor.methods({
       }
     }
 
-    // Approve the user by setting verified: true and requested: false
-    await Profiles.updateAsync(
-      { Owner: userId },
+    // The pending-state guard lives in the selector, so two admins acting at
+    // once (or an approve racing a reject) cannot both succeed.
+    const matched = await Profiles.updateAsync(
+      { Owner: userId, verified: false, requested: true },
       {
         $set: {
           verified: true,
           requested: false,
+          rejected: false,
           approvedAt: new Date(),
           approvedBy: this.userId,
-        }
-      }
+        },
+        $unset: {
+          rejectedAt: "",
+          rejectedBy: "",
+          rejectionReason: "",
+        },
+      },
     );
+    if (matched === 0) {
+      throw new Meteor.Error("invalid-state", "User is not pending approval.");
+    }
 
     return {
       success: true,
@@ -98,11 +99,6 @@ Meteor.methods({
       throw new Meteor.Error("profile-not-found", "User profile not found.");
     }
 
-    // Check if profile is in the correct state for rejection
-    if (profileToReject.verified || !profileToReject.requested) {
-      throw new Meteor.Error("invalid-state", "User is not pending approval.");
-    }
-
     // For school admins, ensure they can only reject users from their school
     if (isSchoolAdminUser && !isSystem) {
       const targetUser = await Meteor.users.findOneAsync(userId);
@@ -125,10 +121,14 @@ Meteor.methods({
       updateData.rejectionReason = reason.trim();
     }
 
-    await Profiles.updateAsync(
-      { Owner: userId },
-      { $set: updateData }
+    // State guard in the selector: see admin.approveUser.
+    const matched = await Profiles.updateAsync(
+      { Owner: userId, verified: false, requested: true },
+      { $set: updateData },
     );
+    if (matched === 0) {
+      throw new Meteor.Error("invalid-state", "User is not pending approval.");
+    }
 
     return {
       success: true,

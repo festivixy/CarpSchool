@@ -3,40 +3,82 @@ import { check, Match } from "meteor/check";
 import { RideSessions } from "./RideSession";
 import { canViewRideSession } from "./RideSessionsSafety";
 
+const COLLECTION = "RideSessions";
+
+/**
+ * Drop each rider's pickup code from a session's `progress` map.
+ *
+ * `progress` is keyed by rider id, so a Mongo projection cannot exclude
+ * `progress.<anyone>.code`; it has to be stripped in the publication. Codes
+ * are handed out only by rideSessions.getPickupCodeHint, which checks who is
+ * asking.
+ */
+const stripPickupCodes = (fields) => {
+  if (!fields.progress || typeof fields.progress !== "object") return fields;
+  const progress = Object.fromEntries(
+    Object.entries(fields.progress).map(([riderId, entry]) => {
+      if (!entry || typeof entry !== "object") return [riderId, entry];
+      const { code, ...rest } = entry;
+      return [riderId, rest];
+    }),
+  );
+  return { ...fields, progress };
+};
+
+/**
+ * Publish a RideSessions cursor with every document passed through
+ * stripPickupCodes on the way out. observeChanges reports `progress` as one
+ * top-level field, so a change to any rider's entry re-runs the strip.
+ */
+const publishSanitized = async (sub, cursor) => {
+  const handle = await cursor.observeChangesAsync({
+    added: (id, fields) => sub.added(COLLECTION, id, stripPickupCodes(fields)),
+    changed: (id, fields) => sub.changed(COLLECTION, id, stripPickupCodes(fields)),
+    removed: id => sub.removed(COLLECTION, id),
+  });
+  sub.onStop(() => handle.stop());
+  sub.ready();
+};
+
+/* Admin views are for oversight; nobody's live position belongs there. */
+const ADMIN_FIELDS = { fields: { liveLocations: 0 } };
+
+/**
+ * Which admin scope, if any, the caller has: "system", the caller's schoolId
+ * for a school admin, or null.
+ */
+const adminScope = async (userId) => {
+  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
+  if (await isSystemAdmin(userId)) return "system";
+  const user = await Meteor.users.findOneAsync(userId, { fields: { schoolId: 1 } });
+  if (user?.schoolId && await isSchoolAdmin(userId, user.schoolId)) return user.schoolId;
+  return null;
+};
+
+const participantSelector = userId => ({
+  $or: [
+    { driverId: userId },
+    { riders: userId },
+  ],
+});
+
 /** Publish ride sessions where user is participant (driver or rider) */
 Meteor.publish("rideSessions", async function publish() {
   if (!this.userId) {
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser) {
-    return this.ready();
+  const scope = await adminScope(this.userId);
+
+  if (scope === "system") {
+    return publishSanitized(this, RideSessions.find({}, ADMIN_FIELDS));
   }
-
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
-
-  // Admin users can see sessions based on their role
-  if (isAdmin) {
-    if (await isSystemAdmin(this.userId)) {
-      // System admins can see all sessions
-      return RideSessions.find({});
-    }
-      // School admins can only see sessions from their school
-      return RideSessions.find({
-        schoolId: currentUser.schoolId,
-      });
-
+  if (scope) {
+    return publishSanitized(this, RideSessions.find({ schoolId: scope }, ADMIN_FIELDS));
   }
 
   // Regular users can only see sessions where they are driver or rider
-  return RideSessions.find({
-    $or: [
-      { driverId: this.userId },
-      { riders: this.userId },
-    ],
-  });
+  return publishSanitized(this, RideSessions.find(participantSelector(this.userId)));
 });
 
 /** Publish a specific ride session by ID with permission checking */
@@ -53,7 +95,7 @@ Meteor.publish("rideSession", async function publish(sessionId) {
     return this.ready();
   }
 
-  return RideSessions.find({ _id: sessionId });
+  return publishSanitized(this, RideSessions.find({ _id: sessionId }));
 });
 
 /** Publish active ride sessions for a specific ride */
@@ -64,29 +106,17 @@ Meteor.publish("rideSessionsByRide", async function publish(rideId) {
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser) {
-    return this.ready();
+  const scope = await adminScope(this.userId);
+
+  if (scope === "system") {
+    return publishSanitized(this, RideSessions.find({ rideId }, ADMIN_FIELDS));
+  }
+  if (scope) {
+    return publishSanitized(this, RideSessions.find({ rideId, schoolId: scope }, ADMIN_FIELDS));
   }
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
-
-  // Find sessions for this ride where user has access
-  const query = { rideId };
-
-  if (!isAdmin) {
-    // Non-admin users can only see sessions where they participate
-    query.$or = [
-      { driverId: this.userId },
-      { riders: this.userId },
-    ];
-  } else if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
-    // School admins can only see sessions from their school
-    query.schoolId = currentUser.schoolId;
-  }
-
-  return RideSessions.find(query);
+  // Non-admin users can only see sessions where they participate
+  return publishSanitized(this, RideSessions.find({ rideId, ...participantSelector(this.userId) }));
 });
 
 /** Publish active ride sessions for real-time tracking */
@@ -95,34 +125,19 @@ Meteor.publish("activeRideSessions", async function publish() {
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
-  if (!currentUser) {
-    return this.ready();
+  const scope = await adminScope(this.userId);
+  const active = { status: "active", finished: false };
+  const sort = { sort: { "timeline.started": -1 } };
+
+  if (scope === "system") {
+    return publishSanitized(this, RideSessions.find(active, { ...sort, ...ADMIN_FIELDS }));
+  }
+  if (scope) {
+    return publishSanitized(this, RideSessions.find({ ...active, schoolId: scope }, { ...sort, ...ADMIN_FIELDS }));
   }
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  const isAdmin = await isSystemAdmin(this.userId) || await isSchoolAdmin(this.userId);
-
-  // Query for active sessions
-  const query = {
-    status: { $in: ["active"] },
-    finished: false,
-  };
-
-  if (!isAdmin) {
-    // Non-admin users can only see their own active sessions
-    query.$or = [
-      { driverId: this.userId },
-      { riders: this.userId },
-    ];
-  } else if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
-    // School admins can only see sessions from their school
-    query.schoolId = currentUser.schoolId;
-  }
-
-  return RideSessions.find(query, {
-    sort: { "timeline.started": -1 },
-  });
+  // Non-admin users can only see their own active sessions
+  return publishSanitized(this, RideSessions.find({ ...active, ...participantSelector(this.userId) }, sort));
 });
 
 /** Publish ride sessions for admin management */
@@ -139,10 +154,8 @@ Meteor.publish("adminRideSessions", async function publish(options = {}) {
     return this.ready();
   }
 
-  const currentUser = await Meteor.users.findOneAsync(this.userId);
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-
-  if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
+  const scope = await adminScope(this.userId);
+  if (!scope) {
     return this.ready();
   }
 
@@ -161,18 +174,19 @@ Meteor.publish("adminRideSessions", async function publish(options = {}) {
   }
 
   // School admins can only see sessions from their school
-  if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
-    query.schoolId = currentUser.schoolId;
+  if (scope !== "system") {
+    query.schoolId = scope;
   }
 
   const sortOptions = {};
   sortOptions[sortBy] = sortOrder;
 
-  return RideSessions.find(query, {
+  return publishSanitized(this, RideSessions.find(query, {
     sort: sortOptions,
     limit,
     skip,
-  });
+    ...ADMIN_FIELDS,
+  }));
 });
 
 /** Publish session events for real-time updates */
@@ -190,7 +204,7 @@ Meteor.publish("rideSessionEvents", async function publish(sessionId) {
   }
 
   // Return only the events field for the specific session
-  return RideSessions.find(
+  return publishSanitized(this, RideSessions.find(
     { _id: sessionId },
     {
       fields: {
@@ -200,5 +214,5 @@ Meteor.publish("rideSessionEvents", async function publish(sessionId) {
         progress: 1,
       },
     },
-  );
+  ));
 });

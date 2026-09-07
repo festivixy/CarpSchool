@@ -3,6 +3,8 @@ import { Accounts } from "meteor/accounts-base";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 
+const CLERK_LOAD_TIMEOUT_MS = 15000;
+
 /**
  * Get Clerk publishable key from public settings
  * Returns the publishable key directly
@@ -67,55 +69,113 @@ export const loginToMeteorWithClerk = getToken => new Promise((resolve, reject) 
     .catch(reject);
 });
 
+// Module-level cache of in-flight "log in to Meteor + fetch the Meteor user"
+// promises, keyed by Clerk user id. Several route wrappers can call
+// useClerkUser() concurrently on first load; without this each one would
+// kick off its own Accounts.callLoginMethod/Meteor.call round trip.
+const meteorUserPromiseCache = new Map();
+
+function getMeteorUserForClerkUser(clerkUserId, getToken) {
+  const cached = meteorUserPromiseCache.get(clerkUserId);
+  if (cached) {
+    return cached;
+  }
+
+  const promise = (async () => {
+    if (!Meteor.userId()) {
+      await loginToMeteorWithClerk(getToken);
+    }
+
+    return new Promise((resolve, reject) => {
+      Meteor.call("clerk.getMeteorUser", clerkUserId, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  })();
+
+  meteorUserPromiseCache.set(clerkUserId, promise);
+  promise.catch(() => {
+    meteorUserPromiseCache.delete(clerkUserId);
+  });
+
+  return promise;
+}
+
 export function useClerkUser() {
   const { isSignedIn, userId: clerkUserId, isLoaded: clerkLoaded, getToken } = useAuth();
   const { user: clerkUser, isLoaded: userLoaded } = useUser();
   const [meteorUser, setMeteorUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [timedOut, setTimedOut] = useState(false);
+
+  // If Clerk never finishes loading, stop spinning forever and surface it.
+  useEffect(() => {
+    if (clerkLoaded) {
+      setTimedOut(false);
+      return undefined;
+    }
+
+    const timer = setTimeout(() => setTimedOut(true), CLERK_LOAD_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [clerkLoaded]);
+
+  // Clerk signed out from under us (e.g. session expired in another tab)
+  // while Meteor still thinks we're logged in - clean that up.
+  useEffect(() => {
+    if (clerkLoaded && !isSignedIn && Meteor.userId()) {
+      Meteor.logout();
+    }
+  }, [clerkLoaded, isSignedIn]);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchMeteorUser() {
       if (!isSignedIn || !clerkUserId) {
         setMeteorUser(null);
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
+      // First check if we already have the user cached
+      const cachedUser = Meteor.user();
+      if (cachedUser?.profile?.clerkUserId === clerkUserId) {
+        setMeteorUser(cachedUser);
+        setError(null);
         setLoading(false);
         return;
       }
 
       try {
-        // First check if we already have the user cached
-        const cachedUser = Meteor.user();
-        if (cachedUser?.profile?.clerkUserId === clerkUserId) {
-          setMeteorUser(cachedUser);
-          setLoading(false);
-          return;
-        }
-
-        // Establish the Meteor session first. Without this Meteor.userId() is
-        // null and every gated publication and method fails.
-        if (!Meteor.userId()) {
-          await loginToMeteorWithClerk(getToken);
-        }
-
-        // Call method to get/create Meteor user from Clerk
-        Meteor.call("clerk.getMeteorUser", clerkUserId, (err, result) => {
-          if (err) {
-            console.error("Failed to get Meteor user:", err);
-            setMeteorUser(null);
-          } else {
-            setMeteorUser(result);
-          }
-          setLoading(false);
-        });
-      } catch (error) {
-        console.error("Error fetching Meteor user:", error);
+        const result = await getMeteorUserForClerkUser(clerkUserId, getToken);
+        if (cancelled) return;
+        setMeteorUser(result);
+        setError(null);
+      } catch (err) {
+        if (cancelled) return;
+        console.error("Failed to get Meteor user:", err);
         setMeteorUser(null);
-        setLoading(false);
+        setError(err);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     if (clerkLoaded) {
       fetchMeteorUser();
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [isSignedIn, clerkUserId, clerkLoaded, getToken]);
 
   return {
@@ -125,6 +185,8 @@ export function useClerkUser() {
     clerkUser,
     meteorUser,
     user: meteorUser, // Alias for compatibility
+    error,
+    timedOut,
   };
 }
 

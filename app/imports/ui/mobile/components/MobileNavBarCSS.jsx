@@ -6,6 +6,8 @@ import { withTracker } from "meteor/react-meteor-data";
 import JoinRideModal from "../../components/JoinRideModal";
 import AddRidesModal from "../../components/AddRides";
 import Icon from "../../components/Icon";
+import NotificationBell from "../../components/NotificationBell";
+import { fullSignOut } from "../../utils/signOut";
 import {
   NavBarContainer,
   TabBarInner,
@@ -26,7 +28,7 @@ import {
  * LiquidGlass Mobile Navigation Bar - Bottom tab bar with glass morphism effect
  * Uses Clerk for authentication
  */
-function MobileNavBarCSS({ currentUser, history, location }) {
+function MobileNavBarCSS({ currentUser, location }) {
   const { isSignedIn, signOut } = useAuth();
   const [joinRideModalOpen, setJoinRideModalOpen] = React.useState(false);
   const [addRidesModalOpen, setAddRidesModalOpen] = React.useState(false);
@@ -50,18 +52,7 @@ function MobileNavBarCSS({ currentUser, history, location }) {
     setActiveDropdown(null);
   };
 
-  const handleNavigation = (path) => {
-    history.push(path);
-    closeAllDropdowns();
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut({ redirectUrl: "/" });
-    } catch (error) {
-      console.error("Sign out error:", error);
-    }
-  };
+  const handleSignOut = () => fullSignOut(signOut);
 
   const isAdmin = currentUser?.roles?.includes("system") ||
     currentUser?.roles?.some(r => r.startsWith("admin."));
@@ -97,9 +88,13 @@ function MobileNavBarCSS({ currentUser, history, location }) {
           )}
 
           {isSignedIn && (
-            <TabPrimary onClick={() => { setJoinRideModalOpen(true); closeAllDropdowns(); }}>
-              <Icon name="plus" size={20} />
-              <TabLabel>Join</TabLabel>
+            <TabPrimary
+              as={Link}
+              to="/find"
+              onClick={closeAllDropdowns}
+            >
+              <Icon name="search" size={20} />
+              <TabLabel>Find</TabLabel>
             </TabPrimary>
           )}
 
@@ -116,6 +111,7 @@ function MobileNavBarCSS({ currentUser, history, location }) {
           )}
 
           <TabWithBadge
+            type="button"
             onClick={() => { setActiveDropdown(activeDropdown === "more" ? null : "more"); }}
             $active={activeDropdown === "more"}
           >
@@ -131,36 +127,44 @@ function MobileNavBarCSS({ currentUser, history, location }) {
             <DropdownMenu $isOpen>
               {isSignedIn ? (
                 <>
-                  <DropdownItem as={Link} to="/mobile/profile" onClick={() => handleNavigation("/mobile/profile")}>
+                  <DropdownItem as={Link} to="/mobile/profile" onClick={closeAllDropdowns}>
                     <Icon name="user" size={16} />
                     My Profile
                   </DropdownItem>
-                  <DropdownItem as={Link} to="/edit-profile" onClick={() => handleNavigation("/edit-profile")}>
+                  <DropdownItem as={Link} to="/edit-profile" onClick={closeAllDropdowns}>
                     <Icon name="edit" size={16} />
                     Edit Profile
                   </DropdownItem>
-                  <DropdownItem as={Link} to="/ride-history/me" onClick={() => handleNavigation("/ride-history/me")}>
+                  <DropdownItem as={Link} to="/ride-history/me" onClick={closeAllDropdowns}>
                     <Icon name="clock" size={16} />
                     My Rides
                   </DropdownItem>
+                  <DropdownItem
+                    type="button"
+                    onClick={() => { setJoinRideModalOpen(true); closeAllDropdowns(); }}
+                  >
+                    <Icon name="plus" size={16} />
+                    Join by code
+                  </DropdownItem>
                   {isAdmin && (
-                    <DropdownItem as={Link} to="/admin/rides" onClick={() => handleNavigation("/admin/rides")}>
+                    <DropdownItem as={Link} to="/admin/rides" onClick={closeAllDropdowns}>
                       <Icon name="settings" size={16} />
                       Admin Panel
                     </DropdownItem>
                   )}
-                  <DropdownItem onClick={handleSignOut}>
+                  <NotificationBell />
+                  <DropdownItem type="button" onClick={handleSignOut}>
                     <Icon name="arrow" size={16} />
                     Sign Out
                   </DropdownItem>
                 </>
               ) : (
                 <>
-                  <DropdownItem as={Link} to="/login" onClick={() => handleNavigation("/login")}>
+                  <DropdownItem as={Link} to="/login" onClick={closeAllDropdowns}>
                     <Icon name="user" size={16} />
                     Sign In
                   </DropdownItem>
-                  <DropdownItem as={Link} to="/signup" onClick={() => handleNavigation("/signup")}>
+                  <DropdownItem as={Link} to="/signup" onClick={closeAllDropdowns}>
                     <Icon name="plus" size={16} />
                     Sign Up
                   </DropdownItem>
@@ -186,7 +190,6 @@ function MobileNavBarCSS({ currentUser, history, location }) {
 
 MobileNavBarCSS.propTypes = {
   currentUser: PropTypes.object,
-  history: PropTypes.object.isRequired,
   location: PropTypes.object,
 };
 

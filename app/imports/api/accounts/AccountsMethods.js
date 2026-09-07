@@ -57,6 +57,11 @@ Meteor.methods({
       );
     }
 
+    // Same cleanup as self-service deletion, so an admin removal does not
+    // leave rides, chats, tokens or API keys pointing at a missing user.
+    const { purgeUserData } = await import("./DeleteAccountMethods");
+    await purgeUserData(userId);
+
     await Meteor.users.removeAsync(userId);
   },
 

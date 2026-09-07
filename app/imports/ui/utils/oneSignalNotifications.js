@@ -3,7 +3,12 @@ import { Tracker } from "meteor/tracker";
 
 /**
  * OneSignal client-side utilities for the Carp School app
- * Handles OneSignal web SDK integration and user registration
+ * Handles OneSignal web SDK (v16) integration and user registration.
+ *
+ * The SDK itself is loaded and initialised by client/oneSignalInit.js via
+ * OneSignalDeferred; this module never injects a script tag of its own (a
+ * second, older SDK used to be pulled from cdn.onesignal.com here whenever
+ * window.OneSignal was still undefined at module evaluation).
  */
 
 class OneSignalManager {
@@ -11,9 +16,11 @@ class OneSignalManager {
     this.isSupported = false;
     this.isInitialized = false;
     this.playerId = null;
+    // "<userId>:<playerId>" of the last successful server registration, so
+    // the same device is not re-registered on every reactive rerun. Reset
+    // whenever the logged-in user changes.
     this.lastRegistrationAttempt = null;
 
-    // Initialize on client only
     if (Meteor.isClient) {
       this.initialize();
     }
@@ -27,14 +34,12 @@ class OneSignalManager {
       // Wait for OneSignal SDK to load (v16 uses deferred loading)
       let attempts = 0;
       while (!window.OneSignal && !window.OneSignalDeferred && attempts < 100) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => { setTimeout(resolve, 100); });
         attempts++;
       }
 
-      // Check if OneSignal is available (v16 SDK)
       if (!window.OneSignal && !window.OneSignalDeferred) {
         console.warn("[OneSignal] OneSignal SDK not available (blocked or failed to load)");
-        console.log("[OneSignal] Server-side push notifications will still function");
         return;
       }
 
@@ -50,58 +55,32 @@ class OneSignalManager {
 
       this.isSupported = true;
 
-      // OneSignal v16 SDK is now initialized via official script in HTML
-      // No need to call init() again as it's handled by OneSignalDeferred
-      console.log("[OneSignal] Using official v16 SDK initialization");
-
-      // Get user ID when available (try both v16 and legacy methods)
       try {
         if (window.OneSignal.User?.PushSubscription?.id) {
-          // v16 SDK method
           this.playerId = window.OneSignal.User.PushSubscription.id;
-          this.registerWithServer();
-        } else if (window.OneSignal.getUserId) {
-          // Legacy method fallback
-          window.OneSignal.getUserId().then((userId) => {
-            if (userId) {
-              this.playerId = userId;
-              this.registerWithServer();
-            }
-          });
         }
       } catch (error) {
         console.log("[OneSignal] User ID not available yet:", error.message);
       }
 
-      // Listen for subscription changes (try v16 first, then legacy)
+      // Listen for subscription changes
       try {
-        if (window.OneSignal.User?.PushSubscription?.addEventListener) {
-          // v16 SDK event listener
-          window.OneSignal.User.PushSubscription.addEventListener("change", (event) => {
-            if (event.current?.id && event.current.id !== this.playerId) {
-              this.playerId = event.current.id;
-              this.registerWithServer();
-            }
-          });
-        } else if (window.OneSignal.on) {
-          // Legacy event listener
-          window.OneSignal.on("subscriptionChange", (isSubscribed) => {
-            if (isSubscribed && window.OneSignal.getUserId) {
-              window.OneSignal.getUserId().then((userId) => {
-                if (userId && userId !== this.playerId) {
-                  this.playerId = userId;
-                  this.registerWithServer();
-                }
-              });
-            }
-          });
-        }
+        window.OneSignal.User?.PushSubscription?.addEventListener?.("change", (event) => {
+          if (event.current?.id && event.current.id !== this.playerId) {
+            this.playerId = event.current.id;
+            this.registerWithServer();
+          }
+        });
       } catch (error) {
         console.log("[OneSignal] Event listener setup failed:", error.message);
       }
 
       this.isInitialized = true;
-      console.log("[OneSignal] Client manager initialized");
+
+      // The user may have logged in before the SDK finished loading.
+      if (Meteor.userId()) {
+        await this.loginUser(Meteor.userId());
+      }
 
     } catch (error) {
       console.error("[OneSignal] Initialization failed:", error);
@@ -109,7 +88,8 @@ class OneSignalManager {
   }
 
   /**
-   * Request notification permission
+   * Request notification permission. Must be called from a user gesture -
+   * browsers ignore (or penalise) prompts that are not.
    */
   async requestPermission() {
     if (!this.isSupported || !window.OneSignal) {
@@ -120,13 +100,10 @@ class OneSignalManager {
       const permission = await window.OneSignal.Notifications.requestPermission();
 
       if (permission) {
-        // Get the player ID after permission granted
-        // For v16, we need to wait for the subscription to be ready
+        // For v16, the subscription id may take a moment to appear
         let userId = window.OneSignal.User?.PushSubscription?.id;
-
-        // If not available immediately, wait a moment and try again
         if (!userId) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => { setTimeout(resolve, 1000); });
           userId = window.OneSignal.User?.PushSubscription?.id;
         }
 
@@ -145,30 +122,45 @@ class OneSignalManager {
   }
 
   /**
-   * Register player ID with server
+   * Bind the OneSignal identity to the logged-in user, then register the
+   * device with the server. OneSignal.login is always called - it is what
+   * routes include_external_user_ids sends to this browser.
+   */
+  async loginUser(userId) {
+    if (!userId || !this.isSupported || !window.OneSignal) {
+      return;
+    }
+
+    try {
+      await window.OneSignal.login(userId);
+    } catch (error) {
+      console.warn("[OneSignal] login failed:", error.message);
+    }
+
+    await this.registerWithServer();
+  }
+
+  /**
+   * Register player ID with server (once per user + device)
    */
   async registerWithServer() {
     try {
-      if (!this.playerId || !Meteor.userId()) {
+      const userId = Meteor.userId();
+      if (!this.playerId || !userId) {
         return;
       }
 
-      // Avoid duplicate registrations
-      if (this.lastRegistrationAttempt === this.playerId) {
+      const attemptKey = `${userId}:${this.playerId}`;
+      if (this.lastRegistrationAttempt === attemptKey) {
         return;
       }
-      this.lastRegistrationAttempt = this.playerId;
+      this.lastRegistrationAttempt = attemptKey;
 
-      // Get device info
-      const deviceInfo = this.getDeviceInfo();
-
-      await Meteor.callAsync("notifications.registerOneSignalPlayer", this.playerId, deviceInfo);
-      console.log(`[OneSignal] Player registered with server: ${this.playerId}`);
-
-      // Set external user ID
-      await window.OneSignal.login(Meteor.userId());
+      await Meteor.callAsync("notifications.registerOneSignalPlayer", this.playerId, this.getDeviceInfo());
 
     } catch (error) {
+      // Let the next reactive rerun retry
+      this.lastRegistrationAttempt = null;
       console.error("[OneSignal] Server registration failed:", error);
     }
   }
@@ -183,7 +175,6 @@ class OneSignalManager {
 
     try {
       await window.OneSignal.User.addTags(tags);
-      console.log("[OneSignal] Tags set:", tags);
       return true;
 
     } catch (error) {
@@ -207,13 +198,11 @@ class OneSignalManager {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
 
-    // Add browser info
     if (navigator.userAgentData) {
       info.brands = navigator.userAgentData.brands;
       info.mobile = navigator.userAgentData.mobile;
     }
 
-    // Add screen info
     if (window.screen) {
       info.screenResolution = `${window.screen.width}x${window.screen.height}`;
     }
@@ -254,7 +243,7 @@ class OneSignalManager {
 
     try {
       const permission = await window.OneSignal.Notifications.permission;
-      return permission === "granted";
+      return permission === "granted" || permission === true;
     } catch (error) {
       return false;
     }
@@ -289,13 +278,21 @@ class OneSignalManager {
 // Create singleton instance
 export const oneSignalManager = new OneSignalManager();
 
-// Auto-register when user logs in
+// Bind/unbind the OneSignal identity as the logged-in user changes. The
+// registration dedupe is reset on every change so a second account on the
+// same browser is registered too.
 if (Meteor.isClient) {
+  let lastUserId;
   Tracker.autorun(() => {
-    const user = Meteor.user();
-    if (user && oneSignalManager.isInitialized && oneSignalManager.playerId) {
-      // Auto-register player ID when user logs in
-      oneSignalManager.registerWithServer();
+    const userId = Meteor.userId();
+    if (userId === lastUserId) {
+      return;
+    }
+    lastUserId = userId;
+    oneSignalManager.lastRegistrationAttempt = null;
+
+    if (userId && oneSignalManager.isInitialized) {
+      oneSignalManager.loginUser(userId);
     }
   });
 }
@@ -310,14 +307,7 @@ export const OneSignalHelpers = {
       return true;
     }
 
-    // Could show a custom modal explaining why notifications are needed
-    const granted = await oneSignalManager.requestPermission();
-
-    if (!granted) {
-      console.log("User denied OneSignal notification permission");
-    }
-
-    return granted;
+    return oneSignalManager.requestPermission();
   },
 
   /**
@@ -426,44 +416,3 @@ export const OneSignalHelpers = {
     }
   },
 };
-
-// Load OneSignal SDK with proper error handling
-if (Meteor.isClient && !window.OneSignal) {
-  const loadOneSignalSDK = () => new Promise((resolve, reject) => {
-      // Check if already loaded
-      if (window.OneSignal) {
-        resolve(window.OneSignal);
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = "https://cdn.onesignal.com/sdks/OneSignalSDK.js";
-      script.async = true;
-
-      script.onload = () => {
-        console.log("[OneSignal] SDK loaded successfully");
-        resolve(window.OneSignal);
-      };
-
-      script.onerror = (error) => {
-        console.warn("[OneSignal] SDK failed to load:", error);
-        console.warn("[OneSignal] Falling back to server-only push notifications");
-        reject(new Error("OneSignal SDK blocked or failed to load"));
-      };
-
-      document.head.appendChild(script);
-
-      // Timeout after 10 seconds
-      setTimeout(() => {
-        if (!window.OneSignal) {
-          reject(new Error("OneSignal SDK load timeout"));
-        }
-      }, 10000);
-    });
-
-  // Attempt to load SDK
-  loadOneSignalSDK().catch(error => {
-    console.warn("[OneSignal] Web SDK unavailable:", error.message);
-    console.log("[OneSignal] Server-side notifications will still work");
-  });
-}

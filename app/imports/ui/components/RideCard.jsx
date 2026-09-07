@@ -20,6 +20,7 @@ import {
   SeatRow,
   SeatPill,
   RequestBtn,
+  QuietBtn,
   DriverMeta,
   RouteMeta,
   ViaLine,
@@ -62,7 +63,9 @@ const hueFor = (seed) => {
  * Discovery / list ride card. Maps a real Rides document (place names
  * resolved server-side, driver name resolved via profiles.displayNames).
  */
-const RideCard = ({ ride, driverName, driverYear, driverDept, compact, active, onClick, onRequest }) => {
+const RideCard = ({
+  ride, driverName, driverYear, driverDept, compact, active, onClick, onRequest, onLeave, onCancel,
+}) => {
   const seatsLeft = Math.max(0, (ride.seats || 0) - (ride.riders ? ride.riders.length : 0));
   const from = ride.originText || ride.origin || "Unknown";
   const to = ride.destinationText || ride.destination || "Unknown";
@@ -90,6 +93,16 @@ const RideCard = ({ ride, driverName, driverYear, driverDept, compact, active, o
   const handleRequest = (e) => {
     e.stopPropagation();
     if (onRequest) onRequest(ride);
+  };
+
+  const handleCancel = (e) => {
+    e.stopPropagation();
+    if (onCancel) onCancel(ride);
+  };
+
+  const handleLeave = (e) => {
+    e.stopPropagation();
+    if (onLeave) onLeave(ride);
   };
 
   const handleClick = () => onClick && onClick(ride);
@@ -153,6 +166,16 @@ const RideCard = ({ ride, driverName, driverYear, driverDept, compact, active, o
               View
             </RequestBtn>
           )}
+          {onCancel && (
+            <QuietBtn type="button" onClick={handleCancel}>
+              Cancel
+            </QuietBtn>
+          )}
+          {onLeave && (
+            <QuietBtn type="button" onClick={handleLeave}>
+              Leave
+            </QuietBtn>
+          )}
         </SeatRow>
       </Bottom>
     </Card>
@@ -185,6 +208,8 @@ RideCard.propTypes = {
   active: PropTypes.bool,
   onClick: PropTypes.func,
   onRequest: PropTypes.func,
+  onLeave: PropTypes.func,
+  onCancel: PropTypes.func,
 };
 
 RideCard.defaultProps = {
@@ -195,6 +220,8 @@ RideCard.defaultProps = {
   active: false,
   onClick: undefined,
   onRequest: undefined,
+  onLeave: undefined,
+  onCancel: undefined,
 };
 
 export default RideCard;

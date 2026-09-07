@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 import { glassStrong } from "./tokens";
 
 export const Bar = styled.nav`
-  position: absolute;
+  position: fixed;
   top: 18px;
   left: 50%;
   transform: translateX(-50%);
@@ -42,6 +42,7 @@ export const NavItems = styled.div`
   display: flex;
   flex: 1;
   gap: 2px;
+  overflow-x: auto;
 `;
 
 export const NavItem = styled.button`
@@ -51,6 +52,7 @@ export const NavItem = styled.button`
   border-radius: var(--r-pill);
   font-family: var(--font-ui);
   font-size: 13.5px;
+  white-space: nowrap;
   background: ${props => (props.$active ? "var(--ink-1)" : "transparent")};
   color: ${props => (props.$active ? "var(--cream-0)" : "var(--ink-1)")};
   font-weight: ${props => (props.$active ? 600 : 500)};

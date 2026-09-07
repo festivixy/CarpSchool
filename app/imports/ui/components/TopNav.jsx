@@ -3,13 +3,13 @@ import PropTypes from "prop-types";
 import Logo from "./Logo";
 import Icon from "./Icon";
 import Avatar from "./Avatar";
+import NotificationBell from "./NotificationBell";
 import {
   Bar,
   Brand,
   Divider,
   NavItems,
   NavItem,
-  IconBtn,
   OfferBtn,
   UserWrap,
   AvatarBtn,
@@ -81,13 +81,7 @@ const TopNav = ({
           </NavItem>
         ))}
       </NavItems>
-      <IconBtn
-        type="button"
-        aria-label="Notifications"
-        onClick={() => onNav && onNav("inbox")}
-      >
-        <Icon name="bell" size={18} />
-      </IconBtn>
+      <NotificationBell />
       {showOffer && (
         <OfferBtn type="button" onClick={onOffer}>
           <Icon name="plus" size={16} />

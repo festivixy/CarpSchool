@@ -38,7 +38,7 @@ ui_safe_read() {
     local timeout="${READ_TIMEOUT:-10}"
 
     # Check for non-interactive mode first
-    if [ "${CARPOOL_NONINTERACTIVE}" = "1" ]; then
+    if [ "${CARPOOL_NONINTERACTIVE:-}" = "1" ]; then
         echo -e "${BLUE}[NON-INTERACTIVE MODE]${NC} Using default value: $default_value" >&2
         if [ -n "$var_name" ]; then
             eval "$var_name=\"\$default_value\""
@@ -48,23 +48,11 @@ ui_safe_read() {
         return 0
     fi
 
-    # Verify stdin is attached and readable
-    if ! [ -t 0 ] && ! [ -p /dev/stdin ]; then
-        echo -e "${RED}Warning: stdin is not available for input${NC}" >&2
-        if [ -n "$default_value" ]; then
-            if [ -n "$var_name" ]; then
-                eval "$var_name=\"\$default_value\""
-            else
-                echo "$default_value"
-            fi
-            return 0
-        fi
-        return 1
-    fi
-
-    # Attempt to read input
+    # Attempt to read input, but only if stdin is an actual terminal (or a
+    # pipe) and within the configured timeout; [[ -t 0 ]] short-circuits so
+    # `read` is never called against an unavailable/non-interactive stdin.
     local input
-    if read -r input; then
+    if { [ -t 0 ] || [ -p /dev/stdin ]; } && read -t "$timeout" -r input; then
         # Successful read
         if [ -n "$var_name" ]; then
             eval "$var_name=\"\$input\""
@@ -74,17 +62,14 @@ ui_safe_read() {
         return 0
     else
         local exit_status=$?
-        # Handle timeout (exit status 142) or EIO
-        if [ $exit_status -eq 142 ] || [ $exit_status -eq 5 ]; then
-            echo -e "${RED}Warning: Input timeout or I/O error occurred${NC}" >&2
-            if [ -n "$default_value" ]; then
-                if [ -n "$var_name" ]; then
-                    eval "$var_name=\"\$default_value\""
-                else
-                    echo "$default_value"
-                fi
-                return 0
+        echo -e "${RED}Warning: stdin is not available, or input timed out/errored${NC}" >&2
+        if [ -n "$default_value" ]; then
+            if [ -n "$var_name" ]; then
+                eval "$var_name=\"\$default_value\""
+            else
+                echo "$default_value"
             fi
+            return 0
         fi
         return $exit_status
     fi
@@ -141,7 +126,7 @@ ui_prompt_with_validation() {
     local max_attempts=${5:-3}  # Default to 3 attempts
 
     # Check for non-interactive mode first
-    if [ "${CARPOOL_NONINTERACTIVE}" = "1" ]; then
+    if [ "${CARPOOL_NONINTERACTIVE:-}" = "1" ]; then
         if [ -n "$fallback" ]; then
             echo -e "${BLUE}[NON-INTERACTIVE MODE]${NC} Using fallback value: $fallback" >&2
             echo "$fallback"

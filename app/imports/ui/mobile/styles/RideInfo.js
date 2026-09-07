@@ -205,6 +205,26 @@ export const ErrorNote = styled.div`
   color: var(--danger);
 `;
 
+export const SuccessNote = styled.div`
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--leaf);
+`;
+
+export const StatusPill = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--cream-1);
+  color: var(--ink-3);
+  margin-left: 8px;
+`;
+
 export const SideCol = styled.div`
   display: flex;
   flex-direction: column;
@@ -308,6 +328,59 @@ export const PersonName = styled.div`
 export const PersonSub = styled.div`
   font-size: 11.5px;
   color: var(--ink-3);
+`;
+
+/* Pushed to the far end of PersonRow's flex layout via margin-left, so the
+ * two-avatar rows keep their existing look when no remove control renders. */
+export const RemoveBtn = styled.button`
+  ${btnBase}
+  margin-left: auto;
+  padding: 5px 10px;
+  font-size: 11px;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+`;
+
+/* The share code needs to be selectable/copyable even if a global reset sets
+ * user-select: none elsewhere in the app. */
+export const ShareCodeValue = styled.span`
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 6px 10px;
+  background: var(--cream-1);
+  border-radius: 8px;
+  user-select: text;
+`;
+
+export const EditForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+`;
+
+export const EditField = styled.label`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+export const EditInput = styled.input`
+  ${inputBase}
+`;
+
+export const EditTextarea = styled.textarea`
+  ${inputBase}
+  min-height: 70px;
+  resize: vertical;
 `;
 
 export const OpenSeatRow = styled.div`

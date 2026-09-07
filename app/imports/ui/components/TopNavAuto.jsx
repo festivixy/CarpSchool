@@ -9,6 +9,7 @@ import TopNav from "./TopNav";
 import NavBar from "../desktop/components/NavBar";
 import { isSystemRole } from "../desktop/components/NavBarRoleUtils";
 import { adminNavFor, adminPathFor, adminSectionFor } from "../utils/adminNav";
+import { fullSignOut } from "../utils/signOut";
 import { NavSpacer } from "../styles/TopNav";
 
 /**
@@ -111,13 +112,9 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
     { id: "signOut", label: "Sign out", icon: "arrow", danger: true },
   ];
 
-  const handleMenuSelect = async (id) => {
+  const handleMenuSelect = (id) => {
     if (id === "signOut") {
-      try {
-        await signOut({ redirectUrl: "/" });
-      } catch (error) {
-        console.error("Sign out error:", error);
-      }
+      fullSignOut(signOut);
       return;
     }
     history.push(NAV_TARGETS[id] || "/");

@@ -1,6 +1,29 @@
 import { Meteor } from "meteor/meteor";
 import { Schools } from "../schools/Schools";
 
+/*
+ * Indexes on Meteor.users. clerkUserId is the lookup key for every Clerk
+ * login and must be unique; sparse so password-only accounts (no profile
+ * key) do not collide on null. Failures are logged rather than thrown so a
+ * pre-existing duplicate cannot stop the server booting.
+ */
+if (Meteor.isServer) {
+  Meteor.startup(async () => {
+    const indexes = [
+      [{ "profile.clerkUserId": 1 }, { unique: true, sparse: true }],
+      [{ schoolId: 1 }],
+      [{ schoolId: 1, createdAt: -1 }],
+    ];
+    for (const [keys, options] of indexes) { // eslint-disable-line no-restricted-syntax
+      try {
+        await Meteor.users.createIndexAsync(keys, options); // eslint-disable-line no-await-in-loop
+      } catch (error) {
+        console.error("[users] Could not create index", keys, error?.message || error);
+      }
+    }
+  });
+}
+
 /**
  * Get user's school
  */
@@ -73,8 +96,9 @@ export async function getSchoolFilter(userId = null) {
   if (await isSystemAdmin(currentUserId)) {
     return {}; // No filter for system admins
   } if (await isSchoolAdmin(currentUserId)) {
-    // School admins can only see their own school
-    return { _id: user.schoolId };
+    // School admins can only see their own school. This is a filter on
+    // school-scoped documents (rides etc.), so the key is schoolId, not _id.
+    return { schoolId: user.schoolId };
   }
 
   // Regular users can only see their school

@@ -43,9 +43,13 @@ Meteor.publish("ProfilesAdmin", async function publish() {
 
   const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
 
+  // The Persona inquiry id is a credential for a third-party service; no
+  // admin screen needs it.
+  const options = { fields: { personaInquiryId: 0 } };
+
   if (await isSystemAdmin(this.userId)) {
     // System admins can see all profiles
-    return Profiles.find();
+    return Profiles.find({}, options);
   } if (await isSchoolAdmin(this.userId)) {
     // School admins can only see profiles from users in their school
     const schoolUsers = await Meteor.users.find(
@@ -54,7 +58,7 @@ Meteor.publish("ProfilesAdmin", async function publish() {
     ).fetchAsync();
     const userIds = schoolUsers.map(user => user._id);
 
-    return Profiles.find({ Owner: { $in: userIds } });
+    return Profiles.find({ Owner: { $in: userIds } }, options);
   }
 
   // Non-admin users get no access to other profiles

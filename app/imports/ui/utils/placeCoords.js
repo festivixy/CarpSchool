@@ -1,44 +1,19 @@
 /**
- * Places store their position as a single "lat,lng" string in `value`.
+ * Client-side helpers for a place's "lat,lng" `value`.
  *
- * The schema validates that string with VALIDATION_PATTERNS.coordinates,
- * /^-?\d+\.?\d*,-?\d+\.?\d*$/, which allows no space after the comma. Anything
- * writing a place must therefore format it exactly, which is what
- * `formatPlaceValue` is for -- hand-built template strings have no such
- * guarantee.
+ * The parser and formatter live in api/places/placeCoords so the server
+ * schema can use them too; they are re-exported here so existing UI imports
+ * keep working.
  */
+import {
+  parsePlaceValue as parsePlaceValueShared,
+  formatPlaceValue as formatPlaceValueShared,
+} from "../../api/places/placeCoords";
 
-/** Six decimals is ~11cm, well past anything a map click can express. */
-const COORD_DECIMALS = 6;
-
-/**
- * Parse a place's `value` into { lat, lng }, or null when it cannot be read.
- *
- * Returns null rather than throwing: legacy places predate the current schema
- * and a single unreadable one should drop off the map, not break the screen
- * rendering it.
- */
-export const parsePlaceValue = (value) => {
-  if (typeof value !== "string") return null;
-
-  const parts = value.split(",");
-  if (parts.length !== 2) return null;
-
-  const lat = parseFloat(parts[0]);
-  const lng = parseFloat(parts[1]);
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  if (lat < -90 || lat > 90) return null;
-  if (lng < -180 || lng > 180) return null;
-
-  return { lat, lng };
-};
-
-/** Format coordinates into the exact shape the schema accepts. */
-export const formatPlaceValue = (lat, lng) => {
-  const safeLat = Number(lat).toFixed(COORD_DECIMALS);
-  const safeLng = Number(lng).toFixed(COORD_DECIMALS);
-  return `${safeLat},${safeLng}`;
-};
+/* Thin wrappers rather than a bare re-export: the repo's reference checker
+ * does not follow `export ... from`, and callers all import from this path. */
+export const parsePlaceValue = value => parsePlaceValueShared(value);
+export const formatPlaceValue = (lat, lng) => formatPlaceValueShared(lat, lng);
 
 /**
  * Whether `userId` may edit `place`.

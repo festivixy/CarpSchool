@@ -34,8 +34,9 @@ Meteor.publish("chats.forRide", async function publishRideChat(rideId) {
     return this.ready();
   }
 
-  // Return the chat for this ride
-  return Chats.find({ rideId: rideId });
+  // Scoped to Participants as well as the ride: the cursor is live, so a
+  // rider removed from the chat after subscribing stops receiving it.
+  return Chats.find({ rideId: rideId, Participants: this.userId });
 });
 
 /** Publish all chats for admin users */

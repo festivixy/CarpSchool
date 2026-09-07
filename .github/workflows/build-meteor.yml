@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -14,36 +18,55 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Node.js
-        # Meteor 3.x uses Node.js 20.x; adjust as necessary for your Meteor version
+        # Meteor 3.3.1 requires Node.js 22.x
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+
+      - name: Cache Meteor and npm
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.meteor
+            ~/.npm
+          key: ${{ runner.os }}-meteor-${{ hashFiles('app/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-meteor-
 
       - name: Install Meteor
-        run: curl https://install.meteor.com | sh
+        run: curl -fsSL https://install.meteor.com/?release=3.3.1 | sh
 
       - name: Install app dependencies
-        # Navigate to the app directory if not in the root, and use meteor npm install
         run: |
           cd app
-          meteor npm install --legacy-peer-deps
-      
-      - name: Update BrowerList
+          npm ci --legacy-peer-deps
+
+      - name: Lint
+        # The lint suite has a large backlog of pre-existing errors; this
+        # step is informational until that backlog is cleared.
+        continue-on-error: true
         run: |
           cd app
-          meteor npx update-browserslist-db@latest
+          npm run lint
+
+      - name: Test
+        run: |
+          cd app
+          npm test --if-present
+
       - name: Build Meteor app for server
         run: |
           cd app
           # Use --architecture os.linux.x86_64 for a standard Linux server deployment
           meteor build ../build --architecture os.linux.x86_64 --server-only
-      
+
       - name: Check build dir
         run: |
           ls -la build
-      
+
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: meteor-bundle
+          name: meteor-bundle-${{ github.sha }}
           path: build/app.tar.gz
+          retention-days: 7

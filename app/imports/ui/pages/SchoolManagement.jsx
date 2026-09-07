@@ -91,19 +91,7 @@ class SchoolManagement extends React.Component {
     const { name, value, type, checked } = e.target;
     const actualValue = type === "checkbox" ? checked : value;
 
-    if (name.includes(".")) {
-      // Handle nested fields like "location.city" or "settings.allowPublicRegistration"
-      const [parent, child] = name.split(".");
-      this.setState((prevState) => ({
-        formData: {
-          ...prevState.formData,
-          [parent]: {
-            ...prevState.formData[parent],
-            [child]: actualValue,
-          },
-        },
-      }));
-    } else if (name.includes("coordinates.")) {
+    if (name.includes("coordinates.")) {
       // Handle coordinates specifically
       const [, coordinate] = name.split(".");
       this.setState((prevState) => ({
@@ -115,6 +103,18 @@ class SchoolManagement extends React.Component {
               ...prevState.formData.location.coordinates,
               [coordinate]: parseFloat(actualValue) || 0,
             },
+          },
+        },
+      }));
+    } else if (name.includes(".")) {
+      // Handle nested fields like "location.city" or "settings.allowPublicRegistration"
+      const [parent, child] = name.split(".");
+      this.setState((prevState) => ({
+        formData: {
+          ...prevState.formData,
+          [parent]: {
+            ...prevState.formData[parent],
+            [child]: actualValue,
           },
         },
       }));
@@ -179,9 +179,10 @@ class SchoolManagement extends React.Component {
   };
 
   handleCancel = () => {
-    // Reset to original data from props
-    this.setState({ formData: null, error: "", success: "" });
-    this.populateFormData();
+    // Reset to original data from props. populateFormData only fills formData
+    // when it is falsy, so it must run as the setState callback - calling it
+    // right after setState would see the stale (pre-reset) state.
+    this.setState({ formData: null, error: "", success: "" }, this.populateFormData);
   };
 
   render() {

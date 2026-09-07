@@ -9,9 +9,10 @@ Meteor.publish("userSchoolEmailVerification", function () {
     return this.ready();
   }
 
-  // Only return the user's own verification records
-  return SchoolEmailVerifications.find({ 
-    userId: this.userId,
-    verified: false 
-  });
+  // Only the user's own pending record, and never the code itself: the
+  // whole point of emailing it is that only the mailbox owner has it.
+  return SchoolEmailVerifications.find(
+    { userId: this.userId, verified: false },
+    { fields: { email: 1, attempts: 1, maxAttempts: 1, expiresAt: 1, createdAt: 1 } },
+  );
 });

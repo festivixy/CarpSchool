@@ -124,11 +124,21 @@ const RidesSchema = Joi.object({
  */
 if (Meteor.isServer) {
   Meteor.startup(async () => {
-    await Rides.createIndexAsync({ shareCode: 1 }, { unique: true, sparse: true });
-    await Rides.createIndexAsync({ schoolId: 1, date: 1 });
-    await Rides.createIndexAsync({ driver: 1 });
-    await Rides.createIndexAsync({ riders: 1 });
-    await Rides.createIndexAsync({ date: 1 });
+    const indexes = [
+      [{ shareCode: 1 }, { unique: true, sparse: true }],
+      [{ schoolId: 1, date: 1 }],
+      [{ driver: 1 }],
+      [{ driver: 1, date: 1 }],
+      [{ riders: 1 }],
+      [{ date: 1 }],
+    ];
+    for (const [keys, options] of indexes) { // eslint-disable-line no-restricted-syntax
+      try {
+        await Rides.createIndexAsync(keys, options); // eslint-disable-line no-await-in-loop
+      } catch (error) {
+        console.error("[Rides] Could not create index", keys, error?.message || error);
+      }
+    }
   });
 }
 

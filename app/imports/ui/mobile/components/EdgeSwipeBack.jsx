@@ -18,6 +18,18 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
   useEffect(() => {
     if (disabled) return;
 
+    // Only run the edge-swipe-back gesture on Cordova iOS. Elsewhere (web,
+    // Android) the browser/OS already owns back navigation gestures.
+    const isCordovaIOS = () => {
+      if (!window.cordova) return false;
+      if (window.device && window.device.platform) {
+        return window.device.platform.toLowerCase() === "ios";
+      }
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      return /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    };
+    if (!isCordovaIOS()) return;
+
     const container = containerRef.current;
     if (!container) return;
 
@@ -26,7 +38,34 @@ const EdgeSwipeBack = ({ history, disabled = false }) => {
     const MAX_SWIPE_TIME = 500; // Maximum time for gesture (ms)
     const MAX_VERTICAL_DRIFT = 100; // Maximum vertical movement allowed
 
+    // Elements where the gesture should not hijack the touch: Leaflet maps,
+    // horizontally-scrollable content, and anything under an open modal/overlay.
+    const isHorizontallyScrollable = (el) => {
+      const style = window.getComputedStyle(el);
+      const overflowX = style.overflowX;
+      return (overflowX === "scroll" || overflowX === "auto") && el.scrollWidth > el.clientWidth;
+    };
+
+    const shouldIgnoreTouch = (target) => {
+      if (document.querySelector("[role=dialog], .swal-overlay")) {
+        return true;
+      }
+      let el = target;
+      while (el && el !== document.body) {
+        if (el.classList && el.classList.contains("leaflet-container")) {
+          return true;
+        }
+        if (isHorizontallyScrollable(el)) {
+          return true;
+        }
+        el = el.parentElement;
+      }
+      return false;
+    };
+
     const handleTouchStart = (e) => {
+      if (shouldIgnoreTouch(e.target)) return;
+
       const touch = e.touches[0];
       const startX = touch.clientX;
       const startY = touch.clientY;

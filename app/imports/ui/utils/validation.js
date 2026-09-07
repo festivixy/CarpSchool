@@ -6,6 +6,7 @@
  */
 
 import Joi from "joi";
+import { validateCoordinates } from "../../api/places/placeCoords";
 
 // Common XSS patterns to check against
 const XSS_PATTERNS = [
@@ -53,10 +54,18 @@ export const VALIDATION_PATTERNS = {
 
   // Chat messages: includes more symbols for communication
   chatMessage: /^[a-zA-Z0-9\s\-,.()&'!?;:@#$%+=_[\]{}|\\/"~`*^]*$/,
-
-  // Coordinates: lat,lng format
-  coordinates: /^-?\d+\.?\d*,-?\d+\.?\d*$/,
 };
+
+/**
+ * Joi schema for a place's "lat,lng" value. Parsed and range-checked rather
+ * than pattern-matched: see api/places/placeCoords.
+ */
+export const createCoordinatesSchema = ({ label = "Coordinates (lat,lng)" } = {}) => Joi.string()
+  .required()
+  .max(50)
+  .custom(validateCoordinates, "coordinate range validation")
+  .label(label)
+  .messages({ "string.coordinates": "Coordinates must be \"lat,lng\" with lat -90..90 and lng -180..180" });
 
 /**
  * Common validation messages
@@ -69,6 +78,7 @@ export const VALIDATION_MESSAGES = {
   generalText: "Text can only contain letters, numbers, spaces, and basic punctuation",
   chatMessage: "Message contains invalid characters",
   uri: "Must be a valid URL",
+  coordinates: "Coordinates must be \"lat,lng\" with lat -90..90 and lng -180..180",
 };
 
 /**
