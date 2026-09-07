@@ -246,7 +246,11 @@ const SystemRoute = ({ component: Component, ...rest }) => (
 const useVerificationStatus = () => useTracker(() => {
   const userId = Meteor.userId();
   if (!userId) {
-    return { ready: true, profile: null };
+    // No Meteor session yet. Clerk reports isSignedIn before the Meteor
+    // login handler completes, so this state must read as "still loading",
+    // not as "no profile" -- otherwise every approved user is bounced to
+    // /onboarding on each page load.
+    return { ready: false, profile: null };
   }
   const subscription = Meteor.subscribe("profiles.mineWithApprovalStatus");
   return {
