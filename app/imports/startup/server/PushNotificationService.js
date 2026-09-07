@@ -4,27 +4,35 @@ import { OneSignalService } from "./OneSignalService";
 
 /**
  * Push Notification Service
- * Unified service that supports multiple backends: Firebase FCM and OneSignal
  *
- * Backend Selection:
- * Set NOTIFICATION_BACKEND environment variable to:
- * - 'firebase' (default) - Uses Firebase Cloud Messaging
- * - 'onesignal' - Uses OneSignal service
+ * Routes each of a user's device tokens to the backend that issued it:
+ * - "onesignal" rows (OneSignal player / subscription ids) -> OneSignalService
+ * - "ios" / "android" rows (FCM registration tokens) -> Firebase, when configured
+ * - "web" rows were VAPID Web Push subscriptions; that backend is gone, so they
+ *   are deactivated the first time they are seen
+ *
+ * A token is only ever deactivated by the backend that owns it, so a
+ * misconfigured or missing backend never destroys a valid token.
  *
  * Firebase Setup:
  * 1. Install firebase-admin: meteor npm install firebase-admin
  * 2. Set environment variables: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
- *
- * OneSignal Setup:
- * 1. Install onesignal-node: meteor npm install onesignal-node
- * 2. Set environment variables: ONESIGNAL_APP_ID, ONESIGNAL_API_KEY
  */
+
+const FCM_PLATFORMS = new Set(["ios", "android"]);
+const FCM_INVALID_TOKEN_CODES = new Set([
+  "messaging/registration-token-not-registered",
+  "messaging/invalid-registration-token",
+]);
+
+function isOneSignalToken(tokenDoc) {
+  return tokenDoc.platform === "onesignal" || !!tokenDoc.deviceInfo?.oneSignalPlayerId;
+}
 
 class PushNotificationServiceClass {
   constructor() {
     this.isInitialized = false;
     this.admin = null;
-    this.backend = process.env.NOTIFICATION_BACKEND || "firebase";
     this.initializeService();
   }
 
@@ -33,7 +41,6 @@ class PushNotificationServiceClass {
    */
   async initializeService() {
     try {
-      // Check if required environment variables are set
       const requiredEnvVars = [
         "FIREBASE_PROJECT_ID",
         "FIREBASE_CLIENT_EMAIL",
@@ -43,12 +50,10 @@ class PushNotificationServiceClass {
       const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
       if (missingVars.length > 0) {
-        console.warn(`[Push] Missing environment variables: ${missingVars.join(", ")}`);
-        console.warn("[Push] Push notifications will not be functional");
+        console.warn(`[Push] Firebase not configured (missing ${missingVars.join(", ")}); FCM tokens will be skipped`);
         return;
       }
 
-      // Dynamic import of firebase-admin (install with: meteor npm install firebase-admin)
       try {
         // eslint-disable-next-line global-require
         this.admin = require("firebase-admin");
@@ -57,7 +62,6 @@ class PushNotificationServiceClass {
         return;
       }
 
-      // Initialize Firebase Admin if not already done
       if (!this.admin.apps.length) {
         const serviceAccount = {
           type: "service_account",
@@ -81,69 +85,50 @@ class PushNotificationServiceClass {
   }
 
   /**
-   * Send push notification to a specific user
+   * Send push notification to a specific user, fanning out per token platform.
    */
   async sendToUser(userId, notification) {
-    // Route to appropriate backend
-    if (this.backend === "onesignal") {
-      return OneSignalService.sendToUser(userId, notification);
-    }
-
-    // Firebase implementation
-    if (!this.isInitialized) {
-      console.warn("[Push] Firebase service not initialized, skipping notification");
-      return { success: false, error: "Service not initialized" };
-    }
-
     try {
-      // Get user's active push tokens
-      const tokens = await PushTokens.find({
-        userId,
-        isActive: true,
-      }).fetchAsync();
+      const tokens = await PushTokens.find({ userId, isActive: true }).fetchAsync();
 
       if (tokens.length === 0) {
         return { success: false, error: "No active tokens" };
       }
 
+      const oneSignalTokens = tokens.filter(isOneSignalToken);
+      const fcmTokens = tokens.filter(t => !isOneSignalToken(t) && FCM_PLATFORMS.has(t.platform));
+      const webTokens = tokens.filter(t => !isOneSignalToken(t) && t.platform === "web");
+
       const results = [];
 
-      // Send to each platform
-      for (const tokenDoc of tokens) { // eslint-disable-line no-restricted-syntax
-        try {
-          const result = await this.sendToToken(tokenDoc, notification);
-          results.push({
-            platform: tokenDoc.platform,
-            success: result.success,
-            error: result.error,
-          });
-
-          // Update token last used time on successful send
-          if (result.success) {
-            await PushTokens.updateAsync(tokenDoc._id, {
-              $set: { lastUsedAt: new Date() },
-            });
-          }
-
-        } catch (error) {
-          console.error(`[Push] Failed to send to token ${tokenDoc._id}:`, error);
-          results.push({
-            platform: tokenDoc.platform,
-            success: false,
-            error: error.message,
-          });
-        }
+      if (webTokens.length > 0) {
+        // Web Push (VAPID) was removed; these subscriptions can no longer be
+        // used by anything, so retire them.
+        await PushTokens.updateAsync(
+          { _id: { $in: webTokens.map(t => t._id) } },
+          { $set: { isActive: false, deactivatedAt: new Date(), deactivationReason: "webpush_removed" } },
+          { multi: true },
+        );
       }
 
-      // Update notification status
-      if (notification.notificationId) {
+      if (oneSignalTokens.length > 0) {
+        const result = await OneSignalService.sendToUser(userId, notification);
+        results.push({ platform: "onesignal", success: !!result.success, error: result.error });
+      }
+
+      for (const tokenDoc of fcmTokens) { // eslint-disable-line no-restricted-syntax
+        results.push(await this.sendToFcmToken(tokenDoc, notification));
+      }
+
+      // OneSignalService updates the status itself; only do it here when FCM
+      // was the sole path, so a OneSignal "sent" is not overwritten.
+      if (notification.notificationId && oneSignalTokens.length === 0) {
         const hasSuccess = results.some(r => r.success);
         await Notifications.updateAsync(notification.notificationId, {
           $set: {
             status: hasSuccess ? NOTIFICATION_STATUS.SENT : NOTIFICATION_STATUS.FAILED,
             sentAt: hasSuccess ? new Date() : undefined,
-            errorMessage: hasSuccess ? undefined : results.map(r => r.error).join(", "),
-            deviceTokens: tokens.map(t => t.token),
+            errorMessage: hasSuccess ? undefined : results.map(r => r.error).filter(Boolean).join(", "),
           },
           $inc: { attempts: 1 },
         });
@@ -154,7 +139,6 @@ class PushNotificationServiceClass {
     } catch (error) {
       console.error(`[Push] Failed to send notification to user ${userId}:`, error);
 
-      // Update notification status on error
       if (notification.notificationId) {
         await Notifications.updateAsync(notification.notificationId, {
           $set: {
@@ -170,34 +154,38 @@ class PushNotificationServiceClass {
   }
 
   /**
-   * Send notification to a specific device token
+   * Send one FCM token through Firebase. Skipped (token untouched) when
+   * Firebase is not configured.
    */
-  async sendToToken(tokenDoc, notification) {
+  async sendToFcmToken(tokenDoc, notification) {
+    if (!this.isInitialized) {
+      return { platform: tokenDoc.platform, success: false, error: "Firebase not configured" };
+    }
+
     try {
       const message = this.buildMessage(tokenDoc, notification);
-
       const response = await this.admin.messaging().send(message);
 
-      return { success: true, response };
+      await PushTokens.updateAsync(tokenDoc._id, { $set: { lastUsedAt: new Date() } });
+
+      return { platform: tokenDoc.platform, success: true, response };
 
     } catch (error) {
       console.error(`[Push] Failed to send to ${tokenDoc.platform} token:`, error);
 
-      // Handle invalid token errors
-      if (error.code === "messaging/registration-token-not-registered" ||
-          error.code === "messaging/invalid-registration-token") {
-
+      // Only Firebase's own verdict on a Firebase token retires it.
+      if (FCM_INVALID_TOKEN_CODES.has(error.code)) {
         await PushTokens.updateAsync(tokenDoc._id, {
-          $set: { isActive: false },
+          $set: { isActive: false, deactivatedAt: new Date(), deactivationReason: "fcm_invalid" },
         });
       }
 
-      return { success: false, error: error.message };
+      return { platform: tokenDoc.platform, success: false, error: error.message };
     }
   }
 
   /**
-   * Build platform-specific message
+   * Build platform-specific FCM message
    */
   buildMessage(tokenDoc, notification) {
     const baseMessage = {
@@ -212,7 +200,6 @@ class PushNotificationServiceClass {
       },
     };
 
-    // Platform-specific configuration
     if (tokenDoc.platform === "ios") {
       baseMessage.apns = {
         headers: {
@@ -244,17 +231,6 @@ class PushNotificationServiceClass {
           click_action: "FLUTTER_NOTIFICATION_CLICK",
         },
       };
-    } else if (tokenDoc.platform === "web") {
-      baseMessage.webpush = {
-        notification: {
-          title: notification.title,
-          body: notification.body,
-          icon: "/icon-192x192.png",
-          badge: "/badge-72x72.png",
-          requireInteraction: notification.priority === "urgent",
-          actions: notification.actions || [],
-        },
-      };
     }
 
     return baseMessage;
@@ -264,23 +240,15 @@ class PushNotificationServiceClass {
    * Send notification to multiple users in batch
    */
   async sendToUsers(userIds, notification) {
-    // Route to appropriate backend
-    if (this.backend === "onesignal") {
-      return OneSignalService.sendToUsers(userIds, notification);
-    }
-
-    // Firebase implementation
     const results = [];
-
-    // Send in batches to avoid overwhelming the service
     const batchSize = 10;
 
     for (let i = 0; i < userIds.length; i += batchSize) {
       const batch = userIds.slice(i, i + batchSize);
 
-      const batchPromises = batch.map(userId => this.sendToUser(userId, notification));
-
-      const batchResults = await Promise.allSettled(batchPromises);
+      const batchResults = await Promise.allSettled(
+        batch.map(userId => this.sendToUser(userId, notification)),
+      );
 
       batchResults.forEach((result, index) => {
         results.push({
@@ -290,9 +258,8 @@ class PushNotificationServiceClass {
         });
       });
 
-      // Small delay between batches
       if (i + batchSize < userIds.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => { setTimeout(resolve, 100); });
       }
     }
 
@@ -318,12 +285,10 @@ class PushNotificationServiceClass {
     try {
       const cutoffDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days
 
-      const result = await PushTokens.removeAsync({
+      return await PushTokens.removeAsync({
         isActive: false,
         lastUsedAt: { $lt: cutoffDate },
       });
-
-      return result;
 
     } catch (error) {
       console.error("[Push] Token cleanup failed:", error);
@@ -335,27 +300,17 @@ class PushNotificationServiceClass {
    * Get service status
    */
   getStatus() {
-    const baseStatus = {
-      backend: this.backend,
-      initialized: this.isInitialized,
-    };
-
-    if (this.backend === "onesignal") {
-      return {
-        ...baseStatus,
-        ...OneSignalService.getStatus(),
-      };
-    }
-
-    // Firebase status
     return {
-      ...baseStatus,
-      hasFirebase: !!this.admin,
-      environment: {
-        hasProjectId: !!process.env.FIREBASE_PROJECT_ID,
-        hasClientEmail: !!process.env.FIREBASE_CLIENT_EMAIL,
-        hasPrivateKey: !!process.env.FIREBASE_PRIVATE_KEY,
+      firebase: {
+        initialized: this.isInitialized,
+        hasFirebase: !!this.admin,
+        environment: {
+          hasProjectId: !!process.env.FIREBASE_PROJECT_ID,
+          hasClientEmail: !!process.env.FIREBASE_CLIENT_EMAIL,
+          hasPrivateKey: !!process.env.FIREBASE_PRIVATE_KEY,
+        },
       },
+      oneSignal: OneSignalService.getStatus(),
     };
   }
 }

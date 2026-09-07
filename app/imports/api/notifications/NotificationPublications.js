@@ -2,12 +2,64 @@ import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { Notifications, PushTokens, NOTIFICATION_STATUS } from "./Notifications";
 
-// Server-side publications
-if (Meteor.isServer) {
-  /**
-   * Publication for user's notifications
-   */
-  Meteor.publish("notifications", function (limit = 50, offset = 0) {
+// Fields a notification's recipient (or an admin listing) may see. Delivery
+// internals - device tokens, push payloads, backend error strings - stay
+// server-side.
+const DISPLAY_FIELDS = {
+  userId: 1,
+  title: 1,
+  body: 1,
+  type: 1,
+  priority: 1,
+  status: 1,
+  data: 1,
+  createdAt: 1,
+  readAt: 1,
+  expiresAt: 1,
+  groupKey: 1,
+  actionTaken: 1,
+};
+
+const ADMIN_SORT_KEYS = new Set(["createdAt", "status", "type", "priority", "userId", "sentAt", "readAt"]);
+
+/**
+ * Turn a client-supplied sort object into one that only touches known,
+ * indexed fields. Falls back to newest-first.
+ */
+function safeSort(requested) {
+  const sort = {};
+  Object.entries(requested || {}).forEach(([key, direction]) => {
+    if (ADMIN_SORT_KEYS.has(key)) {
+      sort[key] = (direction === 1 || direction === "asc") ? 1 : -1;
+    }
+  });
+  return Object.keys(sort).length > 0 ? sort : { createdAt: -1 };
+}
+
+/**
+ * Ids of every user in the schools the caller administers, or null for a
+ * system admin (no scoping). Returns [] for non-admins.
+ */
+async function adminScopedUserIds(callerId) {
+  const { isSystemAdmin, getUserAdminSchools } = await import("../accounts/RoleUtils");
+  if (await isSystemAdmin(callerId)) {
+    return null;
+  }
+  const schoolIds = await getUserAdminSchools(callerId);
+  if (schoolIds.length === 0) {
+    return [];
+  }
+  const users = await Meteor.users.find(
+    { schoolId: { $in: schoolIds } },
+    { fields: { _id: 1 } },
+  ).fetchAsync();
+  return users.map(user => user._id);
+}
+
+/**
+ * Publication for user's notifications
+ */
+Meteor.publish("notifications", function (limit = 50, offset = 0) {
   check(limit, Number);
   check(offset, Number);
 
@@ -20,28 +72,13 @@ if (Meteor.isServer) {
   const maxLimit = 100;
   const safeLimit = Math.min(limit, maxLimit);
 
-  // console.log(`[Pub] Publishing notifications for user ${this.userId}, limit: ${safeLimit}, offset: ${offset}`);
-
   return Notifications.find(
     { userId: this.userId },
     {
       sort: { createdAt: -1 },
       limit: safeLimit,
       skip: offset,
-      fields: {
-        userId: 1,
-        title: 1,
-        body: 1,
-        type: 1,
-        priority: 1,
-        status: 1,
-        data: 1,
-        createdAt: 1,
-        readAt: 1,
-        expiresAt: 1,
-        groupKey: 1,
-        actionTaken: 1,
-      },
+      fields: DISPLAY_FIELDS,
     },
   );
 });
@@ -56,7 +93,6 @@ if (Meteor.isServer) {
  *   the publication
  * - observeChanges() resolves to a promise on the server, so the old `handle`
  *   was a Promise and handle.stop() in onStop threw
- * The body never ran before because Meteor sessions were never established.
  */
 Meteor.publish("notifications.unreadCount", async function () {
   if (!this.userId) {
@@ -121,8 +157,6 @@ Meteor.publish("notifications.recent", function () {
 
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  // console.log(`[Pub] Publishing recent notifications for user ${this.userId}`);
-
   return Notifications.find(
     {
       userId: this.userId,
@@ -131,17 +165,7 @@ Meteor.publish("notifications.recent", function () {
     {
       sort: { createdAt: -1 },
       limit: 20,
-      fields: {
-        userId: 1,
-        title: 1,
-        body: 1,
-        type: 1,
-        priority: 1,
-        status: 1,
-        data: 1,
-        createdAt: 1,
-        readAt: 1,
-      },
+      fields: DISPLAY_FIELDS,
     },
   );
 });
@@ -157,8 +181,6 @@ Meteor.publish("notifications.forRide", function (rideId) {
     return;
   }
 
-  // console.log(`[Pub] Publishing ride notifications for user ${this.userId}, ride: ${rideId}`);
-
   return Notifications.find(
     {
       userId: this.userId,
@@ -167,17 +189,7 @@ Meteor.publish("notifications.forRide", function (rideId) {
     {
       sort: { createdAt: -1 },
       limit: 50,
-      fields: {
-        userId: 1,
-        title: 1,
-        body: 1,
-        type: 1,
-        priority: 1,
-        status: 1,
-        data: 1,
-        createdAt: 1,
-        readAt: 1,
-      },
+      fields: DISPLAY_FIELDS,
     },
   );
 });
@@ -190,8 +202,6 @@ Meteor.publish("notifications.pushTokens", function () {
     this.ready();
     return;
   }
-
-  // console.log(`[Pub] Publishing push tokens for user ${this.userId}`);
 
   return PushTokens.find(
     {
@@ -213,28 +223,28 @@ Meteor.publish("notifications.pushTokens", function () {
 });
 
 /**
- * Admin publication for notification management
+ * Admin publication for notification management. School admins only see
+ * notifications addressed to users of the schools they administer.
  */
 Meteor.publish("notifications.admin", async function (filters = {}, options = {}) {
   check(filters, Object);
   check(options, Object);
 
-  // Verify admin permissions
   if (!this.userId) {
     this.ready();
     return;
   }
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
+  const scopedUserIds = await adminScopedUserIds(this.userId);
+  if (scopedUserIds && scopedUserIds.length === 0) {
     this.ready();
     return;
   }
 
   // Default options
   const limit = Math.min(options.limit || 100, 500); // Max 500 for admins
-  const skip = options.skip || 0;
-  const sort = options.sort || { createdAt: -1 };
+  const skip = Math.max(0, options.skip || 0);
+  const sort = safeSort(options.sort);
 
   // Build query from filters
   const query = {};
@@ -265,53 +275,40 @@ Meteor.publish("notifications.admin", async function (filters = {}, options = {}
     }
   }
 
-  // School admins should only see notifications for users in their school
-  if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
-    const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (currentUser?.schoolId) {
-      // Find users in the same school
-      const schoolUsers = await Meteor.users.find(
-        { schoolId: currentUser.schoolId },
-        { fields: { _id: 1 } },
-      ).fetchAsync();
-      const userIds = schoolUsers.map(user => user._id);
-
-      if (query.userId) {
-        // If filtering by specific user, make sure that user is in the same school
-        if (!userIds.includes(query.userId)) {
-          this.ready();
-          return;
-        }
-      } else {
-        // Filter to only users in the same school
-        query.userId = { $in: userIds };
+  if (scopedUserIds) {
+    if (query.userId) {
+      // If filtering by specific user, make sure that user is in scope
+      if (!scopedUserIds.includes(query.userId)) {
+        this.ready();
+        return;
       }
+    } else {
+      query.userId = { $in: scopedUserIds };
     }
   }
-
-  // console.log(`[Pub] Admin notifications query:`, query, { limit, skip, sort });
 
   return Notifications.find(query, {
     sort,
     limit,
     skip,
+    fields: DISPLAY_FIELDS,
   });
 });
 
 /**
- * Admin publication for push tokens management
+ * Admin publication for push tokens management. System admins only; the raw
+ * token/player id is never published.
  */
 Meteor.publish("notifications.adminTokens", async function (filters = {}) {
   check(filters, Object);
 
-  // Verify admin permissions
   if (!this.userId) {
     this.ready();
     return;
   }
 
-  const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-  if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
+  const { isSystemAdmin } = await import("../accounts/RoleUtils");
+  if (!await isSystemAdmin(this.userId)) {
     this.ready();
     return;
   }
@@ -331,40 +328,18 @@ Meteor.publish("notifications.adminTokens", async function (filters = {}) {
     query.isActive = filters.isActive;
   }
 
-  // School admins should only see tokens for users in their school
-  if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
-    const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (currentUser?.schoolId) {
-      // Find users in the same school
-      const schoolUsers = await Meteor.users.find(
-        { schoolId: currentUser.schoolId },
-        { fields: { _id: 1 } },
-      ).fetchAsync();
-      const userIds = schoolUsers.map(user => user._id);
-
-      if (query.userId) {
-        // If filtering by specific user, make sure that user is in the same school
-        if (!userIds.includes(query.userId)) {
-          this.ready();
-          return;
-        }
-      } else {
-        // Filter to only users in the same school
-        query.userId = { $in: userIds };
-      }
-    }
-  }
-
-  // console.log(`[Pub] Admin push tokens query:`, query);
-
   return PushTokens.find(query, {
     sort: { lastUsedAt: -1 },
     limit: 1000,
+    fields: {
+      userId: 1,
+      platform: 1,
+      deviceInfo: 1,
+      isActive: 1,
+      lastUsedAt: 1,
+      createdAt: 1,
+      deactivatedAt: 1,
+      deactivationReason: 1,
+    },
   });
 });
-
-} // End server-only block
-
-// Collection for reactive notification counts (client-side only)
-const NotificationCounts = Meteor.isClient ? new Mongo.Collection("notificationCounts") : null;
-export { NotificationCounts };

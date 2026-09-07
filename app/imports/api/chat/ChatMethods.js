@@ -1,39 +1,38 @@
 import { Meteor } from "meteor/meteor";
-import Joi from "joi";
-import { check } from "meteor/check";
-import DOMPurify from "dompurify";
-import { Chats } from "./Chat";
+import { check, Match } from "meteor/check";
+import { Chats, CHAT_MESSAGE_MAX } from "./Chat";
 import { Rides } from "../ride/Rides";
 import { syncChatParticipants } from "./ChatParticipants";
-import { createSafeStringSchema } from "../../ui/utils/validation";
+import { assertProfileApproved } from "../profile/approvalGuard";
 
-// Set up DOMPurify for server-side use
-let createDOMPurify;
-if (Meteor.isServer) {
-  // eslint-disable-next-line global-require
-  const { JSDOM } = require("jsdom");
-  const window = new JSDOM("").window;
-  createDOMPurify = DOMPurify(window);
-} else {
-  // For client-side, use the default DOMPurify which works with the browser window
-  createDOMPurify = DOMPurify;
-}
+/** Messages kept per chat; older ones fall off the front of the array. */
+const CHAT_HISTORY_LIMIT = 500;
 
-// Sanitize chat message content to prevent XSS
-function sanitizeChatContent(content) {
+const MONGO_DUPLICATE_KEY = 11000;
+
+/**
+ * Validate and normalise a chat message.
+ *
+ * Markup is rejected outright (`<` and `>` are the only characters that can
+ * open a tag, and React escapes everything on render anyway), so there is
+ * nothing to sanitise beyond trimming. The old DOMPurify pass turned `&` into
+ * `&amp;` in storage, which then rendered literally.
+ */
+function normalizeChatContent(content) {
   if (typeof content !== "string") {
-    return "";
+    throw new Meteor.Error("validation-error", "Message must be text.");
   }
-
-  // Sanitize content, allowing only safe text (no HTML tags)
-  const sanitized = createDOMPurify.sanitize(content, {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-    KEEP_CONTENT: true,
-  });
-
-  // Additional validation: limit length and remove excessive whitespace
-  return sanitized.trim().substring(0, 1000); // Max 1000 characters
+  const trimmed = content.trim();
+  if (trimmed.length === 0) {
+    throw new Meteor.Error("empty-message", "Message content cannot be empty.");
+  }
+  if (trimmed.length > CHAT_MESSAGE_MAX) {
+    throw new Meteor.Error("validation-error", `Message must be at most ${CHAT_MESSAGE_MAX} characters.`);
+  }
+  if (/[<>]/.test(trimmed)) {
+    throw new Meteor.Error("validation-error", "Message cannot contain < or >.");
+  }
+  return trimmed;
 }
 
 Meteor.methods({
@@ -43,23 +42,12 @@ Meteor.methods({
   async "chats.createForRide"(rideId) {
     check(rideId, String);
 
-    // Check if user is logged in.
-    // Previously gated on isEmailVerified, which reads user.emails[0].verified.
-    // Clerk-bridged accounts are created with an unverified clerk.local
-    // placeholder address, so that guard rejected every real user and a chat
-    // could never be created. Clerk owns email verification; what this method
-    // needs is a session.
+    // Clerk owns email verification; what this method needs is a session.
     if (!this.userId) {
       throw new Meteor.Error(
         "not-authorized",
         "You must be logged in to create a chat.",
       );
-    }
-
-    // Get current user
-    const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser) {
-      throw new Meteor.Error("user-error", "Unable to find current user.");
     }
 
     // Get the ride to verify it exists and user has access
@@ -69,8 +57,8 @@ Meteor.methods({
     }
 
     // Check if user is part of this ride (driver or rider)
-    const isDriver = ride.driver === currentUser._id;
-    const isRider = ride.riders && ride.riders.includes(currentUser._id);
+    const isDriver = ride.driver === this.userId;
+    const isRider = ride.riders && ride.riders.includes(this.userId);
 
     if (!isDriver && !isRider) {
       throw new Meteor.Error(
@@ -80,7 +68,7 @@ Meteor.methods({
     }
 
     // Check if chat already exists for this ride
-    const existingChat = await Chats.findOneAsync({ rideId: rideId });
+    const existingChat = await Chats.findOneAsync({ rideId }, { fields: { _id: 1 } });
     if (existingChat) {
       // Participants was snapshotted at creation and the ride join/leave paths
       // never update it, so resync before handing the chat back. Without this a
@@ -90,14 +78,10 @@ Meteor.methods({
     }
 
     // Create participants array (driver + riders)
-    const participants = [ride.driver];
-    if (ride.riders && ride.riders.length > 0) {
-      participants.push(...ride.riders);
-    }
+    const participants = [...new Set([ride.driver, ...(ride.riders || [])].filter(Boolean))];
 
-    // Create new ride-specific chat
     const chatData = {
-      rideId: rideId,
+      rideId,
       Participants: participants,
       Messages: [
         {
@@ -108,78 +92,94 @@ Meteor.methods({
       ],
     };
 
-    const chatId = await Chats.insertAsync(chatData);
-    return chatId;
+    try {
+      return await Chats.insertAsync(chatData);
+    } catch (error) {
+      // Two participants opened the chat at the same moment; the unique
+      // { rideId } index let exactly one insert through - hand back that one.
+      if (error.code === MONGO_DUPLICATE_KEY) {
+        const winner = await Chats.findOneAsync({ rideId }, { fields: { _id: 1 } });
+        if (winner) {
+          return winner._id;
+        }
+      }
+      throw error;
+    }
   },
 
   /**
-   * Send a message to a chat
+   * Send a message to a chat.
+   *
+   * `messageId` is generated on the client (Random.id()) so a retried send
+   * after a dropped connection cannot store the same message twice.
    */
-  async "chats.sendMessage"(chatId, content) {
+  async "chats.sendMessage"(chatId, content, messageId = undefined) {
     check(chatId, String);
     check(content, String);
-    // Validate input with XSS prevention
-    const schema = Joi.object({
-      chatId: Joi.string().required(),
-      content: createSafeStringSchema({
-        pattern: "chatMessage",
-        min: 1,
-        max: 1000,
-        label: "Message Content",
-        patternMessage: "Message contains invalid characters",
-      }),
-    });
+    check(messageId, Match.Maybe(String));
 
-    const { error } = schema.validate({ chatId, content });
-    if (error) {
-      throw new Meteor.Error("validation-error", error.details[0].message);
-    }
-
-    // Check if user is logged in. See chats.createForRide above for why this
-    // no longer gates on isEmailVerified.
     if (!this.userId) {
       throw new Meteor.Error(
         "not-authorized",
         "You must be logged in to send messages.",
       );
     }
-
-    const currentUser = await Meteor.users.findOneAsync(this.userId);
-    if (!currentUser) {
-      throw new Meteor.Error("user-error", "Unable to find current user.");
+    // This file is also loaded on the client for the latency-compensation
+    // stub; the approval check and the push fan-out are server-only.
+    if (Meteor.isServer) {
+      await assertProfileApproved(this.userId);
     }
 
-    const chat = await Chats.findOneAsync(chatId);
+    const sanitizedContent = normalizeChatContent(content);
+
+    const chat = await Chats.findOneAsync(chatId, { fields: { Participants: 1 } });
     if (!chat) {
       throw new Meteor.Error("chat-not-found", "Chat not found.");
     }
 
     // Check if user is a participant
-    if (!chat.Participants.includes(currentUser._id)) {
+    if (!chat.Participants.includes(this.userId)) {
       throw new Meteor.Error(
         "not-authorized",
         "You are not a participant in this chat.",
       );
     }
 
-    // Sanitize message content to prevent XSS attacks
-    const sanitizedContent = sanitizeChatContent(content);
-
-    // Validate sanitized content is not empty
-    if (!sanitizedContent) {
-      throw new Meteor.Error("empty-message", "Message content cannot be empty.");
-    }
-
-    // Add message to chat
     const message = {
-      Sender: currentUser._id,
+      ...(messageId ? { id: messageId } : {}),
+      Sender: this.userId,
       Content: sanitizedContent,
       Timestamp: new Date(),
     };
 
-    await Chats.updateAsync(chatId, {
-      $push: { Messages: message },
+    // The selector re-checks membership (a rider removed between the read
+    // and the write must not get a message in) and refuses a duplicate id.
+    const selector = { _id: chatId, Participants: this.userId };
+    if (messageId) {
+      selector["Messages.id"] = { $ne: messageId };
+    }
+
+    const updated = await Chats.updateAsync(selector, {
+      $push: { Messages: { $each: [message], $slice: -CHAT_HISTORY_LIMIT } },
     });
+
+    if (updated === 0) {
+      if (messageId) {
+        // Already stored by an earlier attempt of the same send - idempotent.
+        return message;
+      }
+      throw new Meteor.Error("not-authorized", "You are not a participant in this chat.");
+    }
+
+    if (Meteor.isServer) {
+      try {
+        const { notifyChatMessage } = await import("../notifications/NotificationMethods");
+        await notifyChatMessage(chatId, this.userId, sanitizedContent);
+      } catch (error) {
+        // The message is stored; a push failure must not surface as a send error.
+        console.error("[Chat] Message notification failed:", error);
+      }
+    }
 
     return message;
   },

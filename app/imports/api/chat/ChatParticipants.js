@@ -8,6 +8,10 @@ import { Chats } from "./Chat";
  * rider who joins after the chat exists is rejected by chats.sendMessage and is
  * never sent the chat by the "chats" publication.
  *
+ * Adds and removes individual ids ($addToSet / $pull) rather than replacing
+ * the array, so two concurrent resyncs (a join and a leave landing together)
+ * cannot overwrite each other's change.
+ *
  * No-op when the ride has no chat yet.
  */
 export async function syncChatParticipants(ride) {
@@ -15,7 +19,7 @@ export async function syncChatParticipants(ride) {
     return;
   }
 
-  const chat = await Chats.findOneAsync({ rideId: ride._id });
+  const chat = await Chats.findOneAsync({ rideId: ride._id }, { fields: { Participants: 1 } });
   if (!chat) {
     return;
   }
@@ -25,11 +29,13 @@ export async function syncChatParticipants(ride) {
   )];
   const current = chat.Participants || [];
 
-  const unchanged = expected.length === current.length
-    && expected.every(id => current.includes(id));
-  if (unchanged) {
-    return;
-  }
+  const toAdd = expected.filter(id => !current.includes(id));
+  const toRemove = current.filter(id => !expected.includes(id));
 
-  await Chats.updateAsync(chat._id, { $set: { Participants: expected } });
+  if (toAdd.length > 0) {
+    await Chats.updateAsync(chat._id, { $addToSet: { Participants: { $each: toAdd } } });
+  }
+  if (toRemove.length > 0) {
+    await Chats.updateAsync(chat._id, { $pull: { Participants: { $in: toRemove } } });
+  }
 }

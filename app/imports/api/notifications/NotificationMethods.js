@@ -11,18 +11,25 @@ import {
 } from "./Notifications";
 import { Rides } from "../ride/Rides";
 import { Chats } from "../chat/Chat";
+import { Profiles } from "../profile/Profile";
 
 // Push notification services
 import { PushNotificationService } from "../../startup/server/PushNotificationService";
-import { WebPushService } from "../../startup/server/WebPushService";
+
+// A chat participant gets at most one unread push per chat in this window.
+const CHAT_NOTIFY_DEDUPE_MS = 2 * 60 * 1000;
+const CHAT_PREVIEW_MAX = 100;
+
+const NO_SEND = Object.freeze({ batchId: null, notificationIds: [] });
 
 /**
  * Core notification fan-out.
  *
  * `actorUserId` is the user who triggered the send, or null for server-originated
- * sends. Server-originated callers (collection observers, triggers, cron) run with
- * no enclosing DDP invocation, so `this.userId` there is always null - they must
- * call this function directly instead of going back through Meteor.callAsync.
+ * sends. Server-originated callers (triggers, cron, ride methods reacting to a
+ * mutation) run with no enclosing DDP invocation, so `this.userId` there is
+ * always null - they must call this function directly instead of going back
+ * through Meteor.callAsync.
  */
 export async function sendNotifications(actorUserId, recipients, title, body, options = {}) {
   const notificationIds = [];
@@ -70,21 +77,28 @@ export async function sendNotifications(actorUserId, recipients, title, body, op
 /**
  * Send a notification to every participant of a ride.
  *
+ * `rideOrId` is either a ride id or a ride document. Callers that have already
+ * removed the ride (cancellation) pass the document they removed; when given an
+ * id that no longer resolves this returns without sending rather than throwing,
+ * because a vanished ride is an expected race for server-originated sends.
+ *
  * A null `actorUserId` means server-originated: there is no sender to
  * permission-check, and nobody to filter out of the recipient list.
  */
-export async function sendToRideParticipants(actorUserId, rideId, title, body, options = {}) {
-  const ride = await Rides.findOneAsync(rideId);
+export async function sendToRideParticipants(actorUserId, rideOrId, title, body, options = {}) {
+  const ride = typeof rideOrId === "string" ? await Rides.findOneAsync(rideOrId) : rideOrId;
   if (!ride) {
-    throw new Meteor.Error("ride-not-found", "Ride not found");
+    return NO_SEND;
   }
+  const rideId = ride._id;
+  const riders = ride.riders || [];
 
   if (actorUserId) {
     // Verify user has permission to send notifications for this ride
     const isDriver = ride.driver === actorUserId;
-    const isRider = ride.riders.includes(actorUserId);
+    const isRider = riders.includes(actorUserId);
     const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-    const isAdmin = await isSystemAdmin(actorUserId) || await isSchoolAdmin(actorUserId);
+    const isAdmin = await isSystemAdmin(actorUserId) || await isSchoolAdmin(actorUserId, ride.schoolId);
 
     if (!isDriver && !isRider && !isAdmin) {
       throw new Meteor.Error("not-authorized", "Not authorized to send notifications for this ride");
@@ -92,10 +106,14 @@ export async function sendToRideParticipants(actorUserId, rideId, title, body, o
   }
 
   // Get all participants except the sender (unless explicitly included)
-  const recipients = [ride.driver, ...ride.riders];
+  const recipients = [ride.driver, ...riders].filter(Boolean);
   const filteredRecipients = (!actorUserId || options.includeSender)
     ? recipients
     : recipients.filter(userId => userId !== actorUserId);
+
+  if (filteredRecipients.length === 0) {
+    return NO_SEND;
+  }
 
   // Set ride-specific options
   const rideOptions = {
@@ -112,9 +130,100 @@ export async function sendToRideParticipants(actorUserId, rideId, title, body, o
   return sendNotifications(actorUserId, filteredRecipients, title, body, rideOptions);
 }
 
+/**
+ * Notify a chat's other participants about a new message.
+ *
+ * Called by chats.sendMessage after the push succeeds. Each recipient gets at
+ * most one unread notification per chat every CHAT_NOTIFY_DEDUPE_MS, so a burst
+ * of messages does not become a burst of pushes.
+ */
+export async function notifyChatMessage(chatId, senderId, preview) {
+  const chat = await Chats.findOneAsync(chatId, { fields: { Participants: 1, rideId: 1 } });
+  if (!chat) {
+    return NO_SEND;
+  }
+
+  const candidates = (chat.Participants || []).filter(id => id && id !== senderId);
+  if (candidates.length === 0) {
+    return NO_SEND;
+  }
+
+  const groupKey = `chat:${chatId}`;
+  const recentlyNotified = await Notifications.find(
+    {
+      groupKey,
+      userId: { $in: candidates },
+      status: { $ne: NOTIFICATION_STATUS.READ },
+      createdAt: { $gte: new Date(Date.now() - CHAT_NOTIFY_DEDUPE_MS) },
+    },
+    { fields: { userId: 1 } },
+  ).fetchAsync();
+  const skip = new Set(recentlyNotified.map(n => n.userId));
+  const recipients = candidates.filter(id => !skip.has(id));
+  if (recipients.length === 0) {
+    return NO_SEND;
+  }
+
+  const senderProfile = await Profiles.findOneAsync({ Owner: senderId }, { fields: { Name: 1 } });
+  const title = senderProfile?.Name ? `Message from ${senderProfile.Name}` : "New message";
+  const text = typeof preview === "string" ? preview.trim() : "";
+  const body = text.length > CHAT_PREVIEW_MAX ? `${text.slice(0, CHAT_PREVIEW_MAX - 1)}…` : (text || "New message");
+
+  return sendNotifications(senderId, recipients, title, body, {
+    type: NOTIFICATION_TYPES.CHAT_MESSAGE,
+    priority: NOTIFICATION_PRIORITY.NORMAL,
+    groupKey,
+    data: { chatId, rideId: chat.rideId, action: "open_chat" },
+  });
+}
+
+/**
+ * Deactivate every active push token (FCM and OneSignal rows alike - they live
+ * in the same collection) for a user. Used on logout.
+ */
+async function deactivateTokensForUser(userId, reason = "user_logout") {
+  const result = await PushTokens.updateAsync(
+    { userId, isActive: true },
+    {
+      $set: {
+        isActive: false,
+        deactivatedAt: new Date(),
+        deactivationReason: reason,
+      },
+    },
+    { multi: true },
+  );
+
+  return { success: true, deactivatedTokens: result, userId };
+}
+
+/**
+ * Ids of every user in the schools the caller administers. System admins get
+ * null (no scoping). Throws for non-admins.
+ */
+async function adminScopedUserIds(callerId) {
+  const { isSystemAdmin, getUserAdminSchools } = await import("../accounts/RoleUtils");
+  if (await isSystemAdmin(callerId)) {
+    return null;
+  }
+  const schoolIds = await getUserAdminSchools(callerId);
+  if (schoolIds.length === 0) {
+    throw new Meteor.Error("not-authorized", "Admin access required");
+  }
+  const users = await Meteor.users.find(
+    { schoolId: { $in: schoolIds } },
+    { fields: { _id: 1 } },
+  ).fetchAsync();
+  return users.map(user => user._id);
+}
+
 Meteor.methods({
   /**
-   * Register a push token for the current user
+   * Register a push token for the current user.
+   *
+   * A device belongs to whoever is logged in on it right now: any row for this
+   * token owned by another user is removed before the upsert, so a shared
+   * device never keeps delivering the previous user's notifications.
    */
   async "notifications.registerPushToken"(token, platform, deviceInfo = {}) {
     check(token, String);
@@ -126,14 +235,8 @@ Meteor.methods({
     }
 
     try {
-      // Deactivate existing tokens for this user/platform
-      await PushTokens.updateAsync(
-        { userId: this.userId, platform, isActive: true },
-        { $set: { isActive: false } },
-        { multi: true },
-      );
+      await PushTokens.removeAsync({ token, userId: { $ne: this.userId } });
 
-      // Create new token record
       const pushTokenData = NotificationHelpers.createPushToken({
         userId: this.userId,
         token,
@@ -153,7 +256,6 @@ Meteor.methods({
         { $set: tokenFields, $setOnInsert: { createdAt } },
       );
 
-      // console.log(`[Push] Registered token for user ${this.userId} on ${platform}`);
       if (result.insertedId) {
         return result.insertedId;
       }
@@ -183,7 +285,6 @@ Meteor.methods({
         { $set: { isActive: false } },
       );
 
-      // console.log(`[Push] Unregistered token for user ${this.userId}`);
       return result;
 
     } catch (error) {
@@ -240,7 +341,7 @@ Meteor.methods({
     // Only the driver (or an admin of the ride's school) may broadcast to a
     // ride; a rider could otherwise send every co-rider a spoofed
     // "Ride Cancelled".
-    const ride = await Rides.findOneAsync(rideId, { fields: { driver: 1, schoolId: 1 } });
+    const ride = await Rides.findOneAsync(rideId);
     if (!ride) {
       throw new Meteor.Error("ride-not-found", "Ride not found");
     }
@@ -254,7 +355,7 @@ Meteor.methods({
     }
 
     try {
-      return await sendToRideParticipants(this.userId, rideId, title, body, options);
+      return await sendToRideParticipants(this.userId, ride, title, body, options);
 
     } catch (error) {
       console.error("[Notifications] Ride notification failed:", error);
@@ -273,7 +374,7 @@ Meteor.methods({
     }
 
     try {
-      const result = await Notifications.updateAsync(
+      return await Notifications.updateAsync(
         {
           _id: notificationId,
           userId: this.userId,
@@ -286,12 +387,6 @@ Meteor.methods({
           },
         },
       );
-
-      if (result) {
-        // console.log(`[Notifications] Marked notification ${notificationId} as read`);
-      }
-
-      return result;
 
     } catch (error) {
       console.error("[Notifications] Mark as read failed:", error);
@@ -308,7 +403,7 @@ Meteor.methods({
     }
 
     try {
-      const result = await Notifications.updateAsync(
+      return await Notifications.updateAsync(
         {
           userId: this.userId,
           status: { $ne: NOTIFICATION_STATUS.READ },
@@ -321,9 +416,6 @@ Meteor.methods({
         },
         { multi: true },
       );
-
-      // console.log(`[Notifications] Marked ${result} notifications as read for user ${this.userId}`);
-      return result;
 
     } catch (error) {
       console.error("[Notifications] Mark all as read failed:", error);
@@ -342,19 +434,20 @@ Meteor.methods({
     if (!await isSystemAdmin(this.userId)) {
       throw new Meteor.Error("not-authorized", "System admin access required");
     }
+    // daysOld <= 0 would wipe every notification that exists.
+    if (!(daysOld >= 1)) {
+      throw new Meteor.Error("invalid-argument", "daysOld must be at least 1");
+    }
 
     try {
       const cutoffDate = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000);
 
-      const result = await Notifications.removeAsync({
+      return await Notifications.removeAsync({
         $or: [
           { createdAt: { $lt: cutoffDate } },
           { expiresAt: { $lt: new Date() } },
         ],
       });
-
-      // console.log(`[Notifications] Cleaned up ${result} old notifications`);
-      return result;
 
     } catch (error) {
       console.error("[Notifications] Cleanup failed:", error);
@@ -363,25 +456,22 @@ Meteor.methods({
   },
 
   /**
-   * Get notification statistics for admin
+   * Get notification statistics for admin. School admins are scoped to the
+   * users of the schools they administer (notifications carry no schoolId of
+   * their own).
    */
   async "notifications.getStats"() {
-    // Only admins can get stats
-    const currentUser = await Meteor.users.findOneAsync(this.userId);
-    const { isSystemAdmin, isSchoolAdmin } = await import("../accounts/RoleUtils");
-    if (!await isSystemAdmin(this.userId) && !await isSchoolAdmin(this.userId)) {
+    if (!this.userId) {
       throw new Meteor.Error("not-authorized", "Admin access required");
     }
+    const scopedUserIds = await adminScopedUserIds(this.userId);
 
     try {
-      // Build school filter query
       const query = {};
       const tokenQuery = { isActive: true };
-
-      if (await isSchoolAdmin(this.userId) && !await isSystemAdmin(this.userId)) {
-        // School admins can only see stats from their school
-        query.schoolId = currentUser.schoolId;
-        tokenQuery.schoolId = currentUser.schoolId;
+      if (scopedUserIds) {
+        query.userId = { $in: scopedUserIds };
+        tokenQuery.userId = { $in: scopedUserIds };
       }
 
       const stats = {
@@ -395,12 +485,10 @@ Meteor.methods({
         activeTokens: await PushTokens.find(tokenQuery).countAsync(),
       };
 
-      // Get counts by status
       for (const status of Object.values(NOTIFICATION_STATUS)) { // eslint-disable-line no-restricted-syntax
         stats.byStatus[status] = await Notifications.find({ ...query, status }).countAsync();
       }
 
-      // Get counts by type
       for (const type of Object.values(NOTIFICATION_TYPES)) { // eslint-disable-line no-restricted-syntax
         stats.byType[type] = await Notifications.find({ ...query, type }).countAsync();
       }
@@ -426,15 +514,13 @@ Meteor.methods({
     try {
       const safeLimit = Math.min(limit, 100); // Max 100 notifications
 
-      const notifications = await Notifications.find(
+      return await Notifications.find(
         { userId: this.userId },
         {
           sort: { createdAt: -1 },
           limit: safeLimit,
         },
       ).fetchAsync();
-
-      return notifications;
 
     } catch (error) {
       console.error("[Notifications] Get user notifications failed:", error);
@@ -443,7 +529,8 @@ Meteor.methods({
   },
 
   /**
-   * Deactivate all push tokens for current user (called on logout)
+   * Deactivate all push tokens for current user (called on logout). Covers
+   * FCM tokens and OneSignal player rows alike.
    */
   async "notifications.deactivateUserTokens"() {
     if (!this.userId) {
@@ -451,64 +538,11 @@ Meteor.methods({
     }
 
     try {
-      // Deactivate all active push tokens for this user
-      const result = await PushTokens.updateAsync(
-        {
-          userId: this.userId,
-          isActive: true,
-        },
-        {
-          $set: {
-            isActive: false,
-            deactivatedAt: new Date(),
-            deactivationReason: "user_logout",
-          },
-        },
-        { multi: true },
-      );
-
-      // console.log(`[Logout] Deactivated ${result} push tokens for user ${this.userId}`);
-
-      return {
-        success: true,
-        deactivatedTokens: result,
-        userId: this.userId,
-      };
+      return await deactivateTokensForUser(this.userId);
 
     } catch (error) {
       console.error("[Logout] Failed to deactivate user tokens:", error);
       throw new Meteor.Error("token-deactivation-failed", error.reason || "Failed to deactivate tokens");
-    }
-  },
-
-  /**
-   * Get VAPID public key for web push subscription
-   */
-  async "notifications.getVapidPublicKey"() {
-    try {
-      // Get from WebPushService
-      const webPushKey = WebPushService.getVapidPublicKey();
-      if (webPushKey) {
-        return { publicKey: webPushKey, source: "webpush" };
-      }
-
-      // Fallback to Meteor settings
-      const settingsKey = Meteor.settings.public?.vapid?.publicKey;
-      if (settingsKey) {
-        return { publicKey: settingsKey, source: "settings" };
-      }
-
-      // Fallback to environment variable
-      const envKey = process.env.VAPID_PUBLIC_KEY;
-      if (envKey) {
-        return { publicKey: envKey, source: "env" };
-      }
-
-      throw new Meteor.Error("vapid-not-configured", "VAPID public key not configured");
-
-    } catch (error) {
-      console.error("[VAPID] Failed to get public key:", error);
-      throw new Meteor.Error("vapid-failed", error.reason || "Failed to get VAPID public key");
     }
   },
 });
@@ -516,34 +550,18 @@ Meteor.methods({
 // Utility methods for integration with existing systems
 export const NotificationUtils = {
   /**
-   * Send ride cancellation notification
+   * Send ride cancellation notification. Accepts the removed ride document so
+   * it can be called after the ride is gone.
    */
-  async sendRideCancellation(rideId, reason = "The ride has been cancelled") {
+  async sendRideCancellation(rideOrId, reason = "The ride has been cancelled") {
     return sendToRideParticipants(
       null,
-      rideId,
+      rideOrId,
       "Ride Cancelled",
       reason,
       {
         type: NOTIFICATION_TYPES.RIDE_CANCELLED,
         priority: NOTIFICATION_PRIORITY.HIGH,
-        action: "view_ride",
-      },
-    );
-  },
-
-  /**
-   * Send rider joined notification
-   */
-  async sendRiderJoined(rideId, riderName) {
-    return sendToRideParticipants(
-      null,
-      rideId,
-      "New Rider",
-      `${riderName} joined your ride`,
-      {
-        type: NOTIFICATION_TYPES.RIDER_JOINED,
-        priority: NOTIFICATION_PRIORITY.NORMAL,
         action: "view_ride",
       },
     );
@@ -572,59 +590,11 @@ export const NotificationUtils = {
   },
 
   /**
-   * Send chat message notification (for offline users)
-   */
-  async sendChatMessage(chatId, senderName, messageContent, rideId = null) {
-    const chat = await Chats.findOneAsync(chatId);
-    if (!chat) return;
-
-    // Only send to offline users
-    const offlineParticipants = []; // TODO: Implement offline user detection
-
-    if (offlineParticipants.length > 0) {
-      return sendNotifications(
-        null,
-        offlineParticipants,
-        `Message from ${senderName}`,
-        messageContent.length > 50 ? `${messageContent.substring(0, 47)}...` : messageContent,
-        {
-          type: NOTIFICATION_TYPES.CHAT_MESSAGE,
-          priority: NOTIFICATION_PRIORITY.NORMAL,
-          data: { chatId, rideId, action: "open_chat" },
-        },
-      );
-    }
-  },
-
-  /**
    * Deactivate push tokens for a specific user (server-side utility)
    */
   async deactivateUserTokens(userId) {
     try {
-      // Deactivate all active push tokens for this user
-      const result = await PushTokens.updateAsync(
-        {
-          userId: userId,
-          isActive: true,
-        },
-        {
-          $set: {
-            isActive: false,
-            deactivatedAt: new Date(),
-            deactivationReason: "user_logout",
-          },
-        },
-        { multi: true },
-      );
-
-      // console.log(`[Logout] Deactivated ${result} push tokens for user ${userId}`);
-
-      return {
-        success: true,
-        deactivatedTokens: result,
-        userId: userId,
-      };
-
+      return await deactivateTokensForUser(userId);
     } catch (error) {
       console.error("[Logout] Failed to deactivate user tokens:", error);
       throw error;

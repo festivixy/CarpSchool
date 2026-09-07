@@ -1,146 +1,21 @@
 import { Meteor } from "meteor/meteor";
-import { Rides } from "../../api/ride/Rides";
-import { Chats } from "../../api/chat/Chat";
-import { NotificationUtils } from "../../api/notifications/NotificationMethods";
+import {
+  NotificationUtils,
+  sendNotifications,
+  sendToRideParticipants,
+} from "../../api/notifications/NotificationMethods";
 
 /**
- * Integration hooks for existing systems to send notifications
- * This file sets up observers and hooks to automatically send notifications
- * when relevant events occur in the ride and chat systems
+ * Server-originated notification triggers.
+ *
+ * The Rides/Chats collection observers that used to live here are gone: they
+ * kept every ride and every chat's full message array in memory for the life
+ * of the process, called DDP methods with no session (so nothing they sent
+ * ever passed the auth check), and on Meteor 3 `observe()` returns a Promise
+ * so they were never stopped. Ride mutations now notify from the ride methods
+ * themselves and chat messages from chats.sendMessage, both calling the
+ * exported senders directly with a null actor.
  */
-
-if (Meteor.isServer) {
-
-  // Hook into ride collection changes
-  const rideObserver = Rides.find({}).observe({
-    changed: async (newRide, oldRide) => {
-      try {
-        // Rider joined
-        if (oldRide.riders.length < newRide.riders.length) {
-          const newRiders = newRide.riders.filter(rider => !oldRide.riders.includes(rider));
-          for (const riderName of newRiders) { // eslint-disable-line no-restricted-syntax
-            await NotificationUtils.sendRiderJoined(newRide._id, riderName);
-          }
-        }
-
-        // Rider left
-        if (oldRide.riders.length > newRide.riders.length) {
-          const leftRiders = oldRide.riders.filter(rider => !newRide.riders.includes(rider));
-          for (const riderName of leftRiders) { // eslint-disable-line no-restricted-syntax
-            await Meteor.callAsync(
-              "notifications.sendToRideParticipants",
-              newRide._id,
-              "Rider Left",
-              `${riderName} has left the ride`,
-              {
-                type: "rider_left",
-                priority: "normal",
-                action: "view_ride",
-                includeSender: false,
-              },
-            );
-          }
-        }
-
-        // Ride details updated (but not riders)
-        const oldDate = oldRide.date instanceof Date ? oldRide.date : new Date(oldRide.date);
-        const newDate = newRide.date instanceof Date ? newRide.date : new Date(newRide.date);
-
-        if (oldRide.riders.length === newRide.riders.length &&
-            (oldDate.getTime() !== newDate.getTime() ||
-             oldRide.origin !== newRide.origin ||
-             oldRide.destination !== newRide.destination)) {
-
-          await Meteor.callAsync(
-            "notifications.sendToRideParticipants",
-            newRide._id,
-            "Ride Updated",
-            "Your ride details have been updated by the driver",
-            {
-              type: "ride_update",
-              priority: "normal",
-              action: "view_ride",
-              includeSender: false,
-            },
-          );
-        }
-
-      } catch (error) {
-        console.error("[Notifications] Error in ride observer:", error);
-      }
-    },
-
-    removed: async (removedRide) => {
-      try {
-        // Ride cancelled/deleted
-        if (removedRide.riders && removedRide.riders.length > 0) {
-          await NotificationUtils.sendRideCancellation(
-            removedRide._id,
-            "This ride has been cancelled",
-          );
-        }
-      } catch (error) {
-        console.error("[Notifications] Error in ride removal observer:", error);
-      }
-    },
-  });
-
-  // Hook into chat collection changes for new messages
-  const chatObserver = Chats.find({}).observe({
-    changed: async (newChat, oldChat) => {
-      try {
-        // New message added
-        if (newChat.Messages.length > oldChat.Messages.length) {
-          const newMessages = newChat.Messages.slice(oldChat.Messages.length);
-
-          for (const message of newMessages) { // eslint-disable-line no-restricted-syntax
-            // Skip system messages
-            if (message.Sender === "System") continue;
-
-            // Send notification to offline participants
-            await NotificationUtils.sendChatMessage(
-              newChat._id,
-              message.Sender,
-              message.Content,
-              newChat.rideId,
-            );
-          }
-        }
-      } catch (error) {
-        console.error("[Notifications] Error in chat observer:", error);
-      }
-    },
-  });
-
-  // Cleanup observers on server shutdown
-  process.on("SIGTERM", () => {
-    try {
-      if (rideObserver && typeof rideObserver.stop === "function") {
-        rideObserver.stop();
-      }
-      if (chatObserver && typeof chatObserver.stop === "function") {
-        chatObserver.stop();
-      }
-    } catch (error) {
-      console.error("[Notifications] Error stopping observers:", error);
-    }
-  });
-
-  process.on("SIGINT", () => {
-    try {
-      if (rideObserver && typeof rideObserver.stop === "function") {
-        rideObserver.stop();
-      }
-      if (chatObserver && typeof chatObserver.stop === "function") {
-        chatObserver.stop();
-      }
-    } catch (error) {
-      console.error("[Notifications] Error stopping observers:", error);
-    }
-  });
-}
-
-// Utility functions for manual notification triggers
 export const NotificationTriggers = {
   /**
    * Send ride starting notification manually
@@ -157,11 +32,11 @@ export const NotificationTriggers = {
   /**
    * Send ride completed notification
    */
-  async sendRideCompleted(rideId) {
+  async sendRideCompleted(rideOrId) {
     try {
-      await Meteor.callAsync(
-        "notifications.sendToRideParticipants",
-        rideId,
+      await sendToRideParticipants(
+        null,
+        rideOrId,
         "Ride Completed",
         "Your ride has been completed successfully",
         {
@@ -210,8 +85,8 @@ export const NotificationTriggers = {
         return;
       }
 
-      await Meteor.callAsync(
-        "notifications.send",
+      await sendNotifications(
+        null,
         recipients,
         title,
         message,
