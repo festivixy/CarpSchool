@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { stripLeadingH1 } from "../../imports/ui/utils/docContent";
+import { stripLeadingH1 } from "../../ui/utils/docContent";
 
 describe("docContent", function () {
   describe("stripLeadingH1", function () {

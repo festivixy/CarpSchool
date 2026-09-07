@@ -8,7 +8,10 @@
     },
     "requireConfigFile": false,
     "babelOptions": {
-      "presets": ["@babel/preset-env", "@babel/preset-react"]
+      "presets": [
+        "@babel/preset-env",
+        "@babel/preset-react"
+      ]
     }
   },
   "plugins": [
@@ -22,7 +25,9 @@
       "version": "16.14",
       "flowVersion": "0.53"
     },
-    "propWrapperFunctions": [ "forbidExtraProps" ]
+    "propWrapperFunctions": [
+      "forbidExtraProps"
+    ]
   },
   "extends": [
     "airbnb/base",
@@ -30,7 +35,10 @@
     "plugin:react/recommended"
   ],
   "rules": {
-    "quotes": ["error", "double"],
+    "quotes": [
+      "error",
+      "double"
+    ],
     "arrow-parens": "off",
     "camelcase": "off",
     "class-methods-use-this": "off",
@@ -42,10 +50,24 @@
     "import/prefer-default-export": "off",
     "import/no-extraneous-dependencies": "off",
     "linebreak-style": "off",
-    "max-len": ["error", 120],
-    "meteor/eventmap-params": [2, { "eventParamName": "event", "templateInstanceParamName": "instance" } ],
+    "max-len": [
+      "error",
+      120
+    ],
+    "meteor/eventmap-params": [
+      2,
+      {
+        "eventParamName": "event",
+        "templateInstanceParamName": "instance"
+      }
+    ],
     "meteor/template-names": "off",
-    "no-confusing-arrow": ["error", {"allowParens": true}],
+    "no-confusing-arrow": [
+      "error",
+      {
+        "allowParens": true
+      }
+    ],
     "no-plusplus": "off",
     "no-underscore-dangle": "off",
     "object-curly-newline": "off",
@@ -59,10 +81,48 @@
     "prefer-promise-reject-errors": "off",
     "no-await-in-loop": "off",
     "no-undef": "off",
-    "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": true, "argsIgnorePattern": "^_" }],
-    "react/no-unknown-property": ["error", { "ignore": ["jsx"] }]
+    "no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "args": "after-used",
+        "ignoreRestSiblings": true,
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "react/no-unknown-property": [
+      "error",
+      {
+        "ignore": [
+          "jsx"
+        ]
+      }
+    ]
   },
   "globals": {
     "Assets": true
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "imports/tests/**/*.js",
+        "e2e/**/*.js",
+        "playwright.config.js"
+      ],
+      "env": {
+        "mocha": true,
+        "node": true
+      },
+      "rules": {
+        "no-unused-expressions": "off",
+        "no-underscore-dangle": "off",
+        "max-len": [
+          "error",
+          {
+            "code": 140
+          }
+        ]
+      }
+    }
+  ]
 }

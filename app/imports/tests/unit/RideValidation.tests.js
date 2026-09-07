@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { validateUserCanJoinRide } from "../../imports/api/ride/RideValidation";
+import { validateUserCanJoinRide } from "../../api/ride/RideValidation";
 
 describe("RideValidation.validateUserCanJoinRide", function () {
   const futureDate = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now

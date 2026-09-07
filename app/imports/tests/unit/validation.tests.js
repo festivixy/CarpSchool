@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { createCoordinatesSchema } from "../../imports/ui/utils/validation";
+import { createCoordinatesSchema } from "../../ui/utils/validation";
 
 describe("validation", function () {
   describe("createCoordinatesSchema (coordinates validator)", function () {

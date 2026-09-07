@@ -1,6 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { expect } from "chai";
-import { isSystemAdmin, isSchoolAdmin } from "../../imports/api/accounts/RoleUtils";
+import { isSystemAdmin, isSchoolAdmin } from "../../api/accounts/RoleUtils";
 
 if (Meteor.isServer) {
   describe("RoleUtils (server)", function () {

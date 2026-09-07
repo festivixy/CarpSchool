@@ -1,7 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { expect } from "chai";
-import { Schools } from "../../imports/api/schools/Schools";
-import { schoolForEmail } from "../../imports/api/accounts/SchoolDomain";
+import { Schools } from "../../api/schools/Schools";
+import { schoolForEmail } from "../../api/accounts/SchoolDomain";
 
 if (Meteor.isServer) {
   describe("SchoolDomain.schoolForEmail (server)", function () {

@@ -6,7 +6,7 @@ import {
   estimateRouteVia,
   formatDuration,
   formatDistance,
-} from "../../imports/api/ride/routeEstimate";
+} from "../../api/ride/routeEstimate";
 
 describe("routeEstimate", function () {
   describe("parseCoords", function () {

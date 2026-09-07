@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { parsePlaceValue, formatPlaceValue, canEditPlace } from "../../imports/ui/utils/placeCoords";
+import { parsePlaceValue, formatPlaceValue, canEditPlace } from "../../ui/utils/placeCoords";
 
 describe("placeCoords", function () {
   describe("parsePlaceValue", function () {

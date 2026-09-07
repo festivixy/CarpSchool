@@ -2,12 +2,12 @@ import { Meteor } from "meteor/meteor";
 import { DDP } from "meteor/ddp-client";
 import { DDPCommon } from "meteor/ddp-common";
 import { expect } from "chai";
-import { Rides } from "../../imports/api/ride/Rides";
-import { Profiles } from "../../imports/api/profile/Profile";
-import { Places } from "../../imports/api/places/Places";
-import { Schools } from "../../imports/api/schools/Schools";
-import { Chats } from "../../imports/api/chat/Chat";
-import { Notifications } from "../../imports/api/notifications/Notifications";
+import { Rides } from "../../api/ride/Rides";
+import { Profiles } from "../../api/profile/Profile";
+import { Places } from "../../api/places/Places";
+import { Schools } from "../../api/schools/Schools";
+import { Chats } from "../../api/chat/Chat";
+import { Notifications } from "../../api/notifications/Notifications";
 // Side-effect import: registers the "rides.*" Meteor.methods handlers.
 import "../../imports/api/ride/RideMethods";
 

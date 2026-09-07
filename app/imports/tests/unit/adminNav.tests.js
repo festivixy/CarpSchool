@@ -4,7 +4,7 @@ import {
   adminNavFor,
   adminSectionFor,
   adminPathFor,
-} from "../../imports/ui/utils/adminNav";
+} from "../../ui/utils/adminNav";
 
 describe("adminNav", function () {
   describe("adminNavFor", function () {
