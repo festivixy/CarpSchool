@@ -13,3 +13,4 @@ import "./unit/routeEstimate.tests";
 import "./unit/SchoolDomain.tests";
 import "./unit/validation.tests";
 import "./integration/rides.tests";
+import "./integration/roles.tests";

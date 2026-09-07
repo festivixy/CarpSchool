@@ -28,10 +28,11 @@ export const stripLeadingH1 = (markdown) => {
 
   if (!/^#\s+\S/.test(lines[i])) return markdown;
 
-  lines.splice(i, 1);
-  // Drop the blank line that usually follows the heading, so the body does
-  // not start with extra vertical space.
-  if (lines[i] !== undefined && lines[i].trim() === "") lines.splice(i, 1);
+  // Remove the blank lines before the heading, the heading itself, and any
+  // blank lines that follow it, so the body does not start with extra
+  // vertical space.
+  lines.splice(0, i + 1);
+  while (lines.length > 0 && lines[0].trim() === "") lines.shift();
 
   return lines.join("\n");
 };
