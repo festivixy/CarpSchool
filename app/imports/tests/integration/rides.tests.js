@@ -9,7 +9,7 @@ import { Schools } from "../../api/schools/Schools";
 import { Chats } from "../../api/chat/Chat";
 import { Notifications } from "../../api/notifications/Notifications";
 // Side-effect import: registers the "rides.*" Meteor.methods handlers.
-import "../../imports/api/ride/RideMethods";
+import "../../api/ride/RideMethods";
 
 if (Meteor.isServer) {
   /**
