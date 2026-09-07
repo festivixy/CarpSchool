@@ -54,6 +54,12 @@ export const MapCanvas = styled.div`
     height: 100%;
     background: var(--cream-1, #f0ece3);
     font-family: var(--font-ui, inherit);
+    cursor: default;
+  }
+
+  /* Only in add-waypoint mode does clicking the map do anything; the cursor
+   * says so. */
+  &[data-add-mode="true"] .leaflet-container {
     cursor: crosshair;
   }
 
@@ -84,6 +90,24 @@ export const BarHint = styled.span`
 export const Count = styled.strong`
   color: var(--ink-1, #1a1815);
   font-weight: 600;
+`;
+
+export const BarButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--r-pill, 999px);
+  border: 1px solid var(--cream-3, #ddd6c8);
+  background: ${props => (props.$active ? "var(--ink-1, #1a1815)" : "var(--cream-0, #faf7f0)")};
+  color: ${props => (props.$active ? "var(--cream-0, #faf7f0)" : "var(--ink-1, #1a1815)")};
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--ink-3, #8a857c);
+  }
 `;
 
 export const EmptyNote = styled.div`

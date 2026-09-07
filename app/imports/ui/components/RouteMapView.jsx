@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getTileUrlTemplate } from "../utils/mapConfig";
+import { installDefaultIcon, attachTileErrorTracking, TileFailureNotice } from "../utils/leafletIcons";
 import {
   RouteMapContainer,
   RouteMapWrapper,
@@ -10,16 +11,11 @@ import {
   MapViewContainer,
 } from "../mobile/styles/RouteMapView";
 
-// Fix for default markers in Leaflet
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
+installDefaultIcon();
+
+const isValidCoord = (coord) => Boolean(coord) &&
+  Number.isFinite(coord.lat) && Number.isFinite(coord.lng) &&
+  Math.abs(coord.lat) <= 90 && Math.abs(coord.lng) <= 180;
 
 /**
  * Production-ready RouteMapView component for displaying routes between two points
@@ -37,25 +33,30 @@ const RouteMapView = ({
   const endMarkerRef = useRef(null);
   const routeLayerRef = useRef(null);
   const liveMarkersRef = useRef({});
+  const routeGenerationRef = useRef(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [tilesFailed, setTilesFailed] = useState(false);
+
+  const validStart = isValidCoord(startCoord) ? startCoord : null;
+  const validEnd = isValidCoord(endCoord) ? endCoord : null;
 
   // Calculate map center based on start and end coordinates
   const getMapCenter = () => {
-    if (!startCoord || !endCoord) {
+    if (!validStart || !validEnd) {
       return [49.345196, -123.149805]; // Default to Vancouver
     }
-    const centerLat = (startCoord.lat + endCoord.lat) / 2;
-    const centerLng = (startCoord.lng + endCoord.lng) / 2;
+    const centerLat = (validStart.lat + validEnd.lat) / 2;
+    const centerLng = (validStart.lng + validEnd.lng) / 2;
     return [centerLat, centerLng];
   };
 
   // Calculate appropriate zoom level based on coordinate spread
   const getZoomLevel = () => {
-    if (!startCoord || !endCoord) {
+    if (!validStart || !validEnd) {
       return 13;
     }
-    const latSpread = Math.abs(startCoord.lat - endCoord.lat);
-    const lngSpread = Math.abs(startCoord.lng - endCoord.lng);
+    const latSpread = Math.abs(validStart.lat - validEnd.lat);
+    const lngSpread = Math.abs(validStart.lng - validEnd.lng);
     const maxSpread = Math.max(latSpread, lngSpread);
 
     if (maxSpread > 0.2) return 9;
@@ -115,6 +116,7 @@ const RouteMapView = ({
         [end.lng, end.lat],
       ],
     });
+
   // Find route using optimized routing service
   const findRouteOptimized = async (start, end) => {
     try {
@@ -122,17 +124,17 @@ const RouteMapView = ({
       const { getRoute } = await import("../utils/mapServices");
       const routeData = await getRoute(start, end, { service: "driving" });
 
-      return routeData.geometry;
+      return { geometry: routeData.geometry, approximate: false };
     } catch (routingError) {
       console.warn("Optimized routing failed, using straight line:", routingError);
       // Fallback to straight line
-      return createStraightLineGeometry(start, end);
+      return { geometry: createStraightLineGeometry(start, end), approximate: true };
     }
   };
 
   // Find and display route (non-blocking)
   const findAndDisplayRoute = (showRefreshAnimation = false) => {
-    if (!startCoord || !endCoord || !mapInstanceRef.current) {
+    if (!validStart || !validEnd || !mapInstanceRef.current) {
       return;
     }
 
@@ -141,13 +143,16 @@ const RouteMapView = ({
       setIsRefreshing(true);
     }
 
+    const generation = ++routeGenerationRef.current;
+
     // Use setTimeout to ensure UI updates immediately before starting async work
     setTimeout(async () => {
       try {
-        const geometry = await findRouteOptimized(startCoord, endCoord);
+        const { geometry, approximate } = await findRouteOptimized(validStart, validEnd);
 
-        // Only proceed if component is still mounted and coordinates haven't changed
-        if (!mapInstanceRef.current) return;
+        // Ignore stale results: the component may have unmounted, or a newer
+        // route request may already have started (coordinates changed again).
+        if (!mapInstanceRef.current || generation !== routeGenerationRef.current) return;
 
         // Remove existing route
         if (routeLayerRef.current) {
@@ -156,12 +161,13 @@ const RouteMapView = ({
 
         // Add new route to map
         const routeLayer = L.geoJSON(geometry, {
-          style: {
-            color: "#007bff",
-            weight: 4,
-            opacity: 0.8,
-          },
+          style: approximate
+            ? { color: "#ffc107", weight: 4, opacity: 0.8, dashArray: "10, 5" }
+            : { color: "#007bff", weight: 4, opacity: 0.8 },
         }).addTo(mapInstanceRef.current);
+        if (approximate) {
+          routeLayer.bindTooltip("Approximate route", { permanent: false, direction: "top" });
+        }
 
         routeLayerRef.current = routeLayer;
 
@@ -176,7 +182,7 @@ const RouteMapView = ({
         console.error("Route finding error:", error);
         // Route errors are handled gracefully by fallback in mapServices
       } finally {
-        if (showRefreshAnimation) {
+        if (generation === routeGenerationRef.current && showRefreshAnimation) {
           setIsRefreshing(false);
         }
       }
@@ -190,7 +196,7 @@ const RouteMapView = ({
 
   // Initialize map
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    if (!mapRef.current || mapInstanceRef.current) return undefined;
 
     // Initialize the map
     const map = L.map(mapRef.current, {
@@ -206,11 +212,13 @@ const RouteMapView = ({
       tileSize: 256,
     });
     tileLayer.addTo(map);
+    const detachTileTracking = attachTileErrorTracking(tileLayer, () => setTilesFailed(true));
 
     mapInstanceRef.current = map;
 
     // Cleanup function
     return () => {
+      detachTileTracking();
       if (mapInstanceRef.current) {
         try {
           mapInstanceRef.current.remove();
@@ -233,26 +241,30 @@ const RouteMapView = ({
     // Remove existing markers and route
     if (startMarkerRef.current) {
       mapInstanceRef.current.removeLayer(startMarkerRef.current);
+      startMarkerRef.current = null;
     }
     if (endMarkerRef.current) {
       mapInstanceRef.current.removeLayer(endMarkerRef.current);
+      endMarkerRef.current = null;
     }
     if (routeLayerRef.current) {
       mapInstanceRef.current.removeLayer(routeLayerRef.current);
       routeLayerRef.current = null;
     }
+    // Any in-flight route lookup for the old coordinates is now stale.
+    routeGenerationRef.current += 1;
 
     // Add new markers if coordinates are provided
-    if (startCoord) {
-      const startMarker = L.marker([startCoord.lat, startCoord.lng], {
+    if (validStart) {
+      const startMarker = L.marker([validStart.lat, validStart.lng], {
         icon: createStartIcon(),
       }).addTo(mapInstanceRef.current);
       startMarker.bindPopup("Start Location");
       startMarkerRef.current = startMarker;
     }
 
-    if (endCoord) {
-      const endMarker = L.marker([endCoord.lat, endCoord.lng], {
+    if (validEnd) {
+      const endMarker = L.marker([validEnd.lat, validEnd.lng], {
         icon: createEndIcon(),
       }).addTo(mapInstanceRef.current);
       endMarker.bindPopup("End Location");
@@ -260,7 +272,7 @@ const RouteMapView = ({
     }
 
     // Update map center and zoom
-    if (startCoord && endCoord) {
+    if (validStart && validEnd) {
       const center = getMapCenter();
       const zoom = getZoomLevel();
       mapInstanceRef.current.setView(center, zoom);
@@ -268,7 +280,8 @@ const RouteMapView = ({
       // Automatically find and display route
       findAndDisplayRoute();
     }
-  }, [startCoord, endCoord]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startCoord?.lat, startCoord?.lng, endCoord?.lat, endCoord?.lng]);
 
   // Update live location markers
   useEffect(() => {
@@ -279,6 +292,10 @@ const RouteMapView = ({
 
     liveLocations.forEach((location) => {
       const { userId, lat, lng, role } = location;
+      if (!userId || !Number.isFinite(lat) || !Number.isFinite(lng) ||
+          Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+        return;
+      }
       newMarkerIds.add(userId);
 
       if (currentMarkers[userId]) {
@@ -290,7 +307,7 @@ const RouteMapView = ({
         const marker = L.marker([lat, lng], { icon })
           .addTo(mapInstanceRef.current)
           .bindPopup(role === "driver" ? "Driver" : "Rider");
-        
+
         currentMarkers[userId] = marker;
       }
     });
@@ -308,10 +325,11 @@ const RouteMapView = ({
     <RouteMapContainer>
       <RouteMapWrapper style={{ height }}>
         <MapViewContainer ref={mapRef} />
+        {tilesFailed && <TileFailureNotice />}
 
         <RefreshButton
           onClick={handleRefresh}
-          disabled={!startCoord || !endCoord || isRefreshing}
+          disabled={!validStart || !validEnd || isRefreshing}
           title="Refresh route"
         >
           <img src="/svg/refresh.svg" alt="Refresh" width="16" height="16" />

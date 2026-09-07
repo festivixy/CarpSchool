@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getTileUrlTemplate } from "../utils/mapConfig";
+import { installDefaultIcon, attachTileErrorTracking, TileFailureNotice } from "../utils/leafletIcons";
 import {
   MapContainer,
   MapWrapper,
@@ -16,16 +17,11 @@ import {
   MapViewContainer,
 } from "../mobile/styles/PathMapView";
 
-// Fix for default markers in Leaflet
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
+installDefaultIcon();
+
+const isValidCoord = (coord) => Boolean(coord) &&
+  Number.isFinite(coord.lat) && Number.isFinite(coord.lng) &&
+  Math.abs(coord.lat) <= 90 && Math.abs(coord.lng) <= 180;
 
 /**
  * PathMapView component that displays a route between two coordinate points
@@ -44,29 +40,34 @@ const PathMapView = ({
   const startMarkerRef = useRef(null);
   const endMarkerRef = useRef(null);
   const routeLayerRef = useRef(null);
+  const routeGenerationRef = useRef(0);
   const [routeData, setRouteData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [tilesFailed, setTilesFailed] = useState(false);
+
+  const validStart = isValidCoord(startCoord) ? startCoord : null;
+  const validEnd = isValidCoord(endCoord) ? endCoord : null;
 
   // Calculate map center based on start and end coordinates
   const getMapCenter = () => {
-    if (!startCoord || !endCoord) {
+    if (!validStart || !validEnd) {
       return [49.345196, -123.149805]; // Default to Vancouver
     }
 
-    const centerLat = (startCoord.lat + endCoord.lat) / 2;
-    const centerLng = (startCoord.lng + endCoord.lng) / 2;
+    const centerLat = (validStart.lat + validEnd.lat) / 2;
+    const centerLng = (validStart.lng + validEnd.lng) / 2;
     return [centerLat, centerLng];
   };
 
   // Calculate appropriate zoom level based on coordinate spread
   const getZoomLevel = () => {
-    if (!startCoord || !endCoord) {
+    if (!validStart || !validEnd) {
       return 13;
     }
 
-    const latSpread = Math.abs(startCoord.lat - endCoord.lat);
-    const lngSpread = Math.abs(startCoord.lng - endCoord.lng);
+    const latSpread = Math.abs(validStart.lat - validEnd.lat);
+    const lngSpread = Math.abs(validStart.lng - validEnd.lng);
     const maxSpread = Math.max(latSpread, lngSpread);
 
     if (maxSpread > 0.2) return 9;
@@ -105,13 +106,13 @@ const PathMapView = ({
     try {
       // Use optimized routing service with caching
       const { getRoute } = await import("../utils/mapServices");
-      const routeDataRespone = await getRoute(start, end, { service: "driving" });
+      const routeDataResponse = await getRoute(start, end, { service: "driving" });
 
       return {
-        geometry: routeDataRespone.geometry,
-        distance: routeDataRespone.distance,
-        duration: routerouteDataResponeData.duration,
-        service: routeDataRespone.service,
+        geometry: routeDataResponse.geometry,
+        distance: routeDataResponse.distance,
+        duration: routeDataResponse.duration,
+        service: routeDataResponse.service,
       };
     } catch (routingError) {
       console.error("Optimized routing error:", routingError);
@@ -172,7 +173,7 @@ const PathMapView = ({
 
   // Find and display route (non-blocking)
   const findRoute = () => {
-    if (!startCoord || !endCoord) {
+    if (!validStart || !validEnd) {
       setError("Both start and end coordinates are required");
       return;
     }
@@ -181,6 +182,8 @@ const PathMapView = ({
     setIsLoading(true);
     setError(null);
 
+    const generation = ++routeGenerationRef.current;
+
     // Use setTimeout to ensure UI updates immediately before starting async work
     setTimeout(async () => {
       try {
@@ -188,18 +191,21 @@ const PathMapView = ({
 
         if (routingService === "osrm") {
           try {
-            route = await findRouteOptimized(startCoord, endCoord);
+            route = await findRouteOptimized(validStart, validEnd);
           } catch (routingError) {
             console.warn("Optimized routing failed, using fallback:", routingError);
             if (routingError.message.includes("timeout")) {
               setError("Route calculation timed out, showing direct path");
             }
-            route = createStraightLineRoute(startCoord, endCoord);
+            route = createStraightLineRoute(validStart, validEnd);
           }
         } else {
           // Default to straight line
-          route = createStraightLineRoute(startCoord, endCoord);
+          route = createStraightLineRoute(validStart, validEnd);
         }
+
+        // Ignore stale results from a superseded request.
+        if (generation !== routeGenerationRef.current) return;
 
         setRouteData(route);
 
@@ -217,6 +223,9 @@ const PathMapView = ({
               dashArray: route.service === "Straight Line" ? "10, 5" : null,
             },
           }).addTo(mapInstanceRef.current);
+          if (route.service === "Straight Line") {
+            routeLayer.bindTooltip("Approximate route", { permanent: false, direction: "top" });
+          }
 
           routeLayerRef.current = routeLayer;
 
@@ -229,6 +238,7 @@ const PathMapView = ({
           mapInstanceRef.current.fitBounds(group.getBounds(), { padding: [20, 20] });
         }
       } catch (routeError) {
+        if (generation !== routeGenerationRef.current) return;
         console.error("Route finding error:", routeError);
         if (routeError.message.includes("timeout")) {
           setError("Route calculation timed out. Please try again.");
@@ -236,14 +246,16 @@ const PathMapView = ({
           setError(`Route finding failed: ${routeError.message}`);
         }
       } finally {
-        setIsLoading(false);
+        if (generation === routeGenerationRef.current) {
+          setIsLoading(false);
+        }
       }
     }, 0); // Immediate execution but non-blocking
   };
 
   // Initialize map
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    if (!mapRef.current || mapInstanceRef.current) return undefined;
 
     // Initialize the map
     const map = L.map(mapRef.current, {
@@ -259,11 +271,13 @@ const PathMapView = ({
       tileSize: 256,
     });
     tileLayer.addTo(map);
+    const detachTileTracking = attachTileErrorTracking(tileLayer, () => setTilesFailed(true));
 
     mapInstanceRef.current = map;
 
     // Cleanup function
     return () => {
+      detachTileTracking();
       if (mapInstanceRef.current) {
         try {
           mapInstanceRef.current.remove();
@@ -286,29 +300,33 @@ const PathMapView = ({
     // Remove existing markers
     if (startMarkerRef.current) {
       mapInstanceRef.current.removeLayer(startMarkerRef.current);
+      startMarkerRef.current = null;
     }
     if (endMarkerRef.current) {
       mapInstanceRef.current.removeLayer(endMarkerRef.current);
+      endMarkerRef.current = null;
     }
     if (routeLayerRef.current) {
       mapInstanceRef.current.removeLayer(routeLayerRef.current);
       routeLayerRef.current = null;
     }
+    // Any in-flight route lookup for the old coordinates is now stale.
+    routeGenerationRef.current += 1;
 
     // Add new markers if coordinates are provided
-    if (startCoord) {
-      const startMarker = L.marker([startCoord.lat, startCoord.lng], {
+    if (validStart) {
+      const startMarker = L.marker([validStart.lat, validStart.lng], {
         icon: createStartIcon(),
       }).addTo(mapInstanceRef.current);
-      startMarker.bindPopup(`Start: ${startCoord.lat.toFixed(6)}, ${startCoord.lng.toFixed(6)}`);
+      startMarker.bindPopup(`Start: ${validStart.lat.toFixed(6)}, ${validStart.lng.toFixed(6)}`);
       startMarkerRef.current = startMarker;
     }
 
-    if (endCoord) {
-      const endMarker = L.marker([endCoord.lat, endCoord.lng], {
+    if (validEnd) {
+      const endMarker = L.marker([validEnd.lat, validEnd.lng], {
         icon: createEndIcon(),
       }).addTo(mapInstanceRef.current);
-      endMarker.bindPopup(`End: ${endCoord.lat.toFixed(6)}, ${endCoord.lng.toFixed(6)}`);
+      endMarker.bindPopup(`End: ${validEnd.lat.toFixed(6)}, ${validEnd.lng.toFixed(6)}`);
       endMarkerRef.current = endMarker;
     }
 
@@ -317,15 +335,17 @@ const PathMapView = ({
     setError(null);
 
     // Update map center and zoom
-    if (startCoord && endCoord) {
+    if (validStart && validEnd) {
       const center = getMapCenter();
       const zoom = getZoomLevel();
       mapInstanceRef.current.setView(center, zoom);
     }
-  }, [startCoord, endCoord, tileServerUrl]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startCoord?.lat, startCoord?.lng, endCoord?.lat, endCoord?.lng, tileServerUrl]);
 
   // Clear route
   const clearRoute = () => {
+    routeGenerationRef.current += 1;
     if (routeLayerRef.current && mapInstanceRef.current) {
       mapInstanceRef.current.removeLayer(routeLayerRef.current);
       routeLayerRef.current = null;
@@ -338,11 +358,12 @@ const PathMapView = ({
     <MapContainer>
       <MapWrapper style={{ height }}>
         <MapViewContainer ref={mapRef} />
+        {tilesFailed && <TileFailureNotice />}
 
         <ControlsContainer>
           <ControlButton
             onClick={findRoute}
-            disabled={!startCoord || !endCoord || isLoading}
+            disabled={!validStart || !validEnd || isLoading}
             title="Find route between points"
           >
             {isLoading ? "🔄" : "🗺️"}
@@ -384,12 +405,12 @@ const PathMapView = ({
         </RouteInfo>
       )}
 
-      {startCoord && endCoord && !routeData && !isLoading && !error && (
+      {validStart && validEnd && !routeData && !isLoading && !error && (
         <RouteInfo>
           <RouteLabel>Ready to find route</RouteLabel>
           <RouteValue>
-            From: {startCoord.lat.toFixed(6)}, {startCoord.lng.toFixed(6)}<br/>
-            To: {endCoord.lat.toFixed(6)}, {endCoord.lng.toFixed(6)}
+            From: {validStart.lat.toFixed(6)}, {validStart.lng.toFixed(6)}<br/>
+            To: {validEnd.lat.toFixed(6)}, {validEnd.lng.toFixed(6)}
           </RouteValue>
         </RouteInfo>
       )}

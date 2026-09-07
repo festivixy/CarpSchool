@@ -5,6 +5,13 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapContainer } from "../styles/MapView";
 import { getTileUrlTemplate } from "../utils/mapConfig";
+import { installDefaultIcon, attachTileErrorTracking, TileFailureNotice } from "../utils/leafletIcons";
+
+installDefaultIcon();
+
+const isValidCoord = (coord) => Boolean(coord) &&
+  Number.isFinite(coord.lat) && Number.isFinite(coord.lng) &&
+  Math.abs(coord.lat) <= 90 && Math.abs(coord.lng) <= 180;
 
 /**
  * MapView component that displays an interactive Leaflet map with coordinate points
@@ -13,131 +20,98 @@ import { getTileUrlTemplate } from "../utils/mapConfig";
  */
 export default function MapView({ coordinates, tileServerUrl }) {
   const mapRef = useRef(null);
+  const tileLayerRef = useRef(null);
+  const didFitRef = useRef(false);
+  const [tilesFailed, setTilesFailed] = React.useState(false);
+
+  const validCoords = (coordinates || []).filter(isValidCoord);
 
   // Calculate map center based on coordinates
   const getMapCenter = () => {
-    if (!coordinates || coordinates.length === 0) {
+    if (validCoords.length === 0) {
       return [49.345196, -123.149805]; // Default to Vancouver
     }
 
-    try {
-      // Filter out invalid coordinates
-      const validCoords = coordinates.filter(coord => coord && !Number.isNaN(coord.lat) && !Number.isNaN(coord.lng) &&
-        coord.lat >= -90 && coord.lat <= 90 &&
-        coord.lng >= -180 && coord.lng <= 180);
-
-      if (validCoords.length === 0) {
-        return [49.345196, -123.149805]; // Default to Vancouver
-      }
-
-      if (validCoords.length === 1) {
-        return [validCoords[0].lat, validCoords[0].lng];
-      }
-
-      // Calculate center of all valid coordinates
-      const latSum = validCoords.reduce((sum, coord) => sum + coord.lat, 0);
-      const lngSum = validCoords.reduce((sum, coord) => sum + coord.lng, 0);
-      const centerLat = latSum / validCoords.length;
-      const centerLng = lngSum / validCoords.length;
-
-      if (Number.isNaN(centerLat) || Number.isNaN(centerLng)) {
-        return [49.345196, -123.149805]; // Default to Vancouver
-      }
-
-      return [centerLat, centerLng];
-    } catch (error) {
-      console.warn("Error calculating map center:", error);
-      return [49.345196, -123.149805]; // Default to Vancouver
+    if (validCoords.length === 1) {
+      return [validCoords[0].lat, validCoords[0].lng];
     }
+
+    const latSum = validCoords.reduce((sum, coord) => sum + coord.lat, 0);
+    const lngSum = validCoords.reduce((sum, coord) => sum + coord.lng, 0);
+    return [latSum / validCoords.length, lngSum / validCoords.length];
   };
 
   // Calculate appropriate zoom level based on coordinate spread
   const getZoomLevel = () => {
-    if (!coordinates || coordinates.length <= 1) {
+    if (validCoords.length <= 1) {
       return 13;
     }
 
-    try {
-      const lats = coordinates.map((coord) => coord.lat).filter(lat => !Number.isNaN(lat));
-      const lngs = coordinates.map((coord) => coord.lng).filter(lng => !Number.isNaN(lng));
+    const lats = validCoords.map((coord) => coord.lat);
+    const lngs = validCoords.map((coord) => coord.lng);
+    const latSpread = Math.max(...lats) - Math.min(...lats);
+    const lngSpread = Math.max(...lngs) - Math.min(...lngs);
+    const maxSpread = Math.max(latSpread, lngSpread);
 
-      if (lats.length === 0 || lngs.length === 0) {
-        return 13;
-      }
-
-      const latSpread = Math.max(...lats) - Math.min(...lats);
-      const lngSpread = Math.max(...lngs) - Math.min(...lngs);
-      const maxSpread = Math.max(latSpread, lngSpread);
-
-      if (Number.isNaN(maxSpread)) return 13;
-      if (maxSpread > 0.1) return 10;
-      if (maxSpread > 0.05) return 11;
-      if (maxSpread > 0.01) return 12;
-      return 13;
-    } catch (error) {
-      console.warn("Error calculating zoom level:", error);
-      return 13;
-    }
+    if (maxSpread > 0.1) return 10;
+    if (maxSpread > 0.05) return 11;
+    if (maxSpread > 0.01) return 12;
+    return 13;
   };
 
   // Get tile server URL (settings-overridable; see utils/mapConfig)
   const getTileUrl = () => getTileUrlTemplate(tileServerUrl);
 
-  // Add async tile layer to map and fit bounds
+  // Create the tile layer once. Recreating it on every coordinate change was
+  // pointless churn -- the URL only ever changes with tileServerUrl.
   useEffect(() => {
-    if (mapRef.current) {
+    const map = mapRef.current?.leafletElement;
+    if (!map) return undefined;
+
+    const tileLayer = L.tileLayer(getTileUrl(), {
+      attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
+      maxZoom: 18,
+      tileSize: 256,
+    });
+    tileLayer.addTo(map);
+    tileLayerRef.current = tileLayer;
+    const detachTileTracking = attachTileErrorTracking(tileLayer, () => setTilesFailed(true));
+
+    return () => {
+      detachTileTracking();
       try {
-        const map = mapRef.current.leafletElement;
-
-        // Create and add async tile layer
-        const tileLayer = L.tileLayer(getTileUrl(), {
-          attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
-          maxZoom: 18,
-          tileSize: 256,
-        });
-
-        tileLayer.addTo(map);
-
-        // Fit bounds to show all coordinates
-        if (coordinates && coordinates.length > 1) {
-          // Filter out invalid coordinates
-          const validCoords = coordinates.filter((coord) => {
-            const hasValidCoord = coord && !Number.isNaN(coord.lat) && !Number.isNaN(coord.lng);
-            const withinLatBounds = coord.lat >= -90 && coord.lat <= 90;
-            const withinLngBounds = coord.lng >= -180 && coord.lng <= 180;
-            return hasValidCoord && withinLatBounds && withinLngBounds;
-          });
-
-          if (validCoords.length > 1) {
-            const bounds = validCoords.map((coord) => [coord.lat, coord.lng]);
-            try {
-              map.fitBounds(bounds, { padding: [20, 20] });
-            } catch (boundsError) {
-              console.warn("Error fitting bounds:", boundsError);
-            }
-          }
+        if (map && map.hasLayer && map.hasLayer(tileLayer)) {
+          map.removeLayer(tileLayer);
         }
-
-        // Cleanup on unmount
-        return () => {
-          try {
-            if (map && map.hasLayer && map.hasLayer(tileLayer)) {
-              map.removeLayer(tileLayer);
-            }
-          } catch (cleanupError) {
-            console.warn("Error during map cleanup:", cleanupError);
-          }
-        };
-      } catch (error) {
-        console.warn("Error in map useEffect:", error);
-        // Return empty cleanup function even if there was an error
-        return () => {};
+      } catch (cleanupError) {
+        console.warn("Error during map cleanup:", cleanupError);
       }
-    }
+      tileLayerRef.current = null;
+    };
+  }, [tileServerUrl]);
 
-    // Return empty cleanup function if mapRef.current is null
-    return () => {};
-  }, [coordinates, tileServerUrl]);
+  // Fit bounds once there is something to show. Keyed on a serialised
+  // coordinate string (not the array reference) so this does not refit on
+  // every render, and refits only the first time a set of points appears --
+  // matching WaypointMap's fit-once behaviour so the view does not jump
+  // around under a viewer who has since panned or zoomed.
+  const coordKey = validCoords.map((c) => `${c.lat.toFixed(6)},${c.lng.toFixed(6)}`).join("|");
+  useEffect(() => {
+    const map = mapRef.current?.leafletElement;
+    if (!map || didFitRef.current || validCoords.length === 0) return;
+
+    didFitRef.current = true;
+    try {
+      if (validCoords.length === 1) {
+        map.setView([validCoords[0].lat, validCoords[0].lng], getZoomLevel());
+      } else {
+        const bounds = validCoords.map((coord) => [coord.lat, coord.lng]);
+        map.fitBounds(bounds, { padding: [20, 20] });
+      }
+    } catch (boundsError) {
+      console.warn("Error fitting bounds:", boundsError);
+    }
+  }, [coordKey]);
 
   return (
     <MapContainer>
@@ -151,13 +125,13 @@ export default function MapView({ coordinates, tileServerUrl }) {
       >
         {/* Tile layer is added programmatically in useEffect */}
 
-        {coordinates &&
-          coordinates.map((coord, index) => (
-            <Marker key={index} position={[coord.lat, coord.lng]}>
-              {coord.label && <Popup>{coord.label}</Popup>}
-            </Marker>
-          ))}
+        {validCoords.map((coord, index) => (
+          <Marker key={index} position={[coord.lat, coord.lng]}>
+            {coord.label && <Popup>{coord.label}</Popup>}
+          </Marker>
+        ))}
       </Map>
+      {tilesFailed && <TileFailureNotice />}
     </MapContainer>
   );
 }
