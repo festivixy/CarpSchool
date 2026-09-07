@@ -63,7 +63,11 @@
 
 ---
 
-# 🎓 **School Registration Simplification Plan**
+# 🎓 **School Registration Simplification Plan** — ⚠️ OBSOLETE
+
+> **Status: OBSOLETE (September 2026).** The `StudentRegistration` page this
+> plan targets is being removed, and this plan was never implemented against
+> it. Kept below for historical context only; do not pick this up.
 
 ## **Current Problems:**
 - **Complex onboarding** with 4 steps + image uploads + captcha per image

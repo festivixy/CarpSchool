@@ -2,9 +2,9 @@
 
 ## 📊 **Security Fix Progress Summary**
 
-**Last Updated**: January 2026 | **Status**: ✅ All Vulnerabilities Resolved
+**Last Updated**: September 2026 | **Status**: ✅ All Vulnerabilities Resolved or Removed
 
-### ✅ **RESOLVED VULNERABILITIES** (17 Fixed)
+### ✅ **RESOLVED VULNERABILITIES** (18 Fixed/Removed)
 
 - **V001**: Missing Server-Side Validation in User Updates (HIGH → RESOLVED)
 - **V002**: Race Condition in Share Code Generation (MEDIUM → REMOVED)
@@ -17,22 +17,19 @@
 - **V012**: Unsafe JSON Processing in Web Worker (LOW → RESOLVED)
 - **V013**: Missing File Type Validation in Image Upload (HIGH → RESOLVED)
 - **V014**: Direct Image Data Exposure via Server Routes (HIGH → RESOLVED)
-- **V015**: Captcha Brute Force Vulnerability (MEDIUM → RESOLVED)
+- **V015**: Captcha Brute Force Vulnerability (MEDIUM → RESOLVED, re-verified)
+- **V016**: Server-Side Request Forgery in Proxy Endpoints (HIGH → REMOVED)
 - **V017**: Weak CAPTCHA Session Management (MEDIUM → RESOLVED)
 - **V018**: Missing Input Sanitization in Chat Messages (MEDIUM → RESOLVED)
 - **V020**: Email-Based User Discovery in Chat Publications (MEDIUM → RESOLVED)
 - **V021**: Performance Issues in Places Publications (MEDIUM → RESOLVED)
 - **V022**: Direct Database Operations in Client Code (HIGH → RESOLVED)
 
-### ⚠️ **ACCEPTED RISKS** (1 Intentional)
-
-- **V016**: Server-Side Request Forgery in Proxy Endpoints (HIGH → ACCEPTED - Intentional proxy functionality)
-
 ### 📈 **Security Progress**
 
-- **Total Vulnerabilities**: 17 identified
-- **Fixed**: 17 vulnerabilities (100%)
-- **Accepted Risk**: 1 vulnerability (intentional design)
+- **Total Vulnerabilities**: 18 identified
+- **Fixed**: 17 vulnerabilities (94%)
+- **Removed**: 1 vulnerability (proxy endpoints deleted outright)
 - **Remaining**: 0 vulnerabilities
 - **Overall Risk Level**: LOW ✅
 
@@ -523,62 +520,58 @@ Meteor.call("profile.updateBasicInfo", basicInfo, (error) => {
 
 ---
 
-### <a name="v015"></a>✅ ~~**V015: Captcha Brute Force Vulnerability**~~ (FIXED)
+### <a name="v015"></a>✅ ~~**V015: Captcha Brute Force Vulnerability**~~ (FIXED, re-verified)
 
-**File**: `imports/api/captcha/CaptchaMethods.js:31-54`
+**File**: `imports/api/captcha/CaptchaMethods.js`, `imports/api/captcha/Captcha.js`
 **Severity**: ~~MEDIUM~~ **RESOLVED**
 **Type**: Rate Limiting & Brute Force
 **Fixed in**: `506515e` - Security: Prevent CAPTCHA brute force attacks (V015)
+**Re-verified**: September 2026 — confirmed the `used` flag still gates re-attempts
 
 ```javascript
-// FIXED: Implemented comprehensive rate limiting and brute force protection
+// FIXED: A CAPTCHA session is single-use. On a correct answer it is marked
+// solved; on an incorrect answer it is marked used so it cannot be retried
+// (Captcha.js exposes the session lookup and treats a missing/used session
+// as invalid by default — "isUsed = true" unless proven otherwise).
 async "captcha.verify"(sessionId, userInput) {
-  // Added rate limiting per session and IP
-  // Implemented exponential backoff for failed attempts
-  // Added proper session management to prevent brute force
-  const isValid = session.text === userInput.trim();
+  const isValid = session.text.toLowerCase() === userInput.trim().toLowerCase();
+  if (isValid) {
+    await Captcha.updateAsync({ _id: sessionId }, { $set: { solved: true } });
+  } else {
+    // Marking the session used on a wrong answer prevents brute force
+    // guessing against the same CAPTCHA session.
+    await Captcha.updateAsync({ _id: sessionId }, { $set: { used: true } });
+  }
   return isValid;
 }
 ```
 
 **Issues Fixed**:
 
-- ✅ Added comprehensive rate limiting on verification attempts
-- ✅ Implemented session-based attempt limiting
-- ✅ Added IP-based throttling and exponential backoff
-- ✅ Enhanced session cleanup to prevent brute force attacks
+- ✅ A session is invalidated (`used: true`) after a failed attempt
+- ✅ Expired sessions (10 minutes) are rejected and cleaned up
+- ✅ Session-based single-use design prevents repeated brute force guesses per session
 
 **Impact**: ~~CAPTCHA bypass through brute force attacks~~ **RESOLVED**
 
 ---
 
-### <a name="v016"></a>⚠️ **V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints** (INTENTIONAL)
+### <a name="v016"></a>✅ ~~**V016: Server-Side Request Forgery (SSRF) in Proxy Endpoints**~~ (REMOVED)
 
-**File**: `imports/startup/server/ServerRoutes.js:70-180`
-**Severity**: ~~HIGH~~ **ACCEPTED**
+**File**: `imports/startup/server/ServerRoutes.js` (previously lines ~70-180; removed)
+**Severity**: ~~HIGH~~ **REMOVED**
 **Type**: Server-Side Request Forgery
-**Marked Intentional in**: `a91000b` - Security: Mark V016 SSRF in proxy endpoints as intentional
+**Previously**: `a91000b` - Security: Mark V016 SSRF in proxy endpoints as intentional
+**Removed in**: this infra pass (September 2026) - the app-level proxy endpoints
+(`tileserver-gl`/`nominatim`/`osrm` request forwarding) and the standalone
+`tools/command_proxy.py` were deleted outright. `ServerRoutes.js` no longer
+contains a proxy handler at all, so there is no SSRF surface left to accept.
+Nginx now proxies these services directly (see `nginx-proxy.conf`), and the
+app talks to them over the internal `carpool_network` Docker network instead
+of via an app-level HTTP proxy.
 
-```javascript
-// INTENTIONAL: Hardcoded internal hostnames for legitimate proxy functionality
-const options = {
-  hostname: "tileserver-gl", // Internal hostname - intentional for microservice architecture
-  hostname: "nominatim", // Internal hostname - intentional for geocoding service
-  hostname: "osrm", // Internal hostname - intentional for routing service
-  port: 8082,
-  path: targetPath, // User-controlled path - validated for legitimate service requests
-};
-```
-
-**Security Assessment**:
-
-- ✅ Internal service hostnames are intentionally exposed for proxy functionality
-- ✅ Path forwarding is controlled and validated for legitimate service requests
-- ✅ Network topology exposure is minimal and within acceptable security boundaries
-- ✅ Request validation ensures only legitimate service paths are accessed
-
-**Impact**: ~~Internal network reconnaissance, potential access to internal services~~ **ACCEPTED RISK**
-**Status**: **INTENTIONAL BEHAVIOR** - This is designed proxy functionality for microservices
+**Impact**: ~~Internal network reconnaissance, potential access to internal services~~ **RESOLVED (surface removed)**
+**Status**: **REMOVED** - the proxy functionality this risk depended on no longer exists
 
 ---
 
@@ -930,12 +923,49 @@ Meteor.publish("places.mine", async function publishMyPlaces() {
 | [~~V012: Web Worker JSON Processing~~ (FIXED)](#v012)           | ~~LOW~~ **RESOLVED**      | ~~Low~~    | ~~Low~~    | RESOLVED     | Previous     |
 | [~~V013: Missing File Type Validation~~ (FIXED)](#v013)         | ~~HIGH~~ **RESOLVED**     | ~~High~~   | ~~High~~   | RESOLVED     | `a1fb7d8`    |
 | [~~V014: Direct Image Data Exposure~~ (FIXED)](#v014)           | ~~HIGH~~ **RESOLVED**     | ~~Medium~~ | ~~Medium~~ | RESOLVED     | Jan 2026     |
-| [~~V015: Captcha Brute Force~~ (FIXED)](#v015)                  | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     | `506515e`    |
-| [~~V016: SSRF in Proxy Endpoints~~ (INTENTIONAL)](#v016)        | ~~HIGH~~ **ACCEPTED**     | ~~Low~~    | ~~High~~   | ACCEPTED     | `a91000b`    |
+| [~~V015: Captcha Brute Force~~ (FIXED, re-verified)](#v015)      | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     | `506515e`    |
+| [~~V016: SSRF in Proxy Endpoints~~ (REMOVED)](#v016)             | ~~HIGH~~ **REMOVED**      | ~~Low~~    | ~~High~~   | REMOVED      | Sep 2026     |
 | [~~V017: Weak CAPTCHA Session Management~~ (FIXED)](#v017)      | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     | Previous     |
 | [~~V018: Missing Chat Input Sanitization~~ (FIXED)](#v018)      | ~~MEDIUM~~ **RESOLVED**   | ~~High~~   | ~~Medium~~ | RESOLVED     | `ada6171`    |
 | [~~V020: Email-Based User Discovery~~ (FIXED)](#v020)           | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Low~~    | RESOLVED     | `d07d944`    |
 | [~~V021: Performance Issues in Publications~~ (FIXED)](#v021)   | ~~MEDIUM~~ **RESOLVED**   | ~~Medium~~ | ~~Medium~~ | RESOLVED     | `cca6a8b`    |
 | [~~V022: Direct Database Operations~~ (FIXED)](#v022)           | ~~HIGH~~ **RESOLVED**     | ~~High~~   | ~~High~~   | RESOLVED     | Jan 2026     |
 
-**Overall Risk Level**: **LOW** ✅ - All 17 identified vulnerabilities have been resolved. V016 (SSRF in proxy endpoints) is marked as accepted risk as it is intentional proxy functionality for the microservices architecture. The application now has comprehensive security coverage including rate limiting, input validation, authentication, authorization, and atomic database operations.
+**Overall Risk Level**: **LOW** ✅ - All 18 identified vulnerabilities have been resolved: 17 fixed in application code, and V016 (SSRF in proxy endpoints) resolved by removing the proxy functionality entirely. The application now has comprehensive security coverage including rate limiting, input validation, authentication, authorization, and atomic database operations.
+
+---
+
+## 🧰 **Infrastructure/Build/Deploy Security Pass (September 2026)**
+
+The following items were found and fixed outside the MongoDB/app-code audit
+above, while reviewing the build, deploy, and infra tooling:
+
+- **Role self-grant** — closed a path that let a client-supplied field grant
+  a user the admin role on their own account.
+- **Client-side `createUser`** — removed/locked down a client-callable path
+  that could create accounts with elevated privileges.
+- **REST backdoor** — removed an undocumented REST endpoint that bypassed
+  normal method-level authorization checks.
+- **SMTP credential leak** — removed the personal SMTP username/password
+  (including a real personal email address) that had been committed to
+  `.env.example`.
+- **Persona webhook signature** — the Persona identity-verification webhook
+  now verifies its signature using `PERSONA_WEBHOOK_SECRET` instead of
+  trusting the payload.
+- **Settings export in CI** — CI no longer prints the contents of
+  `config/settings.json`.
+- **CI secret print** — removed logging that could leak secrets to CI job
+  output.
+- **Command proxy** — deleted `tools/command_proxy.py` and the matching
+  app-level SSRF-prone proxy endpoints in `ServerRoutes.js` (see V016 above).
+- **CodePush admin exposure** — CodePush admin credentials are now read from
+  `CODEPUSH_ADMIN_USER`/`CODEPUSH_ADMIN_PASSWORD` environment variables
+  instead of being hardcoded or printed by `tools/codepush-utils.sh`.
+
+Also hardened as part of this pass (build/infra, not app code):
+`devActionsServer` now verifies GitHub webhook signatures
+(`GITHUB_WEBHOOK_SECRET`) before acting on a delivery; Mongo now runs with
+required root credentials instead of no auth; `mongo-express` no longer ships
+default credentials and is bound to `127.0.0.1` only; and the nginx front
+door now terminates TLS with HSTS and per-block security headers for the app
+domain.

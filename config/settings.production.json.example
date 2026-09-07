@@ -1,0 +1,32 @@
+{
+  "public": {
+    "enableDebugMode": false,
+    "oneSignal": {
+      "appId": "your-app-id-here",
+      "safariWebId": "web.onesignal.auto.313afc18-65a3-4cb5-bd8a-eabd69c6e4d8"
+    },
+    "notifications": {
+      "backend": "onesignal"
+    },
+    "vapid": {
+      "publicKey": "BEl62iUYgUivxIkv69yViEuiBIa40HI0DLLuxazjBF..."
+    },
+    "clerk": {
+      "publishableKey": "pk_live_your_publishable_key_here",
+      "signInUrl": "/login",
+      "signUpUrl": "/signup",
+      "signInFallbackRedirectUrl": "/my-rides",
+      "signUpFallbackRedirectUrl": "/onboarding"
+    },
+    "persona": {
+      "templateId": "itmpl_your_template_id_here",
+      "environmentId": "env_your_environment_id_here"
+    },
+    "map": {
+      "tileServerUrl": "https://tileserver.carp.school",
+      "tileStylePath": "/styles/OSM%20OpenMapTiles",
+      "nominatimUrl": "https://nominatim.carp.school",
+      "osrmUrl": "https://osrm.carp.school"
+    }
+  }
+}

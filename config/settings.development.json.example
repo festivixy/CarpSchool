@@ -1,0 +1,50 @@
+{
+  "public": {
+    "enableDebugMode": true,
+    "oneSignal": {
+      "appId": "your-app-id-here",
+      "safariWebId": "web.onesignal.auto.313afc18-65a3-4cb5-bd8a-eabd69c6e4d8"
+    },
+    "notifications": {
+      "backend": "onesignal"
+    },
+    "vapid": {
+      "publicKey": "BEl62iUYgUivxIkv69yViEuiBIa40HI0DLLuxazjBF..."
+    },
+    "clerk": {
+      "publishableKey": "pk_test_your_publishable_key_here",
+      "signInUrl": "/login",
+      "signUpUrl": "/signup",
+      "signInFallbackRedirectUrl": "/my-rides",
+      "signUpFallbackRedirectUrl": "/onboarding"
+    },
+    "persona": {
+      "templateId": "itmpl_your_template_id_here",
+      "environmentId": "env_your_environment_id_here"
+    },
+    "map": {
+      "_note": "Public OpenStreetMap endpoints — fine for local development, but subject to OSM's usage policy and rate limits. Do not point production at these; use the carp.school-hosted tileserver/nominatim/osrm from settings.production.json.example instead.",
+      "tileServerUrl": "https://tile.openstreetmap.org",
+      "tileStylePath": "",
+      "nominatimUrl": "https://nominatim.openstreetmap.org",
+      "osrmUrl": "https://router.project-osrm.org"
+    }
+  },
+  "private": {
+    "vapid": {
+      "privateKey": "4OM3EtXb1HI0DLLuxazjBF...",
+      "subject": "mailto:your-email@domain.com"
+    },
+    "clerk": {
+      "secretKey": "sk_test_your_secret_key_here"
+    },
+    "persona": {
+      "webhookSecret": "your-persona-webhook-secret-here"
+    },
+    "adminEmails": [
+      "admin@carp.school"
+    ]
+  },
+  "defaultPlaces": [],
+  "defaultRides": []
+}

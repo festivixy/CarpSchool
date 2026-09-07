@@ -1,11 +1,13 @@
 # ── Builder ──────────────────────────────────────────────────────────────────
-FROM node:20 AS builder
+FROM node:22 AS builder
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV METEOR_ALLOW_SUPERUSER=true
 ENV PATH="/root/.meteor:${PATH}"
 
 # Install Meteor
-RUN curl https://install.meteor.com/ | sh
+RUN curl -fsSL https://install.meteor.com/?release=3.3.1 | sh
 
 WORKDIR /app
 
@@ -26,7 +28,7 @@ RUN cd /build \
  && npm install --omit=dev
 
 # ── Runner ────────────────────────────────────────────────────────────────────
-FROM node:20-slim AS runner
+FROM node:22-slim AS runner
 
 # Copy the extracted bundle to /built_app (the non-tar branch in start.sh.internal)
 COPY --from=builder /build/bundle/ /built_app/
@@ -37,10 +39,16 @@ RUN mkdir -p /home/app/scripts \
  && chmod +x /home/app/scripts/setup_nvm.sh
 
 COPY start.sh.internal /start.sh
-RUN chmod +x /start.sh
+RUN chmod +x /start.sh \
+ && chown -R node:node /built_app
+
+USER node
 
 WORKDIR /built_app
 
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:3000/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
 CMD ["/start.sh"]

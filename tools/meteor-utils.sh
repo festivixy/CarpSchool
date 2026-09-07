@@ -22,10 +22,11 @@ meteor_build_bundle() {
     insure_app_dir
     local build_dir=${1:-"../build"}
     local architecture=${2:-"os.linux.x86_64"}
-    local settings=${3:-"../config/setting.json"}
 
+    # Server bundles take their settings at runtime (see start.sh.internal),
+    # so no --mobile-settings flag is needed or passed here.
     echo -e "${YELLOW}🚀 Building Meteor bundle...${NC}"
-    meteor build "$build_dir" --architecture "$architecture" --server-only --verbose --mobile-settings "$settings"
+    meteor build "$build_dir" --architecture "$architecture" --server-only --verbose
     cd "$pathpwd"
 }
 
@@ -131,7 +132,7 @@ meteor_build_ios() {
 
     cd app
     echo -e "${YELLOW}🚀 Starting iOS build process...${NC}"
-    meteor build "$build_dir" --platforms ios --server "$server_url" --mobile-settings "../config/settings.json" --verbose
+    meteor build "$build_dir" --platforms ios --server "$server_url" --mobile-settings "../config/settings.production.json" --verbose
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ iOS build completed successfully!${NC}"
@@ -197,7 +198,7 @@ meteor_build_android() {
 
     cd app
     echo -e "${YELLOW}🚀 Starting Android build process...${NC}"
-    meteor build "$build_dir" --platforms android --server "$server_url" --mobile-settings "../config/settings.json"
+    meteor build "$build_dir" --platforms android --server "$server_url" --mobile-settings "../config/settings.production.json"
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ Android build completed successfully!${NC}"
@@ -329,12 +330,20 @@ meteor_clean_local() {
 
 meteor_clean_ios() {
     local pathpwd=$(pwd)
+    local do_reset=false
+    if [ "$1" = "--clean" ]; then
+        do_reset=true
+    fi
     # here, make sure that we are in app. (check if ./.meteor/release exists)
     # if not, check if ./app/.meteor/release exists. if yes, cd app
     insure_app_dir
 
-    echo -e "${YELLOW}🔄 Resetting Meteor project...${NC}"
-    meteor reset
+    if [ "$do_reset" = true ]; then
+        echo -e "${YELLOW}🔄 Resetting Meteor project (--clean requested; this wipes the local database)...${NC}"
+        meteor reset
+    else
+        echo -e "${YELLOW}⏭️  Skipping 'meteor reset' (pass --clean to wipe the local database too)${NC}"
+    fi
     echo -e "${YELLOW}🗑️  Removing Meteor local directory...${NC}"
     rm -rf ./.meteor/local
     echo -e "${YELLOW}🗑️  Removing build directory...${NC}"
@@ -429,10 +438,11 @@ meteor_fix_gradle() {
     echo -e "${YELLOW}🗑️  Removing Cordova build cache...${NC}"
     rm -rf app/.meteor/local/cordova-build
 
-    # Remove Gradle cache
-    echo -e "${YELLOW}🗑️  Removing Gradle cache...${NC}"
-    rm -rf ~/.gradle/caches
-    rm -rf ~/.gradle/wrapper
+    # Remove this project's Cordova/Gradle build output only (never touch the
+    # user's shared ~/.gradle cache, which is used by other projects too)
+    echo -e "${YELLOW}🗑️  Removing project Gradle build output...${NC}"
+    rm -rf app/.meteor/local/cordova-build/platforms/android/app/build
+    rm -rf app/.meteor/local/cordova-build/platforms/android/.gradle
 
     # Clean Meteor local cache
     echo -e "${YELLOW}🗑️  Cleaning Meteor local cache...${NC}"
@@ -474,29 +484,37 @@ ios_add_carpschool_domains() {
     # Configure each domain with its specific ATS settings
     local success=true
 
-    # carp.school - subdomains + insecure + TLS 1.0 + no forward secrecy
-    python3 "$python_tool" "$plist_path" "carp.school" --subdomains --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+    # carp.school - subdomains only; production traffic uses normal HTTPS/TLS
+    python3 "$python_tool" "$plist_path" "carp.school" --subdomains || success=false
 
-    # tileserver.carp.school - insecure + subdomains
-    python3 "$python_tool" "$plist_path" "tileserver.carp.school" --insecure --subdomains || success=false
+    # tileserver.carp.school - subdomains only; production traffic uses normal HTTPS/TLS
+    python3 "$python_tool" "$plist_path" "tileserver.carp.school" --subdomains || success=false
 
-    # nominatim.carp.school - insecure + subdomains
-    python3 "$python_tool" "$plist_path" "nominatim.carp.school" --insecure --subdomains || success=false
+    # nominatim.carp.school - subdomains only; production traffic uses normal HTTPS/TLS
+    python3 "$python_tool" "$plist_path" "nominatim.carp.school" --subdomains || success=false
 
-    # osrm.carp.school - insecure + subdomains
-    python3 "$python_tool" "$plist_path" "osrm.carp.school" --insecure --subdomains || success=false
+    # osrm.carp.school - subdomains only; production traffic uses normal HTTPS/TLS
+    python3 "$python_tool" "$plist_path" "osrm.carp.school" --subdomains || success=false
 
     # codepush.carp.school - TLS 1.2 + forward secrecy required
     python3 "$python_tool" "$plist_path" "codepush.carp.school" --tls-version 1.2 --forward-secrecy || success=false
 
-    # localhost - insecure + TLS 1.0 + no forward secrecy
-    python3 "$python_tool" "$plist_path" "localhost" --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+    # Insecure/TLS-1.0 exceptions are for local development only. They're
+    # gated behind CARPOOL_DEBUG_ATS=1 so a normal build never ships them.
+    if [ "${CARPOOL_DEBUG_ATS:-0}" = "1" ]; then
+        echo -e "${YELLOW}⚠️  CARPOOL_DEBUG_ATS=1: adding insecure ATS exceptions for local dev hosts${NC}"
 
-    # 127.0.0.1 - insecure + TLS 1.0 + no forward secrecy
-    python3 "$python_tool" "$plist_path" "127.0.0.1" --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+        # localhost - insecure + TLS 1.0 + no forward secrecy
+        python3 "$python_tool" "$plist_path" "localhost" --insecure --tls-version 1.0 --no-forward-secrecy || success=false
 
-    # dev.carp.school - insecure + TLS 1.0 + no forward secrecy
-    python3 "$python_tool" "$plist_path" "dev.carp.school" --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+        # 127.0.0.1 - insecure + TLS 1.0 + no forward secrecy
+        python3 "$python_tool" "$plist_path" "127.0.0.1" --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+
+        # dev.carp.school - insecure + TLS 1.0 + no forward secrecy
+        python3 "$python_tool" "$plist_path" "dev.carp.school" --insecure --tls-version 1.0 --no-forward-secrecy || success=false
+    else
+        echo -e "${YELLOW}⏭️  Skipping localhost/127.0.0.1/dev.carp.school ATS exceptions (set CARPOOL_DEBUG_ATS=1 to add them)${NC}"
+    fi
 
     if [ "$success" = true ]; then
         echo -e "${GREEN}✅ All CarpSchool ATS domains configured successfully!${NC}"

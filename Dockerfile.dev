@@ -1,10 +1,17 @@
-FROM node:20
+FROM node:22-slim
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install Meteor
-RUN curl https://install.meteor.com/ | sh
+RUN curl -fsSL https://install.meteor.com/?release=3.3.1 | sh
 
 # Set working directory
 WORKDIR /app
+
+# Cache npm deps layer before the source is bind-mounted in
+# (plain npm, not `meteor npm`, since .meteor/ isn't present at build time)
+COPY app/package.json app/package-lock.json ./
+RUN npm install --legacy-peer-deps
 
 # Expose ports
 EXPOSE 3001 3002

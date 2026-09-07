@@ -16,3 +16,8 @@ mongo_data/
 osrmdata/
 openmaptilesdata/
 pgdataNominatimInternal/
+*.bak
+app/OrigNavCheck.jsx
+tools/
+design-shots/
+.github/
