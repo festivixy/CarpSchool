@@ -1,5 +1,5 @@
 # ── Builder ──────────────────────────────────────────────────────────────────
-FROM node:22 AS builder
+FROM node:26 AS builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -28,7 +28,7 @@ RUN cd /build \
  && npm install --omit=dev
 
 # ── Runner ────────────────────────────────────────────────────────────────────
-FROM node:22-slim AS runner
+FROM node:26-slim AS runner
 
 # Copy the extracted bundle to /built_app (the non-tar branch in start.sh.internal)
 COPY --from=builder /build/bundle/ /built_app/
