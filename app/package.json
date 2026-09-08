@@ -14,7 +14,7 @@
     "dompurify": "^3.2.6",
     "dotenv": "^17.2.1",
     "file-type": "^12.4.2",
-    "firebase-admin": "^13.4.0",
+    "firebase-admin": "^14.3.0",
     "framer-motion": "^6.5.1",
     "joi": "^17.13.3",
     "jsdom": "^26.1.0",
