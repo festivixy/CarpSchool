@@ -57,7 +57,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-utils": "^3.0.0",
     "globals": "^16.3.0",
-    "sinon": "^19.0.2"
+    "sinon": "^22.1.0"
   },
   "scripts": {
     "start": "cd .. && ./runner.sh",
