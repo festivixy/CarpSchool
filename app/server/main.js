@@ -86,15 +86,15 @@ import "./migrations/initializeClerkUserRoles";
 // Configure SMTP for iCloud+ custom domain and ROOT_URL
 if (Meteor.isServer) {
   Meteor.startup(() => {
-    // ROOT_URL configuration - ensure clean URLs for email links
+    // ROOT_URL must be provided by the environment in production. It is the
+    // base for email links and OAuth redirects, so a wrong value breaks
+    // sign-in. Do not hardcode a domain here: fall back only to a local URL
+    // for development, and warn loudly if it is missing in production.
     if (!process.env.ROOT_URL) {
-      // Set default production URL if not specified
-      process.env.ROOT_URL = 'https://carp.school';
-      console.log("🔗 ROOT_URL set to default: https://carp.school");
-    } else if (process.env.ROOT_URL.includes('dev.')) {
-      // Override dev URLs to production URLs for clean email links
-      process.env.ROOT_URL = process.env.ROOT_URL.replace(/https?:\/\/dev\./, 'https://');
-      console.log(`🔗 ROOT_URL cleaned from dev to: ${process.env.ROOT_URL}`);
+      process.env.ROOT_URL = `http://localhost:${process.env.PORT || 3000}`;
+      if (process.env.NODE_ENV === "production") {
+        console.warn(`⚠️  ROOT_URL not set in production; using ${process.env.ROOT_URL}. Set ROOT_URL to your domain.`);
+      }
     }
 
     // Email configuration check
