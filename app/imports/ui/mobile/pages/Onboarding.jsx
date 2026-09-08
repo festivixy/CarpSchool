@@ -85,7 +85,7 @@ const TOTAL_STEPS = 3;
  * domain before the user reaches this route. */
 const STEPS = [
   { n: 1, sub: "School verification", lead: "Confirm your ", mark: "school email." },
-  { n: 2, sub: "Name, year, major", lead: "Tell us a bit ", mark: "about you." },
+  { n: 2, sub: "Name and year", lead: "Tell us a bit ", mark: "about you." },
   { n: 3, sub: "Driver, rider, or both", lead: "Will you mostly ", mark: "drive or ride?" },
 ];
 
@@ -137,7 +137,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
   const [currentStep, setCurrentStep] = React.useState(1);
   const [name, setName] = React.useState("");
   const [year, setYear] = React.useState("");
-  const [major, setMajor] = React.useState("");
   const [campus, setCampus] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [other, setOther] = React.useState("");
@@ -190,7 +189,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
     if (profileData) {
       setName(profileData.Name || "");
       setYear(profileData.year || "");
-      setMajor(profileData.major || "");
       setCampus(profileData.campus || "");
       setPhone(profileData.Phone || "");
       setOther(profileData.Other || "");
@@ -334,7 +332,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
         name: name.trim(),
         userType,
         year,
-        major: major.trim(),
         campus: campus.trim(),
         phone: phone.trim(),
         other: other.trim(),
@@ -547,16 +544,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
             </Select>
             <SelectChevron><Icon name="chevR" size={14} /></SelectChevron>
           </SelectWrap>
-        </Field>
-        <Field>
-          <Label htmlFor="ob-major">Major</Label>
-          <Input
-            id="ob-major"
-            type="text"
-            maxLength="100"
-            value={major}
-            onChange={event => setMajor(event.target.value)}
-          />
         </Field>
       </FieldRow>
 
