@@ -4,6 +4,7 @@ import { Accounts } from "meteor/accounts-base";
 import { Profiles } from "../profile/Profile";
 import { Schools } from "../schools/Schools";
 import { Rides } from "../ride/Rides";
+import { TERMS_VERSION } from "../legal/terms";
 
 Meteor.methods({
 
@@ -70,6 +71,9 @@ Meteor.methods({
     // objects and unbounded strings through into the profile document.
     const bounded = (max) => Match.Where((v) => typeof v === "string" && v.length <= max);
     check(profileData, {
+      // Acceptance of the Terms of Use and Privacy Policy is mandatory. It is
+      // checked here, not only in the UI, so a crafted call cannot skip it.
+      acceptedTerms: Boolean,
       name: Match.Optional(bounded(100)),
       userType: Match.Optional(Match.OneOf("Driver", "Rider", "Both")),
       major: Match.Optional(bounded(100)),
@@ -80,6 +84,9 @@ Meteor.methods({
       image: Match.Optional(bounded(64)),
       ride: Match.Optional(bounded(64)),
     });
+    if (profileData.acceptedTerms !== true) {
+      throw new Meteor.Error("terms-required", "You must accept the Terms of Use and Privacy Policy to continue.");
+    }
 
     const profileDoc = {
       Owner: this.userId,
@@ -98,6 +105,8 @@ Meteor.methods({
       Ride: profileData.ride || "",
       verified: false,
       requested: true,
+      termsAcceptedAt: new Date(),
+      termsVersion: TERMS_VERSION,
       rejected: false,
       createdAt: new Date(),
     };

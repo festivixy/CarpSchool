@@ -58,6 +58,9 @@ import {
   SchoolOption,
   SchoolCode,
   SchoolEmpty,
+  ConsentRow,
+  ConsentCheck,
+  ConsentText,
   UserTypeOptions,
   UserTypeOption,
   RoleIconTile,
@@ -150,6 +153,8 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [acceptedTerms, setAcceptedTerms] = React.useState(false);
+  const [consentInvalid, setConsentInvalid] = React.useState(false);
   const [redirectTo, setRedirectTo] = React.useState(null);
   const [stats, setStats] = React.useState(null);
 
@@ -217,7 +222,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
   const canProceed = () => {
     if (currentStep === 1) return Boolean(assignedSchoolId || pickedSchoolId);
     if (currentStep === 2) return name.trim().length >= 2;
-    return true;
+    return acceptedTerms;
   };
 
   const nextStep = () => {
@@ -322,6 +327,11 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
       setError("Choose your school before finishing setup.");
       return;
     }
+    if (!acceptedTerms) {
+      setConsentInvalid(true);
+      setError("Please accept the Terms of Use and Privacy Policy to finish setup.");
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
@@ -329,6 +339,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
 
     const completeProfile = () => {
       Meteor.call("clerk.completeOnboarding", {
+        acceptedTerms: true,
         name: name.trim(),
         userType,
         year,
@@ -632,6 +643,28 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
         "Show riders the car you'll pull up in.",
         rideImage,
       )}
+
+      <ConsentRow $invalid={consentInvalid && !acceptedTerms}>
+        <ConsentCheck
+          type="checkbox"
+          checked={acceptedTerms}
+          aria-invalid={consentInvalid && !acceptedTerms}
+          onChange={(event) => {
+            setAcceptedTerms(event.target.checked);
+            if (event.target.checked) {
+              setConsentInvalid(false);
+              setError("");
+            }
+          }}
+        />
+        <ConsentText>
+          I have read and agree to the{" "}
+          <a href="/tos" target="_blank" rel="noopener noreferrer">Terms of Use</a>
+          {" "}and{" "}
+          <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+          I confirm I am at least 19 years old.
+        </ConsentText>
+      </ConsentRow>
     </Step>
   );
 

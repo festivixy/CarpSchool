@@ -75,8 +75,8 @@ const MIN_FARE = 0;
 const MAX_FARE = 100;
 const MAX_NOTES = 200;
 
-/* The design's gas-split reference: a fare at or below this per-mile rate is
- * labelled a fair split. */
+/* Cost-share reference: a per-seat contribution at or below this per-mile
+ * rate is labelled a fair split of trip costs. Not a fare (Terms s.10). */
 const FAIR_RATE_PER_MI = 0.33;
 
 /* Saved-place shortcut chips shown under the route card. */
@@ -483,7 +483,7 @@ const CreateRide = ({ history }) => {
             </StepperCol>
 
             <StepperCol>
-              <GroupLabel>FARE / SEAT</GroupLabel>
+              <GroupLabel>COST SHARE / SEAT</GroupLabel>
               <StepperBox>
                 <StepBtn
                   type="button"
@@ -495,7 +495,7 @@ const CreateRide = ({ history }) => {
                 </StepBtn>
                 <StepCenter>
                   <StepValue>{`$${fare}`}</StepValue>
-                  <StepCaption>GAS SPLIT</StepCaption>
+                  <StepCaption>FUEL SPLIT</StepCaption>
                 </StepCenter>
                 <StepBtn
                   type="button"

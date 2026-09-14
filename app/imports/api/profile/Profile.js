@@ -97,6 +97,9 @@ const ProfileSchema = Joi.object({
   identityVerified: Joi.boolean().default(false),
   personaInquiryId: Joi.string().optional(),
   verifiedAt: Joi.date().optional(),
+  // Recorded acceptance of the Terms of Use and Privacy Policy at onboarding.
+  termsAcceptedAt: Joi.date().optional(),
+  termsVersion: Joi.string().max(40).optional(),
   createdAt: Joi.date().optional(),
   Owner: Joi.string().required(),
 });

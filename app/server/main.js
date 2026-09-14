@@ -2,6 +2,8 @@ import { Meteor } from "meteor/meteor";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+// Seeds the Terms of Use and Privacy Policy; registers a startup hook only.
+import "../imports/startup/server/LegalContent";
 
 // Load environment variables from .env file if it exists
 const envPath = path.resolve(process.cwd(), "../.env");

@@ -20,7 +20,8 @@ const RidesSchema = Joi.object({
   date: Joi.date().required(),
   seats: Joi.number().integer().min(1).max(7)
 .required(), // Number of available seats
-  fare: Joi.number().min(0).max(100).default(0), // Price per seat (fair gas split)
+  // Cost share per seat: a split of fuel/parking, not a fare (Terms s.10).
+  fare: Joi.number().min(0).max(100).default(0),
   shareCode: Joi.string().optional(),
   // Denormalised route figures. Populated at creation from OSRM when it is
   // reachable, otherwise from a great-circle estimate; routeEstimated marks

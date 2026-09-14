@@ -579,3 +579,36 @@ export const SecondaryButton = styled.button`
   ${btnGhost}
   ${props => props.disabled && "opacity: 0.45; pointer-events: none;"}
 `;
+
+/* Terms and Privacy acceptance on the final step. */
+export const ConsentRow = styled.label`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: var(--r-lg, 14px);
+  border: 1px solid ${props => (props.$invalid ? "var(--signal-red, #c0392b)" : "var(--cream-3, #ddd6c8)")};
+  background: var(--cream-0, #faf7f0);
+  cursor: pointer;
+`;
+
+export const ConsentCheck = styled.input`
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--ink-1, #1a1815);
+  cursor: pointer;
+`;
+
+export const ConsentText = styled.span`
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2, #5b5750);
+
+  a {
+    color: var(--ink-1, #1a1815);
+    text-decoration: underline;
+  }
+`;

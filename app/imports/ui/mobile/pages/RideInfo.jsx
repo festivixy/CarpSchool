@@ -575,7 +575,7 @@ const RideInfo = ({ match, history }) => {
                   </DataCell>
                 )}
                 <DataCell>
-                  <MetaLabel>FARE</MetaLabel>
+                  <MetaLabel>COST SHARE</MetaLabel>
                   <FareValue>{ride.fare ? `$${ride.fare} / seat` : "Free"}</FareValue>
                 </DataCell>
                 <DataCell>
@@ -723,7 +723,7 @@ const RideInfo = ({ match, history }) => {
                           />
                         </EditField>
                         <EditField>
-                          <MetaLabel>FARE</MetaLabel>
+                          <MetaLabel>COST SHARE / SEAT</MetaLabel>
                           <EditInput
                             type="number"
                             min="0"
