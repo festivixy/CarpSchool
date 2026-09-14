@@ -31,7 +31,7 @@ export const AppName = styled.h1`
   font-family: var(--font-display);
   font-size: clamp(48px, 9vw, 84px);
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.015em;
   line-height: 1;
 `;
 
@@ -69,7 +69,7 @@ export const SectionTitle = styled.h2`
   font-family: var(--font-display);
   font-size: 30px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 `;
 
 export const Content = styled.div`

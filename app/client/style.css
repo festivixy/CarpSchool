@@ -56,7 +56,7 @@
   --r-pill: 999px;
 
   /* Type */
-  --font-display: "Geist", -apple-system, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-ui: "Geist", -apple-system, system-ui, sans-serif;
   --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
 }
