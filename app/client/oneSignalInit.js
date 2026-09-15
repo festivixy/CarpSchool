@@ -1,12 +1,21 @@
 import { Meteor } from "meteor/meteor";
 
 /**
- * OneSignal Initialization with Environment Variable Support
+ * OneSignal initialisation.
  *
  * Configuration priority:
  * 1. Meteor.settings.public.oneSignal
  * 2. Environment variables (via server method)
- * 3. Fallback to hardcoded values
+ *
+ * There is deliberately no hardcoded fallback. One used to sit here, holding
+ * an app ID registered to another deployment: on any other domain the SDK
+ * refused with "Can only be used on: https://dev.carp.school" on every page
+ * load, and where it did not refuse it would have registered this site's
+ * push subscriptions against someone else's OneSignal account.
+ *
+ * With nothing configured, push is simply off. Create your own OneSignal app
+ * for your domain and set public.oneSignal.appId (and safariWebId) in
+ * settings to turn it on.
  */
 
 // Initialize OneSignal when DOM is ready
@@ -16,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const config = await getOneSignalConfig();
 
     if (!config.appId) {
-      console.warn("[OneSignal] No app ID configured, skipping initialization");
+      console.info("[OneSignal] Not configured; push notifications are off.");
       return;
     }
 
@@ -79,12 +88,7 @@ async function getOneSignalConfig() {
     console.log("[OneSignal] Could not get config from server:", error.reason || error.message);
   }
 
-  // Method 3: Fallback to hardcoded values (for backward compatibility)
-  console.warn("[OneSignal] Using fallback hardcoded configuration");
-  config = {
-    appId: "a1f06572-fc69-4ec0-9402-b6e8a56bf14c",
-    safariWebId: "web.onesignal.auto.313afc18-65a3-4cb5-bd8a-eabd69c6e4d8",
-  };
-
+  // No configuration: leave push disabled rather than borrowing another
+  // deployment's app ID.
   return config;
 }
