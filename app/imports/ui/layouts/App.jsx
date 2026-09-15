@@ -64,7 +64,7 @@ import AdminErrorReportDetail from "../desktop/pages/AdminErrorReportDetail";
 import AutoSubscribeNotification from "../components/AutoSubscribeNotification";
 import PWAInstallPrompt from "../mobile/components/PWAInstallPrompt";
 import ScrollToTop from "../components/ScrollToTop";
-import { useClerkUser } from "../utils/clerkAuth";
+import { useClerkUser, useClerkMeteorSessionSync } from "../utils/clerkAuth";
 import { fullSignOut } from "../utils/signOut";
 
 // /_test/* routes are development-only, so their components are lazy-loaded
@@ -260,7 +260,7 @@ const useVerificationStatus = () => useTracker(() => {
 }, []);
 
 // Route wrapper for member routes that require a verified, approved profile
-const VerificationGate = ({ component: Component, ...rest }) => {
+const VerificationGate = ({ component: Component, requireDriver, ...rest }) => {
   const { ready, profile } = useVerificationStatus();
 
   return (
@@ -287,12 +287,27 @@ const VerificationGate = ({ component: Component, ...rest }) => {
             if (!profile.verified && !profile.requested) {
               return <Redirect to="/verify" />;
             }
+            /* Offering a ride is for drivers. The server refuses a rider's
+             * rides.create, but without this the rider still reached the whole
+             * form and only found out when they pressed publish. */
+            if (requireDriver && profile.UserType === "Rider") {
+              return <Redirect to="/my-rides" />;
+            }
             return <RouteBoundary><Component {...props} user={meteorUser} /></RouteBoundary>;
           }}
         />
       )}
     </AuthGate>
   );
+};
+
+VerificationGate.propTypes = {
+  component: PropTypes.elementType.isRequired,
+  requireDriver: PropTypes.bool,
+};
+
+VerificationGate.defaultProps = {
+  requireDriver: false,
 };
 
 // Route wrapper for /waiting-confirmation: redirects to /my-rides once the
@@ -363,6 +378,17 @@ function handleCordovaBackButton(event) {
 }
 
 // Main layout component
+/*
+ * Renders nothing; exists so the Clerk/Meteor session reconciliation runs on
+ * every route. The hook used to live only inside useClerkUser, which mounts
+ * behind the auth gate, so a stale Meteor session was never cleaned up on
+ * public pages like the landing page.
+ */
+const SessionSync = () => {
+  useClerkMeteorSessionSync();
+  return null;
+};
+
 class AppLayout extends React.Component {
   componentDidMount() {
     if (window.cordova) {
@@ -381,6 +407,7 @@ class AppLayout extends React.Component {
       <Router>
         <ErrorBoundary>
           <AppContainer>
+            <SessionSync />
             <ConnectionBanner />
             <ScrollToTop />
             <AutoSubscribeNotification />
@@ -415,7 +442,7 @@ class AppLayout extends React.Component {
                 <AuthRoute path="/verification-rejected" component={RejectionScreen} />
                 <VerificationGate path="/my-rides" component={MobileMyRides} />
                 <VerificationGate path="/find" component={MobileMarketplace} />
-                <VerificationGate path="/create" component={MobileCreateRide} />
+                <VerificationGate path="/create" component={MobileCreateRide} requireDriver />
                 <VerificationGate path="/ride/:rideId" component={MobileRideInfo} />
                 <AuthRoute path="/ride-history/:id" component={RideHistory} />
                 <VerificationGate path="/edit-profile" component={MobileEditProfile} />

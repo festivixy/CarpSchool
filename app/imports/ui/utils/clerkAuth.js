@@ -105,6 +105,28 @@ function getMeteorUserForClerkUser(clerkUserId, getToken) {
   return promise;
 }
 
+/**
+ * Clears a Meteor session that has outlived its Clerk one.
+ *
+ * Clerk is the source of truth. A Meteor session can survive it -- the Clerk
+ * session expiring, a sign-out in another tab, or a sign-out on a page that
+ * never mounted this reconciliation. While it does, the server still honours
+ * that session and the UI reads the account as present, which is how signed-out
+ * visitors were being shown the admin menus.
+ *
+ * Mount this once at the root so it runs on public routes too; useClerkUser
+ * also calls it for the screens behind the auth gate.
+ */
+export function useClerkMeteorSessionSync() {
+  const { isLoaded, isSignedIn } = useAuth();
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn && Meteor.userId()) {
+      Meteor.logout();
+    }
+  }, [isLoaded, isSignedIn]);
+}
+
 export function useClerkUser() {
   const { isSignedIn, userId: clerkUserId, isLoaded: clerkLoaded, getToken } = useAuth();
   const { user: clerkUser, isLoaded: userLoaded } = useUser();
@@ -126,11 +148,7 @@ export function useClerkUser() {
 
   // Clerk signed out from under us (e.g. session expired in another tab)
   // while Meteor still thinks we're logged in - clean that up.
-  useEffect(() => {
-    if (clerkLoaded && !isSignedIn && Meteor.userId()) {
-      Meteor.logout();
-    }
-  }, [clerkLoaded, isSignedIn]);
+  useClerkMeteorSessionSync();
 
   useEffect(() => {
     let cancelled = false;

@@ -120,9 +120,12 @@ function NavBar({ currentUser, userProfile }) {
 
   const handleSignOut = () => fullSignOut(signOut);
 
-  const isAdmin = currentUser?.roles?.includes("admin") ||
-    currentUser?.roles?.some(r => r.startsWith("admin."));
-  const isSystem = currentUser?.roles?.includes("system");
+  /* Gated on isSignedIn as well as on the roles: currentUser comes from the
+   * Meteor session, which can outlive the Clerk one, and a signed-out visitor
+   * was being shown Admin and System while every other item correctly hid. */
+  const isAdmin = isSignedIn && (currentUser?.roles?.includes("admin")
+    || currentUser?.roles?.some(r => r.startsWith("admin.")));
+  const isSystem = isSignedIn && currentUser?.roles?.includes("system");
 
   return (
     <NavBarContainer ref={navRef}>
