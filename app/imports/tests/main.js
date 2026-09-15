@@ -4,6 +4,7 @@
  * every suite must be imported from here.
  */
 import "./unit/adminNav.tests.js";
+import "./unit/availabilityTime.tests.js";
 import "./unit/docContent.tests.js";
 import "./unit/marketplaceMatching.tests.js";
 import "./unit/placeCoords.tests.js";
@@ -15,3 +16,4 @@ import "./unit/validation.tests.js";
 import "./integration/rides.tests.js";
 import "./integration/roles.tests.js";
 import "./integration/legal.tests.js";
+import "./integration/availability.tests.js";

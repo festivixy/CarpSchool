@@ -27,6 +27,11 @@ const SchoolsSchema = Joi.object({
     requireEmailVerification: Joi.boolean().default(true),
     requireDomainMatch: Joi.boolean().default(false), // Require email domain to match school domain
     maxRideDistance: Joi.number().default(50), // Max km for rides
+    /* IANA zone used to resolve weekly driver availability. The server runs
+     * in UTC in production, so "Monday 08:00" is only meaningful against the
+     * school's own zone. */
+    timezone: Joi.string().max(64)
+      .default("America/Vancouver"),
   }).default({}),
   isActive: Joi.boolean().default(true),
   smtpSettings: Joi.object({
