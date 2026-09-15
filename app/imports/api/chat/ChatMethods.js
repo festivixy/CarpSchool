@@ -39,6 +39,60 @@ Meteor.methods({
   /**
    * Create or get a ride-specific chat
    */
+  /**
+   * Open, or reopen, the one direct chat between the caller and another user.
+   *
+   * Needed because availability is not a ride: a rider who finds a driver on
+   * the drivers list has no ride to talk in yet. Restricted to the caller's
+   * own school, so this cannot be used to reach an arbitrary account.
+   */
+  async "chats.createDirect"(otherUserId) {
+    check(otherUserId, String);
+
+    if (!this.userId) {
+      throw new Meteor.Error("not-authorized", "You must be logged in to start a chat.");
+    }
+    if (otherUserId === this.userId) {
+      throw new Meteor.Error("invalid-target", "You cannot start a chat with yourself.");
+    }
+
+    await assertProfileApproved(this.userId);
+
+    const [me, them] = await Promise.all([
+      Meteor.users.findOneAsync(this.userId, { fields: { schoolId: 1 } }),
+      Meteor.users.findOneAsync(otherUserId, { fields: { schoolId: 1 } }),
+    ]);
+
+    if (!them) {
+      throw new Meteor.Error("not-found", "That person no longer has an account.");
+    }
+    if (!me?.schoolId || me.schoolId !== them.schoolId) {
+      throw new Meteor.Error("access-denied", "You can only message people at your school.");
+    }
+
+    /* Sorted so the pair maps to one key whichever side opens it first. */
+    const directKey = [this.userId, otherUserId].sort().join("|");
+
+    const existing = await Chats.findOneAsync({ directKey }, { fields: { _id: 1 } });
+    if (existing) return existing._id;
+
+    try {
+      return await Chats.insertAsync({
+        directKey,
+        Participants: [this.userId, otherUserId],
+        Messages: [],
+      });
+    } catch (error) {
+      /* Two taps at once: the partial unique index on directKey rejects the
+       * loser, whose chat is the one that already exists. */
+      if (error?.code === MONGO_DUPLICATE_KEY) {
+        const raced = await Chats.findOneAsync({ directKey }, { fields: { _id: 1 } });
+        if (raced) return raced._id;
+      }
+      throw error;
+    }
+  },
+
   async "chats.createForRide"(rideId) {
     check(rideId, String);
 

@@ -36,6 +36,7 @@ const Drivers = ({ history }) => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [openingChat, setOpeningChat] = useState("");
 
   const load = useCallback(() => {
     setLoading(true);
@@ -53,6 +54,21 @@ const Drivers = ({ history }) => {
   useEffect(load, [load]);
 
   const initialOf = name => (name || "?").trim().charAt(0).toUpperCase();
+
+  /* Availability is not a ride, so there is no ride chat to join. Open the one
+   * direct chat with this driver and go straight to it. */
+  const message = (driverId) => {
+    setOpeningChat(driverId);
+    setError("");
+    Meteor.call("chats.createDirect", driverId, (err, chatId) => {
+      setOpeningChat("");
+      if (err) {
+        setError(err.reason || err.message);
+        return;
+      }
+      history.push(`/chat?chatId=${chatId}`);
+    });
+  };
 
   return (
     <Screen>
@@ -114,9 +130,13 @@ const Drivers = ({ history }) => {
                   </DriverMeta>
 
                   {!entry.isMine && (
-                    <GhostBtn type="button" onClick={() => history.push("/chat")}>
+                    <GhostBtn
+                      type="button"
+                      disabled={openingChat === entry.driver}
+                      onClick={() => message(entry.driver)}
+                    >
                       <Icon name="chat" size={14} />
-                      Message
+                      {openingChat === entry.driver ? "Opening…" : "Message"}
                     </GhostBtn>
                   )}
                 </DriverCard>

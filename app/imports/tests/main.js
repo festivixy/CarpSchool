@@ -17,3 +17,4 @@ import "./integration/rides.tests.js";
 import "./integration/roles.tests.js";
 import "./integration/legal.tests.js";
 import "./integration/availability.tests.js";
+import "./integration/directChat.tests.js";

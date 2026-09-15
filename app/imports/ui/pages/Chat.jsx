@@ -68,10 +68,17 @@ class MobileChat extends React.Component {
         // Check for URL parameters
         const urlParams = new URLSearchParams(this.props.location.search);
         const rideId = urlParams.get("rideId");
+        const chatId = urlParams.get("chatId");
 
         // Handle ride-specific chat
         if (rideId) {
             this.createOrJoinRideChat(rideId);
+            return;
+        }
+
+        // A direct chat is opened by its id: it has no ride to derive it from.
+        if (chatId) {
+            this.setState({ selectedChatId: chatId });
             return;
         }
 
@@ -203,12 +210,10 @@ class MobileChat extends React.Component {
     getChatDisplayName = (chat) => {
         const currentUser = this.getCurrentUser();
 
-        // All chats are now ride-specific, show ride info
         if (chat.rideId) {
             return `Ride Chat (${chat.Participants.length} members)`;
         }
 
-        // Fallback for any legacy data
         const otherParticipants = chat.Participants.filter(
             (p) => p !== currentUser,
         );
@@ -216,7 +221,13 @@ class MobileChat extends React.Component {
         if (otherParticipants.length === 0) {
             return "Empty Chat";
         }
-        return otherParticipants[0];
+
+        /* A direct chat is named after the other person. Falling through to
+         * the raw user id, as this used to, showed a Mongo id as the title. */
+        const names = this.props.profileNames || {};
+        return otherParticipants
+            .map((id) => names[id] || "Unknown")
+            .join(", ");
     };
 
     getChatStatus = (chat) => (chat.Participants.length === 1 ? "Waiting for participant" : "Active");
@@ -558,6 +569,14 @@ export default withRouter(
 
         const ready = subscription.ready() && profilesSub.ready();
 
+        /* Owner -> display name, so a direct chat can be titled after the
+         * person rather than their id. Read through the tracker rather than
+         * queried in render, so a late-arriving profile still repaints. */
+        const profileNames = {};
+        Profiles.find({}, { fields: { Owner: 1, Name: 1 } }).forEach((profile) => {
+            profileNames[profile.Owner] = profile.Name;
+        });
+
         // Only fetch and sort chats when subscription is ready for better performance
         const chats = ready
             ? Chats.find(
@@ -572,6 +591,7 @@ export default withRouter(
             chats,
             ready,
             rideId,
+            profileNames,
         };
     })(MobileChat),
 );
