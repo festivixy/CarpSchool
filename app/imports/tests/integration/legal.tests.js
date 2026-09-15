@@ -83,11 +83,20 @@ if (Meteor.isServer) {
     });
 
     it("the documents describe the product as built", function () {
-      expect(TERMS_MD).to.include("cost share");
       expect(TERMS_MD).to.not.match(/parent or legal guardian/i);
       expect(TERMS_MD).to.include("does not currently collect driver's licence numbers");
       expect(PRIVACY_MD).to.include("Profile and Vehicle Photos");
       expect(PRIVACY_MD).to.include("does not receive or store the ID images");
+    });
+
+    it("describes no payment feature, because the app has none", function () {
+      // The cost-share control was removed from the ride flow. These guard the
+      // documents against describing a feature the product does not have.
+      [TERMS_MD, PRIVACY_MD].forEach((doc) => {
+        expect(doc).to.not.match(/cost[ -]shar/i);
+        expect(doc).to.not.match(/per-seat/i);
+      });
+      expect(TERMS_MD).to.include("The Platform has no payment feature.");
     });
   });
 }

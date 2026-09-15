@@ -13,12 +13,12 @@
  * launch. They are left visible on purpose so they cannot be missed.
  */
 
-export const TERMS_VERSION = "2026-09-09";
+export const TERMS_VERSION = "2026-09-15";
 
 export const TERMS_MD = String.raw`# CarpSchool Foundation Terms of Use
 
 **Effective Date:** September 9, 2026
-**Last Updated:** September 9, 2026
+**Last Updated:** September 15, 2026
 **Version:** ${TERMS_VERSION}
 
 These Terms of Use ("Terms") govern access to and use of the CarpSchool website, mobile application, and related services (collectively, the "Platform") operated by CarpSchool Foundation, a society registered in British Columbia, Canada ("CarpSchool," "we," "us," or "our").
@@ -92,7 +92,7 @@ By posting, offering, or providing a ride through CarpSchool, the driver represe
 * they hold a valid driver's licence appropriate for the vehicle;
 * they are legally permitted to operate that vehicle;
 * the vehicle is properly registered and insured as required by law;
-* their insurance permits carrying passengers in a cost-shared carpool;
+* their insurance permits carrying passengers in a carpool;
 * the vehicle is reasonably safe and roadworthy;
 * they will comply with all traffic, road-safety, seatbelt, and passenger-restraint laws;
 * they will not drive while impaired by alcohol, cannabis, drugs, medication, fatigue, or any other condition that makes driving unsafe;
@@ -135,19 +135,19 @@ Location information is intended to facilitate carpool coordination and safety. 
 
 CarpSchool does not guarantee that location information will be accurate, current, uninterrupted, or available. Do not rely on the Platform as an emergency-location service. Further detail is in our Privacy Policy.
 
-## 10. Cost Sharing, Not Fares
+## 10. No Payments Through the Platform
 
 CarpSchool is not a ride-hailing, taxi, or commercial passenger transportation service, and must not be used to operate one.
 
-A driver may indicate a per-seat **cost share**: a contribution toward the actual cost of the trip, such as fuel and parking. A cost share is meant to split expenses, not to make a profit. The Platform shows a per-distance reference to help keep contributions reasonable, and CarpSchool may limit the amounts that can be entered.
+**The Platform has no payment feature.** CarpSchool does not set, display, collect, process, hold, or take any portion of any amount, and rides are not priced through the Platform.
 
-CarpSchool does not process, collect, hold, guarantee, or take any portion of a cost share. Any money exchanged is exchanged directly between the users involved, outside the Platform, and is their sole responsibility. Users are responsible for ensuring that any cost-sharing arrangement complies with applicable law and with the driver's insurance. Charging more than a reasonable share of actual trip costs, or using the Platform to provide transportation for profit, is prohibited and may result in account termination.
+If users choose to settle anything between themselves, they do so privately and entirely at their own responsibility, and CarpSchool is not a party to it. Using the Platform to provide transportation for profit, or to advertise transportation for hire, is prohibited and may result in account termination. Users are responsible for ensuring that anything they arrange complies with applicable law and with the driver's insurance.
 
 ## 11. Fees for Use of the Platform
 
 CarpSchool is currently provided to eligible users free of charge.
 
-CarpSchool may introduce fees or paid features in the future. If we do, we will provide advance notice and, where required by law, obtain your consent before charging for a feature you previously used for free. This section does not apply to cost sharing between users, which is addressed in Section 10.
+CarpSchool may introduce fees or paid features in the future. If we do, we will provide advance notice and, where required by law, obtain your consent before charging for a feature you previously used for free. Anything users settle privately between themselves is addressed in Section 10.
 
 ## 12. Safety, Reporting, and Enforcement
 
@@ -301,7 +301,7 @@ Privacy-related inquiries may be directed to our Privacy Officer: [NAME OR POSIT
 export const PRIVACY_MD = String.raw`# CarpSchool Privacy Policy
 
 **Effective Date:** September 9, 2026
-**Last Updated:** September 9, 2026
+**Last Updated:** September 15, 2026
 
 CarpSchool Foundation ("CarpSchool," "we," "us," or "our") is a registered society in British Columbia that operates the CarpSchool carpool coordination platform for post-secondary students.
 
@@ -325,7 +325,7 @@ We collect only personal information that we reasonably need to operate, secure,
 
 **Identity Verification.** We may ask you to verify your identity through our verification provider, which may collect a government-issued ID and a selfie. The provider processes those documents under its own privacy policy. CarpSchool receives and stores only the outcome of the check, the date, and a reference number for the verification session; CarpSchool does not receive or store the ID images themselves.
 
-**Ride Information.** When you post, search for, join, or take a ride: pickup and drop-off points (chosen from saved places), the route between them, dates and times, seats, any per-seat cost share, notes, ride status, and ride history, including who joined which ride.
+**Ride Information.** When you post, search for, join, or take a ride: pickup and drop-off points (chosen from saved places), the route between them, dates and times, seats, notes, ride status, and ride history, including who joined which ride.
 
 **Messages.** Messages sent through in-app chat are stored so that ride participants can coordinate. Messages may be accessed where reasonably necessary to investigate a safety or abuse report, enforce our Terms of Use, prevent fraud or misuse, troubleshoot the Platform, or comply with law. CarpSchool does not routinely read private conversations.
 
@@ -347,7 +347,7 @@ We will not use personal information for an unrelated purpose without obtaining 
 
 CarpSchool necessarily shares some information between approved users at the same school so that they can decide whether to ride together.
 
-Other approved users at your school may see your name, profile photo, year of study, campus area, whether you drive or ride, and your vehicle photo if you provided one. When you post a ride, its pickup and drop-off points, route, time, seats, cost share, and notes are visible to approved users at your school. When you join a ride, the driver and other participants can see that you joined and can message you.
+Other approved users at your school may see your name, profile photo, year of study, campus area, whether you drive or ride, and your vehicle photo if you provided one. When you post a ride, its pickup and drop-off points, route, time, seats, and notes are visible to approved users at your school. When you join a ride, the driver and other participants can see that you joined and can message you.
 
 Your email address and phone number are not shown on your profile. Share contact details, exact addresses, or other sensitive information in messages only when reasonably necessary to coordinate a ride.
 
