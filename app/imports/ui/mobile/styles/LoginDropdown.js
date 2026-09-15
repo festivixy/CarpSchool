@@ -5,9 +5,15 @@ export const DropdownContainer = styled.div`
   display: inline-block;
 `;
 
+/* $primary is the hero treatment: white reads as a weak secondary against the
+ * cream page, where this is the one action worth taking. On the dark closing
+ * card the default white is still the right contrast. */
 export const DropdownButton = styled.button`
-  background-color: rgba(255, 255, 255, 1);
-  color: rgba(0, 0, 0, 1);
+  background-color: ${props => (props.$primary ? "var(--signal-yellow)" : "rgba(255, 255, 255, 1)")};
+  color: ${props => (props.$primary ? "var(--ink-1)" : "rgba(0, 0, 0, 1)")};
+  box-shadow: ${props => (props.$primary
+    ? "0 4px 0 0 var(--signal-yellow-deep), inset 0 1px 0 rgba(255, 255, 255, 0.4)"
+    : "none")};
   padding: 14px 24px;
   border-radius: 12px;
   font-size: 16px;
@@ -22,7 +28,7 @@ export const DropdownButton = styled.button`
   gap: 8px;
 
   &:hover {
-    background-color: rgba(240, 240, 240, 1);
+    background-color: ${props => (props.$primary ? "var(--signal-yellow-deep)" : "rgba(240, 240, 240, 1)")};
     transform: translateY(-1px);
   }
 

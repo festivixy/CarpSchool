@@ -30,7 +30,7 @@ const SIGNED_IN_ITEMS = [
   { id: "rides", icon: "🚗", text: "My rides", path: "/my-rides" },
 ];
 
-function LoginDropdown({ history }) {
+function LoginDropdown({ history, primary }) {
   const { isSignedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -65,7 +65,7 @@ function LoginDropdown({ history }) {
 
   return (
     <DropdownContainer ref={dropdownRef}>
-      <DropdownButton onClick={handleToggle}>
+      <DropdownButton $primary={primary} onClick={handleToggle}>
         {isSignedIn ? "Open CarpSchool" : "Get Started"}
         <DropdownArrow $isOpen={isOpen}>▼</DropdownArrow>
       </DropdownButton>
@@ -102,6 +102,11 @@ function LoginDropdown({ history }) {
 
 LoginDropdown.propTypes = {
   history: PropTypes.object.isRequired,
+  primary: PropTypes.bool,
+};
+
+LoginDropdown.defaultProps = {
+  primary: false,
 };
 
 export default withRouter(LoginDropdown);
