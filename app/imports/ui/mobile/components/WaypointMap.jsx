@@ -18,8 +18,9 @@ import {
 /**
  * Every waypoint on one map, with editing done on the map itself.
  *
- * Click empty map to place a new one (once "Add waypoint" mode is switched
- * on), click a pin to edit it, drag a pin to move it. Pins the viewer may not
+ * Press "Add waypoint", then click the map to place one; add mode switches
+ * itself off again so each pin is a deliberate act. Click a pin to edit it,
+ * drag a pin to move it. Pins the viewer may not
  * edit are shown but neither draggable nor clickable, matching what
  * places.update would allow -- see canEditPlace.
  *
@@ -114,6 +115,9 @@ const WaypointMap = ({
       const { lat, lng } = e.latlng;
       clickTimerRef.current = setTimeout(() => {
         clickTimerRef.current = null;
+        /* One pin per press of "Add waypoint". Staying armed meant any later
+         * click on the map dropped another pin the user had not asked for. */
+        setAddMode(false);
         create({ lat, lng });
       }, DOUBLE_CLICK_GUARD_MS);
     });

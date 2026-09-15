@@ -79,7 +79,6 @@ import {
   DateCell,
   RouteCell,
   WithCell,
-  FareCell,
   Empty,
   EmptyActions,
 } from "../styles/MyRides";
@@ -363,10 +362,6 @@ const MobileMyRides = ({ history }) => {
                 <DataValue>{distanceText}</DataValue>
               </DataItem>
             ) : null}
-            <DataItem>
-              <DataLabel>YOUR SEAT</DataLabel>
-              <DataValue>{featured.fare ? `$${featured.fare}` : "Free"}</DataValue>
-            </DataItem>
           </FeatData>
 
           <FeatFooter>
@@ -569,7 +564,6 @@ const MobileMyRides = ({ history }) => {
                   <DateCell>{fmtDay(r.date)}</DateCell>
                   <RouteCell>{`${from} → ${to}`}</RouteCell>
                   <WithCell>{withWho}</WithCell>
-                  <FareCell>{r.fare ? `$${r.fare}` : "—"}</FareCell>
                 </Row>
               );
             })}

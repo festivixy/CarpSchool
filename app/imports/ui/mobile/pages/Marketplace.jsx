@@ -37,13 +37,11 @@ import {
   TitleRow,
   ListTitle,
   SortBtn,
-  SortValue,
   RidesScroll,
   EmptyState,
 } from "../styles/Marketplace";
 
 const ANY = "";
-const MAX_FARE = 10;
 const RIDES_POLL_MS = 60000;
 
 const fmtTime = (date) => new Date(date)
@@ -100,11 +98,9 @@ const Marketplace = ({ history }) => {
   const [fromPlace, setFromPlace] = useState(ANY);
   const [toPlace, setToPlace] = useState(ANY);
   const [when, setWhen] = useState("any");
-  const [cheapOnly, setCheapOnly] = useState(false);
   const [showText, setShowText] = useState(false);
   const [queryInput, setQueryInput] = useState("");
   const query = useDebounce(queryInput, 300);
-  const [sort, setSort] = useState("soonest");
   const [refreshing, setRefreshing] = useState(false);
 
   // Viewer's own position, only ever set from a real geolocation fix.
@@ -213,14 +209,11 @@ const Marketplace = ({ history }) => {
 
       if (when === "today" && !isToday(r.date)) return false;
       if (when === "weekend" && !isWeekend(r.date)) return false;
-      if (cheapOnly && (r.fare || 0) > MAX_FARE) return false;
       if (q && !route.some(name => name.toLowerCase().includes(q))) return false;
       return true;
     });
-    return [...list].sort((a, b) => (sort === "cheapest"
-      ? (a.fare || 0) - (b.fare || 0)
-      : new Date(a.date) - new Date(b.date)));
-  }, [allRides, query, fromPlace, toPlace, when, cheapOnly, sort]);
+    return [...list].sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [allRides, query, fromPlace, toPlace, when]);
 
   // The design ships one card outlined. Point that at the first real result
   // in the current sort order, and re-point it when the current pick is
@@ -416,13 +409,6 @@ const Marketplace = ({ history }) => {
             </FilterChip>
             <FilterChip
               type="button"
-              $active={cheapOnly}
-              onClick={() => setCheapOnly(v => !v)}
-            >
-              {`≤ $${MAX_FARE}`}
-            </FilterChip>
-            <FilterChip
-              type="button"
               $active={showText}
               onClick={() => setShowText(v => !v)}
             >
@@ -466,15 +452,6 @@ const Marketplace = ({ history }) => {
               title="Refresh results"
             >
               {refreshing ? "Refreshing…" : "Refresh"}
-            </SortBtn>
-            <SortBtn
-              type="button"
-              onClick={() => setSort(s => (s === "soonest" ? "cheapest" : "soonest"))}
-            >
-              {"Sort: "}
-              <SortValue>
-                {sort === "soonest" ? "Soonest ↓" : "Cheapest ↓"}
-              </SortValue>
             </SortBtn>
           </TitleRow>
         </ListHeader>

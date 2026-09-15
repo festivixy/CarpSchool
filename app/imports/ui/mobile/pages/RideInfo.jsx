@@ -35,7 +35,6 @@ import {
   DataCell,
   MetaLabel,
   MonoValue,
-  FareValue,
   Seats,
   SeatDot,
   Actions,
@@ -358,7 +357,6 @@ const RideInfo = ({ match, history }) => {
     setEditForm({
       date: Number.isNaN(d.getTime()) ? "" : toDatetimeLocal(d),
       seats: ride.seats != null ? String(ride.seats) : "",
-      fare: ride.fare != null ? String(ride.fare) : "",
       notes: ride.notes || "",
     });
     setEditing(true);
@@ -373,7 +371,6 @@ const RideInfo = ({ match, history }) => {
       const patch = {
         date: new Date(editForm.date),
         seats: parseInt(editForm.seats, 10),
-        fare: editForm.fare === "" ? 0 : parseFloat(editForm.fare),
         notes: editForm.notes,
       };
       await Meteor.callAsync("rides.edit", rideId, patch);
@@ -575,10 +572,6 @@ const RideInfo = ({ match, history }) => {
                   </DataCell>
                 )}
                 <DataCell>
-                  <MetaLabel>COST SHARE</MetaLabel>
-                  <FareValue>{ride.fare ? `$${ride.fare} / seat` : "Free"}</FareValue>
-                </DataCell>
-                <DataCell>
                   <MetaLabel>SEATS LEFT</MetaLabel>
                   <Seats>
                     {Array.from({ length: totalSeats }).map((_, i) => (
@@ -720,16 +713,6 @@ const RideInfo = ({ match, history }) => {
                             max="7"
                             value={editForm.seats}
                             onChange={e => setEditForm(f => ({ ...f, seats: e.target.value }))}
-                          />
-                        </EditField>
-                        <EditField>
-                          <MetaLabel>COST SHARE / SEAT</MetaLabel>
-                          <EditInput
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={editForm.fare}
-                            onChange={e => setEditForm(f => ({ ...f, fare: e.target.value }))}
                           />
                         </EditField>
                         <EditField>

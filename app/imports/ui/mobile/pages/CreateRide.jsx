@@ -57,7 +57,6 @@ import {
   StepCenter,
   StepValue,
   StepCaption,
-  FairNote,
   NoteBox,
   Hint,
   ErrorMessage,
@@ -71,13 +70,7 @@ import {
  * build a payload the server will reject. */
 const MIN_SEATS = 1;
 const MAX_SEATS = 7;
-const MIN_FARE = 0;
-const MAX_FARE = 100;
 const MAX_NOTES = 200;
-
-/* Cost-share reference: a per-seat contribution at or below this per-mile
- * rate is labelled a fair split of trip costs. Not a fare (Terms s.10). */
-const FAIR_RATE_PER_MI = 0.33;
 
 /* Saved-place shortcut chips shown under the route card. */
 const MAX_QUICK_PLACES = 3;
@@ -110,7 +103,6 @@ const CreateRide = ({ history }) => {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [seats, setSeats] = useState(3);
-  const [fare, setFare] = useState(0);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -240,7 +232,6 @@ const CreateRide = ({ history }) => {
       waypoints,
       date: when,
       seats: Number(seats),
-      fare: Number(fare) || 0,
       notes: notes.trim(),
       createdAt: new Date(),
     }, (err) => {
@@ -292,9 +283,6 @@ const CreateRide = ({ history }) => {
       </Screen>
     );
   }
-
-  const ratePerMi = route && route.distanceMi > 0 ? fare / route.distanceMi : null;
-  const isFairRate = ratePerMi !== null && ratePerMi <= FAIR_RATE_PER_MI;
 
   /* Both halves have to format, or the pill would advertise a blank figure. */
   const routeDuration = route && formatDuration(route.durationMin);
@@ -482,39 +470,6 @@ const CreateRide = ({ history }) => {
               </StepperBox>
             </StepperCol>
 
-            <StepperCol>
-              <GroupLabel>COST SHARE / SEAT</GroupLabel>
-              <StepperBox>
-                <StepBtn
-                  type="button"
-                  aria-label="One dollar less"
-                  disabled={fare <= MIN_FARE}
-                  onClick={() => setFare(f => Math.max(MIN_FARE, f - 1))}
-                >
-                  &minus;
-                </StepBtn>
-                <StepCenter>
-                  <StepValue>{`$${fare}`}</StepValue>
-                  <StepCaption>FUEL SPLIT</StepCaption>
-                </StepCenter>
-                <StepBtn
-                  type="button"
-                  aria-label="One dollar more"
-                  disabled={fare >= MAX_FARE}
-                  onClick={() => setFare(f => Math.min(MAX_FARE, f + 1))}
-                >
-                  <Icon name="plus" size={14} />
-                </StepBtn>
-              </StepperBox>
-              {ratePerMi !== null && (
-                <FairNote $fair={isFairRate}>
-                  <Icon name="leaf" size={11} />
-                  {isFairRate
-                    ? `Fair split — $${ratePerMi.toFixed(2)}/mi`
-                    : `Above a fair split — $${ratePerMi.toFixed(2)}/mi`}
-                </FairNote>
-              )}
-            </StepperCol>
           </StepperRow>
 
           <Group>
