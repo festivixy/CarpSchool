@@ -46,6 +46,8 @@ import MobileFAQ from "../mobile/pages/FAQ";
 import MobileAbout from "../mobile/pages/About";
 import MobileBlog from "../mobile/pages/Blog";
 import MobilePlaceManager from "../mobile/pages/PlaceManager";
+import MobileAvailability from "../mobile/pages/Availability";
+import MobileDrivers from "../mobile/pages/Drivers";
 import MobileAdminPlaceManager from "../pages/AdminPlaceManager";
 import SystemAdmin from "../pages/System";
 import MobileRideInfo from "../mobile/pages/RideInfo";
@@ -448,6 +450,8 @@ class AppLayout extends React.Component {
                 <VerificationGate path="/edit-profile" component={MobileEditProfile} />
                 <VerificationGate path="/chat" component={MobileChat} />
                 <VerificationGate path="/places" component={MobilePlaceManager} />
+                <VerificationGate path="/availability" component={MobileAvailability} requireDriver />
+                <VerificationGate path="/drivers" component={MobileDrivers} />
                 <VerificationGate path="/mobile/profile" component={IOSProfile} />
                 <AuthRoute path="/signout" component={MobileSignout} />
 

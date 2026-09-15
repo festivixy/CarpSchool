@@ -45,6 +45,8 @@ const NAV_TARGETS = {
   profile: "/mobile/profile",
   editProfile: "/edit-profile",
   places: "/places",
+  availability: "/availability",
+  drivers: "/drivers",
   history: "/ride-history/me",
   admin: "/admin/overview",
   site: "/",
@@ -54,8 +56,12 @@ const MENU_BASE = [
   { id: "profile", label: "My profile", icon: "user" },
   { id: "editProfile", label: "Edit profile", icon: "edit" },
   { id: "places", label: "Saved places", icon: "pin" },
+  { id: "drivers", label: "Drivers available", icon: "car" },
   { id: "history", label: "Ride history", icon: "clock" },
 ];
+
+/* Setting a schedule is only meaningful for an account that can drive. */
+const DRIVER_MENU = [{ id: "availability", label: "My availability", icon: "clock" }];
 
 /* Longest prefix wins, so /ride-history maps to rides rather than home. */
 const ACTIVE_BY_PREFIX = [
@@ -108,6 +114,7 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
 
   const menuItems = [
     ...MENU_BASE,
+    ...(canDrive ? DRIVER_MENU : []),
     ...(isAdmin ? [{ id: "admin", label: "Admin panel", icon: "settings" }] : []),
     { id: "signOut", label: "Sign out", icon: "arrow", danger: true },
   ];
