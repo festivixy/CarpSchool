@@ -35,7 +35,7 @@ function LiquidGlassFooter({
   logo = "/staticimages/carp.school.png",
   companyName = "CarpSchool",
   description = "Making transportation easier, greener, and more connected for everyone.",
-  email = "contact@carp.school",
+  email = "contact@carpschool.com",
   phone = "+1 (555) 123-4567",
   address = "123 Green Street, Eco City, EC 12345",
   onNewsletterSubmit,

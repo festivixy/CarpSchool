@@ -25,7 +25,7 @@ export default function SimpleFooter() {
           <FooterLink to="/terms">Terms</FooterLink>
           <FooterLink to="/privacy">Privacy</FooterLink>
           <FooterLink to="/credits">Credits</FooterLink>
-          <FooterLinkExternal href="mailto:contact@carp.school">
+          <FooterLinkExternal href="mailto:contact@carpschool.com">
             Support
           </FooterLinkExternal>
         </FooterLinks>

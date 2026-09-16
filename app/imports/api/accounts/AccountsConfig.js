@@ -8,9 +8,9 @@ import { Accounts } from "meteor/accounts-base";
 Accounts.config({ forbidClientAccountCreation: true });
 
 // Email sender configuration
-Accounts.emailTemplates.resetPassword.from = () => "CarpSchool <no-reply@carp.school>";
-Accounts.emailTemplates.verifyEmail.from = () => "CarpSchool <no-reply@carp.school>";
-Accounts.emailTemplates.enrollAccount.from = () => "CarpSchool <no-reply@carp.school>";
+Accounts.emailTemplates.resetPassword.from = () => "CarpSchool <no-reply@carpschool.com>";
+Accounts.emailTemplates.verifyEmail.from = () => "CarpSchool <no-reply@carpschool.com>";
+Accounts.emailTemplates.enrollAccount.from = () => "CarpSchool <no-reply@carpschool.com>";
 
 // Email subject lines
 Accounts.emailTemplates.resetPassword.subject = () => "Reset Your Password";
@@ -194,7 +194,7 @@ Accounts.emailTemplates.verifyEmail.html = (user, url) => {
 
       <p class="message">
         <strong>Need help?</strong> Contact us at
-        <a href="mailto:contact@carp.school" style="color: #667eea;">contact@carp.school</a>
+        <a href="mailto:contact@carpschool.com" style="color: #667eea;">contact@carpschool.com</a>
       </p>
     </div>
 

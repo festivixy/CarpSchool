@@ -50,7 +50,7 @@ Welcome to CarpSchool! Here's how to get the most out of our ridesharing platfor
 ## Contact Support
 
 If you need additional help, please contact your school administrator or reach out to:
-- **Email**: support@carp.school
+- **Email**: support@carpschool.com
 - **Website**: https://carp.school
 
 ---

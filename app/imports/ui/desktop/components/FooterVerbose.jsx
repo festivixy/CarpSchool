@@ -34,9 +34,7 @@ function FooterVerbose({
   logo = "https://api.builder.io/api/v1/image/assets/TEMP/f4a021becb7f3cbf8e67cef5249b3fd0f05fd67b?width=80",
   companyName = "CarpSchool",
   description = "Making transportation easier, greener, and more connected for everyone. Join us, share rides to save money and reduce their environmental impact. Built for school communities.",
-  email = "contact@carp.school",
-  phone = "N/A",
-  address = "kobosh city (placeholder)",
+  email = "contact@carpschool.com",
   onLinkClick,
   className,
   ...props
@@ -56,7 +54,6 @@ function FooterVerbose({
 
   const companyLinks = [
     { label: "About Us", key: "about", to: "/about" },
-    { label: "Blog", key: "blog", to: "/blog" },
   ];
 
   return (
@@ -76,14 +73,6 @@ function FooterVerbose({
                   <ContactLink href={`mailto:${email}`}>
                     {email}
                   </ContactLink>
-                </ContactItem>
-                <ContactItem>
-                  <ContactLink href={`tel:${phone}`}>
-                    {phone}
-                  </ContactLink>
-                </ContactItem>
-                <ContactItem>
-                  {address}
                 </ContactItem>
               </ContactInfo>
               <SocialLinks>
@@ -144,7 +133,7 @@ function FooterVerbose({
               Terms of Service
             </LegalLink>
             <LegalLinkExternal
-              href="mailto:contact@carp.school"
+              href={`mailto:${email}`}
               onClick={(e) => handleLinkClick("legal-contact", e)}
             >
               Legal
@@ -161,8 +150,6 @@ FooterVerbose.propTypes = {
   companyName: PropTypes.string,
   description: PropTypes.string,
   email: PropTypes.string,
-  phone: PropTypes.string,
-  address: PropTypes.string,
   onLinkClick: PropTypes.func,
   className: PropTypes.string,
 };
