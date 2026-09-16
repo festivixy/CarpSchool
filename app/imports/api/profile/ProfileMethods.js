@@ -5,7 +5,7 @@ import { Profiles, ProfileSchema } from "./Profile";
 
 /* What a member may change about their own profile. Everything else
  * (approval flags, Owner, identity verification) is server-owned. */
-const SELF_EDITABLE_KEYS = ["Name", "Location", "Phone", "Other", "major", "year", "campus", "Image", "Ride"];
+const SELF_EDITABLE_KEYS = ["Name", "Location", "Phone", "Other", "major", "year", "Image", "Ride"];
 
 /**
  * Validate a partial set of self-editable fields against ProfileSchema, so
@@ -176,7 +176,6 @@ Meteor.methods({
       Other: Match.Optional(String),
       major: Match.Optional(String),
       year: Match.Optional(String),
-      campus: Match.Optional(String),
       Image: Match.Optional(String),
       Ride: Match.Optional(String),
     });

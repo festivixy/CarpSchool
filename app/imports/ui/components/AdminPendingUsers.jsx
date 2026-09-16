@@ -229,9 +229,6 @@ const AdminPendingUsers = () => {
                   {user.major && user.year && (
                     <UserMeta>📚 {user.major} ({user.year})</UserMeta>
                   )}
-                  {user.campus && (
-                     <UserMeta>📍 {user.campus}</UserMeta>
-                  )}
                   <UserMeta>
                     📅 Joined: {formatDate(user.userCreatedAt)}
                   </UserMeta>

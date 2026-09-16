@@ -140,7 +140,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
   const [currentStep, setCurrentStep] = React.useState(1);
   const [name, setName] = React.useState("");
   const [year, setYear] = React.useState("");
-  const [campus, setCampus] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [other, setOther] = React.useState("");
   const [userType, setUserType] = React.useState("Driver");
@@ -194,7 +193,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
     if (profileData) {
       setName(profileData.Name || "");
       setYear(profileData.year || "");
-      setCampus(profileData.campus || "");
       setPhone(profileData.Phone || "");
       setOther(profileData.Other || "");
       setUserType(profileData.UserType || "Driver");
@@ -343,7 +341,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
         name: name.trim(),
         userType,
         year,
-        campus: campus.trim(),
         phone: phone.trim(),
         other: other.trim(),
         image: profileImage,
@@ -557,18 +554,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
           </SelectWrap>
         </Field>
       </FieldRow>
-
-      <Field>
-        <Label htmlFor="ob-campus">Campus area · optional</Label>
-        <Input
-          id="ob-campus"
-          type="text"
-          maxLength="100"
-          placeholder="e.g. North Campus, West Quad"
-          value={campus}
-          onChange={event => setCampus(event.target.value)}
-        />
-      </Field>
 
       <FieldRow>
         <Field>

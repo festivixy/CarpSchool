@@ -78,7 +78,6 @@ Meteor.methods({
       userType: Match.Optional(Match.OneOf("Driver", "Rider", "Both")),
       major: Match.Optional(bounded(100)),
       year: Match.Optional(bounded(30)),
-      campus: Match.Optional(bounded(100)),
       phone: Match.Optional(bounded(20)),
       other: Match.Optional(bounded(500)),
       image: Match.Optional(bounded(64)),
@@ -95,7 +94,6 @@ Meteor.methods({
       UserType: profileData.userType || "Driver",
       major: profileData.major || "",
       year: profileData.year || "",
-      campus: profileData.campus || "",
       Phone: profileData.phone || "",
       Other: profileData.other || "",
       // Onboarding uploads the photos through images.upload and passes the

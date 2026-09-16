@@ -171,7 +171,7 @@ const Profile = ({ history }) => {
     const user = Meteor.user();
     const subs = [
       // userProfile publishes the caller's own document unprojected, so the
-      // year / major / campus / identityVerified fields this page reads are
+      // year / major / identityVerified fields this page reads are
       // actually present. profiles.interacted projects to {Name, Owner}.
       Meteor.subscribe("userProfile"),
       Meteor.subscribe("Rides"),
@@ -318,18 +318,12 @@ const Profile = ({ history }) => {
   }
   if (myProfile?.year) metaItems.push(<MetaItem key="year">{myProfile.year}</MetaItem>);
   if (myProfile?.major) metaItems.push(<MetaItem key="major">{myProfile.major}</MetaItem>);
-  if (myProfile?.campus) {
-    metaItems.push(
-      <MetaItem key="campus"><Icon name="pin" size={13} />{myProfile.campus}</MetaItem>,
-    );
-  }
 
   const savedPlaces = places.slice(0, MAX_SAVED_PLACES);
 
   const prefs = [
     ["Role", ROLE_COPY[myProfile?.UserType]],
     ["Vehicle", myProfile?.Ride],
-    ["Pickup area", myProfile?.campus],
     ["Home base", myProfile?.Location],
   ].filter(([, value]) => Boolean(value));
 

@@ -13,12 +13,12 @@
  * launch. They are left visible on purpose so they cannot be missed.
  */
 
-export const TERMS_VERSION = "2026-09-15";
+export const TERMS_VERSION = "2026-09-16";
 
 export const TERMS_MD = String.raw`# CarpSchool Foundation Terms of Use
 
 **Effective Date:** September 9, 2026
-**Last Updated:** September 15, 2026
+**Last Updated:** September 16, 2026
 **Version:** ${TERMS_VERSION}
 
 These Terms of Use ("Terms") govern access to and use of the CarpSchool website, mobile application, and related services (collectively, the "Platform") operated by CarpSchool Foundation, a society registered in British Columbia, Canada ("CarpSchool," "we," "us," or "our").
@@ -79,7 +79,7 @@ Unless CarpSchool expressly states otherwise in writing, the ability to verify w
 
 Users must provide accurate, complete, and current information and must promptly update information that becomes outdated.
 
-The information CarpSchool collects for an account is described in our Privacy Policy. It currently includes your name, school email address, school, year of study, a general campus area, an optional phone number, a profile photo, an optional vehicle photo, and the result of identity verification. CarpSchool does not currently collect driver's licence numbers, licence plate numbers, or insurance documents.
+The information CarpSchool collects for an account is described in our Privacy Policy. It currently includes your name, school email address, school, year of study, an optional phone number, a profile photo, an optional vehicle photo, and the result of identity verification. CarpSchool does not currently collect driver's licence numbers, licence plate numbers, or insurance documents.
 
 CarpSchool may change its verification procedures as its safety systems develop, and will update the Privacy Policy when the information it collects changes.
 
@@ -301,7 +301,7 @@ Privacy-related inquiries may be directed to our Privacy Officer: [NAME OR POSIT
 export const PRIVACY_MD = String.raw`# CarpSchool Privacy Policy
 
 **Effective Date:** September 9, 2026
-**Last Updated:** September 15, 2026
+**Last Updated:** September 16, 2026
 
 CarpSchool Foundation ("CarpSchool," "we," "us," or "our") is a registered society in British Columbia that operates the CarpSchool carpool coordination platform for post-secondary students.
 
@@ -319,7 +319,7 @@ We collect only personal information that we reasonably need to operate, secure,
 
 **Account and Contact Information.** Your name, school email address, and sign-in credentials. Sign-in is handled by a third-party authentication provider, which holds your password and any social-login link on our behalf; CarpSchool receives a verified identifier and your email address, not your password. You may also provide an optional phone number and a short free-text note for other users.
 
-**School Information.** Your school, the school email address you verify with, your year of study, and a general campus area. School email verification establishes a connection with a school community; it is not a safety or background check.
+**School Information.** Your school, the school email address you verify with, and your year of study. School email verification establishes a connection with a school community; it is not a safety or background check.
 
 **Profile and Vehicle Photos.** A profile photo, and for users who drive, an optional photo of their vehicle. Both are shown to other approved users at your school as described in Section 4.
 
@@ -347,7 +347,7 @@ We will not use personal information for an unrelated purpose without obtaining 
 
 CarpSchool necessarily shares some information between approved users at the same school so that they can decide whether to ride together.
 
-Other approved users at your school may see your name, profile photo, year of study, campus area, whether you drive or ride, and your vehicle photo if you provided one. When you post a ride, its pickup and drop-off points, route, time, seats, and notes are visible to approved users at your school. When you join a ride, the driver and other participants can see that you joined and can message you.
+Other approved users at your school may see your name, profile photo, year of study, whether you drive or ride, and your vehicle photo if you provided one. When you post a ride, its pickup and drop-off points, route, time, seats, and notes are visible to approved users at your school. When you join a ride, the driver and other participants can see that you joined and can message you.
 
 Your email address and phone number are not shown on your profile. Share contact details, exact addresses, or other sensitive information in messages only when reasonably necessary to coordinate a ride.
 
