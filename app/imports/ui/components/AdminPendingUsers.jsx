@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Meteor } from "meteor/meteor";
 import { getImageUrl } from "../mobile/utils/imageUtils";
 import UserVerificationPopup from "./UserVerificationPopup";
+import Icon from "./Icon";
 import {
   Container,
   Header,
@@ -171,7 +172,7 @@ const AdminPendingUsers = () => {
           <Subtitle>Manage users waiting for verification approval</Subtitle>
         </Header>
         <LoadingState>
-          <div>⏳ Loading pending users...</div>
+          <div>Loading pending users…</div>
         </LoadingState>
       </Container>
     );
@@ -185,7 +186,7 @@ const AdminPendingUsers = () => {
           {pendingUsers.length} user{pendingUsers.length !== 1 ? "s" : ""} waiting for approval
         </Subtitle>
         <RefreshButton onClick={loadPendingUsers} disabled={loading}>
-          🔄 Refresh
+          Refresh
         </RefreshButton>
       </Header>
 
@@ -195,7 +196,7 @@ const AdminPendingUsers = () => {
 
         {pendingUsers.length === 0 ? (
           <EmptyState>
-            <div>🎉</div>
+            <div><Icon name="check" size={32} /></div>
             <h3>No pending approvals!</h3>
             <p>All users are currently approved. Check back later for new verification requests.</p>
           </EmptyState>
@@ -216,21 +217,21 @@ const AdminPendingUsers = () => {
                 <UserDetails>
                   <UserName>{user.Name}</UserName>
                   <UserType userType={user.UserType}>
-                    {user.UserType === "Driver" ? "🚗 Driver" : "🎒 Rider"}
+                    {user.UserType === "Driver" ? "Driver" : "Rider"}
                   </UserType>
                   <UserEmail>{user.userEmail}</UserEmail>
                   {user.schoolemail && (
-                    <UserEmail>📧 School: {user.schoolemail}</UserEmail>
+                    <UserEmail>{`School: ${user.schoolemail}`}</UserEmail>
                   )}
-                  <UserSchool>🏫 {user.schoolName}</UserSchool>
+                  <UserSchool>{user.schoolName}</UserSchool>
                   {user.Phone && (
-                    <UserMeta>📞 {user.Phone}</UserMeta>
+                    <UserMeta>{user.Phone}</UserMeta>
                   )}
                   {user.major && user.year && (
-                    <UserMeta>📚 {user.major} ({user.year})</UserMeta>
+                    <UserMeta>{`${user.major} (${user.year})`}</UserMeta>
                   )}
                   <UserMeta>
-                    📅 Joined: {formatDate(user.userCreatedAt)}
+                    {`Joined: ${formatDate(user.userCreatedAt)}`}
                   </UserMeta>
                 </UserDetails>
               </UserInfo>
@@ -240,14 +241,14 @@ const AdminPendingUsers = () => {
                   onClick={() => handleApprove(user.Owner, user.Name)}
                   disabled={processing === user.Owner}
                 >
-                  {processing === user.Owner ? "Approving..." : "✅ Approve"}
+                  {processing === user.Owner ? "Approving..." : "Approve"}
                 </ApproveButton>
 
                 <RejectButton
                   onClick={() => handleRejectClick(user.Owner)}
                   disabled={processing === user.Owner}
                 >
-                  {processing === user.Owner ? "Processing..." : "❌ Reject"}
+                  {processing === user.Owner ? "Processing..." : "Reject"}
                 </RejectButton>
               </Actions>
             </UserCard>

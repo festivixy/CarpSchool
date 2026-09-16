@@ -8,6 +8,7 @@ import { ErrorReports } from "../../../api/errorReport/ErrorReport";
 import { MobileOnly } from "../../layouts/Devices";
 import { Spacer } from "../../components";
 import BackButton from "../../mobile/components/BackButton";
+import Icon from "../../components/Icon";
 import {
   Container,
   Header,
@@ -453,7 +454,7 @@ bVal;
         <BackButton />
         <Header>
           <Title>
-            <TitleIcon>🚨</TitleIcon>
+            <TitleIcon><Icon name="flame" size={20} /></TitleIcon>
             Error Reports
           </Title>
         </Header>
@@ -517,26 +518,26 @@ bVal;
                 active={stackingType === "message"}
                 onClick={() => this.handleStackingTypeChange("message")}
               >
-                💬
+                <Icon name="chat" size={14} />
               </FilterButton>
               <FilterButton
                 active={stackingType === "route"}
                 onClick={() => this.handleStackingTypeChange("route")}
               >
-                🛤️
+                <Icon name="map" size={14} />
               </FilterButton>
               <FilterButton
                 active={stackingType === "user"}
                 onClick={() => this.handleStackingTypeChange("user")}
               >
-                👤
+                <Icon name="user" size={14} />
               </FilterButton>
             </div>
           </FiltersContainer>
 
           {/* Search */}
           <SearchContainer>
-            <SearchIcon>🔍</SearchIcon>
+            <SearchIcon><Icon name="search" size={16} /></SearchIcon>
             <SearchInput
               type="text"
               placeholder="Search by error message, ID, user, component, or route..."
@@ -554,7 +555,7 @@ bVal;
           {/* Error Reports Grid */}
           {filteredReports.length === 0 ? (
             <EmptyState>
-              <EmptyStateIcon>📋</EmptyStateIcon>
+              <EmptyStateIcon><Icon name="list" size={32} /></EmptyStateIcon>
               <EmptyStateTitle>No error reports found</EmptyStateTitle>
               <EmptyStateText>
                 {searchQuery ? "Try adjusting your search terms" : "No error reports match the current filter"}

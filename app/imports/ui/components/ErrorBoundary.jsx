@@ -287,7 +287,7 @@ class ErrorBoundary extends Component {
 
       return (
         <ErrorContainer variant={variant}>
-          <ErrorIcon>⚠️</ErrorIcon>
+          <ErrorIcon>!</ErrorIcon>
 
           <ErrorTitle>
             {title || "Something went wrong"}
@@ -303,9 +303,9 @@ class ErrorBoundary extends Component {
           {/* Error reporting status */}
           {reportStatus && (
             <ReportStatus status={reportStatus}>
-              {reportStatus === "reporting" && "📤 Reporting error..."}
-              {reportStatus === "success" && "✅ Error reported successfully"}
-              {reportStatus === "failed" && "⚠️ Failed to report error"}
+              {reportStatus === "reporting" && "Reporting error…"}
+              {reportStatus === "success" && "Error reported"}
+              {reportStatus === "failed" && "Could not report this error"}
             </ReportStatus>
           )}
 

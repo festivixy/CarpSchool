@@ -124,7 +124,7 @@ const UserVerificationPopup = ({ user, onClose, onSuccess }) => {
             <UserInfo>
               <UserName>{user.Name}</UserName>
               <UserBadge userType={user.UserType}>
-                {user.UserType === "Driver" ? "🚗 Driver" : "🎒 Rider"}
+                {user.UserType === "Driver" ? "Driver" : "Rider"}
               </UserBadge>
             </UserInfo>
           </UserSection>
@@ -138,36 +138,36 @@ const UserVerificationPopup = ({ user, onClose, onSuccess }) => {
             <InfoItem>
               <InfoLabel>School Email</InfoLabel>
               <InfoValue>
-                {user.schoolemail ? `📧 ${user.schoolemail}` : "Not provided"}
+                {user.schoolemail || "Not provided"}
               </InfoValue>
             </InfoItem>
 
             <InfoItem>
               <InfoLabel>School</InfoLabel>
-              <InfoValue>🏫 {user.schoolName || "Not specified"}</InfoValue>
+              <InfoValue>{user.schoolName || "Not specified"}</InfoValue>
             </InfoItem>
 
             <InfoItem>
               <InfoLabel>Phone Number</InfoLabel>
               <InfoValue>
-                {user.Phone ? `📞 ${user.Phone}` : "Not provided"}
+                {user.Phone || "Not provided"}
               </InfoValue>
             </InfoItem>
 
             <InfoItem>
               <InfoLabel>Account Created</InfoLabel>
-              <InfoValue>📅 {formatDate(user.userCreatedAt)}</InfoValue>
+              <InfoValue>{formatDate(user.userCreatedAt)}</InfoValue>
             </InfoItem>
 
             <InfoItem>
               <InfoLabel>Verification Status</InfoLabel>
-              <InfoValue>⏳ Pending Admin Approval</InfoValue>
+              <InfoValue>Pending admin approval</InfoValue>
             </InfoItem>
 
             {user.Location && (
               <InfoItem>
                 <InfoLabel>Location</InfoLabel>
-                <InfoValue>📍 {user.Location}</InfoValue>
+                <InfoValue>{user.Location}</InfoValue>
               </InfoItem>
             )}
 
@@ -186,14 +186,14 @@ const UserVerificationPopup = ({ user, onClose, onSuccess }) => {
               onClick={handleApprove}
               disabled={processing}
             >
-              {processing ? "Approving..." : "✅ Approve User"}
+              {processing ? "Approving..." : "Approve user"}
             </ApproveButton>
 
             <RejectButton
               onClick={handleRejectClick}
               disabled={processing}
             >
-              {processing ? "Processing..." : "❌ Reject User"}
+              {processing ? "Processing..." : "Reject user"}
             </RejectButton>
           </Actions>
         </PopupBody>

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Icon from "../../components/Icon";
 import {
   DropdownContainer,
   DropdownButton,
@@ -21,13 +22,13 @@ import {
  * the actions that actually move them into the app.
  */
 const SIGNED_OUT_ITEMS = [
-  { id: "signup", icon: "🚀", text: "Create Account", path: "/signup" },
-  { id: "signin", icon: "🔐", text: "Sign In", path: "/login" },
+  { id: "signup", icon: "plus", text: "Create Account", path: "/signup" },
+  { id: "signin", icon: "user", text: "Sign In", path: "/login" },
 ];
 
 const SIGNED_IN_ITEMS = [
-  { id: "find", icon: "🔎", text: "Find a ride", path: "/find" },
-  { id: "rides", icon: "🚗", text: "My rides", path: "/my-rides" },
+  { id: "find", icon: "search", text: "Find a ride", path: "/find" },
+  { id: "rides", icon: "car", text: "My rides", path: "/my-rides" },
 ];
 
 function LoginDropdown({ history, primary }) {
@@ -88,7 +89,7 @@ function LoginDropdown({ history, primary }) {
                   key={item.id}
                   onClick={() => handleNavigate(item.path)}
                 >
-                  <DropdownItemIcon>{item.icon}</DropdownItemIcon>
+                  <DropdownItemIcon><Icon name={item.icon} size={16} /></DropdownItemIcon>
                   <DropdownItemText>{item.text}</DropdownItemText>
                 </DropdownItem>
               ))}

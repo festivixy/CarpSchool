@@ -89,7 +89,7 @@ class SchoolSelector extends Component {
     if (loading) {
       return (
         <LoadingContainer>
-          <div>🏫 Loading schools...</div>
+          <div>Loading schools…</div>
         </LoadingContainer>
       );
     }
@@ -97,7 +97,7 @@ class SchoolSelector extends Component {
     if (error) {
       return (
         <ErrorContainer>
-          <div>❌ Error loading schools: {error.message}</div>
+          <div>{`Error loading schools: ${error.message}`}</div>
         </ErrorContainer>
       );
     }
@@ -121,14 +121,14 @@ class SchoolSelector extends Component {
             marginBottom: "16px",
             border: "1px solid #4caf50",
           }}>
-            ✅ <strong>Auto-detected:</strong> {autoDetectedSchool.name}
+            <strong>Auto-detected:</strong> {autoDetectedSchool.name}
             (based on your email domain)
           </div>
         )}
 
         <SearchInput
           type="text"
-          placeholder="🔍 Search schools by name, city, or code..."
+          placeholder="Search schools by name, city, or code…"
           value={searchTerm}
           onChange={this.handleSearchChange}
         />
@@ -143,7 +143,7 @@ class SchoolSelector extends Component {
               <SchoolInfo>
                 <SchoolName>{school.name}</SchoolName>
                 <SchoolLocation>
-                  📍 {school.location?.city || "Location not set"}{school.location?.province ? `, ${school.location.province}` : ""}
+                  {school.location?.city || "Location not set"}{school.location?.province ? `, ${school.location.province}` : ""}
                 </SchoolLocation>
               </SchoolInfo>
               <SchoolCode>{school.code}</SchoolCode>

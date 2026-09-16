@@ -61,6 +61,7 @@ import {
   ErrorMessage,
 } from "../styles/AdminUsers";
 import BackButton from "../mobile/components/BackButton";
+import Icon from "../components/Icon";
 
 /**
  * Modern mobile AdminUsers component for managing all users
@@ -301,7 +302,7 @@ class MobileAdminUsers extends React.Component {
       <Container>
         <Header>
           <Title>
-            <TitleIcon>👥</TitleIcon>
+            <TitleIcon><Icon name="user" size={20} /></TitleIcon>
             Manage Users
           </Title>
         </Header>
@@ -326,14 +327,14 @@ class MobileAdminUsers extends React.Component {
         <BackButton />
         <Header>
           <Title>
-            <TitleIcon>👥</TitleIcon>
+            <TitleIcon><Icon name="user" size={20} /></TitleIcon>
             Manage Users
           </Title>
         </Header>
 
         <Content>
           <SearchContainer>
-            <SearchIcon>🔍</SearchIcon>
+            <SearchIcon><Icon name="search" size={16} /></SearchIcon>
             <SearchInput
               type="text"
               placeholder="Search users by name, username, email, or role..."
@@ -344,7 +345,7 @@ class MobileAdminUsers extends React.Component {
 
           {users.length === 0 ? ( // eslint-disable-line
             <EmptyState>
-              <EmptyStateIcon>👤</EmptyStateIcon>
+              <EmptyStateIcon><Icon name="user" size={32} /></EmptyStateIcon>
               <EmptyStateTitle>No users found</EmptyStateTitle>
               <EmptyStateText>
                 No user data is available. This could indicate a data loading
@@ -353,7 +354,7 @@ class MobileAdminUsers extends React.Component {
             </EmptyState>
           ) : filteredUsers.length === 0 ? (
             <EmptyState>
-              <EmptyStateIcon>🔍</EmptyStateIcon>
+              <EmptyStateIcon><Icon name="search" size={32} /></EmptyStateIcon>
               <EmptyStateTitle>No matching users</EmptyStateTitle>
               <EmptyStateText>
                 No users match your search criteria. Try adjusting your search
@@ -393,12 +394,12 @@ class MobileAdminUsers extends React.Component {
                           <UserUsername>@{user.username}</UserUsername>
                           <BadgeContainer>
                             <AdminBadge isAdmin={isAdmin}>
-                              {isAdmin ? "✅ Admin" : "👤 User"}
+                              {isAdmin ? "Admin" : "User"}
                             </AdminBadge>
                             <EmailBadge isVerified={isEmailVerified}>
                               {isEmailVerified
-                                ? "✅ Verified"
-                                : "❌ Unverified"}
+                                ? "Verified"
+                                : "Unverified"}
                             </EmailBadge>
                           </BadgeContainer>
                         </UserInfo>
@@ -427,7 +428,7 @@ class MobileAdminUsers extends React.Component {
                             disabled={loading || isCurrentUser}
                             title="Delete user"
                           >
-                            🗑️
+                            Delete
                           </ActionButton>
                         </ActionButtons>
                       </UserHeader>

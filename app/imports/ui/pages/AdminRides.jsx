@@ -49,6 +49,7 @@ import {
   ErrorMessage,
 } from "../styles/AdminRides";
 import BackButton from "../mobile/components/BackButton";
+import Icon from "../components/Icon";
 
 /**
  * Modern mobile AdminRides component for managing all rides
@@ -218,7 +219,7 @@ class MobileAdminRides extends React.Component {
       <Container>
         <Header>
           <Title>
-            <TitleIcon>🚗</TitleIcon>
+            <TitleIcon><Icon name="car" size={20} /></TitleIcon>
             Manage Rides
           </Title>
         </Header>
@@ -243,14 +244,14 @@ class MobileAdminRides extends React.Component {
         <BackButton />
         <Header>
           <Title>
-            <TitleIcon>🚗</TitleIcon>
+            <TitleIcon><Icon name="car" size={20} /></TitleIcon>
             Manage Rides
           </Title>
         </Header>
 
         <Content>
           <SearchContainer>
-            <SearchIcon>🔍</SearchIcon>
+            <SearchIcon><Icon name="search" size={16} /></SearchIcon>
             <SearchInput
               type="text"
               placeholder="Search rides by driver, rider, origin, destination, or date..."
@@ -261,7 +262,7 @@ class MobileAdminRides extends React.Component {
 
           {rides.length === 0 ? ( // eslint-disable-line
             <EmptyState>
-              <EmptyStateIcon>📭</EmptyStateIcon>
+              <EmptyStateIcon><Icon name="car" size={32} /></EmptyStateIcon>
               <EmptyStateTitle>No rides found</EmptyStateTitle>
               <EmptyStateText>
                 There are currently no rides in the system. Rides will appear
@@ -270,7 +271,7 @@ class MobileAdminRides extends React.Component {
             </EmptyState>
           ) : filteredRides.length === 0 ? (
             <EmptyState>
-              <EmptyStateIcon>🔍</EmptyStateIcon>
+              <EmptyStateIcon><Icon name="search" size={32} /></EmptyStateIcon>
               <EmptyStateTitle>No matching rides</EmptyStateTitle>
               <EmptyStateText>
                 No rides match your search criteria. Try adjusting your search
@@ -318,7 +319,7 @@ class MobileAdminRides extends React.Component {
                           disabled={loading}
                           title="Delete ride"
                         >
-                          🗑️
+                          Delete
                         </ActionButton>
                       </ActionButtons>
                     </RideHeader>

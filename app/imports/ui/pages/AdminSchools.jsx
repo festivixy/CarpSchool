@@ -63,6 +63,7 @@ import {
 import BackButton from "../mobile/components/BackButton";
 import InteractiveMapPicker from "../mobile/components/InteractiveMapPicker";
 import SchoolAdminManager from "../components/SchoolAdminManager";
+import Icon from "../components/Icon";
 
 /**
  * AdminSchools component for managing schools (System admins only)
@@ -347,7 +348,7 @@ class AdminSchools extends React.Component {
       <Container>
         <Header>
           <Title>
-            <TitleIcon>🏫</TitleIcon>
+            <TitleIcon><Icon name="school" size={20} /></TitleIcon>
             Manage Schools
           </Title>
         </Header>
@@ -371,7 +372,7 @@ class AdminSchools extends React.Component {
         <Container>
           <Header>
             <Title>
-              <TitleIcon>🏫</TitleIcon>
+              <TitleIcon><Icon name="school" size={20} /></TitleIcon>
               Manage Schools
             </Title>
             <Subtitle>You need system administrator permissions to access this page.</Subtitle>
@@ -387,7 +388,7 @@ class AdminSchools extends React.Component {
         <BackButton />
         <Header>
           <Title>
-            <TitleIcon>🏫</TitleIcon>
+            <TitleIcon><Icon name="school" size={20} /></TitleIcon>
             Manage Schools
           </Title>
           <Subtitle>Create and manage school organizations</Subtitle>
@@ -402,7 +403,7 @@ class AdminSchools extends React.Component {
 
           <TopActions>
             <SearchContainer>
-              <SearchIcon>🔍</SearchIcon>
+              <SearchIcon><Icon name="search" size={16} /></SearchIcon>
               <SearchInput
                 type="text"
                 placeholder="Search schools by name, code, or domain..."
@@ -417,7 +418,7 @@ class AdminSchools extends React.Component {
 
           {schools.length === 0 ? ( // eslint-disable-line no-nested-ternary
             <EmptyState>
-              <EmptyStateIcon>🏫</EmptyStateIcon>
+              <EmptyStateIcon><Icon name="school" size={32} /></EmptyStateIcon>
               <EmptyStateTitle>No schools found</EmptyStateTitle>
               <EmptyStateText>
                 No schools have been created yet. Create the first school to get started.
@@ -425,7 +426,7 @@ class AdminSchools extends React.Component {
             </EmptyState>
           ) : filteredSchools.length === 0 ? (
             <EmptyState>
-              <EmptyStateIcon>🔍</EmptyStateIcon>
+              <EmptyStateIcon><Icon name="search" size={32} /></EmptyStateIcon>
               <EmptyStateTitle>No matching schools</EmptyStateTitle>
               <EmptyStateText>
                 No schools match your search criteria. Try adjusting your search terms.
@@ -450,14 +451,14 @@ class AdminSchools extends React.Component {
                           <SchoolCode>{school.code}</SchoolCode>
                           <BadgeContainer>
                             <StatusBadge isActive={school.isActive}>
-                              {school.isActive ? "✅ Active" : "❌ Inactive"}
+                              {school.isActive ? "Active" : "Inactive"}
                             </StatusBadge>
                             <UserCountBadge>
-                              👥 {userCount} users
+                              {`${userCount} users`}
                             </UserCountBadge>
                             {school.domain && (
                               <DomainBadge>
-                                🌐 {school.domain}
+                                {school.domain}
                               </DomainBadge>
                             )}
                           </BadgeContainer>
@@ -477,7 +478,7 @@ class AdminSchools extends React.Component {
                             disabled={this.state.loading}
                             title={school.isActive ? "Deactivate school" : "Reactivate school"}
                           >
-                            {school.isActive ? "🔴" : "🟢"}
+                            {school.isActive ? "Deactivate" : "Activate"}
                           </ActionButton>
                         </ActionButtons>
                       </SchoolHeader>

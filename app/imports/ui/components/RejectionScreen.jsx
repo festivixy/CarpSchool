@@ -5,6 +5,7 @@ import { Meteor } from "meteor/meteor";
 import { useClerk } from "@clerk/clerk-react";
 import { Profiles } from "../../api/profile/Profile";
 import { fullSignOut } from "../utils/signOut";
+import Glyph from "./Icon";
 import {
   Container,
   Content,
@@ -99,7 +100,7 @@ const RejectionScreen = ({ profile, loading }) => {
           </Message>
           <Actions>
             <LogoutButton onClick={handleLogout}>
-              🚪 Sign Out
+              Sign Out
             </LogoutButton>
           </Actions>
         </Content>
@@ -113,12 +114,12 @@ const RejectionScreen = ({ profile, loading }) => {
   return (
     <Container>
       <Content>
-        <Icon>❌</Icon>
+        <Icon><Glyph name="close" size={30} /></Icon>
         <Title>Verification Rejected</Title>
         <Subtitle>Your {userType.toLowerCase()} verification was not approved</Subtitle>
 
         <StatusCard rejected>
-          <StatusIcon rejected>❌</StatusIcon>
+          <StatusIcon rejected><Glyph name="close" size={16} strokeWidth={2.6} /></StatusIcon>
           <StatusText>
             <strong>Status:</strong> Verification Rejected
             {profile.rejectedAt && (
@@ -130,7 +131,7 @@ const RejectionScreen = ({ profile, loading }) => {
         </StatusCard>
 
         <Message>
-          Hi {userName}, 👋
+          Hi {userName},
           <br /><br />
           Unfortunately, your {userType.toLowerCase()} verification was not approved by our administrators.
           This could be due to incomplete information, unclear verification documents, or other issues
@@ -142,7 +143,7 @@ const RejectionScreen = ({ profile, loading }) => {
 
         {profile.rejectionReason && (
           <ReasonSection>
-            <ReasonTitle>📝 Reason for Rejection</ReasonTitle>
+            <ReasonTitle>Reason for Rejection</ReasonTitle>
             <ReasonText>{profile.rejectionReason}</ReasonText>
           </ReasonSection>
         )}
@@ -155,11 +156,11 @@ const RejectionScreen = ({ profile, loading }) => {
             onClick={handleReVerify}
             disabled={processing}
           >
-            {processing ? "Starting Re-verification..." : "🔄 Re-Verify Profile"}
+            {processing ? "Starting Re-verification..." : "Re-Verify Profile"}
           </ReVerifyButton>
           
           <LogoutButton onClick={handleLogout} disabled={processing}>
-            🚪 Sign Out
+            Sign Out
           </LogoutButton>
         </Actions>
 

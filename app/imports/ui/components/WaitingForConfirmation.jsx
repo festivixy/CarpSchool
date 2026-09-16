@@ -5,6 +5,7 @@ import { Meteor } from "meteor/meteor";
 import { useClerk } from "@clerk/clerk-react";
 import { Profiles } from "../../api/profile/Profile";
 import { fullSignOut } from "../utils/signOut";
+import Glyph from "./Icon";
 import {
   Container,
   Content,
@@ -40,7 +41,7 @@ const WaitingForConfirmation = ({ profile, loading }) => {
     return (
       <Container>
         <Content>
-          <Icon>🔍</Icon>
+          <Icon><Glyph name="clock" size={30} /></Icon>
           <Title>Admin Verification in Progress</Title>
           <Subtitle>Our administrators are reviewing your profile verification</Subtitle>
 
@@ -58,40 +59,40 @@ const WaitingForConfirmation = ({ profile, loading }) => {
   return (
     <Container>
       <Content>
-        <Icon>🔍</Icon>
+        <Icon><Glyph name="clock" size={30} /></Icon>
         <Title>Admin Verification in Progress</Title>
         <Subtitle>Our administrators are reviewing your {userType.toLowerCase()} profile verification</Subtitle>
 
         <StatusCard>
-          <StatusIcon verified>✅</StatusIcon>
+          <StatusIcon verified><Glyph name="check" size={16} strokeWidth={2.6} /></StatusIcon>
           <StatusText>
             <strong>Step 1:</strong> Account Verification - Complete
           </StatusText>
         </StatusCard>
 
         <StatusCard>
-          <StatusIcon verified>✅</StatusIcon>
+          <StatusIcon verified><Glyph name="check" size={16} strokeWidth={2.6} /></StatusIcon>
           <StatusText>
             <strong>Step 2:</strong> Profile Setup - Complete
           </StatusText>
         </StatusCard>
 
         <StatusCard>
-          <StatusIcon verified>✅</StatusIcon>
+          <StatusIcon verified><Glyph name="check" size={16} strokeWidth={2.6} /></StatusIcon>
           <StatusText>
             <strong>Step 3:</strong> {userType} Verification - Complete
           </StatusText>
         </StatusCard>
 
         <StatusCard pending>
-          <StatusIcon pending>⏳</StatusIcon>
+          <StatusIcon pending><Glyph name="clock" size={16} /></StatusIcon>
           <StatusText>
             <strong>Step 4:</strong> Admin Approval - Pending
           </StatusText>
         </StatusCard>
 
         <Message>
-          Hi {userName}! 👋
+          Hi {userName}!
           <br /><br />
           Great news! You&apos;ve successfully completed your {userType.toLowerCase()} verification.
           Our administrators are now reviewing your profile to ensure everything is in order.
@@ -108,7 +109,7 @@ const WaitingForConfirmation = ({ profile, loading }) => {
         </Message>
 
         <InfoSection>
-          <InfoTitle>📧 What to Expect</InfoTitle>
+          <InfoTitle>What to Expect</InfoTitle>
           <InfoText>
             You'll receive an email notification as soon as your profile is approved by our administrators.
             In the meantime, feel free to check back here periodically. If you have questions about your
@@ -118,7 +119,7 @@ const WaitingForConfirmation = ({ profile, loading }) => {
 
         <Actions>
           <LogoutButton onClick={handleLogout}>
-            🚪 Sign Out
+            Sign Out
           </LogoutButton>
         </Actions>
       </Content>

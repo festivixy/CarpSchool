@@ -3,6 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import { NotificationHelpers } from "../utils/notifications";
+import Icon from "./Icon";
 import {
   Badge,
   BadgeCount,
@@ -88,18 +89,21 @@ const NotificationBadge = ({
   };
 
   const getNotificationIcon = (type) => {
+    /* Names from the shared icon set rather than emoji, so a notification row
+     * matches every other row in the app instead of rendering in whatever
+     * colour and weight the platform's emoji font happens to use. */
     const icons = {
-      ride_update: "🚗",
-      ride_cancelled: "❌",
-      rider_joined: "👋",
-      rider_left: "👋",
-      chat_message: "💬",
-      ride_starting: "🚦",
-      ride_completed: "✅",
-      emergency: "🚨",
-      system: "ℹ️",
+      ride_update: "car",
+      ride_cancelled: "close",
+      rider_joined: "user",
+      rider_left: "user",
+      chat_message: "chat",
+      ride_starting: "clock",
+      ride_completed: "check",
+      emergency: "flame",
+      system: "bell",
     };
-    return icons[type] || "📬";
+    return icons[type] || "bell";
   };
 
   const formatTimeAgo = (timestamp) => {
@@ -161,7 +165,7 @@ const NotificationBadge = ({
           {notifications.length === 0 ? (
             <EmptyState>
               <div style={{ textAlign: "center", padding: "40px 20px" }}>
-                <div style={{ fontSize: "48px", marginBottom: "16px" }}>📭</div>
+                <div style={{ marginBottom: "16px" }}><Icon name="bell" size={40} /></div>
                 <h4 style={{ margin: "0 0 8px 0", color: "#666" }}>No notifications</h4>
                 <p style={{ margin: 0, color: "#999", fontSize: "14px" }}>
                   You&apos;re all caught up!
@@ -176,7 +180,7 @@ const NotificationBadge = ({
                 onClick={() => handleNotificationClick(notification)}
               >
                 <NotificationIcon>
-                  {getNotificationIcon(notification.type)}
+                  <Icon name={getNotificationIcon(notification.type)} size={16} />
                 </NotificationIcon>
 
                 <NotificationContent>
