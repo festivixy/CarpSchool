@@ -92,7 +92,7 @@ export default class MobileVerifyEmail extends React.Component {
         </Header>
 
         <Content>
-          <Icon>📧</Icon>
+          <Icon></Icon>
 
           <Copy>
             <Title>Please verify your email</Title>

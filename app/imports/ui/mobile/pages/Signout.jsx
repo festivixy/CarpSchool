@@ -51,7 +51,7 @@ export default function MobileSignout() {
           </LoadingSection>
         ) : (
           <SuccessSection>
-            <Icon>👋</Icon>
+            <Icon></Icon>
             <Title>You are signed out.</Title>
             <Actions>
               <ButtonPrimary to="/login">Sign In Again</ButtonPrimary>

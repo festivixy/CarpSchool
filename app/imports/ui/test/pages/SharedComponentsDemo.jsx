@@ -38,11 +38,11 @@ const SharedComponentsDemo = ({ history }) => {
   const [showError, setShowError] = useState(false);
 
   const dropdownOptions = [
-    { value: "vancouver", label: "Vancouver", icon: "🇨🇦" },
-    { value: "toronto", label: "Toronto", icon: "🏙️" },
-    { value: "montreal", label: "Montreal", icon: "🎭" },
-    { value: "calgary", label: "Calgary", icon: "🏔️" },
-    { value: "ottawa", label: "Ottawa", icon: "🏛️" },
+    { value: "vancouver", label: "Vancouver", icon: "" },
+    { value: "toronto", label: "Toronto", icon: "" },
+    { value: "montreal", label: "Montreal", icon: "" },
+    { value: "calgary", label: "Calgary", icon: "" },
+    { value: "ottawa", label: "Ottawa", icon: "" },
   ];
 
   const handleAsyncAction = async () => {
@@ -89,7 +89,7 @@ const SharedComponentsDemo = ({ history }) => {
               <Button variant="danger" onClick={() => alert("Danger clicked!")}>
                 Danger Button
               </Button>
-              <Button variant="outline" icon="🔄" onClick={handleAsyncAction} loading={loading}>
+              <Button variant="outline" icon="" onClick={handleAsyncAction} loading={loading}>
                 {loading ? "Loading..." : "Async Action"}
               </Button>
               <Button variant="ghost" size="small" disabled>
@@ -101,7 +101,7 @@ const SharedComponentsDemo = ({ history }) => {
   Primary Button
 </Button>
 
-<Button variant="outline" icon="🔄" loading={loading}>
+<Button variant="outline" icon="" loading={loading}>
   Async Action
 </Button>`}
             </DemoCode>
@@ -122,7 +122,7 @@ const SharedComponentsDemo = ({ history }) => {
                 label="Email Input"
                 type="email"
                 placeholder="your@email.com"
-                icon="📧"
+                icon=""
                 required
               />
               <TextInput
@@ -137,7 +137,7 @@ const SharedComponentsDemo = ({ history }) => {
                 label="Search Input"
                 type="search"
                 placeholder="Search..."
-                icon="🔍"
+                icon=""
                 variant="outline"
               />
             </ComponentControls>
@@ -145,7 +145,7 @@ const SharedComponentsDemo = ({ history }) => {
 {`<TextInput
   label="Email Input"
   type="email"
-  icon="📧"
+  icon=""
   required
   onChange={handleChange}
 />`}
@@ -297,12 +297,12 @@ const SharedComponentsDemo = ({ history }) => {
           <DemoDescription>
             All shared components follow consistent patterns:
             <ul>
-              <li>✅ Support both controlled and uncontrolled patterns</li>
-              <li>✅ Include comprehensive PropTypes validation</li>
-              <li>✅ Implement proper accessibility (ARIA labels, keyboard navigation)</li>
-              <li>✅ Support dark mode and reduced motion preferences</li>
-              <li>✅ Responsive design for desktop and mobile</li>
-              <li>✅ Consistent styling with styled-components</li>
+              <li>Support both controlled and uncontrolled patterns</li>
+              <li>Include comprehensive PropTypes validation</li>
+              <li>Implement proper accessibility (ARIA labels, keyboard navigation)</li>
+              <li>Support dark mode and reduced motion preferences</li>
+              <li>Responsive design for desktop and mobile</li>
+              <li>Consistent styling with styled-components</li>
             </ul>
           </DemoDescription>
 

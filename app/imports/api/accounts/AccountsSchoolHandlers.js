@@ -60,7 +60,7 @@ Accounts.onCreateUser(async (options, user) => {
       });
       if (school) {
         schoolId = school._id;
-        console.log(`🏫 Auto-detected school ${school.name} for ${userEmail}`);
+        console.log(`Auto-detected school ${school.name} for ${userEmail}`);
       }
     }
   }

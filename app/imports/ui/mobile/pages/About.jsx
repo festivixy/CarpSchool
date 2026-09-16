@@ -39,7 +39,7 @@ Have questions or feedback? We'd love to hear from you!
 
 ---
 
-*CarpSchool - Ride Together, Save Together* 🚙
+*CarpSchool - Ride Together, Save Together*
 `;
 
 /**

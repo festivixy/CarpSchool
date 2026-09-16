@@ -58,7 +58,7 @@ export const Badge = styled.div`
   }
 
   &:before {
-    content: "🔔";
+    content: "";
     font-size: 18px;
     opacity: ${props => (props.hasCount ? 0.8 : 0.6)};
   }

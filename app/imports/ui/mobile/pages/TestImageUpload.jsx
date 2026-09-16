@@ -60,7 +60,7 @@ const MobileTestImageUpload = () => {
         </Copy>
 
         <Section>
-          <SectionTitle>📤 Upload Image</SectionTitle>
+          <SectionTitle>Upload Image</SectionTitle>
           <SectionContent>
             <ComponentContainer>
               <ImageUpload
@@ -72,7 +72,7 @@ const MobileTestImageUpload = () => {
             {uploadResult && (
               <StatusCard success>
                 <StatusHeader>
-                  <StatusIcon>✅</StatusIcon>
+                  <StatusIcon></StatusIcon>
                   <StatusInfo>
                     <StatusLabel>Upload Successful!</StatusLabel>
                   </StatusInfo>
@@ -98,7 +98,7 @@ const MobileTestImageUpload = () => {
             {uploadError && (
               <StatusCard error>
                 <StatusHeader>
-                  <StatusIcon>❌</StatusIcon>
+                  <StatusIcon></StatusIcon>
                   <StatusInfo>
                     <StatusLabel>Upload Failed</StatusLabel>
                     <StatusValue>
@@ -116,7 +116,7 @@ const MobileTestImageUpload = () => {
         <Divider />
 
         <Section>
-          <SectionTitle>👁️ View Image</SectionTitle>
+          <SectionTitle>View Image</SectionTitle>
           <SectionContent>
             <ComponentContainer>
               <ImageViewer uuid={uploadResult ? uploadResult.uuid : ""} />

@@ -918,19 +918,19 @@ class Ride extends React.Component {
 
           <Details>
             <DetailItem>
-              <DetailIcon>📅</DetailIcon>
+              <DetailIcon></DetailIcon>
               <DetailText>{this.formatDate(ride.date)}</DetailText>
             </DetailItem>
             <DetailItem>
-              <DetailIcon>🕒</DetailIcon>
+              <DetailIcon></DetailIcon>
               <DetailText>{this.formatTime(ride.date)}</DetailText>
             </DetailItem>
             <DetailItem>
-              <DetailIcon>🚗</DetailIcon>
+              <DetailIcon></DetailIcon>
               <DetailText>{ride.driver}</DetailText>
             </DetailItem>
             <DetailItem>
-              <DetailIcon>👥</DetailIcon>
+              <DetailIcon></DetailIcon>
               <DetailText>
                 {/* Handle new schema */}
                 {ride.riders !== undefined && ride.seats !== undefined // eslint-disable-line no-nested-ternary
@@ -979,7 +979,7 @@ class Ride extends React.Component {
                   border: `1px solid ${this.state.isTrackingEnabled ? "#c8e6c9" : "#ffcdd2"}`
                 }}>
                   <span style={{ marginRight: "10px", fontSize: "14px" }}>
-                    {this.state.isTrackingEnabled ? "🟢 Live Location ON" : "🔴 Live Location OFF"}
+                    {this.state.isTrackingEnabled ? "Live Location ON" : "Live Location OFF"}
                   </span>
                   <button
                     onClick={this.toggleTracking}
@@ -1008,7 +1008,7 @@ class Ride extends React.Component {
                   {isGenerating ? (
                     <Spinner />
                   ) : (
-                    <ShareIcon>🔗</ShareIcon>
+                    <ShareIcon></ShareIcon>
                   )}
                 </ShareButton>
               )}
@@ -1022,7 +1022,7 @@ class Ride extends React.Component {
                   {isGenerating ? (
                     <Spinner />
                   ) : (
-                    <JoinIcon>🚗</JoinIcon>
+                    <JoinIcon></JoinIcon>
                   )}
                 </JoinButton>
               )}
@@ -1036,7 +1036,7 @@ class Ride extends React.Component {
                   {isGenerating ? (
                     <Spinner />
                   ) : (
-                    <StartRideIcon>🚀</StartRideIcon>
+                    <StartRideIcon></StartRideIcon>
                   )}
                 </StartRideButton>
               )}
@@ -1050,7 +1050,7 @@ class Ride extends React.Component {
                   {isGenerating ? (
                     <Spinner />
                   ) : (
-                    <StartRideIcon>▶️</StartRideIcon>
+                    <StartRideIcon>▶</StartRideIcon>
                   )}
                 </StartRideButton>
               )}
@@ -1059,7 +1059,7 @@ class Ride extends React.Component {
                   onClick={this.handleConfirmPickup}
                   title="Confirm Pickup"
                 >
-                  <ConfirmPickupIcon>✅</ConfirmPickupIcon>
+                  <ConfirmPickupIcon></ConfirmPickupIcon>
                 </ConfirmPickupButton>
               )}
               {this.canCompleteRide() && (
@@ -1072,7 +1072,7 @@ class Ride extends React.Component {
                   {isGenerating ? (
                     <Spinner />
                   ) : (
-                    <CompleteRideIcon>🏁</CompleteRideIcon>
+                    <CompleteRideIcon></CompleteRideIcon>
                   )}
                 </CompleteRideButton>
               )}
@@ -1081,7 +1081,7 @@ class Ride extends React.Component {
                   onClick={this.handleShowCode}
                   title="Show Pickup Code"
                 >
-                  <ShowCodeIcon>🔢</ShowCodeIcon>
+                  <ShowCodeIcon></ShowCodeIcon>
                 </ShowCodeButton>
               )}
               {this.canConfirmDropoff() && (
@@ -1094,7 +1094,7 @@ class Ride extends React.Component {
                   {isGenerating ? (
                     <Spinner />
                   ) : (
-                    <DropoffIcon>📍</DropoffIcon>
+                    <DropoffIcon></DropoffIcon>
                   )}
                 </DropoffButton>
               )}
@@ -1103,7 +1103,7 @@ class Ride extends React.Component {
                   onClick={this.handleViewHistory}
                   title="View Ride History"
                 >
-                  <ViewHistoryIcon>📋</ViewHistoryIcon>
+                  <ViewHistoryIcon></ViewHistoryIcon>
                 </ViewHistoryButton>
               )}
               {this.canAccessChat() && (
@@ -1111,7 +1111,7 @@ class Ride extends React.Component {
                   onClick={this.handleOpenChat}
                   title="Open Chat"
                 >
-                  <ChatIcon>💬</ChatIcon>
+                  <ChatIcon></ChatIcon>
                 </ChatButton>
               )}
               {this.getPlaceCoordinates(ride.origin) && this.getPlaceCoordinates(ride.destination) && (
@@ -1121,7 +1121,7 @@ class Ride extends React.Component {
                       onClick={this.handleViewRideInfo}
                       title="View Details"
                     >
-                      <MapIcon>📱</MapIcon>
+                      <MapIcon></MapIcon>
                     </MapButton>
                   </MobileOnly>
                   <DesktopOnly>
@@ -1129,7 +1129,7 @@ class Ride extends React.Component {
                       onClick={this.handleOpenMap}
                       title="Open Map"
                     >
-                      <MapIcon>🗺️</MapIcon>
+                      <MapIcon></MapIcon>
                     </MapButton>
                   </DesktopOnly>
                 </>
@@ -1145,7 +1145,7 @@ class Ride extends React.Component {
               <Modal onClick={(e) => e.stopPropagation()}>
                 <ModalHeader>
                   <ModalTitle>
-                    <ModalIcon>🔗</ModalIcon>
+                    <ModalIcon></ModalIcon>
                     Share Your Ride
                   </ModalTitle>
                   <ModalClose onClick={this.closeShareModal}>✕</ModalClose>
@@ -1177,7 +1177,7 @@ class Ride extends React.Component {
 
                 <ModalActions>
                   <CopyButton onClick={this.generateInviteLink}>
-                    📋 Copy Invite Link
+                    Copy Invite Link
                   </CopyButton>
                   <DoneButton onClick={this.closeShareModal}>✓ Done</DoneButton>
                 </ModalActions>
@@ -1193,7 +1193,7 @@ class Ride extends React.Component {
               <Modal onClick={(e) => e.stopPropagation()} style={{ maxWidth: "90vw", maxHeight: "90vh" }}>
                 <ModalHeader>
                   <ModalTitle>
-                    <ModalIcon>🗺️</ModalIcon>
+                    <ModalIcon></ModalIcon>
                     Route Map
                   </ModalTitle>
                   <ModalClose onClick={this.closeMapModal}>✕</ModalClose>
@@ -1209,7 +1209,7 @@ class Ride extends React.Component {
                 </ModalContent>
 
                 <ModalActions>
-                  <DoneButton onClick={this.closeMapModal}>✅ Close</DoneButton>
+                  <DoneButton onClick={this.closeMapModal}>Close</DoneButton>
                 </ModalActions>
               </Modal>
             </ModalOverlay>,
@@ -1223,7 +1223,7 @@ class Ride extends React.Component {
               <PickupModal onClick={(e) => e.stopPropagation()}>
                 <PickupModalHeader>
                   <PickupModalTitle>
-                    ✅ Confirm Pickup
+                    Confirm Pickup
                   </PickupModalTitle>
                   <ModalClose onClick={this.closePickupModal}>✕</ModalClose>
                 </PickupModalHeader>
@@ -1301,7 +1301,7 @@ class Ride extends React.Component {
               <PickupModal onClick={(e) => e.stopPropagation()}>
                 <PickupModalHeader>
                   <PickupModalTitle>
-                    ✅ Confirm Pickup
+                    Confirm Pickup
                   </PickupModalTitle>
                   <ModalClose onClick={this.closePickupModal}>✕</ModalClose>
                 </PickupModalHeader>
@@ -1379,7 +1379,7 @@ class Ride extends React.Component {
               <Modal onClick={(e) => e.stopPropagation()}>
                 <ModalHeader>
                   <ModalTitle>
-                    <ModalIcon>🔢</ModalIcon>
+                    <ModalIcon></ModalIcon>
                     Your Pickup Code
                   </ModalTitle>
                   <ModalClose onClick={this.closeCodeModal}>✕</ModalClose>

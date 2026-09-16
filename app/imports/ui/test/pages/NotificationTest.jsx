@@ -49,7 +49,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(logText);
-        addLog("📋 Logs copied to clipboard!", "success");
+        addLog("Logs copied to clipboard!", "success");
       } else {
         // Fallback for older browsers
         const textArea = document.createElement("textarea");
@@ -58,16 +58,16 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
         textArea.select();
         document.execCommand("copy");
         document.body.removeChild(textArea);
-        addLog("📋 Logs copied to clipboard (fallback method)!", "success");
+        addLog("Logs copied to clipboard (fallback method)!", "success");
       }
     } catch (error) {
-      addLog(`❌ Failed to copy logs: ${error.message}`, "error");
+      addLog(`Failed to copy logs: ${error.message}`, "error");
 
       // Show logs in a new window as fallback
       const logText = logs.map(log => `[${log.timestamp}] ${log.message}`).join("\n");
       const newWindow = window.open("", "_blank");
       newWindow.document.write(`<pre style="font-family: monospace; white-space: pre-wrap;">${logText}</pre>`);
-      addLog("📋 Logs opened in new window (copy manually)", "info");
+      addLog("Logs opened in new window (copy manually)", "info");
     }
   };
 
@@ -75,7 +75,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const testTokenRegistration = async () => {
     setIsLoading(true);
     try {
-      addLog("🔧 Testing push token registration...", "info");
+      addLog("Testing push token registration...", "info");
 
       const testToken = `test-token-${Date.now()}`;
       const platform = "web";
@@ -91,11 +91,11 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
         deviceInfo,
       );
 
-      addLog(`✅ Token registered successfully: ${tokenId}`, "success");
-      addLog(`📱 Token: ${testToken}`, "info");
+      addLog(`Token registered successfully: ${tokenId}`, "success");
+      addLog(`Token: ${testToken}`, "info");
 
     } catch (error) {
-      addLog(`❌ Token registration failed: ${error.reason || error.message}`, "error");
+      addLog(`Token registration failed: ${error.reason || error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +105,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const testSelfNotification = async () => {
     setIsLoading(true);
     try {
-      addLog("📤 Sending notification to self...", "info");
+      addLog("Sending notification to self...", "info");
 
       const result = await Meteor.callAsync(
         "notifications.send",
@@ -119,12 +119,12 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
         },
       );
 
-      addLog("✅ Notification sent successfully!", "success");
-      addLog(`📊 Batch ID: ${result.batchId}`, "info");
-      addLog(`📝 ${result.notificationIds.length} notification(s) created`, "info");
+      addLog("Notification sent successfully!", "success");
+      addLog(`Batch ID: ${result.batchId}`, "info");
+      addLog(`${result.notificationIds.length} notification(s) created`, "info");
 
     } catch (error) {
-      addLog(`❌ Send failed: ${error.reason || error.message}`, "error");
+      addLog(`Send failed: ${error.reason || error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -134,36 +134,36 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const debugRideNotification = async () => {
     setIsLoading(true);
     try {
-      addLog("🔍 Debugging ride notification setup...", "info");
+      addLog("Debugging ride notification setup...", "info");
 
       // Get current user info
       const currentMeteorUser = Meteor.user();
-      addLog(`👤 Current user: ${currentMeteorUser?.username || "Unknown"} (${currentMeteorUser?._id || "No ID"})`, "info");
-      addLog(`🔑 User roles: [${currentMeteorUser?.roles?.join(", ") || "None"}]`, "info");
+      addLog(`Current user: ${currentMeteorUser?.username || "Unknown"} (${currentMeteorUser?._id || "No ID"})`, "info");
+      addLog(`User roles: [${currentMeteorUser?.roles?.join(", ") || "None"}]`, "info");
 
       // Get user's rides
       const rides = await Meteor.callAsync("rides.getUserRides") || [];
-      addLog(`📋 Found ${rides.length} rides for current user`, "info");
+      addLog(`Found ${rides.length} rides for current user`, "info");
 
       if (rides.length === 0) {
-        addLog("⚠️ No rides found. Create a ride first to test ride notifications.", "warning");
-        addLog("💡 Go to the rides page and create a ride, or join an existing ride", "info");
+        addLog("No rides found. Create a ride first to test ride notifications.", "warning");
+        addLog("Go to the rides page and create a ride, or join an existing ride", "info");
         return;
       }
 
       const testRide = rides[0];
-      addLog(`🎯 Using ride: ${testRide._id}`, "info");
-      addLog(`  📅 Date: ${new Date(testRide.date).toLocaleDateString()}`, "info");
-      addLog(`  🚗 Driver: ${testRide.driver}`, "info");
-      addLog(`  👥 Riders: [${testRide.riders?.join(", ") || "None"}]`, "info");
-      addLog(`  🎯 From: ${testRide.origin} → To: ${testRide.destination}`, "info");
+      addLog(`Using ride: ${testRide._id}`, "info");
+      addLog(`  Date: ${new Date(testRide.date).toLocaleDateString()}`, "info");
+      addLog(`  Driver: ${testRide.driver}`, "info");
+      addLog(`  Riders: [${testRide.riders?.join(", ") || "None"}]`, "info");
+      addLog(`  From: ${testRide.origin} → To: ${testRide.destination}`, "info");
 
       // Analyze permissions
       const isDriver = testRide.driver === currentMeteorUser?._id;
       const isRider = testRide.riders?.includes(currentMeteorUser?._id);
       const isAdmin = isAdminRole(currentMeteorUser);
 
-      addLog("🔑 Permissions analysis:", "info");
+      addLog("Permissions analysis:", "info");
       addLog(`  - Is Driver: ${isDriver} (${testRide.driver} === ${currentMeteorUser?._id})`, isDriver ? "success" : "info");
       addLog(`  - Is Rider: ${isRider}`, isRider ? "success" : "info");
       addLog(`  - Is Admin: ${isAdmin}`, isAdmin ? "success" : "info");
@@ -172,8 +172,8 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       addLog(`  - Can send notifications: ${hasPermission}`, hasPermission ? "success" : "error");
 
       if (!hasPermission) {
-        addLog("❌ No permission to send notifications for this ride", "error");
-        addLog("💡 You must be the driver, a rider, or an admin to send ride notifications", "warning");
+        addLog("No permission to send notifications for this ride", "error");
+        addLog("You must be the driver, a rider, or an admin to send ride notifications", "warning");
         return;
       }
 
@@ -181,20 +181,20 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       const allParticipants = [testRide.driver, ...(testRide.riders || [])];
       const recipients = allParticipants.filter(userId => userId !== currentMeteorUser?._id);
 
-      addLog("📬 Notification recipients:", "info");
+      addLog("Notification recipients:", "info");
       addLog(`  - All participants: [${allParticipants.join(", ")}]`, "info");
       addLog(`  - Will send to: [${recipients.join(", ")}] (excluding sender)`, "info");
 
       if (recipients.length === 0) {
-        addLog("⚠️ No recipients! You are the only participant in this ride.", "warning");
-        addLog("💡 Add riders to the ride to test notifications", "info");
+        addLog("No recipients! You are the only participant in this ride.", "warning");
+        addLog("Add riders to the ride to test notifications", "info");
       } else {
-        addLog(`✅ Ready to send notifications to ${recipients.length} recipient(s)`, "success");
+        addLog(`Ready to send notifications to ${recipients.length} recipient(s)`, "success");
       }
 
     } catch (error) {
-      addLog(`❌ Debug failed: ${error.reason || error.message}`, "error");
-      addLog("💡 Try refreshing the page or check browser console for more details", "warning");
+      addLog(`Debug failed: ${error.reason || error.message}`, "error");
+      addLog("Try refreshing the page or check browser console for more details", "warning");
     } finally {
       setIsLoading(false);
     }
@@ -204,18 +204,18 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const testRideNotification = async () => {
     setIsLoading(true);
     try {
-      addLog("🚗 Testing ride notification...", "info");
+      addLog("Testing ride notification...", "info");
 
       // Get user's first ride for testing
       const rides = await Meteor.callAsync("rides.getUserRides") || [];
 
       if (rides.length === 0) {
-        addLog("⚠️ No rides found. Create a ride first to test ride notifications.", "warning");
+        addLog("No rides found. Create a ride first to test ride notifications.", "warning");
         return;
       }
 
       const testRide = rides[0];
-      addLog(`📱 Using ride: ${testRide._id}`, "info");
+      addLog(`Using ride: ${testRide._id}`, "info");
 
       const result = await Meteor.callAsync(
         "notifications.sendToRideParticipants",
@@ -229,11 +229,11 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
         },
       );
 
-      addLog("✅ Ride notification sent!", "success");
-      addLog(`📊 Batch ID: ${result.batchId}`, "info");
+      addLog("Ride notification sent!", "success");
+      addLog(`Batch ID: ${result.batchId}`, "info");
 
     } catch (error) {
-      addLog(`❌ Ride notification failed: ${error.reason || error.message}`, "error");
+      addLog(`Ride notification failed: ${error.reason || error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -243,18 +243,18 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const checkNotificationStatus = async () => {
     setIsLoading(true);
     try {
-      addLog("📊 Checking notification status...", "info");
+      addLog("Checking notification status...", "info");
 
       // Get user's notifications
       const userNotifications = await Meteor.callAsync("notifications.getUserNotifications") || notifications;
       const unreadCount = userNotifications.filter(n => n.status !== "read").length;
 
-      addLog(`📬 Total notifications: ${userNotifications.length}`, "info");
-      addLog(`🔔 Unread notifications: ${unreadCount}`, "info");
+      addLog(`Total notifications: ${userNotifications.length}`, "info");
+      addLog(`Unread notifications: ${unreadCount}`, "info");
 
       // Get push tokens
       const userTokens = pushTokens || [];
-      addLog(`📱 Active push tokens: ${userTokens.length}`, "info");
+      addLog(`Active push tokens: ${userTokens.length}`, "info");
 
       userTokens.forEach((token, index) => {
         const tokenValue = token.token || token.playerId || token._id || "No token";
@@ -268,16 +268,16 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       if (isAdminRole(currentUser)) {
         try {
           const stats = await Meteor.callAsync("notifications.getStats");
-          addLog("📈 System stats:", "info");
+          addLog("System stats:", "info");
           addLog(`  Total: ${stats.total}, Last 24h: ${stats.last24Hours}`, "info");
           addLog(`  Active tokens: ${stats.activeTokens}`, "info");
         } catch (adminError) {
-          addLog(`⚠️ Could not get admin stats: ${adminError.message}`, "warning");
+          addLog(`Could not get admin stats: ${adminError.message}`, "warning");
         }
       }
 
     } catch (error) {
-      addLog(`❌ Status check failed: ${error.reason || error.message}`, "error");
+      addLog(`Status check failed: ${error.reason || error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -287,45 +287,45 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const testOneSignalRegistration = async () => {
     setIsLoading(true);
     try {
-      addLog("🔔 Testing OneSignal registration...", "info");
+      addLog("Testing OneSignal registration...", "info");
 
       // Check OneSignal support
       const isSupported = oneSignalManager.isSupported;
       const playerId = oneSignalManager.getPlayerId();
 
-      addLog(`🌐 OneSignal supported: ${isSupported}`, "info");
-      addLog(`📱 Current player ID: ${playerId || "None"}`, "info");
+      addLog(`OneSignal supported: ${isSupported}`, "info");
+      addLog(`Current player ID: ${playerId || "None"}`, "info");
 
       if (!isSupported) {
-        addLog("❌ OneSignal not supported or not loaded", "warning");
+        addLog("OneSignal not supported or not loaded", "warning");
         return;
       }
 
       // Request permission if needed
       const isEnabled = await oneSignalManager.isEnabled();
       if (!isEnabled) {
-        addLog("🔔 Requesting OneSignal permission...", "info");
+        addLog("Requesting OneSignal permission...", "info");
         const granted = await OneSignalHelpers.requestPermissionWithPrompt();
         addLog(
-`${granted ? "✅" : "❌"} OneSignal permission ${granted ? "granted" : "denied"}`,
+`${granted ? "" : ""} OneSignal permission ${granted ? "granted" : "denied"}`,
                granted ? "success" : "error",
 );
       } else {
-        addLog("✅ OneSignal permission already granted", "success");
+        addLog("OneSignal permission already granted", "success");
       }
 
       // Test registration with server
       if (playerId) {
         try {
           await Meteor.callAsync("notifications.registerOneSignalPlayer", playerId, { test: true });
-          addLog("✅ OneSignal player registered with server", "success");
+          addLog("OneSignal player registered with server", "success");
         } catch (error) {
-          addLog(`❌ Server registration failed: ${error.reason || error.message}`, "error");
+          addLog(`Server registration failed: ${error.reason || error.message}`, "error");
         }
       }
 
     } catch (error) {
-      addLog(`❌ OneSignal test failed: ${error.message}`, "error");
+      addLog(`OneSignal test failed: ${error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -335,18 +335,18 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const testOneSignalNotification = async () => {
     setIsLoading(true);
     try {
-      addLog("🚀 Sending OneSignal test notification...", "info");
+      addLog("Sending OneSignal test notification...", "info");
 
       const success = await OneSignalHelpers.sendTestNotification();
 
       if (success) {
-        addLog("✅ OneSignal test notification sent successfully!", "success");
+        addLog("OneSignal test notification sent successfully!", "success");
       } else {
-        addLog("❌ OneSignal test notification failed", "error");
+        addLog("OneSignal test notification failed", "error");
       }
 
     } catch (error) {
-      addLog(`❌ OneSignal test failed: ${error.message}`, "error");
+      addLog(`OneSignal test failed: ${error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -356,7 +356,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const checkPermissions = async () => {
     setIsLoading(true);
     try {
-      addLog("📱 Checking notification permissions...", "info");
+      addLog("Checking notification permissions...", "info");
 
       // Detect iOS Safari
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -364,35 +364,35 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       const isIOSSafari = isIOS && isSafari;
 
       if (isIOSSafari) {
-        addLog("📱 iOS Safari detected", "info");
+        addLog("iOS Safari detected", "info");
       }
 
       // Check secure context
       const isSecure = window.isSecureContext || window.location.protocol === "https:" || window.location.hostname === "localhost";
-      addLog(`🔒 Secure context: ${isSecure ? "Yes" : "No"} ` +
+      addLog(`Secure context: ${isSecure ? "Yes" : "No"} ` +
         `(${window.location.protocol}//${window.location.hostname})`, isSecure ? "success" : "error");
 
       if (!isSecure) {
-        addLog("❌ Push notifications require HTTPS or localhost", "error");
-        addLog("💡 Solutions: Use ngrok, Chrome flags, or access via localhost", "warning");
+        addLog("Push notifications require HTTPS or localhost", "error");
+        addLog("Solutions: Use ngrok, Chrome flags, or access via localhost", "warning");
         return;
       }
 
       // Check browser permission with iOS Safari handling
       if (typeof Notification !== "undefined") {
-        addLog(`🌐 Browser permission: ${Notification.permission}`, "info");
+        addLog(`Browser permission: ${Notification.permission}`, "info");
 
         if (isIOSSafari) {
           // iOS Safari specific checks
-          addLog("📱 iOS Safari notification support:", "info");
+          addLog("iOS Safari notification support:", "info");
 
           // Check if running as PWA
           const isPWA = window.navigator.standalone || window.matchMedia("(display-mode: standalone)").matches;
           addLog(`  - PWA mode: ${isPWA ? "Yes" : "No"}`, isPWA ? "success" : "warning");
 
           if (!isPWA) {
-            addLog("💡 iOS Safari: Notifications work best when added to Home Screen (PWA)", "warning");
-            addLog("💡 Or use OneSignal which has better iOS Safari support", "info");
+            addLog("iOS Safari: Notifications work best when added to Home Screen (PWA)", "warning");
+            addLog("Or use OneSignal which has better iOS Safari support", "info");
           }
 
           // Check iOS version (rough estimate)
@@ -401,46 +401,46 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
             const version = parseInt(iosVersion[1], 10);
             addLog(`  - iOS version: ~${version}`, version >= 12 ? "success" : "warning");
             if (version < 12) {
-              addLog("⚠️ iOS 12+ recommended for better notification support", "warning");
+              addLog("iOS 12+ recommended for better notification support", "warning");
             }
           }
         }
       } else {
-        addLog("❌ Notification API not supported in this browser", "error");
+        addLog("Notification API not supported in this browser", "error");
         if (isIOSSafari) {
-          addLog("💡 iOS Safari: Try adding to Home Screen or use OneSignal integration", "info");
+          addLog("iOS Safari: Try adding to Home Screen or use OneSignal integration", "info");
         }
       }
 
       // Check notification manager status
-      addLog(`📱 Manager supported: ${notificationManager.isSupported}`, "info");
-      addLog(`✅ Manager enabled: ${notificationManager.isEnabled()}`, "info");
-      addLog(`🔑 Has permission: ${notificationManager.hasPermission}`, "info");
+      addLog(`Manager supported: ${notificationManager.isSupported}`, "info");
+      addLog(`Manager enabled: ${notificationManager.isEnabled()}`, "info");
+      addLog(`Has permission: ${notificationManager.hasPermission}`, "info");
 
       const currentToken = notificationManager.getToken();
       if (currentToken) {
-        addLog(`📱 Current token: ${currentToken.substring(0, 30)}...`, "info");
+        addLog(`Current token: ${currentToken.substring(0, 30)}...`, "info");
       } else {
-        addLog("⚠️ No active token", "warning");
+        addLog("No active token", "warning");
       }
 
       // Try to request permission (must be synchronous from user action)
       if (!notificationManager.hasPermission) {
-        addLog("🔔 Requesting notification permission...", "info");
+        addLog("Requesting notification permission...", "info");
         try {
           const granted = await notificationManager.requestPermission();
           addLog(
-`${granted ? "✅" : "❌"} Permission ${granted ? "granted" : "denied"}`,
+`${granted ? "" : ""} Permission ${granted ? "granted" : "denied"}`,
                  granted ? "success" : "error",
 );
         } catch (permError) {
-          addLog(`❌ Permission request failed: ${permError.message}`, "error");
-          addLog("💡 Try clicking \"Check Permissions\" again - permission must be from direct user action", "warning");
+          addLog(`Permission request failed: ${permError.message}`, "error");
+          addLog("Try clicking \"Check Permissions\" again - permission must be from direct user action", "warning");
         }
       }
 
     } catch (error) {
-      addLog(`❌ Permission check failed: ${error.message}`, "error");
+      addLog(`Permission check failed: ${error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -450,10 +450,10 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const requestNotificationPermission = async () => {
     setIsLoading(true);
     try {
-      addLog("🔔 Requesting notification permission...", "info");
+      addLog("Requesting notification permission...", "info");
 
       if (typeof Notification === "undefined") {
-        addLog("❌ Notifications not supported in this browser", "error");
+        addLog("Notifications not supported in this browser", "error");
         return;
       }
 
@@ -462,21 +462,21 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       const result = await (permission.then ? permission : Promise.resolve(permission));
 
       addLog(
-`${result === "granted" ? "✅" : "❌"} Permission ${result}`,
+`${result === "granted" ? "" : ""} Permission ${result}`,
              result === "granted" ? "success" : "error",
 );
 
       if (result === "granted") {
-        addLog("🎉 You can now receive push notifications!", "success");
+        addLog("You can now receive push notifications!", "success");
         // Update manager state
         notificationManager.hasPermission = true;
       } else if (result === "denied") {
-        addLog("💡 To enable notifications, go to browser settings and allow notifications for this site", "warning");
+        addLog("To enable notifications, go to browser settings and allow notifications for this site", "warning");
       }
 
     } catch (error) {
-      addLog(`❌ Permission request failed: ${error.message}`, "error");
-      addLog("💡 Permission requests must come from direct user interactions (button clicks)", "warning");
+      addLog(`Permission request failed: ${error.message}`, "error");
+      addLog("Permission requests must come from direct user interactions (button clicks)", "warning");
     } finally {
       setIsLoading(false);
     }
@@ -486,9 +486,9 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const markAllAsRead = async () => {
     try {
       const result = await Meteor.callAsync("notifications.markAllAsRead");
-      addLog(`✅ Marked ${result} notifications as read`, "success");
+      addLog(`Marked ${result} notifications as read`, "success");
     } catch (error) {
-      addLog(`❌ Mark as read failed: ${error.reason || error.message}`, "error");
+      addLog(`Mark as read failed: ${error.reason || error.message}`, "error");
     }
   };
 
@@ -496,11 +496,11 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
   const checkMultiDeviceStatus = async () => {
     setIsLoading(true);
     try {
-      addLog("📱 Checking multi-device status...", "info");
+      addLog("Checking multi-device status...", "info");
 
       const status = await OneSignalHelpers.getMultiDeviceStatus();
 
-      addLog("📊 Multi-Device Status:", "info");
+      addLog("Multi-Device Status:", "info");
       addLog(`  - Total registered devices: ${status.totalDevices}`, "info");
       addLog(`  - Current device ID: ${status.currentDevice.playerId || "Not registered"}`, "info");
       addLog(`  - Other devices: ${status.otherDevices.length}`, "info");
@@ -515,7 +515,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       }
 
       if (status.otherDevices.length > 0) {
-        addLog("📱 Other registered devices:", "info");
+        addLog("Other registered devices:", "info");
         status.otherDevices.forEach((device, index) => {
           const info = device.deviceInfo || {};
           const deviceName = `${info.browserName || "Unknown"} on ${info.deviceType || "Unknown"}`;
@@ -525,7 +525,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       }
 
     } catch (error) {
-      addLog(`❌ Multi-device status check failed: ${error.message}`, "error");
+      addLog(`Multi-device status check failed: ${error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -541,17 +541,17 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
 
   return (
     <Container>
-      <Title>🧪 Push Notification Testing</Title>
+      <Title>Push Notification Testing</Title>
 
       {/* Current Status */}
       <Section>
-        <h3>📊 Current Status</h3>
+        <h3>Current Status</h3>
         <StatusDisplay>
-          <div>👤 User: {currentUser?.username || "Not logged in"}</div>
-          <div>🔔 Notifications: {notifications.length} total,
+          <div>User: {currentUser?.username || "Not logged in"}</div>
+          <div>Notifications: {notifications.length} total,
             {notifications.filter(n => n.status !== "read").length} unread</div>
-          <div>📱 Push Tokens: {pushTokens.length} active</div>
-          <div>🌐 Browser Permission: {(() => {
+          <div>Push Tokens: {pushTokens.length} active</div>
+          <div>Browser Permission: {(() => {
             if (typeof Notification === "undefined") {
               const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
               const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
@@ -564,7 +564,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
 
       {/* Test Form */}
       <Section>
-        <h3>📝 Custom Test Notification</h3>
+        <h3>Custom Test Notification</h3>
         <FormGroup>
           <label>Title:</label>
           <Input
@@ -610,40 +610,40 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
 
       {/* Test Buttons */}
       <Section>
-        <h3>🧪 Quick Tests</h3>
+        <h3>Quick Tests</h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
           <TestButton onClick={checkPermissions} disabled={isLoading}>
-            🔐 Check Permissions
+            Check Permissions
           </TestButton>
           <TestButton onClick={requestNotificationPermission} disabled={isLoading}>
-            🔔 Request Permission
+            Request Permission
           </TestButton>
           <TestButton onClick={testTokenRegistration} disabled={isLoading}>
-            📱 Register Token
+            Register Token
           </TestButton>
           <TestButton onClick={testSelfNotification} disabled={isLoading}>
-            📤 Send to Self
+            Send to Self
           </TestButton>
           <TestButton onClick={debugRideNotification} disabled={isLoading}>
-            🔍 Debug Ride Setup
+            Debug Ride Setup
           </TestButton>
           <TestButton onClick={testRideNotification} disabled={isLoading}>
-            🚗 Test Ride Notification
+            Test Ride Notification
           </TestButton>
           <TestButton onClick={checkNotificationStatus} disabled={isLoading}>
-            📊 Check Status
+            Check Status
           </TestButton>
           <TestButton onClick={testOneSignalRegistration} disabled={isLoading}>
-            🔔 OneSignal Setup
+            OneSignal Setup
           </TestButton>
           <TestButton onClick={testOneSignalNotification} disabled={isLoading}>
-            🚀 OneSignal Test
+            OneSignal Test
           </TestButton>
           <TestButton onClick={checkMultiDeviceStatus} disabled={isLoading}>
-            📱 Multi-Device Status
+            Multi-Device Status
           </TestButton>
           <TestButton onClick={markAllAsRead} disabled={isLoading}>
-            ✅ Mark All Read
+            Mark All Read
           </TestButton>
         </div>
       </Section>
@@ -651,7 +651,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
       {/* Logs */}
       <Section>
         <h3>
-          📋 Test Logs
+          Test Logs
           <button
             onClick={copyLogs}
             disabled={logs.length === 0}
@@ -662,7 +662,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
               cursor: logs.length === 0 ? "not-allowed" : "pointer",
             }}
           >
-            📋 Copy
+            Copy
           </button>
           <button
             onClick={clearLogs}
@@ -674,7 +674,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
               cursor: logs.length === 0 ? "not-allowed" : "pointer",
             }}
           >
-            🗑️ Clear
+            Clear
           </button>
         </h3>
         <LogOutput>
@@ -701,7 +701,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
 
       {/* Quick Instructions */}
       <Section>
-        <h3>🚀 Quick Start</h3>
+        <h3>Quick Start</h3>
         <div style={{ fontSize: "14px", lineHeight: "1.6" }}>
           <p><strong>1. Check Permissions</strong> - Make sure browser allows notifications</p>
           <p><strong>2. Register Token</strong> - Register a test push token (Firebase)</p>
@@ -709,7 +709,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
           <p><strong>4. Send to Self</strong> - Send yourself a test notification</p>
           <p><strong>5. Check Status</strong> - Verify everything is working</p>
           <p style={{ marginTop: "12px", padding: "8px", backgroundColor: "#f7fafc", borderRadius: "4px" }}>
-            💡 <strong>Tip:</strong> Open browser console (F12) to see additional debug information
+            <strong>Tip:</strong> Open browser console (F12) to see additional debug information
           </p>
           {(() => {
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -718,7 +718,7 @@ const NotificationTest = ({ currentUser, notifications, pushTokens, ready }) => 
               return (
                 <div style={{ marginTop: "12px", padding: "8px",
                 backgroundColor: "#fff3cd", borderRadius: "4px", border: "1px solid #ffeaa7" }}>
-                  <strong>📱 iOS Safari Users:</strong>
+                  <strong>iOS Safari Users:</strong>
                   <ul style={{ marginTop: "8px", marginBottom: "8px", paddingLeft: "20px" }}>
                     <li><strong>Add to Home Screen:</strong>
                     Tap Share → Add to Home Screen for better notification support</li>

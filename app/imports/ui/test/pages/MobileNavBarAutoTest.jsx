@@ -82,9 +82,9 @@ const MobileNavBarAutoTest = ({ history }) => {
       setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);
 
       if (hasGlobalHandler) {
-        console.log("[MobileNavBarAutoTest] ✅ Global handler found:", window.NativeNavBarActionHandler);
+        console.log("[MobileNavBarAutoTest] Global handler found:", window.NativeNavBarActionHandler);
       } else {
-        console.log("[MobileNavBarAutoTest] ❌ No global handler found");
+        console.log("[MobileNavBarAutoTest] No global handler found");
       }
     };
 
@@ -99,7 +99,7 @@ const MobileNavBarAutoTest = ({ history }) => {
     window.NativeNavBarActionHandler = function (navBarId, action, itemIndex) {
       const timestamp = new Date().toLocaleTimeString();
       const logEntry = `[${timestamp}] NATIVE CALL: navBarId=${navBarId}, action=${action}, itemIndex=${itemIndex}`;
-      console.log("[MobileNavBarAutoTest] 🔥 Native action handler called!", { navBarId, action, itemIndex });
+      console.log("[MobileNavBarAutoTest] Native action handler called!", { navBarId, action, itemIndex });
 
       // Update test logs
       setTestLogs(prev => [logEntry, ...prev.slice(0, 9)]);

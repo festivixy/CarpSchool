@@ -127,7 +127,7 @@ const LiquidGlassComponentsTest = ({ history: _history }) => {
       <Content style={{ paddingTop: "80px" }}>
         {/* LiquidGlass Navbar Test */}
         <Section>
-          <SectionTitle>🌐 LiquidGlass Navbar</SectionTitle>
+          <SectionTitle>LiquidGlass Navbar</SectionTitle>
           <SectionContent>
             <ComponentContainer>
               <LiquidGlassNavbar />
@@ -143,7 +143,7 @@ const LiquidGlassComponentsTest = ({ history: _history }) => {
 
         {/* LiquidGlass Dropdown Test */}
         <Section>
-          <SectionTitle>📋 LiquidGlass Dropdown Test</SectionTitle>
+          <SectionTitle>LiquidGlass Dropdown Test</SectionTitle>
           <SectionContent>
             <ControlsGrid>
               <ControlItem>
@@ -203,7 +203,7 @@ const LiquidGlassComponentsTest = ({ history: _history }) => {
 
         {/* LiquidGlass Button Test */}
         <Section>
-          <SectionTitle>✨ LiquidGlass Button Test</SectionTitle>
+          <SectionTitle>LiquidGlass Button Test</SectionTitle>
           <SectionContent>
             <InfoCard>
               <InfoItem>
@@ -255,7 +255,7 @@ const LiquidGlassComponentsTest = ({ history: _history }) => {
 
         {/* LiquidGlass TextInput & IconButton Test */}
         <Section>
-          <SectionTitle>📝 LiquidGlass Input Components</SectionTitle>
+          <SectionTitle>LiquidGlass Input Components</SectionTitle>
           <SectionContent>
             <ControlsGrid>
               <ControlItem>
@@ -292,15 +292,15 @@ const LiquidGlassComponentsTest = ({ history: _history }) => {
                 <Label>Icon Buttons</Label>
                 <FlexContainer>
                   <LiquidGlassIconButton
-                    icon="❤️"
+                    icon=""
                     onClick={() => alert("Heart clicked!")}
                   />
                   <LiquidGlassIconButton
-                    icon="🔍"
+                    icon=""
                     onClick={() => alert("Search clicked!")}
                   />
                   <LiquidGlassIconButton
-                    icon="⚙️"
+                    icon=""
                     onClick={() => alert("Settings clicked!")}
                   />
                 </FlexContainer>
@@ -326,7 +326,7 @@ const LiquidGlassComponentsTest = ({ history: _history }) => {
 
         {/* LiquidGlass Mobile NavBar Test */}
         <Section>
-          <SectionTitle>📱 LiquidGlass Mobile NavBar</SectionTitle>
+          <SectionTitle>LiquidGlass Mobile NavBar</SectionTitle>
           <SectionContent>
             <InfoCard>
               <InfoItem>
@@ -345,7 +345,7 @@ const LiquidGlassComponentsTest = ({ history: _history }) => {
 
         {/* LiquidGlass Footer Test */}
         <Section>
-          <SectionTitle>🦶 LiquidGlass Footer</SectionTitle>
+          <SectionTitle>LiquidGlass Footer</SectionTitle>
           <SectionContent>
             <ComponentContainer>
               <LiquidGlassFooter />

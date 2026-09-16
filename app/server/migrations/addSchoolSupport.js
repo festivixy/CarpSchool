@@ -14,12 +14,12 @@ import { Places } from "../../imports/api/places/Places";
  */
 
 export async function createDefaultSchool() {
-  console.log("🏫 Creating default school...");
+  console.log("Creating default school...");
 
   // Check if any schools already exist
   const existingSchool = await Schools.findOneAsync({});
   if (existingSchool) {
-    console.log("✅ Schools already exist, skipping default school creation");
+    console.log("Schools already exist, skipping default school creation");
     return existingSchool._id;
   }
 
@@ -49,12 +49,12 @@ export async function createDefaultSchool() {
     createdBy: "system-migration",
   });
 
-  console.log(`✅ Created default school with ID: ${defaultSchoolId}`);
+  console.log(`Created default school with ID: ${defaultSchoolId}`);
   return defaultSchoolId;
 }
 
 export async function migrateUsersToSchool(defaultSchoolId) {
-  console.log("👥 Migrating existing users to default school...");
+  console.log("Migrating existing users to default school...");
 
   const usersWithoutSchool = await Meteor.users.find({
     schoolId: { $exists: false },
@@ -70,11 +70,11 @@ export async function migrateUsersToSchool(defaultSchoolId) {
     migratedCount++;
   }
 
-  console.log(`✅ Migrated ${migratedCount} users to default school`);
+  console.log(`Migrated ${migratedCount} users to default school`);
 }
 
 export async function migrateRidesToSchool(defaultSchoolId) {
-  console.log("🚗 Migrating existing rides to default school...");
+  console.log("Migrating existing rides to default school...");
 
   const ridesWithoutSchool = await Rides.find({
     schoolId: { $exists: false },
@@ -90,11 +90,11 @@ export async function migrateRidesToSchool(defaultSchoolId) {
     migratedCount++;
   }
 
-  console.log(`✅ Migrated ${migratedCount} rides to default school`);
+  console.log(`Migrated ${migratedCount} rides to default school`);
 }
 
 export async function migratePlacesToSchool(defaultSchoolId) {
-  console.log("📍 Migrating existing places to default school...");
+  console.log("Migrating existing places to default school...");
 
   const placesWithoutSchool = await Places.find({
     schoolId: { $exists: false },
@@ -110,14 +110,14 @@ export async function migratePlacesToSchool(defaultSchoolId) {
     migratedCount++;
   }
 
-  console.log(`✅ Migrated ${migratedCount} places to default school`);
+  console.log(`Migrated ${migratedCount} places to default school`);
 }
 
 /**
  * Main migration function - runs all migrations in order
  */
 export async function migrateToSchoolSupport() {
-  console.log("🚀 Starting migration to multi-school support...");
+  console.log("Starting migration to multi-school support...");
 
   try {
     // Step 1: Create default school
@@ -128,8 +128,8 @@ export async function migrateToSchoolSupport() {
     await migrateRidesToSchool(defaultSchoolId);
     await migratePlacesToSchool(defaultSchoolId);
 
-    console.log("🎉 Migration completed successfully!");
-    console.log("📊 Summary:");
+    console.log("Migration completed successfully!");
+    console.log("Summary:");
     console.log(`   - Default school created: ${defaultSchoolId}`);
     console.log("   - All existing users, rides, and places assigned to default school");
     console.log("   - Ready for multi-school operation!");
@@ -141,7 +141,7 @@ export async function migrateToSchoolSupport() {
     };
 
   } catch (error) {
-    console.error("❌ Migration failed:", error);
+    console.error("Migration failed:", error);
     throw error;
   }
 }

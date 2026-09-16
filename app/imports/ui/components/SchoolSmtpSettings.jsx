@@ -103,7 +103,7 @@ const SchoolSmtpSettings = ({ schoolId }) => {
   return (
     <SmtpContainer>
       <SmtpHeader>
-        <SmtpTitle>📧 School Email Settings</SmtpTitle>
+        <SmtpTitle>School Email Settings</SmtpTitle>
       </SmtpHeader>
 
       <InfoMessage>

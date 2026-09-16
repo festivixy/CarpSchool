@@ -406,7 +406,7 @@ class AddRidesModal extends React.Component {
               <Form onSubmit={this.handleSubmit}>
                 {/* Route Section */}
                 <Section>
-                  <SectionTitle>📍 Route</SectionTitle>
+                  <SectionTitle>Route</SectionTitle>
 
                   {/* Origin */}
                   <Field>
@@ -455,7 +455,7 @@ class AddRidesModal extends React.Component {
                       onClick={this.swapLocations}
                       title="Swap locations"
                     >
-                      ⇅
+
                     </SwapButton>
                   </SwapContainer>
 
@@ -505,7 +505,7 @@ class AddRidesModal extends React.Component {
 
                 {/* DateTime Section */}
                 <Section>
-                  <SectionTitle>🕒 When</SectionTitle>
+                  <SectionTitle>When</SectionTitle>
 
                   <DateTimeRow>
                     <FieldHalf>
@@ -535,7 +535,7 @@ class AddRidesModal extends React.Component {
 
                 {/* Details Section */}
                 <Section>
-                  <SectionTitle>👥 Details</SectionTitle>
+                  <SectionTitle>Details</SectionTitle>
 
                   <Field>
                     <Label>Available Seats</Label>

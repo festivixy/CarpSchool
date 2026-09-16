@@ -48,7 +48,7 @@ Meteor.methods({
     // Add school admin role
     const role = await addSchoolAdminRole(targetUserId, targetUser.schoolId);
 
-    console.log(`👑 User ${targetUser.emails[0].address} promoted to school admin (${role})`);
+    console.log(`User ${targetUser.emails[0].address} promoted to school admin (${role})`);
     return { success: true, role };
   },
 
@@ -85,7 +85,7 @@ Meteor.methods({
 
     await removeSchoolAdminRole(targetUserId, targetUser.schoolId);
 
-    console.log(`👤 User ${targetUser.emails[0].address} removed from school admin`);
+    console.log(`User ${targetUser.emails[0].address} removed from school admin`);
     return { success: true };
   },
 
@@ -108,7 +108,7 @@ Meteor.methods({
     // Only system admins can create other system admins
     await addSystemRole(currentUserId, targetUserId);
 
-    console.log(`🌟 User ${targetUser.emails[0].address} promoted to system admin`);
+    console.log(`User ${targetUser.emails[0].address} promoted to system admin`);
     return { success: true };
   },
 
@@ -142,7 +142,7 @@ Meteor.methods({
       $pull: { roles: "system" },
     });
 
-    console.log(`👤 User ${targetUser.emails[0].address} removed from system admin`);
+    console.log(`User ${targetUser.emails[0].address} removed from system admin`);
     return { success: true };
   },
 

@@ -127,7 +127,7 @@ const MapComponentsTest = ({ history: _history }) => {
       <Content style={{ paddingTop: "80px" }}>
         {/* MapView Component Test */}
         <Section>
-          <SectionTitle>🗺️ MapView Component</SectionTitle>
+          <SectionTitle>MapView Component</SectionTitle>
           <SectionContent>
             <ControlsGrid>
               <ControlItem>
@@ -236,7 +236,7 @@ const MapComponentsTest = ({ history: _history }) => {
 
         {/* InteractiveMapPicker Component Test */}
         <Section>
-          <SectionTitle>🎯 Interactive Map Picker</SectionTitle>
+          <SectionTitle>Interactive Map Picker</SectionTitle>
           <SectionContent>
             <ControlsGrid>
               <ControlItem>
@@ -272,7 +272,7 @@ const MapComponentsTest = ({ history: _history }) => {
 
         {/* PathMapView Component Test */}
         <Section>
-          <SectionTitle>🛣️ Path Finding Map</SectionTitle>
+          <SectionTitle>Path Finding Map</SectionTitle>
           <SectionContent>
             <ControlsGrid>
               <ControlItem>

@@ -247,7 +247,7 @@ class SystemAdmin extends React.Component {
     return (
       <Container>
         <Header>
-          <Title>🛠️ System Content Management</Title>
+          <Title>System Content Management</Title>
           <Subtitle>
             Edit Terms of Service, Privacy Policy, and Credits content
           </Subtitle>
@@ -259,9 +259,9 @@ class SystemAdmin extends React.Component {
           </StatusMessage>
         )}
 
-        {this.renderContentSection("tos", "Terms of Service", "📜")}
-        {this.renderContentSection("privacy", "Privacy Policy", "🔒")}
-        {this.renderContentSection("credits", "Credits", "✨")}
+        {this.renderContentSection("tos", "Terms of Service", "")}
+        {this.renderContentSection("privacy", "Privacy Policy", "")}
+        {this.renderContentSection("credits", "Credits", "")}
 
         {previewType && (
           <PreviewModal onClick={this.closePreview}>

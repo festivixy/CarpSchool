@@ -94,7 +94,7 @@ const RouteMapView = ({
     className: "custom-driver-marker",
     html: "<div style=\"background-color: #007bff; color: white; border-radius: 50%; " +
       "width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; " +
-      "border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 16px;\">🚗</div>",
+      "border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 16px;\"></div>",
     iconSize: [30, 30],
     iconAnchor: [15, 15],
   });
@@ -103,7 +103,7 @@ const RouteMapView = ({
     className: "custom-rider-marker",
     html: "<div style=\"background-color: #6c757d; color: white; border-radius: 50%; " +
       "width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; " +
-      "border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 16px;\">👤</div>",
+      "border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 16px;\"></div>",
     iconSize: [30, 30],
     iconAnchor: [15, 15],
   });

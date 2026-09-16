@@ -48,7 +48,7 @@ const ImagePrivacySelector = ({
           onClick={() => !disabled && handlePrivacyChange(false)}
           disabled={disabled}
         >
-          <PrivacyIcon>🌍</PrivacyIcon>
+          <PrivacyIcon></PrivacyIcon>
           <PrivacyLabel>Public</PrivacyLabel>
           {showDescription && (
             <PrivacyDescription>
@@ -63,7 +63,7 @@ const ImagePrivacySelector = ({
           onClick={() => !disabled && handlePrivacyChange(true)}
           disabled={disabled}
         >
-          <PrivacyIcon>🔒</PrivacyIcon>
+          <PrivacyIcon></PrivacyIcon>
           <PrivacyLabel>Private</PrivacyLabel>
           {showDescription && (
             <PrivacyDescription>

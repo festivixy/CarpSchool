@@ -225,7 +225,7 @@ function NavBar({ currentUser, userProfile }) {
         </UserSection>
 
         <MenuToggle onClick={toggleMobileMenu}>
-          ☰
+
         </MenuToggle>
       </NavBarInner>
 

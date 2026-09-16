@@ -115,7 +115,7 @@ export default class LiquidGlassSignIn extends React.Component {
                 placeholder="email@domain.com"
                 value={this.state.email}
                 onChange={this.handleChange}
-                icon="📧"
+                icon=""
                 iconPosition="left"
                 required
               />
@@ -127,7 +127,7 @@ export default class LiquidGlassSignIn extends React.Component {
                 placeholder="Enter your password"
                 value={this.state.password}
                 onChange={this.handleChange}
-                icon="🔐"
+                icon=""
                 iconPosition="left"
                 required
               />

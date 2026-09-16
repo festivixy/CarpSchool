@@ -360,7 +360,7 @@ const InteractiveMapPicker = React.memo(({
           onKeyPress={(e) => e.key === "Enter" && searchLocation()}
         />
         <SearchButton onClick={searchLocation} disabled={isSearching}>
-          {isSearching ? "🔄" : "🔍"}
+          {isSearching ? "" : ""}
         </SearchButton>
       </SearchContainer>
 
@@ -383,16 +383,16 @@ const InteractiveMapPicker = React.memo(({
 
         <MapControls>
           <ControlButton onClick={zoomIn} title="Zoom in">
-            ➕
+
           </ControlButton>
           <ControlButton onClick={zoomOut} title="Zoom out">
-            ➖
+
           </ControlButton>
           <ControlButton
             onClick={centerOnLocation}
             title="Center on my location"
           >
-            📍
+
           </ControlButton>
         </MapControls>
       </MapWrapper>
@@ -405,7 +405,7 @@ const InteractiveMapPicker = React.memo(({
       </LocationInfo>
 
       <HelpText>
-        💡 Click anywhere on the map or drag the marker to select a location.
+        Click anywhere on the map or drag the marker to select a location.
         You can also search for places using the search box above.
       </HelpText>
     </MapContainer>

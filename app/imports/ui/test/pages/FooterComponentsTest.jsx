@@ -56,7 +56,7 @@ const FooterComponentsTest = ({ history: _history }) => {
       <TestPageContent>
         {/* Footer Controls */}
         <Section>
-          <SectionTitle>⚙️ Footer Configuration</SectionTitle>
+          <SectionTitle>Footer Configuration</SectionTitle>
           <SectionContent>
             <ControlsGrid>
               <ControlItem>
@@ -109,7 +109,7 @@ const FooterComponentsTest = ({ history: _history }) => {
 
         {/* Simple Footer (Classic) */}
         <Section>
-          <SectionTitle>🦶 Simple Footer (Classic)</SectionTitle>
+          <SectionTitle>Simple Footer (Classic)</SectionTitle>
           <SectionContent>
             <InfoCard>
               <InfoItem>
@@ -138,7 +138,7 @@ const FooterComponentsTest = ({ history: _history }) => {
 
         {/* Footer Verbose */}
         <Section>
-          <SectionTitle>📋 Footer Verbose</SectionTitle>
+          <SectionTitle>Footer Verbose</SectionTitle>
           <SectionContent>
             <InfoCard>
               <InfoItem>
@@ -167,7 +167,7 @@ const FooterComponentsTest = ({ history: _history }) => {
 
         {/* LiquidGlass Footer */}
         <Section>
-          <SectionTitle>✨ LiquidGlass Footer</SectionTitle>
+          <SectionTitle>LiquidGlass Footer</SectionTitle>
           <SectionContent>
             <InfoCard>
               <InfoItem>
@@ -201,25 +201,25 @@ const FooterComponentsTest = ({ history: _history }) => {
 
         {/* Footer Comparison */}
         <Section>
-          <SectionTitle>📊 Footer Comparison</SectionTitle>
+          <SectionTitle>Footer Comparison</SectionTitle>
           <SectionContent>
             <InfoCard>
               <InfoItem>
                 <InfoLabel>Simple Footer</InfoLabel>
                 <InfoValue>
-                  ✅ Lightweight, ✅ Fast loading, ✅ Basic functionality, ❌ Limited styling
+                  Lightweight, Fast loading, Basic functionality, Limited styling
                 </InfoValue>
               </InfoItem>
               <InfoItem>
                 <InfoLabel>Footer Verbose</InfoLabel>
                 <InfoValue>
-                  ✅ Comprehensive, ✅ SEO friendly, ✅ Detailed navigation, ❌ Heavy content
+                  Comprehensive, SEO friendly, Detailed navigation, Heavy content
                 </InfoValue>
               </InfoItem>
               <InfoItem>
                 <InfoLabel>LiquidGlass Footer</InfoLabel>
                 <InfoValue>
-                  ✅ Modern design, ✅ Visual effects, ✅ Premium feel, ❌ Higher complexity
+                  Modern design, Visual effects, Premium feel, Higher complexity
                 </InfoValue>
               </InfoItem>
             </InfoCard>

@@ -371,10 +371,10 @@ class PlaceManager extends React.Component {
       <Container>
         <Header>
           <Title>
-            <TitleIcon>📍</TitleIcon>
+            <TitleIcon></TitleIcon>
             My Places
           </Title>
-          <AddButton onClick={this.openAddModal}>➕ Add Place</AddButton>
+          <AddButton onClick={this.openAddModal}>Add Place</AddButton>
         </Header>
 
         <Content>
@@ -388,7 +388,7 @@ class PlaceManager extends React.Component {
 
           {places.length === 0 ? (
             <EmptyState>
-              <EmptyStateIcon>📍</EmptyStateIcon>
+              <EmptyStateIcon></EmptyStateIcon>
               <EmptyStateTitle>No places yet</EmptyStateTitle>
               <EmptyStateText>
                 Create your first place to get started with ride sharing!
@@ -401,7 +401,7 @@ class PlaceManager extends React.Component {
                   <PlaceHeader>
                     <PlaceInfo>
                       <PlaceName>
-                        <PlaceIcon>📍</PlaceIcon>
+                        <PlaceIcon></PlaceIcon>
                         {place.text}
                       </PlaceName>
                       <PlaceCoordinates>{place.value}</PlaceCoordinates>
@@ -429,14 +429,14 @@ class PlaceManager extends React.Component {
                           aria-label={`Edit ${place.text}`}
                           onClick={() => this.openEditModal(place)}
                         >
-                          ✏️
+
                         </ActionButton>
                         <ActionButton
                           aria-label={`Delete ${place.text}`}
                           variant="delete"
                           onClick={() => this.handleDelete(place)}
                         >
-                          🗑️
+
                         </ActionButton>
                       </ActionButtons>
                     )}
@@ -460,7 +460,7 @@ class PlaceManager extends React.Component {
             >
               <ModalHeader>
                 <ModalTitle>
-                  📍 {editingPlace ? "Edit Place" : "Add New Place"}
+                  {editingPlace ? "Edit Place" : "Add New Place"}
                 </ModalTitle>
               </ModalHeader>
 
@@ -505,8 +505,8 @@ class PlaceManager extends React.Component {
                       style={{ marginTop: "8px" }}
                     >
                       {this.state.showMapPicker
-                        ? "📝 Manual Entry"
-                        : "🗺️ Pick on Map"}
+                        ? "Manual Entry"
+                        : "Pick on Map"}
                     </Button>
                   </FormField>
 

@@ -23,7 +23,7 @@ export const withPerformanceProfiler = (componentName, WrappedComponent) => {
       onRender={(id, phase, actualDuration, baseDuration, startTime, commitTime, interactions) => {
         // Log performance data in development
         if (actualDuration > 10) { // Only log slow renders (>10ms)
-          console.log(`⚡ [Performance] ${id} ${phase} took ${actualDuration.toFixed(2)}ms`, {
+          console.log(`[Performance] ${id} ${phase} took ${actualDuration.toFixed(2)}ms`, {
             actualDuration: actualDuration.toFixed(2),
             baseDuration: baseDuration.toFixed(2),
             startTime: startTime.toFixed(2),
@@ -56,7 +56,7 @@ export const usePerformanceMeasure = (operationName) => {
     if (process.env.NODE_ENV === "development" && startTime.current !== null) {
       const duration = performance.now() - startTime.current;
       if (duration > 5) { // Only log operations taking >5ms
-        console.log(`⏱️ [Performance] ${operationName} took ${duration.toFixed(2)}ms`);
+        console.log(`⏱ [Performance] ${operationName} took ${duration.toFixed(2)}ms`);
       }
       startTime.current = null;
     }
@@ -86,7 +86,7 @@ export const useMemoWithPerf = (factory, deps, name = "unknown") => {
         const duration = performance.now() - startTime;
 
         if (duration > 1) { // Log expensive computations >1ms
-          console.log(`🧮 [Performance] useMemo(${name}) recalculated in ${duration.toFixed(2)}ms`);
+          console.log(`[Performance] useMemo(${name}) recalculated in ${duration.toFixed(2)}ms`);
         }
 
         setValue(newValue);
@@ -118,7 +118,7 @@ export const useCallbackWithPerf = (callback, deps, name = "unknown") => {
       const duration = performance.now() - startTime;
 
       if (duration > 5) { // Log expensive callbacks >5ms
-        console.log(`🔄 [Performance] useCallback(${name}) executed in ${duration.toFixed(2)}ms`);
+        console.log(`[Performance] useCallback(${name}) executed in ${duration.toFixed(2)}ms`);
       }
 
       return result;
@@ -144,7 +144,7 @@ export const useRenderTracking = (componentName, props = {}) => {
 
     if (process.env.NODE_ENV === "development") {
       if (renderCount.current > 1 && timeSinceLastRender < 100) {
-        console.warn(`🔥 [Performance] ${componentName} rendered ` +
+        console.warn(`[Performance] ${componentName} rendered ` +
           `${renderCount.current} times (last render ${timeSinceLastRender}ms ago)`, {
           props: Object.keys(props),
           renderCount: renderCount.current,
@@ -164,7 +164,7 @@ export const useMemoryTracking = (componentName) => {
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development" && performance.memory) {
       const memory = performance.memory;
-      console.log(`💾 [Memory] ${componentName} mounted`, {
+      console.log(`[Memory] ${componentName} mounted`, {
         used: `${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
         total: `${(memory.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
         limit: `${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB`,

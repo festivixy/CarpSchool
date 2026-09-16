@@ -13,7 +13,7 @@ import { Meteor } from "meteor/meteor";
  */
 
 export async function migrateAdminRolesToSchoolSpecific() {
-  console.log("🔧 Starting migration of admin roles to school-specific system...");
+  console.log("Starting migration of admin roles to school-specific system...");
 
   try {
     // Find all users with "admin" role
@@ -24,7 +24,7 @@ export async function migrateAdminRolesToSchoolSpecific() {
     console.log(`Found ${adminUsers.length} users with global admin role`);
 
     if (adminUsers.length === 0) {
-      console.log("✅ No global admin users found - migration not needed");
+      console.log("No global admin users found - migration not needed");
       return { success: true, message: "No migration needed" };
     }
 
@@ -48,7 +48,7 @@ export async function migrateAdminRolesToSchoolSpecific() {
           $addToSet: { roles: schoolAdminRole },
         });
 
-        console.log(`  ✅ Converted to school admin: ${schoolAdminRole}`);
+        console.log(`  Converted to school admin: ${schoolAdminRole}`);
         migratedCount++;
 
       } else {
@@ -62,7 +62,7 @@ export async function migrateAdminRolesToSchoolSpecific() {
             $addToSet: { roles: `admin.${firstSchool._id}` },
           });
 
-          console.log(`  ✅ Assigned to school ${firstSchool.name} and made admin`);
+          console.log(`  Assigned to school ${firstSchool.name} and made admin`);
           migratedCount++;
 
         } else {
@@ -71,14 +71,14 @@ export async function migrateAdminRolesToSchoolSpecific() {
             $addToSet: { roles: "system" },
           });
 
-          console.log("  🌟 Converted to system admin (no schools available)");
+          console.log("  Converted to system admin (no schools available)");
           systemAdminCount++;
         }
       }
     }
 
-    console.log("🎉 Admin role migration completed successfully!");
-    console.log("📊 Summary:");
+    console.log("Admin role migration completed successfully!");
+    console.log("Summary:");
     console.log(`   - School admins created: ${migratedCount}`);
     console.log(`   - System admins created: ${systemAdminCount}`);
     console.log(`   - Total users processed: ${adminUsers.length}`);
@@ -92,7 +92,7 @@ export async function migrateAdminRolesToSchoolSpecific() {
     };
 
   } catch (error) {
-    console.error("❌ Admin role migration failed:", error);
+    console.error("Admin role migration failed:", error);
     throw error;
   }
 }
@@ -101,7 +101,7 @@ export async function migrateAdminRolesToSchoolSpecific() {
  * Create a system administrator (for initial setup)
  */
 export async function createSystemAdmin(userEmail) {
-  console.log(`🌟 Creating system admin for: ${userEmail}`);
+  console.log(`Creating system admin for: ${userEmail}`);
 
   const user = await Meteor.users.findOneAsync({
     "emails.address": userEmail,
@@ -116,7 +116,7 @@ export async function createSystemAdmin(userEmail) {
     $addToSet: { roles: "system" },
   });
 
-  console.log(`✅ ${userEmail} is now a system administrator`);
+  console.log(`${userEmail} is now a system administrator`);
   return true;
 }
 
@@ -124,7 +124,7 @@ export async function createSystemAdmin(userEmail) {
  * Verify role migration results
  */
 export async function verifyRoleMigration() {
-  console.log("🔍 Verifying role migration results...");
+  console.log("Verifying role migration results...");
 
   const globalAdmins = await Meteor.users.find({ roles: "admin" }).countAsync();
   const systemAdmins = await Meteor.users.find({ roles: "system" }).countAsync();
@@ -132,15 +132,15 @@ export async function verifyRoleMigration() {
     roles: { $regex: /^admin\./ },
   }).countAsync();
 
-  console.log("📊 Current role distribution:");
+  console.log("Current role distribution:");
   console.log(`   - Global admins (should be 0): ${globalAdmins}`);
   console.log(`   - System admins: ${systemAdmins}`);
   console.log(`   - School admins: ${schoolAdmins}`);
 
   if (globalAdmins > 0) {
-    console.warn(`⚠️  Warning: ${globalAdmins} users still have global admin role`);
+    console.warn(`Warning: ${globalAdmins} users still have global admin role`);
   } else {
-    console.log("✅ Migration successful - no global admin roles remaining");
+    console.log("Migration successful - no global admin roles remaining");
   }
 
   return {

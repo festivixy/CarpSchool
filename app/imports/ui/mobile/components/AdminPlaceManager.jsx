@@ -406,15 +406,15 @@ class AdminPlaceManager extends React.Component {
       <Container>
         <Header>
           <Title>
-            <TitleIcon>🗺️</TitleIcon>
+            <TitleIcon></TitleIcon>
             Manage All Places
             <AdminBadge>Admin</AdminBadge>
           </Title>
           <ButtonContainer>
             <AddButton onClick={this.fixLegacyPlaces} style={{ backgroundColor: "#ff9800" }}>
-              🔧 Fix Legacy Places
+              Fix Legacy Places
             </AddButton>
-            <AddButton onClick={this.openAddModal}>➕ Add Place</AddButton>
+            <AddButton onClick={this.openAddModal}>Add Place</AddButton>
           </ButtonContainer>
         </Header>
 
@@ -429,7 +429,7 @@ class AdminPlaceManager extends React.Component {
           />
 
           <SearchContainer>
-            <SearchIcon>🔍</SearchIcon>
+            <SearchIcon></SearchIcon>
             <SearchInput
               placeholder="Search by location name, coordinates, or creator..."
               value={searchQuery}
@@ -440,7 +440,7 @@ class AdminPlaceManager extends React.Component {
 
           {filteredPlaces.length === 0 ? (
             <EmptyState>
-              <EmptyStateIcon>📍</EmptyStateIcon>
+              <EmptyStateIcon></EmptyStateIcon>
               <EmptyStateTitle>No places found</EmptyStateTitle>
               <EmptyStateText>
                 {searchQuery
@@ -455,7 +455,7 @@ class AdminPlaceManager extends React.Component {
                   <PlaceHeader>
                     <PlaceInfo>
                       <PlaceName>
-                        <PlaceIcon>📍</PlaceIcon>
+                        <PlaceIcon></PlaceIcon>
                         {place.text}
                       </PlaceName>
                       <PlaceCoordinates>{place.value}</PlaceCoordinates>
@@ -489,14 +489,14 @@ class AdminPlaceManager extends React.Component {
                           aria-label={`Edit ${place.text}`}
                           onClick={() => this.openEditModal(place)}
                         >
-                          ✏️
+
                         </ActionButton>
                         <ActionButton
                           aria-label={`Delete ${place.text}`}
                           variant="delete"
                           onClick={() => this.handleDelete(place)}
                         >
-                          🗑️
+
                         </ActionButton>
                       </ActionButtons>
                     )}
@@ -520,7 +520,7 @@ class AdminPlaceManager extends React.Component {
             >
               <ModalHeader>
                 <ModalTitle>
-                  📍 {editingPlace ? "Edit Place" : "Add New Place"}
+                  {editingPlace ? "Edit Place" : "Add New Place"}
                 </ModalTitle>
               </ModalHeader>
 
@@ -565,8 +565,8 @@ class AdminPlaceManager extends React.Component {
                       style={{ marginTop: "8px" }}
                     >
                       {this.state.showMapPicker
-                        ? "📝 Manual Entry"
-                        : "🗺️ Pick on Map"}
+                        ? "Manual Entry"
+                        : "Pick on Map"}
                     </Button>
                   </FormField>
 

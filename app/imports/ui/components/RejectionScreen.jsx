@@ -93,7 +93,7 @@ const RejectionScreen = ({ profile, loading }) => {
     return (
       <Container>
         <Content>
-          <Icon>❓</Icon>
+          <Icon></Icon>
           <Title>Page Not Found</Title>
           <Message>
             You don't have access to this page. Please check your verification status.

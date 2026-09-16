@@ -59,7 +59,7 @@ class CrashApp extends React.Component {
         <ContentPadding>
           <MainCard>
             <MainTitle>
-              🚨 Application Crash Test
+              Application Crash Test
             </MainTitle>
             <MainDescription>
               This page allows you to intentionally crash the application to test
@@ -69,7 +69,7 @@ class CrashApp extends React.Component {
 
           <WarningCard>
             <WarningIcon>
-              ⚠️
+
             </WarningIcon>
             <WarningTitle>
               Warning
@@ -84,7 +84,7 @@ class CrashApp extends React.Component {
 
           <CrashButton onClick={this.handleCrash}>
             <CrashIcon>
-              💥
+
             </CrashIcon>
             Crash the App
           </CrashButton>

@@ -208,7 +208,7 @@ Meteor.methods({
       await Meteor.users.updateAsync(this.userId, {
         $set: { roles: [] }
       });
-      console.log(`✅ Initialized roles array for Clerk user: ${this.userId}`);
+      console.log(`Initialized roles array for Clerk user: ${this.userId}`);
     }
 
     return { success: true, hadRoles: !!user.roles };

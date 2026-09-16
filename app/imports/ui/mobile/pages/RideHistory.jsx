@@ -149,7 +149,7 @@ class RideHistory extends React.Component {
           </Header>
 
           <NotFound>
-            <NotFoundIcon>📋</NotFoundIcon>
+            <NotFoundIcon></NotFoundIcon>
             <NotFoundTitle>History Not Available</NotFoundTitle>
             <NotFoundMessage>
               This ride history is not available or you don&apos;t have permission to view it.

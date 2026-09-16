@@ -311,7 +311,7 @@ class MobileAdminRides extends React.Component {
                           disabled={loading}
                           title="Edit ride"
                         >
-                          ✏️
+
                         </ActionButton>
                         <ActionButton
                           variant="delete"

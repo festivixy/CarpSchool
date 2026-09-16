@@ -38,17 +38,17 @@ const NotificationToastComponent = ({
 
   const getIcon = (notificationType) => {
     const icons = {
-      ride_update: "🚗",
-      ride_cancelled: "❌",
-      rider_joined: "👋",
-      rider_left: "👋",
-      chat_message: "💬",
-      ride_starting: "🚦",
-      ride_completed: "✅",
-      emergency: "🚨",
-      system: "ℹ️",
+      ride_update: "",
+      ride_cancelled: "",
+      rider_joined: "",
+      rider_left: "",
+      chat_message: "",
+      ride_starting: "",
+      ride_completed: "",
+      emergency: "",
+      system: "ℹ",
     };
-    return icons[notificationType] || "📬";
+    return icons[notificationType] || "";
   };
 
   const handleClose = () => {

@@ -409,7 +409,7 @@ class MobileAdminUsers extends React.Component {
                             disabled={loading}
                             title="Edit user"
                           >
-                            ✏️
+
                           </ActionButton>
                           <ActionButton
                             variant={isAdmin ? "remove-admin" : "admin"}
@@ -420,7 +420,7 @@ class MobileAdminUsers extends React.Component {
                               isAdmin ? "Remove admin role" : "Grant system admin"
                             }
                           >
-                            {isAdmin ? "⬇️" : "⬆️"}
+                            {isAdmin ? "" : ""}
                           </ActionButton>
                           <ActionButton
                             variant="delete"

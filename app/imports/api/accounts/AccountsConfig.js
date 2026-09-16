@@ -14,7 +14,7 @@ Accounts.emailTemplates.enrollAccount.from = () => "CarpSchool <no-reply@carpsch
 
 // Email subject lines
 Accounts.emailTemplates.resetPassword.subject = () => "Reset Your Password";
-Accounts.emailTemplates.verifyEmail.subject = () => "🚗 Verify Your CarpSchool Email";
+Accounts.emailTemplates.verifyEmail.subject = () => "Verify Your CarpSchool Email";
 Accounts.emailTemplates.enrollAccount.subject = () => "Complete Your CarpSchool Account Setup";
 
 // Beautiful HTML email template for verification
@@ -159,7 +159,7 @@ Accounts.emailTemplates.verifyEmail.html = (user, url) => {
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">🚗 CarpSchool</div>
+      <div class="logo">CarpSchool</div>
       <p class="tagline">Student Carpooling Made Easy</p>
     </div>
 
@@ -176,11 +176,11 @@ Accounts.emailTemplates.verifyEmail.html = (user, url) => {
       </p>
 
       <div class="cta-container">
-        <a href="${cleanUrl}" class="cta-button">✅ Verify My Email</a>
+        <a href="${cleanUrl}" class="cta-button">Verify My Email</a>
       </div>
 
       <div class="help-section">
-        <h3 class="help-title">🛡️ Why verify your email?</h3>
+        <h3 class="help-title">Why verify your email?</h3>
         <p class="help-text">
           Email verification helps us ensure account security and allows you to receive important
           notifications about your rides, messages from other students, and account updates.
@@ -210,7 +210,7 @@ Accounts.emailTemplates.verifyEmail.html = (user, url) => {
       </div>
 
       <p class="powered-by">
-        Powered by Kangshifu beef ramen 🍜 and coffee ☕
+        Powered by Kangshifu beef ramen and coffee
       </p>
     </div>
   </div>
@@ -335,7 +335,7 @@ Accounts.emailTemplates.resetPassword.html = (user, url) => {
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">🚗 CarpSchool</div>
+      <div class="logo">CarpSchool</div>
       <p class="tagline">Password Reset Request</p>
     </div>
 
@@ -348,11 +348,11 @@ Accounts.emailTemplates.resetPassword.html = (user, url) => {
       </p>
 
       <div class="cta-container">
-        <a href="${cleanUrl}" class="cta-button">🔐 Reset My Password</a>
+        <a href="${cleanUrl}" class="cta-button">Reset My Password</a>
       </div>
 
       <div class="security-notice">
-        <h3 class="security-title">🛡️ Security Notice</h3>
+        <h3 class="security-title">Security Notice</h3>
         <p class="security-text">
           If you didn't request this password reset, please ignore this email. Your password
           will remain unchanged. For security reasons, this link will expire in 24 hours.
@@ -370,7 +370,7 @@ Accounts.emailTemplates.resetPassword.html = (user, url) => {
         <strong>CarpSchool</strong> - Your Account Security Matters
       </p>
       <p class="powered-by">
-        Powered by Kangshifu beef ramen 🍜 and coffee ☕
+        Powered by Kangshifu beef ramen and coffee
       </p>
     </div>
   </div>
@@ -476,7 +476,7 @@ Accounts.emailTemplates.enrollAccount.html = (user, url) => {
       position: relative;
     }
     .feature-item::before {
-      content: "✅";
+      content: "";
       position: absolute;
       left: 0;
     }
@@ -501,7 +501,7 @@ Accounts.emailTemplates.enrollAccount.html = (user, url) => {
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">🚗 CarpSchool</div>
+      <div class="logo">CarpSchool</div>
       <p class="tagline">Complete Your Account Setup</p>
     </div>
 
@@ -514,11 +514,11 @@ Accounts.emailTemplates.enrollAccount.html = (user, url) => {
       </p>
 
       <div class="cta-container">
-        <a href="${cleanUrl}" class="cta-button">🚀 Complete Setup</a>
+        <a href="${cleanUrl}" class="cta-button">Complete Setup</a>
       </div>
 
       <div class="features">
-        <h3 class="features-title">🌟 What you'll get with CarpSchool:</h3>
+        <h3 class="features-title">What you'll get with CarpSchool:</h3>
         <div class="feature-item">Find rides with verified students</div>
         <div class="feature-item">Offer rides and earn gas money</div>
         <div class="feature-item">Connect with your campus community</div>
@@ -537,7 +537,7 @@ Accounts.emailTemplates.enrollAccount.html = (user, url) => {
         <strong>CarpSchool</strong> - Welcome to the Community!
       </p>
       <p class="powered-by">
-        Powered by Kangshifu beef ramen 🍜 and coffee ☕
+        Powered by Kangshifu beef ramen and coffee
       </p>
     </div>
   </div>

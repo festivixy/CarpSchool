@@ -130,7 +130,7 @@ function LiquidGlassNavbar({
                 options={adminItems.map((item) => ({
                   value: item.key,
                   label: item.label,
-                  icon: "⚙️",
+                  icon: "",
                 }))}
                 placeholder="Admin"
                 onChange={(value) => handleNavClick(value)}
@@ -157,14 +157,14 @@ function LiquidGlassNavbar({
 
                 <LiquidGlassDropdown
                   options={[
-                    { value: "profile", label: "Profile", icon: "👤" },
-                    { value: "settings", label: "Settings", icon: "⚙️" },
+                    { value: "profile", label: "Profile", icon: "" },
+                    { value: "settings", label: "Settings", icon: "" },
                     {
                       value: "notifications",
                       label: `Notifications ${notifications > 0 ? `(${notifications})` : ""}`,
-                      icon: "🔔",
+                      icon: "",
                     },
-                    { value: "signout", label: "Sign Out", icon: "🚪" },
+                    { value: "signout", label: "Sign Out", icon: "" },
                   ]}
                   placeholder="Menu"
                   onChange={(value) => {
@@ -180,8 +180,8 @@ function LiquidGlassNavbar({
             ) : (
               <LiquidGlassDropdown
                 options={[
-                  { value: "signin", label: "Sign In", icon: "🔑" },
-                  { value: "signup", label: "Sign Up", icon: "✨" },
+                  { value: "signin", label: "Sign In", icon: "" },
+                  { value: "signup", label: "Sign Up", icon: "" },
                 ]}
                 placeholder="Login"
                 onChange={(value) => handleNavClick(value)}
@@ -215,22 +215,22 @@ function LiquidGlassNavbar({
           {user && (
             <>
               <LiquidGlassButton
-                label="📱 All Rides"
+                label="All Rides"
                 onClick={() => handleNavClick("all-rides")}
                 style={{ width: "100%" }}
               />
               <LiquidGlassButton
-                label="👤 My Rides"
+                label="My Rides"
                 onClick={() => handleNavClick("my-rides")}
                 style={{ width: "100%" }}
               />
               <LiquidGlassButton
-                label="➕ Create Ride"
+                label="Create Ride"
                 onClick={() => handleNavClick("create")}
                 style={{ width: "100%" }}
               />
               <LiquidGlassButton
-                label="⚡ Join Ride"
+                label="Join Ride"
                 onClick={() => handleNavClick("join")}
                 style={{ width: "100%" }}
               />
@@ -252,7 +252,7 @@ function LiquidGlassNavbar({
               {adminItems.map((adminItem) => (
                 <LiquidGlassButton
                   key={adminItem.key}
-                  label={`⚙️ ${adminItem.label}`}
+                  label={`${adminItem.label}`}
                   onClick={() => handleNavClick(adminItem.key)}
                   style={{ width: "100%" }}
                 />
@@ -270,17 +270,17 @@ function LiquidGlassNavbar({
                 }}
               />
               <LiquidGlassButton
-                label="👤 Profile"
+                label="Profile"
                 onClick={() => handleNavClick("profile")}
                 style={{ width: "100%" }}
               />
               <LiquidGlassButton
-                label="⚙️ Settings"
+                label="Settings"
                 onClick={() => handleNavClick("settings")}
                 style={{ width: "100%" }}
               />
               <LiquidGlassButton
-                label="🚪 Sign Out"
+                label="Sign Out"
                 onClick={onSignOut}
                 style={{ width: "100%" }}
               />
@@ -290,12 +290,12 @@ function LiquidGlassNavbar({
           {!user && (
             <>
               <LiquidGlassButton
-                label="🔑 Sign In"
+                label="Sign In"
                 onClick={() => handleNavClick("signin")}
                 style={{ width: "100%" }}
               />
               <LiquidGlassButton
-                label="✨ Sign Up"
+                label="Sign Up"
                 onClick={() => handleNavClick("signup")}
                 style={{ width: "100%" }}
               />

@@ -100,13 +100,13 @@ if (Meteor.isServer) {
     if (!process.env.ROOT_URL) {
       process.env.ROOT_URL = `http://localhost:${process.env.PORT || 3000}`;
       if (process.env.NODE_ENV === "production") {
-        console.warn(`⚠️  ROOT_URL not set in production; using ${process.env.ROOT_URL}. Set ROOT_URL to your domain.`);
+        console.warn(`ROOT_URL not set in production; using ${process.env.ROOT_URL}. Set ROOT_URL to your domain.`);
       }
     }
 
     // Email configuration check
     if (!process.env.MAIL_URL) {
-      console.warn("⚠️  MAIL_URL not set - email functionality will not work");
+      console.warn("MAIL_URL not set - email functionality will not work");
     }
   });
 }

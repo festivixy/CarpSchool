@@ -366,14 +366,14 @@ const PathMapView = ({
             disabled={!validStart || !validEnd || isLoading}
             title="Find route between points"
           >
-            {isLoading ? "🔄" : "🗺️"}
+            {isLoading ? "" : ""}
           </ControlButton>
           <ControlButton
             onClick={clearRoute}
             disabled={!routeData}
             title="Clear route"
           >
-            🗑️
+
           </ControlButton>
         </ControlsContainer>
       </MapWrapper>
@@ -399,7 +399,7 @@ const PathMapView = ({
           </RouteValue>
           {routeData.service === "Straight Line" && (
             <RouteValue style={{ fontSize: "12px", color: "#ffc107" }}>
-              ⚠️ Showing straight line - actual route may differ
+              Showing straight line - actual route may differ
             </RouteValue>
           )}
         </RouteInfo>

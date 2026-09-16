@@ -206,7 +206,7 @@ class DesktopAdminErrorReportDetail extends React.Component {
       return (
         <Container>
           <NotFoundContainer>
-            <NotFoundIcon>❌</NotFoundIcon>
+            <NotFoundIcon></NotFoundIcon>
             <NotFoundTitle>Error Report Not Found</NotFoundTitle>
             <NotFoundText>
               The error report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
@@ -226,7 +226,7 @@ class DesktopAdminErrorReportDetail extends React.Component {
             <BackButton />
           </BackButtonWrapper>
           <Title>
-            <TitleIcon>🚨</TitleIcon>
+            <TitleIcon></TitleIcon>
             Error Report Details
           </Title>
         </Header>

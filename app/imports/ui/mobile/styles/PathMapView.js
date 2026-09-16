@@ -146,7 +146,7 @@ export const LoadingMessage = styled.div`
   color: var(--ink-3);
 
   &::before {
-    content: "🗺️";
+    content: "";
     font-size: 48px;
     margin-bottom: 16px;
   }
@@ -173,7 +173,7 @@ export const ErrorMessage = styled.div`
   border-radius: 8px;
 
   &::before {
-    content: "⚠️";
+    content: "";
   }
 
   @media (max-width: 768px) {

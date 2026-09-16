@@ -127,7 +127,7 @@ const resolveMeteorUserId = async (clerkUserId, claims) => {
   });
   await Meteor.users.updateAsync(userId, { $set: { schoolId: school._id } });
 
-  console.log(`✅ Created Meteor user for Clerk ID ${clerkUserId}: ${userId} (${school.shortName})`);
+  console.log(`Created Meteor user for Clerk ID ${clerkUserId}: ${userId} (${school.shortName})`);
   return userId;
 };
 

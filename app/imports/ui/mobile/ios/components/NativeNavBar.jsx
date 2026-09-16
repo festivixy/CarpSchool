@@ -78,7 +78,7 @@ const NativeNavBar = ({
     setCurrentActiveIndex(activeIndex);
     if (navBarId && isSupported) {
       setActiveItem(navBarId, activeIndex).catch((error) => {
-        console.error("[NativeNavBar] ❌ Failed to set active item:", error);
+        console.error("[NativeNavBar] Failed to set active item:", error);
       });
     }
   }, [activeIndex, navBarId, isSupported, setActiveItem]);
@@ -96,7 +96,7 @@ const NativeNavBar = ({
           // Update both local state and native navbar active item
           setCurrentActiveIndex(itemIndex);
           setActiveItem(navBarId, itemIndex).catch((error) => {
-            console.error("[NativeNavBar] ❌ Failed to set active item after click:", error);
+            console.error("[NativeNavBar] Failed to set active item after click:", error);
           });
 
           // Prioritize onItemPress prop for bridging solution
@@ -173,7 +173,7 @@ const NativeNavBar = ({
         await showNavBar(newNavBarId);
 
       } catch (error) {
-        console.error("[NativeNavBar] ❌ Failed to create native navbar:", error);
+        console.error("[NativeNavBar] Failed to create native navbar:", error);
       }
     };
 
@@ -184,7 +184,7 @@ const NativeNavBar = ({
     return () => {
       if (navBarId) {
         removeNavBar(navBarId).catch((error) => {
-          console.error("[NativeNavBar] ❌ Cleanup error:", error);
+          console.error("[NativeNavBar] Cleanup error:", error);
         });
       }
     };
@@ -197,7 +197,7 @@ const NativeNavBar = ({
         // Restore the current active state after updating items
         setActiveItem(navBarId, currentActiveIndex)
       )).catch((error) => {
-        console.error("[NativeNavBar] ❌ Failed to update items:", error);
+        console.error("[NativeNavBar] Failed to update items:", error);
       });
     }
   }, [navBarId, items, setNavBarItems, setActiveItem, currentActiveIndex]);
@@ -207,11 +207,11 @@ const NativeNavBar = ({
     if (navBarId) {
       if (visible) {
         showNavBar(navBarId).catch((error) => {
-          console.error("[NativeNavBar] ❌ Failed to show navbar:", error);
+          console.error("[NativeNavBar] Failed to show navbar:", error);
         });
       } else {
         hideNavBar(navBarId).catch((error) => {
-          console.error("[NativeNavBar] ❌ Failed to hide navbar:", error);
+          console.error("[NativeNavBar] Failed to hide navbar:", error);
         });
       }
     }

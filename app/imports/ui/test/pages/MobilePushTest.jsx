@@ -46,29 +46,29 @@ const MobilePushTest = () => {
   const testMobileSupport = async () => {
     setIsLoading(true);
     try {
-      addLog("📱 Checking mobile push support...", "info");
+      addLog("Checking mobile push support...", "info");
 
       const pushStatus = MobilePushHelpers.getStatus();
-      addLog(`📋 Status: ${JSON.stringify(pushStatus, null, 2)}`, "info");
+      addLog(`Status: ${JSON.stringify(pushStatus, null, 2)}`, "info");
 
       if (!window.cordova) {
-        addLog("⚠️ Not running in Cordova environment", "warning");
-        addLog("💡 This test only works in mobile apps", "info");
+        addLog("Not running in Cordova environment", "warning");
+        addLog("This test only works in mobile apps", "info");
         return;
       }
 
       if (pushStatus.supported) {
-        addLog("✅ Mobile push notifications supported", "success");
-        addLog(`📱 Platform: ${pushStatus.platform}`, "info");
-        addLog(`🔧 Backend: ${pushStatus.backend}`, "info");
-        addLog(`🔑 Has Token: ${pushStatus.hasToken}`, "info");
+        addLog("Mobile push notifications supported", "success");
+        addLog(`Platform: ${pushStatus.platform}`, "info");
+        addLog(`Backend: ${pushStatus.backend}`, "info");
+        addLog(`Has Token: ${pushStatus.hasToken}`, "info");
       } else {
-        addLog("❌ Mobile push notifications not supported", "error");
-        addLog("💡 Make sure required plugins are installed", "warning");
+        addLog("Mobile push notifications not supported", "error");
+        addLog("Make sure required plugins are installed", "warning");
       }
 
     } catch (error) {
-      addLog(`❌ Support check failed: ${error.message}`, "error");
+      addLog(`Support check failed: ${error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -78,24 +78,24 @@ const MobilePushTest = () => {
   const testPermissionRequest = async () => {
     setIsLoading(true);
     try {
-      addLog("🔐 Requesting push notification permission...", "info");
+      addLog("Requesting push notification permission...", "info");
 
       if (!window.cordova) {
-        addLog("⚠️ Permission test only works in mobile apps", "warning");
+        addLog("Permission test only works in mobile apps", "warning");
         return;
       }
 
       const granted = await MobilePushHelpers.requestPermission();
 
       if (granted) {
-        addLog("✅ Push notification permission granted", "success");
+        addLog("Push notification permission granted", "success");
       } else {
-        addLog("❌ Push notification permission denied", "error");
-        addLog("💡 Check device notification settings", "warning");
+        addLog("Push notification permission denied", "error");
+        addLog("Check device notification settings", "warning");
       }
 
     } catch (error) {
-      addLog(`❌ Permission request failed: ${error.message}`, "error");
+      addLog(`Permission request failed: ${error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -105,20 +105,20 @@ const MobilePushTest = () => {
   const testSetRideTags = async () => {
     setIsLoading(true);
     try {
-      addLog("🏷️ Setting ride tags...", "info");
+      addLog("Setting ride tags...", "info");
 
       const testRideId = `test-ride-${Date.now()}`;
       const success = await MobilePushHelpers.setRideTags(testRideId);
 
       if (success) {
-        addLog(`✅ Ride tags set successfully for ride: ${testRideId}`, "success");
-        addLog("🎯 You can now receive ride-specific notifications", "info");
+        addLog(`Ride tags set successfully for ride: ${testRideId}`, "success");
+        addLog("You can now receive ride-specific notifications", "info");
       } else {
-        addLog("❌ Failed to set ride tags", "error");
+        addLog("Failed to set ride tags", "error");
       }
 
     } catch (error) {
-      addLog(`❌ Set ride tags failed: ${error.message}`, "error");
+      addLog(`Set ride tags failed: ${error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -128,19 +128,19 @@ const MobilePushTest = () => {
   const testSetLocationTags = async () => {
     setIsLoading(true);
     try {
-      addLog("📍 Setting location tags...", "info");
+      addLog("Setting location tags...", "info");
 
       const success = await MobilePushHelpers.setLocationTags("San Francisco", "CA");
 
       if (success) {
-        addLog("✅ Location tags set successfully", "success");
-        addLog("🌎 You can now receive location-based notifications", "info");
+        addLog("Location tags set successfully", "success");
+        addLog("You can now receive location-based notifications", "info");
       } else {
-        addLog("❌ Failed to set location tags", "error");
+        addLog("Failed to set location tags", "error");
       }
 
     } catch (error) {
-      addLog(`❌ Set location tags failed: ${error.message}`, "error");
+      addLog(`Set location tags failed: ${error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -150,12 +150,12 @@ const MobilePushTest = () => {
   const testSendMobileNotification = async () => {
     setIsLoading(true);
     try {
-      addLog("📤 Sending test mobile notification...", "info");
+      addLog("Sending test mobile notification...", "info");
 
       const result = await Meteor.callAsync(
 "notifications.send",
         [Meteor.userId()],
-        "📱 Mobile Test",
+        "Mobile Test",
         "This notification should appear on your mobile device!",
         {
           type: "system",
@@ -169,12 +169,12 @@ const MobilePushTest = () => {
         },
       );
 
-      addLog("✅ Mobile notification sent successfully!", "success");
-      addLog(`📊 Batch ID: ${result.batchId}`, "info");
-      addLog("📱 Check your device for the notification", "info");
+      addLog("Mobile notification sent successfully!", "success");
+      addLog(`Batch ID: ${result.batchId}`, "info");
+      addLog("Check your device for the notification", "info");
 
     } catch (error) {
-      addLog(`❌ Mobile notification failed: ${error.reason || error.message}`, "error");
+      addLog(`Mobile notification failed: ${error.reason || error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -184,14 +184,14 @@ const MobilePushTest = () => {
   const testSendRideNotification = async () => {
     setIsLoading(true);
     try {
-      addLog("🚗 Sending ride-specific mobile notification...", "info");
+      addLog("Sending ride-specific mobile notification...", "info");
 
       const testRideId = `mobile-test-ride-${Date.now()}`;
 
 //       const result = await Meteor.callAsync(
 // "notifications.send",
 //         [Meteor.userId()],
-//         "🚗 Driver Arriving",
+//         "Driver Arriving",
 //         "Your test driver will arrive in 5 minutes",
 //         {
 //           type: "ride_update",
@@ -205,12 +205,12 @@ const MobilePushTest = () => {
 //         },
 //       );
 
-      addLog("✅ Ride notification sent successfully!", "success");
-      addLog(`🚗 Ride ID: ${testRideId}`, "info");
-      addLog("📱 Tapping the notification should open ride details", "info");
+      addLog("Ride notification sent successfully!", "success");
+      addLog(`Ride ID: ${testRideId}`, "info");
+      addLog("Tapping the notification should open ride details", "info");
 
     } catch (error) {
-      addLog(`❌ Ride notification failed: ${error.reason || error.message}`, "error");
+      addLog(`Ride notification failed: ${error.reason || error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -220,18 +220,18 @@ const MobilePushTest = () => {
   const testClearTags = async () => {
     setIsLoading(true);
     try {
-      addLog("🧹 Clearing ride tags...", "info");
+      addLog("Clearing ride tags...", "info");
 
       const success = await MobilePushHelpers.clearRideTags();
 
       if (success) {
-        addLog("✅ Ride tags cleared successfully", "success");
+        addLog("Ride tags cleared successfully", "success");
       } else {
-        addLog("❌ Failed to clear ride tags", "error");
+        addLog("Failed to clear ride tags", "error");
       }
 
     } catch (error) {
-      addLog(`❌ Clear tags failed: ${error.message}`, "error");
+      addLog(`Clear tags failed: ${error.message}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -239,46 +239,46 @@ const MobilePushTest = () => {
 
   return (
     <Container>
-      <Title>📱 Mobile Push Notification Testing</Title>
+      <Title>Mobile Push Notification Testing</Title>
 
       {/* Current Status */}
       <Section>
-        <h3>📊 Mobile Push Status</h3>
+        <h3>Mobile Push Status</h3>
         <StatusDisplay>
-          <div>🌍 Environment: {window.cordova ? "Cordova Mobile App" : "Web Browser"}</div>
-          <div>📱 Platform: {status.platform || "Unknown"}</div>
-          <div>🔧 Backend: {status.backend || "Unknown"}</div>
-          <div>✅ Supported: {status.supported ? "Yes" : "No"}</div>
-          <div>🔄 Initialized: {status.initialized ? "Yes" : "No"}</div>
-          <div>🔑 Has Token: {status.hasToken ? "Yes" : "No"}</div>
-          <div>🎫 Token: {status.token || "None"}</div>
+          <div>Environment: {window.cordova ? "Cordova Mobile App" : "Web Browser"}</div>
+          <div>Platform: {status.platform || "Unknown"}</div>
+          <div>Backend: {status.backend || "Unknown"}</div>
+          <div>Supported: {status.supported ? "Yes" : "No"}</div>
+          <div>Initialized: {status.initialized ? "Yes" : "No"}</div>
+          <div>Has Token: {status.hasToken ? "Yes" : "No"}</div>
+          <div>Token: {status.token || "None"}</div>
         </StatusDisplay>
       </Section>
 
       {/* Test Buttons */}
       <Section>
-        <h3>🧪 Mobile Push Tests</h3>
+        <h3>Mobile Push Tests</h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
           <TestButton onClick={testMobileSupport} disabled={isLoading}>
-            📱 Check Support
+            Check Support
           </TestButton>
           <TestButton onClick={testPermissionRequest} disabled={isLoading}>
-            🔐 Request Permission
+            Request Permission
           </TestButton>
           <TestButton onClick={testSetRideTags} disabled={isLoading}>
-            🏷️ Set Ride Tags
+            Set Ride Tags
           </TestButton>
           <TestButton onClick={testSetLocationTags} disabled={isLoading}>
-            📍 Set Location Tags
+            Set Location Tags
           </TestButton>
           <TestButton onClick={testSendMobileNotification} disabled={isLoading}>
-            📤 Send Mobile Test
+            Send Mobile Test
           </TestButton>
           <TestButton onClick={testSendRideNotification} disabled={isLoading}>
-            🚗 Send Ride Test
+            Send Ride Test
           </TestButton>
           <TestButton onClick={testClearTags} disabled={isLoading}>
-            🧹 Clear Tags
+            Clear Tags
           </TestButton>
         </div>
       </Section>
@@ -286,7 +286,7 @@ const MobilePushTest = () => {
       {/* Logs */}
       <Section>
         <h3>
-          📋 Test Logs
+          Test Logs
           <button onClick={clearLogs} style={{ marginLeft: "16px", fontSize: "12px" }}>
             Clear
           </button>
@@ -315,7 +315,7 @@ const MobilePushTest = () => {
 
       {/* Setup Instructions */}
       <Section>
-        <h3>📚 Mobile Setup Instructions</h3>
+        <h3>Mobile Setup Instructions</h3>
         <div style={{ fontSize: "14px", lineHeight: "1.6",
           backgroundColor: "#f7fafc", padding: "16px", borderRadius: "8px" }}>
           <h4>For Firebase Mobile:</h4>
@@ -336,7 +336,7 @@ const MobilePushTest = () => {
           </code>
 
           <p style={{ marginTop: "12px", fontWeight: "600" }}>
-            📖 See MOBILE_PUSH_SETUP.md for complete setup instructions
+            See MOBILE_PUSH_SETUP.md for complete setup instructions
           </p>
         </div>
       </Section>

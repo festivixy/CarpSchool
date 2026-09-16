@@ -30,7 +30,7 @@ export default class MobileNotFound extends React.Component {
       <Container>
         <Content>
           <IllustrationContainer>
-            <ErrorIcon>🚗💨</ErrorIcon>
+            <ErrorIcon></ErrorIcon>
             <StatusCode>404</StatusCode>
           </IllustrationContainer>
 

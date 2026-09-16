@@ -608,7 +608,7 @@ export const NotificationUtils = {
     return sendToRideParticipants(
       null,
       rideId,
-      "⚠️ Emergency Alert",
+      "Emergency Alert",
       message,
       {
         type: NOTIFICATION_TYPES.EMERGENCY,

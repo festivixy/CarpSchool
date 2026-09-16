@@ -149,8 +149,8 @@ This application was built with dedication and care by our development team.
 
 ## Special Thanks
 
-- **Beef Ramen** 🍜 - For powering the ref checker tool and countless debugging sessions
-- **Coffee** ☕ - For fueling late-night coding sessions and morning deployments
+- **Beef Ramen** - For powering the ref checker tool and countless debugging sessions
+- **Coffee** - For fueling late-night coding sessions and morning deployments
 
 ## Map Data
 
@@ -162,7 +162,7 @@ For questions about this application or to report an issue, contact contact@carp
 
 ---
 
-*Built with ❤️ for the student community by CarpSchool team*`,
+*Built with for the student community by CarpSchool team*`,
     };
 
     const results = [];

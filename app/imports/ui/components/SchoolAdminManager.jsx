@@ -222,7 +222,7 @@ const SchoolAdminManager = ({ schools }) => {
             onKeyPress={(e) => e.key === "Enter" && handleSearch()}
           />
           <SearchButton onClick={handleSearch} disabled={loading}>
-            🔍 Search
+            Search
           </SearchButton>
         </SearchSection>
 
@@ -272,11 +272,11 @@ const SchoolAdminManager = ({ schools }) => {
 
         {loading ? (
           <LoadingState>
-            <div>🔍 Loading users...</div>
+            <div>Loading users...</div>
           </LoadingState>
         ) : filteredUsers.length === 0 ? (
           <EmptyState>
-            <div>👥</div>
+            <div></div>
             <h3>No users found</h3>
             <p>
               {searchEmail.trim() || roleFilter !== "all" || schoolFilter !== "all"
@@ -292,17 +292,17 @@ const SchoolAdminManager = ({ schools }) => {
                 <UserInfo>
                   <UserEmail>{user.emails?.[0]?.address || "No email"}</UserEmail>
                   <UserSchool>
-                    🏫 {user.schoolId ? getSchoolName(user.schoolId) : "No school assigned"}
+                    {user.schoolId ? getSchoolName(user.schoolId) : "No school assigned"}
                   </UserSchool>
                   <UserRoles>
                     {isSystemAdmin(user) && (
-                      <span className="system-admin">🌟 System Admin</span>
+                      <span className="system-admin">System Admin</span>
                     )}
                     {isSchoolAdmin(user) && (
-                      <span className="school-admin">👑 School Admin</span>
+                      <span className="school-admin">School Admin</span>
                     )}
                     {!isSystemAdmin(user) && !isSchoolAdmin(user) && (
-                      <span className="regular-user">👤 Regular User</span>
+                      <span className="regular-user">Regular User</span>
                     )}
                   </UserRoles>
                 </UserInfo>
@@ -314,7 +314,7 @@ const SchoolAdminManager = ({ schools }) => {
                       disabled={processing === user._id || !user.schoolId}
                       title={!user.schoolId ? "User must be assigned to a school" : "Make school administrator"}
                     >
-                      {processing === user._id ? "Adding..." : "👑 Make Admin"}
+                      {processing === user._id ? "Adding..." : "Make Admin"}
                     </AddAdminButton>
                   )}
 
@@ -323,7 +323,7 @@ const SchoolAdminManager = ({ schools }) => {
                       onClick={() => handleRemoveSchoolAdmin(user._id, user.emails?.[0]?.address)}
                       disabled={processing === user._id}
                     >
-                      {processing === user._id ? "Removing..." : "❌ Remove Admin"}
+                      {processing === user._id ? "Removing..." : "Remove Admin"}
                     </RemoveAdminButton>
                   )}
 

@@ -412,7 +412,7 @@ class AdminSchools extends React.Component {
               />
             </SearchContainer>
             <CreateButton onClick={this.handleCreateClick}>
-              ➕ Create School
+              Create School
             </CreateButton>
           </TopActions>
 
@@ -470,7 +470,7 @@ class AdminSchools extends React.Component {
                             disabled={this.state.loading}
                             title="Edit school"
                           >
-                            ✏️
+
                           </ActionButton>
                           <ActionButton
                             variant={school.isActive ? "deactivate" : "activate"}

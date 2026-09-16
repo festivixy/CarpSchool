@@ -81,10 +81,10 @@ function LiquidGlassFooter({
   ];
 
   const socialLinks = [
-    { platform: "Twitter", icon: "🐦", url: "https://twitter.com" },
-    { platform: "Facebook", icon: "📘", url: "https://facebook.com" },
-    { platform: "Instagram", icon: "📷", url: "https://instagram.com" },
-    { platform: "LinkedIn", icon: "💼", url: "https://linkedin.com" },
+    { platform: "Twitter", icon: "", url: "https://twitter.com" },
+    { platform: "Facebook", icon: "", url: "https://facebook.com" },
+    { platform: "Instagram", icon: "", url: "https://instagram.com" },
+    { platform: "LinkedIn", icon: "", url: "https://linkedin.com" },
   ];
 
   return (
@@ -167,15 +167,15 @@ function LiquidGlassFooter({
           <SectionContent>
             <ContactInfo>
               <ContactItem>
-                <span>📧</span>
+                <span></span>
                 <a href={`mailto:${email}`}>{email}</a>
               </ContactItem>
               <ContactItem>
-                <span>📞</span>
+                <span></span>
                 <a href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a>
               </ContactItem>
               <ContactItem>
-                <span>📍</span>
+                <span></span>
                 <span>{address}</span>
               </ContactItem>
             </ContactInfo>
@@ -186,7 +186,7 @@ function LiquidGlassFooter({
                   type="email"
                   name="email"
                   placeholder="Enter your email"
-                  icon="📧"
+                  icon=""
                   iconPosition="left"
                   required
                 />

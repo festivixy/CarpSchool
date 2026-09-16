@@ -107,9 +107,9 @@ const ImageAuth = ({
         style={style}
       >
         <Message.Header>
-          {isAuthError ? "🔒 Access Restricted" : 
-           isNotFoundError ? "📷 Image Not Found" : 
-           "❌ Error Loading Image"}
+          {isAuthError ? "Access Restricted" : 
+           isNotFoundError ? "Image Not Found" : 
+           "Error Loading Image"}
         </Message.Header>
         <p>{error}</p>
       </Message>

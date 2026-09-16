@@ -74,7 +74,7 @@ export const SkeletonMapPlaceholder = styled.div`
   justify-content: center;
 
   &::before {
-    content: "🗺️";
+    content: "";
     font-size: 48px;
     opacity: 0.3;
     display: flex;

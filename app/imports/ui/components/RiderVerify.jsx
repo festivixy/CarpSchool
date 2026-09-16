@@ -123,7 +123,7 @@ const RiderVerify = () => {
       <BackButton />
 
       <VerifyHeader>
-        <VerifyIcon>🚗</VerifyIcon>
+        <VerifyIcon></VerifyIcon>
         <VerifyTitle>Rider Verification</VerifyTitle>
       </VerifyHeader>
 
@@ -211,7 +211,7 @@ const RiderVerify = () => {
         {step === "success" && (
           <>
             <VerifyText>
-              🎉 School email verified successfully!
+              School email verified successfully!
             </VerifyText>
 
             <VerifyDescription>

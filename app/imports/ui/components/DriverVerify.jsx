@@ -50,7 +50,7 @@ const DriverVerify = () => {
       <BackButton />
       
       <VerifyHeader>
-        <VerifyIcon>🚙</VerifyIcon>
+        <VerifyIcon></VerifyIcon>
         <VerifyTitle>Driver Verification</VerifyTitle>
       </VerifyHeader>
 

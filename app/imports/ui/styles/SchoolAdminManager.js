@@ -23,7 +23,7 @@ export const Title = styled.h2`
   gap: 12px;
 
   &::before {
-    content: "👑";
+    content: "";
     font-size: 28px;
   }
 `;

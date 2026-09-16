@@ -180,7 +180,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
       <ContentPadding>
         {/* Main Info */}
         <MainCard>
-          <MainTitle>🦴 Skeleton Loading Components</MainTitle>
+          <MainTitle>Skeleton Loading Components</MainTitle>
           <MainDescription>
             Test and configure skeleton loading states for better UX during data loading.
             Skeleton components provide visual placeholders that match the actual content structure.
@@ -205,7 +205,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
 
         {/* MyRides Skeleton */}
         <SkeletonSection>
-          <SkeletonTitle>🚗 MyRides Skeleton</SkeletonTitle>
+          <SkeletonTitle>MyRides Skeleton</SkeletonTitle>
           <SkeletonDescription>
             Skeleton loading state for the MyRides page. Shows header, tabs, search, and ride cards
             with shimmer animation.
@@ -262,7 +262,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
 
         {/* Chat Skeleton */}
         <SkeletonSection>
-          <SkeletonTitle>💬 Chat Skeleton</SkeletonTitle>
+          <SkeletonTitle>Chat Skeleton</SkeletonTitle>
           <SkeletonDescription>
             Skeleton loading state for the Chat page. Shows chat list, conversation header, messages,
             and input form with realistic desktop and mobile layouts.
@@ -351,7 +351,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
 
         {/* CreateRide Skeleton */}
         <SkeletonSection>
-          <SkeletonTitle>📱 CreateRide Skeleton (iOS)</SkeletonTitle>
+          <SkeletonTitle>CreateRide Skeleton (iOS)</SkeletonTitle>
           <SkeletonDescription>
             Skeleton loading state for the iOS CreateRide page. Shows gradient background, form sections
             for route, date/time, and ride details with iOS-style form elements.
@@ -396,7 +396,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
 
         {/* Mobile Generic Skeleton */}
         <SkeletonSection>
-          <SkeletonTitle>📱 Mobile Generic Skeleton</SkeletonTitle>
+          <SkeletonTitle>Mobile Generic Skeleton</SkeletonTitle>
           <SkeletonDescription>
             Simple, reusable mobile skeleton with white top bar, back button, and content lines
             of varying widths. Perfect for basic mobile pages with text content.
@@ -490,7 +490,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
 
         {/* RideInfo Skeleton */}
         <SkeletonSection>
-          <SkeletonTitle>🗺️ RideInfo Skeleton</SkeletonTitle>
+          <SkeletonTitle>RideInfo Skeleton</SkeletonTitle>
           <SkeletonDescription>
             Skeleton loading state for the RideInfo page. Shows 50% map area, 40% ride details section
             with route display, status badge, and ride information, plus 10% navbar clearance.
@@ -549,7 +549,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
 
         {/* PlaceManager Skeleton */}
         <SkeletonSection>
-          <SkeletonTitle>📍 PlaceManager Skeleton</SkeletonTitle>
+          <SkeletonTitle>PlaceManager Skeleton</SkeletonTitle>
           <SkeletonDescription>
             Skeleton loading state for the PlaceManager page. Shows header with title and add button,
             followed by a grid of place cards with location info and action buttons.
@@ -609,7 +609,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
 
         {/* Profile Skeleton */}
         <SkeletonSection>
-          <SkeletonTitle>👤 Profile Skeleton</SkeletonTitle>
+          <SkeletonTitle>Profile Skeleton</SkeletonTitle>
           <SkeletonDescription>
             Skeleton loading state for the EditProfile page. Shows header, form sections with
             basic info, contact info, image uploads, and submit button.
@@ -688,7 +688,7 @@ const SkeletonComponentsTest = ({ history: _history, currentUser, isAdmin }) => 
 
         {/* Future Skeleton Components */}
         <SkeletonSection>
-          <SkeletonTitle>🔮 Future Skeleton Components</SkeletonTitle>
+          <SkeletonTitle>Future Skeleton Components</SkeletonTitle>
           <SkeletonDescription>
             Additional skeleton components can be added here as they are developed:
           </SkeletonDescription>
@@ -710,7 +710,7 @@ import { MyRidesSkeleton } from "../../skeleton";
 
         {/* Best Practices */}
         <SkeletonSection>
-          <SkeletonTitle>✨ Best Practices</SkeletonTitle>
+          <SkeletonTitle>Best Practices</SkeletonTitle>
           <SkeletonDescription>
             Guidelines for creating and using skeleton components:
           </SkeletonDescription>

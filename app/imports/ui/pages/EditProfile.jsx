@@ -765,7 +765,7 @@ class MobileEditProfile extends React.Component {
                 </RoleChangeButton>
 
                 <ReverifyWarning>
-                  ⚠️ You need to reverify your account to change role
+                  You need to reverify your account to change role
                 </ReverifyWarning>
               </Section>
             </InputSection>
