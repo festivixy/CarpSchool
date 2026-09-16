@@ -81,24 +81,23 @@ import {
   Loading,
 } from "../styles/Profile";
 
+/* Icon names, not emoji: the rest of the app draws from one stroke set, and
+ * mixing platform emoji in made this screen look assembled from a different
+ * kit -- different weights, different colours, different vertical centring. */
 const ADMIN_LINKS = [
-  { icon: "👥", label: "Manage users", path: "/admin/users" },
-  { icon: "⏳", label: "Pending approvals", path: "/admin/pending-users" },
-  { icon: "🚗", label: "Manage rides", path: "/admin/rides" },
-  { icon: "🏫", label: "School settings", path: "/admin/school-management" },
-  { icon: "📍", label: "Manage places", path: "/admin/places" },
-  { icon: "🚨", label: "Error reports", path: "/admin/error-reports" },
+  { icon: "user", label: "Manage users", path: "/admin/users" },
+  { icon: "clock", label: "Pending approvals", path: "/admin/pending-users" },
+  { icon: "car", label: "Manage rides", path: "/admin/rides" },
+  { icon: "school", label: "School settings", path: "/admin/school-management" },
+  { icon: "pin", label: "Manage places", path: "/admin/places" },
+  { icon: "flame", label: "Error reports", path: "/admin/error-reports" },
 ];
 
 const LEGAL_LINKS = [
-  { icon: "📄", label: "Terms of Service", path: "/terms" },
-  { icon: "🔒", label: "Privacy Policy", path: "/privacy" },
-  { icon: "💰", label: "Credits", path: "/credits" },
+  { icon: "doc", label: "Terms of Service", path: "/terms" },
+  { icon: "shield", label: "Privacy Policy", path: "/privacy" },
+  { icon: "sparkle", label: "Credits", path: "/credits" },
 ];
-
-/* EPA puts an average passenger vehicle at ~404 g CO2/mile (0.89 lb). Riding
- * together avoids the rider's own solo trip, so shared miles drive the figure. */
-const CO2_LB_PER_MILE = 0.89;
 
 /* Decoration only — the tile colour says nothing about the place. */
 const PLACE_TINTS = [
@@ -124,30 +123,6 @@ const hueFor = (seed) => {
   let total = 0;
   for (let i = 0; i < seed.length; i += 1) total += seed.charCodeAt(i);
   return total % 360;
-};
-
-const startOfWeek = (value) => {
-  const d = new Date(value);
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - d.getDay());
-  return d.getTime();
-};
-
-/* Consecutive week buckets, ending with the current week, that contain at
- * least one completed ride. Stepping back through Date rather than subtracting
- * a fixed 7-day span keeps the buckets aligned across daylight-saving shifts. */
-const weekStreak = (dates, now) => {
-  if (dates.length === 0) return 0;
-  const weeks = new Set(dates.map(startOfWeek));
-  let cursor = startOfWeek(now);
-  let streak = 0;
-  while (weeks.has(cursor)) {
-    streak += 1;
-    const previous = new Date(cursor);
-    previous.setDate(previous.getDate() - 7);
-    cursor = startOfWeek(previous);
-  }
-  return streak;
 };
 
 /* Show only the last four digits. The country code is not modelled, so the
@@ -303,8 +278,6 @@ const Profile = ({ history }) => {
     const est = estimateRoute(placeCoords[r.origin], placeCoords[r.destination]);
     return sum + (est ? est.distanceMi : 0);
   }, 0);
-  const co2AvoidedLb = Math.round(milesShared * CO2_LB_PER_MILE);
-  const streak = weekStreak(completed.map(r => r.date), now);
   const ratingCount = reviews.length;
   const ratingAvg = ratingCount === 0
     ? 0
@@ -338,7 +311,7 @@ const Profile = ({ history }) => {
   else if (identityVerified) identityNote = "verified";
 
   const checklist = [
-    [".edu email", eduVerified, myProfile?.schoolemail || "not verified"],
+    ["School email", eduVerified, myProfile?.schoolemail || "not verified"],
     ["Student ID", Boolean(myProfile?.verified), studentIdNote],
     ["Phone", Boolean(myProfile?.Phone), myProfile?.Phone ? maskPhone(myProfile.Phone) : "add a number"],
     // The app's real document check is Persona, written to the profile by the
@@ -364,12 +337,12 @@ const Profile = ({ history }) => {
               {eduVerified ? (
                 <VerifiedChip>
                   <Icon name="check" size={11} color="#fff" strokeWidth={2.6} />
-                  .edu verified
+                  School email verified
                 </VerifiedChip>
               ) : (
                 <VerifyChip type="button" onClick={() => go("/verify")}>
                   <Icon name="school" size={11} />
-                  Verify .edu
+                  Verify school email
                 </VerifyChip>
               )}
             </NameRow>
@@ -422,16 +395,6 @@ const Profile = ({ history }) => {
             <StatLabel>MILES</StatLabel>
             <StatValue>{Math.round(milesShared)}</StatValue>
             <StatUnit>shared</StatUnit>
-          </StatCard>
-          <StatCard>
-            <StatLabel>CO&#8322; SAVED</StatLabel>
-            <StatValue>{`${co2AvoidedLb} lb`}</StatValue>
-            <StatUnit>vs. solo</StatUnit>
-          </StatCard>
-          <StatCard>
-            <StatLabel>STREAK</StatLabel>
-            <StatValue>{streak}</StatValue>
-            <StatUnit>weeks in a row</StatUnit>
           </StatCard>
         </StatStrip>
 
@@ -537,20 +500,20 @@ const Profile = ({ history }) => {
             <MenuList>
               {!identityVerified && (
                 <MenuItem type="button" onClick={verifyIdentity}>
-                  <MenuItemIcon>🛡️</MenuItemIcon>
+                  <MenuItemIcon><Icon name="shield" size={17} /></MenuItemIcon>
                   <MenuItemLabel>Verify identity</MenuItemLabel>
-                  <MenuArrow>›</MenuArrow>
+                  <MenuArrow><Icon name="chevR" size={15} /></MenuArrow>
                 </MenuItem>
               )}
               <MenuItem type="button" onClick={() => go("/edit-profile")}>
-                <MenuItemIcon>📝</MenuItemIcon>
+                <MenuItemIcon><Icon name="edit" size={17} /></MenuItemIcon>
                 <MenuItemLabel>Edit profile</MenuItemLabel>
-                <MenuArrow>›</MenuArrow>
+                <MenuArrow><Icon name="chevR" size={15} /></MenuArrow>
               </MenuItem>
               <MenuItem type="button" onClick={() => go("/places")}>
-                <MenuItemIcon>📍</MenuItemIcon>
+                <MenuItemIcon><Icon name="pin" size={17} /></MenuItemIcon>
                 <MenuItemLabel>My places</MenuItemLabel>
-                <MenuArrow>›</MenuArrow>
+                <MenuArrow><Icon name="chevR" size={15} /></MenuArrow>
               </MenuItem>
             </MenuList>
           </Section>
@@ -561,9 +524,9 @@ const Profile = ({ history }) => {
               <MenuList>
                 {ADMIN_LINKS.map(item => (
                   <MenuItem key={item.path} type="button" onClick={() => go(item.path)}>
-                    <MenuItemIcon>{item.icon}</MenuItemIcon>
+                    <MenuItemIcon><Icon name={item.icon} size={17} /></MenuItemIcon>
                     <MenuItemLabel>{item.label}</MenuItemLabel>
-                    <MenuArrow>›</MenuArrow>
+                    <MenuArrow><Icon name="chevR" size={15} /></MenuArrow>
                   </MenuItem>
                 ))}
               </MenuList>
@@ -575,9 +538,9 @@ const Profile = ({ history }) => {
             <MenuList>
               {LEGAL_LINKS.map(item => (
                 <MenuItem key={item.path} type="button" onClick={() => go(item.path)}>
-                  <MenuItemIcon>{item.icon}</MenuItemIcon>
+                  <MenuItemIcon><Icon name={item.icon} size={17} /></MenuItemIcon>
                   <MenuItemLabel>{item.label}</MenuItemLabel>
-                  <MenuArrow>›</MenuArrow>
+                  <MenuArrow><Icon name="chevR" size={15} /></MenuArrow>
                 </MenuItem>
               ))}
             </MenuList>
@@ -587,9 +550,9 @@ const Profile = ({ history }) => {
             <SectionTitle $danger>DANGER ZONE</SectionTitle>
             <MenuList>
               <MenuItem type="button" $danger onClick={deleteAccount}>
-                <MenuItemIcon>🗑️</MenuItemIcon>
+                <MenuItemIcon><Icon name="close" size={17} /></MenuItemIcon>
                 <MenuItemLabel>Delete account</MenuItemLabel>
-                <MenuArrow>›</MenuArrow>
+                <MenuArrow><Icon name="chevR" size={15} /></MenuArrow>
               </MenuItem>
             </MenuList>
           </Section>

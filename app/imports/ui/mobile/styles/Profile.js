@@ -506,10 +506,14 @@ export const MenuItem = styled.button`
   }
 `;
 
+/* A fixed box so every label starts on the same vertical line, and the icon
+ * inherits the row's ink rather than an emoji's own colour. */
 export const MenuItemIcon = styled.span`
   width: 22px;
-  text-align: center;
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
 `;
 
 export const MenuItemLabel = styled.span`
@@ -517,8 +521,9 @@ export const MenuItemLabel = styled.span`
 `;
 
 export const MenuArrow = styled.span`
+  display: inline-flex;
+  align-items: center;
   color: var(--ink-4);
-  font-size: 18px;
 `;
 
 export const SignOutBtn = styled.button`
