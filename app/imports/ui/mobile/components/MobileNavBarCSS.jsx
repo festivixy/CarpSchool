@@ -8,6 +8,7 @@ import AddRidesModal from "../../components/AddRides";
 import Icon from "../../components/Icon";
 import NotificationBell from "../../components/NotificationBell";
 import { fullSignOut } from "../../utils/signOut";
+import { useApprovalStatus } from "../../utils/useApproval";
 import {
   NavBarContainer,
   TabBarInner,
@@ -30,6 +31,12 @@ import {
  */
 function MobileNavBarCSS({ currentUser, location }) {
   const { isSignedIn, signOut } = useAuth();
+  const { ready: approvalReady, approved } = useApprovalStatus();
+
+  /* The tabs all lead to member routes an unapproved account is bounced out
+   * of, so they are hidden until the account is approved. Judged only once
+   * known, so an approved user does not get a blank bar on every load. */
+  const canBrowse = isSignedIn && !(approvalReady && !approved);
   const [joinRideModalOpen, setJoinRideModalOpen] = React.useState(false);
   const [addRidesModalOpen, setAddRidesModalOpen] = React.useState(false);
   const [activeDropdown, setActiveDropdown] = React.useState(null);
@@ -63,7 +70,7 @@ function MobileNavBarCSS({ currentUser, location }) {
     <NavBarContainer className="liquid-glass-mobile-navbar">
       <TabBarInner>
         <TabsContainer>
-          {isSignedIn && (
+          {canBrowse && (
             <TabBarItem
               as={Link}
               to="/my-rides"
@@ -75,7 +82,7 @@ function MobileNavBarCSS({ currentUser, location }) {
             </TabBarItem>
           )}
 
-          {isSignedIn && (
+          {canBrowse && (
             <TabBarItem
               as={Link}
               to="/places"
@@ -87,7 +94,7 @@ function MobileNavBarCSS({ currentUser, location }) {
             </TabBarItem>
           )}
 
-          {isSignedIn && (
+          {canBrowse && (
             <TabPrimary
               as={Link}
               to="/find"
@@ -98,7 +105,7 @@ function MobileNavBarCSS({ currentUser, location }) {
             </TabPrimary>
           )}
 
-          {isSignedIn && (
+          {canBrowse && (
             <TabBarItem
               as={Link}
               to="/chat"

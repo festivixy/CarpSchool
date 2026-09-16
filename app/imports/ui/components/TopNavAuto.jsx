@@ -10,6 +10,7 @@ import NavBar from "../desktop/components/NavBar";
 import { isSystemRole } from "../desktop/components/NavBarRoleUtils";
 import { adminNavFor, adminPathFor, adminSectionFor } from "../utils/adminNav";
 import { fullSignOut } from "../utils/signOut";
+import { useApprovalStatus } from "../utils/useApproval";
 import { NavSpacer } from "../styles/TopNav";
 
 /**
@@ -63,6 +64,9 @@ const MENU_BASE = [
 /* Setting a schedule is only meaningful for an account that can drive. */
 const DRIVER_MENU = [{ id: "availability", label: "My availability", icon: "clock" }];
 
+/* All an unapproved account can actually open. */
+const RESTRICTED_ITEMS = [{ id: "home", label: "Home" }];
+
 /* Longest prefix wins, so /ride-history maps to rides rather than home. */
 const ACTIVE_BY_PREFIX = [
   ["/find", "find"],
@@ -97,6 +101,7 @@ const avatarUserFrom = (currentUser) => {
 
 function TopNavAuto({ currentUser, myProfile, history, location }) {
   const { isSignedIn, signOut } = useAuth();
+  const { ready: approvalReady, approved } = useApprovalStatus();
   const pathname = location?.pathname || "/";
   const isLegacyRoute = LEGACY_NAV_PREFIXES.some(p => pathname.startsWith(p));
   const isAdminArea = ADMIN_PREFIXES.some(p => pathname.startsWith(p));
@@ -107,16 +112,26 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
 
   const fullBleed = FULL_BLEED_PREFIXES.some(p => pathname.startsWith(p));
 
+  /* An account still at onboarding, waiting for approval or rejected cannot
+   * reach any of the member routes, so the nav must not offer them. Judged
+   * only once the subscription has resolved: treating "not yet known" as
+   * unapproved would blank the nav on every load for everyone else. */
+  const restricted = approvalReady && !approved;
+
   const isAdmin = currentUser?.roles?.includes("system")
     || currentUser?.roles?.some(r => r.startsWith("admin."));
 
   const canDrive = myProfile?.UserType !== "Rider";
 
-  const menuItems = [
+  const signOutItem = { id: "signOut", label: "Sign out", icon: "arrow", danger: true };
+
+  /* Nothing in the account menu is reachable either, so it comes down to the
+   * one action that always works. */
+  const menuItems = restricted ? [signOutItem] : [
     ...MENU_BASE,
     ...(canDrive ? DRIVER_MENU : []),
     ...(isAdmin ? [{ id: "admin", label: "Admin panel", icon: "settings" }] : []),
-    { id: "signOut", label: "Sign out", icon: "arrow", danger: true },
+    signOutItem,
   ];
 
   const handleMenuSelect = (id) => {
@@ -156,10 +171,11 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
     <>
       <TopNav
         active={activeFor(pathname)}
+        items={restricted ? RESTRICTED_ITEMS : undefined}
         user={avatarUserFrom(currentUser)}
         onNav={id => history.push(NAV_TARGETS[id] || "/")}
-        onOffer={canDrive ? () => history.push("/create") : undefined}
-        showOffer={canDrive}
+        onOffer={canDrive && !restricted ? () => history.push("/create") : undefined}
+        showOffer={canDrive && !restricted}
         menuItems={menuItems}
         onMenuSelect={handleMenuSelect}
       />
