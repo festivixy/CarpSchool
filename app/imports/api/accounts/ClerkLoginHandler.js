@@ -3,6 +3,7 @@ import { Accounts } from "meteor/accounts-base";
 import { check, Match } from "meteor/check";
 import { verifyToken, createClerkClient } from "@clerk/backend";
 import { schoolForEmail } from "./SchoolDomain";
+import { grantAdminIfListed } from "./adminGrant";
 
 /**
  * Bridges Clerk authentication to a Meteor session.
@@ -161,5 +162,18 @@ Accounts.registerLoginHandler(CLERK_LOGIN_TYPE, async (options) => {
   }
 
   const userId = await resolveMeteorUserId(clerkUserId, payload);
+
+  /* Apply the administrator grant here as well as at boot. An account created
+   * after the server started would otherwise stay an ordinary user until the
+   * next restart, which on a hosted deployment is whenever someone happens to
+   * deploy. Never allowed to fail the login: a listed administrator can be
+   * granted on the next sign-in, but nobody should be locked out because this
+   * threw. */
+  try {
+    await grantAdminIfListed(userId);
+  } catch (error) {
+    console.error("[ClerkLogin] Administrator grant failed:", error?.message || error);
+  }
+
   return { userId };
 });
