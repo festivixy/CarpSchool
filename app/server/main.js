@@ -6,6 +6,9 @@ import path from "path";
 import "../imports/startup/server/LegalContent";
 // Driver availability: weekly schedule plus instant "available now".
 import "../imports/api/availability/AvailabilityMethods";
+// Seeds the configured test school. Registered before AdminBootstrap so an
+// administrator with no school can be assigned to it on the same boot.
+import "../imports/startup/server/TestSchool";
 
 // Load environment variables from .env file if it exists
 const envPath = path.resolve(process.cwd(), "../.env");
