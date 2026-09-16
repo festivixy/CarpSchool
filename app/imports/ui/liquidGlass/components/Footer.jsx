@@ -77,7 +77,6 @@ function LiquidGlassFooter({
     { label: "About Us", key: "about" },
     { label: "Careers", key: "careers" },
     { label: "Press", key: "press" },
-    { label: "Blog", key: "blog" },
     { label: "Sustainability", key: "sustainability" },
   ];
 

@@ -44,7 +44,7 @@ This application was built with dedication and care by our development team.
 
 ## Contact
 
-For questions about this application or to report issues, please contact lz at kobosh@kobosh.com.
+For questions about this application or to report an issue, contact contact@carpschool.com.
 
 ---
 
