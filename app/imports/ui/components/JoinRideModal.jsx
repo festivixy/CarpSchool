@@ -22,6 +22,7 @@ import {
   ButtonPrimary,
   ButtonSecondary,
 } from "../styles/JoinRideModal";
+import Icon from "./Icon";
 
 /**
  * JoinRideModal component with clean design and smooth interactions for both mobile and desktop
@@ -212,7 +213,7 @@ class JoinRideModal extends React.Component {
           {/* Header */}
           <Header>
             <CloseButton onClick={this.handleClose} aria-label="Close">
-              ✕
+              <Icon name="close" size={16} />
             </CloseButton>
             <Title>Join a Ride</Title>
             <Subtitle>Enter the 8-character code shared by the driver</Subtitle>

@@ -44,6 +44,7 @@ import {
   LoadingContainer,
   SuccessDetailItem,
 } from "../styles/AddRides";
+import Icon from "./Icon";
 
 /**
  * Universal AddRides modal component with clean design and comprehensive functionality
@@ -352,7 +353,7 @@ class AddRidesModal extends React.Component {
           <Modal onClick={(e) => e.stopPropagation()}>
             <Header>
               <CloseButton onClick={this.handleClose} aria-label="Close">
-                ✕
+                <Icon name="close" size={16} />
               </CloseButton>
               <Title>Create Your Ride</Title>
               <Subtitle>Share your ride with fellow students</Subtitle>
@@ -373,7 +374,7 @@ class AddRidesModal extends React.Component {
           {/* Header */}
           <Header>
             <CloseButton onClick={this.handleClose} aria-label="Close">
-              ✕
+              <Icon name="close" size={16} />
             </CloseButton>
             <Title>Create Your Ride</Title>
             <Subtitle>Share your ride with fellow students</Subtitle>

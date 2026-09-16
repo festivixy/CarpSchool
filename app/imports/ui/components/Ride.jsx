@@ -85,6 +85,7 @@ import {
   FullCodeDisplay,
   CodeInstructions,
 } from "../styles/Ride";
+import Icon from "./Icon";
 
 /** Ride component with clean design and join functionality */
 class Ride extends React.Component {
@@ -1148,7 +1149,7 @@ class Ride extends React.Component {
                     <ModalIcon></ModalIcon>
                     Share Your Ride
                   </ModalTitle>
-                  <ModalClose onClick={this.closeShareModal}>✕</ModalClose>
+                  <ModalClose onClick={this.closeShareModal}><Icon name="close" size={16} /></ModalClose>
                 </ModalHeader>
 
                 <ModalContent>
@@ -1196,7 +1197,7 @@ class Ride extends React.Component {
                     <ModalIcon></ModalIcon>
                     Route Map
                   </ModalTitle>
-                  <ModalClose onClick={this.closeMapModal}>✕</ModalClose>
+                  <ModalClose onClick={this.closeMapModal}><Icon name="close" size={16} /></ModalClose>
                 </ModalHeader>
 
                 <ModalContent style={{ padding: "0", height: "calc(90vh - 140px)", minHeight: "500px" }}>
@@ -1225,7 +1226,7 @@ class Ride extends React.Component {
                   <PickupModalTitle>
                     Confirm Pickup
                   </PickupModalTitle>
-                  <ModalClose onClick={this.closePickupModal}>✕</ModalClose>
+                  <ModalClose onClick={this.closePickupModal}><Icon name="close" size={16} /></ModalClose>
                 </PickupModalHeader>
 
                 <RiderList>
@@ -1303,7 +1304,7 @@ class Ride extends React.Component {
                   <PickupModalTitle>
                     Confirm Pickup
                   </PickupModalTitle>
-                  <ModalClose onClick={this.closePickupModal}>✕</ModalClose>
+                  <ModalClose onClick={this.closePickupModal}><Icon name="close" size={16} /></ModalClose>
                 </PickupModalHeader>
 
                 <RiderList>
@@ -1382,7 +1383,7 @@ class Ride extends React.Component {
                     <ModalIcon></ModalIcon>
                     Your Pickup Code
                   </ModalTitle>
-                  <ModalClose onClick={this.closeCodeModal}>✕</ModalClose>
+                  <ModalClose onClick={this.closeCodeModal}><Icon name="close" size={16} /></ModalClose>
                 </ModalHeader>
 
                 <CodeModalContent>

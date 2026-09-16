@@ -14,6 +14,7 @@ import {
   LoadingSpinner,
   ErrorMessage,
 } from "../styles/ConfirmFunction";
+import Icon from "./Icon";
 
 /**
  * ConfirmFunction - A reusable confirmation modal component
@@ -124,7 +125,7 @@ class ConfirmFunction extends React.Component {
               disabled={isExecuting}
               aria-label="Close"
             >
-              ✕
+              <Icon name="close" size={16} />
             </CloseButton>
             <Title>{title}</Title>
             {subtitle && <Subtitle>{subtitle}</Subtitle>}
