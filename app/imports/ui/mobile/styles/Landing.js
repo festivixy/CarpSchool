@@ -1,8 +1,5 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
-import {
-  btnBase, btnCoral, btnGhost, prose, eyebrow, marker,
-} from "../../styles/tokens";
+import { prose, eyebrow, marker } from "../../styles/tokens";
 
 export const Container = styled.div`
   min-height: 100vh;
@@ -11,73 +8,12 @@ export const Container = styled.div`
   font-family: var(--font-ui);
 `;
 
-export const Hero = styled.section`
-  padding: 80px 20px 56px;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-`;
-
-export const HeroContent = styled.div`
-  max-width: 720px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-`;
-
-export const LogoSection = styled.div``;
-
-export const AppName = styled.h1`
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(48px, 9vw, 84px);
-  font-weight: 800;
-  letter-spacing: -0.015em;
-  line-height: 1;
-`;
-
-export const CtaSection = styled.div`
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-`;
-
-export const CtaPrimary = styled(Link)`
-  ${btnBase}
-  ${btnCoral}
-  text-decoration: none;
-`;
-
-export const CtaSecondary = styled(Link)`
-  ${btnBase}
-  ${btnGhost}
-  text-decoration: none;
-`;
-
-export const Features = styled.section`
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 40px 20px;
-`;
-
-export const SectionHeader = styled.div`
-  margin-bottom: 16px;
-`;
-
 export const SectionTitle = styled.h2`
   margin: 0;
   font-family: var(--font-display);
   font-size: 30px;
   font-weight: 700;
   letter-spacing: -0.01em;
-`;
-
-export const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
 `;
 
 /* Long-form markdown pages (About, Blog, Contact, Credits, FAQ, Help,
@@ -100,19 +36,6 @@ export const DocHeader = styled.div`
   max-width: ${DOC_MEASURE};
   margin: 0 auto;
   padding: 32px 20px 0;
-`;
-
-export const Paragraph = styled.p`
-  margin: 0;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--ink-2);
-`;
-
-export const HowItWorks = styled.section`
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 40px 20px;
 `;
 
 export const FinalCta = styled.section`
@@ -153,8 +76,8 @@ export const CtaButtons = styled.div`
  * offer beside a picture of the product, then reasons to care, then the steps,
  * then a path for each kind of user.
  *
- * Everything below is additive -- the exports above are shared with the
- * markdown document pages (About, FAQ, Privacy, TOS and the rest).
+ * The exports above this point are shared with the markdown document pages
+ * (About, FAQ, Privacy, TOS and the rest).
  * ------------------------------------------------------------------------- */
 
 const BAND_MEASURE = "1040px";
