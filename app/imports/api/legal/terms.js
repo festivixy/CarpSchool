@@ -13,12 +13,12 @@
  * launch. They are left visible on purpose so they cannot be missed.
  */
 
-export const TERMS_VERSION = "2026-09-16";
+export const TERMS_VERSION = "2026-09-19";
 
 export const TERMS_MD = String.raw`# CarpSchool Foundation Terms of Use
 
 **Effective Date:** September 9, 2026
-**Last Updated:** September 16, 2026
+**Last Updated:** September 19, 2026
 **Version:** ${TERMS_VERSION}
 
 These Terms of Use ("Terms") govern access to and use of the CarpSchool website, mobile application, and related services (collectively, the "Platform") operated by CarpSchool Foundation, a society registered in British Columbia, Canada ("CarpSchool," "we," "us," or "our").
@@ -52,15 +52,25 @@ A match, search result, account approval, verification badge, or any other infor
 
 ## 2. Eligibility and Accounts
 
-CarpSchool accounts are intended for students, and staff where a school community permits it, who are at least 19 years old.
+CarpSchool is used by school communities, and many of the people in them are under the age of majority. Accounts are open to:
 
-You may not create an account on behalf of another person, and you may not allow another person to use your account.
+* **students** enrolled at a participating school, who verify a school email address;
+* **parents and guardians** of an enrolled student, who join by invitation from that student or from a school administrator; and
+* **school staff**, where the school community permits it.
+
+A student under 13 may not hold an account.
+
+**If you are under the age of majority where you live, a parent or guardian must accept these Terms for you before you use CarpSchool.** By accepting, they agree to these Terms on your behalf and accept responsibility for your use of the Platform. A school administrator may require that a guardian has joined before approving a student's account.
+
+Parents and guardians do not verify a school email address, because they generally do not have one. They reach CarpSchool only by invitation from an account already verified against the school, and that invitation is what ties them to the community.
+
+You may not create an account for anyone other than yourself, or a student in your care as their parent or guardian, and you may not allow another person to use your account.
 
 By creating an account you represent that:
 
-* you meet the age requirement above;
+* you are old enough to hold an account, and that a parent or guardian has accepted these Terms for you if you are under the age of majority;
 * the information you provide is accurate and current;
-* you have the right to use the school email address you verify with; and
+* you have the right to use the school email address you verify with, or the invitation you joined through; and
 * you will exercise your own judgment in deciding whether any particular carpool is appropriate for you.
 
 You are responsible for activity conducted through your account and for keeping your login credentials confidential. Sign-in is provided by a third-party authentication service; its own terms may also apply to the sign-in step.
@@ -94,6 +104,7 @@ By posting, offering, or providing a ride through CarpSchool, the driver represe
 * the vehicle is properly registered and insured as required by law;
 * their insurance permits carrying passengers in a carpool;
 * the vehicle is reasonably safe and roadworthy;
+* they are observing any passenger restriction attached to their licence. A learner, provisional, novice, or graduated licence commonly limits how many passengers may be carried, or bars carrying passengers at all for a period after the licence is issued;
 * they will comply with all traffic, road-safety, seatbelt, and passenger-restraint laws;
 * they will not drive while impaired by alcohol, cannabis, drugs, medication, fatigue, or any other condition that makes driving unsafe;
 * they will not use a handheld device or otherwise drive while unlawfully distracted;
@@ -101,7 +112,7 @@ By posting, offering, or providing a ride through CarpSchool, the driver represe
 * they will immediately stop offering rides if their licence, insurance, legal authority to drive, or ability to drive safely is suspended, revoked, expired, restricted, or otherwise impaired; and
 * the information they provide about themselves, their vehicle, and their rides is truthful and reasonably current.
 
-**CarpSchool does not provide, arrange, or carry any insurance for any ride.** The driver's own policy is the only coverage that applies. Drivers are solely responsible for confirming that their coverage is appropriate for carpooling.
+**CarpSchool does not provide, arrange, or carry any insurance for any ride.** The driver's own policy is the only coverage that applies. Drivers are solely responsible for confirming that their coverage is appropriate for carpooling. A driver insured under a family member's policy should confirm that the policy covers carrying passengers who are not family; not every policy does.
 
 ## 6. Riders
 
@@ -301,7 +312,7 @@ Privacy-related inquiries may be directed to our Privacy Officer: [NAME OR POSIT
 export const PRIVACY_MD = String.raw`# CarpSchool Privacy Policy
 
 **Effective Date:** September 9, 2026
-**Last Updated:** September 16, 2026
+**Last Updated:** September 19, 2026
 
 CarpSchool Foundation ("CarpSchool," "we," "us," or "our") is a registered society in British Columbia that operates the CarpSchool carpool coordination platform for post-secondary students.
 
@@ -311,7 +322,11 @@ By creating an account or using CarpSchool you acknowledge the practices describ
 
 ## 1. Who Uses CarpSchool
 
-CarpSchool accounts are intended for students, and staff where a school community permits it, who are at least 19 years old. CarpSchool is not directed at children, and we do not knowingly collect personal information from anyone under 19. If you believe we have, contact our Privacy Officer and we will delete it.
+CarpSchool is used by school communities: students enrolled at a participating school, their parents and guardians, and school staff where the school permits it. Many students using CarpSchool are under the age of majority, and the Platform is built on that basis.
+
+We do not knowingly collect personal information from a student under 13. If you believe we have, contact our Privacy Officer and we will delete it.
+
+Where a student is under the age of majority, their parent or guardian accepts the Terms of Use on their behalf, and may ask us what personal information we hold about that student, ask us to correct it, or ask us to delete it.
 
 ## 2. Information We Collect
 

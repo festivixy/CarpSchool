@@ -639,7 +639,8 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
           <a href="/tos" target="_blank" rel="noopener noreferrer">Terms of Use</a>
           {" "}and{" "}
           <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-          I confirm I am at least 19 years old.
+          If I am under the age of majority, a parent or guardian has agreed to
+          them for me.
         </ConsentText>
       </ConsentRow>
     </Step>
