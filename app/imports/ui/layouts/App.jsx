@@ -41,6 +41,7 @@ import MobileTOS from "../mobile/pages/TOS";
 import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
 import MobileHelp from "../mobile/pages/Help";
+import MobileGuide from "../mobile/pages/Guide";
 import MobileContact from "../mobile/pages/Contact";
 import MobileFAQ from "../mobile/pages/FAQ";
 import MobileAbout from "../mobile/pages/About";
@@ -428,6 +429,7 @@ class AppLayout extends React.Component {
                 <Route exact path="/privacy" component={MobilePrivacy} />
                 <Route exact path="/credits" component={MobileCredits} />
                 <Route exact path="/help" component={MobileHelp} />
+                <Route exact path="/guide" component={MobileGuide} />
                 <Route exact path="/contact" component={MobileContact} />
                 <Route exact path="/faq" component={MobileFAQ} />
                 <Route exact path="/about" component={MobileAbout} />

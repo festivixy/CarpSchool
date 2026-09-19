@@ -47,6 +47,7 @@ function FooterVerbose({
   };
 
   const supportLinks = [
+    { label: "Guide", key: "guide", to: "/guide" },
     { label: "Help Center", key: "help", to: "/help" },
     { label: "Contact Us", key: "contact", to: "/contact" },
     { label: "FAQ", key: "faq", to: "/faq" },
