@@ -7,7 +7,7 @@ export const PageContainer = styled.div`
   width: 100%;
   flex-direction: column;
   align-items: center;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   margin: 0 auto;
   padding: 20px 0;
   min-height: 100vh;

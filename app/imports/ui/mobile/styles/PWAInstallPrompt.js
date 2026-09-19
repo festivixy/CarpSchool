@@ -77,10 +77,7 @@ export const ModalContent = styled.div`
     font-weight: 700;
     margin: 0 0 16px 0;
     text-align: center;
-    background: linear-gradient(135deg, var(--ink-1), var(--ink-1));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--ink-1);
     line-height: 1.3;
   }
 

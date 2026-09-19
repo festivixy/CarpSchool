@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const PageContainer = styled.div`
   background-color: #f8f9fa;
   min-height: 100vh;
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
 `;
 
 export const FixedHeader = styled.div`

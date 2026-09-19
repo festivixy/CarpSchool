@@ -62,6 +62,7 @@ export const SpinnerCircle = styled.div`
   width: 100%;
   height: 100%;
   border: 3px solid var(--cream-2);
+  /* impeccable-disable-next-line border-accent-on-rounded: spinner, not a card accent */
   border-top: 3px solid var(--signal-yellow);
   border-radius: 50%;
   animation: ${spin} 0.9s linear infinite;

@@ -39,4 +39,10 @@ config/*.bak
 # Claude Code (local AI config)
 CLAUDE.md
 .claude/
+
+# impeccable installs a ~17MB platform binary per harness; .claude/ is
+# already ignored, these are the Copilot copies of the same thing.
+.github/skills/
+.github/agents/
+.github/hooks/
 .tmp_handoff/

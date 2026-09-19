@@ -57,7 +57,7 @@ export const Modal = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   animation: ${modalSlideIn} 0.3s ease-out;
   
   @media (max-width: 768px) {

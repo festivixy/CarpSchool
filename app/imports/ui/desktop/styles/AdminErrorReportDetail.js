@@ -85,6 +85,7 @@ export const LoadingSpinner = styled.div`
   width: 48px;
   height: 48px;
   border: 4px solid var(--cream-2);
+  /* impeccable-disable-next-line border-accent-on-rounded: spinner, not a card accent */
   border-top: 4px solid var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;

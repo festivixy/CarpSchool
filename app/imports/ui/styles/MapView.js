@@ -63,12 +63,7 @@ export const PriceChip = styled.div`
 
 export const PriceText = styled.div`
   text-align: center;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-style: normal;
   font-weight: 400;

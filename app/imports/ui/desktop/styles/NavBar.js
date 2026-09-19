@@ -221,7 +221,7 @@ export const MobileItem = styled(NavLink)`
   letter-spacing: -0.005em;
   padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: color 0.12s ease, padding-left 0.12s ease;
+  transition: color 0.12s ease, transform 0.12s ease;
 
   &:last-child {
     border-bottom: none;
@@ -229,7 +229,7 @@ export const MobileItem = styled(NavLink)`
 
   &:hover {
     color: var(--accent-on-dark);
-    padding-left: 8px;
+    transform: translateX(8px);
   }
 
   &.active {
@@ -254,7 +254,7 @@ export const MobileButton = styled.button.withConfig({
   letter-spacing: -0.005em;
   padding: ${props => (props.primary ? "12px 14px" : "12px 0")};
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: background 0.12s ease, color 0.12s ease, padding-left 0.12s ease;
+  transition: background 0.12s ease, color 0.12s ease, transform 0.12s ease;
   border-radius: ${props => (props.primary ? "var(--r-pill)" : "0")};
 
   &:last-child {
@@ -263,7 +263,7 @@ export const MobileButton = styled.button.withConfig({
 
   &:hover {
     color: ${props => (props.primary ? "var(--on-accent)" : "var(--accent-on-dark)")};
-    padding-left: ${props => (props.primary ? "14px" : "8px")};
+    transform: ${props => (props.primary ? "none" : "translateX(8px)")};
     background: ${props => (props.primary ? "var(--signal-yellow-deep)" : "transparent")};
   }
 `;

@@ -18,12 +18,7 @@ export const Container = styled.div`
   width: 100%;
   flex-direction: column;
   align-items: center;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
+  font-family: var(--font-ui);
   margin: 0 auto;
   padding: 10px 0;
   min-height: 100vh;
@@ -42,8 +37,9 @@ export const Loading = styled.div`
 export const Spinner = styled.div`
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(240, 240, 240, 1);
-  border-top: 4px solid rgba(0, 0, 0, 1);
+  border: 4px solid var(--cream-2);
+  /* impeccable-disable-next-line border-accent-on-rounded: spinner, not a card accent */
+  border-top: 4px solid var(--accent);
   border-radius: 50%;
   animation: ${spin} 1s linear infinite;
   margin-bottom: 16px;

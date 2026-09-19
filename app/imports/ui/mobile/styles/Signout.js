@@ -90,6 +90,7 @@ export const Spinner = styled.div`
   width: 48px;
   height: 48px;
   border: 3px solid var(--cream-2);
+  /* impeccable-disable-next-line border-accent-on-rounded: spinner, not a card accent */
   border-top: 3px solid var(--signal-yellow);
   border-radius: 50%;
   animation: ${spin} 0.9s linear infinite;

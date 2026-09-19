@@ -4,12 +4,7 @@ export const MapContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
+  font-family: var(--font-ui);
 `;
 
 export const SearchContainer = styled.div`
@@ -189,9 +184,9 @@ export const HelpText = styled.div`
 
 export const ErrorMessage = styled.div`
   background-color: rgba(244, 67, 54, 0.1);
-  color: rgba(244, 67, 54, 1);
+  color: var(--danger);
   padding: 12px 20px;
-  border-left: 4px solid rgba(244, 67, 54, 1);
+  border-left: 4px solid var(--danger);
   border-radius: 4px;
   font-size: 14px;
   line-height: 1.5;
@@ -218,7 +213,7 @@ export const SuccessMessage = styled.div`
   background-color: rgba(76, 175, 80, 0.1);
   color: rgba(56, 142, 60, 1);
   padding: 12px 20px;
-  border-left: 4px solid rgba(76, 175, 80, 1);
+  border-left: 4px solid var(--leaf);
   border-radius: 4px;
   font-size: 14px;
   line-height: 1.5;
