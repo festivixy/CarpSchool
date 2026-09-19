@@ -2,20 +2,15 @@ import styled from "styled-components";
 
 // Styled Components for AdminSchools
 export const Container = styled.div`
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--cream-0);
   display: flex;
   width: 100%;
   flex-direction: column;
   align-items: center;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
+  font-family: var(--font-ui);
   margin: 0 auto;
   padding: 20px 0;
-  min-height: 100vh;
+  min-height: 100%;
   box-sizing: border-box;
 
   @media (max-width: 768px) {
@@ -103,17 +98,18 @@ export const SearchInput = styled.input`
   width: 100%;
   padding: 12px 16px 12px 44px;
   border: 2px solid rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   font-size: 16px;
-  background-color: rgba(248, 250, 252, 1);
-  transition: all 0.2s ease;
+  background-color: var(--cream-1);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: rgba(59, 130, 246, 0.5);
+    border-color: var(--ink-1);
     background-color: white;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 4px var(--accent-soft);
   }
 
   &::placeholder {
@@ -135,14 +131,15 @@ export const CreateButton = styled.button`
   color: white;
   border: none;
   padding: 12px 24px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   white-space: nowrap;
 
   &:hover {
@@ -186,7 +183,7 @@ export const LoadingSpinner = styled.div`
   width: 40px;
   height: 40px;
   border: 3px solid rgba(0, 0, 0, 0.1);
-  border-top: 3px solid rgba(59, 130, 246, 1);
+  border-top: 3px solid var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -252,16 +249,17 @@ export const SchoolsGrid = styled.div`
 export const SchoolCard = styled.div`
   background: white;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 24px;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: rgba(59, 130, 246, 0.2);
+    border-color: var(--ink-1);
   }
 
   @media (max-width: 768px) {
@@ -310,13 +308,14 @@ export const ActionButton = styled.button`
   width: 36px;
   height: 36px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   background: ${props => {
     switch (props.variant) {
       case "edit": return "rgba(59, 130, 246, 0.1)";
@@ -327,9 +326,9 @@ export const ActionButton = styled.button`
   }};
   color: ${props => {
     switch (props.variant) {
-      case "edit": return "rgba(59, 130, 246, 1)";
-      case "deactivate": return "rgba(239, 68, 68, 1)";
-      case "activate": return "rgba(34, 197, 94, 1)";
+      case "edit": return "var(--accent)";
+      case "deactivate": return "var(--danger)";
+      case "activate": return "var(--leaf)";
       default: return "rgba(0, 0, 0, 0.7)";
     }
   }};
@@ -399,18 +398,18 @@ export const BadgeContainer = styled.div`
 
 export const StatusBadge = styled.span`
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   background: ${props => (props.isActive ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)")};
-  color: ${props => (props.isActive ? "rgba(34, 197, 94, 1)" : "rgba(239, 68, 68, 1)")};
+  color: ${props => (props.isActive ? "var(--leaf)" : "var(--danger)")};
 `;
 
 export const UserCountBadge = styled.span`
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-size: 12px;
   font-weight: 600;
   background: rgba(99, 102, 241, 0.1);
@@ -419,7 +418,7 @@ export const UserCountBadge = styled.span`
 
 export const DomainBadge = styled.span`
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-size: 12px;
   font-weight: 600;
   background: rgba(168, 85, 247, 0.1);
@@ -444,7 +443,7 @@ export const ModalOverlay = styled.div`
 
 export const ModalContent = styled.div`
   background: white;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
@@ -512,15 +511,16 @@ export const Label = styled.label`
 export const Input = styled.input`
   padding: 12px 16px;
   border: 2px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   font-size: 16px;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   background-color: white;
 
   &:focus {
     outline: none;
-    border-color: rgba(59, 130, 246, 0.5);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--ink-1);
+    box-shadow: 0 0 0 4px var(--accent-soft);
   }
 
   &:disabled {
@@ -536,18 +536,19 @@ export const Input = styled.input`
 export const TextArea = styled.textarea`
   padding: 12px 16px;
   border: 2px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   font-size: 16px;
   font-family: inherit;
   min-height: 80px;
   resize: vertical;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   background-color: white;
 
   &:focus {
     outline: none;
-    border-color: rgba(59, 130, 246, 0.5);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--ink-1);
+    box-shadow: 0 0 0 4px var(--accent-soft);
   }
 
   &:disabled {
@@ -586,7 +587,7 @@ export const SwitchInput = styled.input.attrs({ type: "checkbox" })`
   height: 0;
 
   &:checked + span {
-    background-color: rgba(59, 130, 246, 1);
+    background-color: var(--accent);
   }
 
   &:checked + span:before {
@@ -603,7 +604,7 @@ export const SwitchSlider = styled.span`
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.2);
   transition: 0.3s;
-  border-radius: 24px;
+  border-radius: var(--r-xl);
 
   &:before {
     position: absolute;
@@ -621,11 +622,12 @@ export const SwitchSlider = styled.span`
 export const Button = styled.button`
   padding: 12px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   min-width: 120px;
 
   ${props => {
@@ -680,9 +682,9 @@ export const Button = styled.button`
 
 export const ErrorMessage = styled.div`
   background: rgba(239, 68, 68, 0.1);
-  color: rgba(239, 68, 68, 1);
+  color: var(--danger);
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   font-size: 14px;
   font-weight: 500;
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -690,7 +692,7 @@ export const ErrorMessage = styled.div`
 
 export const StatusMessage = styled.div`
   padding: 16px 24px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 24px;
@@ -698,11 +700,11 @@ export const StatusMessage = styled.div`
 
   ${props => (props.type === "success" ? `
     background: rgba(34, 197, 94, 0.1);
-    color: rgba(34, 197, 94, 1);
+    color: var(--leaf);
     border: 1px solid rgba(34, 197, 94, 0.2);
   ` : `
     background: rgba(239, 68, 68, 0.1);
-    color: rgba(239, 68, 68, 1);
+    color: var(--danger);
     border: 1px solid rgba(239, 68, 68, 0.2);
   `)}
 `;

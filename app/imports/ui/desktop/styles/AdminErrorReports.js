@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 // Base container and layout
 export const Container = styled.div`
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--cream-0);
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -72,7 +72,7 @@ export const StatsContainer = styled.div`
 
 export const StatCard = styled.div`
   background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 20px;
   text-align: center;
   color: white;
@@ -102,13 +102,14 @@ export const FiltersContainer = styled.div`
 export const FilterButton = styled.button`
   padding: 8px 16px;
   border: 2px solid ${props => (props.active ? "var(--ink-2)" : "var(--cream-2)")};
-  border-radius: 8px;
+  border-radius: var(--r-md);
   background-color: ${props => (props.active ? "var(--ink-2)" : "white")};
   color: ${props => (props.active ? "white" : "var(--ink-1)")};
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     border-color: var(--ink-2);
@@ -127,20 +128,20 @@ export const SearchContainer = styled.div`
 export const SearchInput = styled.input`
   width: 100%;
   padding: 12px 16px 12px 44px;
-  border: 2px solid rgba(225, 229, 233, 1);
-  border-radius: 12px;
+  border: 2px solid var(--cream-2);
+  border-radius: var(--r-md);
   font-size: 16px;
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--cream-0);
   box-sizing: border-box;
   transition: border-color 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: rgba(102, 126, 234, 1);
+    border-color: var(--accent);
   }
 
   &::placeholder {
-    color: rgba(130, 130, 130, 1);
+    color: var(--ink-3);
   }
 `;
 
@@ -150,13 +151,13 @@ export const SearchIcon = styled.div`
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
 `;
 
 export const SearchResultsCount = styled.div`
   text-align: center;
   font-size: 14px;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
   margin: 10px 0 20px 0;
 `;
 
@@ -173,8 +174,8 @@ export const LoadingContainer = styled.div`
 export const LoadingSpinner = styled.div`
   width: 48px;
   height: 48px;
-  border: 4px solid rgba(225, 229, 233, 1);
-  border-top: 4px solid rgba(102, 126, 234, 1);
+  border: 4px solid var(--cream-2);
+  border-top: 4px solid var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 
@@ -186,14 +187,14 @@ export const LoadingSpinner = styled.div`
 
 export const LoadingText = styled.div`
   font-size: 16px;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
 `;
 
 // Empty state
 export const EmptyState = styled.div`
   text-align: center;
   padding: 60px 20px;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
 `;
 
 export const EmptyStateIcon = styled.div`
@@ -205,7 +206,7 @@ export const EmptyStateIcon = styled.div`
 export const EmptyStateTitle = styled.h3`
   font-size: 20px;
   font-weight: 600;
-  color: rgba(51, 51, 51, 1);
+  color: var(--ink-1);
   margin: 0 0 8px 0;
 `;
 
@@ -229,7 +230,7 @@ export const ErrorReportsGrid = styled.div`
 export const ErrorReportCard = styled.div`
   background-color: white;
   border: 2px solid ${props => (props.resolved ? "var(--leaf-soft)" : "var(--cream-2)")};
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -262,7 +263,7 @@ export const ErrorReportInfo = styled.div`
 export const ErrorReportTitle = styled.h3`
   font-size: 16px;
   font-weight: 600;
-  color: rgba(51, 51, 51, 1);
+  color: var(--ink-1);
   margin: 0 0 8px 0;
   line-height: 1.4;
   word-break: break-word;
@@ -270,8 +271,8 @@ export const ErrorReportTitle = styled.h3`
 
 export const ErrorReportId = styled.div`
   font-size: 12px;
-  color: rgba(130, 130, 130, 1);
-  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
 `;
 
 export const ActionButtons = styled.div`
@@ -288,13 +289,14 @@ export const ActionButtons = styled.div`
 export const ActionButton = styled.button`
   padding: 6px 12px;
   border: 1px solid ${props => props.color || "var(--ink-3)"};
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   background-color: ${props => props.color || "var(--ink-3)"};
   color: white;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   white-space: nowrap;
 
   &:hover {
@@ -310,13 +312,14 @@ export const ActionButton = styled.button`
 export const ViewButton = styled.button`
   padding: 6px 12px;
   border: 2px solid var(--sky);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   background-color: white;
   color: var(--sky);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   white-space: nowrap;
 
   &:hover {
@@ -346,14 +349,14 @@ export const DetailItem = styled.div`
 export const DetailLabel = styled.span`
   font-size: 12px;
   font-weight: 600;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
 
 export const DetailValue = styled.span`
   font-size: 14px;
-  color: rgba(51, 51, 51, 1);
+  color: var(--ink-1);
   word-break: break-word;
 `;
 
@@ -365,7 +368,7 @@ export const BadgeContainer = styled.div`
 
 export const SeverityBadge = styled.span`
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background-color: ${props => props.color};
   color: white;
   font-size: 10px;
@@ -376,7 +379,7 @@ export const SeverityBadge = styled.span`
 
 export const CategoryBadge = styled.span`
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background-color: ${props => props.color};
   color: white;
   font-size: 10px;
@@ -387,7 +390,7 @@ export const CategoryBadge = styled.span`
 
 export const ResolvedBadge = styled.span`
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background-color: var(--leaf);
   color: white;
   font-size: 10px;

@@ -30,6 +30,7 @@ import MobileMyRides from "../mobile/pages/MyRides";
 import MobileMarketplace from "../mobile/pages/Marketplace";
 import MobileCreateRide from "../mobile/pages/CreateRide";
 import TopNavAuto from "../components/TopNavAuto";
+import AdminShell from "../components/AdminShell";
 import MobileChat from "../pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
 import MobileEditProfile from "../pages/EditProfile";
@@ -202,8 +203,11 @@ const GuestRoute = ({ component: Component, ...rest }) => (
   </AuthGate>
 );
 
-// Route wrapper for admin routes
-const AdminRoute = ({ component: Component, ...rest }) => (
+/* The admin frame is applied here rather than by each screen: left to the
+ * screens, exactly one of the nine ever rendered a sidebar and clicking a nav
+ * entry made the navigation vanish. `shell={false}` is for a screen that
+ * renders AdminShell itself because it has counts to pass down. */
+const AdminRoute = ({ component: Component, shell = true, ...rest }) => (
   <AuthGate>
     {({ isSignedIn, meteorUser }) => (
       <Route
@@ -215,15 +219,26 @@ const AdminRoute = ({ component: Component, ...rest }) => (
           if (!isAdminRole(meteorUser)) {
             return <AccessDenied />;
           }
-          return <RouteBoundary><Component {...props} user={meteorUser} /></RouteBoundary>;
+          const screen = <Component {...props} user={meteorUser} />;
+          return (
+            <RouteBoundary>
+              {shell ? <AdminShell>{screen}</AdminShell> : screen}
+            </RouteBoundary>
+          );
         }}
       />
     )}
   </AuthGate>
 );
 
+AdminRoute.propTypes = {
+  component: PropTypes.elementType.isRequired,
+  /** False for a screen that renders AdminShell itself, to pass counts down. */
+  shell: PropTypes.bool,
+};
+
 // Route wrapper for system admin routes
-const SystemRoute = ({ component: Component, ...rest }) => (
+const SystemRoute = ({ component: Component, shell = true, ...rest }) => (
   <AuthGate>
     {({ isSignedIn, meteorUser }) => (
       <Route
@@ -235,12 +250,22 @@ const SystemRoute = ({ component: Component, ...rest }) => (
           if (!isSystemRole(meteorUser)) {
             return <AccessDenied />;
           }
-          return <RouteBoundary><Component {...props} user={meteorUser} /></RouteBoundary>;
+          const screen = <Component {...props} user={meteorUser} />;
+          return (
+            <RouteBoundary>
+              {shell ? <AdminShell>{screen}</AdminShell> : screen}
+            </RouteBoundary>
+          );
         }}
       />
     )}
   </AuthGate>
 );
+
+SystemRoute.propTypes = {
+  component: PropTypes.elementType.isRequired,
+  shell: PropTypes.bool,
+};
 
 /**
  * Reactive verification status for the signed-in Meteor user, backed by the
@@ -458,7 +483,7 @@ class AppLayout extends React.Component {
                 <AuthRoute path="/signout" component={MobileSignout} />
 
                 {/* Admin routes */}
-                <AdminRoute path="/admin/overview" component={AdminOverview} />
+                <AdminRoute path="/admin/overview" component={AdminOverview} shell={false} />
                 <AdminRoute path="/admin/rides" component={MobileAdminRides} />
                 <AdminRoute path="/admin/users" component={MobileAdminUsers} />
                 <AdminRoute path="/admin/pending-users" component={AdminPendingUsersPage} />

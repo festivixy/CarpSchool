@@ -82,6 +82,7 @@ import {
   Empty,
   EmptyActions,
 } from "../styles/MyRides";
+import { hueFor } from "../../utils/avatarHue";
 
 /* The design shows four history rows with a "see all" affordance beside the
  * heading; the rest expand in place. */
@@ -105,16 +106,6 @@ const semesterStart = (now) => {
   if (month >= 7) return new Date(now.getFullYear(), 7, 1);
   if (month >= 5) return new Date(now.getFullYear(), 5, 1);
   return new Date(now.getFullYear(), 0, 1);
-};
-
-/* Same seed function RideCard uses, so one person keeps one avatar colour
- * across the featured card and the cards beneath it. */
-const hueFor = (seed) => {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) {
-    h = (h * 31 + seed.charCodeAt(i)) % 360;
-  }
-  return h;
 };
 
 const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();

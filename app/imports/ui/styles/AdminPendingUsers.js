@@ -49,12 +49,13 @@ export const RefreshButton = styled.button`
   background: var(--sky);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover:not(:disabled) {
     background: var(--sky);
@@ -76,12 +77,13 @@ export const Content = styled.div`
 export const UserCard = styled.div`
   background: white;
   border: 1px solid var(--cream-2);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   cursor: pointer;
 
@@ -171,7 +173,7 @@ export const UserType = styled.span`
   font-weight: 500;
   padding: 4px 8px;
   background: ${props => props.userType === "Driver" ? "var(--leaf-soft)" : "var(--signal-yellow-soft)"};
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   display: inline-block;
   width: fit-content;
 `;
@@ -180,7 +182,7 @@ export const UserEmail = styled.p`
   color: var(--ink-3);
   font-size: 14px;
   margin: 0;
-  font-family: monospace;
+  font-family: var(--font-mono);
 `;
 
 export const UserSchool = styled.p`
@@ -210,12 +212,13 @@ export const ApproveButton = styled.button`
   background: var(--leaf);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   min-width: 100px;
 
   &:hover:not(:disabled) {
@@ -233,12 +236,13 @@ export const RejectButton = styled.button`
   background: var(--danger);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   min-width: 100px;
 
   &:hover:not(:disabled) {
@@ -290,7 +294,7 @@ export const ErrorMessage = styled.div`
   background: var(--danger-soft);
   color: var(--danger-deep);
   border: 1px solid var(--danger-soft);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 15px;
   margin-bottom: 20px;
   font-size: 14px;
@@ -300,7 +304,7 @@ export const SuccessMessage = styled.div`
   background: var(--leaf-soft);
   color: var(--leaf);
   border: 1px solid var(--leaf-soft);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 15px;
   margin-bottom: 20px;
   font-size: 14px;
@@ -338,7 +342,7 @@ export const ModalOverlay = styled.div`
 
 export const ModalContent = styled.div`
   background: white;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   max-width: 500px;
   width: 100%;
   max-height: 90vh;
@@ -380,7 +384,7 @@ export const RejectInput = styled.textarea`
   width: 100%;
   min-height: 80px;
   border: 1px solid var(--cream-3);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 12px;
   font-size: 14px;
   font-family: inherit;
@@ -389,7 +393,7 @@ export const RejectInput = styled.textarea`
   &:focus {
     outline: none;
     border-color: var(--sky);
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    box-shadow: 0 0 0 4px var(--accent-soft);
   }
 
   &::placeholder {
@@ -401,12 +405,13 @@ export const ModalButton = styled.button`
   background: ${props => props.primary ? "var(--danger)" : "var(--ink-3)"};
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover:not(:disabled) {
     background: ${props => props.primary ? "var(--danger-deep)" : "var(--ink-2)"};

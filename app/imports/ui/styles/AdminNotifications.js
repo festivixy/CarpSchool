@@ -21,7 +21,7 @@ export const Title = styled.h1`
 
 export const Section = styled.div`
   background: white;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 24px;
   margin-bottom: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -46,7 +46,7 @@ export const StatCard = styled.div`
   background: linear-gradient(135deg, var(--ink-2) 0%, var(--ink-1) 100%);
   color: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   text-align: center;
 `;
 
@@ -65,7 +65,7 @@ export const StatLabel = styled.div`
 
 export const FormSection = styled.div`
   border: 1px solid var(--cream-2);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 20px;
   background-color: var(--cream-1);
 `;
@@ -86,14 +86,14 @@ export const Input = styled.input`
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--cream-3);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-size: 14px;
   transition: border-color 0.2s ease;
 
   &:focus {
     outline: none;
     border-color: var(--sky);
-    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    box-shadow: 0 0 0 4px var(--accent-soft);
   }
 `;
 
@@ -101,7 +101,7 @@ export const TextArea = styled.textarea`
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--cream-3);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-size: 14px;
   font-family: inherit;
   resize: vertical;
@@ -110,7 +110,7 @@ export const TextArea = styled.textarea`
   &:focus {
     outline: none;
     border-color: var(--sky);
-    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    box-shadow: 0 0 0 4px var(--accent-soft);
   }
 `;
 
@@ -118,7 +118,7 @@ export const Select = styled.select`
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--cream-3);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-size: 14px;
   background-color: white;
   transition: border-color 0.2s ease;
@@ -126,7 +126,7 @@ export const Select = styled.select`
   &:focus {
     outline: none;
     border-color: var(--sky);
-    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    box-shadow: 0 0 0 4px var(--accent-soft);
   }
 `;
 
@@ -135,11 +135,12 @@ export const Button = styled.button`
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover:not(:disabled) {
     background-color: var(--sky);
@@ -161,7 +162,7 @@ export const ActionButtons = styled.div`
 
 export const NotificationList = styled.div`
   border: 1px solid var(--cream-2);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   overflow: hidden;
 `;
 
@@ -184,7 +185,7 @@ export const NotificationContent = styled.div`
 export const StatusBadge = styled.span`
   display: inline-block;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
@@ -197,7 +198,7 @@ export const ErrorMessage = styled.div`
   border: 1px solid var(--amber);
   color: var(--amber);
   padding: 12px 16px;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   margin-bottom: 20px;
   font-size: 14px;
 `;
@@ -207,7 +208,7 @@ export const SuccessMessage = styled.div`
   border: 1px solid var(--leaf);
   color: var(--leaf);
   padding: 12px 16px;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   margin-bottom: 20px;
   font-size: 14px;
 `;

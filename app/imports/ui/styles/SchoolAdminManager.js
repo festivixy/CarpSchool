@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const Container = styled.div`
   background: var(--cream-0);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 24px;
   margin-top: 32px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -56,7 +56,7 @@ export const SearchInput = styled.input`
   flex: 1;
   padding: 12px 16px;
   border: 1px solid var(--cream-3);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   font-size: 16px;
   transition: border-color 0.2s ease;
 
@@ -75,12 +75,13 @@ export const SearchButton = styled.button`
   background: var(--leaf);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 12px 20px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   white-space: nowrap;
 
   &:hover:not(:disabled) {
@@ -109,7 +110,7 @@ export const SchoolSelector = styled.div`
   select {
     padding: 12px 16px;
     border: 1px solid var(--cream-3);
-    border-radius: 8px;
+    border-radius: var(--r-md);
     font-size: 16px;
     background: white;
     cursor: pointer;
@@ -132,7 +133,7 @@ export const FilterSection = styled.div`
   gap: 16px;
   padding: 20px;
   background: var(--cream-1);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   border: 1px solid var(--cream-2);
 `;
 
@@ -153,7 +154,7 @@ export const FilterLabel = styled.label`
 export const FilterSelect = styled.select`
   padding: 8px 12px;
   border: 1px solid var(--cream-3);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-size: 14px;
   background: white;
   cursor: pointer;
@@ -179,12 +180,13 @@ export const UsersList = styled.div`
 export const UserCard = styled.div`
   background: var(--cream-1);
   border: 1px solid var(--cream-2);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -213,7 +215,7 @@ export const UserEmail = styled.div`
   font-size: 16px;
   font-weight: 600;
   color: var(--ink-1);
-  font-family: monospace;
+  font-family: var(--font-mono);
 `;
 
 export const UserSchool = styled.div`
@@ -231,7 +233,7 @@ export const UserRoles = styled.div`
 
   span {
     padding: 4px 8px;
-    border-radius: 12px;
+    border-radius: var(--r-md);
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -269,12 +271,13 @@ export const AddAdminButton = styled.button`
   background: var(--leaf);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   white-space: nowrap;
 
   &:hover:not(:disabled) {
@@ -293,12 +296,13 @@ export const RemoveAdminButton = styled.button`
   background: var(--danger);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   white-space: nowrap;
 
   &:hover:not(:disabled) {
@@ -370,7 +374,7 @@ export const ErrorMessage = styled.div`
   background: var(--danger-soft);
   color: var(--danger-deep);
   border: 1px solid var(--danger-soft);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 16px;
   font-size: 14px;
   border-left: 4px solid var(--danger);
@@ -380,7 +384,7 @@ export const SuccessMessage = styled.div`
   background: var(--leaf-soft);
   color: var(--leaf);
   border: 1px solid var(--leaf-soft);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 16px;
   font-size: 14px;
   border-left: 4px solid var(--leaf);

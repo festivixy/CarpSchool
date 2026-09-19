@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 // Base container and layout
 export const Container = styled.div`
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--cream-0);
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -84,8 +84,8 @@ export const LoadingContainer = styled.div`
 export const LoadingSpinner = styled.div`
   width: 48px;
   height: 48px;
-  border: 4px solid rgba(225, 229, 233, 1);
-  border-top: 4px solid rgba(102, 126, 234, 1);
+  border: 4px solid var(--cream-2);
+  border-top: 4px solid var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 
@@ -97,13 +97,13 @@ export const LoadingSpinner = styled.div`
 
 export const LoadingText = styled.div`
   font-size: 16px;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
 `;
 
 export const NotFoundContainer = styled.div`
   text-align: center;
   padding: 80px 20px;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
 `;
 
 export const NotFoundIcon = styled.div`
@@ -114,7 +114,7 @@ export const NotFoundIcon = styled.div`
 export const NotFoundTitle = styled.h2`
   font-size: 24px;
   font-weight: 600;
-  color: rgba(51, 51, 51, 1);
+  color: var(--ink-1);
   margin: 0 0 16px 0;
 `;
 
@@ -136,8 +136,8 @@ export const ErrorReportContainer = styled.div`
 
 export const Section = styled.div`
   background-color: white;
-  border: 2px solid rgba(225, 229, 233, 1);
-  border-radius: 12px;
+  border: 2px solid var(--cream-2);
+  border-radius: var(--r-md);
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
@@ -145,11 +145,11 @@ export const Section = styled.div`
 export const SectionTitle = styled.h3`
   font-size: 18px;
   font-weight: 600;
-  color: rgba(51, 51, 51, 1);
+  color: var(--ink-1);
   margin: 0;
   padding: 16px 20px;
-  background-color: rgba(248, 249, 250, 1);
-  border-bottom: 1px solid rgba(225, 229, 233, 1);
+  background-color: var(--cream-1);
+  border-bottom: 1px solid var(--cream-2);
 `;
 
 export const SectionContent = styled.div`
@@ -178,14 +178,14 @@ export const InfoItem = styled.div`
 export const InfoLabel = styled.span`
   font-size: 12px;
   font-weight: 600;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
 
 export const InfoValue = styled.span`
   font-size: 14px;
-  color: rgba(51, 51, 51, 1);
+  color: var(--ink-1);
   word-break: break-word;
   line-height: 1.4;
   user-select: text;
@@ -193,11 +193,11 @@ export const InfoValue = styled.span`
 `;
 
 export const CodeBlock = styled.code`
-  font-family: "SF Mono", "Monaco", "Consolas", monospace;
-  background-color: rgba(248, 249, 250, 1);
+  font-family: var(--font-mono);
+  background-color: var(--cream-1);
   padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(225, 229, 233, 1);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--cream-2);
   font-size: 13px;
   user-select: text;
   cursor: text;
@@ -211,7 +211,7 @@ export const BadgeContainer = styled.div`
 
 export const SeverityBadge = styled.span`
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background-color: ${props => props.color};
   color: white;
   font-size: 10px;
@@ -222,7 +222,7 @@ export const SeverityBadge = styled.span`
 
 export const CategoryBadge = styled.span`
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background-color: ${props => props.color};
   color: white;
   font-size: 10px;
@@ -233,7 +233,7 @@ export const CategoryBadge = styled.span`
 
 export const ResolvedBadge = styled.span`
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background-color: var(--leaf);
   color: white;
   font-size: 10px;
@@ -251,13 +251,14 @@ export const ActionButtons = styled.div`
 export const ActionButton = styled.button`
   padding: 10px 20px;
   border: 2px solid ${props => props.color || "var(--ink-3)"};
-  border-radius: 8px;
+  border-radius: var(--r-md);
   background-color: ${props => props.color || "var(--ink-3)"};
   color: white;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   white-space: nowrap;
 
   &:hover {
@@ -278,18 +279,18 @@ export const ActionButton = styled.button`
 
 // Stack traces
 export const StackTrace = styled.div`
-  background-color: rgba(248, 249, 250, 1);
-  border: 1px solid rgba(225, 229, 233, 1);
-  border-radius: 8px;
+  background-color: var(--cream-1);
+  border: 1px solid var(--cream-2);
+  border-radius: var(--r-md);
   padding: 16px;
   overflow-x: auto;
 
   pre {
     margin: 0;
-    font-family: "SF Mono", "Monaco", "Consolas", monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     line-height: 1.5;
-    color: rgba(51, 51, 51, 1);
+    color: var(--ink-1);
     white-space: pre-wrap;
     word-break: break-word;
     user-select: text;
@@ -298,18 +299,18 @@ export const StackTrace = styled.div`
 `;
 
 export const ComponentStack = styled.div`
-  background-color: rgba(248, 249, 250, 1);
-  border: 1px solid rgba(225, 229, 233, 1);
-  border-radius: 8px;
+  background-color: var(--cream-1);
+  border: 1px solid var(--cream-2);
+  border-radius: var(--r-md);
   padding: 16px;
   overflow-x: auto;
 
   pre {
     margin: 0;
-    font-family: "SF Mono", "Monaco", "Consolas", monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     line-height: 1.5;
-    color: rgba(51, 51, 51, 1);
+    color: var(--ink-1);
     white-space: pre-wrap;
     word-break: break-word;
     user-select: text;
@@ -329,23 +330,23 @@ export const JsonViewer = styled.div`
 export const JsonLabel = styled.h4`
   font-size: 14px;
   font-weight: 600;
-  color: rgba(51, 51, 51, 1);
+  color: var(--ink-1);
   margin: 0 0 8px 0;
 `;
 
 export const JsonContent = styled.div`
-  background-color: rgba(248, 249, 250, 1);
-  border: 1px solid rgba(225, 229, 233, 1);
-  border-radius: 8px;
+  background-color: var(--cream-1);
+  border: 1px solid var(--cream-2);
+  border-radius: var(--r-md);
   padding: 16px;
   overflow-x: auto;
 
   pre {
     margin: 0;
-    font-family: "SF Mono", "Monaco", "Consolas", monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     line-height: 1.5;
-    color: rgba(51, 51, 51, 1);
+    color: var(--ink-1);
     white-space: pre-wrap;
     word-break: break-word;
     user-select: text;
@@ -363,8 +364,8 @@ export const AdminNotes = styled.div`
 export const NotesTextarea = styled.textarea`
   width: 100%;
   padding: 12px;
-  border: 2px solid rgba(225, 229, 233, 1);
-  border-radius: 8px;
+  border: 2px solid var(--cream-2);
+  border-radius: var(--r-md);
   font-size: 14px;
   font-family: inherit;
   resize: vertical;
@@ -373,11 +374,11 @@ export const NotesTextarea = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: rgba(102, 126, 234, 1);
+    border-color: var(--accent);
   }
 
   &::placeholder {
-    color: rgba(130, 130, 130, 1);
+    color: var(--ink-3);
   }
 `;
 
@@ -385,13 +386,14 @@ export const SaveButton = styled.button`
   align-self: flex-start;
   padding: 8px 16px;
   border: 2px solid var(--leaf);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   background-color: var(--leaf);
   color: white;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover:not(:disabled) {
     background-color: var(--leaf);

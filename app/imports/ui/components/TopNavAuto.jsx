@@ -12,6 +12,7 @@ import { adminNavFor, adminPathFor, adminSectionFor } from "../utils/adminNav";
 import { fullSignOut } from "../utils/signOut";
 import { useApprovalStatus } from "../utils/useApproval";
 import { NavSpacer } from "../styles/TopNav";
+import { hueFor } from "../utils/avatarHue";
 
 /**
  * Chooses the desktop navigation for the current route.
@@ -80,14 +81,6 @@ const ACTIVE_BY_PREFIX = [
 const activeFor = (pathname) => {
   const hit = ACTIVE_BY_PREFIX.find(([prefix]) => pathname.startsWith(prefix));
   return hit ? hit[1] : "home";
-};
-
-/* Deterministic hue so a given account always gets the same avatar colour. */
-const hueFor = (seed) => {
-  if (!seed) return 220;
-  let total = 0;
-  for (let i = 0; i < seed.length; i += 1) total += seed.charCodeAt(i);
-  return total % 360;
 };
 
 const avatarUserFrom = (currentUser) => {

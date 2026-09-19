@@ -5,27 +5,10 @@ import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Profiles } from "../../api/profile/Profile";
 import { Notifications } from "../../api/notifications/Notifications";
-import Logo from "../components/Logo";
 import Icon from "../components/Icon";
 import { Avatar } from "../components/Avatar";
-import { adminNavFor } from "../utils/adminNav";
+import AdminShell from "../components/AdminShell";
 import {
-  Shell,
-  Sidebar,
-  Brand,
-  Tag,
-  NavList,
-  NavItem,
-  Rail,
-  NavLabel,
-  Badge,
-  BadgePulse,
-  AccountCard,
-  AccountText,
-  AccountName,
-  AccountSub,
-  AccountBtn,
-  Main,
   TopBar,
   SearchWrap,
   SearchInput,
@@ -129,6 +112,7 @@ import {
   Skeleton,
   SkeletonStack,
 } from "../styles/AdminOverview";
+import { hueFor } from "../utils/avatarHue";
 
 const PAGE_SIZE = 7;
 const QUEUE_PREVIEW = 4;
@@ -170,15 +154,6 @@ const PENDING_SELECTOR = {
   requested: true,
   verified: { $ne: true },
   rejected: { $ne: true },
-};
-
-/* Deterministic hue so a given account always gets the same avatar colour,
- * matching TopNavAuto. */
-const hueFor = (seed) => {
-  if (!seed) return 220;
-  let total = 0;
-  for (let i = 0; i < seed.length; i += 1) total += seed.charCodeAt(i);
-  return total % 360;
 };
 
 const formatCount = (value) => {
@@ -302,18 +277,11 @@ const AdminOverview = ({ history }) => {
   /* Reactive slices: the pending count and the unread bell must update the
    * instant an approval or a notification lands, so they stay on publications
    * rather than on the polled methods. */
-  const { pendingCount, meName, meId } = useTracker(() => {
+  const { pendingCount } = useTracker(() => {
     Meteor.subscribe("admin.pendingUsers");
     Meteor.subscribe("userProfile");
     Meteor.subscribe("notifications.recent");
-    const userId = Meteor.userId();
-    const user = Meteor.user();
-    const profile = userId ? Profiles.findOne({ Owner: userId }) : null;
-    return {
-      pendingCount: Profiles.find(PENDING_SELECTOR).count(),
-      meId: userId,
-      meName: profile?.Name || user?.username || user?.emails?.[0]?.address || "Administrator",
-    };
+    return { pendingCount: Profiles.find(PENDING_SELECTOR).count() };
   }, []);
 
   const recentNotifications = useTracker(
@@ -381,18 +349,16 @@ const AdminOverview = ({ history }) => {
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, [notifOpen]);
 
-  const isSystem = stats.data?.scope?.isSystem === true;
   const navCounts = stats.data?.navCounts || {};
   const rows = queue.data?.rows || [];
   const counts = queue.data?.counts || {};
 
-  /* Sections come from the shared list so this and the top nav cannot drift;
-   * the counts are added here because only this screen loads the stats. */
-  const navItems = useMemo(() => adminNavFor(isSystem).map(item => ({
-    ...item,
-    count: item.id === "queue" ? pendingCount : navCounts[item.countKey],
-    pulse: item.id === "queue" && pendingCount > 0,
-  })), [navCounts, pendingCount, isSystem]);
+  /* The rail renders the shared section list itself; only this screen loads
+   * the stats behind the badges, so it hands them down. */
+  const sidebarCounts = useMemo(
+    () => ({ ...navCounts, queue: pendingCount }),
+    [navCounts, pendingCount],
+  );
 
   const cards = useMemo(() => {
     const s = stats.data?.stats;
@@ -522,23 +488,6 @@ const AdminOverview = ({ history }) => {
   const selectStatus = (id) => {
     setStatus(id);
     setPage(1);
-  };
-
-  const renderNavItem = (item) => {
-    const active = item.id === "overview";
-    return (
-      <NavItem key={item.id} type="button" $active={active} onClick={() => go(item.path)}>
-        {active && <Rail />}
-        <Icon name={item.icon} size={16} color="currentColor" />
-        <NavLabel>{item.label}</NavLabel>
-        {typeof item.count === "number" && (
-          <Badge $pulse={item.pulse} $danger={item.danger && item.count > 0}>
-            {item.count}
-            {item.pulse && <BadgePulse className="pulse" />}
-          </Badge>
-        )}
-      </NavItem>
-    );
   };
 
   const renderStatCard = (card) => {
@@ -806,38 +755,10 @@ const AdminOverview = ({ history }) => {
     );
   };
 
-  const scope = stats.data?.scope;
-  const roleLine = scope && scope.isSystem
-    ? "system admin"
-    : `admin${scope?.schoolShortName ? ` · ${scope.schoolShortName}` : ""}`;
-
   const total = queue.data?.total || 0;
 
   return (
-    <Shell>
-      <Sidebar>
-        <Brand>
-          <Logo size={22} wordmark={false} color="var(--cream-0)" />
-          <Tag>ADMIN</Tag>
-        </Brand>
-
-        <NavList>{navItems.map(renderNavItem)}</NavList>
-
-        <AccountCard>
-          <Avatar user={{ name: meName, hue: hueFor(meId) }} size={32} />
-          <AccountText>
-            <AccountName>{meName}</AccountName>
-            <AccountSub>{scope ? roleLine : "admin"}</AccountSub>
-          </AccountText>
-          {isSystem && (
-            <AccountBtn type="button" aria-label="System settings" onClick={() => go("/system")}>
-              <Icon name="settings" size={14} color="currentColor" />
-            </AccountBtn>
-          )}
-        </AccountCard>
-      </Sidebar>
-
-      <Main>
+    <AdminShell counts={sidebarCounts}>
         <TopBar>
           <SearchWrap>
             <Icon name="search" size={14} color="var(--ink-3)" />
@@ -999,8 +920,7 @@ const AdminOverview = ({ history }) => {
             </SideCol>
           </Body>
         </Content>
-      </Main>
-    </Shell>
+    </AdminShell>
   );
 };
 

@@ -80,6 +80,7 @@ import {
   SignOutBtn,
   Loading,
 } from "../styles/Profile";
+import { hueFor } from "../../utils/avatarHue";
 
 /* Icon names, not emoji: the rest of the app draws from one stroke set, and
  * mixing platform emoji in made this screen look assembled from a different
@@ -115,15 +116,6 @@ const ROLE_COPY = {
 
 const MAX_SAVED_PLACES = 4;
 const MAX_REVIEWS_SHOWN = 3;
-
-/* Deterministic hue so an account always gets the same avatar colour, matching
- * the nav avatar. */
-const hueFor = (seed) => {
-  if (!seed) return 220;
-  let total = 0;
-  for (let i = 0; i < seed.length; i += 1) total += seed.charCodeAt(i);
-  return total % 360;
-};
 
 /* Show only the last four digits. The country code is not modelled, so the
  * mask keeps the shape without asserting one. */

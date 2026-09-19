@@ -90,6 +90,7 @@ import {
   ErrorTitle,
   ErrorBody,
 } from "../styles/RideInfo";
+import { hueFor } from "../../utils/avatarHue";
 
 const MS_PER_MINUTE = 60000;
 
@@ -98,16 +99,6 @@ const parseCoord = (value) => {
   const [lat, lng] = value.split(",").map(v => parseFloat(v.trim()));
   if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
   return { lat, lng };
-};
-
-/* Deterministic pastel hue from the driver/rider id, matching RideCard so a
- * person keeps one colour from the discovery card through to this screen. */
-const hueFor = (seed) => {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) {
-    h = (h * 31 + seed.charCodeAt(i)) % 360;
-  }
-  return h;
 };
 
 const fmtTime = date => date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });

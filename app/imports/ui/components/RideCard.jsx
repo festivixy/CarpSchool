@@ -25,6 +25,7 @@ import {
   RouteMeta,
   ViaLine,
 } from "../styles/RideCard";
+import { hueFor } from "../utils/avatarHue";
 
 const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -48,15 +49,6 @@ const formatWhen = (date) => {
   if (Number.isNaN(d.getTime())) return "";
   const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   return `${dayLabel(d)} · ${time}`;
-};
-
-// Deterministic pastel hue from a seed (driver id / name).
-const hueFor = (seed) => {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) {
-    h = (h * 31 + seed.charCodeAt(i)) % 360;
-  }
-  return h;
 };
 
 /**

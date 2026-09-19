@@ -2,20 +2,15 @@ import styled from "styled-components";
 
 // Styled Components for AdminRides
 export const Container = styled.div`
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--cream-0);
   display: flex;
   width: 100%;
   flex-direction: column;
   align-items: center;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
+  font-family: var(--font-ui);
   margin: 0 auto;
   padding: 20px 0;
-  min-height: 100vh;
+  min-height: 100%;
   box-sizing: border-box;
 
   @media (max-width: 768px) {
@@ -81,22 +76,23 @@ export const SearchContainer = styled.div`
 export const SearchInput = styled.input`
   width: 100%;
   padding: 12px 16px 12px 48px;
-  border: 1px solid rgba(224, 224, 224, 1);
-  border-radius: 12px;
+  border: 1px solid var(--cream-2);
+  border-radius: var(--r-md);
   font-size: 16px;
   font-family: inherit;
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--cream-0);
   outline: none;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   box-sizing: border-box;
 
   &:focus {
-    border-color: rgba(0, 0, 0, 0.3);
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+    border-color: var(--ink-1);
+    box-shadow: 0 0 0 4px var(--accent-soft);
   }
 
   &::placeholder {
-    color: rgba(130, 130, 130, 1);
+    color: var(--ink-3);
   }
 
   @media (max-width: 768px) {
@@ -110,7 +106,7 @@ export const SearchIcon = styled.div`
   top: 50%;
   transform: translateY(-50%);
   font-size: 16px;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
   pointer-events: none;
 `;
 
@@ -119,7 +115,7 @@ export const SearchResultsCount = styled.div`
   max-width: 600px;
   margin-bottom: 16px;
   font-size: 14px;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
   text-align: center;
 `;
 
@@ -129,14 +125,14 @@ export const LoadingContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-3);
   gap: 16px;
 `;
 
 export const LoadingSpinner = styled.div`
   width: 40px;
   height: 40px;
-  border: 3px solid rgba(230, 230, 230, 1);
+  border: 3px solid var(--cream-2);
   border-top-color: rgba(0, 0, 0, 1);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -154,9 +150,9 @@ export const LoadingText = styled.div`
 `;
 
 export const EmptyState = styled.div`
-  background-color: rgba(248, 250, 252, 1);
+  background-color: var(--cream-1);
   border: 1px solid rgba(220, 230, 240, 1);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 40px 24px;
   text-align: center;
   max-width: 400px;
@@ -178,7 +174,7 @@ export const EmptyStateTitle = styled.h3`
 
 export const EmptyStateText = styled.p`
   font-size: 14px;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
   margin: 0;
   line-height: 1.5;
 `;
@@ -196,12 +192,13 @@ export const RidesGrid = styled.div`
 `;
 
 export const RideCard = styled.div`
-  background-color: rgba(255, 255, 255, 1);
-  border: 1px solid rgba(230, 230, 230, 1);
-  border-radius: 12px;
+  background-color: var(--cream-0);
+  border: 1px solid var(--cream-2);
+  border-radius: var(--r-md);
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -239,7 +236,7 @@ export const RouteText = styled.div`
 
 export const RouteDate = styled.div`
   font-size: 14px;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
   font-weight: 400;
 `;
 
@@ -252,14 +249,15 @@ export const ActionButtons = styled.div`
 export const ActionButton = styled.button`
   width: 36px;
   height: 36px;
-  border: 1px solid rgba(224, 224, 224, 1);
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 1);
+  border: 1px solid var(--cream-2);
+  border-radius: var(--r-md);
+  background-color: var(--cream-0);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   font-size: 14px;
 
   &:hover:not(:disabled) {
@@ -267,7 +265,7 @@ export const ActionButton = styled.button`
         ? "rgba(255, 245, 245, 1)"
         : "rgba(245, 250, 255, 1)")};
     border-color: ${(props) => (props.variant === "delete"
-        ? "rgba(255, 200, 200, 1)"
+        ? "var(--danger-soft)"
         : "rgba(200, 220, 255, 1)")};
     transform: scale(1.05);
   }
@@ -300,7 +298,7 @@ export const DetailItem = styled.div`
 export const DetailLabel = styled.span`
   font-size: 12px;
   font-weight: 600;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
@@ -327,8 +325,8 @@ export const ModalOverlay = styled.div`
 `;
 
 export const ModalContent = styled.div`
-  background-color: rgba(255, 255, 255, 1);
-  border-radius: 16px;
+  background-color: var(--cream-0);
+  border-radius: var(--r-lg);
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
@@ -407,9 +405,9 @@ export const Label = styled.label`
 `;
 
 export const Select = styled.select`
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 1);
-  border: 1px solid rgba(224, 224, 224, 1);
+  border-radius: var(--r-md);
+  background-color: var(--cream-0);
+  border: 1px solid var(--cream-2);
   padding: 12px 16px;
   font-size: 14px;
   color: rgba(0, 0, 0, 0.87);
@@ -418,20 +416,20 @@ export const Select = styled.select`
   cursor: pointer;
 
   &:focus {
-    border-color: rgba(0, 0, 0, 0.3);
+    border-color: var(--ink-1);
   }
 
   &:disabled {
-    background-color: rgba(250, 250, 250, 1);
-    color: rgba(130, 130, 130, 1);
+    background-color: var(--cream-0);
+    color: var(--ink-3);
     cursor: not-allowed;
   }
 `;
 
 export const Input = styled.input`
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 1);
-  border: 1px solid rgba(224, 224, 224, 1);
+  border-radius: var(--r-md);
+  background-color: var(--cream-0);
+  border: 1px solid var(--cream-2);
   padding: 12px 16px;
   font-size: 14px;
   color: rgba(0, 0, 0, 0.87);
@@ -439,29 +437,30 @@ export const Input = styled.input`
   outline: none;
 
   &:focus {
-    border-color: rgba(0, 0, 0, 0.3);
+    border-color: var(--ink-1);
   }
 
   &:disabled {
-    background-color: rgba(250, 250, 250, 1);
-    color: rgba(130, 130, 130, 1);
+    background-color: var(--cream-0);
+    color: var(--ink-3);
   }
 
   &::placeholder {
-    color: rgba(130, 130, 130, 1);
+    color: var(--ink-3);
   }
 `;
 
 // Button Styles
 export const Button = styled.button`
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 12px 20px;
   font-size: 14px;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
   border: 1px solid;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -472,20 +471,20 @@ export const Button = styled.button`
     if (props.variant === "primary") {
       return `
         background-color: rgba(0, 0, 0, 1);
-        color: rgba(255, 255, 255, 1);
+        color: var(--cream-0);
         border-color: rgba(0, 0, 0, 1);
 
         &:hover:not(:disabled) {
-          background-color: rgba(40, 40, 40, 1);
+          background-color: var(--ink-1);
           transform: translateY(-1px);
         }
       `;
     }
     if (props.variant === "danger") {
       return `
-        background-color: rgba(220, 38, 38, 1);
-        color: rgba(255, 255, 255, 1);
-        border-color: rgba(220, 38, 38, 1);
+        background-color: var(--danger-deep);
+        color: var(--cream-0);
+        border-color: var(--danger-deep);
 
         &:hover:not(:disabled) {
           background-color: rgba(185, 28, 28, 1);
@@ -493,13 +492,13 @@ export const Button = styled.button`
       `;
     }
     return `
-      background-color: rgba(255, 255, 255, 1);
+      background-color: var(--cream-0);
       color: rgba(0, 0, 0, 0.87);
-      border-color: rgba(224, 224, 224, 1);
+      border-color: var(--cream-2);
 
       &:hover:not(:disabled) {
-        background-color: rgba(250, 250, 250, 1);
-        border-color: rgba(200, 200, 200, 1);
+        background-color: var(--cream-0);
+        border-color: var(--cream-3);
       }
     `;
   }}
@@ -517,8 +516,8 @@ export const Button = styled.button`
 
 export const ErrorMessage = styled.div`
   background-color: rgba(255, 240, 240, 1);
-  border: 1px solid rgba(255, 200, 200, 1);
-  border-radius: 8px;
+  border: 1px solid var(--danger-soft);
+  border-radius: var(--r-md);
   padding: 12px 16px;
   color: rgba(200, 0, 0, 1);
   font-size: 14px;

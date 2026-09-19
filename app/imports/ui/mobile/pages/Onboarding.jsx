@@ -80,6 +80,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../styles/Onboarding";
+import { hueFor } from "../../utils/avatarHue";
 
 const TOTAL_STEPS = 3;
 
@@ -106,15 +107,6 @@ const ROLES = [
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-
-/* Deterministic hue so an account always gets the same avatar colour, the
- * same rule TopNavAuto uses. */
-const hueFor = (seed) => {
-  if (!seed) return 220;
-  let total = 0;
-  for (let i = 0; i < seed.length; i += 1) total += seed.charCodeAt(i);
-  return total % 360;
-};
 
 const fileToBase64 = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader();
