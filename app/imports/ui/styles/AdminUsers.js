@@ -262,16 +262,16 @@ export const ActionButton = styled.button`
 
   &:hover:not(:disabled) {
     background-color: ${(props) => {
-      if (props.variant === "delete") return "rgba(255, 245, 245, 1)";
-      if (props.variant === "admin") return "rgba(255, 248, 220, 1)";
-      if (props.variant === "remove-admin") return "rgba(255, 240, 245, 1)";
-      return "rgba(245, 250, 255, 1)";
+      if (props.variant === "delete") return "var(--danger-soft)";
+      if (props.variant === "admin") return "var(--accent-soft)";
+      if (props.variant === "remove-admin") return "var(--danger-soft)";
+      return "var(--cream-1)";
     }};
     border-color: ${(props) => {
       if (props.variant === "delete") return "var(--danger-soft)";
-      if (props.variant === "admin") return "rgba(255, 220, 150, 1)";
-      if (props.variant === "remove-admin") return "rgba(255, 200, 220, 1)";
-      return "rgba(200, 220, 255, 1)";
+      if (props.variant === "admin") return "var(--accent)";
+      if (props.variant === "remove-admin") return "var(--danger)";
+      return "var(--cream-3)";
     }};
     transform: scale(1.05);
   }

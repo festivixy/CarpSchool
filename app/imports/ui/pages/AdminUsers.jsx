@@ -408,8 +408,9 @@ class MobileAdminUsers extends React.Component {
                             onClick={() => this.handleEdit(user)}
                             disabled={loading}
                             title="Edit user"
+                            aria-label="Edit user"
                           >
-
+                            <Icon name="edit" size={16} color="currentColor" />
                           </ActionButton>
                           <ActionButton
                             variant={isAdmin ? "remove-admin" : "admin"}
@@ -419,16 +420,24 @@ class MobileAdminUsers extends React.Component {
                             title={
                               isAdmin ? "Remove admin role" : "Grant system admin"
                             }
+                            aria-label={
+                              isAdmin ? "Remove admin role" : "Grant system admin"
+                            }
                           >
-                            {isAdmin ? "" : ""}
+                            <Icon
+                              name={isAdmin ? "user" : "shield"}
+                              size={16}
+                              color="currentColor"
+                            />
                           </ActionButton>
                           <ActionButton
                             variant="delete"
                             onClick={() => this.handleDelete(user._id)}
                             disabled={loading || isCurrentUser}
                             title="Delete user"
+                            aria-label="Delete user"
                           >
-                            Delete
+                            <Icon name="close" size={16} color="currentColor" />
                           </ActionButton>
                         </ActionButtons>
                       </UserHeader>
