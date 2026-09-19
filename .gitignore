@@ -32,6 +32,7 @@ codepush_redis_data/
 
 config/settings.development.json
 config/settings.json
+config/settings.production.json
 config/*.bak
 *.bak
 
