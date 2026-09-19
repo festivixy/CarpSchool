@@ -25,179 +25,184 @@ import BackButton from "../components/BackButton";
 const guideContent = `
 # Guide to CarpSchool
 
-CarpSchool helps people in one school community share rides. This guide
-explains exactly what the service does, what it asks of you, what other
-people can see, and what our checks do and do not prove.
+CarpSchool makes people from one school community exchange rides. This guide
+will clarify what the service does, what is expected of you, what other people
+may see, and what our checks do and do not prove.
 
 ## Getting an account
 
-Accounts are not open to the public. Joining takes three steps, and all
-three must pass.
+Accounts are private and require registration, which consists of three steps to
+complete and pass.
 
-1. **Sign up with your school email address.** We email you a code, so you
-   must be able to open that mailbox. Sign-in is handled by Clerk, an
-   authentication provider; CarpSchool never sees or stores your password.
-2. **Your email's domain must belong to a school already registered with
-   CarpSchool.** The match is on the part after the @. If the domain is not
-   registered, the account is refused at this point and nothing is created.
-3. **A community administrator reviews the account.** Until they approve it,
-   you cannot browse rides, post one, or message anyone. While you wait, the
-   app shows a holding screen and nothing else.
+1. **Registration takes place with the help of your school email address.** You
+   receive a code via email, thus, you need to access this mailbox.
+   Authentication is provided by the third-party service Clerk; CarpSchool does
+   not see nor store your password.
+2. **The domain of your email should correspond to one of schools registered in
+   CarpSchool.** The matching is performed for the string after the @ symbol. If
+   the domain does not belong to any registered school, account registration
+   fails at this point and does not create an account.
+3. **A community administrator approves the account.** Until it is approved, you
+   cannot browse rides, post a ride and communicate with other users. While
+   waiting for this step, the app displays a special holding screen.
 
-You can also complete an optional identity check, which asks for a
-government ID through a provider called Persona. See *What our checks
-prove* below for what this does and does not mean today.
+You can also complete the optional identity check through the third-party
+provider Persona, which requires you to provide a governmental identification
+document. See *What our checks prove* below for details of what this means now.
 
 ## Setting up your profile
 
-You are asked for:
+Here is what we ask:
 
-- **A display name.** Required, at least two characters.
-- **Year of study.** Chosen from a list.
-- **Whether you drive, ride, or both.** This controls what you can do: an
-  account set to rider only cannot post a ride at all.
-- **A profile photo**, and **a photo of your vehicle** if you drive. Both
-  optional.
-- **A phone number.** Optional, and not shown on your profile.
+- **Display name** - required, at least 2 characters.
+- **Year of study** - select from the list.
+- **Whether you drive, ride or both.** It affects what actions you may perform -
+  an account set to rider only cannot post a ride, and an account set to driver
+  only cannot join one as a rider.
+- **Profile photo** and **photo of your vehicle** if you drive. Optional.
+- **Phone number.** Optional and not shown on the profile.
 
-### Can you use a nickname?
+### May I use a nickname?
 
-**Yes.** The display name only has to be two or more characters made of
-letters, spaces, hyphens, apostrophes, commas or periods. Numbers and
-symbols are rejected, but nothing requires the name to be your legal one,
-and nothing checks it against any document.
+**Sure.** The display name should consist of at least 2 characters made of
+letters, spaces, hyphens, apostrophes, commas and periods. Numbers and special
+symbols are not accepted, but nothing requires you to use your real name, and no
+verification is performed.
 
-Being straightforward about this: **the software does not enforce real
-names.** Some communities want people identifiable to each other and will
-ask everyone to use a real first name and last initial. That is a rule your
-school's administrator sets and enforces by reviewing accounts, not
-something the app can check.
+Let us be straightforward about it: **the software does not enforce real names.**
+Some communities want people to be identifiable and will require everyone to use
+their real first name and last initial. It is a community requirement, enforced
+by community administrators during account approval.
 
 ## Posting a ride
 
-A driver supplies four things. Everything else is optional:
+The driver provides the following information. Everything else is optional.
 
 **Required:**
 
-- **Pickup point** — chosen from your saved places
-- **Drop-off point** — chosen from your saved places
-- **Date and time** — must be in the future
-- **Seats** — between 1 and 7
+- **Pickup point** - selected from your saved places
+- **Drop-off point** - selected from your saved places
+- **Date and time** - must be in the future
+- **Number of seats** - from 1 to 7
 
 **Optional:**
 
-- **Stops along the way** — up to five, in the order you drive them
-- **Notes** — up to 500 characters
+- **Additional stops** - up to 5, in the order of driving
+- **Notes** - up to 500 characters
 
-**Pickup and drop-off are places you have saved yourself**, each one a point
-you chose on a map and gave a name. You decide how precise to be. Nothing
-forces you to use your home address, and many people pick a nearby corner,
-a car park or a landmark instead.
+Both pickup and drop-off are places saved by you, consisting of the coordinates
+selected on the map and the name you assigned. You choose the level of accuracy.
+No one forces you to use your home address, and people usually save the nearest
+intersection, parking lot or landmark.
 
-CarpSchool does **not** ask a driver for a home address, a driver's licence
-number, a licence plate, or insurance documents. It does not hold any of
-those.
+CarpSchool does **not** ask a driver for a home address, driver's license
+number, license plate number, and insurance documents. It does not store any of
+these.
 
-There is no payment feature. CarpSchool does not price rides, does not
-process money, and takes no part in anything people settle privately
-between themselves.
+There is no payment feature. CarpSchool does not set prices for rides and does
+not take part in money exchange processes between users.
 
 ## What other people see
 
-Two different things are visible, and it is worth separating them.
+Two different pieces of information are visible, and it is important to
+distinguish between them.
 
-**On a ride in the list, everyone approved at your school sees:**
+**For the listed ride, everyone approved at your school sees the following
+information:**
 
-- The pickup and drop-off points, the stops, and the route between them
-- The date and time
-- How many seats are left
-- Any notes the driver wrote
-- An estimated distance and travel time
+- Pickup and drop-off points, additional stops, and the route between them
+- Date and time
+- Number of available seats
+- Notes provided by driver
+- Estimated distance and travel time
 
-**About the driver, the same people see only:**
+**As for the driver, the same people see the following:**
 
-- The display name
+- Display name
 - Year of study
 
-That is the whole list. The screen that supplies those names is limited to
-exactly those fields, so a browsing rider is not given an email address, a
-phone number, a home address, or anything else from the profile.
+It is the full list. The screen providing these names has exactly these fields,
+thus the browsing rider will not see email address, phone number or any other
+information from the profile.
 
-Once you join a ride, the driver and the other riders can see that you
-joined, and you can message each other in the app.
+After joining a ride, the driver and the other riders will be able to see that
+you joined the ride and message each other in the app.
 
-Nothing on CarpSchool is public. There is no page a search engine can index,
-and someone at another school cannot see your school's rides or people at
-all — every query is limited to your own school.
+Nothing in CarpSchool is publicly available. There is no page indexed by any
+search engine, and people from another school will not be able to see rides or
+other people from your school community - all queries are limited to your own
+school.
 
 ## Messaging
 
-Each ride has its own conversation for the people in it. You can also
-message another person at your school directly. Messages are stored so the
-conversation is there when you come back.
+Every ride has a separate chat for the members of the ride. You can also send
+direct messages to other people from your school. Messages are saved, so you
+will have the conversation history available when you return.
 
-We do not read private conversations as a matter of course. Messages can be
-looked at where it is genuinely necessary — investigating a safety report,
-acting on abuse, preventing fraud, or where the law requires it.
+We do not read your private conversations regularly. Messages may be accessed
+where it is really necessary - in case of safety report investigation, dealing
+with abuse, preventing fraud or where the law requires it.
 
 ## What our checks prove, and what they do not
 
-This is the part families ask about most, so here it is plainly.
+This section answers the questions that concern families the most, so it is
+stated clearly.
 
-**What the email check does prove.** At the moment of signing up, the person
-could open a mailbox on a domain that belongs to a registered school. That
-is a real barrier: a stranger with no connection to the school cannot get
-past it, and neither can someone using a personal address.
+**What the email check proves.** At the moment of registration, this person had
+the access to a mailbox at the domain which belongs to the registered school. It
+is a real barrier: a stranger with no connections to the school cannot bypass
+it, and neither can the person with personal email address.
 
-The check is done on our server, not in the browser. The sign-in token is
-verified cryptographically with the authentication provider before any
-account is touched, and the identity is taken from that verified token —
-never from anything the browser claims. It is not something a user can talk
-their way past by editing a page.
+The check is performed on our server, not in the browser. The sign-in token is
+cryptographically verified with the authentication provider before the account
+creation starts, and the identity information is extracted from that token - not
+from the information provided by the browser. It is not something user can trick
+by modifying the page.
 
-**What it does not prove.** Four things, honestly:
+**What it does not prove.** Four things, to be honest:
 
-1. **It proves control of a mailbox, not current enrolment.** Someone who
-   has left the school but kept a working address would pass. Administrator
-   review is the step that is meant to catch that, and it depends on an
-   administrator who knows the community.
-2. **It is not a background check.** We do not check criminal records, and
-   we do not check driving records.
-3. **We do not verify licences, insurance or vehicles.** A driver agrees to
-   our terms, which require a valid licence, valid insurance that covers
-   carrying passengers, and a roadworthy vehicle. That is a promise they
-   make, not a document we have seen.
-4. **The identity check is optional today.** Completing it shows a badge on
-   a profile. It is not currently required in order to post or join a ride,
-   so its absence does not mean an account failed anything.
+1. **It proves access to a mailbox, not the current enrolment.** The person who
+   has left the school and still has a working email address would pass.
+   Administrator approval step is intended to detect this situation, and it
+   depends on administrator who knows the community.
+2. **It is not a background check.** We do not check criminal records, and we do
+   not check driving records.
+3. **We do not verify licenses, insurances and vehicles.** The driver agrees to
+   our terms, which require having a valid license, valid insurance which covers
+   transporting passengers, and a roadworthy vehicle. It is a promise the driver
+   makes, not a document we have seen.
+4. **The identity check is optional today.** If it is completed, you receive a
+   badge on your profile. It is not currently required to post or join a ride,
+   so lack of such verification does not imply failure of any check.
 
-**CarpSchool carries no insurance of any kind.** In any ride, the driver's
-own policy is the only cover that applies.
+**CarpSchool is not insured in any way.** In every ride, the driver's own policy
+is the only insurance that applies.
 
-Nothing here replaces your own judgement. Look at who you are travelling
-with, agree where you are meeting, and if something feels wrong, do not take
-the ride.
+This section does not replace your own judgment. Look at the person you will
+travel with, agree on a meeting place, and if something does not feel right, do
+not take the ride.
 
 ## Reporting a problem
 
-If someone concerns you, stop the arrangement and report it. An
-administrator can restrict, suspend or remove an account. We would rather
-hear about something small than find out later.
+If you are concerned with someone's behavior, stop the arrangement and report
+it. An administrator may restrict, suspend or even delete the account. We prefer
+to hear about minor issues, not to find out about serious problems later.
 
-CarpSchool is not an emergency service. If anyone is in immediate danger,
-call 911.
+CarpSchool is not an emergency service. If anyone is in immediate danger, call
+911.
 
 ## Your data
 
-- Your profile, your rides, and your messages are kept while your account is
-  active.
-- If you complete the identity check, the ID images stay with the
-  verification provider. CarpSchool stores only the result and the date.
-- You can ask what we hold about you, correct it, or ask for your account to
-  be deleted. Some records are kept longer where safety or the law requires.
+- Your profile, rides and messages will be stored while your account is active.
+- If you completed the identity check, images of ID will be stored by the
+  verification provider. CarpSchool will keep only the result of this check and
+  its date.
+- You can request the information we hold about you, correct it or request
+  account deletion. Some information may be stored longer due to safety or legal
+  requirements.
 
-The [Privacy Policy](/privacy) sets this out in full, and the
-[Terms of Use](/terms) cover the rules everyone agrees to.
+The [Privacy Policy](/privacy) describes it in detail, and the
+[Terms of Use](/terms) include all agreements.
 
 ## Questions
 
