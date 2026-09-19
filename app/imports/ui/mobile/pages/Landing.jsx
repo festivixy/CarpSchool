@@ -244,10 +244,6 @@ export default function MobileLanding() {
                 <Icon name="car" size={12} />
                 Mon–Fri
               </MetaPill>
-              <MetaPill>
-                <Icon name="dollar" size={12} />
-                $4 cost share
-              </MetaPill>
             </RideMeta>
           </MotionRideCard>
         </HeroGrid>

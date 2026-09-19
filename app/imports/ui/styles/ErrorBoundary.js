@@ -189,7 +189,7 @@ export const RetryButton = styled.button`
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
     background: var(--signal-yellow);
-    color: var(--ink-1);
+    color: var(--on-accent);
 
     &:hover {
       background: var(--signal-yellow-deep);

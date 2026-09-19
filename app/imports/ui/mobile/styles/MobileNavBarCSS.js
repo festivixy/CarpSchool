@@ -82,7 +82,7 @@ export const TabWithBadge = styled.button`
 export const TabPrimary = styled.div`
   ${tabBase}
   background: var(--signal-yellow);
-  color: var(--ink-1);
+  color: var(--on-accent);
   box-shadow: 0 3px 0 0 var(--signal-yellow-deep);
 
   &:hover {
@@ -115,7 +115,7 @@ export const BadgeText = styled.div`
   font-weight: 500;
   font-size: 9.5px;
   line-height: 1.2;
-  color: var(--signal-yellow);
+  color: var(--accent-on-dark);
 `;
 
 export const TabLabel = styled.span`

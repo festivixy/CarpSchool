@@ -817,7 +817,7 @@ const AdminOverview = ({ history }) => {
     <Shell>
       <Sidebar>
         <Brand>
-          <Logo size={22} wordmark={false} />
+          <Logo size={22} wordmark={false} color="var(--cream-0)" />
           <Tag>ADMIN</Tag>
         </Brand>
 

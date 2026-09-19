@@ -296,8 +296,8 @@ export const StopIndex = styled.span`
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--signal-yellow, #ffd400);
-  color: var(--ink-1, #1a1815);
+  background: var(--signal-yellow, #15496f);
+  color: var(--on-accent);
   font-size: 11px;
   font-weight: 700;
 `;

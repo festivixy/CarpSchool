@@ -10,7 +10,7 @@ export const DropdownContainer = styled.div`
  * card the default white is still the right contrast. */
 export const DropdownButton = styled.button`
   background-color: ${props => (props.$primary ? "var(--signal-yellow)" : "rgba(255, 255, 255, 1)")};
-  color: ${props => (props.$primary ? "var(--ink-1)" : "rgba(0, 0, 0, 1)")};
+  color: ${props => (props.$primary ? "var(--on-accent)" : "rgba(0, 0, 0, 1)")};
   box-shadow: ${props => (props.$primary
     ? "0 4px 0 0 var(--signal-yellow-deep), inset 0 1px 0 rgba(255, 255, 255, 0.4)"
     : "none")};

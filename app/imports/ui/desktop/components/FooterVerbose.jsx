@@ -11,27 +11,24 @@ import {
   FooterLink,
   CompanyInfo,
   CompanyHeader,
-  CompanyLogo,
   CompanyName,
   CompanyDescription,
   ContactInfo,
   ContactItem,
   ContactLink,
-  SocialLinks,
-  SocialIcon,
   FooterBottom,
   Copyright,
   LegalLinks,
   LegalLink,
   LegalLinkExternal,
 } from "../styles/FooterVerbose";
+import Logo from "../../components/Logo";
 
 /**
  * Comprehensive Footer component with enhanced features
  * Desktop-only component for detailed footer navigation
  */
 function FooterVerbose({
-  logo = "https://api.builder.io/api/v1/image/assets/TEMP/f4a021becb7f3cbf8e67cef5249b3fd0f05fd67b?width=80",
   companyName = "CarpSchool",
   description = "Making transportation easier, greener, and more connected for everyone. Join us, share rides to save money and reduce their environmental impact. Built for school communities.",
   email = "contact@carpschool.com",
@@ -65,7 +62,7 @@ function FooterVerbose({
           <FooterSection>
             <CompanyInfo>
               <CompanyHeader>
-                <CompanyLogo src={logo} alt={companyName} />
+                <Logo size={30} wordmark={false} color="var(--cream-0)" />
                 <CompanyName>{companyName}</CompanyName>
               </CompanyHeader>
               <CompanyDescription>{description}</CompanyDescription>
@@ -76,13 +73,6 @@ function FooterVerbose({
                   </ContactLink>
                 </ContactItem>
               </ContactInfo>
-              <SocialLinks>
-                <SocialIcon />
-                <SocialIcon />
-                <SocialIcon />
-                <SocialIcon />
-                <SocialIcon />
-              </SocialLinks>
             </CompanyInfo>
           </FooterSection>
 
@@ -124,7 +114,7 @@ function FooterVerbose({
 
         <FooterBottom>
           <Copyright>
-            © {new Date().getFullYear()} {companyName} . All rights reserved.
+            © {new Date().getFullYear()} {companyName}. All rights reserved.
           </Copyright>
           <LegalLinks>
             <LegalLink to="/privacy" onClick={(e) => handleLinkClick("privacy", e)}>
@@ -147,7 +137,6 @@ function FooterVerbose({
 }
 
 FooterVerbose.propTypes = {
-  logo: PropTypes.string,
   companyName: PropTypes.string,
   description: PropTypes.string,
   email: PropTypes.string,

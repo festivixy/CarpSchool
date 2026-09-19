@@ -12,7 +12,7 @@ export const Card = styled.div`
     ? css`
         background: var(--cream-0);
         border: 1.5px solid var(--signal-yellow);
-        box-shadow: 0 8px 24px -8px rgba(224, 168, 0, 0.3);
+        box-shadow: 0 8px 24px -8px rgba(14, 52, 80, 0.3);
       `
     : css`
         background: rgba(255, 255, 255, 0.7);

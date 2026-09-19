@@ -331,7 +331,7 @@ export const CardIcon = styled.div`
   margin-bottom: 16px;
   border-radius: var(--r-md);
   background: var(--signal-yellow);
-  color: var(--ink-1);
+  color: var(--on-accent);
 `;
 
 export const CardTitle = styled.h3`

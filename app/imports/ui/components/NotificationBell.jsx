@@ -44,8 +44,8 @@ const Count = styled.span`
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: var(--signal-yellow, #ffd400);
-  color: var(--ink-1, #1a1815);
+  background: var(--signal-yellow, #15496f);
+  color: var(--on-accent);
   font-size: 11px;
   font-weight: 700;
   line-height: 18px;
@@ -93,7 +93,7 @@ const Item = styled.button`
   padding: 12px 14px;
   border: 0;
   border-bottom: 1px solid var(--cream-2, #ece7dc);
-  background: ${props => (props.$unread ? "var(--signal-yellow-soft, #fff4b8)" : "transparent")};
+  background: ${props => (props.$unread ? "var(--signal-yellow-soft, #d7e6f1)" : "transparent")};
   text-align: left;
   cursor: pointer;
   font-family: inherit;

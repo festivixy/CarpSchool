@@ -42,7 +42,7 @@ export const FooterSection = styled.div`
 
 export const SectionTitle = styled.h4`
   ${eyebrow}
-  color: var(--signal-yellow);
+  color: var(--accent-on-dark);
   margin: 0;
 `;
 
@@ -71,7 +71,7 @@ export const FooterLink = styled(Link)`
   display: inline-block;
 
   &:hover {
-    color: var(--signal-yellow);
+    color: var(--accent-on-dark);
     transform: translateX(3px);
   }
 `;
@@ -88,12 +88,6 @@ export const CompanyHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-`;
-
-export const CompanyLogo = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: var(--r-sm);
 `;
 
 export const CompanyName = styled.h3`
@@ -138,29 +132,7 @@ export const ContactLink = styled.a`
   text-decoration: none;
 
   &:hover {
-    color: var(--signal-yellow);
-  }
-`;
-
-export const SocialLinks = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
-
-export const SocialIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(246, 245, 240, 0.08);
-  border: 1px solid rgba(246, 245, 240, 0.14);
-  position: relative;
-  cursor: pointer;
-  transition: background 0.12s ease, transform 0.12s ease;
-
-  &:hover {
-    background: var(--signal-yellow);
-    transform: translateY(-2px);
+    color: var(--accent-on-dark);
   }
 `;
 
@@ -207,7 +179,7 @@ const legalLinkStyles = `
   transition: color 0.12s ease;
 
   &:hover {
-    color: var(--signal-yellow);
+    color: var(--accent-on-dark);
   }
 `;
 

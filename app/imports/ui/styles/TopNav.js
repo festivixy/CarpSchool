@@ -87,7 +87,7 @@ export const OfferBtn = styled.button`
   font-weight: 600;
   font-size: 13.5px;
   background: var(--signal-yellow);
-  color: var(--ink-1);
+  color: var(--on-accent);
 `;
 
 /* User menu hung off the avatar. TopNav shipped with a decorative avatar and

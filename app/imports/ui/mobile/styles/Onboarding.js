@@ -86,7 +86,7 @@ export const BrandFoot = styled.div`
 
 export const BrandEyebrow = styled.div`
   ${eyebrow}
-  color: var(--signal-yellow);
+  color: var(--accent-on-dark);
 `;
 
 export const BrandTitle = styled.h1`
@@ -142,8 +142,8 @@ export const ProofTile = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 212, 0, 0.16);
-  color: var(--signal-yellow);
+  background: rgba(127, 176, 206, 0.18);
+  color: var(--accent-on-dark);
 `;
 
 export const ProofBody = styled.div`
@@ -198,7 +198,7 @@ export const StepBadge = styled.div`
   font-size: 12px;
   font-weight: 700;
   background: ${props => (props.$on ? "var(--signal-yellow)" : "var(--cream-2)")};
-  color: ${props => (props.$on ? "var(--ink-1)" : "var(--ink-3)")};
+  color: ${props => (props.$on ? "var(--on-accent)" : "var(--ink-3)")};
   transition: background 0.2s ease, color 0.2s ease;
 `;
 
@@ -464,7 +464,7 @@ export const RoleIconTile = styled.span`
   align-items: center;
   justify-content: center;
   background: ${props => (props.$selected ? "var(--signal-yellow)" : "var(--cream-2)")};
-  color: ${props => (props.$selected ? "var(--ink-1)" : "var(--ink-2)")};
+  color: ${props => (props.$selected ? "var(--on-accent)" : "var(--ink-2)")};
 `;
 
 export const RoleBody = styled.span`

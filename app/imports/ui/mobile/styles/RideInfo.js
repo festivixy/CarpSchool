@@ -458,7 +458,7 @@ export const StepTile = styled.div`
   align-items: center;
   justify-content: center;
   margin-bottom: 10px;
-  color: var(--ink-1);
+  color: ${props => (props.$first ? "var(--on-accent)" : "var(--ink-1)")};
   background: ${props => (props.$first ? "var(--signal-yellow)" : "var(--cream-1)")};
 `;
 
@@ -526,8 +526,8 @@ export const Bubble = styled.div`
     ? css`
         align-self: flex-end;
         background: var(--signal-yellow);
-        color: var(--ink-1);
-        box-shadow: 0 2px 8px -2px rgba(224, 168, 0, 0.4);
+        color: var(--on-accent);
+        box-shadow: 0 2px 8px -2px rgba(14, 52, 80, 0.4);
       `
     : css`
         align-self: flex-start;

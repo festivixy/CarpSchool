@@ -168,7 +168,7 @@ export const ChatListItemLast = styled.div`
 
 export const ChatListItemCount = styled.div`
   background: var(--ink-1);
-  color: var(--signal-yellow);
+  color: var(--accent-on-dark);
   border-radius: var(--r-pill);
   padding: 2px 8px;
   font-family: var(--font-mono);

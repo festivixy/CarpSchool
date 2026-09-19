@@ -72,7 +72,7 @@ export const DropdownTrigger = styled.button`
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: var(--signal-yellow);
+    color: var(--accent-on-dark);
   }
 `;
 
@@ -152,7 +152,7 @@ export const NavButton = styled.button.withConfig({
   border: none;
   cursor: pointer;
   font-family: inherit;
-  color: ${props => (props.primary ? "var(--ink-1)" : "var(--cream-0)")};
+  color: ${props => (props.primary ? "var(--on-accent)" : "var(--cream-0)")};
   text-decoration: none;
   font-size: 13.5px;
   font-weight: ${props => (props.primary ? "600" : "500")};
@@ -164,7 +164,7 @@ export const NavButton = styled.button.withConfig({
 
   &:hover {
     background: ${props => (props.primary ? "var(--signal-yellow-deep)" : "rgba(255, 255, 255, 0.1)")};
-    color: ${props => (props.primary ? "var(--ink-1)" : "var(--signal-yellow)")};
+    color: ${props => (props.primary ? "var(--on-accent)" : "var(--accent-on-dark)")};
   }
 `;
 
@@ -228,12 +228,12 @@ export const MobileItem = styled(NavLink)`
   }
 
   &:hover {
-    color: var(--signal-yellow);
+    color: var(--accent-on-dark);
     padding-left: 8px;
   }
 
   &.active {
-    color: var(--signal-yellow);
+    color: var(--accent-on-dark);
   }
 `;
 
@@ -247,7 +247,7 @@ export const MobileButton = styled.button.withConfig({
   cursor: pointer;
   font-family: inherit;
   display: block;
-  color: ${props => (props.primary ? "var(--ink-1)" : "var(--cream-0)")};
+  color: ${props => (props.primary ? "var(--on-accent)" : "var(--cream-0)")};
   text-decoration: none;
   font-size: 15px;
   font-weight: ${props => (props.primary ? "600" : "500")};
@@ -262,7 +262,7 @@ export const MobileButton = styled.button.withConfig({
   }
 
   &:hover {
-    color: ${props => (props.primary ? "var(--ink-1)" : "var(--signal-yellow)")};
+    color: ${props => (props.primary ? "var(--on-accent)" : "var(--accent-on-dark)")};
     padding-left: ${props => (props.primary ? "14px" : "8px")};
     background: ${props => (props.primary ? "var(--signal-yellow-deep)" : "transparent")};
   }

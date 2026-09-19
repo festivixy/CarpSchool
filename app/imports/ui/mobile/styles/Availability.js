@@ -262,7 +262,7 @@ export const Badge = styled.span`
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: ${props => (props.$now ? "var(--signal-yellow)" : "var(--cream-1)")};
-  color: var(--ink-1);
+  color: ${props => (props.$now ? "var(--on-accent)" : "var(--ink-1)")};
 `;
 
 export const DriverRoute = styled.div`

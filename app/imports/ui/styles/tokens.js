@@ -33,19 +33,16 @@ export const eyebrow = css`
   font-weight: 500;
 `;
 
-// Stabilo-Boss highlight underlay. Use at most once per heading.
+// Knockout highlight. Use at most once per heading.
 export const marker = css`
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    transparent 38%,
-    var(--signal-yellow) 38%,
-    var(--signal-yellow) 92%,
-    transparent 92%
-  );
-  padding: 0 0.08em;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.04em 0.16em;
+  margin: 0 -0.04em;
+  border-radius: 0.12em;
   font-style: normal;
-  color: var(--ink-1);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 `;
 
 // Button base + variants.
@@ -81,12 +78,12 @@ export const btnPrimary = css`
 
 export const btnCoral = css`
   background: var(--signal-yellow);
-  color: var(--ink-1);
+  color: var(--on-accent);
   box-shadow: 0 4px 0 0 var(--signal-yellow-deep), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 
   &:hover {
     background: var(--signal-yellow-deep);
-    color: var(--ink-1);
+    color: var(--on-accent);
     box-shadow: 0 2px 0 0 var(--ink-1);
     transform: translateY(2px);
   }

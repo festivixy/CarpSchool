@@ -131,7 +131,7 @@ function NavBar({ currentUser, userProfile }) {
     <NavBarContainer ref={navRef}>
       <NavBarInner>
         <Logo to="/">
-          <BrandLogo />
+          <BrandLogo color="var(--cream-0)" />
         </Logo>
 
         <DesktopNav>

@@ -1,26 +1,50 @@
 /* ─────────────────────────────────────────────────────────────
- * Design tokens — "paper × ink × signal-yellow"
- * Ported from the web design handoff. --coral was renamed to
- * --signal-yellow: the value is highlighter yellow (#ffd400),
- * the old name was historical.
+ * Design tokens — drawn from the CarpSchool mark.
+ *
+ * The mark is a deep navy ground carrying a mid blue and an
+ * off-white. Those three become the accent, the surfaces and the
+ * colour that sits on the accent.
+ *
+ * The --signal-yellow names are kept as aliases of --accent. They
+ * are historical (they were --coral before that) and appear in
+ * dozens of components; aliasing means the palette moves in one
+ * place instead of touching every one of them.
  * ───────────────────────────────────────────────────────────── */
 :root {
-  /* Paper surfaces */
-  --cream-0: #f6f5f0;
-  --cream-1: #ecebe4;
-  --cream-2: #dfddd3;
-  --cream-3: #c9c6b8;
+  /* Brand, straight off the mark */
+  --brand-navy: #15496f;
+  --brand-navy-deep: #0e3450;
+  --brand-blue: #7fb0ce;
+  --brand-paper: #e9f2f8;
 
-  /* Ink */
-  --ink-1: #0c0c0a;
-  --ink-2: #2a2926;
-  --ink-3: #5a5750;
-  --ink-4: #8a877d;
+  /* Accent, and the colour that must sit on top of it. The accent is
+   * dark, so anything painted with it carries --on-accent, never ink. */
+  --accent: var(--brand-navy);
+  --accent-deep: var(--brand-navy-deep);
+  --accent-soft: #d7e6f1;
+  --on-accent: #f2f8fc;
 
-  /* Signal yellow (the "marker") */
-  --signal-yellow: #ffd400;
-  --signal-yellow-deep: #e0a800;
-  --signal-yellow-soft: #fff3a8;
+  /* The accent read as a mark ON a dark ground -- footer links, nav
+   * hovers, badges sitting on ink. The navy accent would vanish there,
+   * so the mark's lighter blue stands in for it. */
+  --accent-on-dark: var(--brand-blue);
+
+  /* Surfaces, tinted towards the mark's blue rather than paper */
+  --cream-0: #eef4f9;
+  --cream-1: #e2ecf4;
+  --cream-2: #d1e0ec;
+  --cream-3: #acc7db;
+
+  /* Ink, cooled to sit on a blue ground */
+  --ink-1: #0c1a24;
+  --ink-2: #26343d;
+  --ink-3: #566872;
+  --ink-4: #8699a4;
+
+  /* Historical names, now aliases of the accent. */
+  --signal-yellow: var(--accent);
+  --signal-yellow-deep: var(--accent-deep);
+  --signal-yellow-soft: var(--accent-soft);
 
   /* Secondary accents */
   --sky: #2547d8;
@@ -35,16 +59,16 @@
   --leaf-soft: #dcefe4;
 
   /* Map / route */
-  --map-bg: #ecebe4;
-  --map-land: #f0efe8;
+  --map-bg: #e2ecf4;
+  --map-land: #eaf1f7;
   --map-park: #d9e3c9;
   --map-water: #c9dbf0;
   --map-road: #ffffff;
-  --map-stroke: #d8d4c5;
+  --map-stroke: #cbdbe8;
 
   /* Glass */
-  --glass-tint: rgba(246, 245, 240, 0.62);
-  --glass-tint-strong: rgba(246, 245, 240, 0.82);
+  --glass-tint: rgba(238, 244, 249, 0.62);
+  --glass-tint-strong: rgba(238, 244, 249, 0.82);
   --glass-stroke: rgba(12, 12, 10, 0.1);
   --glass-shadow: 0 10px 40px -10px rgba(12, 12, 10, 0.16), 0 2px 8px -2px rgba(12, 12, 10, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 

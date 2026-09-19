@@ -100,7 +100,7 @@ export const Tag = styled.span`
   padding: 3px 7px;
   border-radius: var(--r-sm);
   background: var(--signal-yellow);
-  color: var(--ink-1);
+  color: var(--on-accent);
 `;
 
 export const NavList = styled.nav`
@@ -132,12 +132,12 @@ export const NavItem = styled.button`
   font-size: 13.5px;
   font-weight: 500;
   white-space: nowrap;
-  background: ${props => (props.$active ? "rgba(255, 212, 0, 0.12)" : "transparent")};
-  color: ${props => (props.$active ? "var(--signal-yellow)" : "rgba(226, 223, 213, 0.82)")};
+  background: ${props => (props.$active ? "rgba(127, 176, 206, 0.14)" : "transparent")};
+  color: ${props => (props.$active ? "var(--accent-on-dark)" : "rgba(226, 223, 213, 0.82)")};
   transition: background 0.12s ease, color 0.12s ease;
 
   &:hover {
-    background: ${props => (props.$active ? "rgba(255, 212, 0, 0.18)" : "rgba(255, 255, 255, 0.06)")};
+    background: ${props => (props.$active ? "rgba(127, 176, 206, 0.22)" : "rgba(255, 255, 255, 0.06)")};
   }
 
   @media (max-width: 820px) {
@@ -187,8 +187,8 @@ export const BadgePulse = styled.span`
   position: absolute;
   inset: 0;
   border-radius: var(--r-pill);
-  background: var(--signal-yellow);
-  color: var(--signal-yellow);
+  background: var(--accent-on-dark);
+  color: var(--accent-on-dark);
   opacity: 0.4;
 `;
 
@@ -236,7 +236,7 @@ export const AccountBtn = styled.button`
   display: inline-flex;
 
   &:hover {
-    color: var(--signal-yellow);
+    color: var(--accent-on-dark);
   }
 `;
 
@@ -366,7 +366,7 @@ export const BellDot = styled.span`
   padding: 0 3px;
   border-radius: var(--r-pill);
   background: var(--signal-yellow);
-  color: var(--ink-1);
+  color: var(--on-accent);
   font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 700;

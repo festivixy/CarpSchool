@@ -20,8 +20,8 @@ const Banner = styled.div`
   font-family: var(--font-ui, inherit);
   font-size: 13px;
   font-weight: 600;
-  color: var(--ink-1, #1a1815);
-  background: var(--signal-yellow, #ffd400);
+  color: var(--on-accent);
+  background: var(--signal-yellow, #15496f);
   border-bottom: 1px solid var(--ink-1, #1a1815);
 `;
 

@@ -38,7 +38,7 @@ const DOUBLE_CLICK_GUARD_MS = 250;
  * can take its colours from the design tokens. */
 const pinIcon = (state) => {
   const fill = {
-    selected: "var(--signal-yellow, #ffd400)",
+    selected: "var(--signal-yellow, #15496f)",
     editable: "var(--ink-1, #1a1815)",
     readonly: "var(--ink-3, #8a857c)",
   }[state] || "var(--ink-1, #1a1815)";
