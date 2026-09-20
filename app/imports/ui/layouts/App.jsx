@@ -35,7 +35,6 @@ import MobileChat from "../pages/Chat";
 import MobileSignout from "../mobile/pages/Signout";
 import MobileEditProfile from "../pages/EditProfile";
 import MobileOnboarding from "../mobile/pages/Onboarding";
-import MobileVerify from "../pages/Verify";
 import WaitingForConfirmation from "../components/WaitingForConfirmation";
 import RejectionScreen from "../components/RejectionScreen";
 import MobileTOS from "../mobile/pages/TOS";
@@ -314,7 +313,7 @@ const VerificationGate = ({ component: Component, requireDriver, ...rest }) => {
               return <Redirect to="/waiting-confirmation" />;
             }
             if (!profile.verified && !profile.requested) {
-              return <Redirect to="/verify" />;
+              return <Redirect to="/waiting-confirmation" />;
             }
             /* Offering a ride is for drivers. The server refuses a rider's
              * rides.create, but without this the rider still reached the whole
@@ -470,7 +469,6 @@ class AppLayout extends React.Component {
 
                 {/* Protected routes - require Clerk auth */}
                 <AuthRoute path="/onboarding" component={MobileOnboarding} />
-                <AuthRoute path="/verify" component={MobileVerify} />
                 <WaitingConfirmationRoute path="/waiting-confirmation" component={WaitingForConfirmation} />
                 <AuthRoute path="/verification-rejected" component={RejectionScreen} />
                 <VerificationGate path="/my-rides" component={MobileMyRides} />

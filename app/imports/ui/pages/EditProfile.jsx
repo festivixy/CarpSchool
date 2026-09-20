@@ -470,6 +470,8 @@ class MobileEditProfile extends React.Component {
   };
 
   render() {
+    const profile = this.props.profileData;
+    const showsVehicle = profile?.accountType !== "student" && profile?.UserType !== "Rider";
     if (this.state.redirectToReferer) {
       // Check if it's a specific redirect (like to verification)
       if (typeof this.state.redirectToReferer === "string") {
@@ -625,57 +627,60 @@ class MobileEditProfile extends React.Component {
                 )}
               </Section>
 
-              {/* Ride Image Upload */}
-              <Section>
-                <SectionTitle>Vehicle Photo</SectionTitle>
+              {/* A student does not drive, so nothing about a vehicle
+                * belongs on their form. */}
+              {showsVehicle && (
+                <Section>
+                  <SectionTitle>Vehicle Photo</SectionTitle>
 
-                {(this.state.rideImagePreview || this.state.rideImage) && (
-                  <ImagePreview>
-                    <PreviewImg
-                      src={
-                        this.state.rideImagePreview ||
-                        getImageUrl(this.state.rideImage)
+                  {(this.state.rideImagePreview || this.state.rideImage) && (
+                    <ImagePreview>
+                      <PreviewImg
+                        src={
+                          this.state.rideImagePreview ||
+                          getImageUrl(this.state.rideImage)
+                        }
+                        alt="Vehicle preview"
+                      />
+                    </ImagePreview>
+                  )}
+
+                  <Field>
+                    <Label htmlFor="editProfile-rideImage">Upload Vehicle Photo</Label>
+                    <FileInput
+                      id="editProfile-rideImage"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => this.handleImageSelect(e, "ride")}
+                      disabled={
+                        this.state.isSubmitting || this.state.isUploadingRide
                       }
-                      alt="Vehicle preview"
                     />
-                  </ImagePreview>
-                )}
+                    <FileInfo>Supported: JPEG, PNG, GIF, WebP (max 5MB)</FileInfo>
+                  </Field>
 
-                <Field>
-                  <Label htmlFor="editProfile-rideImage">Upload Vehicle Photo</Label>
-                  <FileInput
-                    id="editProfile-rideImage"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => this.handleImageSelect(e, "ride")}
-                    disabled={
-                      this.state.isSubmitting || this.state.isUploadingRide
-                    }
-                  />
-                  <FileInfo>Supported: JPEG, PNG, GIF, WebP (max 5MB)</FileInfo>
-                </Field>
+                  {/* Ride Image Upload with Captcha */}
+                  {this.state.showRideUpload && (
+                    <UploadSection>
+                      <Captcha
+                        ref={this.rideCaptchaRef}
+                        autoGenerate={true}
+                        disabled={this.state.isUploadingRide}
+                      />
 
-                {/* Ride Image Upload with Captcha */}
-                {this.state.showRideUpload && (
-                  <UploadSection>
-                    <Captcha
-                      ref={this.rideCaptchaRef}
-                      autoGenerate={true}
-                      disabled={this.state.isUploadingRide}
-                    />
-
-                    <UploadButton
-                      type="button"
-                      onClick={this.uploadRideImage}
-                      disabled={this.state.isUploadingRide}
-                    >
-                      {this.state.isUploadingRide
-                        ? "Uploading..."
-                        : "Upload Vehicle Photo"}
-                    </UploadButton>
-                  </UploadSection>
-                )}
-              </Section>
+                      <UploadButton
+                        type="button"
+                        onClick={this.uploadRideImage}
+                        disabled={this.state.isUploadingRide}
+                      >
+                        {this.state.isUploadingRide
+                          ? "Uploading..."
+                          : "Upload Vehicle Photo"}
+                      </UploadButton>
+                    </UploadSection>
+                  )}
+                </Section>
+              )}
 
               <Button
                 type="submit"

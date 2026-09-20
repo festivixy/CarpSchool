@@ -198,7 +198,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
 
     // Already onboarded at a school: the wizard has nothing left to collect.
     if (profileData && assignedSchoolId) {
-      setRedirectTo("/verify");
+      setRedirectTo("/waiting-confirmation");
       return;
     }
 

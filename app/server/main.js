@@ -36,7 +36,6 @@ import "../imports/api/errorReport/ErrorReportPublications";
 import "../imports/api/notifications/NotificationPublications";
 import "../imports/api/system/SystemPublications";
 import "../imports/api/schools/SchoolsPublications";
-import "../imports/api/reviews/ReviewPublications";
 
 // Routes
 import "../imports/startup/server/ApiRoutes";
@@ -46,7 +45,6 @@ import "../imports/startup/server/ServerRoutes";
 import "../imports/api/captcha/CaptchaMethods";
 import "../imports/api/accounts/AccountsMethods";
 import "../imports/api/images/ImageMethods";
-import "../imports/api/verification/VerificationMethods";
 import "../imports/api/verification/SchoolEmailVerificationMethods";
 import "../imports/api/profile/ProfileMethods";
 import "../imports/api/profile/AdminApprovalMethods";
@@ -71,7 +69,6 @@ import "../imports/startup/server/AdminBootstrap";
 import "../imports/api/accounts/RegistrationMethods";
 import "../imports/api/accounts/RegistrationRateLimits";
 import "../imports/api/accounts/DeleteAccountMethods";
-import "../imports/api/reviews/ReviewMethods";
 
 // Accounts
 import "../imports/api/accounts/AccountsHandlers"; // Login validation and logout handlers

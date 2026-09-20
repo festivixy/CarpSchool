@@ -30,7 +30,6 @@ const PER_USER = [
   ["notifications.send", 5, MINUTE],
   ["chats.sendMessage", 60, MINUTE],
   ["chats.createForRide", 10, MINUTE],
-  ["reviews.leave", 10, MINUTE],
 ];
 
 // Only run on server

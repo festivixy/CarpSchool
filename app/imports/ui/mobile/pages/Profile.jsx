@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useRef } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
@@ -9,7 +9,6 @@ import { Rides } from "../../../api/ride/Rides";
 import { Places } from "../../../api/places/Places";
 import { Profiles } from "../../../api/profile/Profile";
 import { Schools } from "../../../api/schools/Schools";
-import { Reviews } from "../../../api/reviews/Reviews";
 import { estimateRoute } from "../../../api/ride/routeEstimate";
 import Avatar from "../../components/Avatar";
 import Icon from "../../components/Icon";
@@ -25,8 +24,6 @@ import {
   HeaderMain,
   NameRow,
   Name,
-  VerifiedChip,
-  VerifyChip,
   MetaRow,
   MetaItem,
   MetaSep,
@@ -38,7 +35,6 @@ import {
   StatLabel,
   StatValue,
   StatUnit,
-  StatStar,
   Columns,
   Col,
   Card,
@@ -52,13 +48,6 @@ import {
   PlaceText,
   PlaceName,
   PlaceSub,
-  ReviewList,
-  ReviewRow,
-  ReviewBody,
-  ReviewHead,
-  ReviewName,
-  Stars,
-  Quote,
   PrefList,
   PrefRow,
   PrefLabel,
@@ -115,7 +104,6 @@ const ROLE_COPY = {
 };
 
 const MAX_SAVED_PLACES = 4;
-const MAX_REVIEWS_SHOWN = 3;
 
 /* Show only the last four digits. The country code is not modelled, so the
  * mask keeps the shape without asserting one. */
@@ -132,7 +120,7 @@ const Profile = ({ history }) => {
   const settingsRef = useRef(null);
 
   const {
-    ready, currentUser, isAdmin, myProfile, school, places, placeCoords, rides, reviews,
+    ready, currentUser, isAdmin, myProfile, school, places, placeCoords, rides,
   } = useTracker(() => {
     const uid = Meteor.userId();
     const user = Meteor.user();
@@ -144,7 +132,6 @@ const Profile = ({ history }) => {
       Meteor.subscribe("Rides"),
       Meteor.subscribe("places.mine"),
     ];
-    if (uid) subs.push(Meteor.subscribe("reviews.forUser", uid));
     if (user?.schoolId) subs.push(Meteor.subscribe("schools.byId", user.schoolId));
 
     const coords = {};
@@ -161,27 +148,11 @@ const Profile = ({ history }) => {
       places: Places.find({}, { sort: { createdAt: -1 } }).fetch(),
       placeCoords: coords,
       rides: Rides.find({}).fetch(),
-      reviews: uid ? Reviews.find({ subject: uid }, { sort: { createdAt: -1 } }).fetch() : [],
     };
   }, []);
 
   // Keyed on a string so the dependent subscription only re-runs when the set
   // of authors actually changes, not on every reactive re-fetch.
-  const authorKey = reviews.map(r => r.author).join(",");
-  const authorIds = useMemo(
-    () => (authorKey ? Array.from(new Set(authorKey.split(","))) : []),
-    [authorKey],
-  );
-
-  const authorName = useTracker(() => {
-    if (authorIds.length === 0) return {};
-    Meteor.subscribe("profiles.displayNames", authorIds);
-    const map = {};
-    Profiles.find({ Owner: { $in: authorIds } }).forEach((p) => {
-      map[p.Owner] = p.Name;
-    });
-    return map;
-  }, [authorIds]);
 
   const go = path => history.push(path);
 
@@ -252,7 +223,6 @@ const Profile = ({ history }) => {
   const accountName = `${currentUser?.profile?.firstName || ""} ${currentUser?.profile?.lastName || ""}`.trim();
   const fullName = myProfile?.Name || accountName || email.split("@")[0] || "Your profile";
 
-  const eduVerified = Boolean(myProfile?.schoolemail);
   const identityVerified = Boolean(myProfile?.identityVerified);
   /* Only an approved student can vouch for a guardian, which is the same rule
    * the method enforces; showing it to anyone else would just be an error
@@ -268,10 +238,6 @@ const Profile = ({ history }) => {
     const est = estimateRoute(placeCoords[r.origin], placeCoords[r.destination]);
     return sum + (est ? est.distanceMi : 0);
   }, 0);
-  const ratingCount = reviews.length;
-  const ratingAvg = ratingCount === 0
-    ? 0
-    : reviews.reduce((sum, r) => sum + r.stars, 0) / ratingCount;
 
   const metaItems = [];
   if (schoolName) {
@@ -284,9 +250,13 @@ const Profile = ({ history }) => {
 
   const savedPlaces = places.slice(0, MAX_SAVED_PLACES);
 
+  /* A student takes rides; a guardian offers them. Nothing about a vehicle
+   * is a student's business on their own profile either. */
+  const drives = myProfile?.accountType === "parent" || myProfile?.UserType !== "Rider";
+
   const prefs = [
     ["Role", ROLE_COPY[myProfile?.UserType]],
-    ["Vehicle", myProfile?.Ride],
+    ...(drives ? [["Vehicle", myProfile?.Ride]] : []),
     ["Home base", myProfile?.Location],
   ].filter(([, value]) => Boolean(value));
 
@@ -296,12 +266,11 @@ const Profile = ({ history }) => {
   else if (myProfile?.requested) studentIdNote = "awaiting review";
   else if (myProfile?.rejected) studentIdNote = "not approved";
 
-  let identityNote = "verify to drive";
+  let identityNote = drives ? "verify to drive" : "optional";
   if (myProfile?.verifiedAt) identityNote = `verified ${fmtMonth(myProfile.verifiedAt)}`;
   else if (identityVerified) identityNote = "verified";
 
   const checklist = [
-    ["School email", eduVerified, myProfile?.schoolemail || "not verified"],
     ["Student ID", Boolean(myProfile?.verified), studentIdNote],
     ["Phone", Boolean(myProfile?.Phone), myProfile?.Phone ? maskPhone(myProfile.Phone) : "add a number"],
     // The app's real document check is Persona, written to the profile by the
@@ -324,17 +293,6 @@ const Profile = ({ history }) => {
           <HeaderMain>
             <NameRow>
               <Name>{fullName}</Name>
-              {eduVerified ? (
-                <VerifiedChip>
-                  <Icon name="check" size={11} color="#fff" strokeWidth={2.6} />
-                  School email verified
-                </VerifiedChip>
-              ) : (
-                <VerifyChip type="button" onClick={() => go("/verify")}>
-                  <Icon name="school" size={11} />
-                  Verify school email
-                </VerifyChip>
-              )}
             </NameRow>
 
             {metaItems.length > 0 && (
@@ -360,18 +318,6 @@ const Profile = ({ history }) => {
         </Header>
 
         <StatStrip>
-          <StatCard>
-            <StatLabel>RATING</StatLabel>
-            <StatValue>{ratingCount === 0 ? "—" : ratingAvg.toFixed(1)}</StatValue>
-            <StatUnit>
-              {ratingCount === 0 ? "no reviews yet" : (
-                <>
-                  <StatStar>★</StatStar>
-                  {` from ${ratingCount} rider${ratingCount === 1 ? "" : "s"}`}
-                </>
-              )}
-            </StatUnit>
-          </StatCard>
           <StatCard>
             <StatLabel>RIDES</StatLabel>
             <StatValue>{completed.length}</StatValue>
@@ -413,32 +359,6 @@ const Profile = ({ history }) => {
                 </PlaceGrid>
               )}
             </Card>
-
-            {reviews.length > 0 && (
-              <Card>
-                <CardTitle>What riders say</CardTitle>
-                <ReviewList>
-                  {reviews.slice(0, MAX_REVIEWS_SHOWN).map((review) => {
-                    const name = authorName[review.author] || "Rider";
-                    return (
-                      <ReviewRow key={review._id}>
-                        <Avatar user={{ name, hue: hueFor(review.author) }} size={36} />
-                        <ReviewBody>
-                          <ReviewHead>
-                            <ReviewName>{name}</ReviewName>
-                            <Stars>
-                              {"★".repeat(review.stars)}
-                              {"☆".repeat(5 - review.stars)}
-                            </Stars>
-                          </ReviewHead>
-                          {review.text && <Quote>{`“${review.text}”`}</Quote>}
-                        </ReviewBody>
-                      </ReviewRow>
-                    );
-                  })}
-                </ReviewList>
-              </Card>
-            )}
           </Col>
 
           <Col>

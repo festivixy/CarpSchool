@@ -52,7 +52,7 @@ const RejectionScreen = ({ profile, loading }) => {
         
         // Redirect to verification page after a brief delay
         setTimeout(() => {
-          window.location.href = "/verify";
+          window.location.href = "/onboarding";
         }, 2000);
       }
     });

@@ -5,7 +5,6 @@ import { Places } from "../places/Places";
 import { RideSessions } from "../rideSession/RideSession";
 import { Chats } from "../chat/Chat";
 import { Images } from "../images/Images";
-import { Reviews } from "../reviews/Reviews";
 import { PushTokens, Notifications } from "../notifications/Notifications";
 import { ApiKeys } from "../api-keys/ApiKeys";
 
@@ -75,10 +74,6 @@ export async function purgeUserData(userId) {
   await Images.removeAsync({
     $or: [{ user: userId }, { uploadedBy: userId }],
   });
-
-  // 8. Reviews: keep the ratings, drop the identity on both sides
-  await Reviews.updateAsync({ author: userId }, { $set: { author: DELETED_USER } }, { multi: true });
-  await Reviews.updateAsync({ subject: userId }, { $set: { subject: DELETED_USER } }, { multi: true });
 
   // 9. Push tokens, notification history and API keys are the user's alone
   await PushTokens.removeAsync({ userId });
