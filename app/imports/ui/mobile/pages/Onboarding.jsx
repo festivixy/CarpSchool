@@ -89,11 +89,14 @@ const TOTAL_STEPS = 3;
  * domain before the user reaches this route. */
 const STEPS = [
   { n: 1, sub: "School verification", lead: "Confirm your ", mark: "school email." },
-  { n: 2, sub: "Name and year", lead: "Tell us a bit ", mark: "about you." },
+  { n: 2, sub: "About you", lead: "Tell us a bit ", mark: "about you." },
   { n: 3, sub: "Driver, rider, or both", lead: "Will you mostly ", mark: "drive or ride?" },
 ];
 
-const STEP_2_SUBTITLE = "This shows up on your rides so drivers know who they're picking up.";
+const STEP_2_SUBTITLE = {
+  student: "This shows up on your rides so drivers know who they're picking up.",
+  parent: "This shows up on rides you drive, so riders know who is picking them up.",
+};
 
 /* Mirrors the ProfileSchema enum, which is authoritative. */
 const YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate", "Faculty/Staff"];
@@ -364,7 +367,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
         name: name.trim(),
         accountType,
         userType,
-        year,
+        year: accountType === "parent" ? "" : year,
         phone: phone.trim(),
         other: other.trim(),
         image: profileImage,
@@ -630,18 +633,23 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
         />
       </Field>
 
-      <FieldRow>
-        <Field>
-          <Label htmlFor="ob-year">Year</Label>
-          <SelectWrap>
-            <Select id="ob-year" value={year} onChange={event => setYear(event.target.value)}>
-              <option value="">Select year</option>
-              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
-            </Select>
-            <SelectChevron><Icon name="chevR" size={14} /></SelectChevron>
-          </SelectWrap>
-        </Field>
-      </FieldRow>
+      {/* Year of study is a student's field. A parent has none, and it is the
+        * only thing a browsing rider sees beside a name, so leaving it on the
+        * form would put a meaningless value in front of people. */}
+      {accountType === "student" && (
+        <FieldRow>
+          <Field>
+            <Label htmlFor="ob-year">Year</Label>
+            <SelectWrap>
+              <Select id="ob-year" value={year} onChange={event => setYear(event.target.value)}>
+                <option value="">Select year</option>
+                {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+              </Select>
+              <SelectChevron><Icon name="chevR" size={14} /></SelectChevron>
+            </SelectWrap>
+          </Field>
+        </FieldRow>
+      )}
 
       <FieldRow>
         <Field>
@@ -735,8 +743,10 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
           <a href="/tos" target="_blank" rel="noopener noreferrer">Terms of Use</a>
           {" "}and{" "}
           <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-          If I am under the age of majority, a parent or guardian has agreed to
-          them for me.
+          {accountType === "parent"
+            ? " I agree to them for the student in my care as well."
+            : " If I am under the age of majority, a parent or guardian has agreed"
+              + " to them for me."}
         </ConsentText>
       </ConsentRow>
     </Step>
@@ -805,7 +815,9 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
             {step.lead}
             <Mark>{step.mark}</Mark>
           </StepTitle>
-          {currentStep === 2 && <StepSubtitle>{STEP_2_SUBTITLE}</StepSubtitle>}
+          {currentStep === 2 && (
+            <StepSubtitle>{STEP_2_SUBTITLE[accountType]}</StepSubtitle>
+          )}
 
           {renderCurrentStep()}
 
