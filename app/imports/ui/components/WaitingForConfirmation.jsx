@@ -24,8 +24,27 @@ import {
 } from "../styles/WaitingForConfirmation";
 
 /**
- * WaitingForConfirmation component - Shows pending admin approval status
+ * The holding screen, for an account that exists but cannot do anything yet.
+ *
+ * Two different situations land here and they need different answers. An
+ * account that has asked to be approved is waiting on an administrator. A
+ * guardian nobody has claimed is waiting on their student, and no
+ * administrator has been asked anything -- telling them to sit tight would
+ * leave them waiting for something that is never going to arrive.
+ *
+ * Nothing here promises an email: the platform does not send one on approval.
+ * The previous copy promised one, named a one-to-two-day turnaround nobody
+ * committed to, and congratulated people on a driver verification that no
+ * longer exists.
  */
+const HINT_UNCLAIMED = "Check that your student used the same address you "
+  + "signed up with -- a different one will not match. If they have added you "
+  + "and this has not changed, speak to an administrator at their school.";
+
+const HINT_PENDING = "Approvals are done by a person at your school, not by "
+  + "us, so there is no queue position to report. If it has been longer than "
+  + "you expected, ask them directly.";
+
 const WaitingForConfirmation = ({ profile, loading }) => {
   const { signOut } = useClerk();
 
@@ -42,78 +61,76 @@ const WaitingForConfirmation = ({ profile, loading }) => {
       <Container>
         <Content>
           <Icon><Glyph name="clock" size={30} /></Icon>
-          <Title>Admin Verification in Progress</Title>
-          <Subtitle>Our administrators are reviewing your profile verification</Subtitle>
-
-          <Message>
-            Please check back soon! You'll receive an email notification once your account has been approved and you can access the full application.
-          </Message>
+          <Title>Checking your account</Title>
         </Content>
       </Container>
     );
   }
 
-  const userType = profile?.UserType || "User";
-  const userName = profile?.Name || "there";
+  const name = profile?.Name || "there";
+  const isGuardian = profile?.accountType === "parent";
+  const unclaimed = isGuardian && (profile?.guardianOf || []).length === 0;
+
+  const steps = [
+    ["Email address", true],
+    ["Profile", Boolean(profile?.Name)],
+    ...(isGuardian ? [["Linked by your student", !unclaimed]] : []),
+    ["Approved by an administrator", Boolean(profile?.verified)],
+  ];
 
   return (
     <Container>
       <Content>
         <Icon><Glyph name="clock" size={30} /></Icon>
-        <Title>Admin Verification in Progress</Title>
-        <Subtitle>Our administrators are reviewing your {userType.toLowerCase()} profile verification</Subtitle>
 
-        <StatusCard>
-          <StatusIcon verified><Glyph name="check" size={16} strokeWidth={2.6} /></StatusIcon>
-          <StatusText>
-            <strong>Step 1:</strong> Account Verification - Complete
-          </StatusText>
-        </StatusCard>
+        <Title>{unclaimed ? "Waiting for your student" : "Waiting for approval"}</Title>
+        <Subtitle>
+          {unclaimed
+            ? "Your account is set up, but it is not attached to a school yet."
+            : "An administrator at your school is reviewing your account."}
+        </Subtitle>
 
-        <StatusCard>
-          <StatusIcon verified><Glyph name="check" size={16} strokeWidth={2.6} /></StatusIcon>
-          <StatusText>
-            <strong>Step 2:</strong> Profile Setup - Complete
-          </StatusText>
-        </StatusCard>
-
-        <StatusCard>
-          <StatusIcon verified><Glyph name="check" size={16} strokeWidth={2.6} /></StatusIcon>
-          <StatusText>
-            <strong>Step 3:</strong> {userType} Verification - Complete
-          </StatusText>
-        </StatusCard>
-
-        <StatusCard pending>
-          <StatusIcon pending><Glyph name="clock" size={16} /></StatusIcon>
-          <StatusText>
-            <strong>Step 4:</strong> Admin Approval - Pending
-          </StatusText>
-        </StatusCard>
+        {steps.map(([label, done]) => (
+          <StatusCard key={label} pending={!done}>
+            <StatusIcon verified={done} pending={!done}>
+              <Glyph name={done ? "check" : "clock"} size={16} strokeWidth={done ? 2.6 : 2} />
+            </StatusIcon>
+            <StatusText>{label}</StatusText>
+          </StatusCard>
+        ))}
 
         <Message>
-          Hi {userName}!
-          <br /><br />
-          Great news! You&apos;ve successfully completed your {userType.toLowerCase()} verification.
-          Our administrators are now reviewing your profile to ensure everything is in order.
-          <br /><br />
-          <strong>What happens next?</strong>
-          <br />
-          • Our admins are currently verifying your profile details
-          <br />
-          • You&apos;ll receive an email notification once approved
-          <br />
-          • Check back soon - this typically takes 1-2 business days
-          <br />
-          • No further action is needed from you at this time
+          {unclaimed ? (
+            <>
+              {`Hi ${name}. `}
+              Ask your student to open their profile, find
+              {" "}
+              <strong>Parent or guardian</strong>
+              , and add the email address you signed up with. That is what
+              attaches you to their school.
+              <br />
+              <br />
+              Until then this account cannot see rides, people or messages.
+              Nobody has been asked to review it yet, so there is nothing to
+              wait for on our side.
+            </>
+          ) : (
+            <>
+              {`Hi ${name}. `}
+              Your account is with an administrator at your school. They decide
+              who joins, so how long it takes is up to them.
+              <br />
+              <br />
+              There is nothing else for you to do. Sign in again later to see
+              whether it has been approved.
+            </>
+          )}
         </Message>
 
         <InfoSection>
-          <InfoTitle>What to Expect</InfoTitle>
+          <InfoTitle>If it is taking a while</InfoTitle>
           <InfoText>
-            You'll receive an email notification as soon as your profile is approved by our administrators.
-            In the meantime, feel free to check back here periodically. If you have questions about your
-            verification status, please contact your school administrator or our support team.
+            {unclaimed ? HINT_UNCLAIMED : HINT_PENDING}
           </InfoText>
         </InfoSection>
 
@@ -130,6 +147,10 @@ const WaitingForConfirmation = ({ profile, loading }) => {
 WaitingForConfirmation.propTypes = {
   profile: PropTypes.object,
   loading: PropTypes.bool.isRequired,
+};
+
+WaitingForConfirmation.defaultProps = {
+  profile: null,
 };
 
 export default withTracker(() => {

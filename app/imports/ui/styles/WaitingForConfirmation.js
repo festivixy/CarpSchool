@@ -73,19 +73,23 @@ export const StatusCard = styled.div.withConfig(block("pending"))`
   padding: 14px 15px;
   margin: 10px 0;
   border-radius: var(--r-md);
-  background: ${props => (props.pending ? "var(--signal-yellow-soft)" : "var(--leaf-soft)")};
-  border: 1px solid ${props => (props.pending ? "var(--signal-yellow-deep)" : "var(--leaf)")};
+  /* The step still outstanding is the point of the screen; the ones already
+   * done are context. They used to be the other way round -- three loud green
+   * cards above the one thing the reader was actually waiting on. */
+  background: ${props => (props.pending ? "var(--accent-soft)" : "var(--cream-1)")};
+  border: 1px solid ${props => (props.pending ? "var(--accent)" : "var(--cream-2)")};
   text-align: left;
 `;
 
 export const StatusIcon = styled.div.withConfig(block("pending"))`
   font-size: 20px;
   margin-right: 14px;
-  opacity: ${props => (props.pending ? 0.7 : 1)};
+  color: ${props => (props.pending ? "var(--accent)" : "var(--leaf)")};
 `;
 
 export const StatusText = styled.div.withConfig(block("pending"))`
-  color: ${props => (props.pending ? "var(--ink-2)" : "var(--leaf)")};
+  color: ${props => (props.pending ? "var(--ink-1)" : "var(--ink-3)")};
+  font-weight: ${props => (props.pending ? 600 : 400)};
   font-size: 13.5px;
   flex: 1;
 `;
