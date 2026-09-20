@@ -5,6 +5,8 @@ import { Profiles } from "../profile/Profile";
 import { Schools } from "../schools/Schools";
 import { Rides } from "../ride/Rides";
 import { TERMS_VERSION } from "../legal/terms";
+import { schoolForEmail } from "./SchoolDomain";
+import { isAllowListedEmail } from "./ClerkLoginHandler";
 
 Meteor.methods({
 
@@ -76,6 +78,7 @@ Meteor.methods({
       acceptedTerms: Boolean,
       name: Match.Optional(bounded(100)),
       userType: Match.Optional(Match.OneOf("Driver", "Rider", "Both")),
+      accountType: Match.Optional(Match.OneOf("student", "parent")),
       major: Match.Optional(bounded(100)),
       year: Match.Optional(bounded(30)),
       phone: Match.Optional(bounded(20)),
@@ -86,6 +89,8 @@ Meteor.methods({
     if (profileData.acceptedTerms !== true) {
       throw new Meteor.Error("terms-required", "You must accept the Terms of Use and Privacy Policy to continue.");
     }
+
+    const accountType = profileData.accountType || "student";
 
     const profileDoc = {
       Owner: this.userId,
@@ -101,8 +106,14 @@ Meteor.methods({
       // and the profile was created with no avatar or vehicle photo.
       Image: profileData.image || "",
       Ride: profileData.ride || "",
+      accountType,
+      guardianOf: [],
       verified: false,
-      requested: true,
+      /* A parent has nothing tying them to a school until a student claims
+       * them, so they stay out of the approval queue rather than arriving in
+       * it as an unattached stranger for an administrator to puzzle over.
+       * profiles.claimGuardian is what puts them in. */
+      requested: accountType !== "parent",
       termsAcceptedAt: new Date(),
       termsVersion: TERMS_VERSION,
       rejected: false,
@@ -142,6 +153,23 @@ Meteor.methods({
     }
     if (school.settings && school.settings.allowPublicRegistration === false) {
       throw new Meteor.Error("registration-closed", "This school does not accept self-service sign-ups");
+    }
+
+    /* Signing up no longer requires a school email, so picking a school can no
+     * longer be a free choice: it is the one step that would let an account
+     * with no connection to a community place itself inside one. The caller
+     * must either verify an address on the school's own domain, or be listed
+     * in settings. Everyone else reaches a school by being claimed. */
+    const caller = await Meteor.users.findOneAsync(this.userId, { fields: { emails: 1 } });
+    const address = caller?.emails?.[0]?.address || "";
+    const { school: matched } = await schoolForEmail(address);
+    const mayChoose = matched?._id === school._id || isAllowListedEmail(address);
+    if (!mayChoose) {
+      throw new Meteor.Error(
+        "school-email-required",
+        "Choose a school by signing up with its email address. "
+        + "If you are a parent or guardian, ask your student to add you from their profile.",
+      );
     }
 
     // updateAsync: the sync form throws on the Meteor 3 server, so this method

@@ -39,12 +39,24 @@ complete and pass.
    Authentication is provided by the third-party service Clerk; CarpSchool does
    not see nor store your password.
 2. **The domain of your email should correspond to one of schools registered in
-   CarpSchool.** The matching is performed for the string after the @ symbol. If
-   the domain does not belong to any registered school, account registration
-   fails at this point and does not create an account.
+   CarpSchool.** The matching is performed for the string after the @ symbol.
+   This is what attaches a student to their school community.
 3. **A community administrator approves the account.** Until it is approved, you
    cannot browse rides, post a ride and communicate with other users. While
    waiting for this step, the app displays a special holding screen.
+
+### If you are a parent or guardian
+
+Parents do not have a school email address, so they take a different route.
+Sign up with whatever address you use and choose *I'm a parent or guardian*.
+Your account is then created but does nothing at all: it belongs to no school
+and cannot browse rides, post one, or message anyone.
+
+It stays that way until **your student adds you from their profile**, using the
+address you signed up with. That is what attaches you to their school. Only
+then does your account reach the administrator for approval, in step 3 above.
+
+A student must have been approved themselves before they can add anyone.
 
 You can also complete the optional identity check through the third-party
 provider Persona, which requires you to provide a governmental identification
@@ -148,10 +160,17 @@ with abuse, preventing fraud or where the law requires it.
 This section answers the questions that concern families the most, so it is
 stated clearly.
 
-**What the email check proves.** At the moment of registration, this person had
-the access to a mailbox at the domain which belongs to the registered school. It
-is a real barrier: a stranger with no connections to the school cannot bypass
-it, and neither can the person with personal email address.
+**What the email check proves.** For a student, at the moment of registration
+this person had the access to a mailbox at the domain which belongs to the
+registered school.
+
+Anyone may create an account with any address, but an account which did not
+prove a school domain reaches nothing: it cannot see rides, people, or
+messages, and it is not put in front of an administrator. It leaves that state
+only when an already approved student names its address as their parent or
+guardian. So a stranger with no connection to the school can hold an empty
+record, and still cannot reach anything without somebody verified vouching for
+them and an administrator agreeing.
 
 The check is performed on our server, not in the browser. The sign-in token is
 cryptographically verified with the authentication provider before the account

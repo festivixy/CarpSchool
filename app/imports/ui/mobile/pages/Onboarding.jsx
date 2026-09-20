@@ -105,6 +105,24 @@ const ROLES = [
   { id: "Driver", title: "Mostly driving", desc: "I have a car and want to offer rides.", icon: "car" },
 ];
 
+/* Who the account belongs to. A student proves their school with an email
+ * domain; a parent cannot, and is attached to a school by their student
+ * instead, so the two take different routes through this screen. */
+const ACCOUNT_TYPES = [
+  {
+    id: "student",
+    title: "I'm a student",
+    desc: "Sign in with your school email address.",
+    icon: "school",
+  },
+  {
+    id: "parent",
+    title: "I'm a parent or guardian",
+    desc: "Your student adds you from their profile once you've signed up.",
+    icon: "user",
+  },
+];
+
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
@@ -130,6 +148,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
   const roleRefs = React.useRef({});
 
   const [currentStep, setCurrentStep] = React.useState(1);
+  const [accountType, setAccountType] = React.useState("student");
   const [name, setName] = React.useState("");
   const [year, setYear] = React.useState("");
   const [phone, setPhone] = React.useState("");
@@ -156,6 +175,15 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
     || "";
   const emailDomain = email.split("@")[1] || "";
   const pickedSchool = schools.find(s => s._id === pickedSchoolId) || null;
+
+  /* Mirrors what clerk.assignSchool will accept: a school may be chosen only
+   * by someone whose address is on that school's own domain. Choosing from a
+   * list otherwise would be picking a community rather than proving one. The
+   * server enforces this regardless; this only decides whether to offer it. */
+  const canPickSchool = Boolean(
+    emailDomain
+    && schools.some(s => (s.domain || "").toLowerCase() === emailDomain.toLowerCase()),
+  );
   const schoolShortName = school?.shortName || pickedSchool?.shortName || "";
 
   React.useEffect(() => {
@@ -210,7 +238,10 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
   }, [currentUserId]);
 
   const canProceed = () => {
-    if (currentStep === 1) return Boolean(assignedSchoolId || pickedSchoolId);
+    if (currentStep === 1) {
+      if (accountType === "parent") return true;
+      return Boolean(assignedSchoolId || pickedSchoolId);
+    }
     if (currentStep === 2) return name.trim().length >= 2;
     return acceptedTerms;
   };
@@ -331,6 +362,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
       Meteor.call("clerk.completeOnboarding", {
         acceptedTerms: true,
         name: name.trim(),
+        accountType,
         userType,
         year,
         phone: phone.trim(),
@@ -343,14 +375,17 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
           setError(profileError.reason || profileError.message);
           return;
         }
-        setSuccess("Your profile is ready. We've sent it for approval.");
+        setSuccess(accountType === "parent"
+          ? "Your profile is ready. Ask your student to add you from their profile."
+          : "Your profile is ready. We've sent it for approval.");
         setRedirectTo("/waiting-confirmation");
       });
     };
 
     // Only assign when the verified email domain did not already resolve a
     // school, so nobody can put themselves at a school they cannot verify.
-    if (assignedSchoolId) {
+    // A parent never does: their student's claim is what attaches them.
+    if (assignedSchoolId || accountType === "parent") {
       completeProfile();
       return;
     }
@@ -486,15 +521,41 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
 
   const renderStep1 = () => (
     <Step className="fade-in" key="step-1">
+      <UserTypeOptions role="radiogroup" aria-label="Who this account is for">
+        {ACCOUNT_TYPES.map(option => (
+          <UserTypeOption
+            key={option.id}
+            type="button"
+            role="radio"
+            aria-checked={accountType === option.id}
+            $selected={accountType === option.id}
+            onClick={() => setAccountType(option.id)}
+          >
+            <RoleIconTile $selected={accountType === option.id}>
+              <Icon name={option.icon} size={20} />
+            </RoleIconTile>
+            <RoleBody>
+              <UserTypeTitle>{option.title}</UserTypeTitle>
+              <UserTypeDesc>{option.desc}</UserTypeDesc>
+            </RoleBody>
+            <RoleRadio $selected={accountType === option.id}>
+              {accountType === option.id && (
+                <Icon name="check" size={14} color="var(--on-accent)" strokeWidth={3} />
+              )}
+            </RoleRadio>
+          </UserTypeOption>
+        ))}
+      </UserTypeOptions>
+
       {email && (
         <Field>
-          <Label htmlFor="school-email">School email</Label>
+          <Label htmlFor="school-email">Your email</Label>
           <ReadOnlyInput id="school-email" value={email} readOnly aria-readonly="true" />
           <InputHint>Verified when you signed up.</InputHint>
         </Field>
       )}
 
-      {assignedSchoolId && school && (
+      {accountType === "student" && assignedSchoolId && school && (
         <InfoRow>
           <InfoTile><Icon name="school" size={20} /></InfoTile>
           <InfoBody>
@@ -505,18 +566,53 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
         </InfoRow>
       )}
 
-      {!assignedSchoolId && renderSchoolPicker()}
+      {/* A student whose address matched nothing cannot pick a school from a
+        * list -- that would be choosing a community rather than proving one.
+        * The picker stays for accounts that arrived with a school already. */}
+      {accountType === "student" && !assignedSchoolId && (
+        canPickSchool
+          ? renderSchoolPicker()
+          : (
+            <NotePill>
+              <NoteIcon>
+                <Icon name="school" size={16} color="var(--accent)" strokeWidth={2.5} />
+              </NoteIcon>
+              <span>
+                {emailDomain
+                  ? `${emailDomain} isn't registered to a school on CarpSchool. `
+                  : "That address isn't registered to a school on CarpSchool. "}
+                Sign up again with your school email address, or choose
+                &ldquo;I&rsquo;m a parent or guardian&rdquo; above.
+              </span>
+            </NotePill>
+          )
+      )}
 
-      <NotePill>
-        <NoteIcon>
-          <Icon name="check" size={16} color="var(--signal-yellow-deep)" strokeWidth={2.5} />
-        </NoteIcon>
-        <span>
-          {schoolShortName
-            ? `An admin at ${schoolShortName} reviews new accounts before your first ride.`
-            : "An admin reviews new accounts before your first ride."}
-        </span>
-      </NotePill>
+      {accountType === "parent" && (
+        <NotePill>
+          <NoteIcon>
+            <Icon name="user" size={16} color="var(--accent)" strokeWidth={2.5} />
+          </NoteIcon>
+          <span>
+            Finish setting up your profile, then ask your student to add you
+            from their profile using this address. That is what links you to
+            their school -- until then your account stays on hold.
+          </span>
+        </NotePill>
+      )}
+
+      {accountType === "student" && (
+        <NotePill>
+          <NoteIcon>
+            <Icon name="check" size={16} color="var(--accent)" strokeWidth={2.5} />
+          </NoteIcon>
+          <span>
+            {schoolShortName
+              ? `An admin at ${schoolShortName} reviews new accounts before your first ride.`
+              : "An admin reviews new accounts before your first ride."}
+          </span>
+        </NotePill>
+      )}
     </Step>
   );
 

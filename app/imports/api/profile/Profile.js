@@ -53,6 +53,16 @@ const ProfileSchema = Joi.object({
     label: "Additional Information",
   }),
   UserType: Joi.string().valid("Driver", "Rider", "Both").default("Driver"),
+
+  /* Who the account belongs to, which is a different axis from UserType:
+   * a parent may still drive. A parent reaches the school through a student
+   * who claims them rather than through an email domain, so until that
+   * happens they have no schoolId and cannot be approved. */
+  accountType: Joi.string().valid("student", "parent").default("student"),
+
+  /* Set on a parent's profile: the students who have claimed them. A parent
+   * with an empty list is unclaimed and stays out of the approval queue. */
+  guardianOf: Joi.array().items(Joi.string()).default([]),
   major: createSafeStringSchema({
     pattern: "generalText",
     min: 0,

@@ -50,6 +50,7 @@ import "../imports/api/verification/VerificationMethods";
 import "../imports/api/verification/SchoolEmailVerificationMethods";
 import "../imports/api/profile/ProfileMethods";
 import "../imports/api/profile/AdminApprovalMethods";
+import "../imports/api/profile/GuardianMethods";
 import "../imports/api/schools/SchoolSettingsMethods";
 import "../imports/api/chat/ChatMethods";
 import "../imports/api/ride/RideMethods";

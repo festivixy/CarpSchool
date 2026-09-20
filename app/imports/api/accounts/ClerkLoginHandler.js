@@ -55,7 +55,7 @@ const primaryEmailFor = async (clerkUserId, claims) => {
  */
 const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const isAllowListedEmail = (email) => {
+export const isAllowListedEmail = (email) => {
   const settings = Meteor.settings?.private || {};
   const entries = [...(settings.adminEmails || []), ...(settings.testEmails || [])]
     .filter(e => typeof e === "string" && e.trim());
@@ -96,17 +96,22 @@ const resolveMeteorUserId = async (clerkUserId, claims) => {
     );
   }
 
-  let { school, error } = await schoolForEmail(email);
-  if (error && isAllowListedEmail(email)) {
+  /* A matching school email is no longer the only way in, because a parent
+   * does not have one. The domain still decides whether an account arrives
+   * with a school already attached; an address that matches nothing gets an
+   * account with no school, which cannot browse, post, or message anyone.
+   *
+   * Such an account leaves onboarding only when a verified student at a
+   * school claims it as their guardian. So the barrier did not move, it just
+   * stopped being a wall at the door: a stranger can hold a dormant record,
+   * and still needs somebody verified to vouch for them to reach anything.
+   */
+  let { school } = await schoolForEmail(email);
+  if (!school && isAllowListedEmail(email)) {
     // Administrators and test accounts from settings may sign in with any
     // domain; they are placed in the configured test school (or the first
     // active one) so every school-scoped query still works for them.
     school = await allowListSchool();
-    error = school ? null : "No active school exists to assign this account to";
-  }
-  if (error) {
-    console.warn(`[ClerkLogin] Rejected signup for ${email}: ${error}`);
-    throw new Meteor.Error("school-email-required", error);
   }
 
   // Must be createUserAsync: in Meteor 3 Accounts.createUser is async on the
@@ -125,9 +130,14 @@ const resolveMeteorUserId = async (clerkUserId, claims) => {
     },
     roles: [],
   });
-  await Meteor.users.updateAsync(userId, { $set: { schoolId: school._id } });
+  if (school) {
+    await Meteor.users.updateAsync(userId, { $set: { schoolId: school._id } });
+  }
 
-  console.log(`Created Meteor user for Clerk ID ${clerkUserId}: ${userId} (${school.shortName})`);
+  console.log(
+    `Created Meteor user for Clerk ID ${clerkUserId}: ${userId}`
+    + ` (${school ? school.shortName : "no school -- awaiting a guardian claim"})`,
+  );
   return userId;
 };
 

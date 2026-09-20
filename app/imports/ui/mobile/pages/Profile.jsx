@@ -14,6 +14,7 @@ import { estimateRoute } from "../../../api/ride/routeEstimate";
 import Avatar from "../../components/Avatar";
 import Icon from "../../components/Icon";
 import MapBg from "../../components/MapBg";
+import AddGuardian from "../../components/AddGuardian";
 import {
   Page,
   Banner,
@@ -260,6 +261,10 @@ const Profile = ({ history }) => {
 
   const eduVerified = Boolean(myProfile?.schoolemail);
   const identityVerified = Boolean(myProfile?.identityVerified);
+  /* Only an approved student can vouch for a guardian, which is the same rule
+   * the method enforces; showing it to anyone else would just be an error
+   * waiting to happen. */
+  const canAddGuardian = myProfile?.accountType !== "parent" && myProfile?.verified === true;
   const schoolName = school?.shortName || school?.name || "";
 
   // Stats, all derived from rides this user drove or rode in.
@@ -509,6 +514,15 @@ const Profile = ({ history }) => {
               </MenuItem>
             </MenuList>
           </Section>
+
+          {canAddGuardian && (
+            <Section>
+              <SectionTitle>PARENT OR GUARDIAN</SectionTitle>
+              <MenuList>
+                <AddGuardian />
+              </MenuList>
+            </Section>
+          )}
 
           {isAdmin && (
             <Section>
