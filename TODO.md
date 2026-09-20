@@ -6,6 +6,10 @@ cold.
 
 Last reviewed: 2026-09-20.
 
+This file previously held the username-to-user-ID conversion log, which was
+finished work rather than outstanding work; it is archived at
+[docs/username-to-userid-conversion.md](docs/username-to-userid-conversion.md).
+
 ---
 
 ## 1. Blocking launch
