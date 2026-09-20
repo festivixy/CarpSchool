@@ -26,6 +26,10 @@ export const Sidebar = styled.aside`
   position: sticky;
   top: 0;
   align-self: start;
+  /* Both bounds, not just the upper one: align-self: start sizes the rail to
+   * its own content, which left a dark block hanging in the middle of the
+   * page instead of a full-height sidebar. */
+  height: 100vh;
   max-height: 100vh;
   overflow-y: auto;
   background: var(--ink-1);

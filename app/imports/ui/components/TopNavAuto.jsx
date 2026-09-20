@@ -7,8 +7,7 @@ import { useAuth } from "@clerk/clerk-react";
 import { Profiles } from "../../api/profile/Profile";
 import TopNav from "./TopNav";
 import NavBar from "../desktop/components/NavBar";
-import { isSystemRole } from "../desktop/components/NavBarRoleUtils";
-import { adminNavFor, adminPathFor, adminSectionFor } from "../utils/adminNav";
+import { adminPathFor, adminSectionFor } from "../utils/adminNav";
 import { fullSignOut } from "../utils/signOut";
 import { useApprovalStatus } from "../utils/useApproval";
 import { NavSpacer } from "../styles/TopNav";
@@ -27,8 +26,10 @@ import { hueFor } from "../utils/avatarHue";
  */
 const LEGACY_NAV_PREFIXES = ["/_test"];
 
-/* No admin page carries its own navigation, so whatever the nav offers here
- * is the only way to move between admin sections. */
+/* Admin screens sit in AdminShell, which carries the section rail. The pill
+ * used to list those sections too, because nothing else did; now it would be
+ * the same nine entries twice, and they overflowed the pill. Here it keeps
+ * only identity: the avatar, notifications, and the account menu. */
 const ADMIN_PREFIXES = ["/admin", "/system"];
 
 /* Screens whose content runs full-bleed under the nav (a map fills the
@@ -136,9 +137,6 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
   };
 
   if (isAdminArea) {
-    /* Same sections, same order, same role filtering as the admin dashboard's
-     * side nav -- both read the one list. */
-    const sections = adminNavFor(isSystemRole(currentUser));
     const adminMenu = [
       { id: "site", label: "Back to site", icon: "home" },
       { id: "signOut", label: "Sign out", icon: "arrow", danger: true },
@@ -148,7 +146,7 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
       <>
         <TopNav
           active={adminSectionFor(pathname)}
-          items={sections.map(({ id, label }) => ({ id, label }))}
+          items={[]}
           user={avatarUserFrom(currentUser)}
           onNav={id => history.push(adminPathFor(id) || NAV_TARGETS[id] || "/")}
           showOffer={false}

@@ -8,6 +8,7 @@ import Icon from "./Icon";
 import Avatar from "./Avatar";
 import { adminNavFor, adminSectionFor } from "../utils/adminNav";
 import { isSystemRole } from "../desktop/components/NavBarRoleUtils";
+import { isInternalUsername, realEmailOf } from "../utils/userDisplay";
 import { hueFor } from "../utils/avatarHue";
 import {
   Sidebar,
@@ -37,11 +38,20 @@ import {
  * and passes them down, every other screen renders the rail without them
  * rather than loading dashboard data it has no other use for.
  */
+/* Never the clerk_<id> username: it is a join key, and the account card was
+ * showing it where a person's name belongs. */
+const displayNameFor = (user) => {
+  if (user?.profile?.name) return user.profile.name;
+  if (user?.username && !isInternalUsername(user.username)) return user.username;
+  const email = realEmailOf(user);
+  return email ? email.split("@")[0] : "admin";
+};
+
 const AdminSidebar = ({ history, location, counts }) => {
   const { name, userId, system } = useTracker(() => {
     const user = Meteor.user();
     return {
-      name: user?.profile?.name || user?.username || "admin",
+      name: displayNameFor(user),
       userId: user?._id || "",
       system: isSystemRole(user),
     };
