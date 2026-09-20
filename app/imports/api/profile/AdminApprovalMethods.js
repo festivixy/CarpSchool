@@ -31,12 +31,21 @@ Meteor.methods({
       throw new Meteor.Error("profile-not-found", "User profile not found.");
     }
 
+    const targetUser = await Meteor.users.findOneAsync(userId);
+
     // For school admins, ensure they can only approve users from their school
     if (isSchoolAdminUser && !isSystem) {
-      const targetUser = await Meteor.users.findOneAsync(userId);
       if (!targetUser || targetUser.schoolId !== currentUser.schoolId) {
         throw new Meteor.Error("not-authorized", "School administrators can only approve users from their own school.");
       }
+    }
+
+    /* An account with no school passes every gate and then sees nothing: each
+     * query is scoped to a school, so it returns empty. A guardian no student
+     * has claimed is exactly that. Approving someone is a decision to let
+     * them into a community, so they join the approver's. */
+    if (targetUser && !targetUser.schoolId && currentUser.schoolId) {
+      await Meteor.users.updateAsync(userId, { $set: { schoolId: currentUser.schoolId } });
     }
 
     /* The selector still stops two admins racing, but it no longer demands
