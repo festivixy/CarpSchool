@@ -40,6 +40,8 @@ const FULL_BLEED_PREFIXES = ["/find"];
 
 const NAV_TARGETS = {
   home: "/",
+  setup: "/onboarding",
+  waiting: "/waiting-confirmation",
   find: "/find",
   rides: "/my-rides",
   inbox: "/chat",
@@ -68,7 +70,17 @@ const MENU_BASE = [
 const DRIVER_MENU = [{ id: "availability", label: "My availability", icon: "clock" }];
 
 /* All an unapproved account can actually open. */
-const RESTRICTED_ITEMS = [{ id: "home", label: "Home" }];
+/* What an account that cannot reach the member routes is offered instead.
+ * "Home" alone was a dead end: the one thing such a person needs to do is
+ * finish setting up, and the only route back to it was buried. */
+const SETUP_ITEMS = [
+  { id: "setup", label: "Finish setup" },
+  { id: "home", label: "Home" },
+];
+const WAITING_ITEMS = [
+  { id: "waiting", label: "Awaiting approval" },
+  { id: "home", label: "Home" },
+];
 
 /* Longest prefix wins, so /ride-history maps to rides rather than home. */
 const ACTIVE_BY_PREFIX = [
@@ -111,7 +123,12 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
    * reach any of the member routes, so the nav must not offer them. Judged
    * only once the subscription has resolved: treating "not yet known" as
    * unapproved would blank the nav on every load for everyone else. */
-  const restricted = approvalReady && !approved;
+  /* Until the subscription resolves nothing is known, and offering member
+   * routes that will bounce is worse than offering none: that flash is what
+   * throws a half-onboarded person out of the wizard on refresh. */
+  const restricted = !approvalReady || !approved;
+  const needsOnboarding = !myProfile;
+  const restrictedItems = needsOnboarding ? SETUP_ITEMS : WAITING_ITEMS;
 
   const isAdmin = currentUser?.roles?.includes("system")
     || currentUser?.roles?.some(r => r.startsWith("admin."));
@@ -120,9 +137,15 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
 
   const signOutItem = { id: "signOut", label: "Sign out", icon: "arrow", danger: true };
 
-  /* Nothing in the account menu is reachable either, so it comes down to the
-   * one action that always works. */
-  const menuItems = restricted ? [signOutItem] : [
+  /* Little in the account menu is reachable, but the way back to setup is. */
+  const menuItems = restricted ? [
+    {
+      id: needsOnboarding ? "setup" : "waiting",
+      label: needsOnboarding ? "Finish setup" : "Awaiting approval",
+      icon: "check",
+    },
+    signOutItem,
+  ] : [
     ...MENU_BASE,
     ...(canDrive ? DRIVER_MENU : []),
     ...(isAdmin ? [{ id: "admin", label: "Admin panel", icon: "settings" }] : []),
@@ -163,7 +186,7 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
     <>
       <TopNav
         active={activeFor(pathname)}
-        items={restricted ? RESTRICTED_ITEMS : undefined}
+        items={restricted ? restrictedItems : undefined}
         user={avatarUserFrom(currentUser)}
         onNav={id => history.push(NAV_TARGETS[id] || "/")}
         onOffer={canDrive && !restricted ? () => history.push("/create") : undefined}

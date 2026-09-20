@@ -22,7 +22,6 @@ import {
   Field,
   Label,
   Input,
-  Select,
   FileInput,
   FileInfo,
   ImagePreview,
@@ -30,8 +29,6 @@ import {
   UploadSection,
   UploadButton,
   Button,
-  RoleChangeButton,
-  ReverifyWarning,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -69,7 +66,6 @@ class MobileEditProfile extends React.Component {
       rideImage: "",
       phone: "",
       other: "",
-      userType: "Driver",
       error: "",
       success: "",
       isSubmitting: false,
@@ -85,9 +81,6 @@ class MobileEditProfile extends React.Component {
       showRideUpload: false,
       // Role change confirmation states
       showRoleConfirmModal: false,
-      isConfirmingRole: false,
-      confirmProgress: 0,
-      confirmTimer: null,
     };
   }
 
@@ -120,7 +113,6 @@ class MobileEditProfile extends React.Component {
         rideImage: profile.Ride || "",
         phone: profile.Phone || "",
         other: profile.Other || "",
-        userType: profile.UserType || "Driver",
       });
     }
   };
@@ -378,9 +370,6 @@ class MobileEditProfile extends React.Component {
   };
 
   // Handle role change button click
-  handleRoleChangeClick = () => {
-    this.setState({ showRoleConfirmModal: true });
-  };
 
   // Handle role change confirmation start
   handleConfirmStart = () => {
@@ -401,8 +390,7 @@ class MobileEditProfile extends React.Component {
           this.confirmRoleChange();
           return {
             confirmProgress: 100,
-            confirmTimer: null,
-          };
+                };
         }
 
         return { confirmProgress: newProgress };
@@ -431,43 +419,10 @@ class MobileEditProfile extends React.Component {
       clearInterval(this.state.confirmTimer);
     }
     this.setState({
-      isConfirmingRole: false,
-      confirmProgress: 0,
-      confirmTimer: null,
     });
   };
 
   // Handle role change confirmation completion
-  confirmRoleChange = () => {
-    const { userType } = this.state;
-
-    this.setState({
-      isConfirmingRole: false,
-      showRoleConfirmModal: false,
-      confirmProgress: 0,
-      confirmTimer: null,
-      error: "",
-      success: "",
-    });
-
-    // Use new role change method that unverifies user
-    Meteor.call("profile.changeRole", userType, (error, result) => {
-      if (!this._isMounted) return;
-      if (error) {
-        this.setState({ error: error.reason || error.message });
-      } else {
-        this.setState({
-          success: result.message,
-        });
-        // Redirect to verification page after successful role change
-        setTimeout(() => {
-          if (this._isMounted) {
-            this.setState({ redirectToReferer: "/verify" });
-          }
-        }, 2000);
-      }
-    });
-  };
 
   // Handle modal close
   handleModalClose = () => {
@@ -724,44 +679,10 @@ class MobileEditProfile extends React.Component {
 
               <Button
                 type="submit"
-                disabled={
-                  this.state.isSubmitting ||
-                  !this.state.name.trim() ||
-                  !this.state.location.trim()
-                }
+                disabled={this.state.isSubmitting || !this.state.name.trim()}
               >
                 {this.state.isSubmitting ? "Saving..." : "Save Profile"}
               </Button>
-
-              {/* Role Change Section */}
-              <Section>
-                <SectionTitle>Change Role</SectionTitle>
-
-                <Field>
-                  <Label htmlFor="editProfile-userType">User Type</Label>
-                  <Select
-                    id="editProfile-userType"
-                    name="userType"
-                    value={this.state.userType}
-                    onChange={this.handleChange}
-                  >
-                    <option value="Driver">Driver</option>
-                    <option value="Rider">Rider</option>
-                    <option value="Both">Both</option>
-                  </Select>
-                </Field>
-
-                <RoleChangeButton
-                  type="button"
-                  onClick={this.handleRoleChangeClick}
-                >
-                  Save Role Change
-                </RoleChangeButton>
-
-                <ReverifyWarning>
-                  You need to reverify your account to change role
-                </ReverifyWarning>
-              </Section>
             </InputSection>
           </Form>
 

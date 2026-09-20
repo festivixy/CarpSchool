@@ -13,7 +13,7 @@ const spin = keyframes`
 
 // Styled Components for EditProfile
 export const Container = styled.div`
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--cream-0);
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -31,7 +31,7 @@ export const Loading = styled.div`
   align-items: center;
   justify-content: center;
   height: 200px;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
 `;
 
 export const Spinner = styled.div`
@@ -51,7 +51,7 @@ export const Header = styled.div`
   max-width: 100%;
   flex-direction: column;
   font-size: 24px;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   font-weight: 600;
   text-align: center;
   letter-spacing: -0.24px;
@@ -77,7 +77,7 @@ export const Copy = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   text-align: center;
   justify-content: start;
   margin-bottom: 32px;
@@ -93,7 +93,7 @@ export const Subtitle = styled.div`
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
 `;
 
 export const Form = styled.form`
@@ -110,8 +110,8 @@ export const InputSection = styled.div`
 export const Section = styled.div`
   margin-bottom: 32px;
   padding: 24px;
-  background-color: rgba(248, 249, 250, 1);
-  border-radius: 12px;
+  background-color: var(--cream-1);
+  border-radius: var(--r-md);
   border: 1px solid rgba(230, 230, 230, 1);
 
   @media (max-width: 480px) {
@@ -122,9 +122,9 @@ export const Section = styled.div`
 export const SectionTitle = styled.h3`
   font-size: 18px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   margin: 0 0 20px 0;
-  border-bottom: 2px solid rgba(0, 0, 0, 1);
+  border-bottom: 2px solid var(--ink-1);
   padding-bottom: 8px;
 `;
 
@@ -137,74 +137,74 @@ export const Label = styled.label`
   margin-bottom: 8px;
   font-weight: 600;
   font-size: 14px;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
 `;
 
 export const Input = styled.input`
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 1);
+  border-radius: var(--r-md);
+  background-color: var(--cream-0);
   display: flex;
   min-height: 44px;
   width: 100%;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-1);
   font-weight: 400;
   padding: 12px 16px;
-  border: 2px solid rgba(224, 224, 224, 1);
+  border: 2px solid var(--cream-2);
   font-size: 16px;
   font-family: inherit;
   outline: none;
   box-sizing: border-box;
 
   &:focus {
-    border-color: rgba(0, 0, 0, 0.3);
-    color: rgba(0, 0, 0, 1);
+    border-color: var(--ink-1);
+    color: var(--ink-1);
   }
 
   &::placeholder {
-    color: rgba(130, 130, 130, 1);
+    color: var(--ink-4);
   }
 `;
 
 export const Select = styled.select`
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 1);
+  border-radius: var(--r-md);
+  background-color: var(--cream-0);
   display: flex;
   min-height: 44px;
   width: 100%;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-4);
   font-weight: 400;
   padding: 12px 16px;
-  border: 2px solid rgba(224, 224, 224, 1);
+  border: 2px solid var(--cream-2);
   font-size: 16px;
   font-family: inherit;
   outline: none;
   box-sizing: border-box;
 
   &:focus {
-    border-color: rgba(0, 0, 0, 0.3);
-    color: rgba(0, 0, 0, 1);
+    border-color: var(--ink-1);
+    color: var(--ink-1);
   }
 `;
 
 export const FileInput = styled.input`
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 1);
+  border-radius: var(--r-md);
+  background-color: var(--cream-0);
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid rgba(224, 224, 224, 1);
+  border: 2px solid var(--cream-2);
   font-size: 16px;
   font-family: inherit;
   outline: none;
   box-sizing: border-box;
 
   &:focus {
-    border-color: rgba(0, 0, 0, 0.3);
+    border-color: var(--ink-1);
   }
 `;
 
 export const FileInfo = styled.div`
   font-size: 12px;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
   margin-top: 4px;
 `;
 
@@ -216,17 +216,17 @@ export const ImagePreview = styled.div`
 export const PreviewImg = styled.img`
   max-width: 150px;
   max-height: 150px;
-  border-radius: 8px;
-  border: 2px solid rgba(224, 224, 224, 1);
+  border-radius: var(--r-md);
+  border: 2px solid var(--cream-2);
   object-fit: cover;
 `;
 
 export const CaptchaContainer = styled.div`
-  border: 2px solid rgba(224, 224, 224, 1);
-  border-radius: 8px;
+  border: 2px solid var(--cream-2);
+  border-radius: var(--r-md);
   padding: 16px;
   margin-bottom: 16px;
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--cream-0);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -235,7 +235,7 @@ export const CaptchaContainer = styled.div`
 `;
 
 export const CaptchaLoading = styled.div`
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-4);
   font-size: 14px;
 `;
 
@@ -267,8 +267,8 @@ export const CaptchaRefreshIcon = styled.button`
   }
 
   &:hover:not(:disabled) {
-    background-color: rgba(255, 255, 255, 1);
-    border-color: rgba(0, 0, 0, 0.3);
+    background-color: var(--cream-0);
+    border-color: var(--ink-1);
     transform: scale(1.1);
 
     img {
@@ -291,18 +291,18 @@ export const UploadSection = styled.div`
   margin-top: 20px;
   padding: 20px;
   background-color: rgba(240, 248, 255, 1);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   border: 2px solid rgba(200, 220, 240, 1);
 `;
 
 export const UploadButton = styled.button`
-  border-radius: 8px;
+  border-radius: var(--r-md);
   background-color: rgba(0, 100, 200, 1);
   display: flex;
   min-height: 44px;
   width: 100%;
   align-items: center;
-  color: rgba(255, 255, 255, 1);
+  color: var(--cream-0);
   font-weight: 600;
   justify-content: center;
   padding: 0 16px;
@@ -323,13 +323,13 @@ export const UploadButton = styled.button`
 `;
 
 export const Button = styled.button`
-  border-radius: 8px;
-  background-color: rgba(0, 0, 0, 1);
+  border-radius: var(--r-md);
+  background-color: var(--ink-1);
   display: flex;
   min-height: 48px;
   width: 100%;
   align-items: center;
-  color: rgba(255, 255, 255, 1);
+  color: var(--cream-0);
   font-weight: 600;
   justify-content: center;
   padding: 0 16px;
@@ -350,13 +350,13 @@ export const Button = styled.button`
 `;
 
 export const RoleChangeButton = styled.button`
-  border-radius: 8px;
+  border-radius: var(--r-md);
   background-color: rgba(220, 53, 69, 1);
   display: flex;
   min-height: 48px;
   width: 100%;
   align-items: center;
-  color: rgba(255, 255, 255, 1);
+  color: var(--cream-0);
   font-weight: 600;
   justify-content: center;
   padding: 0 16px;
@@ -379,7 +379,7 @@ export const RoleChangeButton = styled.button`
 export const ReverifyWarning = styled.div`
   background-color: rgba(255, 248, 220, 1);
   border: 1px solid rgba(255, 204, 128, 1);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 12px 16px;
   color: rgba(156, 111, 0, 1);
   font-size: 14px;
@@ -402,8 +402,8 @@ export const ModalOverlay = styled.div`
 `;
 
 export const ModalContent = styled.div`
-  background-color: rgba(255, 255, 255, 1);
-  border-radius: 12px;
+  background-color: var(--cream-0);
+  border-radius: var(--r-md);
   width: 100%;
   max-width: 400px;
   max-height: 90vh;
@@ -422,7 +422,7 @@ export const ModalHeader = styled.div`
 export const ModalTitle = styled.h2`
   font-size: 20px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   margin: 0;
 `;
 
@@ -431,7 +431,7 @@ export const ModalClose = styled.button`
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: rgba(130, 130, 130, 1);
+  color: var(--ink-4);
   padding: 4px;
   display: flex;
   align-items: center;
@@ -440,7 +440,7 @@ export const ModalClose = styled.button`
 
   &:hover {
     background-color: rgba(240, 240, 240, 1);
-    color: rgba(0, 0, 0, 1);
+    color: var(--ink-1);
   }
 `;
 
@@ -451,7 +451,7 @@ export const ModalBody = styled.div`
 export const ModalText = styled.p`
   font-size: 16px;
   line-height: 1.5;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   margin: 0 0 24px 0;
   text-align: center;
 
@@ -467,13 +467,13 @@ export const ConfirmButtonContainer = styled.div`
 
 export const ConfirmButton = styled.button`
   position: relative;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   background-color: rgba(220, 53, 69, 1);
   display: flex;
   min-height: 56px;
   width: 100%;
   align-items: center;
-  color: rgba(255, 255, 255, 1);
+  color: var(--cream-0);
   font-weight: 600;
   justify-content: center;
   padding: 0 16px;
@@ -518,13 +518,13 @@ export const ConfirmText = styled.span`
 `;
 
 export const CancelButton = styled.button`
-  border-radius: 8px;
-  background-color: rgba(130, 130, 130, 1);
+  border-radius: var(--r-md);
+  background-color: var(--ink-4);
   display: flex;
   min-height: 48px;
   width: 100%;
   align-items: center;
-  color: rgba(255, 255, 255, 1);
+  color: var(--cream-0);
   font-weight: 600;
   justify-content: center;
   padding: 0 16px;
@@ -534,7 +534,7 @@ export const CancelButton = styled.button`
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background-color: rgba(100, 100, 100, 1);
+    background-color: var(--ink-3);
   }
 
   &:disabled {
@@ -546,7 +546,7 @@ export const CancelButton = styled.button`
 export const ErrorMessage = styled.div`
   background-color: rgba(255, 240, 240, 1);
   border: 1px solid rgba(255, 200, 200, 1);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 12px 16px;
   margin-bottom: 16px;
   color: rgba(200, 0, 0, 1);
@@ -560,7 +560,7 @@ export const ErrorMessage = styled.div`
 export const SuccessMessage = styled.div`
   background-color: rgba(240, 255, 240, 1);
   border: 1px solid rgba(200, 255, 200, 1);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 12px 16px;
   margin-bottom: 16px;
   color: rgba(0, 150, 0, 1);
@@ -577,7 +577,7 @@ export const Links = styled.div`
 `;
 
 export const StyledLink = styled(Link)`
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -585,7 +585,7 @@ export const StyledLink = styled(Link)`
 
   &:hover {
     text-decoration: underline;
-    color: rgba(0, 0, 0, 1);
+    color: var(--ink-1);
   }
 `;
 

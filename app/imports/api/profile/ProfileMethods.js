@@ -133,6 +133,20 @@ Meteor.methods({
       throw new Meteor.Error("no-profile", "Profile not found. Please complete your profile first.");
     }
 
+    /* Driving follows from the kind of account, not from a dropdown: a
+     * guardian offers seats and a student takes one. Without this a student
+     * could make themselves a driver from their own settings, which is the
+     * one thing the whole arrangement is supposed to prevent. */
+    const allowed = existingProfile.accountType === "parent" ? "Driver" : "Rider";
+    if (newRole !== allowed) {
+      throw new Meteor.Error(
+        "role-fixed",
+        existingProfile.accountType === "parent"
+          ? "A parent or guardian account offers rides. It cannot be changed to a rider."
+          : "A student account takes rides. Ask a parent or guardian to sign up if someone needs to drive.",
+      );
+    }
+
     // If role is the same, no need to change
     if (existingProfile.UserType === newRole) {
       throw new Meteor.Error("same-role", `You are already set as ${newRole}.`);

@@ -90,7 +90,7 @@ const TOTAL_STEPS = 3;
 const STEPS = [
   { n: 1, sub: "School verification", lead: "Confirm your ", mark: "school email." },
   { n: 2, sub: "About you", lead: "Tell us a bit ", mark: "about you." },
-  { n: 3, sub: "Driver, rider, or both", lead: "Will you mostly ", mark: "drive or ride?" },
+  { n: 3, sub: "Almost done", lead: "One last ", mark: "thing." },
 ];
 
 const STEP_2_SUBTITLE = {
@@ -102,21 +102,6 @@ const STEP_2_SUBTITLE = {
 const YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate", "Faculty/Staff"];
 
 /* ids map 1:1 onto ProfileSchema's UserType enum. */
-const ROLES = {
-  student: [
-    { id: "Rider", title: "Mostly riding", desc: "Find seats in other students' cars.", icon: "user" },
-    { id: "Both", title: "A little of both", desc: "Sometimes I drive, sometimes I tag along.", icon: "sparkle" },
-    { id: "Driver", title: "Mostly driving", desc: "I have a car and want to offer rides.", icon: "car" },
-  ],
-  /* A guardian is normally the one driving, so driving leads and the wording
-   * stops describing them as a student looking for a lift. */
-  parent: [
-    { id: "Driver", title: "I'm driving", desc: "Offer seats to students at the school.", icon: "car" },
-    { id: "Both", title: "Driving and riding", desc: "Offer seats, and take one when it suits.", icon: "sparkle" },
-    { id: "Rider", title: "Riding only", desc: "Arrange lifts without offering any.", icon: "user" },
-  ],
-};
-
 /* Who the account belongs to. A student proves their school with an email
  * domain; a parent cannot, and is attached to a school by their student
  * instead, so the two take different routes through this screen. */
@@ -157,16 +142,13 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
   const { isLoaded, isSignedIn, clerkUser, meteorUser } = useClerkUser();
   const captchaRef = React.useRef(null);
   const prefilled = React.useRef(false);
-  const roleRefs = React.useRef({});
 
   const [currentStep, setCurrentStep] = React.useState(1);
   const [accountType, setAccountType] = React.useState("student");
-  const roleOptions = ROLES[accountType];
   const [name, setName] = React.useState("");
   const [year, setYear] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [other, setOther] = React.useState("");
-  const [userType, setUserType] = React.useState("Driver");
   const [pickedSchoolId, setPickedSchoolId] = React.useState("");
   const [schoolQuery, setSchoolQuery] = React.useState("");
   const [profileImage, setProfileImage] = React.useState("");
@@ -228,7 +210,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
       setYear(profileData.year || "");
       setPhone(profileData.Phone || "");
       setOther(profileData.Other || "");
-      setUserType(profileData.UserType || "Driver");
       setProfileImage(profileData.Image || "");
       setRideImage(profileData.Ride || "");
       return;
@@ -376,7 +357,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
         acceptedTerms: true,
         name: name.trim(),
         accountType,
-        userType,
         year: accountType === "parent" ? "" : year,
         phone: phone.trim(),
         other: other.trim(),
@@ -411,24 +391,6 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
       }
       completeProfile();
     });
-  };
-
-  /* Roving tabindex: only the checked option is in the tab order, and
-   * arrow keys move both focus and the checked value between options. */
-  const handleRoleKeyDown = (event) => {
-    const currentIndex = roleOptions.findIndex(role => role.id === userType);
-    let nextIndex;
-    if (event.key === "ArrowDown" || event.key === "ArrowRight") {
-      nextIndex = (currentIndex + 1) % roleOptions.length;
-    } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
-      nextIndex = (currentIndex - 1 + roleOptions.length) % roleOptions.length;
-    } else {
-      return;
-    }
-    event.preventDefault();
-    const nextRole = roleOptions[nextIndex].id;
-    setUserType(nextRole);
-    roleRefs.current[nextRole]?.focus();
   };
 
   const renderStepIndicator = () => (
@@ -696,39 +658,24 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
 
   const renderStep3 = () => (
     <Step className="fade-in" key="step-3">
-      <UserTypeOptions
-        role="radiogroup"
-        aria-label="How you will use carp.school"
-        onKeyDown={handleRoleKeyDown}
-      >
-        {roleOptions.map(role => (
-          <UserTypeOption
-            key={role.id}
-            ref={el => { roleRefs.current[role.id] = el; }}
-            type="button"
-            role="radio"
-            aria-checked={userType === role.id}
-            tabIndex={userType === role.id ? 0 : -1}
-            $selected={userType === role.id}
-            onClick={() => setUserType(role.id)}
-          >
-            <RoleIconTile $selected={userType === role.id}>
-              <Icon name={role.icon} size={20} />
-            </RoleIconTile>
-            <RoleBody>
-              <UserTypeTitle>{role.title}</UserTypeTitle>
-              <UserTypeDesc>{role.desc}</UserTypeDesc>
-            </RoleBody>
-            <RoleRadio $selected={userType === role.id}>
-              {userType === role.id && (
-                <Icon name="check" size={14} color="var(--ink-1)" strokeWidth={3} />
-              )}
-            </RoleRadio>
-          </UserTypeOption>
-        ))}
-      </UserTypeOptions>
+      <NotePill>
+        <NoteIcon>
+          <Icon
+            name={accountType === "parent" ? "car" : "user"}
+            size={16}
+            color="var(--accent)"
+            strokeWidth={2.5}
+          />
+        </NoteIcon>
+        <span>
+          {accountType === "parent"
+            ? "As a parent or guardian you offer seats to students at the school."
+            : "As a student you take seats in rides offered at your school."}
+        </span>
+      </NotePill>
 
-      {userType !== "Rider" && renderPhotoRow(
+      {/* Only a driver has a vehicle to show. */}
+      {accountType === "parent" && renderPhotoRow(
         "ride",
         "Vehicle photo",
         "Show riders the car you'll pull up in.",

@@ -92,11 +92,16 @@ Meteor.methods({
 
     const accountType = profileData.accountType || "student";
 
+    /* Who drives follows from who the account belongs to: a guardian offers
+     * seats, a student takes one. Derived here rather than taken from the
+     * client, so the rule holds whatever a form sends. */
+    const userType = accountType === "parent" ? "Driver" : "Rider";
+
     const profileDoc = {
       Owner: this.userId,
       Name: profileData.name || "",
       schoolemail: user.emails?.[0]?.address || "",
-      UserType: profileData.userType || "Driver",
+      UserType: userType,
       major: profileData.major || "",
       year: profileData.year || "",
       Phone: profileData.phone || "",
