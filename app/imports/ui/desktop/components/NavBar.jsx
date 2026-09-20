@@ -34,6 +34,17 @@ import {
 /**
  * Desktop NavBar using Clerk for authentication
  */
+/* Profile name, then the mailbox part of a real address, then a generic
+ * label -- never the clerk_<id> username, which is a join key rather than
+ * anything the person chose. */
+const displayNameFor = (user) => {
+  if (!user) return "User";
+  if (user.profile?.name) return user.profile.name;
+  if (user.username && !isInternalUsername(user.username)) return user.username;
+  const email = realEmailOf(user);
+  return email ? email.split("@")[0] : "User";
+};
+
 function NavBar({ currentUser, userProfile }) {
   const { isSignedIn, signOut, userId } = useAuth();
   const [joinRideModalOpen, setJoinRideModalOpen] = React.useState(false);
@@ -199,7 +210,7 @@ function NavBar({ currentUser, userProfile }) {
           {isSignedIn ? (
             <Dropdown>
               <DropdownTrigger as={NavButton} onClick={toggleUserMenu}>
-                {currentUser?.username || "User"} ▾
+                {displayNameFor(currentUser)} ▾
               </DropdownTrigger>
               <DropdownMenu $open={userMenuOpen}>
                 <DropdownItem as={Link} to="/mobile/profile" onClick={closeAllMenus}>

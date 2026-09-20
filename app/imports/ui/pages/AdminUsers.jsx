@@ -62,6 +62,7 @@ import {
 } from "../styles/AdminUsers";
 import BackButton from "../mobile/components/BackButton";
 import Icon from "../components/Icon";
+import { isInternalUsername, realEmailOf } from "../utils/userDisplay";
 
 /**
  * Modern mobile AdminUsers component for managing all users
@@ -391,7 +392,9 @@ class MobileAdminUsers extends React.Component {
                             {displayName || "No name set"}
                             {isCurrentUser && " (You)"}
                           </UserName>
-                          <UserUsername>@{user.username}</UserUsername>
+                          {!isInternalUsername(user.username) && (
+                            <UserUsername>@{user.username}</UserUsername>
+                          )}
                           <BadgeContainer>
                             <AdminBadge isAdmin={isAdmin}>
                               {isAdmin ? "Admin" : "User"}
@@ -446,7 +449,7 @@ class MobileAdminUsers extends React.Component {
                         <DetailItem>
                           <DetailLabel>Email</DetailLabel>
                           <DetailValue>
-                            {user.emails?.[0]?.address || "No email"}
+                            {realEmailOf(user) || "None on record"}
                           </DetailValue>
                         </DetailItem>
                         <DetailItem>

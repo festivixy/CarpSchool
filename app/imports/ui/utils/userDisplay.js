@@ -7,6 +7,37 @@ import { Profiles } from "../../api/profile/Profile";
  */
 
 /**
+ * Two artifacts of the Clerk bridge are stored on the user but are not fit to
+ * show anyone.
+ *
+ * ClerkLoginHandler mints `clerk_<clerkUserId>` as the Meteor username, purely
+ * so the two systems can be joined; it is an opaque key, not a handle. And the
+ * bridge as it stood before the school-domain work stored
+ * `clerk_<clerkUserId>@clerk.local` when it could not read a real address, so
+ * accounts created then carry an address that goes nowhere.
+ *
+ * Neither should reach a screen, in the admin area or anywhere else.
+ */
+const CLERK_USERNAME = /^clerk_/;
+const CLERK_PLACEHOLDER_DOMAIN = "@clerk.local";
+
+/** Is this the generated join key rather than a username someone chose? */
+export const isInternalUsername = value => (
+  typeof value === "string" && CLERK_USERNAME.test(value)
+);
+
+/** Is this the placeholder address rather than a real mailbox? */
+export const isPlaceholderEmail = value => (
+  typeof value === "string" && value.toLowerCase().endsWith(CLERK_PLACEHOLDER_DOMAIN)
+);
+
+/** The address to show for a user, or "" when there is nothing real to show. */
+export const realEmailOf = (user) => {
+  const address = user?.emails?.[0]?.address;
+  return address && !isPlaceholderEmail(address) ? address : "";
+};
+
+/**
  * Get display name for a user ID
  * Looks up profile Name, falls back to email, then to shortened ID
  * @param {string} userId - The user ID to look up
@@ -41,13 +72,13 @@ export function getUserDisplayName(userId, options = {}) {
   }
 
   // Try to show email username if allowed
-  if (showEmail && user.emails?.[0]?.address) {
+  const email = realEmailOf(user);
+  if (showEmail && email) {
     // Return just the username part of email
-    const email = user.emails[0].address;
     return email.split("@")[0];
   }
-  
-  if (user.username) {
+
+  if (user.username && !isInternalUsername(user.username)) {
     return user.username;
   }
 
@@ -113,6 +144,9 @@ export function createUserDisplayMap(userIds) {
 }
 
 export default {
+  isInternalUsername,
+  isPlaceholderEmail,
+  realEmailOf,
   getUserDisplayName,
   getUserDisplayNames,
   formatUserList,
