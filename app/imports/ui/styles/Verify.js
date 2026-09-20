@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const VerifyContainer = styled.div`
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--cream-0);
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -28,7 +28,7 @@ export const VerifyIcon = styled.div`
 
 export const VerifyTitle = styled.h1`
   font-size: 24px;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   font-weight: 600;
   text-align: center;
   letter-spacing: -0.24px;
@@ -48,7 +48,7 @@ export const VerifyContent = styled.div`
 export const VerifyText = styled.div`
   font-size: 18px;
   font-weight: 500;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   text-align: center;
   margin-bottom: 24px;
   line-height: 1.5;
@@ -57,26 +57,26 @@ export const VerifyText = styled.div`
 export const VerifyDescription = styled.div`
   font-size: 16px;
   font-weight: 400;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
   text-align: left;
   margin-bottom: 32px;
   line-height: 1.6;
   width: 100%;
   white-space: pre-line;
-  background-color: rgba(248, 249, 250, 1);
+  background-color: var(--cream-1);
   padding: 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(230, 230, 230, 1);
+  border-radius: var(--r-md);
+  border: 1px solid var(--cream-2);
 `;
 
 export const VerifyButton = styled.button`
-  border-radius: 8px;
-  background-color: rgba(34, 197, 94, 1);
+  border-radius: var(--r-md);
+  background-color: var(--accent);
   display: flex;
   min-height: 56px;
   width: 100%;
   align-items: center;
-  color: rgba(255, 255, 255, 1);
+  color: var(--on-accent);
   font-weight: 600;
   justify-content: center;
   padding: 0 16px;
@@ -87,11 +87,11 @@ export const VerifyButton = styled.button`
   margin-bottom: 24px;
 
   &:hover:not(:disabled) {
-    background-color: rgba(22, 163, 74, 1);
+    background-color: var(--accent-deep);
   }
 
   &:disabled {
-    background-color: rgba(150, 150, 150, 1);
+    background-color: var(--cream-3);
     cursor: not-allowed;
   }
 
@@ -101,12 +101,12 @@ export const VerifyButton = styled.button`
 `;
 
 export const SuccessMessage = styled.div`
-  background-color: rgba(240, 255, 240, 1);
-  border: 1px solid rgba(34, 197, 94, 1);
-  border-radius: 8px;
+  background-color: var(--leaf-soft);
+  border: 1px solid var(--leaf);
+  border-radius: var(--r-md);
   padding: 16px;
   margin-bottom: 24px;
-  color: rgba(22, 163, 74, 1);
+  color: var(--leaf);
   font-size: 16px;
   font-weight: 500;
   text-align: center;
@@ -117,7 +117,7 @@ export const SuccessMessage = styled.div`
 export const ErrorMessage = styled.div`
   background-color: rgba(255, 240, 240, 1);
   border: 1px solid rgba(220, 53, 69, 1);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   padding: 16px;
   margin-bottom: 24px;
   color: rgba(220, 53, 69, 1);
@@ -129,11 +129,11 @@ export const ErrorMessage = styled.div`
 `;
 
 export const SchoolEmailSection = styled.div`
-  background-color: rgba(248, 249, 250, 1);
-  border-radius: 12px;
+  background-color: var(--cream-1);
+  border-radius: var(--r-md);
   padding: 24px;
   margin: 24px 0;
-  border: 1px solid rgba(230, 230, 230, 1);
+  border: 1px solid var(--cream-2);
   width: 100%;
   box-sizing: border-box;
 `;
@@ -148,7 +148,7 @@ export const EmailStepContainer = styled.div`
 export const StepTitle = styled.h2`
   font-size: 20px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   text-align: center;
   margin: 0 0 12px 0;
 `;
@@ -156,18 +156,18 @@ export const StepTitle = styled.h2`
 export const StepDescription = styled.p`
   font-size: 16px;
   font-weight: 400;
-  color: rgba(100, 100, 100, 1);
+  color: var(--ink-3);
   text-align: center;
   margin: 0 0 24px 0;
   line-height: 1.5;
 `;
 
 export const EmailInput = styled.input`
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 1);
+  border-radius: var(--r-md);
+  background-color: var(--cream-0);
   width: 100%;
   min-height: 48px;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   font-weight: 400;
   padding: 12px 16px;
   border: 2px solid rgba(224, 224, 224, 1);
@@ -178,7 +178,7 @@ export const EmailInput = styled.input`
   margin-bottom: 20px;
 
   &:focus {
-    border-color: rgba(34, 197, 94, 1);
+    border-color: var(--leaf);
   }
 
   &::placeholder {
@@ -192,11 +192,11 @@ export const EmailInput = styled.input`
 `;
 
 export const CodeInput = styled.input`
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 1);
+  border-radius: var(--r-md);
+  background-color: var(--cream-0);
   width: 100%;
   min-height: 56px;
-  color: rgba(0, 0, 0, 1);
+  color: var(--ink-1);
   font-weight: 600;
   padding: 12px 16px;
   border: 2px solid rgba(224, 224, 224, 1);
@@ -209,7 +209,7 @@ export const CodeInput = styled.input`
   margin-bottom: 20px;
 
   &:focus {
-    border-color: rgba(34, 197, 94, 1);
+    border-color: var(--leaf);
   }
 
   &::placeholder {

@@ -12,7 +12,7 @@ import styled from "styled-components";
 export const Shell = styled.div`
   display: grid;
   grid-template-columns: 256px 1fr;
-  min-height: 100vh;
+  min-height: calc(100vh - var(--nav-h));
   background: var(--cream-0);
   color: var(--ink-1);
   font-family: var(--font-ui);
@@ -26,11 +26,12 @@ export const Sidebar = styled.aside`
   position: sticky;
   top: 0;
   align-self: start;
-  /* Both bounds, not just the upper one: align-self: start sizes the rail to
-   * its own content, which left a dark block hanging in the middle of the
-   * page instead of a full-height sidebar. */
-  height: 100vh;
-  max-height: 100vh;
+  /* align-self: start sizes the rail to its own content, which left a dark
+   * block hanging in the middle of the page. It fills the viewport instead --
+   * less the nav above it, or the rail overhangs the bottom and takes the
+   * account card with it. */
+  height: calc(100vh - var(--nav-h));
+  max-height: calc(100vh - var(--nav-h));
   overflow-y: auto;
   background: var(--ink-1);
   color: var(--cream-0);
@@ -45,6 +46,7 @@ export const Sidebar = styled.aside`
 
   @media (max-width: 820px) {
     position: static;
+    height: auto;
     max-height: none;
     flex-direction: row;
     align-items: center;

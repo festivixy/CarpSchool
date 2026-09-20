@@ -79,6 +79,10 @@
   --r-xl: 22px;
   --r-pill: 999px;
 
+  /* Height of the floating top nav, and so of the spacer beneath it.
+   * Anything sizing itself to the remaining viewport subtracts this. */
+  --nav-h: 76px;
+
   /* Type */
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-ui: "Geist", -apple-system, system-ui, sans-serif;

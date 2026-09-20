@@ -29,17 +29,29 @@ const secretKey = () => Meteor.settings?.private?.clerk?.secretKey
 
 /**
  * The verified session token does not always carry an email claim, so ask
- * Clerk for the account's primary verified address. Returns null if it cannot
- * be established.
+ * Clerk for the account's primary address.
+ *
+ * Whether Clerk considers that address verified travels with it. Clerk does
+ * the verifying, so Meteor's own flag can only ever be a copy of Clerk's
+ * answer -- and it was never copied, which left every account reading
+ * "Unverified" on the admin screen an administrator uses to judge accounts.
+ *
+ * @returns {Promise<{address: string, verified: boolean}|null>}
  */
 const primaryEmailFor = async (clerkUserId, claims) => {
-  if (claims?.email) return claims.email;
+  if (claims?.email) {
+    return { address: claims.email, verified: claims.email_verified === true };
+  }
   try {
     const client = createClerkClient({ secretKey: secretKey() });
     const user = await client.users.getUser(clerkUserId);
     const primary = user.emailAddresses
       .find(e => e.id === user.primaryEmailAddressId) || user.emailAddresses[0];
-    return primary?.emailAddress || null;
+    if (!primary?.emailAddress) return null;
+    return {
+      address: primary.emailAddress,
+      verified: primary.verification?.status === "verified",
+    };
   } catch (error) {
     console.warn("[ClerkLogin] Could not read email from Clerk:", error?.message || error);
     return null;
@@ -88,8 +100,8 @@ const resolveMeteorUserId = async (clerkUserId, claims) => {
   // signup runs through Clerk, so this is the only server-side point where a
   // new account can be refused. accounts.registerStudent enforced the same
   // rule on the legacy registration path, which is no longer routed.
-  const email = await primaryEmailFor(clerkUserId, claims);
-  if (!email) {
+  const primary = await primaryEmailFor(clerkUserId, claims);
+  if (!primary) {
     throw new Meteor.Error(
       "clerk-no-email",
       "Could not read your email address. Please contact support.",
@@ -106,6 +118,8 @@ const resolveMeteorUserId = async (clerkUserId, claims) => {
    * stopped being a wall at the door: a stranger can hold a dormant record,
    * and still needs somebody verified to vouch for them to reach anything.
    */
+  const { address: email, verified: emailVerified } = primary;
+
   let { school } = await schoolForEmail(email);
   if (!school && isAllowListedEmail(email)) {
     // Administrators and test accounts from settings may sign in with any
@@ -130,9 +144,11 @@ const resolveMeteorUserId = async (clerkUserId, claims) => {
     },
     roles: [],
   });
-  if (school) {
-    await Meteor.users.updateAsync(userId, { $set: { schoolId: school._id } });
-  }
+  /* Clerk verified the address before we ever saw it; Meteor's flag is a copy
+   * of that answer, not a second opinion. */
+  const attributes = { "emails.0.verified": emailVerified };
+  if (school) attributes.schoolId = school._id;
+  await Meteor.users.updateAsync(userId, { $set: attributes });
 
   console.log(
     `Created Meteor user for Clerk ID ${clerkUserId}: ${userId}`
@@ -172,6 +188,17 @@ Accounts.registerLoginHandler(CLERK_LOGIN_TYPE, async (options) => {
   }
 
   const userId = await resolveMeteorUserId(clerkUserId, payload);
+
+  /* Accounts created before the flag was copied read "Unverified" forever.
+   * When the session token carries the claim this costs nothing to correct,
+   * so they heal on their owner's next sign-in rather than needing a
+   * migration; when it does not, they are left alone rather than guessed at. */
+  if (payload.email_verified === true) {
+    await Meteor.users.updateAsync(
+      { _id: userId, "emails.0.verified": { $ne: true } },
+      { $set: { "emails.0.verified": true } },
+    );
+  }
 
   /* Apply the administrator grant here as well as at boot. An account created
    * after the server started would otherwise stay an ordinary user until the

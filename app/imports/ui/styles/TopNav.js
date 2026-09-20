@@ -72,7 +72,7 @@ export const IconBtn = styled.button`
  * full-bleed map). On pages without a map underneath it would overlap the
  * page heading, so callers render this spacer to reserve its height. */
 export const NavSpacer = styled.div`
-  height: 76px;
+  height: var(--nav-h);
   flex-shrink: 0;
 `;
 
