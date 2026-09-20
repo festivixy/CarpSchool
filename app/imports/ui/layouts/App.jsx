@@ -43,6 +43,7 @@ import MobilePrivacy from "../mobile/pages/Privacy";
 import MobileCredits from "../mobile/pages/Credits";
 import MobileHelp from "../mobile/pages/Help";
 import MobileGuide from "../mobile/pages/Guide";
+import VideoPlan from "../mobile/pages/VideoPlan";
 import MobileContact from "../mobile/pages/Contact";
 import MobileFAQ from "../mobile/pages/FAQ";
 import MobileAbout from "../mobile/pages/About";
@@ -455,6 +456,9 @@ class AppLayout extends React.Component {
                 <Route exact path="/credits" component={MobileCredits} />
                 <Route exact path="/help" component={MobileHelp} />
                 <Route exact path="/guide" component={MobileGuide} />
+                {/* Unlisted: nothing links here and the page sets noindex.
+                  * Obscurity, not access control -- see VideoPlan.jsx. */}
+                <Route exact path="/video" component={VideoPlan} />
                 <Route exact path="/contact" component={MobileContact} />
                 <Route exact path="/faq" component={MobileFAQ} />
                 <Route exact path="/about" component={MobileAbout} />
