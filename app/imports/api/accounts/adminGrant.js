@@ -48,7 +48,7 @@ export const userIsListedAdmin = (user) => {
  * screens: the approval gate requires an approved profile and every
  * school-scoped query requires a schoolId. Give the account both if missing.
  */
-const ensureAdminIsUsable = async (user, label) => {
+export const ensureAdminIsUsable = async (user, label) => {
   const { Profiles } = await import("../profile/Profile");
   const { Schools } = await import("../schools/Schools");
 

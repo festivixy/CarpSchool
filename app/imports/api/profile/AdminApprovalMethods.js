@@ -39,10 +39,12 @@ Meteor.methods({
       }
     }
 
-    // The pending-state guard lives in the selector, so two admins acting at
-    // once (or an approve racing a reject) cannot both succeed.
+    /* The selector still stops two admins racing, but it no longer demands
+     * requested: true. An account that never asked -- a guardian no student
+     * has claimed yet -- could otherwise be approved by nobody, leaving a
+     * redeploy as the only way to unstick it. */
     const matched = await Profiles.updateAsync(
-      { Owner: userId, verified: false, requested: true },
+      { Owner: userId, verified: false },
       {
         $set: {
           verified: true,

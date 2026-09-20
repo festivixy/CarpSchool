@@ -7,6 +7,7 @@ import {
   removeSchoolAdminRole,
   addSystemRole,
 } from "./RoleUtils";
+import { ensureAdminIsUsable } from "./adminGrant";
 
 Meteor.methods({
   /**
@@ -108,7 +109,14 @@ Meteor.methods({
     // Only system admins can create other system admins
     await addSystemRole(currentUserId, targetUserId);
 
-    console.log(`User ${targetUser.emails[0].address} promoted to system admin`);
+    /* A role on its own does not make an account work: the approval gate still
+     * blocks it and every school-scoped query still returns nothing. The
+     * settings-file path has always done this at login, and the panel has to
+     * do the same or promoting someone from here leaves them stuck. */
+    const label = targetUser.emails?.[0]?.address || targetUserId;
+    await ensureAdminIsUsable(targetUser, label);
+
+    console.log(`User ${label} promoted to system admin`);
     return { success: true };
   },
 

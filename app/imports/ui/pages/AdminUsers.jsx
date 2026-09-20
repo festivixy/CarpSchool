@@ -218,6 +218,30 @@ class MobileAdminUsers extends React.Component {
     });
   };
 
+  /* The verification queue only lists accounts that asked to be approved, so
+   * one that never did -- a guardian nobody has claimed, an account promoted
+   * from here -- could be approved from nowhere. This screen lists everyone,
+   * so it is where that gap closes. */
+  approveUser = (userId, label) => {
+    swal({
+      title: "Approve this account?",
+      text: `${label} will be able to use CarpSchool straight away.`,
+      icon: "info",
+      buttons: ["Cancel", "Approve"],
+    }).then((ok) => {
+      if (!ok) return;
+      this.setState({ loading: true });
+      Meteor.call("admin.approveUser", userId, (error) => {
+        this.setState({ loading: false });
+        if (error) {
+          swal("Error", error.reason || "Could not approve that account.", "error");
+          return;
+        }
+        swal("Approved", `${label} can now use CarpSchool.`, "success");
+      });
+    });
+  };
+
   toggleAdminRole = (userId, isCurrentlyAdmin) => {
     if (userId === Meteor.userId()) {
       swal("Error", "You cannot modify your own admin role!", "error");
@@ -433,6 +457,20 @@ class MobileAdminUsers extends React.Component {
                               color="currentColor"
                             />
                           </ActionButton>
+                          {userProfile && !userProfile.verified && (
+                            <ActionButton
+                              variant="admin"
+                              onClick={() => this.approveUser(
+                                user._id,
+                                displayName || realEmailOf(user) || "This account",
+                              )}
+                              disabled={loading}
+                              title="Approve this account"
+                              aria-label="Approve this account"
+                            >
+                              <Icon name="check" size={16} color="currentColor" />
+                            </ActionButton>
+                          )}
                           <ActionButton
                             variant="delete"
                             onClick={() => this.handleDelete(user._id)}
