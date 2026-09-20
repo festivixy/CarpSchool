@@ -51,15 +51,25 @@ Meteor.methods({
       });
     }
 
-    // Update user profile to set verified: false and requested: true (pending admin approval)
-    await Profiles.updateAsync(
-      { Owner: userId },
-      { $set: { verified: false, requested: true } }
-    );
+    /* Only ask for approval if it has not already been given. This set the
+     * profile unconditionally, so an approved account that opened this screen
+     * was demoted and put back in the queue -- and then quietly re-approved on
+     * the owner's next sign-in if they happened to be a listed administrator,
+     * which made it look intermittent. */
+    const alreadyApproved = userProfile.verified === true;
+    if (!alreadyApproved) {
+      await Profiles.updateAsync(
+        { Owner: userId },
+        { $set: { verified: false, requested: true } },
+      );
+    }
 
     return {
       success: true,
-      message: `${userType} verification completed successfully!`,
+      alreadyApproved,
+      message: alreadyApproved
+        ? "Your account is already approved, so there is nothing to submit."
+        : `${userType} verification submitted. An administrator reviews it next.`,
       userType: userType,
       verifiedAt: new Date(),
     };

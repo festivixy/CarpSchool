@@ -12,6 +12,7 @@ import { fullSignOut } from "../utils/signOut";
 import { useApprovalStatus } from "../utils/useApproval";
 import { NavSpacer } from "../styles/TopNav";
 import { hueFor } from "../utils/avatarHue";
+import { isInternalUsername, realEmailOf } from "../utils/userDisplay";
 
 /**
  * Chooses the desktop navigation for the current route.
@@ -87,8 +88,8 @@ const activeFor = (pathname) => {
 const avatarUserFrom = (currentUser) => {
   if (!currentUser) return null;
   const name = currentUser.profile?.name
-    || currentUser.username
-    || currentUser.emails?.[0]?.address
+    || (isInternalUsername(currentUser.username) ? "" : currentUser.username)
+    || realEmailOf(currentUser).split("@")[0]
     || "";
   return { id: currentUser._id, name, hue: hueFor(currentUser._id) };
 };

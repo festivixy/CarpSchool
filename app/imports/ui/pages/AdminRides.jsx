@@ -50,6 +50,7 @@ import {
 } from "../styles/AdminRides";
 import BackButton from "../mobile/components/BackButton";
 import Icon from "../components/Icon";
+import { isInternalUsername, realEmailOf } from "../utils/userDisplay";
 
 /**
  * Modern mobile AdminRides component for managing all rides
@@ -183,7 +184,13 @@ class MobileAdminRides extends React.Component {
   formatUserOption = (user) => {
     const fullName =
       `${user.profile?.firstName || ""} ${user.profile?.lastName || ""}`.trim();
-    return fullName ? `${fullName} (${user.username})` : user.username;
+    /* Never the clerk_<id> username: it is a join key, and putting it in a
+     * dropdown makes every unnamed account look identical. */
+    const handle = isInternalUsername(user.username)
+      ? realEmailOf(user)
+      : user.username;
+    if (fullName) return handle ? `${fullName} (${handle})` : fullName;
+    return handle || "Unnamed account";
   };
 
   handleSearchChange = (e) => {

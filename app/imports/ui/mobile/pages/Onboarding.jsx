@@ -102,11 +102,20 @@ const STEP_2_SUBTITLE = {
 const YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate", "Faculty/Staff"];
 
 /* ids map 1:1 onto ProfileSchema's UserType enum. */
-const ROLES = [
-  { id: "Rider", title: "Mostly riding", desc: "Find seats in other students' cars.", icon: "user" },
-  { id: "Both", title: "A little of both", desc: "Sometimes I drive, sometimes I tag along.", icon: "sparkle" },
-  { id: "Driver", title: "Mostly driving", desc: "I have a car and want to offer rides.", icon: "car" },
-];
+const ROLES = {
+  student: [
+    { id: "Rider", title: "Mostly riding", desc: "Find seats in other students' cars.", icon: "user" },
+    { id: "Both", title: "A little of both", desc: "Sometimes I drive, sometimes I tag along.", icon: "sparkle" },
+    { id: "Driver", title: "Mostly driving", desc: "I have a car and want to offer rides.", icon: "car" },
+  ],
+  /* A guardian is normally the one driving, so driving leads and the wording
+   * stops describing them as a student looking for a lift. */
+  parent: [
+    { id: "Driver", title: "I'm driving", desc: "Offer seats to students at the school.", icon: "car" },
+    { id: "Both", title: "Driving and riding", desc: "Offer seats, and take one when it suits.", icon: "sparkle" },
+    { id: "Rider", title: "Riding only", desc: "Arrange lifts without offering any.", icon: "user" },
+  ],
+};
 
 /* Who the account belongs to. A student proves their school with an email
  * domain; a parent cannot, and is attached to a school by their student
@@ -152,6 +161,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
 
   const [currentStep, setCurrentStep] = React.useState(1);
   const [accountType, setAccountType] = React.useState("student");
+  const roleOptions = ROLES[accountType];
   const [name, setName] = React.useState("");
   const [year, setYear] = React.useState("");
   const [phone, setPhone] = React.useState("");
@@ -347,7 +357,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
       setError("You must be signed in to complete onboarding.");
       return;
     }
-    if (!assignedSchoolId && !pickedSchoolId) {
+    if (accountType !== "parent" && !assignedSchoolId && !pickedSchoolId) {
       setError("Choose your school before finishing setup.");
       return;
     }
@@ -406,17 +416,17 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
   /* Roving tabindex: only the checked option is in the tab order, and
    * arrow keys move both focus and the checked value between options. */
   const handleRoleKeyDown = (event) => {
-    const currentIndex = ROLES.findIndex(role => role.id === userType);
+    const currentIndex = roleOptions.findIndex(role => role.id === userType);
     let nextIndex;
     if (event.key === "ArrowDown" || event.key === "ArrowRight") {
-      nextIndex = (currentIndex + 1) % ROLES.length;
+      nextIndex = (currentIndex + 1) % roleOptions.length;
     } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
-      nextIndex = (currentIndex - 1 + ROLES.length) % ROLES.length;
+      nextIndex = (currentIndex - 1 + roleOptions.length) % roleOptions.length;
     } else {
       return;
     }
     event.preventDefault();
-    const nextRole = ROLES[nextIndex].id;
+    const nextRole = roleOptions[nextIndex].id;
     setUserType(nextRole);
     roleRefs.current[nextRole]?.focus();
   };
@@ -691,7 +701,7 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
         aria-label="How you will use carp.school"
         onKeyDown={handleRoleKeyDown}
       >
-        {ROLES.map(role => (
+        {roleOptions.map(role => (
           <UserTypeOption
             key={role.id}
             ref={el => { roleRefs.current[role.id] = el; }}

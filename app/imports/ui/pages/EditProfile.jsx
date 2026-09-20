@@ -484,11 +484,6 @@ class MobileEditProfile extends React.Component {
       return;
     }
 
-    if (!location.trim()) {
-      this.setState({ error: "Location is required." });
-      return;
-    }
-
     this.setState({ isSubmitting: true, error: "", success: "" });
 
     const fields = {
@@ -581,7 +576,7 @@ class MobileEditProfile extends React.Component {
                 </Field>
 
                 <Field>
-                  <Label htmlFor="editProfile-location">Location *</Label>
+                  <Label htmlFor="editProfile-location">Location · optional</Label>
                   <Input
                     id="editProfile-location"
                     type="text"
@@ -589,7 +584,6 @@ class MobileEditProfile extends React.Component {
                     placeholder="Your home city"
                     value={this.state.location}
                     onChange={this.handleChange}
-                    required
                   />
                 </Field>
               </Section>

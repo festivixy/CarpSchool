@@ -363,9 +363,11 @@ class AdminPlaceManager extends React.Component {
   getCreatorName = (createdBy) => {
     const user = this.props.users.find((u) => u._id === createdBy);
     if (!user) return "Unknown";
+    const handle = isInternalUsername(user.username) ? "" : user.username;
     return (
-      user.username ||
       `${user.profile?.firstName || ""} ${user.profile?.lastName || ""}`.trim() ||
+      handle ||
+      realEmailOf(user).split("@")[0] ||
       "Unknown"
     );
   };

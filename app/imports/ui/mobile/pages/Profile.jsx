@@ -33,7 +33,6 @@ import {
   Bio,
   HeaderActions,
   GhostBtn,
-  PrimaryBtn,
   StatStrip,
   StatCard,
   StatLabel,
@@ -185,12 +184,6 @@ const Profile = ({ history }) => {
   }, [authorIds]);
 
   const go = path => history.push(path);
-
-  const goSettings = () => {
-    if (settingsRef.current) {
-      settingsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
 
   const verifyIdentity = () => {
     const persona = Meteor.settings.public?.persona;
@@ -363,10 +356,6 @@ const Profile = ({ history }) => {
               <Icon name="edit" size={14} />
               Edit profile
             </GhostBtn>
-            <PrimaryBtn type="button" onClick={goSettings}>
-              <Icon name="settings" size={14} color="var(--cream-0)" />
-              Settings
-            </PrimaryBtn>
           </HeaderActions>
         </Header>
 

@@ -19,7 +19,7 @@ const DriverVerify = () => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const [redirectToProfile, setRedirectToProfile] = useState(false);
+  const [redirectTo, setRedirectTo] = useState("");
 
   const handleFinishVerification = () => {
     setIsVerifying(true);
@@ -33,16 +33,17 @@ const DriverVerify = () => {
         setError(err.reason || "Verification failed. Please try again.");
       } else {
         setSuccess(result.message);
-        // Redirect after 2 seconds
+        /* Straight to where the account now stands. /edit-profile is gated on
+         * the very state this leaves behind, so it used to bounce. */
         setTimeout(() => {
-          setRedirectToProfile(true);
+          setRedirectTo(result.alreadyApproved ? "/mobile/profile" : "/waiting-confirmation");
         }, 2000);
       }
     });
   };
 
-  if (redirectToProfile) {
-    return <Redirect to="/edit-profile" />;
+  if (redirectTo) {
+    return <Redirect to={redirectTo} />;
   }
 
   return (

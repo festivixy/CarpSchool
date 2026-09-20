@@ -17,8 +17,10 @@ const ProfileSchema = Joi.object({
   }),
   Location: createSafeStringSchema({
     pattern: "location",
-    min: 1,
+    min: 0,
     max: 200,
+    required: false,
+    allowEmpty: true,
     label: "Location",
   }),
   Image: createSafeUriSchema({
