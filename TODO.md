@@ -1,234 +1,171 @@
-# 🔧 **Username to User ID Conversion Plan**
+# TODO
 
-## ✅ **COMPLETED ITEMS (Latest Session)**
+Outstanding work on CarpSchool, roughly in the order I would do it. Each item
+says what is wrong, where, and what "done" looks like, so it can be picked up
+cold.
 
-### **🚗 Ride System - DONE**
-- ✅ **`imports/api/ride/Rides.js`** - Updated schema comments for user IDs
-- ✅ **`imports/api/ride/RideMethods.js`** - Converted all methods to use user._id
-- ✅ **`imports/api/ride/RidePublications.js`** - Updated to filter by user ID
-- ✅ **`imports/api/ride/RideValidation.js`** - Updated validation functions for user IDs
-- ✅ **`imports/ui/components/AddRides.jsx`** - Updated driver assignment to user._id
-- ✅ **`imports/ui/mobile/ios/pages/CreateRide.jsx`** - Updated driver assignment to user._id
-
-### **💬 Chat System - DONE**
-- ✅ **`imports/api/chat/Chat.js`** - Updated schema comments for user IDs
-- ✅ **`imports/api/chat/ChatMethods.js`** - Converted participant checks and sender to use user._id
-- ✅ **`imports/api/chat/ChatPublications.js`** - Updated to filter by user ID for participants
-
-### **📍 Places System - DONE**
-- ✅ **`imports/api/places/PlacesPublications.js`** - Updated ride filtering to use user IDs
-
-### **🎯 UI Components - DONE**
-- ✅ **`imports/ui/components/Ride.jsx`** - Updated driver checks and rider verification to use user IDs
-
-### **📊 Error Reporting - DONE**
-- ✅ **`imports/api/errorReport/ErrorReportMethods.js`** - Updated updatedBy field to use user ID
-
-### **🔧 Additional Systems - DONE**
-- ✅ **`imports/api/rideSession/RideSessionsSafety.js`** - Removed username conversion, now validates user IDs directly
-- ✅ **`imports/api/rideSession/RideSessionMethods.js`** - Updated to accept user IDs directly
-- ✅ **`imports/api/profile/ProfilePublications.js`** - Simplified to use user ID directly
-- ✅ **`imports/ui/pages/Chat.jsx`** - Updated getCurrentUser to use user ID for logic
-- ✅ **`imports/ui/pages/AdminRides.jsx`** - Updated admin dropdown selections to use user IDs
-- ✅ **`imports/ui/mobile/pages/MyRides.jsx`** - Updated ride filtering to use user ID
-- ✅ **`imports/ui/pages/EditProfile.jsx`** - Updated withTracker to use user ID
-- ✅ **`imports/ui/mobile/pages/Onboarding.jsx`** - Updated withTracker to use user ID
-- ✅ **`imports/ui/test/pages/NotificationTest.jsx`** - Updated test logic to use user IDs
+Last reviewed: 2026-09-20.
 
 ---
 
-## ✅ **CONVERSION COMPLETE!**
+## 1. Blocking launch
 
-**All systems have been successfully converted from username-based to user ID-based identification:**
+### Email and DNS
 
-### **🎯 Core Benefits Achieved:**
-- ✅ **Consistent identification** across all collections and components
-- ✅ **No more MongoDB dot notation errors** with email-based usernames
-- ✅ **Better data integrity** with user ID references
-- ✅ **Improved performance** with indexed user ID lookups
-- ✅ **Simplified user management** and display logic
+Nothing about mail is configured. Verified 2026-09-20 against `1.1.1.1`:
+`carpschool.com` returns **zero** MX records (control: `gmail.com` returns 5),
+no SPF TXT, no DMARC.
 
-### **🔍 Final Verification Status:**
-- ✅ **0 broken imports** (verified with ref checker)
-- ✅ **All references clean** across 240 files
-- ✅ **0 username equality comparisons** remaining (comprehensive grep verification)
-- ✅ **Core functionality tested** - rides, chat, places, sessions, search
-- ✅ **Legacy schema compatibility** maintained for backward compatibility
-- ✅ **All changes committed** to git with descriptive messages
+- [ ] **MX records.** `contact@carpschool.com` currently bounces. That address
+      is printed in the footer of every page, in `/guide`, in the Terms, and as
+      the Privacy Officer contact — so every route we give people to reach us
+      is dead. Any host will do: Workspace, Fastmail, or a forwarder to a
+      personal inbox.
+- [ ] **SPF, then DMARC.** With neither, anyone can send mail that appears to
+      come from `@carpschool.com` to parents at our schools, and nothing marks
+      it as forged. Start DMARC at `p=none` to collect reports before
+      enforcing.
+- [ ] **Set `MAIL_URL` in Railway.** The plumbing already exists —
+      `server/main.js` warns at startup when it is unset, `docker-compose.yml`
+      passes it through, `DEPLOY.md` documents it. Nobody has set it. Until
+      then school-email verification and the account emails silently do
+      nothing. Check the deploy log for `MAIL_URL not set` to confirm.
+- [ ] **DKIM / custom sending domain in Clerk**, at the same time as the live
+      keys below.
 
-### **🚀 Additional Fixes Applied:**
-- **MyRides.jsx search functionality** - Removed username-based filtering since rider/driver fields now contain user IDs
-- **Comprehensive pattern search** - Used bash grep to find and eliminate all remaining functional username usage
-- **Display vs Logic separation** - Preserved username display for UX while eliminating functional username comparisons
+### Clerk is running on test keys
 
----
+- [ ] **Swap `pk_test`/`sk_test` for live keys.** Production serves
+      `pk_test_...`, which is why **"Development mode" is printed on the
+      sign-in and sign-up cards for every visitor**. Also blocks filming the
+      walkthrough video cleanly.
 
-# 🎓 **School Registration Simplification Plan** — ⚠️ OBSOLETE
+### Legal
 
-> **Status: OBSOLETE (September 2026).** The `StudentRegistration` page this
-> plan targets is being removed, and this plan was never implemented against
-> it. Kept below for historical context only; do not pick this up.
+- [ ] **Fill the bracketed placeholders in `imports/api/legal/terms.js`** —
+      `[CONTACT EMAIL]` (lines 275, 306), `[WEBSITE]` (307),
+      `[NAME OR POSITION]` and `[PRIVACY EMAIL]` (309, 442). The file's own
+      header comment says these must be filled before publishing, and they are
+      live right now.
+- [ ] **Have a lawyer read the Terms and Privacy Policy.** They were rewritten
+      on 2026-09-19 for a high-school audience: minors, guardian consent, the
+      graduated-licence passenger restriction. That rewrite made the documents
+      describe the product honestly, which is necessary but not sufficient.
+      Minors plus vehicles plus a platform disclaiming liability is specialist
+      territory, and the graduated-licensing rules differ by jurisdiction.
+- [ ] **Terms re-acceptance.** `TERMS_VERSION` moved to `2026-09-19` but
+      nothing re-prompts anyone. Acceptance is recorded on the profile at
+      onboarding only, so every existing account is still recorded against the
+      old 19-plus text. For a change this material there should be a gate.
 
-## **Current Problems:**
-- **Complex onboarding** with 4 steps + image uploads + captcha per image
-- **No .edu email validation** (just placeholder text)
-- **Generic "rideshare" language** instead of school-focused
-- **Too many optional fields** confusing for students
+### Map provider
 
-## **Simplified Registration Steps:**
-
-### **Step 1: School Email Verification** 🎓
-- **Email field**: Enforce `.edu` domain validation
-- **Institution detection**: Auto-detect school from email domain
-- **Simple password**: Standard password requirements
-- **Single captcha**: One verification for entire signup
-
-### **Step 2: Student Profile** 👤
-- **Full name**: Required (matches student ID)
-- **School year**: Dropdown (Freshman, Sophomore, Junior, Senior, Graduate)
-- **Major/Department**: Text field (optional)
-- **Campus location**: Dropdown of common campus areas
-
-### **Step 3: Ride Preferences** 🚗
-- **I am a**: Driver / Rider / Both (simple radio buttons)
-- **Contact preference**: Phone number OR preferred contact method
-- **Profile photo**: Optional, single upload (no vehicle photo initially)
-
-### **Benefits:**
-- ✅ **3 steps instead of 4** with clearer school focus
-- ✅ **Single captcha** instead of multiple
-- ✅ **School validation** via .edu email
-- ✅ **Student-specific language** throughout
-- ✅ **Faster onboarding** for student users
-
-## **Implementation Priority:**
-1. **Add .edu email validation** to signup process
-2. **Simplify onboarding** to 3 focused steps
-3. **Add school/university detection** from email domains
-4. **Update copy** to be student/school focused
-5. **Remove complex image upload flow** from initial registration
+- [ ] **Stop using `tile.openstreetmap.org` in production.** `config/settings.json`
+      points at the public OSM tile server, whose usage policy forbids this.
+      Either self-host (the Cordova config already references
+      `tileserver.carp.school`, which does not exist) or pay a provider.
 
 ---
 
-## **Files and Features Requiring Conversion**
+## 2. Follows from the parent-signup change
 
-### **🚗 Ride System**
-- **`imports/api/ride/Rides.js`**
-  - `driver` field: Change from username string to user ID
-  - `riders` array: Change from username strings to user ID strings
-  - Update JOI schema comments
+Anyone can now create an account; an account with no school reaches nothing
+until a student claims it. Consequences not yet handled:
 
-- **`imports/api/ride/RideMethods.js`**
-  - `rides.remove` - Driver verification: `ride.driver !== user.username` → `ride.driver !== user._id`
-  - `rides.join` - Rider checks: `ride.riders.includes(user.username)` → `ride.riders.includes(user._id)`
-  - `rides.joinRide` - Rider addition: `$push: { riders: user.username }` → `$push: { riders: user._id }`
-  - `rides.leaveRide` - Rider removal: `$pull: { riders: user.username }` → `$pull: { riders: user._id }`
-  - `rides.removeRider` - Driver verification and rider checks
-
-- **`imports/api/ride/RidePublications.js`**
-  - `Rides` publication: Filter `{ driver: currentUser.username }` → `{ driver: currentUser._id }`
-  - Rider filter: `{ riders: currentUser.username }` → `{ riders: currentUser._id }`
-
-### **💬 Chat System**
-- **`imports/api/chat/ChatPublications.js`**
-  - Chat participants: `Participants: currentUser.username` → `Participants: currentUser._id`
-  - Driver verification: `ride.driver === currentUser.username` → `ride.driver === currentUser._id`
-  - Rider verification: `ride.riders.includes(currentUser.username)` → `ride.riders.includes(currentUser._id)`
-
-- **`imports/api/chat/ChatMethods.js`**
-  - `chats.create` - Participant checks and driver/rider verification
-  - `chats.sendMessage` - Sender field: `Sender: currentUser.username` → `Sender: currentUser._id`
-  - Participant validation: `chat.Participants.includes(currentUser.username)` → `chat.Participants.includes(currentUser._id)`
-
-### **📍 Places System**
-- **`imports/api/places/PlacesPublications.js`**
-  - Ride filtering: `{ driver: currentUser.username }` → `{ driver: currentUser._id }`
-  - Rider filtering: `{ riders: currentUser.username }` → `{ riders: currentUser._id }`
-
-### **🎯 UI Components**
-- **`imports/ui/components/AddRides.jsx`**
-  - Driver assignment: `driver: Meteor.user().username` → `driver: Meteor.user()._id`
-
-- **`imports/ui/components/Ride.jsx`**
-  - `isCurrentUserDriver()`: `ride.driver === Meteor.user().username` → `ride.driver === Meteor.user()._id`
-  - Rider checks: `riders.includes(currentUser.username)` → `riders.includes(currentUser._id)`
-  - Legacy rider check: `rider === currentUser.username` → `rider === currentUser._id`
-  - Status display filtering
-
-- **`imports/ui/mobile/ios/pages/CreateRide.jsx`**
-  - Driver assignment: `driver: Meteor.user().username` → `driver: Meteor.user()._id`
-
-### **📱 UI Display & Navigation**
-- **`imports/ui/desktop/components/NavBar.jsx`**
-  - Current user display: Update to use username for display only, not identification
-
-- **`imports/ui/mobile/components/MobileNavBarCSS.jsx`**
-  - Current user display: Update to use username for display only
-
-- **`imports/ui/mobile/pages/Onboarding.jsx`**
-  - Current user tracking: Update withTracker patterns
-
-- **`imports/ui/pages/EditProfile.jsx`**
-  - Current user tracking: Update withTracker patterns
-
-### **📊 Error Reporting**
-- **`imports/api/errorReport/ErrorReportMethods.js`**
-  - `updatedBy: currentUser.username` → `updatedBy: currentUser._id`
-
-### **🔧 Migration Requirements**
-
-#### **Database Schema Updates:**
-- **Rides Collection:**
-  - Migrate `driver` field from usernames to user IDs
-  - Migrate `riders` array from usernames to user IDs
-
-- **Chat Collections:**
-  - Migrate `Participants` from usernames to user IDs
-  - Migrate `Sender` field from usernames to user IDs
-
-- **Error Reports:**
-  - Migrate `updatedBy` from usernames to user IDs
-
-#### **New Helper Methods Needed:**
-- **Username Resolution Service:** Create centralized service to convert user IDs to usernames for display
-- **Migration Script:** Data conversion script to update existing records
-- **Validation Updates:** Update all JOI schemas and validation rules
-
-#### **Testing Requirements:**
-- **Backward Compatibility:** Ensure no data loss during migration
-- **Chat Functionality:** Verify chat participants and messaging work with user IDs
-- **Ride Management:** Verify ride creation, joining, and management with user IDs
-- **Publications:** Verify all publications filter correctly with user IDs
-
-### **⚠️ High Priority Items:**
-1. **Rides collection schema change** (affects core functionality)
-2. **Chat system conversion** (affects real-time messaging)
-3. **UI component updates** (affects user interactions)
-4. **Publications filtering** (affects data access)
-
-### **📝 Implementation Order:**
-1. **Backend API changes** (methods, publications, schemas)
-2. **Database migration script**
-3. **UI component updates**
-4. **Testing and validation**
-5. **Cleanup and optimization**
+- [ ] **No rate limiting on sign-up.** A bad address used to bounce at the
+      door; now it creates a row. `RegistrationRateLimits.js` covers
+      `schoolEmail.sendVerificationCode` but not account creation.
+- [ ] **An admin view for unclaimed accounts.** Nobody can currently see
+      accounts with no `schoolId`. Build this *before* automating any cleanup:
+      the right threshold depends on whether this is a trickle or a flood.
+- [ ] **Then decide an archiving policy.** Note that "30 days of inactivity"
+      is the wrong trigger — for a parent waiting to be claimed, inactivity is
+      the correct state. Measure from creation, only for school-less accounts,
+      soft-archive rather than delete (deleting the Meteor user leaves the
+      Clerk account, so they silently reappear on next sign-in), and email once
+      before archiving.
+- [ ] **Render the student/parent onboarding branch.** Written and shipped but
+      never seen: `/onboarding` redirects a completed account to `/verify`, so
+      exercising it needs a fresh sign-up. Note that sign-up is behind a
+      Cloudflare Turnstile, so it cannot be driven automatically.
 
 ---
 
-## **Problem Context:**
-The app currently has a **fundamental inconsistency** where:
-- **Rides collection** uses usernames for driver/riders identification
-- **RideSession collection** uses user IDs for driver/riders identification
-- **Username can be emails** (with dots), causing MongoDB field name errors
-- **Mixed identification systems** throughout the codebase
+## 3. Known-wrong copy and content
 
-This conversion will eliminate MongoDB field name issues and create a consistent identification system throughout the application.
+- [ ] **The homepage says "families".** `Landing.jsx:122` and `:191` —
+      "connecting with other confirmed families", "helps families in your
+      school community". Parents ride along with a student's account rather
+      than acting independently, so this overstates it.
+- [ ] **Footer strapline has a dangling pronoun** — "share rides to save money
+      and reduce **their** environmental impact". On every page.
+- [ ] **Miles, not kilometres**, in 5 places across the UI.
+- [ ] **"We do not read your private conversations regularly"** in `/guide`.
+      *Regularly* can be read as "we read them, just not often". The wording it
+      replaced was "as a matter of course".
+- [ ] **Year options do not fit high school.** `Freshman/Sophomore/Junior/
+      Senior` happen to work, but `Graduate` and `Faculty/Staff` do not, and
+      the guide says "enrolment" throughout.
 
 ---
 
-## **Benefits After Conversion:**
-- ✅ **Consistent identification** across all collections and components
-- ✅ **No MongoDB dot notation errors** with email-based usernames
-- ✅ **Better data integrity** with user ID references
-- ✅ **Improved performance** with indexed user ID lookups
-- ✅ **Simplified user management** and display logic
+## 4. UI debt
+
+The admin panel was audited on 2026-09-19 and the structural problems fixed
+(shared shell, one palette, one focus ring). What remains is measured but not
+addressed:
+
+- [ ] **30 elements with an empty body**, left by the emoji purge. Some are
+      legitimately empty (spinners, divider lines) but most are icon slots and
+      unlabelled controls: `SwapButton` on add-rides, `MenuToggle` in the
+      desktop nav, three `ControlButton`s on the map picker, and a dozen
+      `TitleIcon`/`EmptyStateIcon`/`NotFoundIcon` placeholders across places,
+      chat and not-found.
+- [ ] **24 distinct font sizes** across the admin styles.
+- [ ] **28 distinct spacing values**, with no spacing token to anchor them.
+      The design system has colour, radius and font tokens but no spacing
+      scale.
+- [ ] **Six breakpoints** — 768, 820, 480, 450, 1100, 1200.
+- [ ] **No z-index scale** — 4, 20, 1000, 9999.
+- [ ] **Two accounts to tidy.** The Sep 7 account with the
+      `clerk_user_...@clerk.local` placeholder address is orphaned from the old
+      auth bridge; check it owns no rides or messages, then delete it. And
+      decide whether `monicama0618@gmail.com` is a student or a parent — she is
+      currently a plain account with no name and no school.
+
+---
+
+## 5. iOS app
+
+Further along than it looks: `ios` is in `.meteor/platforms`, `mobile-config.js`
+is fully specified, 26 icons and splash screens are present, five Cordova
+plugins are declared including a custom `cordova-plugin-native-navbar`, and
+twelve source files already branch on `Meteor.isCordova`.
+
+- [ ] **Fix the access rules in `mobile-config.js`.** All 8 entries point at
+      `carp.school` — including `tileserver.carp.school`, `nominatim.carp.school`
+      and `osrm.carp.school`, which are not servers we run. As written the
+      packaged app is firewalled off from the real backend. Ten-minute fix,
+      total blocker.
+- [ ] **A Mac with Xcode.** Cordova iOS cannot be built from Windows. This is
+      probably why it stalled.
+- [ ] **Apple Developer Program**, $99/yr.
+- [ ] **Test Clerk inside a WKWebView.** Email-code sign-in should survive;
+      redirect-based flows historically break in Cordova.
+- [ ] **Prepare for App Store review.** A service arranging in-person meetings
+      between minors will be scrutinised: age rating, the reporting flow, and
+      what our verification actually proves.
+
+---
+
+## 6. Housekeeping
+
+- [ ] **181 Dependabot advisories** on the default branch (11 critical, 93
+      high, 55 moderate, 22 low).
+- [ ] **The old public fork `smiles0527/Carpool`** still exists.
+- [ ] **`/video` is unlisted, not private.** Nothing links to it and it sets
+      `noindex`, but anyone with the URL can read it. Move it behind
+      `AdminRoute` if it ever carries anything sensitive.
+- [ ] **Delete the impeccable Copilot copy** if we do not use Copilot —
+      `.github/skills`, `.github/agents`, `.github/hooks`, about 17MB. Already
+      gitignored.
