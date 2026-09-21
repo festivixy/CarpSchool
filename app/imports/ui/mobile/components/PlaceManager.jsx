@@ -6,7 +6,8 @@ import swal from "sweetalert";
 import { Places } from "../../../api/places/Places";
 import InteractiveMapPicker from "./InteractiveMapPicker";
 import WaypointMap from "./WaypointMap";
-import { formatPlaceValue, canEditPlace } from "../../utils/placeCoords";
+import { formatPlaceValue, parsePlaceValue, canEditPlace } from "../../utils/placeCoords";
+import { reverseGeocode } from "../../utils/mapServices";
 import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import { PlaceManagerSkeleton } from "../../skeleton";
 import { SkeletonPulse } from "../../skeleton/styles/PlaceManagerSkeleton";
@@ -303,7 +304,7 @@ class PlaceManager extends React.Component {
     return Object.keys(errors).length === 0;
   };
 
-  handleSubmit = () => {
+  handleSubmit = async () => {
     if (!this.validateForm()) {
       return;
     }
@@ -313,10 +314,17 @@ class PlaceManager extends React.Component {
     const { text, value } = this.state.formData;
     const { editingPlace } = this.state;
 
+    /* Look up what the point is called before saving, so the place reads as
+     * an address rather than a pair of numbers. A failed lookup is not worth
+     * blocking on -- the coordinates are still there to fall back to. */
+    const coords = parsePlaceValue(value.trim());
+    const address = coords
+      ? await reverseGeocode(coords.lat, coords.lng).catch(() => "")
+      : "";
+
     const method = editingPlace ? "places.update" : "places.insert";
-    const args = editingPlace
-      ? [editingPlace._id, { text: text.trim(), value: value.trim() }]
-      : [{ text: text.trim(), value: value.trim() }];
+    const fields = { text: text.trim(), value: value.trim(), address };
+    const args = editingPlace ? [editingPlace._id, fields] : [fields];
 
     Meteor.call(method, ...args, (error) => {
       this.setState({ loading: false });
@@ -404,7 +412,9 @@ class PlaceManager extends React.Component {
                         <PlaceIcon></PlaceIcon>
                         {place.text}
                       </PlaceName>
-                      <PlaceCoordinates>{place.value}</PlaceCoordinates>
+                      <PlaceCoordinates>
+                        {place.address || place.value}
+                      </PlaceCoordinates>
                       <PlaceDate>
                         Created:{" "}
                         {place.createdAt

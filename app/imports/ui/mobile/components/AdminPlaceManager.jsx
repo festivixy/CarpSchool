@@ -6,7 +6,8 @@ import swal from "sweetalert";
 import { Places } from "../../../api/places/Places";
 import InteractiveMapPicker from "./InteractiveMapPicker";
 import WaypointMap from "./WaypointMap";
-import { formatPlaceValue } from "../../utils/placeCoords";
+import { formatPlaceValue, parsePlaceValue } from "../../utils/placeCoords";
+import { reverseGeocode } from "../../utils/mapServices";
 import { isAdminRole } from "../../desktop/components/NavBarRoleUtils";
 import {
   Container,
@@ -125,7 +126,7 @@ class AdminPlaceManager extends React.Component {
     this.setState({
       modalOpen: true,
       editingPlace: null,
-      formData: { text: "", value: formatPlaceValue(coords.lat, coords.lng) },
+      formData: { text: "", value: formatPlaceValue(coords.lat, coords.lng), isShared: true },
       errors: {},
       selectedCoordinates: coords,
       showMapPicker: false,
@@ -304,20 +305,30 @@ class AdminPlaceManager extends React.Component {
     return Object.keys(errors).length === 0;
   };
 
-  handleSubmit = () => {
+  handleSubmit = async () => {
     if (!this.validateForm()) {
       return;
     }
 
     this.setState({ loading: true });
 
-    const { text, value } = this.state.formData;
+    const { text, value, isShared } = this.state.formData;
     const { editingPlace } = this.state;
 
+    /* Resolve the address before saving, so the place reads as somewhere
+     * rather than as a pair of numbers. */
+    const coords = parsePlaceValue(value.trim());
+    const address = coords
+      ? await reverseGeocode(coords.lat, coords.lng).catch(() => "")
+      : "";
+
     const method = editingPlace ? "places.update" : "places.insert";
+    const fields = { text: text.trim(), value: value.trim(), address };
     const args = editingPlace
-      ? [editingPlace._id, { text: text.trim(), value: value.trim() }]
-      : [{ text: text.trim(), value: value.trim() }];
+      ? [editingPlace._id, fields]
+      /* A place an administrator adds is for the school: it is what stops
+       * every student pinning the school gates themselves. */
+      : [{ ...fields, isShared: isShared !== false }];
 
     Meteor.call(method, ...args, (error) => {
       this.setState({ loading: false });

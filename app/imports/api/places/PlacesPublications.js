@@ -31,9 +31,17 @@ Meteor.publish("places.mine", async function publishMyPlaces() {
     return;
   }
 
-  // Query for places created by user OR used in their rides
+  const me = await Meteor.users.findOneAsync(this.userId, { fields: { schoolId: 1 } });
+
+  /* Three sources: what this person saved, what their rides refer to, and the
+   * places an administrator shared with their school -- the school gates and
+   * the like, which nobody should have to pin themselves. */
   const query = {
-    $or: [{ createdBy: this.userId }, { _id: { $in: await placeIdsFromRides(this.userId) } }],
+    $or: [
+      { createdBy: this.userId },
+      { _id: { $in: await placeIdsFromRides(this.userId) } },
+      ...(me?.schoolId ? [{ schoolId: me.schoolId, isShared: true }] : []),
+    ],
   };
 
   return Places.find(query, {
@@ -41,6 +49,8 @@ Meteor.publish("places.mine", async function publishMyPlaces() {
       _id: 1,
       text: 1,
       value: 1,
+      address: 1,
+      isShared: 1,
       createdBy: 1,
       createdAt: 1,
       updatedAt: 1,

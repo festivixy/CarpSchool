@@ -16,6 +16,24 @@ const PlacesSchema = Joi.object({
     label: "Location Name",
   }),
   value: createCoordinatesSchema(),
+
+  /* What the coordinates resolve to, kept so a place reads as a street
+   * address rather than a pair of numbers. Written when the place is made and
+   * not refreshed: an address that moves under a fixed point is worse than a
+   * slightly stale one. */
+  address: createSafeStringSchema({
+    pattern: "generalText",
+    min: 0,
+    max: 300,
+    required: false,
+    allowEmpty: true,
+    label: "Address",
+  }),
+
+  /* A place every member of the school can use -- the school gates, the main
+   * car park. Only an administrator may set it, and it is published to the
+   * whole school rather than to its creator alone. */
+  isShared: Joi.boolean().default(false).label("Shared with the school"),
   createdBy: Joi.string().required().label("Created By User ID"),
   createdAt: Joi.date().required().label("Created Date"),
   updatedAt: Joi.date().optional().label("Updated Date"),

@@ -25,7 +25,14 @@ Meteor.methods({
 
     // The server owns schoolId: PlacesSchema allows it, so a client could
     // otherwise plant a place into another school's admin list.
-    const { schoolId: clientSchoolId, ...clientPlaceData } = placeData;
+    const { schoolId: clientSchoolId, isShared: clientShared, ...clientPlaceData } = placeData;
+
+    /* Sharing a place puts it in front of everyone at the school, so only an
+     * administrator may ask for it. Anyone else gets a place of their own
+     * whatever they send. */
+    const { isAnyAdmin } = await import("../accounts/RoleUtils");
+    const mayShare = await isAnyAdmin(this.userId);
+    const isShared = Boolean(clientShared) && mayShare;
 
     // Validate input
     const { error, value } = PlacesSchema.validate({
@@ -33,6 +40,7 @@ Meteor.methods({
       // Only set the key when there is a school, so the stored document keeps
       // matching `{ schoolId: ... }` filters without an explicit null/undefined.
       ...(currentUser?.schoolId ? { schoolId: currentUser.schoolId } : {}),
+      isShared,
       createdBy: this.userId,
       createdAt: new Date(),
     });
@@ -88,8 +96,11 @@ Meteor.methods({
       );
     }
 
-    // Validate update data
-    const allowedFields = ["text", "value"];
+    /* address travels with value: moving a pin makes the old address wrong.
+     * isShared is deliberately absent -- sharing puts a place in front of a
+     * whole school, so it is set at creation by an administrator rather than
+     * flipped later by whoever can edit the place. */
+    const allowedFields = ["text", "value", "address"];
     const filteredUpdate = {};
 
     allowedFields.forEach((field) => {

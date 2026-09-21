@@ -216,6 +216,42 @@ const searchLocations = async (query, options = {}) => {
 export const debouncedSearch = debounce(searchLocations, 300);
 
 /**
+ * What a point on the map is called.
+ *
+ * Saved places were showing their raw coordinates, which tells a reader
+ * nothing about where the place is. Failure is not an error here: the caller
+ * falls back to the coordinates, which is what it had anyway.
+ *
+ * @returns {Promise<string>} a display address, or "" if none could be found
+ */
+export const reverseGeocode = async (lat, lng) => {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return "";
+
+  const cacheKey = `rev:${lat.toFixed(5)},${lng.toFixed(5)}`;
+  const cached = CacheManager.get(searchCache, cacheKey, CACHE_CONFIG.SEARCH_TTL);
+  if (cached !== undefined && cached !== null) return cached;
+
+  try {
+    const url = new URL(`${getNominatimUrl()}/reverse`);
+    url.searchParams.set("lat", String(lat));
+    url.searchParams.set("lon", String(lng));
+    url.searchParams.set("format", "json");
+    url.searchParams.set("zoom", "18");
+
+    const response = await fetchWithTimeout(url.toString(), 3000);
+    if (!response.ok) return "";
+
+    const result = await response.json();
+    const address = result?.display_name || "";
+    CacheManager.set(searchCache, cacheKey, address);
+    return address;
+  } catch (error) {
+    console.warn("[MapServices] Reverse geocode failed:", error?.message || error);
+    return "";
+  }
+};
+
+/**
  * Create a fetch request with timeout and cancellation
  * @param {string} url - URL to fetch
  * @param {number} timeout - Timeout in milliseconds
