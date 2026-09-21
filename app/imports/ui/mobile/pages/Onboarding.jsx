@@ -196,6 +196,13 @@ function MobileOnboarding({ profileData, currentUser, school, schools, loading }
 
     if (loading) return;
 
+    /* An administrator has nothing to fill in here: they are not a student or
+     * a guardian at any school. */
+    if (currentUser?.roles?.includes("system")) {
+      setRedirectTo("/admin/overview");
+      return;
+    }
+
     // Already onboarded at a school: the wizard has nothing left to collect.
     if (profileData && assignedSchoolId) {
       setRedirectTo("/waiting-confirmation");

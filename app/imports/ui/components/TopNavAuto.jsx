@@ -126,12 +126,12 @@ function TopNavAuto({ currentUser, myProfile, history, location }) {
   /* Until the subscription resolves nothing is known, and offering member
    * routes that will bounce is worse than offering none: that flash is what
    * throws a half-onboarded person out of the wizard on refresh. */
-  const restricted = !approvalReady || !approved;
+  const isSystem = currentUser?.roles?.includes("system");
+  const restricted = !isSystem && (!approvalReady || !approved);
   const needsOnboarding = !myProfile;
   const restrictedItems = needsOnboarding ? SETUP_ITEMS : WAITING_ITEMS;
 
-  const isAdmin = currentUser?.roles?.includes("system")
-    || currentUser?.roles?.some(r => r.startsWith("admin."));
+  const isAdmin = isSystem || currentUser?.roles?.some(r => r.startsWith("admin."));
 
   const canDrive = myProfile?.UserType !== "Rider";
 

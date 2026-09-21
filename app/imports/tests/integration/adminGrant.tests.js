@@ -70,7 +70,7 @@ if (Meteor.isServer) {
     });
 
     describe("granting", function () {
-      it("gives a listed account both roles, a school and an approved profile", async function () {
+      it("gives a listed account both roles and an approved profile", async function () {
         withPrivate({ adminEmails: ["boss@example.com"] });
         const userId = await mkUser("boss@example.com");
 
@@ -79,11 +79,31 @@ if (Meteor.isServer) {
         const user = await Meteor.users.findOneAsync(userId);
         expect(user.roles).to.include("system");
         expect(user.roles).to.include("admin");
-        expect(user.schoolId).to.equal(schoolId);
 
         const profile = await Profiles.findOneAsync({ Owner: userId });
         expect(profile.verified).to.equal(true);
         expect(profile.requested).to.equal(false);
+      });
+
+      /* An administrator operates the platform rather than belonging to a
+       * school in it. requireAdminScope already pins their schoolId to null,
+       * and the member routes let them through without one. */
+      it("does not put an administrator in a school", async function () {
+        withPrivate({ adminEmails: ["boss@example.com"] });
+        const userId = await mkUser("boss@example.com");
+
+        await grantAdminIfListed(userId);
+
+        expect((await Meteor.users.findOneAsync(userId)).schoolId).to.equal(undefined);
+      });
+
+      it("leaves a school alone if the account already has one", async function () {
+        withPrivate({ adminEmails: ["boss@example.com"] });
+        const userId = await mkUser("boss@example.com", { schoolId });
+
+        await grantAdminIfListed(userId);
+
+        expect((await Meteor.users.findOneAsync(userId)).schoolId).to.equal(schoolId);
       });
 
       it("leaves an unlisted account completely alone", async function () {
@@ -107,27 +127,6 @@ if (Meteor.isServer) {
         const profile = await Profiles.findOneAsync({ Owner: userId });
         expect(profile.verified).to.equal(true);
         expect(profile.requested).to.equal(false);
-      });
-
-      it("repairs a school id pointing at a school that no longer exists", async function () {
-        withPrivate({ adminEmails: ["boss@example.com"] });
-        const userId = await mkUser("boss@example.com", { schoolId: "deleted-school" });
-
-        await grantAdminIfListed(userId);
-        expect((await Meteor.users.findOneAsync(userId)).schoolId).to.equal(schoolId);
-      });
-
-      it("prefers the configured test school when assigning one", async function () {
-        const testSchoolId = await Schools.insertAsync({
-          name: "Carp Test University", shortName: "CarpTest", code: "CTU", isActive: true,
-          createdAt: new Date(), createdBy: "system",
-          location: { country: "Canada", coordinates: { lat: 49, lng: -123 } },
-        });
-        withPrivate({ adminEmails: ["boss@example.com"], testSchoolCode: "CTU" });
-        const userId = await mkUser("boss@example.com");
-
-        await grantAdminIfListed(userId);
-        expect((await Meteor.users.findOneAsync(userId)).schoolId).to.equal(testSchoolId);
       });
 
       it("is idempotent and does not duplicate roles or profiles", async function () {

@@ -50,26 +50,12 @@ export const userIsListedAdmin = (user) => {
  */
 export const ensureAdminIsUsable = async (user, label) => {
   const { Profiles } = await import("../profile/Profile");
-  const { Schools } = await import("../schools/Schools");
 
-  let { schoolId } = user;
-
-  /* A school id pointing at a school that no longer exists is as unusable as
-   * none at all, so it is treated the same way. */
-  const currentSchool = schoolId
-    ? await Schools.findOneAsync(schoolId, { fields: { _id: 1 } })
-    : null;
-
-  if (!currentSchool) {
-    const code = Meteor.settings?.private?.testSchoolCode;
-    const school = (code && await Schools.findOneAsync({ code: String(code).toUpperCase(), isActive: true }))
-      || await Schools.findOneAsync({ isActive: true }, { sort: { createdAt: 1 } });
-    if (school) {
-      schoolId = school._id;
-      await Meteor.users.updateAsync(user._id, { $set: { schoolId } });
-      console.log(`[AdminGrant] Assigned ${label} to school ${school.shortName || school.code}`);
-    }
-  }
+  /* No school is assigned. An administrator operates the platform rather than
+   * belonging to a school in it, every admin query already treats them as
+   * school-less, and the member routes now let them through without one. If
+   * an administrator also wants to ride or drive somewhere, that is a separate
+   * account at that school. */
 
   const profile = await Profiles.findOneAsync({ Owner: user._id });
   if (!profile) {

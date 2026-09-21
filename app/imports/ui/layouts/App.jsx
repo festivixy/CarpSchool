@@ -303,6 +303,15 @@ const VerificationGate = ({ component: Component, requireDriver, ...rest }) => {
             if (!ready) {
               return <AuthLoading />;
             }
+            /* A system administrator operates the platform rather than
+             * belonging to a school in it. Every admin query already treats
+             * them as school-less -- requireAdminScope pins schoolId to null
+             * for them -- so the only thing that ever demanded a school and an
+             * approved profile was this gate, which then sent them round the
+             * onboarding wizard they have no answers for. */
+            if (isSystemRole(meteorUser)) {
+              return <RouteBoundary><Component {...props} user={meteorUser} /></RouteBoundary>;
+            }
             if (!profile) {
               return <Redirect to="/onboarding" />;
             }
