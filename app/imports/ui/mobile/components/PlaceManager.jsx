@@ -497,39 +497,17 @@ class PlaceManager extends React.Component {
                   </FormField>
 
                   <FormField>
-                    <Label>Coordinates (Latitude, Longitude)</Label>
-                    <Input
-                      name="value"
-                      value={formData.value}
-                      onChange={(e) => this.handleInputChange(e, {
-                          name: e.target.name,
-                          value: e.target.value,
-                        })
-                      }
-                      placeholder="e.g., 21.3099,-157.8581"
+                    <Label>Where is it?</Label>
+                    {/* Search by address rather than asking for a latitude and
+                      * a longitude. Nobody knows their own coordinates, and the
+                      * example this field carried was in Honolulu. */}
+                    <InteractiveMapPicker
+                      onLocationSelect={this.handleLocationSelect}
+                      selectedLocation={this.state.selectedCoordinates}
+                      height="420px"
                     />
                     {errors.value && <ErrorText>{errors.value}</ErrorText>}
-                    <Button
-                      type="button"
-                      onClick={this.toggleMapPicker}
-                      style={{ marginTop: "8px" }}
-                    >
-                      {this.state.showMapPicker
-                        ? "Manual Entry"
-                        : "Pick on Map"}
-                    </Button>
                   </FormField>
-
-                  {this.state.showMapPicker && (
-                    <FormField>
-                      <Label>Select location on map:</Label>
-                      <InteractiveMapPicker
-                        onLocationSelect={this.handleLocationSelect}
-                        selectedLocation={this.state.selectedCoordinates}
-                        height="300px"
-                      />
-                    </FormField>
-                  )}
                 </Form>
               </ModalBody>
 

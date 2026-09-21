@@ -354,7 +354,7 @@ const InteractiveMapPicker = React.memo(({
       <SearchContainer>
         <SearchInput
           type="text"
-          placeholder="Search for a location..."
+          placeholder="Address, postcode or place name"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && searchLocation()}

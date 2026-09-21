@@ -94,7 +94,9 @@ export const Content = styled.div`
   display: flex;
   width: 100%;
   flex-direction: column;
-  align-items: center;
+  /* stretch, not center: centring sizes each child to its own content, which
+   * left the map as a narrow box with the page empty on both sides. */
+  align-items: stretch;
   justify-content: start;
   padding: 0 24px;
   max-width: 1200px;

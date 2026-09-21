@@ -9,6 +9,21 @@ import { getNominatimUrl } from "./mapConfig";
 
 // Cache for storing search results
 const searchCache = new Map();
+
+/* Where a search is allowed to look.
+ *
+ * Unscoped, typing a street name returns the same street on three continents,
+ * which is useless for picking a corner near your school. Bounded to British
+ * Columbia, so results are places somebody could actually be driven to.
+ *
+ * viewbox is west,north,east,south. `bounded` makes it a hard limit rather
+ * than a preference -- a school in BC has no use for a match in Ontario.
+ */
+export const SEARCH_REGION = {
+  countrycodes: "ca",
+  viewbox: "-139.06,60.00,-114.03,48.30",
+  bounded: true,
+};
 const routeCache = new Map();
 
 // Pending requests to prevent duplicates
@@ -151,8 +166,10 @@ const searchLocations = async (query, options = {}) => {
     try {
       const {
         limit = 5,
-        countrycodes,
+        countrycodes = SEARCH_REGION.countrycodes,
         addressdetails = 1,
+        viewbox = SEARCH_REGION.viewbox,
+        bounded = SEARCH_REGION.bounded,
       } = options;
 
       const searchUrl = new URL(`${getNominatimUrl()}/search`);
@@ -162,6 +179,10 @@ const searchLocations = async (query, options = {}) => {
       searchUrl.searchParams.set("addressdetails", addressdetails.toString());
       if (countrycodes) {
         searchUrl.searchParams.set("countrycodes", countrycodes);
+      }
+      if (viewbox) {
+        searchUrl.searchParams.set("viewbox", viewbox);
+        if (bounded) searchUrl.searchParams.set("bounded", "1");
       }
 
       console.log("[MapServices] Fetching search results for:", normalizedQuery);
@@ -237,6 +258,7 @@ export const reverseGeocode = async (lat, lng) => {
     url.searchParams.set("lon", String(lng));
     url.searchParams.set("format", "json");
     url.searchParams.set("zoom", "18");
+    url.searchParams.set("countrycodes", SEARCH_REGION.countrycodes);
 
     const response = await fetchWithTimeout(url.toString(), 3000);
     if (!response.ok) return "";
