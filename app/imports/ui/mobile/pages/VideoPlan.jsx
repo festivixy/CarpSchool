@@ -258,28 +258,158 @@ And:
 
 ---
 
-## Part 6 — Terms, privacy, reporting (2–3 min)
+## Part 6, in full — Terms, privacy, reporting
 
-Open **/terms** and **/privacy** on screen and scroll them while you talk.
-Do not read them out. Pull the four things people actually need:
+Roughly 4 minutes. Screen share **/terms** and **/privacy**, scroll slowly while
+you talk. Do not read the documents aloud; pull the six things a family
+actually needs and point at where each one lives.
 
-1. **Who may hold an account** — students at a participating school, their
-   parents and guardians, staff where the school allows it. Under 13 cannot.
-   Under the age of majority needs a guardian to accept.
-2. **No payments through the platform.**
-3. **What we keep and for how long** — profile, rides and messages while the
-   account is active; ID images stay with the verification provider, we keep
-   only the result and the date.
-4. **How to get your data or delete the account.**
+Section numbers below are the real ones, so you can scroll straight to them.
 
-Then reporting. Show where the report control is. Say:
+### 6a. Framing (20 sec)
+
+> Two documents, and you should read them properly at some point — this is me
+> pulling out the parts that change what you'd actually do.
+>
+> The short version: we connect people who already share a school. We are not
+> the driver, we do not take payment, and we do not insure anything.
+
+---
+
+### 6b. Who can hold an account — Terms §2 (40 sec)
+
+Scroll to **2. Eligibility and Accounts**.
+
+> Three kinds of account. Students, who verify a school email address. Parents
+> and guardians, who join by invitation from their student. And staff, where
+> the school allows it.
+>
+> Nobody under 13. And **if you are under the age of majority where you live, a
+> parent or guardian has to accept these terms for you** — that is here in
+> writing, and it is what the checkbox at the end of signup refers to.
+
+Then, plainly:
+
+> That means the agreement is with the adult, not the fifteen-year-old.
+
+---
+
+### 6c. Drivers — Terms §5 (60 sec)
+
+**This is the most important minute in the video.** Scroll to **5. Drivers**
+and stay there.
+
+> A driver promises several things every time they post a ride. A valid
+> licence. Insurance that covers carrying passengers. A roadworthy vehicle. No
+> driving impaired, no handheld phone, no more passengers than seatbelts.
+
+Then slow down for the bullet that matters at this age:
+
+> And this one. Any passenger restriction on their licence has to be observed.
+> A learner, provisional, novice or graduated licence very often limits how
+> many passengers you may carry, or bars passengers altogether for the first
+> several months. That is the law where you live, not our rule.
+>
+> We cannot check any of it. These are promises the driver makes. If your
+> student is being driven by another student, that is the thing to ask about.
+
+Then:
+
+> And it says here in bold — **CarpSchool does not provide, arrange, or carry
+> any insurance for any ride.** The driver's own policy is the only cover that
+> applies. If the driver is on a family policy, someone should check it covers
+> passengers who are not family, because plenty of them do not.
+
+---
+
+### 6d. No money — Terms §10 (20 sec)
+
+Scroll to **10. No Payments Through the Platform**.
+
+> There is no payment feature. We do not price rides, we do not process money,
+> and we take no part in anything people settle privately. If two families
+> split fuel between themselves, that is entirely theirs.
+
+---
+
+### 6e. What we are, and what we are not — Terms §22 (30 sec)
+
+Scroll to **22. CarpSchool's Role**.
+
+> Worth reading this one slowly. We are a coordination platform. We are not the
+> carrier, the driver, the vehicle owner, the employer, or the transport
+> provider, and we are not a party to any arrangement between users.
+>
+> A claim arising from a ride is between the people in the car.
+
+Do not skip past **23. Limitation of Liability** in silence — mention it exists
+and that the cap is there, rather than letting a viewer discover it later and
+feel it was hidden.
+
+---
+
+### 6f. Privacy — the four questions people actually ask (50 sec)
+
+Switch to **/privacy**.
+
+**What do other people see?** — §4, What Other Users Can See.
+
+> A display name and a year of study. That is the whole list for someone
+> browsing. No email address, no phone number, no home address.
+
+**What do you keep, and for how long?** — §9, Data Retention.
+
+> Profile, rides and messages while the account is active. If someone completes
+> the optional ID check, the images stay with the verification provider — we
+> keep the result and the date, not the document.
+
+**Do you read messages?** — §6 and the Terms' §8.
+
+> Not as a matter of course. They can be looked at where there is a real
+> reason: a safety report, abuse, fraud, or where the law requires it.
+
+**Can we get our data out, or delete it?** — §11, Your Privacy Choices.
+
+> Yes. Ask what we hold, correct it, or delete the account. A guardian can do
+> that for their student. Some records are kept longer where safety or the law
+> requires.
+
+---
+
+### 6g. Reporting, and the hard stop (30 sec)
+
+Show where the report control is on screen.
 
 > If someone concerns you, stop the arrangement and report it. An administrator
-> can restrict, suspend or remove an account. We would much rather hear about
-> something small than find out about something serious later.
->
-> CarpSchool is not an emergency service. If anyone is in immediate danger,
-> call 911.
+> at the school can restrict, suspend or remove an account. We would much
+> rather hear about something small than find out about something serious
+> later.
+
+Then, straight to camera, and do not soften it:
+
+> **CarpSchool is not an emergency service. If anyone is in immediate danger,
+> call 911.**
+
+---
+
+### Delivery notes for this part
+
+**Do not apologise for the terms.** The honest reading is the selling point:
+most services in this space are vaguer than this about insurance and
+licensing.
+
+**Do not say "obviously" or "of course".** None of it is obvious to a parent
+hearing it for the first time.
+
+**Say "we cannot check that" out loud** wherever it is true. A viewer who hears
+you admit a limit believes the things you do claim.
+
+**Do not quote a number you have not checked.** No "usually approved within a
+day", no "thousands of students" — the app makes no such promise and neither
+should the video.
+
+**If you fluff the graduated-licence bullet, re-record it.** It is the one line
+most likely to stop something going wrong.
 
 ---
 
