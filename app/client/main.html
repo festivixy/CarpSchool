@@ -6,7 +6,46 @@
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
   <!-- CSP headers set via server for OneSignal support -->
-  <title>CarpSchool</title>
+  <title>CarpSchool - school carpool and ride sharing for students and parents</title>
+
+  <!--
+    Everything below exists for readers that do not run JavaScript: search
+    engines, link previews, and -- the reason it matters here -- the crawlers
+    school web filters use to categorise a domain. This is a client-rendered
+    app, so without it they fetch the page, find an empty body and no
+    description, and file the domain as Uncategorised. Most school networks
+    block that category by default, which is how a school blocks us for having
+    nothing to read rather than for anything we do.
+  -->
+  <meta name="description" content="CarpSchool is a carpool service for school communities. Students, parents and staff at a registered school share rides to and from school. Accounts are verified against a school email address and approved by a school administrator." />
+  <meta name="keywords" content="school carpool, student transportation, school transport, carpool to school, ride sharing for schools, parent carpool" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://carpschool.com/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CarpSchool" />
+  <meta property="og:title" content="CarpSchool - school carpool and ride sharing" />
+  <meta property="og:description" content="CarpSchool is a carpool service for school communities. Students, parents and staff at a registered school share rides to and from school. Accounts are verified against a school email address and approved by a school administrator." />
+  <meta property="og:url" content="https://carpschool.com/" />
+  <meta property="og:image" content="https://carpschool.com/staticimages/carp.schoolSquare.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="CarpSchool - school carpool and ride sharing" />
+  <meta name="twitter:description" content="CarpSchool is a carpool service for school communities. Students, parents and staff at a registered school share rides to and from school. Accounts are verified against a school email address and approved by a school administrator." />
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "CarpSchool",
+      "url": "https://carpschool.com/",
+      "description": "CarpSchool is a carpool service for school communities. Students, parents and staff at a registered school share rides to and from school. Accounts are verified against a school email address and approved by a school administrator.",
+      "audience": {
+        "@type": "EducationalAudience",
+        "educationalRole": ["student", "parent", "school administrator"]
+      },
+      "about": ["Education", "Student transportation", "Carpooling"]
+    }
+  </script>
 
   <!-- Fonts: Fraunces (display) + Geist (ui) + Geist Mono (data) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -48,4 +87,36 @@
 
 <body>
   <div id="root"></div>
+
+  <!--
+    Read by anything that does not execute JavaScript. Keep it short, accurate
+    and in step with the real pages it links to -- a filter or a reviewer
+    deciding what this domain is will often see only this.
+  -->
+  <noscript>
+    <h1>CarpSchool</h1>
+    <p>CarpSchool is a carpool service for school communities. Students, parents and staff at a registered school share rides to and from school. Accounts are verified against a school email address and approved by a school administrator.</p>
+    <p>
+      CarpSchool is used by school communities to arrange lifts to and from
+      school. It is not a taxi service: nobody is dispatched or paid, no ride
+      is priced, and CarpSchool carries no insurance. Rides are arranged
+      between people who share a school.
+    </p>
+    <p>
+      Accounts are not open to the public. A student verifies an email address
+      on a domain belonging to a registered school, a parent or guardian joins
+      by invitation from their student, and a school administrator approves
+      every account before it can see or post anything.
+    </p>
+    <ul>
+      <li><a href="/guide">Guide to CarpSchool</a> - how it works, what other people can see, and what our checks do and do not prove</li>
+      <li><a href="/help">Help centre</a></li>
+      <li><a href="/faq">Frequently asked questions</a></li>
+      <li><a href="/about">About CarpSchool</a></li>
+      <li><a href="/privacy">Privacy policy</a></li>
+      <li><a href="/terms">Terms of use</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <p>CarpSchool requires JavaScript. Please enable it to sign in.</p>
+  </noscript>
 </body>

@@ -1,0 +1,12 @@
+# CarpSchool - a carpool service for school communities.
+#
+# Crawling is welcome. Being readable matters more than usual here: school
+# networks run web filters that categorise a domain by crawling it, and an
+# uncategorised domain is blocked by default on most of them. A filter that
+# cannot tell what this site is will stop students reaching it.
+#
+# /video is not listed. It is unlisted working notes and sets its own noindex;
+# naming a path here to exclude it would only advertise it.
+
+User-agent: *
+Allow: /

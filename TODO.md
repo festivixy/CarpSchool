@@ -62,6 +62,38 @@ no SPF TXT, no DMARC.
       onboarding only, so every existing account is still recorded against the
       old 19-plus text. For a change this material there should be a gate.
 
+### School web filters
+
+Schools run Securly, GoGuardian, Lightspeed, Iboss or Cisco Umbrella. They do
+not block a site for being harmful so much as for being **uncategorised**,
+which every new domain is until somebody classifies it. A student on school
+wifi then hits a block page and concludes the app is broken.
+
+The crawling half is fixed: the page had zero characters of body text and no
+description, so anything that does not run JavaScript had nothing to read.
+It now carries a description, Open Graph tags, JSON-LD naming the audience as
+students, parents and school administrators, and a noscript block describing
+the service and linking the guide, help, FAQ, privacy and terms.
+
+What is left is submission, and it is slow enough to start before onboarding a
+school:
+
+- [ ] **Submit the domain for categorisation** to each vendor's public request
+      form: Securly, GoGuardian, Lightspeed, Iboss, Cisco Umbrella/Talos,
+      Symantec/Broadcom WebPulse, Fortinet, Palo Alto. Ask for *Education* or
+      *Transportation*. Not Social Networking -- the messaging feature invites
+      that reading, and it is the category schools block hardest.
+- [ ] **Register the domain in Google Search Console.** Without it there is no
+      warning if Safe Browsing ever flags us, and no route to appeal.
+- [ ] **Add allowlisting to school onboarding.** One line asking their IT to
+      permit carpschool.com will save more support email than anything else
+      here.
+
+Two items elsewhere in this list make a bad categorisation more likely: the
+Clerk "Development mode" banner reads as an unfinished or spoofed page to a
+human reviewer, and having no SPF or DMARC lowers domain reputation with the
+same systems that feed these classifications.
+
 ### Map provider
 
 - [ ] **Stop using `tile.openstreetmap.org` in production.** `config/settings.json`
