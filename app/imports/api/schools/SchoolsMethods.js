@@ -1,7 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
 import Joi from "joi";
-import { Schools, SchoolsSchema } from "./Schools";
+import { Schools, SchoolsSchema, normaliseDomain } from "./Schools";
 import { isSystemAdmin, isSchoolAdmin } from "../accounts/RoleUtils";
 
 /* What an unauthenticated caller may learn about a school. Anything beyond
@@ -20,9 +20,14 @@ Meteor.methods({
       throw new Meteor.Error("access-denied", "Only system administrators can create schools");
     }
 
-    // Validate school data
+    /* Accept an email domain written the way people write one -- "@host", a
+     * whole address, a pasted URL -- rather than rejecting it against a
+     * regular expression the typist never saw. */
     const { error, value } = SchoolsSchema.validate({
       ...schoolData,
+      ...(schoolData.domain === undefined
+        ? {}
+        : { domain: normaliseDomain(schoolData.domain) || undefined }),
       createdBy: currentUser._id,
       createdAt: new Date(),
     });
@@ -144,6 +149,9 @@ Meteor.methods({
     const { error, value } = SchoolsSchema.validate({
       ...school,
       ...updateData,
+      ...(updateData.domain === undefined
+        ? {}
+        : { domain: normaliseDomain(updateData.domain) || undefined }),
     });
 
     if (error) {

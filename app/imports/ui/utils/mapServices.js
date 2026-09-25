@@ -188,7 +188,7 @@ const searchLocations = async (query, options = {}) => {
       console.log("[MapServices] Fetching search results for:", normalizedQuery);
 
       // Use fetch with timeout and cancellation (3 second timeout for search)
-      const response = await fetchWithTimeout(searchUrl.toString(), 3000, controller);
+      const response = await fetchWithTimeout(searchUrl.toString(), 8000, controller);
 
       if (!response.ok) {
         throw new Error(`Nominatim search failed: ${response.status}`);
@@ -282,21 +282,27 @@ export const reverseGeocode = async (lat, lng) => {
  */
 const fetchWithTimeout = (url, timeout = 10000, externalController = null) => {
   const controller = externalController || new AbortController();
-  const signal = controller.signal;
+  const { signal } = controller;
 
-  // Set up timeout
+  /* Two different things abort this request: our own timer, and the caller
+   * cancelling a superseded search when another key is pressed. Both arrive as
+   * AbortError, and rewriting them alike reported every superseded keystroke
+   * as "Search timed out" -- which is what typing into the location box looked
+   * like. Only our own timer is a timeout. */
+  let timedOut = false;
   const timeoutId = setTimeout(() => {
+    timedOut = true;
     controller.abort();
   }, timeout);
 
   return fetch(url, { signal })
-    .then(response => {
+    .then((response) => {
       clearTimeout(timeoutId);
       return response;
     })
-    .catch(error => {
+    .catch((error) => {
       clearTimeout(timeoutId);
-      if (error.name === "AbortError") {
+      if (error.name === "AbortError" && timedOut) {
         throw new Error(`Request timeout after ${timeout}ms`);
       }
       throw error;

@@ -10,6 +10,8 @@ const SchoolsSchema = Joi.object({
   name: Joi.string().required().min(2).max(100), // e.g., "Simon Fraser School"
   shortName: Joi.string().required().min(2).max(20), // e.g., "SFU"
   domain: Joi.string().pattern(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).optional(), // e.g., "sfu.ca" for email verification
+  // Normalised by normaliseDomain() before it reaches here, so a person may
+  // type "@edu.sd45.bc.ca" or paste a whole address and still be accepted.
   code: Joi.string().required().min(2).max(10)
 .uppercase(), // e.g., "SFU", "UBC"
   location: Joi.object({
@@ -56,4 +58,27 @@ if (Meteor.isServer) {
 }
 
 /** Make the collection and schema available to other code. */
+/**
+ * Tidy a school's email domain into the bare host the schema expects.
+ *
+ * People write an email domain as "@edu.sd45.bc.ca", or paste a whole address,
+ * or a URL. All three were rejected against a pattern that only matches the
+ * host on its own, with an error quoting a regular expression.
+ *
+ * @param {string} value whatever was typed
+ * @returns {string} the bare host, lowercased, or "" if nothing usable
+ */
+export const normaliseDomain = (value) => {
+  if (typeof value !== "string") return "";
+  let out = value.trim().toLowerCase();
+  if (!out) return "";
+  // A pasted URL.
+  out = out.replace(/^[a-z]+:\/\//, "");
+  // "@host", or somebody's whole address.
+  out = out.slice(out.lastIndexOf("@") + 1);
+  // A trailing path.
+  out = out.split("/")[0];
+  return out.replace(/^\.+|\.+$/g, "");
+};
+
 export { Schools, SchoolsSchema };

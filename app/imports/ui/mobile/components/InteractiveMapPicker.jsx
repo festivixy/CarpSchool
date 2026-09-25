@@ -258,10 +258,12 @@ const InteractiveMapPicker = React.memo(({
       // real failure, just an older keystroke losing to a newer one.
       if (error?.name === "AbortError") return;
       console.error("Search error:", error);
+      /* The map still works when the lookup does not, so say so rather than
+       * leaving someone stuck at a search box. */
       if (error.message?.includes("timeout")) {
-        showError("Search timed out. Please try again.");
+        showError("The address lookup is not responding. Click the map to place a pin instead.");
       } else {
-        showError("Search failed. Please try again.");
+        showError("Could not search for that. Click the map to place a pin instead.");
       }
     } finally {
       setIsSearching(false);
