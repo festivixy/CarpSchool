@@ -38,6 +38,10 @@ import {
   BadgeContainer,
   AdminBadge,
   EmailBadge,
+  SuspendedBadge,
+  SuspensionNote,
+  FilterRow,
+  FilterChip,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -82,6 +86,7 @@ class MobileAdminUsers extends React.Component {
       loading: false,
       error: "",
       searchQuery: "",
+      suspendedOnly: false,
     };
   }
 
@@ -242,6 +247,54 @@ class MobileAdminUsers extends React.Component {
     });
   };
 
+  /* Suspension keeps the account and takes away its access. Delete, next to
+   * it, is permanent -- so the wording has to make which is which obvious at
+   * the moment of pressing. */
+  suspendUser = (userId, label) => {
+    swal({
+      title: "Suspend this account?",
+      text: `${label} will lose access and stop being visible to their school. `
+        + "Their rides and messages are kept, and you can reinstate them.",
+      icon: "warning",
+      content: {
+        element: "input",
+        attributes: { placeholder: "Reason (optional, shown to them)" },
+      },
+      buttons: ["Cancel", "Suspend"],
+    }).then((reason) => {
+      if (reason === null) return;
+      this.setState({ loading: true });
+      Meteor.call("admin.suspendUser", userId, String(reason || ""), (error) => {
+        this.setState({ loading: false });
+        if (error) {
+          swal("Error", error.reason || "Could not suspend that account.", "error");
+          return;
+        }
+        swal("Suspended", `${label} no longer has access.`, "success");
+      });
+    });
+  };
+
+  reinstateUser = (userId, label) => {
+    swal({
+      title: "Reinstate this account?",
+      text: `${label} gets their access back. The record of the suspension is kept.`,
+      icon: "info",
+      buttons: ["Cancel", "Reinstate"],
+    }).then((ok) => {
+      if (!ok) return;
+      this.setState({ loading: true });
+      Meteor.call("admin.reinstateUser", userId, (error) => {
+        this.setState({ loading: false });
+        if (error) {
+          swal("Error", error.reason || "Could not reinstate that account.", "error");
+          return;
+        }
+        swal("Reinstated", `${label} has access again.`, "success");
+      });
+    });
+  };
+
   toggleAdminRole = (userId, isCurrentlyAdmin) => {
     if (userId === Meteor.userId()) {
       swal("Error", "You cannot modify your own admin role!", "error");
@@ -287,17 +340,31 @@ class MobileAdminUsers extends React.Component {
     });
   };
 
+  toggleSuspendedOnly = () => {
+    this.setState((prev) => ({ suspendedOnly: !prev.suspendedOnly }));
+  };
+
   handleSearchChange = (e) => {
     this.setState({ searchQuery: e.target.value });
   };
 
+  isSuspended = (userId) => {
+    const userProfile = this.props.profiles.find(
+      (profile) => profile.Owner === userId,
+    );
+    return Boolean(userProfile?.suspended);
+  };
+
   filterUsers = (users) => {
-    const { searchQuery } = this.state;
+    const { searchQuery, suspendedOnly } = this.state;
     const { profiles } = this.props;
-    if (!searchQuery.trim()) return users;
+    const scoped = suspendedOnly
+      ? users.filter((user) => this.isSuspended(user._id))
+      : users;
+    if (!searchQuery.trim()) return scoped;
 
     const query = searchQuery.toLowerCase();
-    return users.filter((user) => {
+    return scoped.filter((user) => {
       const userProfile = profiles.find(
         (profile) => profile.Owner === user._id,
       );
@@ -343,9 +410,14 @@ class MobileAdminUsers extends React.Component {
 
   /** Render the page once subscriptions have been received. */
   renderPage() {
-    const { editModalOpen, editForm, loading, error, searchQuery } = this.state;
+    const {
+      editModalOpen, editForm, loading, error, searchQuery, suspendedOnly,
+    } = this.state;
     const { users, profiles } = this.props;
     const filteredUsers = this.filterUsers(users);
+    const suspendedCount = users.filter(
+      (user) => this.isSuspended(user._id),
+    ).length;
 
     return (
       <Container>
@@ -368,6 +440,22 @@ class MobileAdminUsers extends React.Component {
             />
           </SearchContainer>
 
+          {(suspendedCount > 0 || suspendedOnly) && (
+            <FilterRow>
+              <FilterChip
+                type="button"
+                isActive={suspendedOnly}
+                onClick={this.toggleSuspendedOnly}
+                aria-pressed={suspendedOnly}
+              >
+                <Icon name="flame" size={14} color="currentColor" />
+                {suspendedOnly
+                  ? "Showing suspended only"
+                  : `${suspendedCount} suspended`}
+              </FilterChip>
+            </FilterRow>
+          )}
+
           {users.length === 0 ? ( // eslint-disable-line
             <EmptyState>
               <EmptyStateIcon><Icon name="user" size={32} /></EmptyStateIcon>
@@ -382,8 +470,10 @@ class MobileAdminUsers extends React.Component {
               <EmptyStateIcon><Icon name="search" size={32} /></EmptyStateIcon>
               <EmptyStateTitle>No matching users</EmptyStateTitle>
               <EmptyStateText>
-                No users match your search criteria. Try adjusting your search
-                terms.
+                {suspendedOnly
+                  ? "No suspended accounts match your search."
+                  : "No users match your search criteria. Try adjusting your "
+                    + "search terms."}
               </EmptyStateText>
             </EmptyState>
           ) : (
@@ -428,6 +518,9 @@ class MobileAdminUsers extends React.Component {
                                 ? "Verified"
                                 : "Unverified"}
                             </EmailBadge>
+                            {userProfile?.suspended && (
+                              <SuspendedBadge>Suspended</SuspendedBadge>
+                            )}
                           </BadgeContainer>
                         </UserInfo>
                         <ActionButtons>
@@ -457,7 +550,8 @@ class MobileAdminUsers extends React.Component {
                               color="currentColor"
                             />
                           </ActionButton>
-                          {userProfile && !userProfile.verified && (
+                          {userProfile && !userProfile.verified
+                            && !userProfile.suspended && (
                             <ActionButton
                               variant="admin"
                               onClick={() => this.approveUser(
@@ -471,6 +565,32 @@ class MobileAdminUsers extends React.Component {
                               <Icon name="check" size={16} color="currentColor" />
                             </ActionButton>
                           )}
+                          {userProfile && (userProfile.suspended ? (
+                            <ActionButton
+                              onClick={() => this.reinstateUser(
+                                user._id,
+                                displayName || realEmailOf(user) || "This account",
+                              )}
+                              disabled={loading}
+                              title="Reinstate this account"
+                              aria-label="Reinstate this account"
+                            >
+                              <Icon name="check" size={16} color="currentColor" />
+                            </ActionButton>
+                          ) : (
+                            <ActionButton
+                              variant="remove-admin"
+                              onClick={() => this.suspendUser(
+                                user._id,
+                                displayName || realEmailOf(user) || "This account",
+                              )}
+                              disabled={loading || isCurrentUser}
+                              title="Suspend this account"
+                              aria-label="Suspend this account"
+                            >
+                              <Icon name="flame" size={16} color="currentColor" />
+                            </ActionButton>
+                          ))}
                           <ActionButton
                             variant="delete"
                             onClick={() => this.handleDelete(user._id)}
@@ -482,6 +602,18 @@ class MobileAdminUsers extends React.Component {
                           </ActionButton>
                         </ActionButtons>
                       </UserHeader>
+
+                      {userProfile?.suspended && (
+                        <SuspensionNote>
+                          <strong>Suspended</strong>
+                          {userProfile.suspendedAt
+                            && ` on ${new Date(userProfile.suspendedAt)
+                              .toLocaleDateString()}`}
+                          {userProfile.suspensionReason
+                            ? ` -- ${userProfile.suspensionReason}`
+                            : " -- no reason recorded"}
+                        </SuspensionNote>
+                      )}
 
                       <UserDetails>
                         <DetailItem>

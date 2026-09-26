@@ -106,6 +106,23 @@ const ProfileSchema = Joi.object({
     label: "Rejection Reason",
   }),
   // Persona Identity Verification
+  /* Suspension is the administrator's control once a verified school address
+   * is enough to get in on its own. Reversible, and it keeps the account's
+   * rides and messages -- delete is the permanent one and stays for the cases
+   * that warrant it. `verified` is cleared alongside, so every existing route
+   * gate keeps working without knowing about this. */
+  suspended: Joi.boolean().default(false),
+  suspendedAt: Joi.date().optional(),
+  suspendedBy: Joi.string().optional(),
+  suspensionReason: createSafeStringSchema({
+    pattern: "generalText",
+    min: 0,
+    max: 500,
+    required: false,
+    allowEmpty: true,
+    label: "Suspension Reason",
+  }),
+
   identityVerified: Joi.boolean().default(false),
   personaInquiryId: Joi.string().optional(),
   verifiedAt: Joi.date().optional(),

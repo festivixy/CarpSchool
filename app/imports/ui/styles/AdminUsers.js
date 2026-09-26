@@ -366,6 +366,59 @@ export const EmailBadge = styled.div`
   `)}
 `;
 
+/* A suspended account is the one state an administrator must not miss while
+ * scanning the grid, so it reads as a warning rather than a neutral tag. */
+export const SuspendedBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--danger-soft);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+`;
+
+export const SuspensionNote = styled.div`
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background-color: var(--danger-soft);
+  border: 1px solid var(--danger);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-1);
+`;
+
+export const FilterRow = styled.div`
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+`;
+
+export const FilterChip = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  border: 1px solid ${(props) => (props.isActive ? "var(--danger)" : "var(--cream-2)")};
+  background-color: ${(props) => (props.isActive ? "var(--danger-soft)" : "var(--cream-0)")};
+  color: ${(props) => (props.isActive ? "var(--danger)" : "var(--ink-2)")};
+
+  &:hover {
+    border-color: var(--danger);
+  }
+`;
+
 // Modal Styles
 export const ModalOverlay = styled.div`
   position: fixed;

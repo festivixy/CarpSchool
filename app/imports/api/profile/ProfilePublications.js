@@ -10,8 +10,12 @@ Meteor.publish("userProfile", function publish() {
     return this.ready();
   }
 
-  // Return only the user's own profile (read-only)
-  return Profiles.find({ Owner: this.userId });
+  /* Read-only, and without suspendedBy: a suspended person is told they are
+   * suspended and why, but not which administrator decided it. Naming them to
+   * the person they acted on invites exactly the retaliation that makes
+   * administrators reluctant to act at all. The field stays on the record for
+   * the admin screen, which reads it through ProfilesAdmin. */
+  return Profiles.find({ Owner: this.userId }, { fields: { suspendedBy: 0 } });
 });
 
 /**
@@ -85,8 +89,11 @@ Meteor.publish("profiles.displayNames", function publish(userIds) {
 
   // Return only the fields the discovery cards render: the driver's display
   // name plus the year/major sub-line. Deliberately no contact details.
+  /* A suspended account stops being visible to the rest of the school. The
+   * record is kept for the administrator who suspended it, not published to
+   * the people it was suspended away from. */
   return Profiles.find(
-    { Owner: { $in: limitedUserIds } },
+    { Owner: { $in: limitedUserIds }, suspended: { $ne: true } },
     { fields: { Name: 1, Owner: 1, year: 1, major: 1 } }
   );
 });

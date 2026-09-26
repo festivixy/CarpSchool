@@ -21,3 +21,4 @@ import "./integration/directChat.tests.js";
 import "./integration/testSchool.tests.js";
 import "./integration/adminGrant.tests.js";
 import "./integration/guardian.tests.js";
+import "./integration/suspension.tests.js";

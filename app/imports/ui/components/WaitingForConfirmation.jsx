@@ -26,7 +26,10 @@ import {
 /**
  * The holding screen, for an account that exists but cannot do anything yet.
  *
- * Two different situations land here and they need different answers. An
+ * Three different situations land here and they need different answers. A
+ * suspended account is the one that must not be dressed up as a wait: nothing
+ * is coming, a person decided this, and the screen has to say so rather than
+ * leave somebody refreshing a queue that does not exist. An
  * account that has asked to be approved is waiting on an administrator. A
  * guardian nobody has claimed is waiting on their student, and no
  * administrator has been asked anything -- telling them to sit tight would
@@ -44,6 +47,69 @@ const HINT_UNCLAIMED = "Check that your student used the same address you "
 const HINT_PENDING = "Approvals are done by a person at your school, not by "
   + "us, so there is no queue position to report. If it has been longer than "
   + "you expected, ask them directly.";
+
+/*
+ * Suspension is reversible and an administrator at the school is the only one
+ * who can reverse it. No email address is offered here: the platform does not
+ * send mail, and pointing somebody at an inbox nobody reads is worse than
+ * pointing them at a person.
+ */
+const SuspendedScreen = ({ name, reason, onLogout }) => (
+  <Container>
+    <Content>
+      <Icon><Glyph name="flame" size={30} /></Icon>
+
+      <Title>Your account is suspended</Title>
+      <Subtitle>
+        An administrator at your school has suspended this account.
+      </Subtitle>
+
+      <StatusCard pending>
+        <StatusIcon pending>
+          <Glyph name="flame" size={16} strokeWidth={2} />
+        </StatusIcon>
+        <StatusText>
+          {reason ? `Reason given: ${reason}` : "No reason was recorded."}
+        </StatusText>
+      </StatusCard>
+
+      <Message>
+        {`Hi ${name}. `}
+        While this account is suspended you cannot see rides, people or
+        messages, and you are not visible to anyone else at your school.
+        <br />
+        <br />
+        Nothing has been deleted. Your rides and messages are still here, and
+        they come back if the suspension is lifted.
+      </Message>
+
+      <InfoSection>
+        <InfoTitle>If you think this is a mistake</InfoTitle>
+        <InfoText>
+          Speak to an administrator at your school. They are the only ones who
+          can lift a suspension -- we cannot do it for them, and there is
+          nothing to wait for on our side.
+        </InfoText>
+      </InfoSection>
+
+      <Actions>
+        <LogoutButton onClick={onLogout}>
+          Sign Out
+        </LogoutButton>
+      </Actions>
+    </Content>
+  </Container>
+);
+
+SuspendedScreen.propTypes = {
+  name: PropTypes.string.isRequired,
+  reason: PropTypes.string,
+  onLogout: PropTypes.func.isRequired,
+};
+
+SuspendedScreen.defaultProps = {
+  reason: "",
+};
 
 const WaitingForConfirmation = ({ profile, loading }) => {
   const { signOut } = useClerk();
@@ -68,6 +134,17 @@ const WaitingForConfirmation = ({ profile, loading }) => {
   }
 
   const name = profile?.Name || "there";
+
+  if (profile?.suspended) {
+    return (
+      <SuspendedScreen
+        name={name}
+        reason={profile.suspensionReason}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   const isGuardian = profile?.accountType === "parent";
   const unclaimed = isGuardian && (profile?.guardianOf || []).length === 0;
 
