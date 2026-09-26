@@ -103,7 +103,24 @@ same systems that feed these classifications.
 
 ---
 
-## 2. Follows from the parent-signup change
+## 2. The one-account model
+
+Agreed 2026-09-25 and planned in
+[docs/one-account-model.md](docs/one-account-model.md): school addresses only,
+no administrator approval, one account type that can ride from signup and drive
+once a licence is verified, and a guardian driving on their student's account
+with the ride disclosing it.
+
+It deletes most of section 3 below, so read the plan before picking anything up
+from there.
+
+- [ ] Suspension first -- it is the only control left once approval goes, and
+      it does not exist yet.
+- [ ] Ask the school whether email is deprovisioned on departure. Decides
+      whether this model admits former students.
+- [ ] Confirm Persona returns licence class before relying on the seat cap.
+
+## 3. Follows from the parent-signup change (superseded)
 
 Anyone can now create an account; an account with no school reaches nothing
 until a student claims it. Consequences not yet handled:
